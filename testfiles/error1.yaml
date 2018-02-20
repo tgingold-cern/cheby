@@ -1,0 +1,44 @@
+#   Error in top
+bus: wb-32-be
+name: rtu
+doc: Routing Table Unit (RTU)
+elements:
+#  Port Configuration Register
+- reg:
+    name: GCR
+    address: 0x00000000
+    width: 32
+    access: rw
+    description: RTU Global Control Register
+    comment: |
+      Control register containing global (port-independent) settings of the RTU.
+    fields:
+    - field:
+        name: G_ENA
+        range: 0
+        description: RTU Global Enable
+        comment: |
+          Global RTU enable bit. Overrides all port settings.
+          0: RTU is disabled. All packets are dropped.
+          1: RTU is enabled.
+    - field:
+        name: MFIFOTRIG
+        range: 1
+        description: MFIFO Trigger
+        comment: |
+          write 1: triggers a flush of MFIFO into the hash table (blocks the RTU for a few cycles)
+          write 0: no effect
+          read 1: MFIFO is busy
+          read 0: MFIFO is idle
+    - field:
+        name: POLY_VAL
+        range: 23-8
+        description: Hash Poly
+        comment: |
+          Determines the polynomial used for hash computation. Currently available:  0x1021, 0x8005, 0x0589
+    - field:
+        name: RTU_VERSION
+        range: 27-24
+        description: Version
+        comment: |
+          Information about the version of RTU gateware
