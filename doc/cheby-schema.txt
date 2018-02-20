@@ -1,0 +1,240 @@
+Cheby file format
+=================
+
+This is a semi-formal description of the Cheby file format.  It is not
+formal because most of the semantic is described in English.
+
+The purpose of the Cheby format is to describe the memory map of a device,
+down to the bit.  From this file, it is possible to derive source files like
+a C header file representing this memory map, a VHDL file decoding the
+memory map, etc.  Some tools may require additional information that aren't
+described in this core document; but the file format supports extensions.
+
+The structure of the file is compatible with both YAML and XML: it is
+a tree, each node is a set of name-value tuple.  The name is a string
+(letters, digits, '-' and '_'), the value can be a number, a string, a
+node, or a list of nodes.  In the Cheby format, the type of the value
+for a tuple is fixed.
+
+Some definitions
+----------------
+
+A *bit* is the smallest unit of data and is either 0 or 1.
+A *byte* is a group of bits that constitutes the storage unit; the processor
+reads and writes data per byte or group of bits.
+A *word* is the common group of bytes that could be efficiently handled by
+the processor.
+An *address* is a number that identifies a particular byte in the memory.
+
+The physical data representation is defined by the following parameters.  Not
+all combinaisons need to be supported.
+* byte_size: number of bits per byte (always 8).  Addresses unit is the byte.
+* bit_endianness: how bits are numbered in a byte/word (always LE)
+* word_size: number of bytes per word (default is 4;
+             {1, 2, 4, 8} might be supported)
+* byte_endianness: the order of bytes in a word (BE by default)
+* word_endianness: the order of word in long/very long words (same as
+                   byte_endianness is only supported).
+
+Lexical definitions
+-------------------
+
+A number is represented either in decimal or in hexadecimal with the
+'0x' prefix:
+  number ::= [0-9]* | 0x[0-9a-fA-F]*
+An address is either a number or the string next:
+  address ::= number | "next"
+  "next" means the following aligned address.
+A boolean is either the string true or false (the first letter can be in upper
+case):
+  boolean ::= True | true | False | false
+The type of a tuple is one of the above basic type, a list, or a node:
+  type ::= number | address | boolean | list | node
+A list is represented by choices separated by '|' within curly braces (non
+meta-character are within single quotes):
+  list ::= '{' type { '|' type } '}'
+
+
+File format
+===========
+
+Root node
+---------
+
+The root node starts the description of the memory map.
+
+bus: string
+  Define the physical interface for the memory map as well as the physical
+  representation of data.  Must be one of:
+  "be-vme-32": CERN-BE specific VME-like interface. 32 bit words, stored in
+    big-endian.
+  "wb-32-be": Wishbone bus using 32 bit words stored in big-endian.
+name: string
+  Identifier that names the memory map.  Names must be uniq at the same level.
+description: string
+  Short string (should fit on one line) that describes the map.
+comment: string
+  Longer text that explains the purpose of the map.
+elements: { reg | block | array }
+  Content of a memory map.
+
+Compatibility:
+'name' corresponds to wbgen prefix.
+
+TODO:
+- constants
+- configuration values for FESA.
+
+reg
+---
+
+A register either regroup several fields or is defined
+directly. Contrary to fields, a register is addressable.
+
+name: string
+comment: string
+description: string
+  Like for the root node but applied on a register.
+width: number
+  Number of bits for this register; the default value being word_size.
+  Need to support at least 8, 16, 32 or 64.
+type: string
+  The content of a register is either defined by its fields, or by its type.
+  They are exclusive.
+  One of: unsigned (default), signed, or float.
+  Together with 'width', this specifies how to interpret the bits pattern in
+  the absence of fields.
+access: string
+ Access mode from the SW point of view.  One of:
+  * rw: register can be written or read.
+  * ro: register can only be read. Values read can be different (eg: a status)
+  * cst: register can only be read and is constant (at least between
+          two resets).
+  * wo: register can only be written.
+  Rationale: If we try to express the semantic of a register more
+   closely (like rw1c), it becomes difficult to express all the
+   possibilities.  So better to stay with this minimal set (except for
+   cst).  Semantics can be refined by an hdl attribute.
+  Rationale: In wbgen access is defined per field.  However, as only registers
+   are addressable from a software point of view only registers have access
+   mode.
+address: address
+  Register addresses must not overlap, except if one register is ro
+  and the other is wo.  This is needed to described existing devices
+  (like wb i2c master), but this practice is deprecated.  HDL generators
+  don't need to support overlap.
+fields: { field }
+
+Compatibility:
+In wbgen, a register is always composed of fields.  But when a register is
+a single data this simply adds an extra layer of name.
+
+TODO:
+'register type' to be instantiated ?
+
+Notes:
+Array of fields have been excluded as useless and difficult to be represented
+in C.
+
+field
+-----
+
+A field represent the smallest described data. It is a sequence of bits.
+
+name: string
+description: string
+comment: string
+  Like for the root node but applied on a field.
+range: string
+  Bits used by the field in the register.  Either a number for a 1 bit field,
+  or a range "HI-LO" (HI and LO being numbers) for a multi-bit field.
+preset: number
+  Default value at reset
+
+Overlapping fields in a register are not allowed.
+Sub-word write accesses are not allowed: all fields of a word must be
+read or written at the same time.
+
+TODO:
+enum: give a name to some or all the values [FIXME: how to share enum between
+      fields; create a enum node ? reference enums ? describe enums.
+      TODO: to be refined, keep Cheburashka codefields for now]
+
+Compatibility:
+Fields correspond to subreg in Cheburashka.
+
+block
+-----
+
+A block is a group of registers.
+
+name: string
+description: string
+comment: string
+  Like for the root node but applied on a field.
+  If several blocks have the same name, they are considered as the same logical
+  block; and only the first one can have a desription and a comment [TO BE
+  REFINED]
+address: address
+align: boolean
+  If set to false, then doesn't enfore any restriction on size and
+  alignment. The default value is true.
+submap: string
+  Optional filename that described the content of that area.  If present,
+  the block must not have any children.
+interface: boolean
+  If set to true, the block is represented as an external HW module, connected
+  through its parent via a bus.  If set to false, the block is directly
+  implemented. (TODO: default is ???)
+size: number
+  Number of bytes for that block. Must be large enough to contain all
+  the children.
+elements: { reg | block | array }
+
+Compatibility:
+There are two features in Cheburashka:
+ area: group of registers
+       size must be a power of 2 (to simplify the decoding)
+       address is aligned to a multiple of its size
+       can be empty (just create an interface)
+       can be reserved (in that case the slave doesn't respond to any access
+         to that area).
+ submap: special case of area, but content is described in a separate file
+Blocks could be used to implement fifo from wbgen:
+ add specific attributes for hdl generation
+ no support for 'optional' and 'reset'.
+
+TODO:
+reserved area.
+
+
+array
+-----
+
+An array is a repetition of a structure.  They are considered to be important
+enough to deserve a specific name (and not an attribute of a block).
+
+name: string
+description: string
+comment: string
+  Like for the root node but applied on a field.
+address: address
+align: boolean
+  If set to false, then doesn't enfore any restriction on size and
+  alignment. The default value is true.
+repeat: number
+  Number of element in the array.  Expected to be a power of 2 for a memory.
+size: number
+  Number of bytes for the array. Must be large enough to contain all
+  the children.
+elements: { reg | block | array }
+
+
+Notes:
+Memorys are represented as arrays that must be aligned.
+
+Compatibility:
+Compared to wbgen, the following features of memories are not supported:
+- wrap_bits
+- byte_select
+- width /= 32
