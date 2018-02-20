@@ -1,6 +1,9 @@
 """Classes to represent a Cheby tree.
    This is mostly data oriented:
-   the variables represent user data."""
+   - the variables represent user data.  The name of the attribute has
+     no prefix.  These variables shouldn't be modified by the program,
+     so that the original file can be rewritten (without the comments).
+   - Computed values have the 'c_' prefix."""
 
 
 class Node(object):
@@ -26,6 +29,10 @@ class NamedNode(Node):
         self.name = None
         self.description = None
         self.comment = None
+        # Computed values
+        self.c_address = None
+        self.c_size = None
+        self.c_align = None
 
     def get_path(self):
         """Return the full path (from the root) of this node."""
@@ -55,6 +62,8 @@ class Root(CompositeNode):
     def __init__(self):
         super(Root, self).__init__(None)
         self.bus = None
+        # Computed variables
+        self.c_word_size = None
 
 
 class Reg(NamedNode):

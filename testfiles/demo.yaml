@@ -413,7 +413,7 @@ elements:
         access: rw
 - block:
     name: eic
-    address: 0x00000020
+    address: 0x00000800
     x-wbgen:
       kind: irq
       irqs:
