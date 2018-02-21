@@ -2,10 +2,11 @@ import tree
 
 
 class SimplePrinter(tree.Visitor):
-    def __init__(self, fd):
+    def __init__(self, fd, with_fields):
         self.fd = fd
         self.indent = 0
         self.base_addr = 0
+        self.with_fields = with_fields
 
     def sp_raw(self, str):
         self.fd.write(str)
@@ -23,20 +24,20 @@ class SimplePrinter(tree.Visitor):
             '  ' * self.indent,
             kind, n.name))
 
-
-@SimplePrinter.register(tree.NamedNode)
-def sprint_named(sp, n):
-    sp.sp_name(n)
-
-
-@SimplePrinter.register(tree.Field)
-def sprint_field(sp, n):
-    pass
+    def sp_field(self, f):
+        if f.hi is None:
+            self.sp_raw('  {:02}:   '.format(f.lo))
+        else:
+            self.sp_raw('  {:02}-{:02}:'.format(f.lo, f.hi))
+        self.sp_raw(' {}\n'.format(f.name))
 
 
 @SimplePrinter.register(tree.Reg)
 def sprint_reg(sp, n):
     sp.sp_name('reg', n)
+    if sp.with_fields:
+        for f in n.fields:
+            sp.sp_field(f)
 
 
 @SimplePrinter.register(tree.Block)
@@ -76,6 +77,6 @@ def pprint_root(sp, n):
         sp.visit(el)
 
 
-def sprint_cheby(fd, root):
-    sp = SimplePrinter(fd)
+def sprint_cheby(fd, root, with_fields=True):
+    sp = SimplePrinter(fd, with_fields)
     sp.visit(root)

@@ -5,6 +5,8 @@
 
 import tree
 
+BYTE_SIZE = 8
+
 
 def ilog2(val):
     "Return n such as 2**n >= val and 2**(n-1) < val"
@@ -49,6 +51,32 @@ class LayoutException(Exception):
         self.msg = msg
 
 
+def layout_field(f, parent, pos):
+    if f.lo is None:
+        raise LayoutException(
+            "missing range for field {}".format(f.get_path()))
+    if f.hi is None:
+        r = [f.lo]
+    else:
+        if f.hi < f.lo:
+            raise LayoutException(
+                "incorrect range for field {}".format(f.get_path()))
+        elif f.hi == f.lo:
+            raise LayoutException(
+                "one-bit range for field {}".format(f.get_path()))
+        r = range(f.lo, f.hi + 1)
+    if r[-1] > parent.c_size * BYTE_SIZE:
+        raise LayoutException(
+            "field {} overflows its register size".format(f.get_path()))
+    for i in r:
+        if pos[i] is None:
+            pos[i] = f
+        else:
+            raise LayoutException(
+                "field {} overlaps field {} in bit {}".format(
+                    f.get_path(), pos[i].get_path(), i))
+
+
 @Layout.register(tree.Reg)
 def layout_reg(lo, n):
     # doc: Width must be 8, 16, 32, 64
@@ -57,11 +85,12 @@ def layout_reg(lo, n):
     if n.width not in [8, 16, 32, 64]:
         raise LayoutException(
             "incorrect width for register {}".format(n.get_path()))
-    n.c_size = align(n.width / 8, lo.word_size)
+    n.c_size = align(n.width / BYTE_SIZE, lo.word_size)
     n.c_align = n.c_size
     if n.fields:
-        # TODO
-        pass
+        pos = [None] * n.width
+        for f in n.fields:
+            layout_field(f, n, pos)
     elif n.type is not None:
         raise LayoutException(
             "register {} with type not yet supported".format(
