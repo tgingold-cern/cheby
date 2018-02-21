@@ -72,7 +72,7 @@ def sprint_composite(sp, n):
 
 
 @SimplePrinter.register(tree.Root)
-def pprint_root(sp, n):
+def sprint_root(sp, n):
     for el in n.children:
         sp.visit(el)
 

@@ -1,6 +1,11 @@
 """Layout - perform address layout.
    Check and compute address of all nodes,
    Check fields.
+
+   TODO:
+   - check names are uniq (case ?)
+   - check names/description are present
+   - check names can be C identifiers
 """
 
 import tree
@@ -29,12 +34,14 @@ class Layout(tree.Visitor):
         self.address = 0
         self.word_size = word_size
         self.align = 0
+        self.ranges = []    # tuple (lo, hi, node)
+        self.ordered = False
 
     def compute_address(self, n):
         if n.address is None or n.address == 'next':
             self.address = align(self.address, n.c_align)
         else:
-            if n.address < self.address:
+            if self.ordered and n.address < self.address:
                 raise LayoutException(
                     "address going backward for {}".format(n.get_path()))
             if (n.address % n.c_align) != 0:
@@ -44,6 +51,17 @@ class Layout(tree.Visitor):
         n.c_address = self.address
         self.address += n.c_size
         self.align = max(self.align, n.c_align)
+        if not self.ordered:
+            # Check for no overlap.
+            # TODO: emit a warning ? Not allow overlap ?
+            n_lo = n.c_address
+            n_hi = n.c_address + n.c_size - 1
+            for lo, hi, e in self.ranges:
+                if lo <= n_hi and hi >= n_lo:
+                    raise LayoutException(
+                        "element {} overlap {}".format(
+                            n.get_path(), e.get_path()))
+            self.ranges.append((n_lo, n_hi, n))
 
 
 class LayoutException(Exception):
@@ -126,16 +144,15 @@ def layout_composite(lo, n):
     lo1 = Layout(lo.word_size)
     for c in n.children:
         lo1.visit(c)
+    if not lo.ordered:
+        n.children = sorted(n.children, key=(lambda x: x.c_address))
     n.c_size = lo1.address
     n.c_align = lo1.align
 
 
 @Layout.register(tree.Root)
 def layout_root(lo, n):
-    for c in n.children:
-        lo.visit(c)
-    n.c_size = lo.address
-    n.c_align = lo.align
+    layout_composite(lo, n)
 
 
 def layout_cheby(n):

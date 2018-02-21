@@ -4,6 +4,7 @@ import argparse
 import parser
 import pprint
 import sprint
+import cprint
 import layout
 
 
@@ -15,6 +16,8 @@ def main():
                          help='display the layout with fields')
     aparser.add_argument('--memmap-print', action='store_true',
                          help='display the layout without fields')
+    aparser.add_argument('--c-print', action='store_true',
+                         help='display the c header file')
     aparser.add_argument('FILE', nargs='+')
 
     args = aparser.parse_args()
@@ -36,6 +39,8 @@ def main():
             sprint.sprint_cheby(sys.stdout, t, False)
         if args.simple_print:
             sprint.sprint_cheby(sys.stdout, t, True)
+        if args.c_print:
+            cprint.cprint_cheby(sys.stdout, t)
 
 
 if __name__ == '__main__':
