@@ -23,6 +23,10 @@ def ilog2(val):
         v *= 2
 
 
+def round_pow2(val):
+    return 1 << ilog2(val)
+
+
 def align(n, mul):
     """Return n aligned to the next multiple of mul"""
     return ((n + mul - 1) // mul) * mul
@@ -33,35 +37,17 @@ class Layout(tree.Visitor):
         super(Layout, self).__init__()
         self.address = 0
         self.word_size = word_size
-        self.align = 0
-        self.ranges = []    # tuple (lo, hi, node)
-        self.ordered = False
 
     def compute_address(self, n):
         if n.address is None or n.address == 'next':
             self.address = align(self.address, n.c_align)
         else:
-            if self.ordered and n.address < self.address:
-                raise LayoutException(
-                    "address going backward for {}".format(n.get_path()))
             if (n.address % n.c_align) != 0:
                 raise LayoutException(
                     "unaligned address for {}".format(n.get_path()))
             self.address = n.address
         n.c_address = self.address
         self.address += n.c_size
-        self.align = max(self.align, n.c_align)
-        if not self.ordered:
-            # Check for no overlap.
-            # TODO: emit a warning ? Not allow overlap ?
-            n_lo = n.c_address
-            n_hi = n.c_address + n.c_size - 1
-            for lo, hi, e in self.ranges:
-                if lo <= n_hi and hi >= n_lo:
-                    raise LayoutException(
-                        "element {} overlap {}".format(
-                            n.get_path(), e.get_path()))
-            self.ranges.append((n_lo, n_hi, n))
 
 
 class LayoutException(Exception):
@@ -124,6 +110,10 @@ def layout_reg(lo, n):
 @Layout.register(tree.Block)
 def layout_block(lo, n):
     layout_composite(lo, n)
+    if n.align is None or n.align:
+        # Align to power of 2.
+        n.c_size = round_pow2(n.c_size)
+        n.c_align = round_pow2(n.c_size)
 
 
 @Layout.register(tree.Array)
@@ -133,7 +123,13 @@ def layout_array(lo, n):
         raise LayoutException(
             "missing repeat count for {}".format(n.get_path()))
     n.c_elsize = align(n.c_size, n.c_align)
-    n.c_size = n.c_elsize * n.repeat
+    if n.align is None or n.align:
+        # Align to power of 2.
+        n.c_elsize = round_pow2(n.c_elsize)
+        n.c_size = n.c_elsize * round_pow2(n.repeat)
+        n.c_align = n.c_size
+    else:
+        n.c_size = n.c_elsize * n.repeat
 
 
 @Layout.register(tree.CompositeNode)
@@ -148,14 +144,25 @@ def layout_composite(lo, n):
         lo1.visit(c)
         max_align = max(max_align, c.c_align)
     # Aligned composite elements have the max alignment
-    # TODO
-    # Set addresses
+    for c in n.elements:
+        if isinstance(c, tree.ComplexNode) and (c.align is None or c.align):
+            c.c_align = max_align
+            n.c_blksize = max_align
     for c in n.elements:
         lo1.compute_address(c)
-    if not lo.ordered:
-        n.elements = sorted(n.elements, key=(lambda x: x.c_address))
     n.c_size = lo1.address
-    n.c_align = lo1.align
+    n.c_align = max_align
+    # Keep elements in order.
+    n.elements = sorted(n.elements, key=(lambda x: x.c_address))
+    # Check for no-overlap.
+    last_addr = 0
+    last_node = None
+    for c in n.elements:
+        if c.c_address < last_addr:
+            raise LayoutException("element {} overlap {}".format(
+                c.get_path(), last_node.get_path()))
+        last_addr = c.c_address + c.c_size
+        last_node = c
 
 
 @Layout.register(tree.Root)

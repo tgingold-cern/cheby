@@ -249,6 +249,7 @@ elements:
     name: UFIFO
     address: 0x00000030
     size: 24
+    align: False
     description: Unrecognized request FIFO (UFIFO)
     comment: |
       FIFO containing all RTU requests for which matching entries haven't been found. CPU reads these requests,

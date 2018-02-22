@@ -57,6 +57,8 @@ class CompositeNode(NamedNode):
     def __init__(self, parent):
         super(CompositeNode, self).__init__(parent)
         self.elements = []
+        # Computed variables
+        self.c_blksize = None   # Alignment value for aligned elements.
 
 
 class Root(CompositeNode):

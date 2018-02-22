@@ -83,12 +83,12 @@ def cprint_composite(cp, n):
         assert diff >= 0
         if diff > 0:
             # Pad
+            # Note: the 4 is not related to bus size, but to C types.
             if addr % 4 == 0 and diff % 4 == 0:
                 sz = 4
             else:
                 sz = 1
-            cp.cp_txt('/* padding to: {} {} */'.format(
-                diff // sz, 'words' if sz == 4 else 'bytes'))
+            cp.cp_txt('/* padding to: {} words */'.format(el.c_address // sz))
             cp.cp_txt('{} __padding_{}[{}];'.format(
                 cp.types[sz], pad_id, diff // sz))
             pad_id += 1
