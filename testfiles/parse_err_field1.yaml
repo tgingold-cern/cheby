@@ -1,0 +1,10 @@
+bus: wb-32-be
+name: parse_err_field
+elements:
+- reg:
+    name: areg
+    fields:
+    - field:
+        name: foo
+        range: 1
+        blal: unexpected # Error: bad field

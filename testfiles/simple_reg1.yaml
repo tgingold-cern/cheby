@@ -1,0 +1,8 @@
+bus: wb-be-32
+name: sreg
+description: a single register
+elements:
+  - reg:
+      name: areg
+      width: 32
+      type: unsigned

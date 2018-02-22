@@ -1,0 +1,5 @@
+bus: wb-32-be
+name: parse_err_elem
+elements:
+- field:  # error: must be within a reg.
+    name: foo

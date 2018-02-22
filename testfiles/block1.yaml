@@ -1,0 +1,9 @@
+bus: wb-32-be
+name: block1
+elements:
+- block:
+    name: blk
+    elements:
+    - reg:
+        name: areg
+        width: 32

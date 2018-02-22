@@ -1,0 +1,10 @@
+bus: wb-32-be
+name: block3
+elements:
+- block:
+    name: blk
+    align: false
+    elements:
+    - reg:
+        name: areg
+        width: 32

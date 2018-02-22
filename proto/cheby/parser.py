@@ -7,9 +7,6 @@ class ParseException(Exception):
     def __init__(self, msg):
         self.msg = msg
 
-    def __str__(self):
-        return self.msg
-
 
 def error(msg):
     raise ParseException(msg)
@@ -34,6 +31,8 @@ def parse_named(node, key, val):
 
 
 def parse_elements(node, val):
+    if not isinstance(val, list):
+        error("'elements' of {} must be a list".format(node.get_path()))
     for el in val:
         for k, v in el.items():
             if k == 'reg':
@@ -43,8 +42,8 @@ def parse_elements(node, val):
             elif k == 'array':
                 ch = parse_array(node, v)
             else:
-                error("unhandled '{}' in {}".format(k, node.get_path()))
-                continue
+                error("unhandled '{}' in elements of {}".format(
+                      k, node.get_path()))
             node.children.append(ch)
 
 
@@ -59,6 +58,8 @@ def parse_composite(node, key, val):
 
 
 def parse_field(parent, el):
+    if not isinstance(el, dict):
+        error("'fields' of {} must be a dictionnary".format(parent.get_path()))
     res = tree.Field(parent)
     for k, v in el.items():
         if parse_named(res, k, v):
@@ -71,12 +72,10 @@ def parse_field(parent, el):
                 assert pos > 0
                 res.lo = int(v[pos + 1:], 0)
                 res.hi = int(v[0:pos], 0)
-                if res.lo > res.hi:
-                    error("incorrect range value")
         elif k == 'preset':
             res.preset = v
         else:
-            error("unhandled '{}' in {}".format(k, parent.get_path()))
+            error("unhandled '{}' in field {}".format(k, parent.get_path()))
     return res
 
 
@@ -101,10 +100,9 @@ def parse_reg(parent, el):
                     else:
                         error("unhandled '{}' in {}/fields".format(
                               k1, parent.get_path()))
-                        continue
                     res.fields.append(ch)
         else:
-            error("unhandled '{}' in {}".format(k, parent.get_path()))
+            error("unhandled '{}' in reg {}".format(k, parent.get_path()))
     return res
 
 
@@ -132,11 +130,13 @@ def parse_block(parent, el):
         elif k == 'interface':
             res.interface = v
         else:
-            error("unhandled '{}' in {}".format(k, parent.get_path()))
+            error("unhandled '{}' in block {}".format(k, parent.get_path()))
     return res
 
 
 def parse_array(parent, el):
+    if not isinstance(el, dict):
+        error("array {} must be a dictionnary".format(parent.get_path()))
     res = tree.Array(parent)
     for k, v in el.items():
         if parse_complex(res, k, v):
@@ -144,12 +144,15 @@ def parse_array(parent, el):
         elif k == 'repeat':
             res.repeat = v
         else:
-            error("unhandled '{}' in {}".format(k, parent.get_path()))
+            error("unhandled '{}' in array {}".format(k, parent.get_path()))
     return res
 
 
 def parse_yaml(filename):
-    el = yaml.load(open(filename))
+    try:
+        el = yaml.load(open(filename))
+    except IOError as e:
+        error("open error: {}".format(e))
 
     res = tree.Root()
     for k, v in el.items():

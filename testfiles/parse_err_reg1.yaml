@@ -1,0 +1,10 @@
+bus: wb-32-be
+name: parse_err_reg1
+elements:
+- reg:
+    name: areg
+    bla: err # Error
+    fields:
+    - field:
+       name: foo
+       range: 1

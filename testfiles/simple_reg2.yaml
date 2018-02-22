@@ -1,0 +1,12 @@
+bus: wb-be-32
+name: sreg2
+description: a single register
+elements:
+  - reg:
+      name: areg
+      width: 32
+      fields:
+        - field:
+            name: afield
+            range: 1
+            preset: 0

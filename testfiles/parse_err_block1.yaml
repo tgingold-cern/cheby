@@ -1,0 +1,13 @@
+bus: wb-32-be
+name: parse_err_array
+elements:
+- block:
+    name: blk
+    count: 4  # Error: incorrect name
+    elements:
+    - reg:
+        name: areg
+        fields:
+        - field:
+            name: foo
+            range: 1
