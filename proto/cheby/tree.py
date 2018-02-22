@@ -3,6 +3,9 @@
    - the variables represent user data.  The name of the attribute has
      no prefix.  These variables shouldn't be modified by the program,
      so that the original file can be rewritten (without the comments).
+     They musnt' have an 'X_' prefix.
+   - Extensions are stored as python data in a 'x_XXX' field, where 'XXX' is
+     the name of the extension.
    - Computed values have the 'c_' prefix."""
 
 

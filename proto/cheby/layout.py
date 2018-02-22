@@ -143,8 +143,14 @@ def layout_composite(lo, n):
             "composite element '{}' has no elements".format(n.get_path()))
     lo1 = Layout(lo.word_size)
     # Compute size and alignment of elements.
+    max_align = 0
     for c in n.elements:
         lo1.visit(c)
+        max_align = max(max_align, c.c_align)
+    # Aligned composite elements have the max alignment
+    # TODO
+    # Set addresses
+    for c in n.elements:
         lo1.compute_address(c)
     if not lo.ordered:
         n.elements = sorted(n.elements, key=(lambda x: x.c_address))
