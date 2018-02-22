@@ -1,0 +1,3 @@
+bus: wb-32-be
+name: sreg2
+description: bad field

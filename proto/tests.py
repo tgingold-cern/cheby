@@ -1,6 +1,7 @@
 """Simple test program"""
 import sys
 import cheby.parser as parser
+import cheby.layout as layout
 
 srcdir = '../testfiles/'
 
@@ -39,8 +40,40 @@ def test_parser():
         parse_err(srcdir + f)
 
 
+def layout_ok(t):
+    try:
+        layout.layout_cheby(t)
+    except layout.LayoutException:
+        error('unexpected layout error for {}'.format(t.name))
+
+
+def layout_err(t):
+    try:
+        layout.layout_cheby(t)
+    except layout.LayoutException:
+        return
+    error('layout error expected for {}'.format(t.name))
+
+
+def test_layout():
+    for f in ['demo.yaml', 'array1.yaml']:
+        t = parse_ok(srcdir + f)
+        layout_ok(t)
+    for f in ['err_bus_name.yaml',
+              'err_reg_addr1.yaml', 'err_reg_addr2.yaml',
+              'err_reg_width1.yaml',
+              'err_reg_type1.yaml', 'err_reg_type2.yaml',
+              'err_field1.yaml', 'err_field2.yaml', 'err_field3.yaml',
+              'err_field4.yaml', 'err_field5.yaml',
+              'err_noelements.yaml',
+              'err_arr1.yaml']:
+        t = parse_ok(srcdir + f)
+        layout_err(t)
+
+
 def main():
     test_parser()
+    test_layout()
 
 
 if __name__ == '__main__':

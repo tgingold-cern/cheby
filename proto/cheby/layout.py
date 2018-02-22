@@ -83,7 +83,7 @@ def layout_field(f, parent, pos):
             raise LayoutException(
                 "one-bit range for field {}".format(f.get_path()))
         r = range(f.lo, f.hi + 1)
-    if r[-1] > parent.c_size * BYTE_SIZE:
+    if r[-1] >= parent.c_size * BYTE_SIZE:
         raise LayoutException(
             "field {} overflows its register size".format(f.get_path()))
     for i in r:
@@ -106,6 +106,9 @@ def layout_reg(lo, n):
     n.c_size = align(n.width / BYTE_SIZE, lo.word_size)
     n.c_align = n.c_size
     if n.fields:
+        if n.type is not None:
+            raise LayoutException(
+                "register {} with both a type and fields".format(n.get_path()))
         pos = [None] * n.width
         for f in n.fields:
             layout_field(f, n, pos)

@@ -1,0 +1,10 @@
+bus: wb-32-be
+name: arr1
+elements:
+- array:
+    name: arr
+    repeat: 8
+    elements:
+    - reg:
+        name: areg
+        width: 32

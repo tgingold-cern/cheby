@@ -1,0 +1,8 @@
+bus: wb-32-be
+name: sreg2
+description: a single register
+elements:
+  - reg:
+      name: areg1
+      width: 32
+      type: my_uint

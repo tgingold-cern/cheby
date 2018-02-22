@@ -1,0 +1,12 @@
+bus: wb-32-be
+name: sreg2
+description: bad field
+elements:
+  - reg:
+      name: areg
+      width: 32
+      fields:
+        - field:
+            name: afield
+            range: 2-4  # Bad order
+            preset: 0
