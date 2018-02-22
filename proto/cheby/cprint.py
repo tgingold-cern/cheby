@@ -78,7 +78,7 @@ def cprint_complex(cp, n):
 def cprint_composite(cp, n):
     addr = 0
     pad_id = 0
-    for el in n.children:
+    for el in n.elements:
         diff = el.c_address - addr
         assert diff >= 0
         if diff > 0:

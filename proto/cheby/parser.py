@@ -44,7 +44,7 @@ def parse_elements(node, val):
             else:
                 error("unhandled '{}' in elements of {}".format(
                       k, node.get_path()))
-            node.children.append(ch)
+            node.elements.append(ch)
 
 
 def parse_composite(node, key, val):

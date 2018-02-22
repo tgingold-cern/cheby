@@ -66,14 +66,14 @@ def sprint_complex(sp, n):
 @SimplePrinter.register(tree.CompositeNode)
 def sprint_composite(sp, n):
     sp.inc()
-    for el in n.children:
+    for el in n.elements:
         sp.visit(el)
     sp.dec()
 
 
 @SimplePrinter.register(tree.Root)
 def sprint_root(sp, n):
-    for el in n.children:
+    for el in n.elements:
         sp.visit(el)
 
 

@@ -181,14 +181,14 @@ align: boolean
   alignment. The default value is true.
 submap: string
   Optional filename that described the content of that area.  If present,
-  the block must not have any children.
+  the block must not have any elements.
 interface: boolean
   If set to true, the block is represented as an external HW module, connected
   through its parent via a bus.  If set to false, the block is directly
   implemented. (TODO: default is ???)
 size: number
   Number of bytes for that block. Must be large enough to contain all
-  the children.
+  the elements.
 elements: { reg | block | array }
 
 Compatibility:
@@ -226,7 +226,7 @@ repeat: number
   Number of element in the array.  Expected to be a power of 2 for a memory.
 size: number
   Number of bytes for the array. Must be large enough to contain all
-  the children.
+  the elements.
 elements: { reg | block | array }
 
 

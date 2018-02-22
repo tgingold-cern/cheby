@@ -5,7 +5,7 @@
    TODO:
    - check names are uniq (case ?)
    - check names/description are present
-   - check names can be C identifiers
+   - check names are C identifiers
 """
 
 import tree
@@ -119,13 +119,11 @@ def layout_reg(lo, n):
     else:
         # Default is 'unsigned'
         pass
-    lo.compute_address(n)
 
 
 @Layout.register(tree.Block)
 def layout_block(lo, n):
     layout_composite(lo, n)
-    lo.compute_address(n)
 
 
 @Layout.register(tree.Array)
@@ -136,19 +134,20 @@ def layout_array(lo, n):
             "missing repeat count for {}".format(n.get_path()))
     n.c_elsize = align(n.c_size, n.c_align)
     n.c_size = n.c_elsize * n.repeat
-    lo.compute_address(n)
 
 
 @Layout.register(tree.CompositeNode)
 def layout_composite(lo, n):
-    if not n.children:
+    if not n.elements:
         raise LayoutException(
-            "composite element '{}' has no children".format(n.get_path()))
+            "composite element '{}' has no elements".format(n.get_path()))
     lo1 = Layout(lo.word_size)
-    for c in n.children:
+    # Compute size and alignment of elements.
+    for c in n.elements:
         lo1.visit(c)
+        lo1.compute_address(c)
     if not lo.ordered:
-        n.children = sorted(n.children, key=(lambda x: x.c_address))
+        n.elements = sorted(n.elements, key=(lambda x: x.c_address))
     n.c_size = lo1.address
     n.c_align = lo1.align
 

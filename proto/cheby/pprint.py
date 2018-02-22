@@ -87,9 +87,9 @@ def pprint_complex(pp, n):
 @PrettyPrinter.register(tree.CompositeNode)
 def pprint_composite(pp, n):
     pprint_named(pp, n)
-    if n.children:
+    if n.elements:
         pp.pp_list('elements')
-        for el in n.children:
+        for el in n.elements:
             pp.visit(el)
         pp.pp_endlist()
 

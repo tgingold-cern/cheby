@@ -47,13 +47,13 @@ class NamedNode(Node):
 
 
 class CompositeNode(NamedNode):
-    """Base class for Cheby nodes with children; they are also named.
-       :var children: is the list of children."""
+    """Base class for Cheby nodes with elements; they are also named.
+       :var elements: is the list of elements."""
     _dispatcher = {}
 
     def __init__(self, parent):
         super(CompositeNode, self).__init__(parent)
-        self.children = []
+        self.elements = []
 
 
 class Root(CompositeNode):
