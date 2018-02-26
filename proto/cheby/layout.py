@@ -6,11 +6,10 @@
    - check names are uniq (case ?)
    - check names/description are present
    - check names are C identifiers
+   - check preset values are in the range.
 """
 
 import tree
-
-BYTE_SIZE = 8
 
 
 def ilog2(val):
@@ -61,6 +60,7 @@ def layout_field(f, parent, pos):
             "missing range for field {}".format(f.get_path()))
     if f.hi is None:
         r = [f.lo]
+        f.c_width = 1
     else:
         if f.hi < f.lo:
             raise LayoutException(
@@ -69,7 +69,8 @@ def layout_field(f, parent, pos):
             raise LayoutException(
                 "one-bit range for field {}".format(f.get_path()))
         r = range(f.lo, f.hi + 1)
-    if r[-1] >= parent.c_size * BYTE_SIZE:
+        f.c_width = f.hi - f.lo + 1
+    if r[-1] >= parent.c_size * tree.BYTE_SIZE:
         raise LayoutException(
             "field {} overflows its register size".format(f.get_path()))
     for i in r:
@@ -89,7 +90,7 @@ def layout_reg(lo, n):
     if n.width not in [8, 16, 32, 64]:
         raise LayoutException(
             "incorrect width for register {}".format(n.get_path()))
-    n.c_size = align(n.width / BYTE_SIZE, lo.word_size)
+    n.c_size = align(n.width / tree.BYTE_SIZE, lo.word_size)
     n.c_align = n.c_size
     if n.fields:
         if n.type is not None:
@@ -134,6 +135,7 @@ def layout_array(lo, n):
 
 @Layout.register(tree.CompositeNode)
 def layout_composite(lo, n):
+    # Sanity check
     if not n.elements:
         raise LayoutException(
             "composite element '{}' has no elements".format(n.get_path()))
@@ -144,14 +146,21 @@ def layout_composite(lo, n):
         lo1.visit(c)
         max_align = max(max_align, c.c_align)
     # Aligned composite elements have the max alignment
+    has_aligned = False
     for c in n.elements:
         if isinstance(c, tree.ComplexNode) and (c.align is None or c.align):
             c.c_align = max_align
-            n.c_blksize = max_align
+            has_aligned = True
     for c in n.elements:
         lo1.compute_address(c)
     n.c_size = lo1.address
     n.c_align = max_align
+    if has_aligned:
+        n.c_blk_bits = ilog2(max_align)
+        n.c_sel_bits = ilog2(n.c_size) - n.c_blk_bits
+    else:
+        n.c_blk_bits = ilog2(n.c_size)
+        n.c_sel_bits = 0
     # Keep elements in order.
     n.elements = sorted(n.elements, key=(lambda x: x.c_address))
     # Check for no-overlap.

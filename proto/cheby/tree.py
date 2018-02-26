@@ -8,6 +8,8 @@
      the name of the extension.
    - Computed values have the 'c_' prefix."""
 
+BYTE_SIZE = 8
+
 
 class Node(object):
     """Base class for any Cheby node.
@@ -58,7 +60,8 @@ class CompositeNode(NamedNode):
         super(CompositeNode, self).__init__(parent)
         self.elements = []
         # Computed variables
-        self.c_blksize = None   # Alignment value for aligned elements.
+        self.c_blk_bits = None   # Number of bits for sub-blocks
+        self.c_sel_bits = None   # Number of bits to select sub-blocks
 
 
 class Root(CompositeNode):
@@ -68,7 +71,7 @@ class Root(CompositeNode):
         super(Root, self).__init__(None)
         self.bus = None
         # Computed variables
-        self.c_word_size = None
+        self.c_word_size = None  # Word size in bytes
 
 
 class Reg(NamedNode):
