@@ -2,7 +2,7 @@ before_script:
     - python -V
     - pip install yaml
 
-image: "gitlab-registry.cern.ch/linuxsupport/cc7-base"
+image: python:3
 
 test:
     script:
