@@ -173,11 +173,11 @@ def generate_hdl(root):
     # Bus access
     res.stmts.append(HDLComment('WB decode signals'))
     wb_en = HDLSignal('wb_en')
-    rd_int = HDLSignal('rd_int')
-    wr_int = HDLSignal('wr_int')
-    ack_int = HDLSignal('ack_int')
-    rd_ack = HDLSignal('rd_ack_int')
-    wr_ack = HDLSignal('wr_ack_int')
+    rd_int = HDLSignal('rd_int')        # Read access
+    wr_int = HDLSignal('wr_int')        # Write access
+    ack_int = HDLSignal('ack_int')      # Ack
+    rd_ack = HDLSignal('rd_ack_int')    # Ack for read
+    wr_ack = HDLSignal('wr_ack_int')    # Ack for write
     res.signals.extend([wb_en, rd_int, wr_int, ack_int, rd_ack, wr_ack])
     res.stmts.append(HDLAssign(wb_en,
                                HDLAnd(root.h_bus['cyc'], root.h_bus['stb'])))
@@ -233,20 +233,29 @@ def generate_hdl(root):
     rd_if.else_stmts.append(HDLAssign(rd_ack, bit_0))
 
     def add_read(s, n):
+        def sel_input(t):
+            "Where to read data from."
+            if n.access in ['wo', 'wr']:
+                return t.h_reg
+            elif n.access == 'ro':
+                return t.h_port
+            elif n.access == 'cst':
+                return t.preset
+            else:
+                assert False
         if n is not None:
             if n.fields:
                 for f in n.fields:
-                    if f.h_reg is not None:
-                        s.append(HDLAssign(HDLSlice(wr_data, f.lo, f.c_width),
-                                           f.h_reg))
+                    src = sel_input(f)
+                    assert src is not None
+                    s.append(HDLAssign(
+                        HDLSlice(wr_data, f.lo, f.c_width), src))
             else:
-                if n.h_reg is not None:
-                    s.append(HDLAssign(wr_data, n.h_reg))
+                src = sel_input(n)
+                s.append(HDLAssign(wr_data, src))
         # All the read are ack'ed (including the read to unassigned addresses).
         s.append(HDLAssign(rd_ack, bit_1))
 
     add_decoder(root, rd_if.then_stmts, root.h_bus['adr'], root, add_read)
-
-    # Generate ACK
 
     return res
