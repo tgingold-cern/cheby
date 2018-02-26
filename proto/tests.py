@@ -74,6 +74,7 @@ def test_layout():
 def main():
     test_parser()
     test_layout()
+    print("Done!")
 
 
 if __name__ == '__main__':
