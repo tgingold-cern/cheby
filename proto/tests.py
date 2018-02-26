@@ -2,6 +2,11 @@
 import sys
 import cheby.parser as parser
 import cheby.layout as layout
+import cheby.pprint as pprint
+import cheby.sprint as sprint
+import cheby.cprint as cprint
+import cheby.gen_hdl as gen_hdl
+import cheby.print_vhdl as print_vhdl
 
 srcdir = '../testfiles/'
 
@@ -9,6 +14,12 @@ srcdir = '../testfiles/'
 def error(msg):
     sys.stderr.write('error: {}\n'.format(msg))
     sys.exit(1)
+
+
+class write_null(object):
+    """A class that could be used as a very simple write-only stream"""
+    def write(self, str):
+        pass
 
 
 def parse_ok(f):
@@ -71,9 +82,30 @@ def test_layout():
         layout_err(t)
 
 
+def test_print():
+    fd = write_null()
+    for f in ['demo.yaml']:
+        t = parse_ok(srcdir + f)
+        layout_ok(t)
+        pprint.pprint_cheby(fd, t)
+        sprint.sprint_cheby(fd, t)
+        cprint.cprint_cheby(fd, t)
+
+
+def test_hdl():
+    fd = write_null()
+    for f in ['simple_reg3.yaml', 'simple_reg4_ro.yaml']:
+        t = parse_ok(srcdir + f)
+        layout_ok(t)
+        h = gen_hdl.generate_hdl(t)
+        print_vhdl.print_vhdl(fd, h)
+
+
 def main():
     test_parser()
     test_layout()
+    test_print()
+    test_hdl()
     print("Done!")
 
 

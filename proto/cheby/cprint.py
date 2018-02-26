@@ -33,15 +33,6 @@ class CPrinter(tree.Visitor):
     def cp_txt(self, txt):
         self.cp_raw('{}{}\n'.format('  ' * self.indent, txt))
 
-    def cp_reg(self, typ, name):
-        self.cp_raw('{}{} {};\n'.format('  ' * self.indent, typ, name))
-
-    def sp_field(self, f):
-        if f.hi is None:
-            self.sp_raw('  {:02}:   '.format(f.lo))
-        else:
-            self.sp_raw('  {:02}-{:02}:'.format(f.lo, f.hi))
-        self.sp_raw(' {}\n'.format(f.name))
 
 
 @CPrinter.register(tree.Reg)

@@ -235,7 +235,7 @@ def generate_hdl(root):
     def add_read(s, n):
         def sel_input(t):
             "Where to read data from."
-            if n.access in ['wo', 'wr']:
+            if n.access in ['wo', 'rw']:
                 return t.h_reg
             elif n.access == 'ro':
                 return t.h_port
