@@ -98,6 +98,10 @@ def layout_reg(lo, n):
         raise LayoutException(
             "incorrect width for register {}".format(n.get_path()))
     layout_named(n)
+    # Check access
+    if n.access is not None and n.access not in ['ro', 'rw', 'wo', 'cst']:
+        raise LayoutException(
+            "incorrect access for register {}".format(n.get_path()))
     n.c_size = align(n.width / tree.BYTE_SIZE, lo.word_size)
     n.c_align = n.c_size
     names = set()
