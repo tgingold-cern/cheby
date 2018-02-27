@@ -62,9 +62,11 @@ def layout_named(n):
 
 def layout_field(f, parent, pos):
     layout_named(f)
+    # Check range is present
     if f.lo is None:
         raise LayoutException(
             "missing range for field {}".format(f.get_path()))
+    # Compute width
     if f.hi is None:
         r = [f.lo]
         f.c_width = 1
@@ -77,6 +79,7 @@ def layout_field(f, parent, pos):
                 "one-bit range for field {}".format(f.get_path()))
         r = range(f.lo, f.hi + 1)
         f.c_width = f.hi - f.lo + 1
+    # Check for overlap
     if r[-1] >= parent.c_size * tree.BYTE_SIZE:
         raise LayoutException(
             "field {} overflows its register size".format(f.get_path()))
@@ -87,6 +90,10 @@ def layout_field(f, parent, pos):
             raise LayoutException(
                 "field {} overlaps field {} in bit {}".format(
                     f.get_path(), pos[i].get_path(), i))
+    # Check preset
+    if f.preset is not None and f.preset >= (1 << f.c_width):
+        raise LayoutException(
+            "incorrect preset value for field {}".format(f.get_path()))
 
 
 @Layout.register(tree.Reg)
