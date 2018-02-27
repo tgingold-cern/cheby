@@ -6,10 +6,16 @@ class CPrinter(tree.Visitor):
     def __init__(self, fd):
         self.fd = fd
         self.indent = 0
-        self.types = {1: 'uint8_t',
-                      2: 'uint16_t',
-                      4: 'uint32_t',
-                      8: 'uint64_t'}
+        self.utypes = {1: 'uint8_t',
+                       2: 'uint16_t',
+                       4: 'uint32_t',
+                       8: 'uint64_t'}
+        self.stypes = {1: 'int8_t',
+                       2: 'int16_t',
+                       4: 'int32_t',
+                       8: 'int64_t'}
+        self.ftypes = {4: 'float',
+                       8: 'double'}
 
     def cp_raw(self, str):
         self.fd.write(str)
@@ -27,8 +33,10 @@ class CPrinter(tree.Visitor):
 
     def end_struct(self, name):
         self.dec()
-        self.cp_raw('{}}} {};\n'.format(
-            '  ' * self.indent, name))
+        if name is None:
+            self.cp_txt('};')
+        else:
+            self.cp_txt('}} {};'.format(name))
 
     def cp_txt(self, txt):
         self.cp_raw('{}{}\n'.format('  ' * self.indent, txt))
@@ -39,7 +47,13 @@ class CPrinter(tree.Visitor):
 def cprint_reg(cp, n):
     cp.cp_txt('/* [0x{:x}]: REG {} */'.format(
               n.c_address, n.description))
-    cp.cp_txt('{} {};'.format(cp.types[n.c_size], n.name))
+    if n.c_type == 'signed':
+        typ = cp.stypes[n.c_size]
+    elif n.c_type == 'float':
+        typ = cp.ftypes[n.c_size]
+    else:
+        typ = cp.utypes[n.c_size]
+    cp.cp_txt('{} {};'.format(typ, n.name))
 
 
 @CPrinter.register(tree.Block)
@@ -81,7 +95,7 @@ def cprint_composite(cp, n):
                 sz = 1
             cp.cp_txt('/* padding to: {} words */'.format(el.c_address // sz))
             cp.cp_txt('{} __padding_{}[{}];'.format(
-                cp.types[sz], pad_id, diff // sz))
+                cp.utypes[sz], pad_id, diff // sz))
             pad_id += 1
         cp.visit(el)
         addr = el.c_address + el.c_size
@@ -91,7 +105,7 @@ def cprint_composite(cp, n):
 def cprint_root(cp, n):
     cp.start_struct(n.name)
     cprint_composite(cp, n)
-    cp.end_struct('')
+    cp.end_struct(None)
 
 
 def cprint_cheby(fd, root):

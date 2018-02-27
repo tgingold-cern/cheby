@@ -79,7 +79,7 @@ def add_ports(module, prefix, node):
                     w = None if f.c_width == 1 else f.c_width
                     _create_port(f, w)
             else:
-                _create_port(n, n.c_width)
+                _create_port(n, n.width)
         else:
             assert False
 
@@ -102,7 +102,7 @@ def add_init(stmts, node):
                     stmts.append(HDLAssign(f.h_reg, HDLConst(v, f.c_width)))
             else:
                 # Preset for regs ?
-                stmts.append(HDLAssign(f.h_reg, HDLConst(0, f.c_width)))
+                stmts.append(HDLAssign(n.h_reg, HDLConst(0, n.width)))
         else:
             assert False
 
@@ -208,7 +208,11 @@ def generate_hdl(root):
                                                              f.lo, f.c_width)))
             else:
                 if n.h_reg is not None:
-                    s.append(HDLAssign(n.h_reg, wr_data))
+                    if n.width == root.c_word_bits:
+                        dat = wr_data
+                    else:
+                        dat = HDLSlice(wr_data, 0, n.width)
+                    s.append(HDLAssign(n.h_reg, dat))
         # All the write are ack'ed (including the write to unassigned
         # addresses)
         s.append(HDLAssign(wr_ack, bit_1))
@@ -216,13 +220,13 @@ def generate_hdl(root):
 
     # Register read
     res.stmts.append(HDLComment('Process to read registers.'))
-    wr_data = root.h_bus['dato']
+    rd_data = root.h_bus['dato']
     rdproc = HDLSync(root.h_bus['rst'], root.h_bus['clk'])
     res.stmts.append(rdproc)
     rdproc.rst_stmts.append(HDLAssign(rd_ack, bit_0))
-    rdproc.rst_stmts.append(HDLAssign(wr_data,
+    rdproc.rst_stmts.append(HDLAssign(rd_data,
                                       HDLReplicate(bit_x, root.c_word_bits)))
-    rdproc.sync_stmts.append(HDLAssign(wr_data,
+    rdproc.sync_stmts.append(HDLAssign(rd_data,
                                        HDLReplicate(bit_x, root.c_word_bits)))
     rd_if = HDLIfElse(HDLAnd(HDLEq(rd_int, bit_1), HDLEq(rd_ack, bit_0)))
     rdproc.sync_stmts.append(rd_if)
@@ -245,10 +249,14 @@ def generate_hdl(root):
                     src = sel_input(f)
                     assert src is not None
                     s.append(HDLAssign(
-                        HDLSlice(wr_data, f.lo, f.c_width), src))
+                        HDLSlice(rd_data, f.lo, f.c_width), src))
             else:
                 src = sel_input(n)
-                s.append(HDLAssign(wr_data, src))
+                if n.width == root.c_word_bits:
+                    dat = rd_data
+                else:
+                    dat = HDLSlice(rd_data, 0, n.width)
+                s.append(HDLAssign(dat, src))
         # All the read are ack'ed (including the read to unassigned addresses).
         s.append(HDLAssign(rd_ack, bit_1))
 

@@ -1,0 +1,10 @@
+bus: wb-32-be
+name: reg_value1
+description: register without field
+elements:
+  - reg:
+      name: areg32
+      description: simple 32 bit register
+      width: 32
+      access: rw
+      type: float

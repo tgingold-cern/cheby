@@ -80,6 +80,7 @@ def test_layout():
               'err_reg_addr1.yaml', 'err_reg_addr2.yaml',
               'err_reg_width1.yaml',
               'err_reg_type1.yaml', 'err_reg_type2.yaml',
+              'err_reg_type3.yaml',
               'err_field1.yaml', 'err_field2.yaml', 'err_field3.yaml',
               'err_field4.yaml', 'err_field5.yaml',
               'err_field_name1.yaml', 'err_field_name2.yaml',
@@ -93,7 +94,8 @@ def test_layout():
 
 def test_print():
     fd = write_null()
-    for f in ['demo.yaml']:
+    for f in ['demo.yaml', 'reg_value1.yaml', 'reg_value2.yaml',
+              'reg_value3.yaml']:
         t = parse_ok(srcdir + f)
         layout_ok(t)
         pprint.pprint_cheby(fd, t)
@@ -103,7 +105,8 @@ def test_print():
 
 def test_hdl():
     fd = write_null()
-    for f in ['simple_reg3.yaml', 'simple_reg4_ro.yaml']:
+    for f in ['simple_reg3.yaml', 'simple_reg4_ro.yaml',
+              'reg_value1.yaml', 'reg_value2.yaml', 'reg_value3.yaml']:
         t = parse_ok(srcdir + f)
         layout_ok(t)
         h = gen_hdl.generate_hdl(t)

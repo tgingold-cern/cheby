@@ -109,13 +109,14 @@ def layout_reg(lo, n):
     if n.access is not None and n.access not in ['ro', 'rw', 'wo', 'cst']:
         raise LayoutException(
             "incorrect access for register {}".format(n.get_path()))
-    n.c_size = align(n.width / tree.BYTE_SIZE, lo.word_size)
-    n.c_align = n.c_size
+    n.c_size = n.width / tree.BYTE_SIZE
+    n.c_align = align(n.c_size, lo.word_size)
     names = set()
     if n.fields:
         if n.type is not None:
             raise LayoutException(
                 "register {} with both a type and fields".format(n.get_path()))
+        n.c_type = None
         pos = [None] * n.width
         for f in n.fields:
             if f.name in names:
@@ -124,13 +125,19 @@ def layout_reg(lo, n):
                         f.name, n.get_path()))
             names.add(f.name)
             layout_field(f, n, pos)
-    elif n.type is not None:
-        raise LayoutException(
-            "register {} with type not yet supported".format(
-                n.get_path()))
+    elif n.type is None:
+        # Default is unsigned
+        n.c_type = 'unsigned'
+    elif n.type in ['signed', 'unsigned']:
+        n.c_type = n.type
+    elif n.type == 'float':
+        n.c_type = n.type
+        if n.width not in [32, 64]:
+            raise LayoutException(
+                "incorrect width for float register {}".format(n.get_path()))
     else:
-        # Default is 'unsigned'
-        pass
+        raise LayoutException(
+            "incorrect type for register {}".format(n.get_path()))
 
 
 @Layout.register(tree.Block)
