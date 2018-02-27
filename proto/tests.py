@@ -11,9 +11,13 @@ import cheby.print_vhdl as print_vhdl
 srcdir = '../testfiles/'
 
 
+class TestError(Exception):
+    def __init__(self, msg):
+        self.msg = msg
+
+
 def error(msg):
-    sys.stderr.write('error: {}\n'.format(msg))
-    sys.exit(1)
+    raise TestError('error: {}\n'.format(msg))
 
 
 class write_null(object):
@@ -103,13 +107,36 @@ def test_hdl():
         print_vhdl.print_vhdl(fd, h)
 
 
-def main():
-    test_parser()
-    test_layout()
-    test_print()
-    test_hdl()
-    print("Done!")
+def test_self():
+    """Auto-test"""
+    def test(func, func_name):
+        ok = False
+        try:
+            func()
+        except TestError:
+            ok = True
+        if not ok:
+            error("self-test error for {}".format(func_name))
+    test((lambda : parse_ok(srcdir + 'error1.yaml')), "parse_ok")
+    test((lambda : parse_err(srcdir + 'simple_reg1.yaml')), "parse_err")
+    t = parse_ok(srcdir + 'err_bus_name.yaml')
+    test((lambda : layout_ok(t)), "layout_ok")
+    t = parse_ok(srcdir + 'demo.yaml')
+    test((lambda : layout_err(t)), "layout_err")
 
+
+
+def main():
+    try:
+        test_self()
+        test_parser()
+        test_layout()
+        test_print()
+        test_hdl()
+        print("Done!")
+    except TestError as e:
+        sys.stderr.write(e.msg)
+        sys.exit(2)
 
 if __name__ == '__main__':
     main()
