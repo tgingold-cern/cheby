@@ -1,0 +1,18 @@
+bus: wb-32-be
+name: sreg2
+description: bad field
+elements:
+  - reg:
+      name: areg
+      width: 32
+      fields:
+        - field:
+            name: fname
+            range: 4-0
+  - reg:
+      name: areg
+      width: 32
+      fields:
+        - field:
+            name: fname
+            range: 4-0

@@ -82,6 +82,8 @@ def test_layout():
               'err_reg_type1.yaml', 'err_reg_type2.yaml',
               'err_field1.yaml', 'err_field2.yaml', 'err_field3.yaml',
               'err_field4.yaml', 'err_field5.yaml',
+              'err_field_name1.yaml', 'err_field_name2.yaml',
+              'err_reg_name1.yaml', 'err_reg_name2.yaml',
               'err_noelements.yaml',
               'err_arr1.yaml']:
         t = parse_ok(srcdir + f)
