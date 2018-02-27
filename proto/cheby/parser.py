@@ -12,17 +12,31 @@ def error(msg):
     raise ParseException(msg)
 
 
-def read_text(el):
-    return el
+def read_text(parent, key, val):
+    if isinstance(val, str):
+        return val
+    error("expect a string for {}:{}".format(parent.get_path(), key))
+
+
+def read_bool(parent, key, val):
+    if isinstance(val, bool):
+        return val
+    error("expect a boolean for {}:{}".format(parent.get_path(), key))
+
+
+def read_int(parent, key, val):
+    if isinstance(val, int):
+        return val
+    error("expect an integer for {}:{}".format(parent.get_path(), key))
 
 
 def parse_named(node, key, val):
     if key == 'name':
-        node.name = val
+        node.name = read_text(node, key, val)
     elif key == 'description':
-        node.description = val
+        node.description = read_text(node, key, val)
     elif key == 'comment':
-        node.comment = read_text(val).rstrip()
+        node.comment = read_text(node, key, val).rstrip()
     elif key == 'x-wbgen':
         node.x_wbgen = val
     else:
@@ -85,13 +99,13 @@ def parse_reg(parent, el):
         if parse_named(res, k, v):
             pass
         elif k == 'width':
-            res.width = v
+            res.width = read_int(res, k, v)
         elif k == 'type':
-            res.type = v
+            res.type = read_text(res, k, v)
         elif k == 'access':
-            res.access = v
+            res.access = read_text(res, k, v)
         elif k == 'address':
-            res.address = v
+            res.address = read_int(res, k, v)
         elif k == 'fields':
             for f in v:
                 for k1, v1 in f.items():
@@ -110,11 +124,11 @@ def parse_complex(node, key, val):
     if parse_composite(node, key, val):
         pass
     elif key == 'address':
-        node.address = val
+        node.address = read_int(node, key, val)
     elif key == 'align':
-        node.align = val
+        node.align = read_bool(node, key, val)
     elif key == 'size':
-        node.size = val
+        node.size = read_int(node, key, val)
     else:
         return False
     return True
@@ -126,9 +140,9 @@ def parse_block(parent, el):
         if parse_complex(res, k, v):
             pass
         elif k == 'submap_file':
-            res.submap_file = v
+            res.submap_file = read_text(res, k, v)
         elif k == 'interface':
-            res.interface = v
+            res.interface = read_bool(res, k, v)
         else:
             error("unhandled '{}' in block {}".format(k, parent.get_path()))
     return res
@@ -142,7 +156,7 @@ def parse_array(parent, el):
         if parse_complex(res, k, v):
             pass
         elif k == 'repeat':
-            res.repeat = v
+            res.repeat = read_int(res, k, v)
         else:
             error("unhandled '{}' in array {}".format(k, parent.get_path()))
     return res
@@ -159,7 +173,7 @@ def parse_yaml(filename):
         if parse_composite(res, k, v):
             pass
         elif k == 'bus':
-            res.bus = v
+            res.bus = read_text(res, k, v)
         else:
             error("unhandled '{}' in root".format(k))
     return res

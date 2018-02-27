@@ -1,0 +1,12 @@
+bus: wb-32-be
+name: array2
+description: a simple array
+elements:
+  - array:
+      name: arr1
+      repeat: 2
+      align: False
+      elements:
+        - reg:
+            name: areg1
+            width: 32

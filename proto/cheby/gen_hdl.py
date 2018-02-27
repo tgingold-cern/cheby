@@ -150,10 +150,6 @@ def add_decoder(root, stmts, addr, n, func):
         assert False
 
 
-class Params(object):
-    pass
-
-
 def generate_hdl(root):
     res = HDLModule()
     res.name = root.name

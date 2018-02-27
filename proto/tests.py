@@ -42,6 +42,8 @@ def test_parser():
               'block1.yaml', 'block2.yaml', 'block3.yaml', 'block4.yaml']:
         parse_ok(srcdir + f)
     for f in ['no-such-file.yaml', 'error1.yaml',
+              'err_name_type1.yaml', 'err_width_type1.yaml',
+              'err_align_type1.yaml',
               'parse_err_elem1.yaml', 'parse_err_elem2.yaml',
               'parse_err_reg1.yaml',
               'parse_err_field1.yaml', 'parse_err_field2.yaml',
@@ -67,7 +69,7 @@ def layout_err(t):
 
 
 def test_layout():
-    for f in ['demo.yaml', 'array1.yaml']:
+    for f in ['demo.yaml', 'array1.yaml', 'array2.yaml']:
         t = parse_ok(srcdir + f)
         layout_ok(t)
     for f in ['err_bus_name.yaml',
