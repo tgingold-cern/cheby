@@ -1,0 +1,381 @@
+--  demo file (from rtu-regs.wb)
+
+peripheral {
+	 name = "Routing Table Unit (RTU)";
+   prefix = "rtu";
+
+	 hdl_entity="rtu_wishbone_slave";
+
+-- Port Configuration Register
+	 reg {
+			name = "RTU Global Control Register";
+			description = "Control register containing global (port-independent) settings of the RTU.";
+			prefix = "GCR";
+
+			field {
+				 name = "RTU Global Enable";
+				 description = "Global RTU enable bit. Overrides all port settings.\
+                        0: RTU is disabled. All packets are dropped.\
+                        1: RTU is enabled.";
+
+				 type = BIT;
+				 prefix = "G_ENA";
+				 access_dev = READ_ONLY;
+				 access_bus = READ_WRITE;
+         clock = "clk_match_i";
+
+			};
+
+      field {
+         name = "MFIFO Trigger";
+         description = "write 1: triggers a flush of MFIFO into the hash table (blocks the RTU for a few cycles)\
+         write 0: no effect\
+         read 1: MFIFO is busy\
+         read 0: MFIFO is idle";
+
+         prefix = "MFIFOTRIG";
+
+         type = BIT;
+         load = LOAD_EXT;
+         access_bus = READ_WRITE;
+         access_dev = READ_WRITE;
+         clock = "clk_match_i";
+
+      };
+
+			field {
+				 name = "Hash Poly";
+				 description = "Determines the polynomial used for hash computation. Currently available:  0x1021, 0x8005, 0x0589 ";
+
+ 				 type = SLV;
+				 prefix = "POLY_VAL";
+			 	 align = 8;
+				 size = 16 ;
+				 access_dev = READ_ONLY;
+				 access_bus = READ_WRITE;
+         clock = "clk_match_i";
+
+			};
+
+			field {
+				 name = "Version";
+				 description = "Information about the version of RTU gateware";
+
+ 				 type = SLV;
+				 prefix = "RTU_VERSION";
+			 	 align = 8;
+				 size = 4 ;
+				 access_dev = WRITE_ONLY;
+				 access_bus = READ_ONLY;
+			};
+	 };
+
+   reg {
+      name = "Port Select Register";
+      description = "Selects the port to control through the PCR register";
+      prefix = "PSR";
+
+      field {
+         name = "Port Select";
+         prefix = "PORT_SEL";
+         description = "Selected Port";
+         size = 8;
+         type = SLV;
+         access_bus = READ_WRITE;
+         access_dev = READ_ONLY;
+      };
+
+      field {
+         name = "Number of ports";
+         prefix = "N_PORTS";
+         description = "Number of RTU ports compiled in.";
+         size = 8;
+         type = SLV;
+         access_bus = READ_ONLY;
+         access_dev = WRITE_ONLY;
+      };
+   };
+
+   reg {
+      name = "Port Control Register";
+      description = "Register controlling the mode of the RTU port selected by PSELR register.";
+      prefix = "PCR";
+
+      field {
+         name = "Learning enable";
+         description = "1: enables learning process on this port. Unrecognized requests will be put into UFIFO\
+         0: disables learning. Unrecognized requests will be either broadcast or dropped.";
+         prefix = "LEARN_EN";
+
+         type = BIT;
+         access_dev = READ_WRITE;
+         access_bus = READ_WRITE;
+         load = LOAD_EXT;
+      };
+
+      field {
+         name = "Pass all packets";
+         description = "1: all packets are passed (depending on the rules in RT table). \
+         0: all packets are dropped on this port.";
+
+         prefix = "PASS_ALL";
+
+         type = BIT;
+         access_dev = READ_WRITE;
+         access_bus = READ_WRITE;
+         load = LOAD_EXT;
+      };
+
+      field {
+         name = "Pass BPDUs";
+         description = "1: BPDU packets (with dst MAC 01:80:c2:00:00:00) are passed according to RT rules. This setting overrides PASS_ALL.\
+         0: BPDU packets are passed according to RTU rules only if PASS_ALL is set.[ML by modified]";
+
+         prefix = "PASS_BPDU";
+
+         type = BIT;
+         access_dev = READ_WRITE;
+         access_bus = READ_WRITE;
+         load = LOAD_EXT;
+
+      };
+
+      field {
+         name = "Fix priority";
+         description = "1: Port has fixed priority of value PRIO_VAL. It overrides the priority coming from the endpoint\
+         0: Use priority from the endpoint";
+
+         prefix = "FIX_PRIO";
+
+         type = BIT;
+         access_dev = READ_WRITE;
+         access_bus = READ_WRITE;
+         load = LOAD_EXT;
+      };
+
+
+      field {
+         name = "Priority value";
+         description = "Fixed priority value for the port. Used instead the endpoint-assigned priority when FIX_PRIO = 1";
+
+         prefix = "PRIO_VAL";
+
+         type = SLV;
+         align = 4;
+         size =3 ;
+         access_dev = READ_WRITE;
+         access_bus = READ_WRITE;
+         load = LOAD_EXT;
+      };
+
+
+      field {
+         name = "Unrecognized request behaviour";
+         description = "Sets the port behaviour for all unrecognized requests:\
+         0: packet is dropped\
+         1: packet is broadcast";
+         prefix = "B_UNREC";
+
+         type = BIT;
+
+         access_dev = READ_WRITE;
+         access_bus = READ_WRITE;
+         load = LOAD_EXT;
+      };
+   };
+
+   reg {
+      name = "VLAN Table Register 1";
+      prefix = "VTR1";
+
+      field {
+         prefix = "VID";
+         name = "VLAN ID";
+         size = 12;
+         type = SLV;
+         access_bus = READ_WRITE;
+         access_dev = READ_ONLY;
+     };
+
+      field {
+         prefix = "FID";
+         name = "Filtering Database ID";
+         description = "Assigns the VID to a particular filtering database";
+         size = 8;
+         type = SLV;
+         access_bus = READ_WRITE;
+         access_dev = READ_ONLY;
+      };
+
+      field {
+         prefix = "DROP";
+         name = "Drop";
+         description = "1: drop all packets belonging to this VLAN";
+         type = BIT;
+         access_bus = READ_WRITE;
+         access_dev = READ_ONLY;
+      };
+
+      field {
+         prefix = "HAS_PRIO";
+         name = "Has user-defined priority";
+         description = "1: VLAN has user-defined priority";
+         type = BIT;
+         access_bus = READ_WRITE;
+         access_dev = READ_ONLY;
+      };
+
+      field {
+         prefix = "PRIO_OVERRIDE";
+         name = "Override endpoint-assigned priority";
+         description = "1: always take the priority from the PRIO field, regardless of the priority value assigned at the endpoint. ";
+         type = BIT;
+         access_bus = READ_WRITE;
+         access_dev = READ_ONLY;
+      };
+
+      field {
+         prefix = "PRIO";
+         name = "Priority value";
+         type = SLV;
+         size = 3;
+         access_bus = READ_WRITE;
+         access_dev = READ_ONLY;
+      };
+
+      field {
+         prefix = "UPDATE";
+         name = "Force VLAN table entry update";
+         description = "write 1: flush VTR1 and VTR2 registers to VLAN table entry designated in VTR1.VID";
+         type = MONOSTABLE;
+      }
+   };
+
+
+	fifo_reg {
+		 name = "Unrecognized request FIFO (UFIFO)";
+		 description = "FIFO containing all RTU requests for which matching entries haven't been found. CPU reads these requests,\
+		                evaluates them and updates the RTU tables accordingly.";
+
+		 prefix = "UFIFO";
+		 direction = CORE_TO_BUS;
+		 size = 128;
+
+		 flags_dev = {FIFO_FULL, FIFO_EMPTY};
+		 flags_bus = {FIFO_EMPTY, FIFO_COUNT};
+
+		 --clock = "clk_match_i";
+		  -- clock = ""; - make it asynchronous if you want
+
+		 field {
+				name = "Destination MAC address least-significant part";
+				description = "Bits [31:0] of packet destination MAC address";
+				prefix = "DMAC_LO";
+
+				type = SLV;
+				size = 32;
+		 };
+
+	 field {
+				name = "Destination MAC address most-significant part";
+				description = "Bits [47:32] of packet destination MAC address";
+				prefix = "DMAC_HI";
+
+				type = SLV;
+				size = 16;
+		 };
+
+		 field {
+				name = "Source MAC address least-significant part";
+				description = "Bits [31:0] of packet source MAC address";
+				prefix = "SMAC_LO";
+
+				type = SLV;
+				size = 32;
+		 };
+
+
+		 field {
+				name = "Source MAC address most-significant part";
+				description = "Bits [47:32] of packet source MAC address";
+				prefix = "SMAC_HI";
+
+				type = SLV;
+				size = 16;
+		 };
+
+		 field {
+				name = "VLAN Identifier";
+				description = "VLAN ID of the packet (from the endpoint)";
+				prefix = "VID";
+				size = 12;
+				type = SLV;
+				align = 32;
+		 };
+
+		 field {
+				name = "Priority";
+				description = "Priority value (from the endpoint)";
+				prefix = "PRIO";
+				size = 3;
+				align = 4;
+				type = SLV;
+		 };
+
+		 field {
+				name = "Port ID";
+				description = "Identifier of RTU port to which came the request.";
+				prefix = "PID";
+				size = 8;
+				align = 8;
+				type = SLV;
+		 };
+
+		 field {
+				name = "VID valid";
+				description = "1: VID value is valid\
+                       0: packet had no VLAN ID";
+				prefix = "HAS_VID";
+
+				align = 4;
+				type = BIT;
+		 };
+
+		 field {
+				name = "PRIO valid";
+				description = "1: PRIO value is valid\
+                       0: packet had no priority assigned";
+				prefix = "HAS_PRIO";
+
+				type = BIT;
+		 };
+	};
+
+
+
+	ram {
+		 name = "Aging bitmap for main hashtable";
+		 description = "Each bit in this memory reflects the state of corresponding entry in main hashtable:\
+                    0: entry wasn't matched\
+                    1: entry was matched at least once.\
+                    CPU reads this bitmap and subsequently clears it every few seconds to update the aging counters.";
+		 prefix = "ARAM";
+
+		 width = 32;
+		 size = 256; -- 8192 / 32; -- 8192 bits
+		 access_dev = READ_WRITE;
+		 access_bus = READ_WRITE;
+
+		 --[changed 6/10/2010] clock = "clk_match_i";
+		 --clock = "clk_match_i"; --async?
+
+	};
+
+irq {
+		 name = "UFIFO Not Empty IRQ";
+		 description = "Interrupt active when there are some requests in UFIFO.";
+		 prefix = "nempty";
+		 trigger = LEVEL_0;
+	};
+
+};
