@@ -73,7 +73,7 @@ def layout_err(t):
 
 
 def test_layout():
-    for f in ['demo.yaml', 'array1.yaml', 'array2.yaml']:
+    for f in ['demo.yaml', 'block1.yaml', 'array1.yaml', 'array2.yaml']:
         t = parse_ok(srcdir + f)
         layout_ok(t)
     for f in ['err_bus_name.yaml',
