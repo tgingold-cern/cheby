@@ -249,17 +249,17 @@ elements:
     name: UFIFO
     address: 0x00000030
     size: 24
-    align: False
     description: Unrecognized request FIFO (UFIFO)
     comment: |
       FIFO containing all RTU requests for which matching entries haven't been found. CPU reads these requests,
       evaluates them and updates the RTU tables accordingly.
+    align: False
     x-wbgen:
       kind: fifo
       direction: CORE_TO_BUS
       depth: 128
-      wire_full: "true"
-      wire_empty: "true"
+      wire_full: True
+      wire_empty: True
     elements:
     - reg:
         name: ufifo_r0
@@ -380,6 +380,7 @@ elements:
           kind: fifocs
         fields:
         - field:
+            name: empty
             range: 17
             description: FIFO empty flag
             comment: |
@@ -389,6 +390,7 @@ elements:
               type: BIT
               kind: empty
         - field:
+            name: count
             range: 6-0
             description: FIFO counter
             comment: |
@@ -405,16 +407,19 @@ elements:
       0: entry wasn't matched
       1: entry was matched at least once.
       CPU reads this bitmap and subsequently clears it every few seconds to update the aging counters.
+    align: True
     x-wbgen:
       kind: ram
       access_dev: READ_WRITE
     elements:
     - reg:
+        name: data
         width: 32
         access: rw
 - block:
     name: eic
-    address: 0x00000800
+    address: 0x00000020
+    align: False
     x-wbgen:
       kind: irq
       irqs:

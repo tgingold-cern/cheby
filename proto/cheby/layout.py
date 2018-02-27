@@ -54,7 +54,14 @@ class LayoutException(Exception):
         self.msg = msg
 
 
+def layout_named(n):
+    if n.name is None:
+        raise LayoutException(
+            "missing name for {}".format(n.get_path()))
+
+
 def layout_field(f, parent, pos):
+    layout_named(f)
     if f.lo is None:
         raise LayoutException(
             "missing range for field {}".format(f.get_path()))
@@ -90,14 +97,21 @@ def layout_reg(lo, n):
     if n.width not in [8, 16, 32, 64]:
         raise LayoutException(
             "incorrect width for register {}".format(n.get_path()))
+    layout_named(n)
     n.c_size = align(n.width / tree.BYTE_SIZE, lo.word_size)
     n.c_align = n.c_size
+    names = set()
     if n.fields:
         if n.type is not None:
             raise LayoutException(
                 "register {} with both a type and fields".format(n.get_path()))
         pos = [None] * n.width
         for f in n.fields:
+            if f.name in names:
+                raise LayoutException(
+                    "field '{}' reuse a name in reg {}".format(
+                        f.name, n.get_path()))
+            names.add(f.name)
             layout_field(f, n, pos)
     elif n.type is not None:
         raise LayoutException(
@@ -139,8 +153,18 @@ def layout_composite(lo, n):
     if not n.elements:
         raise LayoutException(
             "composite element '{}' has no elements".format(n.get_path()))
-    lo1 = Layout(lo.word_size)
+    layout_named(n)
+
+    # Check name uniqness
+    names = set()
+    for c in n.elements:
+        if c.name in names:
+            raise LayoutException(
+                "child {} reuse name '{}'".format(c.get_path(), c.name))
+        names.add(c.name)
+
     # Compute size and alignment of elements.
+    lo1 = Layout(lo.word_size)
     max_align = 0
     for c in n.elements:
         lo1.visit(c)
