@@ -106,7 +106,8 @@ def test_print():
 def test_hdl():
     fd = write_null()
     for f in ['simple_reg3.yaml', 'simple_reg4_ro.yaml',
-              'reg_value1.yaml', 'reg_value2.yaml', 'reg_value3.yaml']:
+              'reg_value1.yaml', 'reg_value2.yaml', 'reg_value3.yaml',
+              'field_value1.yaml', 'field_value2.yaml']:
         t = parse_ok(srcdir + f)
         layout_ok(t)
         h = gen_hdl.generate_hdl(t)

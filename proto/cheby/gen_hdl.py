@@ -55,19 +55,17 @@ def add_ports(module, prefix, node):
             if n.access in ['wo', 'rw']:
                 suf = '_o'
                 dr = 'OUT'
-            elif n.access in ['ro']:
+            elif n.access in ['ro', 'cst']:
                 suf = '_i'
                 dr = 'IN'
-            elif n.access in ['cst']:
-                # No port needed
-                continue
             else:
-                assert False
+                raise AssertionError
 
             def _create_port(b, w):
-                b.h_port = HDLPort(prefix + b.name + suf, w, dir=dr)
-                b.h_port.comment = b.description
-                module.ports.append(b.h_port)
+                if n.access != 'cst':
+                    b.h_port = HDLPort(prefix + b.name + suf, w, dir=dr)
+                    b.h_port.comment = b.description
+                    module.ports.append(b.h_port)
                 if dr == 'OUT':
                     b.h_reg = HDLSignal(prefix + b.name + '_reg', w)
                     module.signals.append(b.h_reg)
@@ -81,7 +79,7 @@ def add_ports(module, prefix, node):
             else:
                 _create_port(n, n.width)
         else:
-            assert False
+            raise AssertionError
 
 
 def add_init(stmts, node):
@@ -104,7 +102,7 @@ def add_init(stmts, node):
                 # Preset for regs ?
                 stmts.append(HDLAssign(n.h_reg, HDLConst(0, n.width)))
         else:
-            assert False
+            raise AssertionError
 
 
 def wire_regs(stmts, node):
@@ -121,7 +119,7 @@ def wire_regs(stmts, node):
                 if n.h_reg:
                     stmts.append(HDLAssign(n.h_port, n.h_reg))
         else:
-            assert False
+            raise AssertionError
 
 
 def add_decoder(root, stmts, addr, n, func):
@@ -147,7 +145,7 @@ def add_decoder(root, stmts, addr, n, func):
             func(ch.stmts, None)
     else:
         # TODO
-        assert False
+        raise AssertionError
 
 
 def generate_hdl(root):
@@ -163,7 +161,7 @@ def generate_hdl(root):
     if root.bus == 'wb-32-be':
         expand_wishbone(res, root)
     else:
-        assert False
+        raise AssertionError
     # Add ports
     add_ports(module=res, prefix='', node=root)
     # Bus access
@@ -240,9 +238,9 @@ def generate_hdl(root):
             elif n.access == 'ro':
                 return t.h_port
             elif n.access == 'cst':
-                return t.preset
+                return HDLConst(t.preset, t.c_width)
             else:
-                assert False
+                raise AssertionError
         if n is not None:
             if n.fields:
                 for f in n.fields:

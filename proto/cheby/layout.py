@@ -3,10 +3,8 @@
    Check fields.
 
    TODO:
-   - check names are uniq (case ?)
    - check names/description are present
    - check names are C identifiers
-   - check preset values are in the range.
 """
 
 import tree

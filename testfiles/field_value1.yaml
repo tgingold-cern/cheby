@@ -1,0 +1,14 @@
+bus: wb-32-be
+name: fvalue1
+description: a single register
+elements:
+  - reg:
+      name: areg
+      width: 32
+      access: cst
+      fields:
+        - field:
+            name: fa_1
+            description: Field for testing
+            range: 3-0
+            preset: 0xc
