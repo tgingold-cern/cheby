@@ -5,6 +5,7 @@ import parser
 import pprint
 import sprint
 import cprint
+import gen_laychk
 import layout
 import gen_hdl
 import print_vhdl
@@ -18,8 +19,10 @@ def main():
                          help='display the layout with fields')
     aparser.add_argument('--memmap-print', action='store_true',
                          help='display the layout without fields')
-    aparser.add_argument('--c-print', action='store_true',
+    aparser.add_argument('--c-print', action='store', nargs='?', const='.',
                          help='display the c header file')
+    aparser.add_argument('--c-check-layout', action='store_true',
+                         help='generate c file to check layout of the header')
     aparser.add_argument('--vhdl', action='store_true',
                          help='generate vhdl file')
     aparser.add_argument('FILE', nargs='+')
@@ -43,8 +46,19 @@ def main():
             sprint.sprint_cheby(sys.stdout, t, False)
         if args.simple_print:
             sprint.sprint_cheby(sys.stdout, t, True)
-        if args.c_print:
-            cprint.cprint_cheby(sys.stdout, t)
+        if args.c_print is not None:
+            if args.c_print == '-':
+                cprint.cprint_cheby(sys.stdout, t)
+            else:
+                if args.c_print == '.':
+                    name = t.name + '.h'
+                else:
+                    name = args.c_print
+                fd = open(name, 'w')
+                cprint.cprint_cheby(fd, t)
+                fd.close()
+        if args.c_check_layout:
+            gen_laychk.gen_chklayout_cheby(sys.stdout, t)
         if args.vhdl:
             h = gen_hdl.generate_hdl(t)
             print_vhdl.print_vhdl(sys.stdout, h)

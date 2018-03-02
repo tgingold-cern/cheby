@@ -171,7 +171,7 @@ def layout_composite(lo, n):
             "composite element '{}' has no elements".format(n.get_path()))
     layout_named(n)
 
-    # Check name uniqness
+    # Check name uniqueness
     names = set()
     for c in n.elements:
         if c.name in names:
@@ -191,9 +191,10 @@ def layout_composite(lo, n):
         if isinstance(c, tree.ComplexNode) and (c.align is None or c.align):
             c.c_align = max_align
             has_aligned = True
+    n.c_size = 0
     for c in n.elements:
         lo1.compute_address(c)
-    n.c_size = lo1.address
+        n.c_size = max(n.c_size, c.c_address + c.c_size)
     n.c_align = max_align
     if has_aligned:
         n.c_blk_bits = ilog2(max_align)

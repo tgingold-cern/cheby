@@ -1,6 +1,6 @@
 #   demo file (from rtu-regs.wb)
 bus: wb-32-be
-name: rtu
+name: demo
 description: Routing Table Unit (RTU)
 x-wbgen:
   hdl_entity: rtu_wishbone_slave

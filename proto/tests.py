@@ -1,5 +1,7 @@
 """Simple test program"""
 import sys
+import os
+import subprocess
 import cheby.parser as parser
 import cheby.layout as layout
 import cheby.pprint as pprint
@@ -7,6 +9,7 @@ import cheby.sprint as sprint
 import cheby.cprint as cprint
 import cheby.gen_hdl as gen_hdl
 import cheby.print_vhdl as print_vhdl
+import cheby.gen_laychk as gen_laychk
 
 srcdir = '../testfiles/'
 
@@ -76,6 +79,16 @@ def test_layout():
     for f in ['demo.yaml', 'block1.yaml', 'array1.yaml', 'array2.yaml']:
         t = parse_ok(srcdir + f)
         layout_ok(t)
+        hname = t.name + '.h'
+        cname = t.name + '.c'
+        with open(hname, 'w') as fd:
+            cprint.cprint_cheby(fd, t)
+        with open(cname, 'w') as fd:
+            gen_laychk.gen_chklayout_cheby(fd, t)
+        subprocess.check_call(['gcc', '-S', cname])
+        os.remove(hname)
+        os.remove(cname)
+        os.remove(t.name + '.s')
     for f in ['err_bus_name.yaml',
               'err_reg_addr1.yaml', 'err_reg_addr2.yaml',
               'err_reg_width1.yaml',
