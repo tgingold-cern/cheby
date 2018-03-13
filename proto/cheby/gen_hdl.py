@@ -148,87 +148,21 @@ def add_decoder(root, stmts, addr, n, func):
         raise AssertionError
 
 
-def generate_hdl(root):
-    res = HDLModule()
-    res.name = root.name
-
-    # Number of bits in the address used by a word
-    root.c_addr_word_bits = ilog2(root.c_word_size)
-    # Number of bits in a word
-    root.c_word_bits = root.c_word_size * tree.BYTE_SIZE
-
-    # Create the bus
-    if root.bus == 'wb-32-be':
-        expand_wishbone(res, root)
-    else:
-        raise AssertionError
-    # Add ports
-    add_ports(module=res, prefix='', node=root)
-    # Bus access
-    res.stmts.append(HDLComment('WB decode signals'))
-    wb_en = HDLSignal('wb_en')
-    rd_int = HDLSignal('rd_int')        # Read access
-    wr_int = HDLSignal('wr_int')        # Write access
-    ack_int = HDLSignal('ack_int')      # Ack
-    rd_ack = HDLSignal('rd_ack_int')    # Ack for read
-    wr_ack = HDLSignal('wr_ack_int')    # Ack for write
-    res.signals.extend([wb_en, rd_int, wr_int, ack_int, rd_ack, wr_ack])
-    res.stmts.append(HDLAssign(wb_en,
-                               HDLAnd(root.h_bus['cyc'], root.h_bus['stb'])))
-    res.stmts.append(HDLAssign(rd_int,
-                               HDLAnd(wb_en, HDLNot(root.h_bus['we']))))
-    res.stmts.append(HDLAssign(wr_int,
-                               HDLAnd(wb_en, root.h_bus['we'])))
-    res.stmts.append(HDLAssign(ack_int, HDLOr(rd_ack, wr_ack)))
-    res.stmts.append(HDLAssign(root.h_bus['ack'], ack_int))
-    res.stmts.append(HDLAssign(root.h_bus['stall'],
-                               HDLAnd(HDLNot(ack_int), wb_en)))
-
-    res.stmts.append(HDLComment('Assign outputs'))
-    wire_regs(res.stmts, root)
-
-    # Register write
-    res.stmts.append(HDLComment('Process to write registers.'))
-    wrproc = HDLSync(root.h_bus['rst'], root.h_bus['clk'])
-    res.stmts.append(wrproc)
-    add_init(wrproc.rst_stmts, root)
-    wr_if = HDLIfElse(HDLAnd(HDLEq(wr_int, bit_1), HDLEq(wr_ack, bit_0)))
-    wrproc.sync_stmts.append(wr_if)
-    wr_if.else_stmts.append(HDLAssign(wr_ack, bit_0))
-    wr_data = root.h_bus['dati']
-
-    def add_write(s, n):
-        if n is not None:
-            if n.fields:
-                for f in n.fields:
-                    if f.h_reg is not None:
-                        s.append(HDLAssign(f.h_reg, HDLSlice(wr_data,
-                                                             f.lo, f.c_width)))
-            else:
-                if n.h_reg is not None:
-                    if n.width == root.c_word_bits:
-                        dat = wr_data
-                    else:
-                        dat = HDLSlice(wr_data, 0, n.width)
-                    s.append(HDLAssign(n.h_reg, dat))
-        # All the write are ack'ed (including the write to unassigned
-        # addresses)
-        s.append(HDLAssign(wr_ack, bit_1))
-    add_decoder(root, wr_if.then_stmts, root.h_bus['adr'], root, add_write)
-
+def add_read_process(root, module, isigs):
     # Register read
-    res.stmts.append(HDLComment('Process to read registers.'))
+    module.stmts.append(HDLComment('Process to read registers.'))
     rd_data = root.h_bus['dato']
     rdproc = HDLSync(root.h_bus['rst'], root.h_bus['clk'])
-    res.stmts.append(rdproc)
-    rdproc.rst_stmts.append(HDLAssign(rd_ack, bit_0))
+    module.stmts.append(rdproc)
+    rdproc.rst_stmts.append(HDLAssign(isigs.rd_ack, bit_0))
     rdproc.rst_stmts.append(HDLAssign(rd_data,
                                       HDLReplicate(bit_x, root.c_word_bits)))
     rdproc.sync_stmts.append(HDLAssign(rd_data,
                                        HDLReplicate(bit_x, root.c_word_bits)))
-    rd_if = HDLIfElse(HDLAnd(HDLEq(rd_int, bit_1), HDLEq(rd_ack, bit_0)))
+    rd_if = HDLIfElse(HDLAnd(HDLEq(isigs.rd_int, bit_1),
+                             HDLEq(isigs.rd_ack, bit_0)))
     rdproc.sync_stmts.append(rd_if)
-    rd_if.else_stmts.append(HDLAssign(rd_ack, bit_0))
+    rd_if.else_stmts.append(HDLAssign(isigs.rd_ack, bit_0))
 
     def add_read(s, n):
         def sel_input(t):
@@ -256,8 +190,87 @@ def generate_hdl(root):
                     dat = HDLSlice(rd_data, 0, n.width)
                 s.append(HDLAssign(dat, src))
         # All the read are ack'ed (including the read to unassigned addresses).
-        s.append(HDLAssign(rd_ack, bit_1))
+        s.append(HDLAssign(isigs.rd_ack, bit_1))
 
     add_decoder(root, rd_if.then_stmts, root.h_bus['adr'], root, add_read)
+
+
+class Isigs(object):
+    "Internal signals"
+    pass
+
+def generate_hdl(root):
+    res = HDLModule()
+    res.name = root.name
+
+    # Number of bits in the address used by a word
+    root.c_addr_word_bits = ilog2(root.c_word_size)
+    # Number of bits in a word
+    root.c_word_bits = root.c_word_size * tree.BYTE_SIZE
+
+    # Create the bus
+    if root.bus == 'wb-32-be':
+        expand_wishbone(res, root)
+    else:
+        raise AssertionError
+    # Add ports
+    add_ports(module=res, prefix='', node=root)
+    # Bus access
+    res.stmts.append(HDLComment('WB decode signals'))
+    isigs = Isigs()
+    isigs.wb_en = HDLSignal('wb_en')
+    isigs.rd_int = HDLSignal('rd_int')        # Read access
+    isigs.wr_int = HDLSignal('wr_int')        # Write access
+    isigs.ack_int = HDLSignal('ack_int')      # Ack
+    isigs.rd_ack = HDLSignal('rd_ack_int')    # Ack for read
+    isigs.wr_ack = HDLSignal('wr_ack_int')    # Ack for write
+    res.signals.extend([isigs.wb_en, isigs.rd_int, isigs.wr_int, isigs.ack_int,
+                        isigs.rd_ack, isigs.wr_ack])
+    res.stmts.append(HDLAssign(isigs.wb_en,
+                               HDLAnd(root.h_bus['cyc'], root.h_bus['stb'])))
+    res.stmts.append(HDLAssign(isigs.rd_int,
+                               HDLAnd(isigs.wb_en, HDLNot(root.h_bus['we']))))
+    res.stmts.append(HDLAssign(isigs.wr_int,
+                               HDLAnd(isigs.wb_en, root.h_bus['we'])))
+    res.stmts.append(HDLAssign(isigs.ack_int,
+                               HDLOr(isigs.rd_ack, isigs.wr_ack)))
+    res.stmts.append(HDLAssign(root.h_bus['ack'], isigs.ack_int))
+    res.stmts.append(HDLAssign(root.h_bus['stall'],
+                               HDLAnd(HDLNot(isigs.ack_int), isigs.wb_en)))
+
+    res.stmts.append(HDLComment('Assign outputs'))
+    wire_regs(res.stmts, root)
+
+    # Register write
+    res.stmts.append(HDLComment('Process to write registers.'))
+    wrproc = HDLSync(root.h_bus['rst'], root.h_bus['clk'])
+    res.stmts.append(wrproc)
+    add_init(wrproc.rst_stmts, root)
+    wr_if = HDLIfElse(HDLAnd(HDLEq(isigs.wr_int, bit_1),
+                             HDLEq(isigs.wr_ack, bit_0)))
+    wrproc.sync_stmts.append(wr_if)
+    wr_if.else_stmts.append(HDLAssign(isigs.wr_ack, bit_0))
+    wr_data = root.h_bus['dati']
+
+    def add_write(s, n):
+        if n is not None:
+            if n.fields:
+                for f in n.fields:
+                    if f.h_reg is not None:
+                        s.append(HDLAssign(f.h_reg, HDLSlice(wr_data,
+                                                             f.lo, f.c_width)))
+            else:
+                if n.h_reg is not None:
+                    if n.width == root.c_word_bits:
+                        dat = wr_data
+                    else:
+                        dat = HDLSlice(wr_data, 0, n.width)
+                    s.append(HDLAssign(n.h_reg, dat))
+        # All the write are ack'ed (including the write to unassigned
+        # addresses)
+        s.append(HDLAssign(isigs.wr_ack, bit_1))
+    add_decoder(root, wr_if.then_stmts, root.h_bus['adr'], root, add_write)
+
+    add_read_process(root, res, isigs)
 
     return res
