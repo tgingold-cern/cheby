@@ -26,6 +26,11 @@ import tree
 from layout import ilog2
 
 
+class Isigs(object):
+    "Internal signals"
+    pass
+
+
 def expand_wishbone(module, root):
     """Create wishbone interface."""
     bus = [('rst',   HDLPort("rst_n_i")),
@@ -148,9 +153,30 @@ def add_decoder(root, stmts, addr, n, func):
         raise AssertionError
 
 
+def add_decode_signals(root, module, isigs):
+    isigs.wb_en = HDLSignal('wb_en')
+    isigs.rd_int = HDLSignal('rd_int')        # Read access
+    isigs.wr_int = HDLSignal('wr_int')        # Write access
+    isigs.ack_int = HDLSignal('ack_int')      # Ack
+    isigs.rd_ack = HDLSignal('rd_ack_int')    # Ack for read
+    isigs.wr_ack = HDLSignal('wr_ack_int')    # Ack for write
+    module.signals.extend([isigs.wb_en, isigs.rd_int, isigs.wr_int,
+                           isigs.ack_int, isigs.rd_ack, isigs.wr_ack])
+    module.stmts.append(
+        HDLAssign(isigs.wb_en, HDLAnd(root.h_bus['cyc'], root.h_bus['stb'])))
+    module.stmts.append(
+        HDLAssign(isigs.rd_int, HDLAnd(isigs.wb_en, HDLNot(root.h_bus['we']))))
+    module.stmts.append(
+        HDLAssign(isigs.wr_int, HDLAnd(isigs.wb_en, root.h_bus['we'])))
+    module.stmts.append(HDLAssign(isigs.ack_int,
+                                  HDLOr(isigs.rd_ack, isigs.wr_ack)))
+    module.stmts.append(HDLAssign(root.h_bus['ack'], isigs.ack_int))
+    module.stmts.append(HDLAssign(root.h_bus['stall'],
+                                  HDLAnd(HDLNot(isigs.ack_int), isigs.wb_en)))
+
+
 def add_read_process(root, module, isigs):
     # Register read
-    module.stmts.append(HDLComment('Process to read registers.'))
     rd_data = root.h_bus['dato']
     rdproc = HDLSync(root.h_bus['rst'], root.h_bus['clk'])
     module.stmts.append(rdproc)
@@ -197,7 +223,6 @@ def add_read_process(root, module, isigs):
 
 def add_write_process(root, module, isigs):
     # Register write
-    module.stmts.append(HDLComment('Process to write registers.'))
     wrproc = HDLSync(root.h_bus['rst'], root.h_bus['clk'])
     module.stmts.append(wrproc)
     add_init(wrproc.rst_stmts, root)
@@ -227,13 +252,9 @@ def add_write_process(root, module, isigs):
     add_decoder(root, wr_if.then_stmts, root.h_bus['adr'], root, add_write)
 
 
-class Isigs(object):
-    "Internal signals"
-    pass
-
 def generate_hdl(root):
-    res = HDLModule()
-    res.name = root.name
+    module = HDLModule()
+    module.name = root.name
 
     # Number of bits in the address used by a word
     root.c_addr_word_bits = ilog2(root.c_word_size)
@@ -242,38 +263,25 @@ def generate_hdl(root):
 
     # Create the bus
     if root.bus == 'wb-32-be':
-        expand_wishbone(res, root)
+        expand_wishbone(module, root)
     else:
         raise AssertionError
     # Add ports
-    add_ports(module=res, prefix='', node=root)
-    # Bus access
-    res.stmts.append(HDLComment('WB decode signals'))
+    add_ports(module=module, prefix='', node=root)
+
     isigs = Isigs()
-    isigs.wb_en = HDLSignal('wb_en')
-    isigs.rd_int = HDLSignal('rd_int')        # Read access
-    isigs.wr_int = HDLSignal('wr_int')        # Write access
-    isigs.ack_int = HDLSignal('ack_int')      # Ack
-    isigs.rd_ack = HDLSignal('rd_ack_int')    # Ack for read
-    isigs.wr_ack = HDLSignal('wr_ack_int')    # Ack for write
-    res.signals.extend([isigs.wb_en, isigs.rd_int, isigs.wr_int, isigs.ack_int,
-                        isigs.rd_ack, isigs.wr_ack])
-    res.stmts.append(HDLAssign(isigs.wb_en,
-                               HDLAnd(root.h_bus['cyc'], root.h_bus['stb'])))
-    res.stmts.append(HDLAssign(isigs.rd_int,
-                               HDLAnd(isigs.wb_en, HDLNot(root.h_bus['we']))))
-    res.stmts.append(HDLAssign(isigs.wr_int,
-                               HDLAnd(isigs.wb_en, root.h_bus['we'])))
-    res.stmts.append(HDLAssign(isigs.ack_int,
-                               HDLOr(isigs.rd_ack, isigs.wr_ack)))
-    res.stmts.append(HDLAssign(root.h_bus['ack'], isigs.ack_int))
-    res.stmts.append(HDLAssign(root.h_bus['stall'],
-                               HDLAnd(HDLNot(isigs.ack_int), isigs.wb_en)))
 
-    res.stmts.append(HDLComment('Assign outputs'))
-    wire_regs(res.stmts, root)
+    # Bus access
+    module.stmts.append(HDLComment('WB decode signals'))
+    add_decode_signals(root, module, isigs)
 
-    add_write_process(root, res, isigs)
-    add_read_process(root, res, isigs)
+    module.stmts.append(HDLComment('Assign outputs'))
+    wire_regs(module.stmts, root)
 
-    return res
+    module.stmts.append(HDLComment('Process to write registers.'))
+    add_write_process(root, module, isigs)
+
+    module.stmts.append(HDLComment('Process to read registers.'))
+    add_read_process(root, module, isigs)
+
+    return module
