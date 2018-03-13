@@ -104,6 +104,9 @@ def layout_reg(lo, n):
             "incorrect width for register {}".format(n.get_path()))
     layout_named(n)
     # Check access
+    if n.access is None:
+        raise LayoutException(
+            "missing access for register {}".format(n.get_path()))
     if n.access is not None and n.access not in ['ro', 'rw', 'wo', 'cst']:
         raise LayoutException(
             "incorrect access for register {}".format(n.get_path()))

@@ -9,4 +9,5 @@ elements:
       elements:
         - reg:
             name: areg1
+            access: rw
             width: 32
