@@ -41,7 +41,7 @@ Lexical definitions
 
 A number is represented either in decimal or in hexadecimal with the
 '0x' prefix:
-  number ::= [0-9]* | 0x[0-9a-fA-F]*
+  number ::= [0-9]+ | 0x[0-9a-fA-F]+
 An address is either a number or the string next:
   address ::= number | "next"
   "next" means the following aligned address.
