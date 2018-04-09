@@ -176,6 +176,7 @@ def generate_seq(fd, s, level):
         w(fd, indent)
         wln(fd, "end case;")
     elif isinstance(s, hdltree.HDLComment):
+        w(fd, indent)
         wln(fd, "-- {}".format(s.comment))
     else:
         assert False, "unhandled hdl seq {}".format(s)
