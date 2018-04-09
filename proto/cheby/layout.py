@@ -102,7 +102,6 @@ def layout_reg(lo, n):
     if n.width not in [8, 16, 32, 64]:
         raise LayoutException(
             "incorrect width for register {}".format(n.get_path()))
-    n.c_width = n.width
     layout_named(n)
     # Check access
     if n.access is None:
@@ -128,19 +127,29 @@ def layout_reg(lo, n):
                         f.name, n.get_path()))
             names.add(f.name)
             layout_field(f, n, pos)
-    elif n.type is None:
-        # Default is unsigned
-        n.c_type = 'unsigned'
-    elif n.type in ['signed', 'unsigned']:
-        n.c_type = n.type
-    elif n.type == 'float':
-        n.c_type = n.type
-        if n.width not in [32, 64]:
-            raise LayoutException(
-                "incorrect width for float register {}".format(n.get_path()))
     else:
-        raise LayoutException(
-            "incorrect type for register {}".format(n.get_path()))
+        # Create the artificial field
+        f = tree.FieldReg(n)
+        n.fields.append(f)
+        f.name = n.name
+        f.lo = 0
+        f.hi = n.width - 1
+        f.c_width = n.width
+
+        if n.type is None:
+            # Default is unsigned
+            n.c_type = 'unsigned'
+        elif n.type in ['signed', 'unsigned']:
+            n.c_type = n.type
+        elif n.type == 'float':
+            n.c_type = n.type
+            if n.width not in [32, 64]:
+                raise LayoutException(
+                    "incorrect width for float register {}".format(
+                        n.get_path()))
+        else:
+            raise LayoutException(
+                "incorrect type for register {}".format(n.get_path()))
 
 
 @Layout.register(tree.Block)

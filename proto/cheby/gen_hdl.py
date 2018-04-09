@@ -69,27 +69,23 @@ def add_ports(module, prefix, node):
             else:
                 raise AssertionError
 
-            def _create_port(b, w):
-                if n.access != 'cst':
-                    name = pfx + b.name + suf
-                    b.h_port = HDLPort(name.lower(), w, dir=dr)
-                    b.h_port.comment = b.description
-                    module.ports.append(b.h_port)
-                if n.access in ['wo', 'rw'] and n.hdl_type == 'reg':
-                    name = pfx + b.name + '_reg'
-                    b.h_reg = HDLSignal(name.lower(), w)
-                    module.signals.append(b.h_reg)
-                else:
-                    b.h_reg = None
-
-            if n.fields:
+            if n.c_type is None:
                 pfx = prefix + n.name + '_'
-                for f in n.fields:
-                    w = None if f.c_width == 1 else f.c_width
-                    _create_port(f, w)
             else:
                 pfx = prefix
-                _create_port(n, n.width)
+            for f in n.fields:
+                w = None if f.c_width == 1 else f.c_width
+                if n.access != 'cst':
+                    name = pfx + f.name + suf
+                    f.h_port = HDLPort(name.lower(), w, dir=dr)
+                    f.h_port.comment = f.description
+                    module.ports.append(f.h_port)
+                if n.access in ['wo', 'rw'] and f.hdl_type == 'reg':
+                    name = pfx + f.name + '_reg'
+                    f.h_reg = HDLSignal(name.lower(), w)
+                    module.signals.append(f.h_reg)
+                else:
+                    f.h_reg = None
         else:
             raise AssertionError
 
@@ -254,26 +250,19 @@ def add_read_process(root, module, isigs):
     def add_read_reg(s, n):
         def sel_input(t):
             "Where to read data from."
+        for f in n.fields:
             if n.access in ['wo', 'rw']:
-                return t.h_reg
+                src = f.h_reg
             elif n.access == 'ro':
-                return t.h_port
+                src = f.h_port
             elif n.access == 'cst':
-                return HDLConst(t.preset, t.c_width)
+                src = HDLConst(f.preset, f.c_width)
             else:
                 raise AssertionError
-        if n.fields:
-            for f in n.fields:
-                src = sel_input(f)
-                assert src is not None
-                s.append(HDLAssign(
-                    HDLSlice(rd_data, f.lo, f.c_width), src))
-        else:
-            src = sel_input(n)
-            if n.width == root.c_word_bits:
+            if f.c_width == root.c_word_bits:
                 dat = rd_data
             else:
-                dat = HDLSlice(rd_data, 0, n.width)
+                dat = HDLSlice(rd_data, f.lo, f.c_width)
             s.append(HDLAssign(dat, src))
     def add_read(s, n):
         if n is not None:
@@ -303,26 +292,17 @@ def add_write_process(root, module, isigs):
     wr_data = root.h_bus['dati']
 
     def add_write_reg(s, n):
-        if n.fields:
-            for f in n.fields:
-                if f.hdl_type == 'reg':
-                    r = f.h_reg
-                elif f.hdl_type == 'wire':
-                    r = f.h_port
-                else:
-                    raise AssertionError
-                s.append(HDLAssign(r, HDLSlice(wr_data, f.lo, f.c_width)))
-        else:
-            if n.hdl_type == 'reg':
-                r = n.h_reg
-            elif n.hdl_type == 'wire':
-                r = n.h_port
+        for f in n.fields:
+            if f.hdl_type == 'reg':
+                r = f.h_reg
+            elif f.hdl_type == 'wire':
+                r = f.h_port
             else:
                 raise AssertionError
-            if n.width == root.c_word_bits:
+            if f.c_width == root.c_word_bits:
                 dat = wr_data
             else:
-                dat = HDLSlice(wr_data, 0, n.width)
+                dat = HDLSlice(wr_data, f.lo, f.c_width)
             s.append(HDLAssign(r, dat))
 
     def add_write(s, n):
@@ -341,23 +321,30 @@ def add_write_process(root, module, isigs):
     add_decoder(root, wr_if.then_stmts, root.h_bus['adr'], root, add_write)
 
 
+def expand_x_hdl_field(f, n, dct):
+    # Default values
+    f.hdl_type = 'reg'
+    f.hdl_write_strobe = False
+
+    for k, v in dct.iteritems():
+        if k == 'type':
+            f.hdl_type = parser.read_text(n, k, v)
+        elif k == 'write-strobe':
+            f.hdl_write_strobe = parser.read_bool(n, k, v)
+        else:
+            parser.error("unhandled '{}' in x-hdl of {}".format(
+                  k, n.get_path()))
+
 def expand_x_hdl(n):
     "Decode x-hdl extensions"
     x_hdl = getattr(n, 'x_hdl', {})
-    if isinstance(n, tree.Reg) or isinstance(n, tree.Field):
-        # Default values
-        n.hdl_type = 'reg'
-        n.hdl_write_strobe = False
+    if isinstance(n, tree.Field):
+        expand_x_hdl_field(n, n, x_hdl)
+    elif isinstance(n, tree.Reg):
+        if len(n.fields) == 1 and isinstance(n.fields[0], tree.FieldReg):
+            expand_x_hdl_field(n.fields[0], n, x_hdl)
 
-        for k, v in x_hdl.iteritems():
-            if k == 'type':
-                n.hdl_type = parser.read_text(n, k, v)
-            elif k == 'write-strobe':
-                n.hdl_write_strobe = parser.read_bool(n, k, v)
-            else:
-                parser.error("unhandled '{}' in x-hdl of {}".format(
-                      k, n.get_path()))
-    # Visite children
+    # Visit children
     if isinstance(n, tree.CompositeNode):
         for el in n.elements:
             expand_x_hdl(el)

@@ -87,14 +87,23 @@ class Reg(NamedNode):
         self.preset = None
 
 
-class Field(NamedNode):
-    _dispatcher = {}
+class FieldBase(NamedNode):
+    "Base for Field and FieldReg"
 
     def __init__(self, parent):
-        super(Field, self).__init__(parent)
+        super(FieldBase, self).__init__(parent)
         self.hi = None
         self.lo = None
         self.preset = None
+
+class Field(FieldBase):
+    "A field within a register."
+    pass
+
+
+class FieldReg(FieldBase):
+    "A pseudo field for a register without fields."
+    pass
 
 
 class ComplexNode(CompositeNode):
