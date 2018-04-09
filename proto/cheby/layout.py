@@ -132,6 +132,7 @@ def layout_reg(lo, n):
         f = tree.FieldReg(n)
         n.fields.append(f)
         f.name = n.name
+        f.description = n.description
         f.lo = 0
         f.hi = n.width - 1
         f.c_width = n.width

@@ -60,27 +60,41 @@ def add_ports(module, prefix, node):
         elif isinstance(n, tree.Array):
             pass
         elif isinstance(n, tree.Reg):
-            if n.access in ['wo', 'rw']:
-                suf = '_o'
-                dr = 'OUT'
-            elif n.access in ['ro', 'cst']:
-                suf = '_i'
-                dr = 'IN'
-            else:
-                raise AssertionError
-
             if n.c_type is None:
                 pfx = prefix + n.name + '_'
             else:
                 pfx = prefix
             for f in n.fields:
                 w = None if f.c_width == 1 else f.c_width
-                if n.access != 'cst':
-                    name = pfx + f.name + suf
-                    f.h_port = HDLPort(name.lower(), w, dir=dr)
-                    f.h_port.comment = f.description
-                    module.ports.append(f.h_port)
-                if n.access in ['wo', 'rw'] and f.hdl_type == 'reg':
+
+                # Input
+                if f.hdl_type == 'wire' and n.access in ['ro', 'rw']:
+                    name = pfx + f.name + '_i'
+                    f.h_iport = HDLPort(name.lower(), w, dir='IN')
+                    f.h_iport.comment = f.description
+                    module.ports.append(f.h_iport)
+                else:
+                    f.h_iport = None
+
+                # Output
+                if n.access in ['wo', 'rw']:
+                    name = pfx + f.name + '_o'
+                    f.h_oport = HDLPort(name.lower(), w, dir='OUT')
+                    f.h_oport.comment = f.description
+                    module.ports.append(f.h_oport)
+                else:
+                    f.h_oport = None
+
+                # Write strobe
+                if f.hdl_write_strobe:
+                    name = pfx + f.name + '_wr_o'
+                    f.h_wport = HDLPort(name.lower(), None, dir='OUT')
+                    module.ports.append(f.h_wport)
+                else:
+                    f.h_wport = None
+
+                # Register
+                if f.hdl_type == 'reg':
                     name = pfx + f.name + '_reg'
                     f.h_reg = HDLSignal(name.lower(), w)
                     module.signals.append(f.h_reg)
@@ -90,28 +104,38 @@ def add_ports(module, prefix, node):
             raise AssertionError
 
 
-def add_init(stmts, node):
+def add_init_reg(stmts, node):
     """Create assignment for reset values."""
-
-    def add_init_field(f):
-        if f.h_reg is not None:
-            if f.preset is None:
-                v = 0
-            else:
-                v = f.preset
-            stmts.append(HDLAssign(f.h_reg, HDLConst(v, f.c_width)))
 
     for n in node.elements:
         if isinstance(n, tree.Block):
-            add_init(stmts, n)
+            add_init_reg(stmts, n)
         elif isinstance(n, tree.Array):
             pass
         elif isinstance(n, tree.Reg):
-            if n.fields:
-                for f in n.fields:
-                    add_init_field(f)
-            else:
-                add_init_field(n)
+            for f in n.fields:
+                if f.h_reg is not None:
+                    if f.preset is None:
+                        v = 0
+                    else:
+                        v = f.preset
+                    stmts.append(HDLAssign(f.h_reg, HDLConst(v, f.c_width)))
+        else:
+            raise AssertionError
+
+
+def add_clear_wstrobe(stmts, node):
+    """Create assignment to clear the wstrobe."""
+
+    for n in node.elements:
+        if isinstance(n, tree.Block):
+            add_clear_wstrobe(stmts, n)
+        elif isinstance(n, tree.Array):
+            pass
+        elif isinstance(n, tree.Reg):
+            for f in n.fields:
+                if f.h_wport is not None:
+                    stmts.append(HDLAssign(f.h_wport, bit_0))
         else:
             raise AssertionError
 
@@ -120,7 +144,7 @@ def wire_regs(stmts, node):
     """Create assignment from register to outputs."""
     def wire_regs_field(f):
         if f.h_reg:
-            stmts.append(HDLAssign(f.h_port, f.h_reg))
+            stmts.append(HDLAssign(f.h_oport, f.h_reg))
 
     for n in node.elements:
         if isinstance(n, tree.Block):
@@ -128,11 +152,8 @@ def wire_regs(stmts, node):
         if isinstance(n, tree.Array):
             pass
         elif isinstance(n, tree.Reg):
-            if n.fields:
-                for f in n.fields:
-                    wire_regs_field(f)
-            else:
-                wire_regs_field(n)
+            for f in n.fields:
+                wire_regs_field(f)
         else:
             raise AssertionError
 
@@ -254,7 +275,7 @@ def add_read_process(root, module, isigs):
             if n.access in ['wo', 'rw']:
                 src = f.h_reg
             elif n.access == 'ro':
-                src = f.h_port
+                src = f.h_iport
             elif n.access == 'cst':
                 src = HDLConst(f.preset, f.c_width)
             else:
@@ -284,7 +305,9 @@ def add_write_process(root, module, isigs):
     # Register write
     wrproc = HDLSync(root.h_bus['rst'], root.h_bus['clk'])
     module.stmts.append(wrproc)
-    add_init(wrproc.rst_stmts, root)
+    add_init_reg(wrproc.rst_stmts, root)
+    add_clear_wstrobe(wrproc.rst_stmts, root)
+    add_clear_wstrobe(wrproc.sync_stmts, root)
     wr_if = HDLIfElse(HDLAnd(HDLEq(isigs.wr_int, bit_1),
                              HDLEq(isigs.wr_ack, bit_0)))
     wrproc.sync_stmts.append(wr_if)
@@ -296,7 +319,7 @@ def add_write_process(root, module, isigs):
             if f.hdl_type == 'reg':
                 r = f.h_reg
             elif f.hdl_type == 'wire':
-                r = f.h_port
+                r = f.h_oport
             else:
                 raise AssertionError
             if f.c_width == root.c_word_bits:
@@ -304,6 +327,8 @@ def add_write_process(root, module, isigs):
             else:
                 dat = HDLSlice(wr_data, f.lo, f.c_width)
             s.append(HDLAssign(r, dat))
+            if f.h_wport is not None:
+                s.append(HDLAssign(f.h_wport, bit_1))
 
     def add_write(s, n):
         if n is not None:
@@ -323,7 +348,7 @@ def add_write_process(root, module, isigs):
 
 def expand_x_hdl_field(f, n, dct):
     # Default values
-    f.hdl_type = 'reg'
+    f.hdl_type = 'wire' if f._parent.access == 'ro' else 'reg'
     f.hdl_write_strobe = False
 
     for k, v in dct.iteritems():

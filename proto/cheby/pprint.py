@@ -51,7 +51,9 @@ def pprint_reg(pp, n):
     pp.pp_str('width', n.width)
     pp.pp_str('type', n.type)
     pp.pp_str('access', n.access)
-    if n.fields:
+    if len(n.fields) == 1 and isinstance(n.fields[0], tree.FieldReg):
+        pp.pp_str('preset', n.preset)
+    else:
         pp.pp_list('fields')
         for el in n.fields:
             pprint_field(pp, el)
