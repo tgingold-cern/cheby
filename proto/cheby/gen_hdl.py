@@ -22,6 +22,7 @@ from hdltree import (HDLModule,
                      HDLAnd, HDLOr, HDLNot, HDLEq,
                      HDLSlice, HDLReplicate,
                      HDLConst)
+import parser
 import tree
 from layout import ilog2
 
@@ -74,7 +75,7 @@ def add_ports(module, prefix, node):
                     b.h_port = HDLPort(name.lower(), w, dir=dr)
                     b.h_port.comment = b.description
                     module.ports.append(b.h_port)
-                if dr == 'OUT':
+                if n.access in ['wo', 'rw'] and n.hdl_type == 'reg':
                     name = pfx + b.name + '_reg'
                     b.h_reg = HDLSignal(name.lower(), w)
                     module.signals.append(b.h_reg)
@@ -95,31 +96,36 @@ def add_ports(module, prefix, node):
 
 def add_init(stmts, node):
     """Create assignment for reset values."""
+
+    def add_init_field(f):
+        if f.h_reg is not None:
+            if f.preset is None:
+                v = 0
+            else:
+                v = f.preset
+            stmts.append(HDLAssign(f.h_reg, HDLConst(v, f.c_width)))
+
     for n in node.elements:
         if isinstance(n, tree.Block):
             add_init(stmts, n)
         elif isinstance(n, tree.Array):
             pass
         elif isinstance(n, tree.Reg):
-            if n.access not in ['wo', 'rw']:
-                # No registers.  Check h_reg instead ?
-                continue
             if n.fields:
                 for f in n.fields:
-                    if f.preset is None:
-                        v = 0
-                    else:
-                        v = f.preset
-                    stmts.append(HDLAssign(f.h_reg, HDLConst(v, f.c_width)))
+                    add_init_field(f)
             else:
-                # Preset for regs ?
-                stmts.append(HDLAssign(n.h_reg, HDLConst(0, n.width)))
+                add_init_field(n)
         else:
             raise AssertionError
 
 
 def wire_regs(stmts, node):
     """Create assignment from register to outputs."""
+    def wire_regs_field(f):
+        if f.h_reg:
+            stmts.append(HDLAssign(f.h_port, f.h_reg))
+
     for n in node.elements:
         if isinstance(n, tree.Block):
             wire_regs(stmts, n)
@@ -128,11 +134,9 @@ def wire_regs(stmts, node):
         elif isinstance(n, tree.Reg):
             if n.fields:
                 for f in n.fields:
-                    if f.h_reg:
-                        stmts.append(HDLAssign(f.h_port, f.h_reg))
+                    wire_regs_field(f)
             else:
-                if n.h_reg:
-                    stmts.append(HDLAssign(n.h_port, n.h_reg))
+                wire_regs_field(n)
         else:
             raise AssertionError
 
@@ -301,21 +305,30 @@ def add_write_process(root, module, isigs):
     def add_write_reg(s, n):
         if n.fields:
             for f in n.fields:
-                if f.h_reg is not None:
-                    s.append(HDLAssign(f.h_reg, HDLSlice(wr_data,
-                                                         f.lo, f.c_width)))
-        else:
-            if n.h_reg is not None:
-                if n.width == root.c_word_bits:
-                    dat = wr_data
+                if f.hdl_type == 'reg':
+                    r = f.h_reg
+                elif f.hdl_type == 'wire':
+                    r = f.h_port
                 else:
-                    dat = HDLSlice(wr_data, 0, n.width)
-                s.append(HDLAssign(n.h_reg, dat))
+                    raise AssertionError
+                s.append(HDLAssign(r, HDLSlice(wr_data, f.lo, f.c_width)))
+        else:
+            if n.hdl_type == 'reg':
+                r = n.h_reg
+            elif n.hdl_type == 'wire':
+                r = n.h_port
+            else:
+                raise AssertionError
+            if n.width == root.c_word_bits:
+                dat = wr_data
+            else:
+                dat = HDLSlice(wr_data, 0, n.width)
+            s.append(HDLAssign(r, dat))
 
     def add_write(s, n):
         if n is not None:
             if isinstance(n, tree.Reg):
-                if n.access == 'ro':
+                if n.access in ['ro', 'cst']:
                     return
                 else:
                     s.append(HDLComment(n.name))
@@ -328,9 +341,37 @@ def add_write_process(root, module, isigs):
     add_decoder(root, wr_if.then_stmts, root.h_bus['adr'], root, add_write)
 
 
+def expand_x_hdl(n):
+    "Decode x-hdl extensions"
+    x_hdl = getattr(n, 'x_hdl', {})
+    if isinstance(n, tree.Reg) or isinstance(n, tree.Field):
+        # Default values
+        n.hdl_type = 'reg'
+        n.hdl_write_strobe = False
+
+        for k, v in x_hdl.iteritems():
+            if k == 'type':
+                n.hdl_type = parser.read_text(n, k, v)
+            elif k == 'write-strobe':
+                n.hdl_write_strobe = parser.read_bool(n, k, v)
+            else:
+                parser.error("unhandled '{}' in x-hdl of {}".format(
+                      k, n.get_path()))
+    # Visite children
+    if isinstance(n, tree.CompositeNode):
+        for el in n.elements:
+            expand_x_hdl(el)
+    elif isinstance(n, tree.Reg):
+        for f in n.fields:
+            expand_x_hdl(f)
+
+
 def generate_hdl(root):
     module = HDLModule()
     module.name = root.name
+
+    # Decode x-hdl
+    expand_x_hdl(root)
 
     # Number of bits in the address used by a word
     root.c_addr_word_bits = ilog2(root.c_word_size)

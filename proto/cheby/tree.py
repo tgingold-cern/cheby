@@ -84,6 +84,7 @@ class Reg(NamedNode):
         self.access = None
         self.address = None
         self.fields = []
+        self.preset = None
 
 
 class Field(NamedNode):

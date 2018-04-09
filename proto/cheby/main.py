@@ -31,37 +31,37 @@ def main():
     for f in args.FILE:
         try:
             t = parser.parse_yaml(f)
+
+            layout.layout_cheby(t)
+            
+            if args.pretty_print:
+                pprint.pprint_cheby(sys.stdout, t)
+            if args.memmap_print:
+                sprint.sprint_cheby(sys.stdout, t, False)
+            if args.simple_print:
+                sprint.sprint_cheby(sys.stdout, t, True)
+            if args.c_print is not None:
+                if args.c_print == '-':
+                    cprint.cprint_cheby(sys.stdout, t)
+                else:
+                    if args.c_print == '.':
+                        name = t.name + '.h'
+                    else:
+                        name = args.c_print
+                    fd = open(name, 'w')
+                    cprint.cprint_cheby(fd, t)
+                    fd.close()
+            if args.c_check_layout:
+                gen_laychk.gen_chklayout_cheby(sys.stdout, t)
+            if args.vhdl:
+                h = gen_hdl.generate_hdl(t)
+                print_vhdl.print_vhdl(sys.stdout, h)
         except parser.ParseException as e:
             sys.stderr.write("{}:parse error: {}\n".format(f, e.msg))
             sys.exit(2)
-
-        try:
-            layout.layout_cheby(t)
         except layout.LayoutException as e:
             sys.stderr.write("{}:layout error: {}\n".format(f, e.msg))
             sys.exit(2)
-        if args.pretty_print:
-            pprint.pprint_cheby(sys.stdout, t)
-        if args.memmap_print:
-            sprint.sprint_cheby(sys.stdout, t, False)
-        if args.simple_print:
-            sprint.sprint_cheby(sys.stdout, t, True)
-        if args.c_print is not None:
-            if args.c_print == '-':
-                cprint.cprint_cheby(sys.stdout, t)
-            else:
-                if args.c_print == '.':
-                    name = t.name + '.h'
-                else:
-                    name = args.c_print
-                fd = open(name, 'w')
-                cprint.cprint_cheby(fd, t)
-                fd.close()
-        if args.c_check_layout:
-            gen_laychk.gen_chklayout_cheby(sys.stdout, t)
-        if args.vhdl:
-            h = gen_hdl.generate_hdl(t)
-            print_vhdl.print_vhdl(sys.stdout, h)
 
 
 if __name__ == '__main__':

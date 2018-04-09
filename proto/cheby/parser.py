@@ -39,6 +39,8 @@ def parse_named(node, key, val):
         node.comment = read_text(node, key, val).rstrip()
     elif key == 'x-wbgen':
         node.x_wbgen = val
+    elif key == 'x-hdl':
+        node.x_hdl = val
     else:
         return False
     return True
