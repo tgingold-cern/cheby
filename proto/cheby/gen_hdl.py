@@ -127,33 +127,75 @@ def wire_regs(stmts, node):
             raise AssertionError
 
 
+def add_reg_decoder(root, stmts, addr, func, els, blk_bits):
+    """Call :param func: for each element of :param n:.  :param func: can also
+       be called with None when a decoder is generated and could handle an
+       address that has no corresponding elements."""
+    # Decode directly all the elements
+    width = blk_bits - root.c_addr_word_bits
+    if width == 0:
+        assert len(els) <= 1
+        for el in els:
+            func(stmts, el)
+    else:
+        sw = HDLSwitch(HDLSlice(addr, root.c_addr_word_bits, width))
+        stmts.append(sw)
+        for el in els:
+            ch = HDLChoiceExpr(
+                HDLConst(el.c_address >> root.c_addr_word_bits, width))
+            sw.choices.append(ch)
+            func(ch.stmts, el)
+        ch = HDLChoiceDefault()
+        sw.choices.append(ch)
+        func(ch.stmts, None)
+
+def add_block_decoder(root, stmts, addr, func, n):
+    """Call :param func: for each element of :param n:.  :param func: can also
+       be called with None when a decoder is generated and could handle an
+       address that has no corresponding elements."""
+    # Put children into sub-blocks
+    n_subblocks = 1 << n.c_sel_bits
+    subblocks_bits = n.c_blk_bits
+    subblocks = [None] * n_subblocks
+    for i in range(n_subblocks):
+        subblocks[i] = []
+    for el in n.elements:
+        idx = (el.c_address >> subblocks_bits) & (n_subblocks - 1)
+        subblocks[idx].append(el)
+
+    sw = HDLSwitch(HDLSlice(addr, subblocks_bits, n.c_sel_bits))
+    stmts.append(sw)
+    for i in range(n_subblocks):
+        el = subblocks[i]
+        if el:
+            ch = HDLChoiceExpr(HDLConst(i, n.c_sel_bits))
+            sw.choices.append(ch)
+            if isinstance(el[0], tree.Block):
+                assert len(el) == 1
+                add_block_decoder(root, ch.stmts, addr, func, el[0])
+            elif isinstance(el[0], tree.Array):
+                assert len(el) == 1
+                func(ch.stmts, el)
+            elif isinstance(el[0], tree.Reg):
+                add_reg_decoder(root, ch.stmts, addr, func, el, subblocks_bits)
+            else:
+                raise AssertionError
+    ch = HDLChoiceDefault()
+    sw.choices.append(ch)
+    func(ch.stmts, None)
+
 def add_decoder(root, stmts, addr, n, func):
     """Call :param func: for each element of :param n:.  :param func: can also
        be called with None when a decoder is generated and could handle an
        address that has no corresponding elements."""
     if n.c_sel_bits == 0:
-        # Decode directly all the elements
-        width = n.c_blk_bits - root.c_addr_word_bits
-        if width == 0:
-            for el in n.elements:
-                func(stmts, el)
-        else:
-            sw = HDLSwitch(HDLSlice(addr, root.c_addr_word_bits, width))
-            stmts.append(sw)
-            for el in n.elements:
-                ch = HDLChoiceExpr(
-                    HDLConst(el.c_address >> root.c_addr_word_bits, width))
-                sw.choices.append(ch)
-                func(ch.stmts, el)
-            ch = HDLChoiceDefault()
-            sw.choices.append(ch)
-            func(ch.stmts, None)
+        add_reg_decoder(root, stmts, addr, func, n.elements, n.c_blk_bits)
     else:
-        # TODO
-        raise AssertionError
+        add_block_decoder(root, stmts, addr, func, n)
 
 
-def add_decode_signals(root, module, isigs):
+def add_decode_wb(root, module, isigs):
+    "Generate internal signals used by decoder/processes from WB bus."
     isigs.wb_en = HDLSignal('wb_en')
     isigs.rd_int = HDLSignal('rd_int')        # Read access
     isigs.wr_int = HDLSignal('wr_int')        # Write access
@@ -190,7 +232,7 @@ def add_read_process(root, module, isigs):
     rdproc.sync_stmts.append(rd_if)
     rd_if.else_stmts.append(HDLAssign(isigs.rd_ack, bit_0))
 
-    def add_read(s, n):
+    def add_read_reg(s, n):
         def sel_input(t):
             "Where to read data from."
             if n.access in ['wo', 'rw']:
@@ -201,20 +243,25 @@ def add_read_process(root, module, isigs):
                 return HDLConst(t.preset, t.c_width)
             else:
                 raise AssertionError
-        if n is not None:
-            if n.fields:
-                for f in n.fields:
-                    src = sel_input(f)
-                    assert src is not None
-                    s.append(HDLAssign(
-                        HDLSlice(rd_data, f.lo, f.c_width), src))
+        if n.fields:
+            for f in n.fields:
+                src = sel_input(f)
+                assert src is not None
+                s.append(HDLAssign(
+                    HDLSlice(rd_data, f.lo, f.c_width), src))
+        else:
+            src = sel_input(n)
+            if n.width == root.c_word_bits:
+                dat = rd_data
             else:
-                src = sel_input(n)
-                if n.width == root.c_word_bits:
-                    dat = rd_data
-                else:
-                    dat = HDLSlice(rd_data, 0, n.width)
-                s.append(HDLAssign(dat, src))
+                dat = HDLSlice(rd_data, 0, n.width)
+            s.append(HDLAssign(dat, src))
+    def add_read(s, n):
+        if n is not None:
+            if isinstance(n, tree.Reg):
+                add_read_reg(s, n)
+            else:
+                s.append(HDLComment("TODO"))
         # All the read are ack'ed (including the read to unassigned addresses).
         s.append(HDLAssign(isigs.rd_ack, bit_1))
 
@@ -232,20 +279,26 @@ def add_write_process(root, module, isigs):
     wr_if.else_stmts.append(HDLAssign(isigs.wr_ack, bit_0))
     wr_data = root.h_bus['dati']
 
+    def add_write_reg(s, n):
+        if n.fields:
+            for f in n.fields:
+                if f.h_reg is not None:
+                    s.append(HDLAssign(f.h_reg, HDLSlice(wr_data,
+                                                         f.lo, f.c_width)))
+        else:
+            if n.h_reg is not None:
+                if n.width == root.c_word_bits:
+                    dat = wr_data
+                else:
+                    dat = HDLSlice(wr_data, 0, n.width)
+                s.append(HDLAssign(n.h_reg, dat))
+
     def add_write(s, n):
         if n is not None:
-            if n.fields:
-                for f in n.fields:
-                    if f.h_reg is not None:
-                        s.append(HDLAssign(f.h_reg, HDLSlice(wr_data,
-                                                             f.lo, f.c_width)))
+            if isinstance(n, tree.Reg):
+                add_write_reg(s, n)
             else:
-                if n.h_reg is not None:
-                    if n.width == root.c_word_bits:
-                        dat = wr_data
-                    else:
-                        dat = HDLSlice(wr_data, 0, n.width)
-                    s.append(HDLAssign(n.h_reg, dat))
+                s.append(HDLComment("TODO"))
         # All the write are ack'ed (including the write to unassigned
         # addresses)
         s.append(HDLAssign(isigs.wr_ack, bit_1))
@@ -273,7 +326,7 @@ def generate_hdl(root):
 
     # Bus access
     module.stmts.append(HDLComment('WB decode signals'))
-    add_decode_signals(root, module, isigs)
+    add_decode_wb(root, module, isigs)
 
     module.stmts.append(HDLComment('Assign outputs'))
     wire_regs(module.stmts, root)

@@ -111,6 +111,7 @@ def layout_reg(lo, n):
         raise LayoutException(
             "incorrect access for register {}".format(n.get_path()))
     n.c_size = n.width / tree.BYTE_SIZE
+    # A register is aligned at least on a word and always naturally aligned.
     n.c_align = align(n.c_size, lo.word_size)
     names = set()
     if n.fields:
@@ -174,7 +175,7 @@ def layout_composite(lo, n):
             "composite element '{}' has no elements".format(n.get_path()))
     layout_named(n)
 
-    # Check name uniqueness
+    # Check each child has a unique name.
     names = set()
     for c in n.elements:
         if c.name in names:
