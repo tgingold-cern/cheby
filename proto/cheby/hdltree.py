@@ -65,6 +65,8 @@ class HDLGenIf(HDLStmt):
 class HDLAssign(HDLStmt):
     def __init__(self, target, expr):
         super(HDLAssign, self).__init__()
+        assert target is not None
+        assert expr is not None
         self.target = target
         self.expr = expr
 
@@ -97,6 +99,7 @@ class HDLSync(HDLStmt):
 class HDLIfElse(HDLStmt):
     def __init__(self, cond):
         super(HDLIfElse, self).__init__()
+        assert cond is not None
         self.cond = cond
         self.then_stmts = []
         self.else_stmts = []
@@ -105,6 +108,7 @@ class HDLIfElse(HDLStmt):
 class HDLSwitch(HDLStmt):
     def __init__(self, expr):
         super(HDLSwitch, self).__init__()
+        assert expr is not None
         self.expr = expr
         self.choices = []
 
@@ -118,6 +122,7 @@ class HDLChoice(HDLNode):
 class HDLChoiceExpr(HDLChoice):
     def __init__(self, expr):
         super(HDLChoiceExpr, self).__init__()
+        assert expr is not None
         self.expr = expr
 
 
@@ -170,6 +175,8 @@ class HDLBool(HDLCstValue):
 class HDLIndex(HDLExpr):
     def __init__(self, prefix, index):
         super(HDLIndex, self).__init__()
+        assert prefix is not None
+        assert index is not None
         self.prefix = prefix
         self.index = index
 
@@ -193,6 +200,7 @@ class HDLReplicate(HDLExpr):
 class HDLUnary(HDLExpr):
     def __init__(self, expr):
         super(HDLUnary, self).__init__()
+        assert expr is not None
         self.expr = expr
 
 
@@ -203,6 +211,8 @@ class HDLNot(HDLUnary):
 class HDLBinary(HDLExpr):
     def __init__(self, left, right):
         super(HDLBinary, self).__init__()
+        assert left is not None
+        assert right is not None
         self.left = left
         self.right = right
 
