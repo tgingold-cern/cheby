@@ -54,8 +54,10 @@ def expand_wishbone(module, root):
 def add_ports(module, prefix, node):
     """Create ports for a composite node."""
     for n in node.elements:
-        if isinstance(n, tree.CompositeNode):
+        if isinstance(n, tree.Block):
             add_ports(module, prefix + n.name + '_', n)
+        elif isinstance(n, tree.Array):
+            pass
         elif isinstance(n, tree.Reg):
             if n.access in ['wo', 'rw']:
                 suf = '_o'
@@ -68,20 +70,24 @@ def add_ports(module, prefix, node):
 
             def _create_port(b, w):
                 if n.access != 'cst':
-                    b.h_port = HDLPort(prefix + b.name + suf, w, dir=dr)
+                    name = pfx + b.name + suf
+                    b.h_port = HDLPort(name.lower(), w, dir=dr)
                     b.h_port.comment = b.description
                     module.ports.append(b.h_port)
                 if dr == 'OUT':
-                    b.h_reg = HDLSignal(prefix + b.name + '_reg', w)
+                    name = pfx + b.name + '_reg'
+                    b.h_reg = HDLSignal(name.lower(), w)
                     module.signals.append(b.h_reg)
                 else:
                     b.h_reg = None
 
             if n.fields:
+                pfx = prefix + n.name + '_'
                 for f in n.fields:
                     w = None if f.c_width == 1 else f.c_width
                     _create_port(f, w)
             else:
+                pfx = prefix
                 _create_port(n, n.width)
         else:
             raise AssertionError
@@ -90,8 +96,10 @@ def add_ports(module, prefix, node):
 def add_init(stmts, node):
     """Create assignment for reset values."""
     for n in node.elements:
-        if isinstance(n, tree.CompositeNode):
+        if isinstance(n, tree.Block):
             add_init(stmts, n)
+        elif isinstance(n, tree.Array):
+            pass
         elif isinstance(n, tree.Reg):
             if n.access not in ['wo', 'rw']:
                 # No registers.  Check h_reg instead ?
@@ -113,8 +121,10 @@ def add_init(stmts, node):
 def wire_regs(stmts, node):
     """Create assignment from register to outputs."""
     for n in node.elements:
-        if isinstance(n, tree.CompositeNode):
+        if isinstance(n, tree.Block):
             wire_regs(stmts, n)
+        if isinstance(n, tree.Array):
+            pass
         elif isinstance(n, tree.Reg):
             if n.fields:
                 for f in n.fields:
@@ -141,10 +151,14 @@ def add_reg_decoder(root, stmts, addr, func, els, blk_bits):
         sw = HDLSwitch(HDLSlice(addr, root.c_addr_word_bits, width))
         stmts.append(sw)
         for el in els:
-            ch = HDLChoiceExpr(
-                HDLConst(el.c_address >> root.c_addr_word_bits, width))
-            sw.choices.append(ch)
-            func(ch.stmts, el)
+            cstmts = []
+            func(cstmts, el)
+            if cstmts:
+                # Only create the choice is there are statements.
+                ch = HDLChoiceExpr(
+                    HDLConst(el.c_address >> root.c_addr_word_bits, width))
+                sw.choices.append(ch)
+                ch.stmts = cstmts
         ch = HDLChoiceDefault()
         sw.choices.append(ch)
         func(ch.stmts, None)
@@ -177,6 +191,7 @@ def add_block_decoder(root, stmts, addr, func, n):
                 assert len(el) == 1
                 func(ch.stmts, el)
             elif isinstance(el[0], tree.Reg):
+                # FIXME: compute the minimal subblocks_bits
                 add_reg_decoder(root, ch.stmts, addr, func, el, subblocks_bits)
             else:
                 raise AssertionError
@@ -259,7 +274,11 @@ def add_read_process(root, module, isigs):
     def add_read(s, n):
         if n is not None:
             if isinstance(n, tree.Reg):
-                add_read_reg(s, n)
+                if n.access == 'wo':
+                    return
+                else:
+                    s.append(HDLComment(n.name))
+                    add_read_reg(s, n)
             else:
                 s.append(HDLComment("TODO"))
         # All the read are ack'ed (including the read to unassigned addresses).
@@ -296,7 +315,11 @@ def add_write_process(root, module, isigs):
     def add_write(s, n):
         if n is not None:
             if isinstance(n, tree.Reg):
-                add_write_reg(s, n)
+                if n.access == 'ro':
+                    return
+                else:
+                    s.append(HDLComment(n.name))
+                    add_write_reg(s, n)
             else:
                 s.append(HDLComment("TODO"))
         # All the write are ack'ed (including the write to unassigned
@@ -320,7 +343,7 @@ def generate_hdl(root):
     else:
         raise AssertionError
     # Add ports
-    add_ports(module=module, prefix='', node=root)
+    add_ports(module=module, prefix=root.name.lower() + '_', node=root)
 
     isigs = Isigs()
 
