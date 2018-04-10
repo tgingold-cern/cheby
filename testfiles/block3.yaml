@@ -4,4 +4,4 @@ elements:
 - block:
     name: blk
     submap_file: simple_reg1.yaml
-    interface: true
+    interface: external

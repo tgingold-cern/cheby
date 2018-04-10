@@ -195,7 +195,7 @@ def wire_regs(root, module, isigs, node):
             pass
         elif isinstance(n, tree.Reg):
             for f in n.fields:
-                if f.h_reg:
+                if f.h_reg is not None and f.h_oport is not None:
                     stmts.append(HDLAssign(f.h_oport, f.h_reg))
         else:
             raise AssertionError

@@ -238,6 +238,8 @@ def layout_composite(lo, n):
 
 @Layout.register(tree.Root)
 def layout_root(lo, n):
+    if not n.elements:
+        raise LayoutException("empty description '{}'".format(n.name))
     layout_composite(lo, n)
 
 

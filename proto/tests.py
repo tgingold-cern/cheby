@@ -12,7 +12,7 @@ import cheby.print_vhdl as print_vhdl
 import cheby.gen_laychk as gen_laychk
 
 srcdir = '../testfiles/'
-
+verbose = False
 
 class TestError(Exception):
     def __init__(self, msg):
@@ -77,6 +77,8 @@ def layout_err(t):
 
 def test_layout():
     for f in ['demo.yaml', 'block1.yaml', 'array1.yaml', 'array2.yaml']:
+        if verbose:
+            print('test layout: {}'.format(f))
         t = parse_ok(srcdir + f)
         layout_ok(t)
         hname = t.name + '.h'
@@ -102,6 +104,8 @@ def test_layout():
               'err_field_preset1.yaml',
               'err_noelements.yaml',
               'err_arr1.yaml']:
+        if verbose:
+            print('test layout: {}'.format(f))
         t = parse_ok(srcdir + f)
         layout_err(t)
 
@@ -122,6 +126,8 @@ def test_hdl():
     for f in ['simple_reg3.yaml', 'simple_reg4_ro.yaml',
               'reg_value1.yaml', 'reg_value2.yaml', 'reg_value3.yaml',
               'field_value1.yaml', 'field_value2.yaml']:
+        if verbose:
+            print('test hdl: {}'.format(f))
         t = parse_ok(srcdir + f)
         layout_ok(t)
         h = gen_hdl.generate_hdl(t)
@@ -148,6 +154,12 @@ def test_self():
 
 
 def main():
+    global verbose
+
+    # Crude
+    if '-v' in sys.argv[1:]:
+        verbose = True
+
     try:
         test_self()
         test_parser()
