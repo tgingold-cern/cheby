@@ -37,14 +37,15 @@ def generate_vhdl_type(p):
 
 def generate_port(fd, p):
     if p.comment:
-        wln(fd, "-- {}".format(p.comment))
+        wln(fd)
+        wln(fd, "    -- {}".format(p.comment))
     typ = generate_vhdl_type(p)
     if p.dir == 'IN':
-        dir = "in    "
+        dir = "in   "
     elif p.dir == 'OUT':
-        dir = "out   "
+        dir = "out  "
     else:
-        dir = "inout "
+        dir = "inout"
     w(fd, "    {:<32} : {dir} {typ}".format(p.name, dir=dir, typ=typ))
 
 
@@ -61,8 +62,8 @@ def generate_signal(fd, s):
     if s.size:
         typ = generate_vhdl_type(s)
     else:
-        typ = "std_logic      "
-    w(fd, "signal {:<40} : {typ};\n".format(s.name, typ=typ))
+        typ = "std_logic"
+    w(fd, "  signal {:<40} : {typ};\n".format(s.name, typ=typ))
 
 
 operator = {hdltree.HDLAnd: 'and',
@@ -152,7 +153,7 @@ def generate_seq(fd, s, level):
         generate_assign(fd, s)
     elif isinstance(s, hdltree.HDLIfElse):
         w(fd, indent)
-        wln(fd, "if ({}) then".format(generate_expr(s.cond)))
+        wln(fd, "if {} then".format(generate_expr(s.cond)))
         for s1 in s.then_stmts:
             generate_seq(fd, s1, level + 1)
         if s.else_stmts is not None:
@@ -187,6 +188,8 @@ def generate_stmts(fd, stmts, indent):
     gen_num = 0
     for s in stmts:
         if isinstance(s, hdltree.HDLComment):
+            wln(fd)
+            w(fd, sindent)
             wln(fd, "-- {}".format(s.comment))
         elif isinstance(s, hdltree.HDLAssign):
             w(fd, sindent)
@@ -212,7 +215,7 @@ def generate_stmts(fd, stmts, indent):
             wln(fd, sindent + "process ({}, {})".format(generate_expr(s.clk),
                                                         generate_expr(s.rst)))
             wln(fd, sindent + "begin")
-            wln(fd, sindent + "  if ({} = '0') then ".format(
+            wln(fd, sindent + "  if {} = '0' then ".format(
                 generate_expr(s.rst)))
             for s1 in s.rst_stmts:
                 generate_seq(fd, s1, indent + 2)
@@ -222,8 +225,6 @@ def generate_stmts(fd, stmts, indent):
                 generate_seq(fd, s1, indent + 2)
             wln(fd, sindent + "  end if;")
             wln(fd, sindent + "end process;")
-            wln(fd, sindent)
-            wln(fd, sindent)
         elif isinstance(s, hdltree.HDLInstance):
             wln(fd, sindent + "{} : {}".format(s.name, s.module_name))
 
@@ -280,7 +281,6 @@ def print_vhdl(fd, module):
     wln(fd, "end {};".format(module.name))
     wln(fd)
     wln(fd, "architecture syn of {} is".format(module.name))
-    wln(fd)
     for s in module.signals:
         generate_signal(fd, s)
     wln(fd)
