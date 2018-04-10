@@ -5,6 +5,7 @@ elements:
   - reg:
       name: areg
       width: 32
+      access: rw
       address: 0x002  # Not aligned
       fields:
         - field:

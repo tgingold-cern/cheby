@@ -97,13 +97,14 @@ def test_layout():
               'err_reg_type1.yaml', 'err_reg_type2.yaml',
               'err_reg_type3.yaml',
               'err_field1.yaml', 'err_field2.yaml', 'err_field3.yaml',
-              'err_field4.yaml', 'err_field5.yaml',
+              'err_field4.yaml', 'err_field5.yaml', 'err_field6.yaml',
               'err_field_name1.yaml', 'err_field_name2.yaml',
               'err_reg_name1.yaml', 'err_reg_name2.yaml',
               'err_reg_acc1.yaml', 'err_reg_acc2.yaml',
               'err_field_preset1.yaml',
               'err_noelements.yaml',
-              'err_arr1.yaml']:
+              'err_arr1.yaml', 'err_arr2.yaml',
+              'err_block_size1.yaml']:
         if verbose:
             print('test layout: {}'.format(f))
         t = parse_ok(srcdir + f)

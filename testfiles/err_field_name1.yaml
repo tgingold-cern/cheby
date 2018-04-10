@@ -5,6 +5,7 @@ elements:
   - reg:
       name: areg
       width: 32
+      access: rw
       fields:
         - field:
             name: fname

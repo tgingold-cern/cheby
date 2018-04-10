@@ -5,6 +5,7 @@ elements:
   - reg:
       name: areg1
       width: 32
+      access: rw
       fields:
         - field:
             name: afield
@@ -13,6 +14,7 @@ elements:
   - reg:
       name: areg2
       width: 32
+      access: rw
       address: 0x00  # Same address
       fields:
         - field:

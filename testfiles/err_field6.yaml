@@ -6,6 +6,8 @@ elements:
       name: areg
       access: rw
       width: 32
+      type: signed   # type and field
       fields:
-        - field:  # No range
-            name: afield
+        - field:
+            name: afield1
+            range: 4-0

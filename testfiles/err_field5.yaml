@@ -4,6 +4,7 @@ description: bad field
 elements:
   - reg:
       name: areg
+      access: rw
       width: 32
       fields:
         - field:
