@@ -52,54 +52,84 @@ def expand_wishbone(module, root):
         root.h_bus[n] = h
 
 
-def add_ports(module, prefix, node):
+def add_ports_reg(module, prefix, n):
+    if n.c_type is None:
+        pfx = prefix + n.name + '_'
+    else:
+        pfx = prefix
+    for f in n.fields:
+        w = None if f.c_width == 1 else f.c_width
+
+        # Input
+        if f.hdl_type == 'wire' and n.access in ['ro', 'rw']:
+            name = pfx + f.name + '_i'
+            f.h_iport = HDLPort(name.lower(), w, dir='IN')
+            f.h_iport.comment = f.description
+            module.ports.append(f.h_iport)
+        else:
+            f.h_iport = None
+
+        # Output
+        if n.access in ['wo', 'rw']:
+            name = pfx + f.name + '_o'
+            f.h_oport = HDLPort(name.lower(), w, dir='OUT')
+            f.h_oport.comment = f.description
+            module.ports.append(f.h_oport)
+        else:
+            f.h_oport = None
+
+        # Write strobe
+        if f.hdl_write_strobe:
+            name = pfx + f.name + '_wr_o'
+            f.h_wport = HDLPort(name.lower(), None, dir='OUT')
+            module.ports.append(f.h_wport)
+        else:
+            f.h_wport = None
+
+        # Register
+        if f.hdl_type == 'reg':
+            name = pfx + f.name + '_reg'
+            f.h_reg = HDLSignal(name.lower(), w)
+            module.signals.append(f.h_reg)
+        else:
+            f.h_reg = None
+
+def add_ports_block(root, module, prefix, n):
+    assert n.interface is not None
+    if n.interface == 'sram':
+        name = prefix + n.name + '_addr_o'
+        n.h_addr_o = HDLPort(
+            name.lower(), n.c_blk_bits - root.c_addr_word_bits, dir='OUT')
+        n.h_addr_o.comment = n.description
+        module.ports.append(n.h_addr_o)
+
+        name = prefix + n.name + '_data_i'
+        n.h_data_i = HDLPort(name.lower(), n.c_width, dir='IN')
+        module.ports.append(n.h_data_i)
+
+        name = prefix + n.name + '_data_o'
+        n.h_data_o = HDLPort(name.lower(), n.c_width, dir='OUT')
+        module.ports.append(n.h_data_o)
+
+        name = prefix + n.name + '_wr_o'
+        n.h_wr_o = HDLPort(name.lower(), None, dir='OUT')
+        module.ports.append(n.h_wr_o)
+    else:
+        raise AssertionError
+
+
+def add_ports(root, module, prefix, node):
     """Create ports for a composite node."""
     for n in node.elements:
         if isinstance(n, tree.Block):
-            add_ports(module, prefix + n.name + '_', n)
+            if n.elements:
+                add_ports(root, module, prefix + n.name + '_', n)
+            else:
+                add_ports_block(root, module, prefix, n)
         elif isinstance(n, tree.Array):
             pass
         elif isinstance(n, tree.Reg):
-            if n.c_type is None:
-                pfx = prefix + n.name + '_'
-            else:
-                pfx = prefix
-            for f in n.fields:
-                w = None if f.c_width == 1 else f.c_width
-
-                # Input
-                if f.hdl_type == 'wire' and n.access in ['ro', 'rw']:
-                    name = pfx + f.name + '_i'
-                    f.h_iport = HDLPort(name.lower(), w, dir='IN')
-                    f.h_iport.comment = f.description
-                    module.ports.append(f.h_iport)
-                else:
-                    f.h_iport = None
-
-                # Output
-                if n.access in ['wo', 'rw']:
-                    name = pfx + f.name + '_o'
-                    f.h_oport = HDLPort(name.lower(), w, dir='OUT')
-                    f.h_oport.comment = f.description
-                    module.ports.append(f.h_oport)
-                else:
-                    f.h_oport = None
-
-                # Write strobe
-                if f.hdl_write_strobe:
-                    name = pfx + f.name + '_wr_o'
-                    f.h_wport = HDLPort(name.lower(), None, dir='OUT')
-                    module.ports.append(f.h_wport)
-                else:
-                    f.h_wport = None
-
-                # Register
-                if f.hdl_type == 'reg':
-                    name = pfx + f.name + '_reg'
-                    f.h_reg = HDLSignal(name.lower(), w)
-                    module.signals.append(f.h_reg)
-                else:
-                    f.h_reg = None
+            add_ports_reg(module, prefix, n)
         else:
             raise AssertionError
 
@@ -129,7 +159,12 @@ def add_clear_wstrobe(stmts, node):
 
     for n in node.elements:
         if isinstance(n, tree.Block):
-            add_clear_wstrobe(stmts, n)
+            if n.interface is None:
+                add_clear_wstrobe(stmts, n)
+            elif n.interface == 'sram':
+                stmts.append(HDLAssign(n.h_wr_o, bit_0))
+            else:
+                raise AssertionError
         elif isinstance(n, tree.Array):
             pass
         elif isinstance(n, tree.Reg):
@@ -140,20 +175,28 @@ def add_clear_wstrobe(stmts, node):
             raise AssertionError
 
 
-def wire_regs(stmts, node):
+def wire_regs(root, module, isigs, node):
     """Create assignment from register to outputs."""
-    def wire_regs_field(f):
-        if f.h_reg:
-            stmts.append(HDLAssign(f.h_oport, f.h_reg))
-
+    stmts = module.stmts
     for n in node.elements:
         if isinstance(n, tree.Block):
-            wire_regs(stmts, n)
-        if isinstance(n, tree.Array):
+            if n.interface is None:
+                wire_regs(root, module, isigs, n)
+            elif n.interface == 'sram':
+                stmts.append(HDLAssign(n.h_data_o, root.h_bus['dati']))
+                stmts.append(HDLAssign(n.h_addr_o,
+                             HDLSlice(root.h_bus['adr'],
+                                      root.c_addr_word_bits,
+                                      n.c_blk_bits - root.c_addr_word_bits)))
+                pass
+            else:
+                raise AssertionError
+        elif isinstance(n, tree.Array):
             pass
         elif isinstance(n, tree.Reg):
             for f in n.fields:
-                wire_regs_field(f)
+                if f.h_reg:
+                    stmts.append(HDLAssign(f.h_oport, f.h_reg))
         else:
             raise AssertionError
 
@@ -188,6 +231,9 @@ def add_block_decoder(root, stmts, addr, func, n):
     """Call :param func: for each element of :param n:.  :param func: can also
        be called with None when a decoder is generated and could handle an
        address that has no corresponding elements."""
+    if not n.elements:
+        func(stmts, n)
+        return
     # Put children into sub-blocks
     n_subblocks = 1 << n.c_sel_bits
     subblocks_bits = n.c_blk_bits
@@ -293,6 +339,11 @@ def add_read_process(root, module, isigs):
                 else:
                     s.append(HDLComment(n.name))
                     add_read_reg(s, n)
+            elif isinstance(n, tree.Block):
+                if n.interface == 'sram':
+                    s.append(HDLAssign(rd_data, n.h_data_o))
+                else:
+                    raise AssertionError
             else:
                 s.append(HDLComment("TODO"))
         # All the read are ack'ed (including the read to unassigned addresses).
@@ -313,6 +364,9 @@ def add_write_process(root, module, isigs):
     wrproc.sync_stmts.append(wr_if)
     wr_if.else_stmts.append(HDLAssign(isigs.wr_ack, bit_0))
     wr_data = root.h_bus['dati']
+
+    def add_write_sram(s, n):
+        s.append(HDLAssign(n.h_wr_o, bit_1))
 
     def add_write_reg(s, n):
         for f in n.fields:
@@ -338,6 +392,8 @@ def add_write_process(root, module, isigs):
                 else:
                     s.append(HDLComment(n.name))
                     add_write_reg(s, n)
+            elif isinstance(n, tree.Block) and n.interface == 'sram':
+                add_write_sram(s, n)
             else:
                 s.append(HDLComment("TODO"))
         # All the write are ack'ed (including the write to unassigned
@@ -396,7 +452,7 @@ def generate_hdl(root):
     else:
         raise AssertionError
     # Add ports
-    add_ports(module=module, prefix=root.name.lower() + '_', node=root)
+    add_ports(root, module, root.name.lower() + '_', root)
 
     isigs = Isigs()
 
@@ -405,7 +461,7 @@ def generate_hdl(root):
     add_decode_wb(root, module, isigs)
 
     module.stmts.append(HDLComment('Assign outputs'))
-    wire_regs(module.stmts, root)
+    wire_regs(root, module, isigs, root)
 
     module.stmts.append(HDLComment('Process to write registers.'))
     add_write_process(root, module, isigs)

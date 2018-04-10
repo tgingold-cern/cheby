@@ -144,7 +144,7 @@ def parse_block(parent, el):
         elif k == 'submap_file':
             res.submap_file = read_text(res, k, v)
         elif k == 'interface':
-            res.interface = read_bool(res, k, v)
+            res.interface = read_text(res, k, v)
         else:
             error("unhandled '{}' in block {}".format(k, parent.get_path()))
     return res

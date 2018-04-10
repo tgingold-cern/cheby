@@ -155,7 +155,14 @@ def layout_reg(lo, n):
 
 @Layout.register(tree.Block)
 def layout_block(lo, n):
-    layout_composite(lo, n)
+    if n.elements:
+        layout_composite(lo, n)
+    else:
+        if n.size is None:
+            raise LayoutException("no size in block '{}'".format(n.get_path()))
+        n.c_size = n.size
+        n.c_blk_bits = ilog2(n.size)
+        n.c_width = lo.word_size * tree.BYTE_SIZE
     if n.align is None or n.align:
         # Align to power of 2.
         n.c_size = round_pow2(n.c_size)
@@ -164,6 +171,9 @@ def layout_block(lo, n):
 
 @Layout.register(tree.Array)
 def layout_array(lo, n):
+    # Sanity check
+    if not n.elements:
+        raise LayoutException("array '{}' has no elements".format(n.get_path()))
     layout_composite(lo, n)
     if n.repeat is None:
         raise LayoutException(
@@ -180,10 +190,6 @@ def layout_array(lo, n):
 
 @Layout.register(tree.CompositeNode)
 def layout_composite(lo, n):
-    # Sanity check
-    if not n.elements:
-        raise LayoutException(
-            "composite element '{}' has no elements".format(n.get_path()))
     layout_named(n)
 
     # Check each child has a unique name.
