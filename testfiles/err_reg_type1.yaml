@@ -5,4 +5,5 @@ elements:
   - reg:
       name: areg1
       width: 32
+      access: rw
       type: my_uint

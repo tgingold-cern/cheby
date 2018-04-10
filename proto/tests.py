@@ -125,7 +125,8 @@ def test_hdl():
     fd = write_null()
     for f in ['simple_reg3.yaml', 'simple_reg4_ro.yaml',
               'reg_value1.yaml', 'reg_value2.yaml', 'reg_value3.yaml',
-              'field_value1.yaml', 'field_value2.yaml']:
+              'field_value1.yaml', 'field_value2.yaml',
+              'wb_slave_vic.cheby']:
         if verbose:
             print('test hdl: {}'.format(f))
         t = parse_ok(srcdir + f)

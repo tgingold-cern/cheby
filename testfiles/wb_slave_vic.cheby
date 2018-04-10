@@ -1,0 +1,161 @@
+#  -*- Mode: LUA; tab-width: 2 -*-
+bus: wb-32-be
+name: VIC
+description: Vectored Interrupt Controller (VIC)
+comment: |
+  Module implementing a 2 to 32-input prioritized interrupt controller with internal interrupt vector storage support.
+x-wbgen:
+  hdl_entity: wb_slave_vic
+elements:
+- reg:
+    name: CTL
+    address: 0x00000000
+    width: 32
+    access: rw
+    description: VIC Control Register
+    fields:
+    - field:
+        name: ENABLE
+        range: 0
+        description: VIC Enable
+        comment: |
+          - 1: enables VIC operation
+          - 0: disables VIC operation
+        x-wbgen:
+          type: BIT
+          access_bus: READ_WRITE
+          access_dev: READ_ONLY
+    - field:
+        name: POL
+        range: 1
+        description: VIC output polarity
+        comment: |
+          - 1: IRQ output is active high
+          - 0: IRQ output is active low
+        x-wbgen:
+          type: BIT
+          access_bus: READ_WRITE
+          access_dev: READ_ONLY
+    - field:
+        name: EMU_EDGE
+        range: 2
+        description: Emulate Edge sensitive output
+        comment: |
+          - 1: Forces a low pulse of <code>EMU_LEN</code> clock cycles at each write to <code>EOIR</code>. Useful for edge-only IRQ controllers such as Gennum.
+          - 0: Normal IRQ master line behavior
+        x-wbgen:
+          type: BIT
+          access_bus: READ_WRITE
+          access_dev: READ_ONLY
+    - field:
+        name: EMU_LEN
+        range: 18-3
+        description: Emulated Edge pulse timer
+        comment: |
+          Length of the delay (in <code>clk_sys_i</code> cycles) between write to <code>EOIR</code> and re-assertion of <code>irq_master_o</code>.
+        x-wbgen:
+          type: SLV
+          access_bus: READ_WRITE
+          access_dev: READ_ONLY
+- reg:
+    name: RISR
+    address: 0x00000004
+    width: 32
+    access: ro
+    description: Raw Interrupt Status Register
+    comment: |
+      Each bit reflects the current state of corresponding IRQ input line.
+      - read 1: interrupt line is currently active
+      - read 0: interrupt line is inactive
+    x-wbgen:
+      type: SLV
+      access_bus: READ_ONLY
+      access_dev: WRITE_ONLY
+- reg:
+    name: IER
+    address: 0x00000008
+    width: 32
+    access: wo
+    description: Interrupt Enable Register
+    comment: |
+      - write 1: enables interrupt associated with written bit
+      - write 0: no effect
+    x-wbgen:
+      type: PASS_THROUGH
+    x-hdl:
+      type: wire
+      write-strobe: True
+- reg:
+    name: IDR
+    address: 0x0000000c
+    width: 32
+    access: wo
+    description: Interrupt Disable Register
+    comment: |
+      - write 1: enables interrupt associated with written bit
+      - write 0: no effect
+    x-wbgen:
+      type: PASS_THROUGH
+    x-hdl:
+      type: wire
+      write-strobe: True
+- reg:
+    name: IMR
+    address: 0x00000010
+    width: 32
+    access: ro
+    description: Interrupt Mask Register
+    comment: |
+      - read 1: interrupt associated with read bit is enabled
+      - read 0: interrupt is disabled
+    x-wbgen:
+      type: SLV
+      access_bus: READ_ONLY
+      access_dev: WRITE_ONLY
+- reg:
+    name: VAR
+    address: 0x00000014
+    width: 32
+    access: ro
+    description: Vector Address Register
+    comment: |
+      Address of pending interrupt vector, read from Interrupt Vector Table
+    x-wbgen:
+      type: SLV
+      access_bus: READ_ONLY
+      access_dev: WRITE_ONLY
+- reg:
+    name: SWIR
+    address: 0x00000018
+    width: 32
+    access: wo
+    description: Software Interrupt Register
+    comment: |
+      Writing 1 to one of bits of this register causes a software emulation of the respective interrupt.
+    x-wbgen:
+      type: PASS_THROUGH
+    x-hdl:
+      type: wire
+      write-strobe: True
+- reg:
+    name: EOIR
+    address: 0x0000001c
+    width: 32
+    access: wo
+    description: End Of Interrupt Acknowledge Register
+    comment: |
+      Any write operation acknowledges the pending interrupt. Then, VIC advances to another pending interrupt(s) or releases the master interrupt output.
+    x-wbgen:
+      type: PASS_THROUGH
+    x-hdl:
+      type: wire
+      write-strobe: True
+- block:
+    name: IVT_RAM
+    address: 0x00000080
+    size: 128
+    description: Interrupt Vector Table
+    interface: sram
+    comment: |
+      Vector Address Table. Word at offset N stores the vector address of IRQ N. When interrupt is requested, VIC reads it's vector address from this memory and stores it in VAR register. The contents of this table can be pre-initialized during synthesis through <code>g_init_vectors</code> generic parameter. This is used to auto-enumerate interrupts in SDB-based designs.
+    align: True
