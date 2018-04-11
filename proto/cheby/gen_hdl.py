@@ -22,8 +22,8 @@ from hdltree import (HDLModule,
                      HDLAnd, HDLOr, HDLNot, HDLEq,
                      HDLSlice, HDLReplicate,
                      HDLConst)
-import parser
 import tree
+import expand_hdl
 from layout import ilog2
 
 
@@ -423,44 +423,12 @@ def add_write_process(root, module, isigs):
     add_decoder(root, wr_if.then_stmts, root.h_bus['adr'], root, add_write)
 
 
-def expand_x_hdl_field(f, n, dct):
-    # Default values
-    f.hdl_type = 'wire' if f._parent.access == 'ro' else 'reg'
-    f.hdl_write_strobe = False
-
-    for k, v in dct.iteritems():
-        if k == 'type':
-            f.hdl_type = parser.read_text(n, k, v)
-        elif k == 'write-strobe':
-            f.hdl_write_strobe = parser.read_bool(n, k, v)
-        else:
-            parser.error("unhandled '{}' in x-hdl of {}".format(
-                  k, n.get_path()))
-
-def expand_x_hdl(n):
-    "Decode x-hdl extensions"
-    x_hdl = getattr(n, 'x_hdl', {})
-    if isinstance(n, tree.Field):
-        expand_x_hdl_field(n, n, x_hdl)
-    elif isinstance(n, tree.Reg):
-        if len(n.fields) == 1 and isinstance(n.fields[0], tree.FieldReg):
-            expand_x_hdl_field(n.fields[0], n, x_hdl)
-
-    # Visit children
-    if isinstance(n, tree.CompositeNode):
-        for el in n.elements:
-            expand_x_hdl(el)
-    elif isinstance(n, tree.Reg):
-        for f in n.fields:
-            expand_x_hdl(f)
-
-
 def generate_hdl(root):
     module = HDLModule()
     module.name = root.name
 
     # Decode x-hdl
-    expand_x_hdl(root)
+    expand_hdl.expand_hdl(root)
 
     # Number of bits in the address used by a word
     root.c_addr_word_bits = ilog2(root.c_word_size)
