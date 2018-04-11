@@ -9,22 +9,25 @@ import gen_laychk
 import layout
 import gen_hdl
 import print_vhdl
+import print_encore
 
 
 def main():
     aparser = argparse.ArgumentParser(description='cheby utility')
-    aparser.add_argument('--pretty-print', action='store_true',
+    aparser.add_argument('--print-pretty', action='store_true',
                          help='display the input in YAML')
-    aparser.add_argument('--simple-print', action='store_true',
+    aparser.add_argument('--print-simple', action='store_true',
                          help='display the layout with fields')
-    aparser.add_argument('--memmap-print', action='store_true',
+    aparser.add_argument('--print-memmap', action='store_true',
                          help='display the layout without fields')
-    aparser.add_argument('--c-print', action='store', nargs='?', const='.',
+    aparser.add_argument('--print-c', action='store', nargs='?', const='.',
                          help='display the c header file')
-    aparser.add_argument('--c-check-layout', action='store_true',
+    aparser.add_argument('--print-c-check-layout', action='store_true',
                          help='generate c file to check layout of the header')
-    aparser.add_argument('--vhdl', action='store_true',
+    aparser.add_argument('--gen-vhdl', action='store_true',
                          help='generate vhdl file')
+    aparser.add_argument('--gen-encore', action='store_true',
+                         help='generate encore file')
     aparser.add_argument('FILE', nargs='+')
 
     args = aparser.parse_args()
@@ -33,27 +36,29 @@ def main():
             t = parser.parse_yaml(f)
 
             layout.layout_cheby(t)
-            
-            if args.pretty_print:
+
+            if args.print_pretty:
                 pprint.pprint_cheby(sys.stdout, t)
-            if args.memmap_print:
+            if args.print_memmap:
                 sprint.sprint_cheby(sys.stdout, t, False)
-            if args.simple_print:
+            if args.print_simple:
                 sprint.sprint_cheby(sys.stdout, t, True)
-            if args.c_print is not None:
-                if args.c_print == '-':
+            if args.print_c is not None:
+                if args.print_c == '-':
                     cprint.cprint_cheby(sys.stdout, t)
                 else:
-                    if args.c_print == '.':
+                    if args.print_c == '.':
                         name = t.name + '.h'
                     else:
-                        name = args.c_print
+                        name = args.print_c
                     fd = open(name, 'w')
                     cprint.cprint_cheby(fd, t)
                     fd.close()
-            if args.c_check_layout:
+            if args.print_c_check_layout:
                 gen_laychk.gen_chklayout_cheby(sys.stdout, t)
-            if args.vhdl:
+            if args.gen_encore:
+                print_encore.print_encore(sys.stdout, t)
+            if args.gen_vhdl:
                 h = gen_hdl.generate_hdl(t)
                 print_vhdl.print_vhdl(sys.stdout, h)
         except parser.ParseException as e:
