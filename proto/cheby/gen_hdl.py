@@ -123,11 +123,19 @@ def add_ports(root, module, prefix, node):
     for n in node.elements:
         if isinstance(n, tree.Block):
             if n.elements:
+                # Recurse
                 add_ports(root, module, prefix + n.name + '_', n)
             else:
+                # Interface
                 add_ports_block(root, module, prefix, n)
         elif isinstance(n, tree.Array):
-            pass
+            if n.align is None or n.align:
+                pass
+            else:
+                # Unroll
+                for i in range(n.repeat):
+                    add_ports(root, module,
+                              "{}{}{:x}_".format(prefix, n.name, i), n)
         elif isinstance(n, tree.Reg):
             add_ports_reg(module, prefix, n)
         else:
@@ -231,9 +239,25 @@ def add_block_decoder(root, stmts, addr, func, n):
     """Call :param func: for each element of :param n:.  :param func: can also
        be called with None when a decoder is generated and could handle an
        address that has no corresponding elements."""
+    # Block without elements: interface
     if not n.elements:
         func(stmts, n)
         return
+
+    if n.c_sel_bits == 0:
+        # Only one selector level.
+        # Either there is only one child, or only regs.
+        el = n.elements[0]
+        if isinstance(el, tree.Reg):
+            add_reg_decoder(root, stmts, addr, func, n.elements, n.c_blk_bits)
+            return
+        assert len(n.elements) == 1
+        if isinstance(el, tree.Array):
+            func(stmts, el)
+        else:
+            add_block_decoder(root, stmts, addr, func, n.elements[0])
+        return
+
     # Put children into sub-blocks
     n_subblocks = 1 << n.c_sel_bits
     subblocks_bits = n.c_blk_bits
@@ -270,10 +294,7 @@ def add_decoder(root, stmts, addr, n, func):
     """Call :param func: for each element of :param n:.  :param func: can also
        be called with None when a decoder is generated and could handle an
        address that has no corresponding elements."""
-    if n.c_sel_bits == 0:
-        add_reg_decoder(root, stmts, addr, func, n.elements, n.c_blk_bits)
-    else:
-        add_block_decoder(root, stmts, addr, func, n)
+    add_block_decoder(root, stmts, addr, func, n)
 
 
 def add_decode_wb(root, module, isigs):

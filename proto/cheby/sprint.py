@@ -18,11 +18,14 @@ class SimplePrinter(tree.Visitor):
         self.indent -= 1
 
     def sp_name(self, kind, n):
-        self.sp_raw('0x{:08x}-0x{:08x}: {}{}: {}\n'.format(
+        self.sp_raw('0x{:08x}-0x{:08x}: '.format(
             self.base_addr + n.c_address,
-            self.base_addr + n.c_address + n.c_size - 1,
-            '  ' * self.indent,
-            kind, n.name))
+            self.base_addr + n.c_address + n.c_size - 1))
+        self.sp_raw('{}{}: {}\n'.format('  ' * self.indent, kind, n.name))
+
+    def sp_info(self, info):
+        self.sp_raw('                       {}{}\n'.format(
+                    '  ' * self.indent, info))
 
     def sp_field(self, f):
         if f.hi is None:
@@ -65,6 +68,8 @@ def sprint_complex(sp, n):
 
 @SimplePrinter.register(tree.CompositeNode)
 def sprint_composite(sp, n):
+    sp.sp_info("[al: {}, sz: {}, sel: {}, blk: {}] ".format(
+                n.c_align, n.c_size, n.c_sel_bits, n.c_blk_bits))
     sp.inc()
     for el in n.elements:
         sp.visit(el)
@@ -73,8 +78,8 @@ def sprint_composite(sp, n):
 
 @SimplePrinter.register(tree.Root)
 def sprint_root(sp, n):
-    for el in n.elements:
-        sp.visit(el)
+    sp.sp_name('root', n)
+    sprint_composite(sp, n)
 
 
 def sprint_cheby(fd, root, with_fields=True):

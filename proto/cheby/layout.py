@@ -172,18 +172,21 @@ def layout_block(lo, n):
 @Layout.register(tree.Array)
 def layout_array(lo, n):
     # Sanity check
-    if not n.elements:
-        raise LayoutException("array '{}' has no elements".format(n.get_path()))
-    layout_composite(lo, n)
+    if len(n.elements) != 1:
+        raise LayoutException(
+            "array '{}' must have one element".format(n.get_path()))
     if n.repeat is None:
         raise LayoutException(
             "missing repeat count for {}".format(n.get_path()))
+    layout_composite(lo, n)
     n.c_elsize = align(n.c_size, n.c_align)
     if n.align is None or n.align:
         # Align to power of 2.
         n.c_elsize = round_pow2(n.c_elsize)
         n.c_size = n.c_elsize * round_pow2(n.repeat)
         n.c_align = n.c_size
+        n.c_blk_bits = ilog2(n.c_elsize)
+        n.c_sel_bits = ilog2(n.c_size) - n.c_blk_bits
     else:
         n.c_size = n.c_elsize * n.repeat
 
@@ -218,7 +221,7 @@ def layout_composite(lo, n):
         n.c_size = max(n.c_size, c.c_address + c.c_size)
     n.c_align = max_align
     if has_aligned:
-        n.c_blk_bits = ilog2(max_align)
+        n.c_blk_bits = ilog2(n.c_align)
         n.c_sel_bits = ilog2(n.c_size) - n.c_blk_bits
     else:
         n.c_blk_bits = ilog2(n.c_size)
@@ -240,6 +243,7 @@ def layout_composite(lo, n):
 def layout_root(lo, n):
     if not n.elements:
         raise LayoutException("empty description '{}'".format(n.name))
+    n.c_address = 0
     layout_composite(lo, n)
 
 
