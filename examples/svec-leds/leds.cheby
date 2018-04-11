@@ -1,0 +1,18 @@
+bus: wb-32-be
+name: led_demo
+description: simple interface to leds
+elements:
+  - array:
+      name: leds
+      repeat: 8
+      align: False
+      elements:
+        - reg:
+            name: led
+            access: rw
+            width: 32
+            fields:
+              - field:
+                  name: en
+                  range: 0
+

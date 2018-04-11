@@ -185,10 +185,11 @@ def layout_array(lo, n):
         n.c_elsize = round_pow2(n.c_elsize)
         n.c_size = n.c_elsize * round_pow2(n.repeat)
         n.c_align = n.c_size
-        n.c_blk_bits = ilog2(n.c_elsize)
-        n.c_sel_bits = ilog2(n.c_size) - n.c_blk_bits
     else:
         n.c_size = n.c_elsize * n.repeat
+    # FIXME: only significant when aligned ?
+    n.c_blk_bits = ilog2(n.c_elsize)
+    n.c_sel_bits = ilog2(n.c_size) - n.c_blk_bits
 
 
 @Layout.register(tree.CompositeNode)

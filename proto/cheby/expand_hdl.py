@@ -1,5 +1,6 @@
 import parser
 import tree
+import copy
 
 def expand_x_hdl_field(f, n, dct):
     # Default values
@@ -32,6 +33,46 @@ def expand_x_hdl(n):
         for f in n.fields:
             expand_x_hdl(f)
 
+def tree_copy(n):
+    if isinstance(n, tree.Reg):
+        res = copy.copy(n)
+        return res
+    else:
+        raise AssertionError
+
+
+def unroll_array(n):
+    # Transmute the array to a block with children
+    res = tree.Block(n._parent)
+    res.name = n.name
+    res.c_address = n.c_address
+    res.c_sel_bits = n.c_sel_bits
+    res.c_blk_bits = n.c_blk_bits
+    res.c_size = n.c_size
+    assert len(n.elements) == 1
+    el = n.elements[0]
+    for i in range(n.repeat):
+        c = tree_copy(el)
+        c.name = "{}{:x}".format(el.name, i)
+        c._parent = res
+        c.c_address = n.c_address + i * n.c_elsize
+        res.elements.append(c)
+    return res
+
+
+def unroll_arrays(n):
+    if isinstance(n, tree.Reg):
+        return n
+    if isinstance(n, tree.Array):
+        if n.align == False:
+            return unroll_array(n)
+    if isinstance(n, tree.CompositeNode):
+        nl = [unroll_arrays(el) for el in n.elements]
+        n.elements = nl
+        return n
+    raise AssertionError
+
 
 def expand_hdl(root):
     expand_x_hdl(root)
+    unroll_arrays(root)
