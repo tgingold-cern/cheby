@@ -290,7 +290,13 @@ def add_reg_decoder(root, stmts, addr, func, els, blk_bits):
             suboff = 0
             while suboff < el.c_size:
                 cstmts = []
-                func(cstmts, el, suboff * tree.BYTE_SIZE)
+                if True:
+                    # Big endian
+                    foff = el.c_size - root.c_word_size - suboff
+                else:
+                    # Little endian
+                    foff = suboff
+                func(cstmts, el, foff * tree.BYTE_SIZE)
                 if cstmts:
                     # Only create the choice is there are statements.
                     addr = el.c_address + suboff
@@ -365,6 +371,43 @@ def add_decoder(root, stmts, addr, n, func):
     add_block_decoder(root, stmts, addr, func, n)
 
 
+def field_decode(root, reg, f, off, val, dat):
+    """Handle multi-word accesses.  Slice (if needed) VAL and DAT for offset
+       OFF and field F or register REG."""
+    # Register and value bounds
+    d_lo = f.lo
+    d_hi = f.lo + f.c_width - 1
+    s_lo = 0
+    s_hi = f.c_width - 1
+    # Next field if not affected by this read.
+    if d_hi < off:
+        return (None, None)
+    if d_lo >= off + root.c_word_bits:
+        return (None, None)
+    if d_lo < off:
+        # Strip the part below OFF.
+        delta = off - d_lo
+        d_lo = off
+        s_lo += delta
+    # Set right boundaries
+    d_lo -= off
+    d_hi -= off
+    if d_hi >= root.c_word_bits:
+        delta = d_hi + 1 - root.c_word_bits
+        d_hi = root.c_word_bits - 1
+        s_hi -= delta
+
+    if d_hi == root.c_word_bits - 1 and d_lo == 0:
+        pass
+    else:
+        dat = HDLSlice(dat, d_lo, d_hi - d_lo + 1)
+    if s_hi == f.c_width - 1 and s_lo == 0:
+        pass
+    else:
+        val = HDLSlice(val, s_lo, s_hi - s_lo + 1)
+    return (val, dat)
+
+
 def add_read_process(root, module, isigs):
     # Register read
     rd_data = root.h_bus['dato']
@@ -382,29 +425,6 @@ def add_read_process(root, module, isigs):
 
     def add_read_reg(s, n, off):
         for f in n.fields:
-            # Truncate according to OFF.
-            d_lo = f.lo
-            d_hi = f.lo + f.c_width - 1
-            s_lo = 0
-            s_hi = f.c_width - 1
-            # Next field if not affected by this read.
-            if d_hi < off:
-                continue
-            if d_lo >= off + root.c_word_bits:
-                continue
-            if d_lo < off:
-                # Strip the part below OFF.
-                delta = off - d_lo
-                d_lo = off
-                s_lo += delta
-            # Set right boundaries
-            d_lo -= off
-            d_hi -= off
-            if d_hi >= root.c_word_bits:
-                delta = d_hi + 1 - root.c_word_bits
-                d_hi = root.c_word_bits - 1
-                s_hi -= delta
-
             if n.access in ['wo', 'rw']:
                 src = f.h_reg
             elif n.access == 'ro':
@@ -413,15 +433,11 @@ def add_read_process(root, module, isigs):
                 src = HDLConst(f.preset, f.c_width)
             else:
                 raise AssertionError
-            if d_hi == root.c_word_bits - 1 and d_lo == 0:
-                dat = rd_data
-            else:
-                dat = HDLSlice(rd_data, d_lo, d_hi - d_lo + 1)
-            if s_hi == f.c_width - 1 and s_lo == 0:
-                val = src
-            else:
-                val = HDLSlice(src, s_lo, s_hi - s_lo + 1)
-            s.append(HDLAssign(dat, val))
+            reg, dat = field_decode(root, n, f, off, src, rd_data)
+            if reg is None:
+                continue
+            s.append(HDLAssign(dat, reg))
+
     def add_read(s, n, off):
         if n is not None:
             if isinstance(n, tree.Reg):
@@ -458,7 +474,7 @@ def add_write_process(root, module, isigs):
     def add_write_sram(s, n):
         s.append(HDLAssign(n.h_wr_o, bit_1))
 
-    def add_write_reg(s, n):
+    def add_write_reg(s, n, off):
         for f in n.fields:
             if f.hdl_type == 'reg':
                 r = f.h_reg
@@ -466,11 +482,10 @@ def add_write_process(root, module, isigs):
                 r = f.h_oport
             else:
                 raise AssertionError
-            if f.c_width == root.c_word_bits:
-                dat = wr_data
-            else:
-                dat = HDLSlice(wr_data, f.lo, f.c_width)
-            s.append(HDLAssign(r, dat))
+            reg, dat = field_decode(root, n, f, off, r, wr_data)
+            if reg is None:
+                continue
+            s.append(HDLAssign(reg, dat))
             if f.h_wport is not None:
                 s.append(HDLAssign(f.h_wport, bit_1))
 
@@ -481,7 +496,7 @@ def add_write_process(root, module, isigs):
                     return
                 else:
                     s.append(HDLComment(n.name))
-                    add_write_reg(s, n)
+                    add_write_reg(s, n, off)
             elif isinstance(n, tree.Block) and n.interface == 'sram':
                 add_write_sram(s, n)
             else:
