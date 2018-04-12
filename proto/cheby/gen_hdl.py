@@ -377,8 +377,8 @@ def field_decode(root, reg, f, off, val, dat):
     # Register and value bounds
     d_lo = f.lo
     d_hi = f.lo + f.c_width - 1
-    s_lo = 0
-    s_hi = f.c_width - 1
+    v_lo = 0
+    v_hi = f.c_width - 1
     # Next field if not affected by this read.
     if d_hi < off:
         return (None, None)
@@ -388,23 +388,23 @@ def field_decode(root, reg, f, off, val, dat):
         # Strip the part below OFF.
         delta = off - d_lo
         d_lo = off
-        s_lo += delta
+        v_lo += delta
     # Set right boundaries
     d_lo -= off
     d_hi -= off
     if d_hi >= root.c_word_bits:
         delta = d_hi + 1 - root.c_word_bits
         d_hi = root.c_word_bits - 1
-        s_hi -= delta
+        v_hi -= delta
 
     if d_hi == root.c_word_bits - 1 and d_lo == 0:
         pass
     else:
         dat = HDLSlice(dat, d_lo, d_hi - d_lo + 1)
-    if s_hi == f.c_width - 1 and s_lo == 0:
+    if v_hi == f.c_width - 1 and v_lo == 0:
         pass
     else:
-        val = HDLSlice(val, s_lo, s_hi - s_lo + 1)
+        val = HDLSlice(val, v_lo, v_hi - v_lo + 1)
     return (val, dat)
 
 
