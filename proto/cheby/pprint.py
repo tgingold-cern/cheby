@@ -46,8 +46,10 @@ def pprint_named(pp, n):
 def pprint_field(pp, n):
     pp.pp_obj('field')
     pprint_named(pp, n)
-    pp.pp_str('hi', n.hi)
-    pp.pp_str('lo', n.lo)
+    if n.hi is None:
+        pp.pp_str('range', "{}".format(n.lo))
+    else:
+        pp.pp_str('range', "{}-{}".format(n.hi, n.lo))
     pp.pp_str('preset', n.preset)
     pp.pp_endobj()
 
