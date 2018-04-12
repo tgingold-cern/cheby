@@ -27,12 +27,48 @@ import expand_hdl
 from layout import ilog2
 
 
+class HdlError(Exception):
+    def __init__(self, msg):
+        self.msg = msg
+
+
 class Isigs(object):
     "Internal signals"
     pass
 
 
-def expand_wishbone(module, root):
+def add_bus(root, module, bus):
+    root.h_bus = {}
+    for n, h in bus:
+        module.ports.append(h)
+        root.h_bus[n] = h
+
+
+def add_decode_wb(root, module, isigs):
+    "Generate internal signals used by decoder/processes from WB bus."
+    isigs.rd_int = HDLSignal('rd_int')        # Read access
+    isigs.wr_int = HDLSignal('wr_int')        # Write access
+    isigs.rd_ack = HDLSignal('rd_ack_int')    # Ack for read
+    isigs.wr_ack = HDLSignal('wr_ack_int')    # Ack for write
+    # Internal signals for wb.
+    isigs.wb_en = HDLSignal('wb_en')
+    isigs.ack_int = HDLSignal('ack_int')      # Ack
+    module.signals.extend([isigs.wb_en, isigs.rd_int, isigs.wr_int,
+                           isigs.ack_int, isigs.rd_ack, isigs.wr_ack])
+    module.stmts.append(
+        HDLAssign(isigs.wb_en, HDLAnd(root.h_bus['cyc'], root.h_bus['stb'])))
+    module.stmts.append(
+        HDLAssign(isigs.rd_int, HDLAnd(isigs.wb_en, HDLNot(root.h_bus['we']))))
+    module.stmts.append(
+        HDLAssign(isigs.wr_int, HDLAnd(isigs.wb_en, root.h_bus['we'])))
+    module.stmts.append(HDLAssign(isigs.ack_int,
+                                  HDLOr(isigs.rd_ack, isigs.wr_ack)))
+    module.stmts.append(HDLAssign(root.h_bus['ack'], isigs.ack_int))
+    module.stmts.append(HDLAssign(root.h_bus['stall'],
+                                  HDLAnd(HDLNot(isigs.ack_int), isigs.wb_en)))
+
+
+def expand_wishbone(root, module, isigs):
     """Create wishbone interface."""
     bus = [('rst',   HDLPort("rst_n_i")),
            ('clk',   HDLPort("clk_i")),
@@ -45,11 +81,38 @@ def expand_wishbone(module, root):
            ('we',    HDLPort("wb_we_i")),
            ('ack',   HDLPort("wb_ack_o", dir='OUT')),
            ('stall', HDLPort("wb_stall_o", dir='OUT'))]
+    add_bus(root, module, bus)
 
-    root.h_bus = {}
-    for n, h in bus:
-        module.ports.append(h)
-        root.h_bus[n] = h
+    # Bus access
+    module.stmts.append(HDLComment('WB decode signals'))
+    add_decode_wb(root, module, isigs)
+
+
+def add_decode_cern_be_vme(root, module, isigs):
+    "Generate internal signals used by decoder/processes from CERN-BE-VME bus."
+    isigs.rd_int = root.h_bus['rd']
+    isigs.wr_int = root.h_bus['wr']
+    isigs.rd_ack = HDLSignal('rd_ack_int')    # Ack for read
+    isigs.wr_ack = HDLSignal('wr_ack_int')    # Ack for write
+    module.signals.extend([isigs.rd_ack, isigs.wr_ack])
+    module.stmts.append(HDLAssign(root.h_bus['rack'], isigs.rd_ack))
+    module.stmts.append(HDLAssign(root.h_bus['wack'], isigs.wr_ack))
+
+
+def expand_cern_be_vme(root, module, isigs):
+    """Create CERN-BE interface."""
+    bus = [('clk',   HDLPort("Clk")),
+           ('rst',   HDLPort("Rst")),
+           ('adr',   HDLPort("VMEAddr", root.c_sel_bits + root.c_blk_bits)),
+           ('dato',  HDLPort("VMERdData", root.c_word_bits, dir='OUT')),
+           ('dati',  HDLPort("VMEWrData", root.c_word_bits)),
+           ('rd',    HDLPort("VMERdMem")),
+           ('wr',    HDLPort("VMEWrMem")),
+           ('rack',  HDLPort("VMERdDone")),
+           ('wack',  HDLPort("VMEWrDone"))]
+    add_bus(root, module, bus)
+
+    add_decode_cern_be_vme(root, module, isigs)
 
 
 def add_ports_reg(module, prefix, n):
@@ -297,29 +360,6 @@ def add_decoder(root, stmts, addr, n, func):
     add_block_decoder(root, stmts, addr, func, n)
 
 
-def add_decode_wb(root, module, isigs):
-    "Generate internal signals used by decoder/processes from WB bus."
-    isigs.wb_en = HDLSignal('wb_en')
-    isigs.rd_int = HDLSignal('rd_int')        # Read access
-    isigs.wr_int = HDLSignal('wr_int')        # Write access
-    isigs.ack_int = HDLSignal('ack_int')      # Ack
-    isigs.rd_ack = HDLSignal('rd_ack_int')    # Ack for read
-    isigs.wr_ack = HDLSignal('wr_ack_int')    # Ack for write
-    module.signals.extend([isigs.wb_en, isigs.rd_int, isigs.wr_int,
-                           isigs.ack_int, isigs.rd_ack, isigs.wr_ack])
-    module.stmts.append(
-        HDLAssign(isigs.wb_en, HDLAnd(root.h_bus['cyc'], root.h_bus['stb'])))
-    module.stmts.append(
-        HDLAssign(isigs.rd_int, HDLAnd(isigs.wb_en, HDLNot(root.h_bus['we']))))
-    module.stmts.append(
-        HDLAssign(isigs.wr_int, HDLAnd(isigs.wb_en, root.h_bus['we'])))
-    module.stmts.append(HDLAssign(isigs.ack_int,
-                                  HDLOr(isigs.rd_ack, isigs.wr_ack)))
-    module.stmts.append(HDLAssign(root.h_bus['ack'], isigs.ack_int))
-    module.stmts.append(HDLAssign(root.h_bus['stall'],
-                                  HDLAnd(HDLNot(isigs.ack_int), isigs.wb_en)))
-
-
 def add_read_process(root, module, isigs):
     # Register read
     rd_data = root.h_bus['dato']
@@ -435,19 +475,18 @@ def generate_hdl(root):
     # Number of bits in a word
     root.c_word_bits = root.c_word_size * tree.BYTE_SIZE
 
-    # Create the bus
-    if root.bus == 'wb-32-be':
-        expand_wishbone(module, root)
-    else:
-        raise AssertionError
-    # Add ports
-    add_ports(root, module, root.name.lower() + '_', root)
-
     isigs = Isigs()
 
-    # Bus access
-    module.stmts.append(HDLComment('WB decode signals'))
-    add_decode_wb(root, module, isigs)
+    # Create the bus
+    if root.bus == 'wb-32-be':
+        expand_wishbone(root, module, isigs)
+    elif root.bus == 'cern-be-vme-16':
+        expand_cern_be_vme(root, module, isigs)
+    else:
+        raise HdlError("Unhandled bus '{}'".format(root.bus))
+
+    # Add ports
+    add_ports(root, module, root.name.lower() + '_', root)
 
     module.stmts.append(HDLComment('Assign outputs'))
     wire_regs(root, module, isigs, root)
