@@ -34,6 +34,12 @@ class Layout(tree.Visitor):
         super(Layout, self).__init__()
         self.address = 0
         self.word_size = word_size
+        self.align_reg = True
+
+    def duplicate(self):
+        res = Layout(self.word_size)
+        res.align_reg = self.align_reg
+        return res
 
     def compute_address(self, n):
         if n.address is None or n.address == 'next':
@@ -111,8 +117,11 @@ def layout_reg(lo, n):
         raise LayoutException(
             "incorrect access for register {}".format(n.get_path()))
     n.c_size = n.width / tree.BYTE_SIZE
-    # A register is aligned at least on a word and always naturally aligned.
-    n.c_align = align(n.c_size, lo.word_size)
+    if lo.align_reg:
+        # A register is aligned at least on a word and always naturally aligned.
+        n.c_align = align(n.c_size, lo.word_size)
+    else:
+        n.c_align = lo.word_size
     names = set()
     if n.fields:
         if n.type is not None:
@@ -205,7 +214,7 @@ def layout_composite(lo, n):
         names.add(c.name)
 
     # Compute size and alignment of elements.
-    lo1 = Layout(lo.word_size)
+    lo1 = lo.duplicate()
     max_align = 0
     for c in n.elements:
         lo1.visit(c)
@@ -249,9 +258,14 @@ def layout_root(lo, n):
 
 
 def layout_cheby(n):
+    flag_align_reg = True
     if n.bus is None or n.bus == 'wb-32-be':
         n.c_word_size = 4
+    elif n.bus == 'cern-be-vme-16':
+        n.c_word_size = 2
+        flag_align_reg = False
     else:
         raise LayoutException("unknown bus '{}'".format(n.bus))
     lo = Layout(n.c_word_size)
+    lo.align_reg = flag_align_reg
     lo.visit(n)

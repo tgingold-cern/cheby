@@ -1,24 +1,32 @@
-import tree
+import cheby.tree as tree
 
 
 class PrettyPrinter(tree.Visitor):
     def __init__(self, fd):
         self.fd = fd
-        self.indent = 0
+        self.indent = ['']
 
     def pp_raw(self, str):
         self.fd.write(str)
 
     def pp_indent(self):
-        self.pp_raw('  ' * self.indent)
+        self.pp_raw(self.indent[-1])
 
     def pp_list(self, name):
         self.pp_indent()
         self.pp_raw(name + ':\n')
-        self.indent += 1
+        self.indent.append(' ' * len(self.indent[-1]) + '  - ')
 
     def pp_endlist(self):
-        self.indent -= 1
+        self.indent.pop()
+
+    def pp_obj(self, name):
+        self.pp_indent()
+        self.pp_raw(name + ':\n')
+        self.indent.append(' ' * len(self.indent[-1]) + '  ')
+
+    def pp_endobj(self):
+        self.indent.pop()
 
     def pp_str(self, name, s):
         if s is None:
@@ -36,21 +44,22 @@ def pprint_named(pp, n):
 
 @PrettyPrinter.register(tree.Field)
 def pprint_field(pp, n):
-    pp.pp_list('field')
+    pp.pp_obj('field')
     pprint_named(pp, n)
     pp.pp_str('hi', n.hi)
     pp.pp_str('lo', n.lo)
     pp.pp_str('preset', n.preset)
-    pp.pp_endlist()
+    pp.pp_endobj()
 
 
 @PrettyPrinter.register(tree.Reg)
 def pprint_reg(pp, n):
-    pp.pp_list('reg')
+    pp.pp_obj('reg')
     pprint_named(pp, n)
     pp.pp_str('width', n.width)
     pp.pp_str('type', n.type)
     pp.pp_str('access', n.access)
+    pp.pp_str('address', n.address)
     if len(n.fields) == 1 and isinstance(n.fields[0], tree.FieldReg):
         pp.pp_str('preset', n.preset)
     else:
@@ -58,24 +67,24 @@ def pprint_reg(pp, n):
         for el in n.fields:
             pprint_field(pp, el)
         pp.pp_endlist()
-    pp.pp_endlist()
+    pp.pp_endobj()
 
 
 @PrettyPrinter.register(tree.Block)
 def pprint_block(pp, n):
-    pp.pp_list('block')
+    pp.pp_obj('block')
     pp.pp_str('submap_file', n.submap_file)
     pp.pp_str('interface', n.interface)
     pprint_complex(pp, n)
-    pp.pp_endlist()
+    pp.pp_endobj()
 
 
 @PrettyPrinter.register(tree.Array)
 def pprint_array(pp, n):
-    pp.pp_list('array')
+    pp.pp_obj('array')
     pp.pp_str('repeat', n.repeat)
     pprint_complex(pp, n)
-    pp.pp_endlist()
+    pp.pp_endobj()
 
 
 @PrettyPrinter.register(tree.ComplexNode)

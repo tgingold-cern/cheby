@@ -1,3 +1,4 @@
+#! /usr/bin/env python
 """Simple test program"""
 import sys
 import os

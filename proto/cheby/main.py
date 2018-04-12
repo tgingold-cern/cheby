@@ -1,15 +1,15 @@
 #!/usr/bin/env python
 import sys
 import argparse
-import parser
-import pprint
-import sprint
-import cprint
-import gen_laychk
-import layout
-import gen_hdl
-import print_vhdl
-import print_encore
+import cheby.parser
+import cheby.pprint as pprint
+import cheby.sprint as sprint
+import cheby.cprint as cprint
+import cheby.gen_laychk
+import cheby.layout as layout
+import cheby.gen_hdl
+import cheby.print_vhdl
+import cheby.print_encore
 
 
 def main():
@@ -33,7 +33,7 @@ def main():
     args = aparser.parse_args()
     for f in args.FILE:
         try:
-            t = parser.parse_yaml(f)
+            t = cheby.parser.parse_yaml(f)
 
             layout.layout_cheby(t)
 
@@ -59,9 +59,9 @@ def main():
             if args.gen_encore:
                 print_encore.print_encore(sys.stdout, t)
             if args.gen_vhdl:
-                h = gen_hdl.generate_hdl(t)
+                h = cheby.gen_hdl.generate_hdl(t)
                 print_vhdl.print_vhdl(sys.stdout, h)
-        except parser.ParseException as e:
+        except cheby.parser.ParseException as e:
             sys.stderr.write("{}:parse error: {}\n".format(f, e.msg))
             sys.exit(2)
         except layout.LayoutException as e:

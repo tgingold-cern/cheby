@@ -107,7 +107,10 @@ def parse_reg(parent, el):
         elif k == 'access':
             res.access = read_text(res, k, v)
         elif k == 'address':
-            res.address = read_int(res, k, v)
+            if v == 'next':
+                res.address = 'next'
+            else:
+                res.address = read_int(res, k, v)
         elif k == 'fields':
             for f in v:
                 for k1, v1 in f.items():
