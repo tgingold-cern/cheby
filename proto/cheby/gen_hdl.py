@@ -279,24 +279,29 @@ def add_reg_decoder(root, stmts, addr, func, els, blk_bits):
     # Decode directly all the elements
     width = blk_bits - root.c_addr_word_bits
     if width == 0:
+        # There is only one register, handle it directly
         assert len(els) <= 1
         for el in els:
-            func(stmts, el)
+            func(stmts, el, 0)
     else:
         sw = HDLSwitch(HDLSlice(addr, root.c_addr_word_bits, width))
         stmts.append(sw)
         for el in els:
-            cstmts = []
-            func(cstmts, el)
-            if cstmts:
-                # Only create the choice is there are statements.
-                ch = HDLChoiceExpr(
-                    HDLConst(el.c_address >> root.c_addr_word_bits, width))
-                sw.choices.append(ch)
-                ch.stmts = cstmts
+            suboff = 0
+            while suboff < el.c_size:
+                cstmts = []
+                func(cstmts, el, suboff * tree.BYTE_SIZE)
+                if cstmts:
+                    # Only create the choice is there are statements.
+                    addr = el.c_address + suboff
+                    ch = HDLChoiceExpr(
+                        HDLConst(addr >> root.c_addr_word_bits, width))
+                    sw.choices.append(ch)
+                    ch.stmts = cstmts
+                suboff += root.c_word_size
         ch = HDLChoiceDefault()
         sw.choices.append(ch)
-        func(ch.stmts, None)
+        func(ch.stmts, None, 0)
 
 def add_block_decoder(root, stmts, addr, func, n):
     """Call :param func: for each element of :param n:.  :param func: can also
@@ -304,7 +309,7 @@ def add_block_decoder(root, stmts, addr, func, n):
        address that has no corresponding elements."""
     # Block without elements: interface
     if not n.elements:
-        func(stmts, n)
+        func(stmts, n, 0)
         return
 
     if n.c_sel_bits == 0:
@@ -316,7 +321,7 @@ def add_block_decoder(root, stmts, addr, func, n):
             return
         assert len(n.elements) == 1
         if isinstance(el, tree.Array):
-            func(stmts, el)
+            func(stmts, el, 0)
         else:
             add_block_decoder(root, stmts, addr, func, n.elements[0])
         return
@@ -343,7 +348,7 @@ def add_block_decoder(root, stmts, addr, func, n):
                 add_block_decoder(root, ch.stmts, addr, func, el[0])
             elif isinstance(el[0], tree.Array):
                 assert len(el) == 1
-                func(ch.stmts, el)
+                func(ch.stmts, el, 0)
             elif isinstance(el[0], tree.Reg):
                 # FIXME: compute the minimal subblocks_bits
                 add_reg_decoder(root, ch.stmts, addr, func, el, subblocks_bits)
@@ -351,7 +356,7 @@ def add_block_decoder(root, stmts, addr, func, n):
                 raise AssertionError
     ch = HDLChoiceDefault()
     sw.choices.append(ch)
-    func(ch.stmts, None)
+    func(ch.stmts, None, 0)
 
 def add_decoder(root, stmts, addr, n, func):
     """Call :param func: for each element of :param n:.  :param func: can also
@@ -375,10 +380,31 @@ def add_read_process(root, module, isigs):
     rdproc.sync_stmts.append(rd_if)
     rd_if.else_stmts.append(HDLAssign(isigs.rd_ack, bit_0))
 
-    def add_read_reg(s, n):
-        def sel_input(t):
-            "Where to read data from."
+    def add_read_reg(s, n, off):
         for f in n.fields:
+            # Truncate according to OFF.
+            d_lo = f.lo
+            d_hi = f.lo + f.c_width - 1
+            s_lo = 0
+            s_hi = f.c_width - 1
+            # Next field if not affected by this read.
+            if d_hi < off:
+                continue
+            if d_lo >= off + root.c_word_bits:
+                continue
+            if d_lo < off:
+                # Strip the part below OFF.
+                delta = off - d_lo
+                d_lo = off
+                s_lo += delta
+            # Set right boundaries
+            d_lo -= off
+            d_hi -= off
+            if d_hi >= root.c_word_bits:
+                delta = d_hi + 1 - root.c_word_bits
+                d_hi = root.c_word_bits - 1
+                s_hi -= delta
+
             if n.access in ['wo', 'rw']:
                 src = f.h_reg
             elif n.access == 'ro':
@@ -387,19 +413,22 @@ def add_read_process(root, module, isigs):
                 src = HDLConst(f.preset, f.c_width)
             else:
                 raise AssertionError
-            if f.c_width == root.c_word_bits:
+            if d_hi == root.c_word_bits - 1 and d_lo == 0:
                 dat = rd_data
             else:
-                dat = HDLSlice(rd_data, f.lo, f.c_width)
-            s.append(HDLAssign(dat, src))
-    def add_read(s, n):
+                dat = HDLSlice(rd_data, d_lo, d_hi - d_lo + 1)
+            if s_hi == f.c_width - 1 and s_lo == 0:
+                val = src
+            else:
+                val = HDLSlice(src, s_lo, s_hi - s_lo + 1)
+            s.append(HDLAssign(dat, val))
+    def add_read(s, n, off):
         if n is not None:
             if isinstance(n, tree.Reg):
                 if n.access == 'wo':
                     return
-                else:
-                    s.append(HDLComment(n.name))
-                    add_read_reg(s, n)
+                s.append(HDLComment(n.name))
+                add_read_reg(s, n, off)
             elif isinstance(n, tree.Block):
                 if n.interface == 'sram':
                     s.append(HDLAssign(rd_data, n.h_data_o))
@@ -445,7 +474,7 @@ def add_write_process(root, module, isigs):
             if f.h_wport is not None:
                 s.append(HDLAssign(f.h_wport, bit_1))
 
-    def add_write(s, n):
+    def add_write(s, n, off):
         if n is not None:
             if isinstance(n, tree.Reg):
                 if n.access in ['ro', 'cst']:

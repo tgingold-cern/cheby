@@ -5,11 +5,11 @@ import cheby.parser
 import cheby.pprint as pprint
 import cheby.sprint as sprint
 import cheby.cprint as cprint
-import cheby.gen_laychk
+import cheby.gen_laychk as gen_laychk
 import cheby.layout as layout
 import cheby.gen_hdl as gen_hdl
 import cheby.print_vhdl as print_vhdl
-import cheby.print_encore
+import cheby.print_encore as print_encore
 
 
 def decode_args():
