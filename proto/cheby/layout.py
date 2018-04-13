@@ -105,7 +105,10 @@ def layout_reg(lo, n):
     # doc: Width must be 8, 16, 32, 64
     # Maybe infer width from fields ?
     # Maybe have a default ?
-    if n.width not in [8, 16, 32, 64]:
+    if n.width is None:
+        raise LayoutException(
+            "missing width for register {}".format(n.get_path()))
+    elif n.width not in [8, 16, 32, 64]:
         raise LayoutException(
             "incorrect width for register {}".format(n.get_path()))
     layout_named(n)
