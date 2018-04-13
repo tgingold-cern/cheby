@@ -238,3 +238,11 @@ Compared to wbgen, the following features of memories are not supported:
 - wrap_bits
 - byte_select
 - width /= 32
+
+
+Annex: references
+-----------------
+
+For Cheburashka: https://wikis.cern.ch/display/BERF/Cheburashka+Documentation
+For Gena: https://wikis.cern.ch/display/BERF/Gena
+For wbgen: https://www.ohwr.org/projects/wishbone-gen/wiki/wbgen2-documentation
