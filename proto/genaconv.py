@@ -24,17 +24,41 @@ def conv_access(acc):
     return {'r': 'ro', 'rmw': 'rw', 'rw': 'rw', 'w': 'wo'}[acc]
 
 
+def conv_depth(s):
+    units = {'k': 1<<10, 'M': 1<<20, 'G': 1<<30 }
+    if s[-1] in units:
+        return int(s[:-1]) * units[s[-1]]
+    else:
+        return int(s)
+
+
+def conv_common(node, k, v):
+    if k == 'description':
+        node.description = v
+        return True
+    elif k == 'comment':
+        node.comment = v
+        return True
+    elif k == 'comment-encoding':
+        if v == 'PlainText':
+            return True
+        raise UnknownValue(k, v)
+    else:
+        return False
+
 def conv_bit_field_data(reg, el):
     res = cheby.tree.Field(reg)
     attrs = el.attrib
     for k, v in attrs.items():
-        if k == 'bit-preset':
+        if conv_common(res, k, v):
+            pass
+        elif k == 'bit-preset':
             if v == 'true':
                 res.preset = '1'
         elif k in ['name', 'bit']:
             # Handled
             pass
-        elif k in ['autoclear', 'name', 'bit']:
+        elif k in ['autoclear', 'alarm-level', 'gen']:
             # Ignored
             pass
         else:
@@ -52,10 +76,14 @@ def conv_sub_reg(reg, el):
     res = cheby.tree.Field(reg)
     attrs = el.attrib
     for k, v in attrs.items():
-        if k in ['name', 'range']:
+        if conv_common(res, k, v):
+            pass
+        elif k in ['name', 'range']:
             # Handled
             pass
-        elif k in ['auto-clear-mask', 'sub-reg-preset-mask']:
+        elif k in ['auto-clear-mask', 'sub-reg-preset-mask', 'gen',
+                   'unit', 'read-conversion-factor', 'write-conversion-factor',
+                   'constant-value']:
             # Ignored
             pass
         else:
@@ -75,12 +103,15 @@ def conv_register_data(parent, el):
     res = cheby.tree.Reg(parent)
     attrs = el.attrib
     for k, v in attrs.items():
-        if k in ['access-mode', 'address', 'name', 'element-width',
+        if conv_common(res, k, v):
+            pass
+        elif k in ['access-mode', 'address', 'name', 'element-width',
                  'bit-encoding']:
             # Handled
             pass
         elif k in ['code-generation-rule', 'auto-clear', 'preset',
-                   'persistence', 'max-val', 'min-val']:
+                   'persistence', 'max-val', 'min-val', 'note', 'gen',
+                   'unit', 'read-conversion-factor', 'write-conversion-factor']:
             # Ignored
             pass
         else:
@@ -100,12 +131,102 @@ def conv_register_data(parent, el):
             raise UnknownTag(child.tag)
     if not res.fields:
         enc = attrs.get('bit-encoding', None)
-        if enc == 'unsigned':
+        if enc in [None, 'unsigned', 'signed', 'float']:
             res.type = enc
         else:
             raise UnknownValue('bit-encoding', enc)
         res.fields.append(cheby.tree.FieldReg(res))
     parent.elements.append(res)
+
+def conv_memory_data(parent, el):
+    res = cheby.tree.Array(parent)
+    attrs = el.attrib
+    for k, v in attrs.items():
+        if conv_common(res, k, v):
+            pass
+        elif k in ['access-mode', 'address', 'name', 'element-width',
+                 'element-depth']:
+            # Handled
+            pass
+        elif k in ['persistence', 'note', 'gen']:
+            # Ignored
+            pass
+        else:
+            raise UnknownAttribute(k)
+    res.name = attrs['name']
+    res.address = attrs['address']
+    res.repeat = conv_depth(attrs['element-depth'])
+
+    reg = cheby.tree.Reg(res)
+    res.elements.append(reg)
+    reg.name = res.name
+    reg.width = attrs['element-width']
+    reg.access = conv_access(attrs['access-mode'])
+    for child in el:
+        if child.tag == 'memory-channel':
+            pass
+        else:
+            raise UnknownTag(child.tag)
+    parent.elements.append(res)
+
+def conv_area(parent, el):
+    res = cheby.tree.Block(parent)
+    attrs = el.attrib
+    for k, v in attrs.items():
+        if conv_common(res, k, v):
+            pass
+        elif k in ['address', 'name', 'element-depth']:
+            # Handled
+            pass
+        elif k == 'is-reserved':
+            # FIXME: todo
+            pass
+        elif k in ['persistence', 'gen', 'note']:
+            # Ignored
+            pass
+        else:
+            raise UnknownAttribute(k)
+    res.name = attrs['name']
+    res.address = attrs['address']
+    res.size = conv_depth(attrs['element-depth'])
+
+    for child in el:
+        conv_element(res, child)
+    parent.elements.append(res)
+
+def conv_submap(parent, el):
+    res = cheby.tree.Block(parent)
+    attrs = el.attrib
+    for k, v in attrs.items():
+        if conv_common(res, k, v):
+            pass
+        elif k in ['address', 'name', 'filename']:
+            # Handled
+            pass
+        elif k in ['gen', 'ro2wo', 'access-mode-flip']:
+            # Ignored
+            pass
+        else:
+            raise UnknownAttribute(k)
+    res.name = attrs['name']
+    res.submap = attrs['filename']
+
+    for child in el:
+        conv_element(res, child)
+    parent.elements.append(res)
+
+def conv_element(parent, child):
+    if child.tag == 'register-data':
+        conv_register_data(parent, child)
+    elif child.tag == 'memory-data':
+        conv_memory_data(parent, child)
+    elif child.tag == 'area':
+        conv_area(parent, child)
+    elif child.tag == 'submap':
+        conv_submap(parent, child)
+    else:
+        raise UnknownTag(child.tag)
+
 
 def conv_root(root, filename):
     res = cheby.tree.Root()
@@ -113,10 +234,13 @@ def conv_root(root, filename):
     d = {}
     acc_mode = None
     for k, v in root.attrib.items():
-        if k in ['map-version', 'ident-code', 'driver-name',
-                 'equipment-code', 'note', 'module-type']:
+        if conv_common(res, k, v):
             pass
-        elif k in ['name', 'area-depth', 'gen', 'description']:
+        elif k in ['map-version', 'ident-code', 'driver-name',
+                   'equipment-code', 'note', 'module-type',
+                   'semantic-mem-map-version']:
+            pass
+        elif k in ['name', 'area-depth', 'gen']:
             d[k] = v
         elif k == 'mem-map-access-mode':
             acc_mode = v
@@ -134,18 +258,12 @@ def conv_root(root, filename):
         raise UnknownValue('mem-map-access-mode', acc_mode)
 
     for child in root:
-        if child.tag == 'register-data':
-            conv_register_data(res, child)
-        elif child.tag == 'constant-value':
-            raise UnknownTag(child.tag)
-        elif child.tag == 'memory-data':
-            raise UnknownTag(child.tag)
-        elif child.tag == 'area':
-            raise UnknownTag(child.tag)
-        elif child.tag == 'submap':
-            raise UnknownTag(child.tag)
+        if child.tag == 'constant-value':
+            pass
+        elif child.tag == 'fesa-class-properties':
+            pass
         else:
-            raise UnknownTag(child.tag)
+            conv_element(res, child)
     return res
 
 
