@@ -236,21 +236,24 @@ def conv_root(root, filename):
     for k, v in root.attrib.items():
         if conv_common(res, k, v):
             pass
-        elif k in ['map-version', 'ident-code', 'driver-name',
-                   'equipment-code', 'note', 'module-type',
-                   'semantic-mem-map-version']:
-            pass
-        elif k in ['name', 'area-depth', 'gen']:
+        elif k in ['name']:
             d[k] = v
         elif k == 'mem-map-access-mode':
             acc_mode = v
+        elif k in ['map-version', 'ident-code', 'driver-name',
+                   'equipment-code', 'note', 'module-type',
+                   'semantic-mem-map-version', 'area-depth', 'gen',
+                   'vme-base-addr', 'vme-base-address']:
+            # Ignored
+            pass
         elif k == '{http://www.w3.org/2001/XMLSchema-instance}schemaLocation':
             pass
         else:
             raise UnknownAttribute(k)
     res.name = d.get('name', os.path.basename(filename))
-    res.description = d.get('description', None)
-    if acc_mode == 'A24/D16':
+    if acc_mode == 'A24/D8':
+        res.bus = 'cern-be-vme-8'
+    elif acc_mode == 'A24/D16':
         res.bus = 'cern-be-vme-16'
     elif acc_mode == 'A32/D32':
         res.bus = 'cern-be-vme-32'
