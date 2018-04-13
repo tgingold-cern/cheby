@@ -29,6 +29,11 @@ def read_int(parent, key, val):
         return val
     error("expect an integer for {}:{}".format(parent.get_path(), key))
 
+def read_address(parent, key, val):
+    if val == 'next':
+        return 'next'
+    else:
+        return read_int(parent, key, val)
 
 def parse_named(node, key, val):
     if key == 'name':
@@ -107,10 +112,7 @@ def parse_reg(parent, el):
         elif k == 'access':
             res.access = read_text(res, k, v)
         elif k == 'address':
-            if v == 'next':
-                res.address = 'next'
-            else:
-                res.address = read_int(res, k, v)
+            res.address = read_address(res, k, v)
         elif k == 'fields':
             for f in v:
                 for k1, v1 in f.items():
@@ -129,7 +131,7 @@ def parse_complex(node, key, val):
     if parse_composite(node, key, val):
         pass
     elif key == 'address':
-        node.address = read_int(node, key, val)
+        node.address = read_address(node, key, val)
     elif key == 'align':
         node.align = read_bool(node, key, val)
     elif key == 'size':
