@@ -64,7 +64,7 @@ def pprint_reg(pp, n):
     pp.pp_str('address', n.address)
     if len(n.fields) == 1 and isinstance(n.fields[0], tree.FieldReg):
         pp.pp_str('preset', n.preset)
-    else:
+    elif n.fields:
         pp.pp_list('fields')
         for el in n.fields:
             pprint_field(pp, el)
