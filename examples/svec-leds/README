@@ -13,3 +13,6 @@ $ hdlmake
 
 4. Run synthesis
 $ make
+
+5. Load the bitstream
+# dd if=svec_leds_top.bin of=/dev/svec.13 bs=5M

@@ -297,7 +297,7 @@ begin  -- architecture top
       g_CLOCK_PERIOD => 8,
       g_DECODE_AM => True,
       g_USER_CSR_EXT => False,
-      g_WB_GRANULARITY => WORD,
+      g_WB_GRANULARITY => BYTE,
 
       g_MANUFACTURER_ID => c_CERN_ID,
       g_BOARD_ID        => c_SVEC_ID,
@@ -410,5 +410,9 @@ begin  -- architecture top
   svec_led(11) <= '0';
   svec_led(13) <= '0';
   svec_led(15) <= '0';
+
+  master_in.err <= '0';
+  master_in.rty <= '0';
+  master_in.int <= '0';
 
 end architecture top;
