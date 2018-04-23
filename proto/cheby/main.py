@@ -10,6 +10,7 @@ import cheby.layout as layout
 import cheby.gen_hdl as gen_hdl
 import cheby.print_vhdl as print_vhdl
 import cheby.print_encore as print_encore
+import cheby.expand_hdl as expand_hdl
 
 
 def decode_args():
@@ -60,6 +61,10 @@ def handle_file(args, filename):
     if args.gen_encore:
         print_encore.print_encore(sys.stdout, t)
     if args.gen_vhdl:
+        # Decode x-hdl
+        expand_hdl.expand_hdl(t)
+        if False:
+            pprint.pprint_cheby(sys.stdout, t)
         h = gen_hdl.generate_hdl(t)
         print_vhdl.print_vhdl(sys.stdout, h)
 

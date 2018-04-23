@@ -36,6 +36,10 @@ def expand_x_hdl(n):
 def tree_copy(n):
     if isinstance(n, tree.Reg):
         res = copy.copy(n)
+        res.fields = [tree_copy(f) for f in n.fields]
+        return res
+    elif isinstance(n, tree.Field):
+        res = copy.copy(n)
         return res
     else:
         raise AssertionError
@@ -45,6 +49,7 @@ def unroll_array(n):
     # Transmute the array to a block with children
     res = tree.Block(n._parent)
     res.name = n.name
+    res.align = False
     res.c_address = n.c_address
     res.c_sel_bits = n.c_sel_bits
     res.c_blk_bits = n.c_blk_bits

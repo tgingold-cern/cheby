@@ -192,13 +192,8 @@ def add_ports(root, module, prefix, node):
                 # Interface
                 add_ports_block(root, module, prefix, n)
         elif isinstance(n, tree.Array):
-            if n.align is None or n.align:
-                pass
-            else:
-                # Unroll
-                for i in range(n.repeat):
-                    add_ports(root, module,
-                              "{}{}{:x}_".format(prefix, n.name, i), n)
+            # TODO
+            raise AssertionError
         elif isinstance(n, tree.Reg):
             add_ports_reg(module, prefix, n)
         else:
@@ -411,7 +406,7 @@ def field_decode(root, reg, f, off, val, dat):
 def add_read_process(root, module, isigs):
     # Register read
     rd_data = root.h_bus['dato']
-    rdproc = HDLSync(root.h_bus['rst'], root.h_bus['clk'])
+    rdproc = HDLSync(root.h_bus['clk'], root.h_bus['rst'])
     module.stmts.append(rdproc)
     rdproc.rst_stmts.append(HDLAssign(isigs.rd_ack, bit_0))
     rdproc.rst_stmts.append(HDLAssign(rd_data,
@@ -460,7 +455,7 @@ def add_read_process(root, module, isigs):
 
 def add_write_process(root, module, isigs):
     # Register write
-    wrproc = HDLSync(root.h_bus['rst'], root.h_bus['clk'])
+    wrproc = HDLSync(root.h_bus['clk'], root.h_bus['rst'])
     module.stmts.append(wrproc)
     add_init_reg(wrproc.rst_stmts, root)
     add_clear_wstrobe(wrproc.rst_stmts, root)
@@ -510,9 +505,6 @@ def add_write_process(root, module, isigs):
 def generate_hdl(root):
     module = HDLModule()
     module.name = root.name
-
-    # Decode x-hdl
-    expand_hdl.expand_hdl(root)
 
     # Number of bits in the address used by a word
     root.c_addr_word_bits = ilog2(root.c_word_size)

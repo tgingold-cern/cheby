@@ -11,6 +11,7 @@ import cheby.cprint as cprint
 import cheby.gen_hdl as gen_hdl
 import cheby.print_vhdl as print_vhdl
 import cheby.gen_laychk as gen_laychk
+import cheby.expand_hdl as expand_hdl
 
 srcdir = '../testfiles/'
 verbose = False
@@ -133,6 +134,7 @@ def test_hdl():
             print('test hdl: {}'.format(f))
         t = parse_ok(srcdir + f)
         layout_ok(t)
+        expand_hdl.expand_hdl(t)
         h = gen_hdl.generate_hdl(t)
         print_vhdl.print_vhdl(fd, h)
 
