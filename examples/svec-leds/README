@@ -1,0 +1,15 @@
+# How to build the demo ?
+
+1. Use Cheby to create the interconnect
+$ ../../proto/cheby.py --gen-vhdl leds.cheby > leds.vhd
+
+2. Be sure submodules are checked-out
+$ git submodule init
+$ git submodule update
+
+3. Run hdlmake
+$ cd syn
+$ hdlmake
+
+4. Run synthesis
+$ make
