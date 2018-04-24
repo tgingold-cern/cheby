@@ -1,5 +1,5 @@
 import yaml
-import tree
+import cheby.tree as tree
 
 
 class ParseException(Exception):

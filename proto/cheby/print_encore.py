@@ -1,4 +1,4 @@
-import tree
+import cheby.tree as tree
 
 class EncoreBlock(object):
     def __init__(self, num):
@@ -88,7 +88,7 @@ def p_body(e, n):
         elif isinstance(el, tree.Block) and el.interface is None:
             raise AssertionError
         else:
-            raise AssertionError, "unhandled element {}".format(type(el))
+            raise AssertionError("unhandled element {}".format(type(el)))
 
 def print_encore(fd, root):
     e = Encore()

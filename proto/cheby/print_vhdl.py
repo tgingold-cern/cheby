@@ -1,6 +1,6 @@
 """Generate VHDL from HDL tree"""
 
-import hdltree
+import cheby.hdltree as hdltree
 
 
 def w(fd, str):

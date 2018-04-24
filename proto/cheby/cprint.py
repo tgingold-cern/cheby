@@ -1,5 +1,5 @@
 """Print as a C structure."""
-import tree
+import cheby.tree as tree
 
 
 class CPrinter(tree.Visitor):

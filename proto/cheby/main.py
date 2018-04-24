@@ -19,6 +19,8 @@ def decode_args():
                          help='display the input in YAML')
     aparser.add_argument('--print-simple', action='store_true',
                          help='display the layout with fields')
+    aparser.add_argument('--print-simple-expanded', action='store_true',
+                         help='display the expanded layout with fields')
     aparser.add_argument('--print-memmap', action='store_true',
                          help='display the layout without fields')
     aparser.add_argument('--print-c', action='store', nargs='?', const='.',
@@ -60,9 +62,11 @@ def handle_file(args, filename):
         gen_laychk.gen_chklayout_cheby(sys.stdout, t)
     if args.gen_encore:
         print_encore.print_encore(sys.stdout, t)
+    # Decode x-hdl
+    expand_hdl.expand_hdl(t)
+    if args.print_simple_expanded:
+        sprint.sprint_cheby(sys.stdout, t, True)
     if args.gen_vhdl:
-        # Decode x-hdl
-        expand_hdl.expand_hdl(t)
         if False:
             pprint.pprint_cheby(sys.stdout, t)
         h = gen_hdl.generate_hdl(t)

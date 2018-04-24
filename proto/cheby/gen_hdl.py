@@ -14,17 +14,17 @@
    The _i/_o suffixes are also used for ports, so the ports of the bus can
    also have conflicts with user names.
 """
-from hdltree import (HDLModule,
-                     HDLPort, HDLSignal,
-                     HDLAssign, HDLSync, HDLComment,
-                     HDLSwitch, HDLChoiceExpr, HDLChoiceDefault, HDLIfElse,
-                     bit_1, bit_0, bit_x,
-                     HDLAnd, HDLOr, HDLNot, HDLEq,
-                     HDLSlice, HDLReplicate,
-                     HDLConst)
-import tree
-import expand_hdl
-from layout import ilog2
+from cheby.hdltree import (HDLModule,
+                           HDLPort, HDLSignal,
+                           HDLAssign, HDLSync, HDLComment,
+                           HDLSwitch, HDLChoiceExpr, HDLChoiceDefault,
+                           HDLIfElse,
+                           bit_1, bit_0, bit_x,
+                           HDLAnd, HDLOr, HDLNot, HDLEq,
+                           HDLSlice, HDLReplicate,
+                           HDLConst)
+import cheby.tree as tree
+from cheby.layout import ilog2
 
 
 class HdlError(Exception):

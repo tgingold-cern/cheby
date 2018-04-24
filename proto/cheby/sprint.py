@@ -1,4 +1,4 @@
-import tree
+import cheby.tree as tree
 
 
 class SimplePrinter(tree.Visitor):

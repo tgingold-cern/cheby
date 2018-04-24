@@ -7,7 +7,7 @@
    - check names are C identifiers
 """
 
-import tree
+import cheby.tree as tree
 
 
 def ilog2(val):
@@ -119,7 +119,7 @@ def layout_reg(lo, n):
     if n.access is not None and n.access not in ['ro', 'rw', 'wo', 'cst']:
         raise LayoutException(
             "incorrect access for register {}".format(n.get_path()))
-    n.c_size = n.width / tree.BYTE_SIZE
+    n.c_size = n.width // tree.BYTE_SIZE
     if lo.align_reg:
         # A register is aligned at least on a word and always naturally aligned.
         n.c_align = align(n.c_size, lo.word_size)

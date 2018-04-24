@@ -1,5 +1,5 @@
-import parser
-import tree
+import cheby.parser as parser
+import cheby.tree as tree
 import copy
 
 def expand_x_hdl_field(f, n, dct):
@@ -7,7 +7,7 @@ def expand_x_hdl_field(f, n, dct):
     f.hdl_type = 'wire' if f._parent.access == 'ro' else 'reg'
     f.hdl_write_strobe = False
 
-    for k, v in dct.iteritems():
+    for k, v in dct.items():
         if k == 'type':
             f.hdl_type = parser.read_text(n, k, v)
         elif k == 'write-strobe':

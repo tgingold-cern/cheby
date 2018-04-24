@@ -1,5 +1,5 @@
 """Generate code to check layout of the C structure."""
-import tree
+import cheby.tree as tree
 
 
 class ChkGen(tree.Visitor):
