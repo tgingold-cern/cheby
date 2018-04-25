@@ -232,6 +232,7 @@ def conv_root(root, filename):
     res = cheby.tree.Root()
 
     d = {}
+    res.x_gena = {}
     acc_mode = None
     for k, v in root.attrib.items():
         if conv_common(res, k, v):
@@ -240,7 +241,10 @@ def conv_root(root, filename):
             d[k] = v
         elif k == 'mem-map-access-mode':
             acc_mode = v
-        elif k in ['map-version', 'ident-code', 'driver-name',
+        elif k in ['map-version', 'ident-code']:
+            # x-gena extension
+            res.x_gena[k] = v
+        elif k in ['driver-name',
                    'equipment-code', 'note', 'module-type',
                    'semantic-mem-map-version', 'area-depth', 'gen',
                    'vme-base-addr', 'vme-base-address']:

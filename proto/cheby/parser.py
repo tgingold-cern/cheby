@@ -46,6 +46,8 @@ def parse_named(node, key, val):
         node.x_wbgen = val
     elif key == 'x-hdl':
         node.x_hdl = val
+    elif key == 'x-gena':
+        node.x_gena = val
     else:
         return False
     return True

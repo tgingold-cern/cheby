@@ -35,6 +35,24 @@ class PrettyPrinter(tree.Visitor):
         self.pp_raw("{}: {}\n".format(name, s))
 
 
+def pprint_extension(pp, name, n):
+    if not n:
+        # Do nothing if the extension is empty.
+        return
+    if isinstance(n, dict):
+        pp.pp_obj(name)
+        for k, v in n.items():
+            pprint_extension(pp, k, v)
+        pp.pp_endobj()
+    elif isinstance(n, str):
+        pp.pp_str(name, n)
+    else:
+        raise AssertionError
+
+def pprint_extensions(pp, n):
+    if hasattr(n, 'x_gena'):
+        pprint_extension(pp, 'x-gena', n.x_gena)
+
 @PrettyPrinter.register(tree.NamedNode)
 def pprint_named(pp, n):
     pp.pp_str('name', n.name)
@@ -100,6 +118,7 @@ def pprint_complex(pp, n):
 @PrettyPrinter.register(tree.CompositeNode)
 def pprint_composite(pp, n):
     pprint_named(pp, n)
+    pprint_extensions(pp, n)
     if n.elements:
         pp.pp_list('elements')
         for el in n.elements:
