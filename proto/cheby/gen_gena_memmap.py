@@ -29,14 +29,16 @@ def gen_gena_memmap(root):
     addr_width = ilog2(root.c_size) - word_width
     for e in root.elements:
         if isinstance(e, tree.Reg):
-            val = HDLBinConst(e.c_address >> word_width, addr_width)
+            addr = e.c_address >> word_width
+            val = HDLBinConst(addr, addr_width)
             cst = HDLConstant(cpfx + '_' + e.name, addr_width,
                               lo_idx=word_width, value=val)
+            # FIXME: Byte address is not correct in Gena.
             cst.eol_comment = \
                 ': Word address : "{:0{}b}" & X"{:0{}X}"; Byte Address : X"{:x}"'.format(
-                    e.c_address >> word_width, addr_width,
-                    e.c_address >> word_width, (addr_width + 3) // 4,
-                    e.c_address)
+                    addr, addr_width,
+                    addr, (addr_width + 3) // 4,
+                    e.c_address & ((1 << addr_width) - 1))
             decls.append(cst)
 
     decls.append(HDLComment('Register Auto Clear Masks : Memory Map'))
@@ -82,5 +84,8 @@ def gen_gena_memmap(root):
                         sz, lo_idx=f.lo, value=HDLBinConst(cf['code'], sz))
                     decls.append(cst)
 
+    decls.append(HDLComment('Memory Data : Memory Map'))
+    decls.append(HDLComment('Submap Address : Memory Map'))
+    
     res.decls = decls
     return res

@@ -31,6 +31,12 @@ def conv_depth(s):
     else:
         return int(s)
 
+def conv_address(s):
+    if s == 'next':
+        return s
+    else:
+        return int(s, 0)
+
 
 def conv_common(node, k, v):
     if k == 'description':
@@ -123,7 +129,7 @@ def conv_register_data(parent, el):
         else:
             raise UnknownAttribute(k)
     res.name = attrs['name']
-    res.address = attrs['address']
+    res.address = conv_address(attrs['address'])
     res.width = attrs['element-width']
     res.access = conv_access(attrs['access-mode'])
     for child in el:
@@ -160,7 +166,7 @@ def conv_memory_data(parent, el):
         else:
             raise UnknownAttribute(k)
     res.name = attrs['name']
-    res.address = attrs['address']
+    res.address = conv_address(attrs['address'])
     res.repeat = conv_depth(attrs['element-depth'])
 
     reg = cheby.tree.Reg(res)
@@ -193,7 +199,7 @@ def conv_area(parent, el):
         else:
             raise UnknownAttribute(k)
     res.name = attrs['name']
-    res.address = attrs['address']
+    res.address = conv_address(attrs['address'])
     res.size = conv_depth(attrs['element-depth'])
 
     for child in el:
@@ -215,7 +221,8 @@ def conv_submap(parent, el):
         else:
             raise UnknownAttribute(k)
     res.name = attrs['name']
-    res.submap = attrs['filename']
+    res.submap_file = attrs['filename']
+    res.address = conv_address(attrs['address'])
 
     for child in el:
         conv_element(res, child)
@@ -249,7 +256,7 @@ def conv_root(root, filename):
         elif k == 'mem-map-access-mode':
             acc_mode = v
         elif k == 'area-depth':
-            size = v
+            size = conv_depth(v)
         elif k in ['map-version', 'ident-code']:
             # x-gena extension
             res.x_gena[k] = v

@@ -15,6 +15,8 @@ def error(msg):
 def read_text(parent, key, val):
     if isinstance(val, str):
         return val
+    if val is None:
+        return None
     error("expect a string for {}:{}".format(parent.get_path(), key))
 
 
@@ -41,7 +43,9 @@ def parse_named(node, key, val):
     elif key == 'description':
         node.description = read_text(node, key, val)
     elif key == 'comment':
-        node.comment = read_text(node, key, val).rstrip()
+        node.comment = read_text(node, key, val)
+        if node.comment:
+            node.comment = node.comment.rstrip()
     elif key == 'x-wbgen':
         node.x_wbgen = val
     elif key == 'x-hdl':

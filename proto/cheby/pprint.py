@@ -28,10 +28,29 @@ class PrettyPrinter(tree.Visitor):
     def pp_endobj(self):
         self.indent.pop()
 
+    def pp_int(self, name, s):
+        if s is None:
+            return
+        self.pp_indent()
+        self.pp_raw("{}: {}\n".format(name, s))
+
+    def pp_bool(self, name, s):
+        self.pp_int(name, s)
+
+    def pp_hex(self, name, s):
+        if s is None:
+            return
+        self.pp_indent()
+        self.pp_raw("{}: 0x{:x}\n".format(name, s))
+
+    trans = {"'": "''", "\n": r"\n", ":": r"\:"}
+
     def pp_str(self, name, s):
         if s is None:
             return
         self.pp_indent()
+        if any(c in s for c in "'\n:"):
+            s = "'" + ''.join([self.trans.get(c, c) for c in s]) + "'"
         self.pp_raw("{}: {}\n".format(name, s))
 
 
@@ -58,6 +77,14 @@ def pprint_extensions(pp, n):
     if hasattr(n, 'x_gena'):
         pprint_extension(pp, 'x-gena', n.x_gena)
 
+def pprint_address(pp, n):
+    if n.address is None:
+        pass
+    elif n.address == 'next':
+        pp.pp_str('address', 'next')
+    else:
+        pp.pp_hex('address', n.address)
+
 @PrettyPrinter.register(tree.NamedNode)
 def pprint_named(pp, n):
     pp.pp_str('name', n.name)
@@ -73,7 +100,7 @@ def pprint_field(pp, n):
         pp.pp_str('range', "{}".format(n.lo))
     else:
         pp.pp_str('range', "{}-{}".format(n.hi, n.lo))
-    pp.pp_str('preset', n.preset)
+    pp.pp_hex('preset', n.preset)
     pprint_extensions(pp, n)
     pp.pp_endobj()
 
@@ -82,10 +109,10 @@ def pprint_field(pp, n):
 def pprint_reg(pp, n):
     pp.pp_obj('reg')
     pprint_named(pp, n)
-    pp.pp_str('width', n.width)
+    pp.pp_int('width', n.width)
     pp.pp_str('type', n.type)
     pp.pp_str('access', n.access)
-    pp.pp_str('address', n.address)
+    pprint_address(pp, n)
     if len(n.fields) == 1 and isinstance(n.fields[0], tree.FieldReg):
         pp.pp_str('preset', n.preset)
     elif n.fields:
@@ -99,31 +126,37 @@ def pprint_reg(pp, n):
 @PrettyPrinter.register(tree.Block)
 def pprint_block(pp, n):
     pp.pp_obj('block')
+    pprint_complex_head(pp, n)
     pp.pp_str('submap_file', n.submap_file)
     pp.pp_str('interface', n.interface)
-    pprint_complex(pp, n)
+    pprint_complex_tail(pp, n)
     pp.pp_endobj()
 
 
 @PrettyPrinter.register(tree.Array)
 def pprint_array(pp, n):
     pp.pp_obj('array')
-    pp.pp_str('repeat', n.repeat)
-    pprint_complex(pp, n)
+    pprint_complex_head(pp, n)
+    pp.pp_int('repeat', n.repeat)
+    pprint_complex_tail(pp, n)
     pp.pp_endobj()
 
 
-@PrettyPrinter.register(tree.ComplexNode)
-def pprint_complex(pp, n):
-    pp.pp_str('address', n.address)
-    pp.pp_str('align', n.align)
-    pp.pp_str('size', n.size)
-    pprint_composite(pp, n)
+def pprint_complex_head(pp, n):
+    pprint_composite_head(pp, n)
+    pprint_address(pp, n)
+    pp.pp_bool('align', n.align)
+    pp.pp_int('size', n.size)
 
 
-@PrettyPrinter.register(tree.CompositeNode)
-def pprint_composite(pp, n):
+def pprint_complex_tail(pp, n):
+    pprint_composite_tail(pp, n)
+
+
+def pprint_composite_head(pp, n):
     pprint_named(pp, n)
+
+def pprint_composite_tail(pp, n):
     pprint_extensions(pp, n)
     if n.elements:
         pp.pp_list('elements')
@@ -131,12 +164,12 @@ def pprint_composite(pp, n):
             pp.visit(el)
         pp.pp_endlist()
 
-
 @PrettyPrinter.register(tree.Root)
 def pprint_root(pp, n):
+    pprint_composite_head(pp, n)
     pp.pp_str('bus', n.bus)
-    pp.pp_str('size', n.size)
-    pprint_composite(pp, n)
+    pp.pp_int('size', n.size)
+    pprint_composite_tail(pp, n)
 
 
 def pprint_cheby(fd, root):
