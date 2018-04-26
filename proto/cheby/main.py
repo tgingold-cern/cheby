@@ -11,6 +11,7 @@ import cheby.gen_hdl as gen_hdl
 import cheby.print_vhdl as print_vhdl
 import cheby.print_encore as print_encore
 import cheby.expand_hdl as expand_hdl
+import cheby.gen_gena_memmap as gen_gena_memmap
 
 
 def decode_args():
@@ -31,6 +32,8 @@ def decode_args():
                          help='generate vhdl file')
     aparser.add_argument('--gen-encore', action='store_true',
                          help='generate encore file')
+    aparser.add_argument('--gen-gena-memmap', action='store_true',
+                         help='generate Gena MemMap file')
     aparser.add_argument('FILE', nargs='+')
 
     return aparser.parse_args()
@@ -62,6 +65,9 @@ def handle_file(args, filename):
         gen_laychk.gen_chklayout_cheby(sys.stdout, t)
     if args.gen_encore:
         print_encore.print_encore(sys.stdout, t)
+    if args.gen_gena_memmap:
+        h = gen_gena_memmap.gen_gena_memmap(t)
+        print_vhdl.print_vhdl(sys.stdout, h)
     # Decode x-hdl
     expand_hdl.expand_hdl(t)
     if args.print_simple_expanded:

@@ -70,6 +70,7 @@ class Root(CompositeNode):
     def __init__(self):
         super(Root, self).__init__(None)
         self.bus = None
+        self.size = None
         # Computed variables
         self.c_word_size = None  # Word size in bytes
 

@@ -129,15 +129,15 @@ def parse_reg(parent, el):
     return res
 
 
-def parse_complex(node, key, val):
-    if parse_composite(node, key, val):
+def parse_complex(node, k, v):
+    if parse_composite(node, k, v):
         pass
-    elif key == 'address':
-        node.address = read_address(node, key, val)
-    elif key == 'align':
-        node.align = read_bool(node, key, val)
-    elif key == 'size':
-        node.size = read_int(node, key, val)
+    elif k == 'address':
+        node.address = read_address(node, k, v)
+    elif k == 'align':
+        node.align = read_bool(node, k, v)
+    elif k == 'size':
+        node.size = read_int(node, k, v)
     else:
         return False
     return True
@@ -183,6 +183,8 @@ def parse_yaml(filename):
             pass
         elif k == 'bus':
             res.bus = read_text(res, k, v)
+        elif k == 'size':
+            res.size = read_int(res, k, v)
         else:
             error("unhandled '{}' in root".format(k))
     return res

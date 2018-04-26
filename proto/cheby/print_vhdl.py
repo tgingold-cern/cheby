@@ -12,6 +12,10 @@ def wln(fd, str=""):
     w(fd, '\n')
 
 
+def windent(fd, indent):
+    w(fd, '  ' * indent)
+
+
 def generate_header(fd, module):
     wln(fd, "library ieee;")
     wln(fd, "use ieee.std_logic_1164.all;")
@@ -29,7 +33,8 @@ def generate_type_mark(s):
 
 def generate_vhdl_type(p):
     if p.size:
-        return "{}({} downto 0)".format(generate_type_mark(p), p.size - 1)
+        return "{}({} downto {})".format(generate_type_mark(p),
+                                         p.lo_idx + p.size - 1, p.lo_idx)
     else:
         assert p.typ in 'LI', p.typ
         return {'L': 'std_logic', 'I': 'integer'}[p.typ]
@@ -66,6 +71,27 @@ def generate_signal(fd, s):
     w(fd, "  signal {:<40} : {typ};\n".format(s.name, typ=typ))
 
 
+def generate_constant(fd, s, indent):
+    typ = generate_vhdl_type(s)
+    windent(fd, indent)
+    w(fd, "constant {} : {} := {};".format(
+        s.name, typ, generate_expr(s.value)))
+    if hasattr(s, 'eol_comment'):
+        w(fd, "-- " + s.eol_comment)
+    wln(fd)
+
+
+def generate_decl(fd, d, indent):
+    if isinstance(d, hdltree.HDLSignal):
+        generate_signal(fd, d, 0)
+    elif isinstance(d, hdltree.HDLConstant):
+        generate_constant (fd, d, indent)
+    elif isinstance(d, hdltree.HDLComment):
+        generate_comment (fd, d, indent)
+    else:
+        raise AssertionError
+
+
 operator = {hdltree.HDLAnd: 'and',
             hdltree.HDLOr:  'or',
             hdltree.HDLNot: 'not',
@@ -95,7 +121,14 @@ def generate_expr(e, nested=False):
         return "'{}'".format(e.val)
     elif isinstance(e, hdltree.HDLUndef):
         return "'X'"
-    elif isinstance(e, hdltree.HDLConst):
+    elif isinstance(e, hdltree.HDLHexConst):
+        assert (e.size > 0 and (e.size % 4) == 0)
+        res = 'X"'
+        for i in range(e.size - 4, -1, -4):
+            res += '{:X}'.format((e.val >> i) & 15)
+        res += '"'
+        return res
+    elif isinstance(e, hdltree.HDLConst) or isinstance(e, hdltree.HDLBinConst):
         if e.size is None or e.size == 1:
             # A bit.
             return "'{}'".format(e.val)
@@ -183,14 +216,18 @@ def generate_seq(fd, s, level):
         assert False, "unhandled hdl seq {}".format(s)
 
 
+def generate_comment(fd, n, indent):
+    wln(fd)
+    windent(fd, indent)
+    wln(fd, "-- {}".format(n.comment))
+
+
 def generate_stmts(fd, stmts, indent):
     sindent = "  " * indent
     gen_num = 0
     for s in stmts:
         if isinstance(s, hdltree.HDLComment):
-            wln(fd)
-            w(fd, sindent)
-            wln(fd, "-- {}".format(s.comment))
+            generate_comment(fd, s, indent)
         elif isinstance(s, hdltree.HDLAssign):
             w(fd, sindent)
             generate_assign(fd, s)
@@ -257,7 +294,7 @@ def generate_stmts(fd, stmts, indent):
             assert False, "unhandled hdl stmt {}".format(s)
 
 
-def print_vhdl(fd, module):
+def print_module(fd, module):
     generate_header(fd, module)
     wln(fd, "entity {} is".format(module.name))
 
@@ -287,3 +324,18 @@ def print_vhdl(fd, module):
     wln(fd, "begin")
     generate_stmts(fd, module.stmts, 1)
     wln(fd, "end syn;")
+
+def print_package(fd, n):
+    generate_header(fd, n)
+    wln(fd, "package {} is".format(n.name))
+    for d in n.decls:
+        generate_decl(fd, d, 1)
+    wln(fd, "end {};".format(n.name))
+
+def print_vhdl(fd, n):
+    if isinstance(n, hdltree.HDLModule):
+        print_module(fd, n)
+    elif isinstance(n, hdltree.HDLPackage):
+        print_package(fd, n)
+    else:
+        raise AssertionError

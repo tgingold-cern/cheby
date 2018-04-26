@@ -65,11 +65,14 @@ def conv_bit_field_data(reg, el):
             raise UnknownAttribute(k)
     res.name = attrs['name']
     res.lo = int(attrs['bit'])
+    codefields = []
     for child in el:
         if child.tag == 'code-field':
-            pass
+            codefields.append({f: child.attrib[f] for f in ['name', 'code']})
         else:
             raise UnknownTag(child.tag)
+    if codefields:
+        res.x_gena = {'code-field': codefields}
     reg.fields.append(res)
 
 def conv_sub_reg(reg, el):
@@ -92,11 +95,14 @@ def conv_sub_reg(reg, el):
     rng = attrs['range'].split('-')
     res.hi = int(rng[0])
     res.lo = int(rng[1])
+    codefields = []
     for child in el:
         if child.tag == 'code-field':
-            pass
+            codefields.append({f: child.attrib[f] for f in ['name', 'code']})
         else:
             raise UnknownTag(child.tag)
+    if codefields:
+        res.x_gena = {'code-field': codefields}
     reg.fields.append(res)
 
 def conv_register_data(parent, el):
@@ -234,6 +240,7 @@ def conv_root(root, filename):
     d = {}
     res.x_gena = {}
     acc_mode = None
+    size = None
     for k, v in root.attrib.items():
         if conv_common(res, k, v):
             pass
@@ -241,12 +248,14 @@ def conv_root(root, filename):
             d[k] = v
         elif k == 'mem-map-access-mode':
             acc_mode = v
+        elif k == 'area-depth':
+            size = v
         elif k in ['map-version', 'ident-code']:
             # x-gena extension
             res.x_gena[k] = v
         elif k in ['driver-name',
                    'equipment-code', 'note', 'module-type',
-                   'semantic-mem-map-version', 'area-depth', 'gen',
+                   'semantic-mem-map-version', 'gen',
                    'vme-base-addr', 'vme-base-address']:
             # Ignored
             pass
@@ -257,12 +266,17 @@ def conv_root(root, filename):
     res.name = d.get('name', os.path.basename(filename))
     if acc_mode == 'A24/D8':
         res.bus = 'cern-be-vme-8'
+        bus_size = 24
     elif acc_mode == 'A24/D16':
         res.bus = 'cern-be-vme-16'
+        bus_size = 24
     elif acc_mode == 'A32/D32':
         res.bus = 'cern-be-vme-32'
+        bus_size = 32
     else:
         raise UnknownValue('mem-map-access-mode', acc_mode)
+
+    res.size = size or bus_size
 
     for child in root:
         if child.tag == 'constant-value':

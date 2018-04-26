@@ -44,6 +44,11 @@ def pprint_extension(pp, name, n):
         for k, v in n.items():
             pprint_extension(pp, k, v)
         pp.pp_endobj()
+    elif isinstance(n, list):
+        pp.pp_list(name + 's')
+        for e in n:
+            pprint_extension(pp, name, e)
+        pp.pp_endlist()
     elif isinstance(n, str):
         pp.pp_str(name, n)
     else:
@@ -69,6 +74,7 @@ def pprint_field(pp, n):
     else:
         pp.pp_str('range', "{}-{}".format(n.hi, n.lo))
     pp.pp_str('preset', n.preset)
+    pprint_extensions(pp, n)
     pp.pp_endobj()
 
 
@@ -129,6 +135,7 @@ def pprint_composite(pp, n):
 @PrettyPrinter.register(tree.Root)
 def pprint_root(pp, n):
     pp.pp_str('bus', n.bus)
+    pp.pp_str('size', n.size)
     pprint_composite(pp, n)
 
 

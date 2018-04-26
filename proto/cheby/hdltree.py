@@ -19,11 +19,19 @@ class HDLModule(HDLNode):
             self.deps.append(name)
 
 
+class HDLPackage(HDLNode):
+    def __init__(self):
+        self.name = None
+        self.decls = []
+        self.deps = []
+
+
 class HDLObject(HDLNode):
-    def __init__(self, name=None, size=None, typ='L'):
+    def __init__(self, name=None, size=None, lo_idx=0, typ='L'):
         assert typ in "LUSI"  # Logic, Unsigned, Signed, Integer
         self.name = name
         self.size = size
+        self.lo_idx = lo_idx
         self.typ = typ
         self.comment = None
         assert size is None or isinstance(size, int)
@@ -35,14 +43,18 @@ class HDLSignal(HDLObject):
 
 class HDLPort(HDLObject):
     def __init__(self, name=None, size=None, typ='L', dir='IN'):
-        super(HDLPort, self).__init__(name, size, typ)
+        super(HDLPort, self).__init__(name, size, 0, typ)
         self.dir = dir
 
 
-class HDLParam(HDLObject):
-    def __init__(self, name=None, size=None, typ='L', value=None):
-        super(HDLParam, self).__init__(name, size, typ)
+class HDLConstant(HDLObject):
+    def __init__(self, name=None, size=None, lo_idx=0, typ='L', value=None):
+        super(HDLConstant, self).__init__(name, size, lo_idx, typ)
         self.value = value
+
+
+class HDLParam(HDLConstant):
+    pass
 
 
 class HDLStmt(HDLNode):
@@ -157,11 +169,26 @@ bit_1 = HDLBit(1)
 bit_x = HDLUndef()
 
 
-class HDLConst(HDLCst):
+
+class HDLConstBase(HDLCst):
     def __init__(self, val, size):
-        super(HDLConst, self).__init__()
+        super(HDLConstBase, self).__init__()
         self.val = val
         self.size = size
+
+class HDLConst(HDLConstBase):
+    "Deprecated - binary constant"
+    pass
+
+
+class HDLHexConst(HDLConstBase):
+    "Hexadecimal constant.  In VHDL, size must be a multiple of 4."
+    pass
+
+
+class HDLBinConst(HDLConstBase):
+    "Binary constant."
+    pass
 
 
 class HDLNumber(HDLCstValue):

@@ -233,6 +233,11 @@ def layout_composite(lo, n):
         lo1.compute_address(c)
         n.c_size = max(n.c_size, c.c_address + c.c_size)
     n.c_align = max_align
+    if n.size is not None:
+        if n.size < n.c_size:
+            raise LayoutException("size of {} is too small (need {})".format(
+                n.get_path(), n.c_size))
+        n.c_size = n.size
     if has_aligned:
         n.c_blk_bits = ilog2(n.c_align)
         n.c_sel_bits = ilog2(n.c_size) - n.c_blk_bits
