@@ -59,6 +59,7 @@ def conv_codefield(parent, el):
 
 def conv_bit_field_data(reg, el):
     res = cheby.tree.Field(reg)
+    res.x_gena = {}
     attrs = el.attrib
     for k, v in attrs.items():
         if conv_common(res, k, v):
@@ -69,14 +70,21 @@ def conv_bit_field_data(reg, el):
         elif k in ['name', 'bit']:
             # Handled
             pass
-        elif k in ['autoclear', 'alarm-level', 'gen']:
+        elif k == 'autoclear':
+            if v == 'true':
+                val = '1'
+            elif v == 'false':
+                val = '0'
+            else:
+                raise UnknownValue("auto-clear", v)
+            res.x_gena['auto-clear'] = val
+        elif k in ['alarm-level', 'gen']:
             # Ignored
             pass
         else:
             raise UnknownAttribute(k)
     res.name = attrs['name']
     res.lo = int(attrs['bit'])
-    res.x_gena = {}
     for child in el:
         if child.tag == 'code-field':
             conv_codefield(res, child)
@@ -123,9 +131,9 @@ def conv_register_data(parent, el):
                  'bit-encoding']:
             # Handled
             pass
-        elif k in ['note']:
+        elif k in ['note', 'auto-clear']:
             res.x_gena[k] = v
-        elif k in ['code-generation-rule', 'auto-clear', 'preset',
+        elif k in ['code-generation-rule', 'preset',
                    'persistence', 'max-val', 'min-val', 'gen',
                    'unit', 'read-conversion-factor', 'write-conversion-factor']:
             # Ignored
@@ -134,7 +142,10 @@ def conv_register_data(parent, el):
             raise UnknownAttribute(k)
     res.name = attrs['name']
     res.address = conv_address(attrs['address'])
-    res.width = attrs['element-width']
+    res.width = int(attrs['element-width'], 0)
+    if attrs['access-mode'] == 'rmw':
+        res.width //= 2
+        res.x_gena['type'] = 'rmw'
     res.access = conv_access(attrs['access-mode'])
     for child in el:
         if child.tag == 'code-field':

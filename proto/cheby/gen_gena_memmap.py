@@ -5,11 +5,14 @@ from cheby.hdltree import (HDLPackage,
                            HDLConstant,
                            HDLHexConst, HDLBinConst)
 
-def get_note(n):
+def get_gena(n, name, default=None):
     if hasattr(n, 'x_gena'):
-        return n.x_gena.get('note', '')
+        return n.x_gena.get(name, default)
     else:
-        return ''
+        return default
+
+def get_note(n):
+    return get_gena(n, 'note', '')
 
 def gen_header(root, decls):
     if hasattr(root, 'x_gena'):
@@ -53,17 +56,35 @@ def gen_reg_addr(n, root, decls, name, pfx):
             else:
                 gen_one(addr, 'C_Reg_{}_{}'.format(pfx, e.name))
 
+def compute_acm(reg):
+    res = get_gena(reg, 'auto-clear', 0)
+    for f in reg.fields:
+        v = get_gena(f, 'auto-clear', None)
+        if v is not None:
+            res = (res & ~(1 << f.lo)) | (v << f.lo)
+    return res
+
 def gen_reg_acm(n, root, decls, name, pfx):
     decls.append(HDLComment('Register Auto Clear Masks : {}'.format(name)))
-    word_size = 8 * root.c_word_size
+
+    def gen_one(acm, name, w, lo_idx):
+        acm &= (1 << w) - 1
+        cst = HDLConstant(name, w, lo_idx=lo_idx, value=HDLBinConst(acm, w))
+        cst.eol_comment = ' : Value : X"{:0{}x}"'.format(acm, w / 4)
+        decls.append(cst)
+
     for e in n.elements:
         if isinstance(e, tree.Reg):
-            acm = 0
-            cst = HDLConstant('C_ACM_{}_{}'.format(pfx, e.name), word_size,
-                              value=HDLBinConst(acm, word_size))
-            cst.eol_comment = ' : Value : X"{:0{}X}"'.format(
-                acm, word_size / 4)
-            decls.append(cst)
+            acm = compute_acm(e)
+            word_width = root.c_word_size * tree.BYTE_SIZE
+            if e.width <= word_width:
+                gen_one(acm, 'C_ACM_{}_{}'.format(pfx, e.name), e.width, 0)
+            else:
+                num = e.width / word_width
+                for i in reversed(range(num)):
+                    gen_one(acm >> (i * word_width),
+                            'C_ACM_{}_{}_{}'.format(pfx, e.name, i),
+                             word_width, i * word_width)
 
 def gen_reg_psm(n, root, decls, name, pfx):
     decls.append(HDLComment('Register Preset Masks : {}'.format(name)))
