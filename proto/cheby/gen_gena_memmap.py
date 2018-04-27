@@ -111,7 +111,7 @@ def gen_reg_psm(n, root, decls, name, pfx):
 def gen_code_fields(n, root, decls):
     decls.append(HDLComment('CODE FIELDS'))
     cpfx = 'C_Code_{}'.format(root.name)
-    for e in n.elements:
+    for e in reversed(n.elements):
         if isinstance(e, tree.Reg):
             for f in e.fields:
                 if not hasattr(f, 'x_gena'):

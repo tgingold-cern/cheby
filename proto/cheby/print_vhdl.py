@@ -32,7 +32,7 @@ def generate_type_mark(s):
 
 
 def generate_vhdl_type(p):
-    if p.size:
+    if p.size is not None:
         return "{}({} downto {})".format(generate_type_mark(p),
                                          p.lo_idx + p.size - 1, p.lo_idx)
     else:
@@ -129,7 +129,7 @@ def generate_expr(e, nested=False):
         res += '"'
         return res
     elif isinstance(e, hdltree.HDLConst) or isinstance(e, hdltree.HDLBinConst):
-        if e.size is None or e.size == 1:
+        if e.size is None:
             # A bit.
             return "'{}'".format(e.val)
 
