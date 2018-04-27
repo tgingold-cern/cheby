@@ -128,12 +128,12 @@ def conv_register_data(parent, el):
         if conv_common(res, k, v):
             pass
         elif k in ['access-mode', 'address', 'name', 'element-width',
-                 'bit-encoding']:
+                   'bit-encoding']:
             # Handled
             pass
-        elif k in ['note', 'auto-clear']:
+        elif k in ['note', 'auto-clear', 'preset']:
             res.x_gena[k] = v
-        elif k in ['code-generation-rule', 'preset',
+        elif k in ['code-generation-rule',
                    'persistence', 'max-val', 'min-val', 'gen',
                    'unit', 'read-conversion-factor', 'write-conversion-factor']:
             # Ignored
@@ -157,12 +157,26 @@ def conv_register_data(parent, el):
         else:
             raise UnknownTag(child.tag)
     if not res.fields:
+        # No fields, scalar register
         enc = attrs.get('bit-encoding', None)
         if enc in [None, 'unsigned', 'signed', 'float']:
             res.type = enc
         else:
             raise UnknownValue('bit-encoding', enc)
         res.fields.append(cheby.tree.FieldReg(res))
+        res.preset = attrs.get('preset', None)
+    else:
+        # Move preset to fields
+        preset = attrs.get('preset', None)
+        if preset is not None:
+            preset = int(preset, 0)
+            for f in res.fields:
+                if f.preset is None:
+                    if f.hi is None:
+                        w = 1
+                    else:
+                        w = f.hi - f.lo + 1
+                    f.preset = (preset >> f.lo) & ((1 << w) - 1)
     parent.elements.append(res)
 
 def conv_memory_data(parent, el):

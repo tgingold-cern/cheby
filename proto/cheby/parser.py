@@ -113,6 +113,8 @@ def parse_reg(parent, el):
             pass
         elif k == 'width':
             res.width = read_int(res, k, v)
+        elif k == 'preset':
+            res.preset = read_int(res, k, v)
         elif k == 'type':
             res.type = read_text(res, k, v)
         elif k == 'access':
