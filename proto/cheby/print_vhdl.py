@@ -217,7 +217,8 @@ def generate_seq(fd, s, level):
 
 
 def generate_comment(fd, n, indent):
-    wln(fd)
+    if n.nl:
+        wln(fd)
     windent(fd, indent)
     wln(fd, "-- {}".format(n.comment))
 

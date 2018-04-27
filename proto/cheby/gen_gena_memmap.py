@@ -27,19 +27,31 @@ def gen_header(root, decls):
                          value=HDLHexConst(version, 32)))
 
 def gen_reg_addr(n, root, decls, name, pfx):
-    decls.append(HDLComment('Register Addresses : {}'.format(name)))
+    decls.append(HDLComment('Register Addresses : {}'.format(name),
+                             nl=False))
     word_width = ilog2(root.c_word_size)
     addr_width = ilog2(n.c_size) - word_width
+
+    def gen_one(addr, name):
+        val = HDLBinConst(addr, addr_width)
+        cst = HDLConstant(name, addr_width, lo_idx=word_width, value=val)
+        # FIXME: Gena word address is wrong.
+        cst.eol_comment = \
+            ' : Word address : "{:0{}b}" & X"{:0{}x}"; Byte Address : X"{:0{}x}"'.format(
+            addr >> (4 * (addr_width // 4)), (addr_width % 4),
+            addr, addr_width // 4,
+            (addr << word_width) & ((1 << addr_width) - 1), addr_width // 4)
+        decls.append(cst)
+
     for e in n.elements:
         if isinstance(e, tree.Reg):
             addr = e.c_address >> word_width
-            val = HDLBinConst(addr, addr_width)
-            cst = HDLConstant('C_Reg_{}_{}'.format(pfx, e.name), addr_width,
-                              lo_idx=word_width, value=val)
-            cst.eol_comment = \
-                '{} : Word address : 0x{:0{}x}; Byte Address : 0x{:x}'.format(
-                    get_note(e), addr, (addr_width + 3) // 4, e.c_address)
-            decls.append(cst)
+            if e.c_size > root.c_word_size:
+                num = e.c_size // root.c_word_size
+                for i in range(num):
+                    gen_one(addr + i, 'C_Reg_{}_{}_{}'.format(pfx, e.name, num - i - 1))
+            else:
+                gen_one(addr, 'C_Reg_{}_{}'.format(pfx, e.name))
 
 def gen_reg_acm(n, root, decls, name, pfx):
     decls.append(HDLComment('Register Auto Clear Masks : {}'.format(name)))
@@ -49,8 +61,8 @@ def gen_reg_acm(n, root, decls, name, pfx):
             acm = 0
             cst = HDLConstant('C_ACM_{}_{}'.format(pfx, e.name), word_size,
                               value=HDLBinConst(acm, word_size))
-            cst.eol_comment = '{} : Value : X"{:0{}X}"'.format(
-                get_note(e), acm, word_size / 4)
+            cst.eol_comment = ' : Value : X"{:0{}X}"'.format(
+                acm, word_size / 4)
             decls.append(cst)
 
 def gen_reg_psm(n, root, decls, name, pfx):
@@ -61,14 +73,14 @@ def gen_reg_psm(n, root, decls, name, pfx):
             psm = 0
             cst = HDLConstant('C_PSM_{}_{}'.format(pfx, e.name), word_size,
                               value=HDLBinConst(psm, word_size))
-            cst.eol_comment = '{} : Value : X"{:0{}X}"'.format(
-                get_note(e), psm, word_size / 4)
+            cst.eol_comment = ' : Value : X"{:0{}X}"'.format(
+                psm, word_size / 4)
             decls.append(cst)
 
 def gen_code_fields(n, root, decls):
     decls.append(HDLComment('CODE FIELDS'))
     cpfx = 'C_Code_{}'.format(root.name)
-    for e in root.elements:
+    for e in n.elements:
         if isinstance(e, tree.Reg):
             for f in e.fields:
                 if not hasattr(f, 'x_gena'):
@@ -88,20 +100,22 @@ def gen_block(n, root, decls, name, pfx):
     gen_reg_addr(n, root, decls, name, pfx)
     gen_reg_acm(n, root, decls, name, pfx)
     gen_reg_psm(n, root, decls, name, pfx)
+    gen_code_fields(n, root, decls)
+
+    decls.append(HDLComment('Memory Data : {}'.format(name), nl=False))
+    decls.append(HDLComment('Submap Addresses : {}'.format(name), nl=False))
 
 def gen_areas_address(areas, root, decls):
-    decls.append(HDLComment('Memory Areas.'))
+    # decls.append(HDLComment('Memory Areas.'))
     cpfx = 'C_Area_{}'.format(root.name)
     addr_width = ilog2(root.c_size)
     for e in areas:
-        if hasattr(e, 'c_submap'):
-            continue
         area_width = ilog2(e.c_size)
         sz = addr_width - area_width
         cst = HDLConstant(cpfx + '_' + e.name, sz, lo_idx=area_width,
                           value=HDLBinConst(e.c_address >> area_width, sz))
-        cst.eol_comment = '{} : Word Address : X"{:X}"; Byte Address : 0x{:x}'.format(
-            get_note(e), e.c_address // root.c_word_size, e.c_address)
+        #cst.eol_comment = '{} : Word Address : X"{:X}"; Byte Address : 0x{:x}'.format(
+        #    get_note(e), e.c_address // root.c_word_size, e.c_address)
         decls.append(cst)
 
 def gen_gena_memmap(root):
@@ -111,23 +125,16 @@ def gen_gena_memmap(root):
     gen_header(root, decls)
 
     areas = [e for e in root.elements
-             if isinstance(e, tree.Block)] # or isinstance(e, tree.Array))]
+             if isinstance(e, tree.Block) and not hasattr(e, 'c_submap')] # or isinstance(e, tree.Array))]
     if areas:
         gen_areas_address(areas, root, decls)
         for e in areas:
             name = 'Area {}'.format(e.name)
             pfx = '{}_{}'.format(root.name, e.name)
-            if hasattr(e, 'c_submap'):
-                gen_block(e.c_submap, root, decls, name, pfx)
-            else:
-                gen_block(e, root, decls, name, pfx)
+            gen_block(e, root, decls, name, pfx)
 
     gen_block(root, root, decls, 'Memory Map', root.name)
 
-    gen_code_fields(root, root, decls)
-
-    decls.append(HDLComment('Memory Data : Memory Map'))
-    decls.append(HDLComment('Submap Address : Memory Map'))
 
     res.decls = decls
     return res

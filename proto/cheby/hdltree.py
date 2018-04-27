@@ -62,9 +62,10 @@ class HDLStmt(HDLNode):
 
 
 class HDLComment(HDLStmt):
-    def __init__(self, comment):
+    def __init__(self, comment, nl=True):
         super(HDLComment, self).__init__()
         self.comment = comment
+        self.nl = nl
 
 
 class HDLGenIf(HDLStmt):
