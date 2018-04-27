@@ -181,6 +181,9 @@ def parse_yaml(filename):
     except IOError as e:
         error("open error: {}".format(e))
 
+    if not isinstance(el, dict):
+        error("open error: {}: bad format (not yaml)".format(filename))
+
     res = tree.Root()
     for k, v in el.items():
         if parse_composite(res, k, v):

@@ -52,6 +52,11 @@ def conv_common(node, k, v):
     else:
         return False
 
+def conv_codefield(parent, el):
+    cf = parent.x_gena.get('code-field', [])
+    cf.append({f: el.attrib[f] for f in ['name', 'code']})
+    parent.x_gena['code-field'] = cf
+
 def conv_bit_field_data(reg, el):
     res = cheby.tree.Field(reg)
     attrs = el.attrib
@@ -71,14 +76,12 @@ def conv_bit_field_data(reg, el):
             raise UnknownAttribute(k)
     res.name = attrs['name']
     res.lo = int(attrs['bit'])
-    codefields = []
+    res.x_gena = {}
     for child in el:
         if child.tag == 'code-field':
-            codefields.append({f: child.attrib[f] for f in ['name', 'code']})
+            conv_codefield(res, child)
         else:
             raise UnknownTag(child.tag)
-    if codefields:
-        res.x_gena = {'code-field': codefields}
     reg.fields.append(res)
 
 def conv_sub_reg(reg, el):
@@ -101,18 +104,17 @@ def conv_sub_reg(reg, el):
     rng = attrs['range'].split('-')
     res.hi = int(rng[0])
     res.lo = int(rng[1])
-    codefields = []
+    res.x_gena = {}
     for child in el:
         if child.tag == 'code-field':
-            codefields.append({f: child.attrib[f] for f in ['name', 'code']})
+            conv_codefield(res, child)
         else:
             raise UnknownTag(child.tag)
-    if codefields:
-        res.x_gena = {'code-field': codefields}
     reg.fields.append(res)
 
 def conv_register_data(parent, el):
     res = cheby.tree.Reg(parent)
+    res.x_gena = {}
     attrs = el.attrib
     for k, v in attrs.items():
         if conv_common(res, k, v):
@@ -121,8 +123,10 @@ def conv_register_data(parent, el):
                  'bit-encoding']:
             # Handled
             pass
+        elif k in ['note']:
+            res.x_gena[k] = v
         elif k in ['code-generation-rule', 'auto-clear', 'preset',
-                   'persistence', 'max-val', 'min-val', 'note', 'gen',
+                   'persistence', 'max-val', 'min-val', 'gen',
                    'unit', 'read-conversion-factor', 'write-conversion-factor']:
             # Ignored
             pass
@@ -157,7 +161,7 @@ def conv_memory_data(parent, el):
         if conv_common(res, k, v):
             pass
         elif k in ['access-mode', 'address', 'name', 'element-width',
-                 'element-depth']:
+                   'element-depth']:
             # Handled
             pass
         elif k in ['persistence', 'note', 'gen']:
@@ -172,8 +176,10 @@ def conv_memory_data(parent, el):
     reg = cheby.tree.Reg(res)
     res.elements.append(reg)
     reg.name = res.name
-    reg.width = attrs['element-width']
+    reg.width = int(attrs['element-width'], 0)
     reg.access = conv_access(attrs['access-mode'])
+
+    res.repeat //= reg.width // cheby.tree.BYTE_SIZE
     for child in el:
         if child.tag == 'memory-channel':
             pass
@@ -183,6 +189,7 @@ def conv_memory_data(parent, el):
 
 def conv_area(parent, el):
     res = cheby.tree.Block(parent)
+    res.x_gena = {}
     attrs = el.attrib
     for k, v in attrs.items():
         if conv_common(res, k, v):
@@ -193,7 +200,9 @@ def conv_area(parent, el):
         elif k == 'is-reserved':
             # FIXME: todo
             pass
-        elif k in ['persistence', 'gen', 'note']:
+        elif k in ['note']:
+            res.x_gena[k] = v
+        elif k in ['persistence', 'gen']:
             # Ignored
             pass
         else:
@@ -221,7 +230,7 @@ def conv_submap(parent, el):
         else:
             raise UnknownAttribute(k)
     res.name = attrs['name']
-    res.submap_file = attrs['filename']
+    res.submap_file = os.path.splitext(attrs['filename'])[0] + '.cheby'
     res.address = conv_address(attrs['address'])
 
     for child in el:

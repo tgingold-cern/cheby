@@ -8,6 +8,7 @@
 """
 
 import cheby.tree as tree
+import cheby.parser
 
 
 def ilog2(val):
@@ -170,10 +171,16 @@ def layout_block(lo, n):
     if n.elements:
         layout_composite(lo, n)
     else:
-        if n.size is None:
+        if n.submap_file:
+            # FIXME: create a directory ?
+            n.c_submap = cheby.parser.parse_yaml(n.submap_file)
+            layout_cheby(n.c_submap)
+            n.c_size = n.c_submap.c_size
+        elif n.size is None:
             raise LayoutException("no size in block '{}'".format(n.get_path()))
-        n.c_size = n.size
-        n.c_blk_bits = ilog2(n.size)
+        else:
+            n.c_size = n.size
+        n.c_blk_bits = ilog2(n.c_size)
         n.c_width = lo.word_size * tree.BYTE_SIZE
     if n.align is None or n.align:
         # Align to power of 2.
@@ -222,11 +229,9 @@ def layout_composite(lo, n):
     for c in n.elements:
         lo1.visit(c)
         max_align = max(max_align, c.c_align)
-    # Aligned composite elements have the max alignment
     has_aligned = False
     for c in n.elements:
         if isinstance(c, tree.ComplexNode) and (c.align is None or c.align):
-            c.c_align = max_align
             has_aligned = True
     n.c_size = 0
     for c in n.elements:
@@ -235,8 +240,11 @@ def layout_composite(lo, n):
     n.c_align = max_align
     if n.size is not None:
         if n.size < n.c_size:
-            raise LayoutException("size of {} is too small (need {})".format(
-                n.get_path(), n.c_size))
+            for c in n.elements:
+                print('0x{:08x} - 0x{:08x}: {}'.format(
+                    c.c_address, c.c_address + c.c_size, c.name))
+            raise LayoutException("size of {} is too small (need {}, get {})".format(
+                n.get_path(), n.c_size, n.size))
         n.c_size = n.size
     if has_aligned:
         n.c_blk_bits = ilog2(n.c_align)

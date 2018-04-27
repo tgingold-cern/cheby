@@ -51,6 +51,8 @@ class PrettyPrinter(tree.Visitor):
         self.pp_indent()
         if any(c in s for c in "'\n:"):
             s = "'" + ''.join([self.trans.get(c, c) for c in s]) + "'"
+        elif s in ['on', 'off']:
+            s = "'" + s + "'"
         self.pp_raw("{}: {}\n".format(name, s))
 
 
@@ -60,7 +62,8 @@ def pprint_extension(pp, name, n):
         return
     if isinstance(n, dict):
         pp.pp_obj(name)
-        for k, v in n.items():
+        for k in sorted(n):
+            v = n[k]
             pprint_extension(pp, k, v)
         pp.pp_endobj()
     elif isinstance(n, list):
@@ -113,9 +116,11 @@ def pprint_reg(pp, n):
     pp.pp_str('type', n.type)
     pp.pp_str('access', n.access)
     pprint_address(pp, n)
-    if len(n.fields) == 1 and isinstance(n.fields[0], tree.FieldReg):
+    has_one = len(n.fields) == 1 and isinstance(n.fields[0], tree.FieldReg)
+    if has_one:
         pp.pp_str('preset', n.preset)
-    elif n.fields:
+    pprint_extensions(pp, n)
+    if not has_one and n.fields:
         pp.pp_list('fields')
         for el in n.fields:
             pprint_field(pp, el)

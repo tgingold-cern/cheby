@@ -77,7 +77,7 @@ def generate_constant(fd, s, indent):
     w(fd, "constant {} : {} := {};".format(
         s.name, typ, generate_expr(s.value)))
     if hasattr(s, 'eol_comment'):
-        w(fd, "-- " + s.eol_comment)
+        w(fd, "--" + s.eol_comment)
     wln(fd)
 
 
