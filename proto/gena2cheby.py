@@ -149,7 +149,7 @@ def conv_register_data(parent, el):
     res.access = conv_access(attrs['access-mode'])
     for child in el:
         if child.tag == 'code-field':
-            pass
+            conv_codefield(res, child)
         elif child.tag == 'bit-field-data':
             conv_bit_field_data(res, child)
         elif child.tag == 'sub-reg':
