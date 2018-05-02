@@ -24,6 +24,12 @@ def conv_access(acc):
     return {'r': 'ro', 'rmw': 'rw', 'rw': 'rw', 'w': 'wo'}[acc]
 
 
+def conv_string(s):
+    # Empty string is the same as no string.
+    if s == '':
+        return None
+    return s
+
 def conv_depth(s):
     units = {'k': 1<<10, 'M': 1<<20, 'G': 1<<30 }
     if s[-1] in units:
@@ -37,13 +43,22 @@ def conv_address(s):
     else:
         return int(s, 0)
 
+def conv_int(s):
+    if s is None:
+        return None
+    elif s.startswith('0b'):
+        return int(s[2:], 2)
+    elif s.startswith('0x'):
+        return int(s[2:], 16)
+    else:
+        return int(s)
 
 def conv_common(node, k, v):
     if k == 'description':
         node.description = v
         return True
     elif k == 'comment':
-        node.comment = v
+        node.comment = conv_string(v)
         return True
     elif k == 'comment-encoding':
         if v == 'PlainText':
@@ -66,7 +81,7 @@ def conv_bit_field_data(reg, el):
             pass
         elif k == 'bit-preset':
             if v == 'true':
-                res.preset = '1'
+                res.preset = 1
         elif k in ['name', 'bit']:
             # Handled
             pass
@@ -112,6 +127,11 @@ def conv_sub_reg(reg, el):
     rng = attrs['range'].split('-')
     res.hi = int(rng[0])
     res.lo = int(rng[1])
+    if res.hi == res.lo:
+        res.hi = None
+    elif res.lo > res.hi:
+        # Swap incorrect order.
+        res.lo, res.hi = (res.hi, res.lo)
     res.x_gena = {}
     for child in el:
         if child.tag == 'code-field':
@@ -144,7 +164,7 @@ def conv_register_data(parent, el):
     res.address = conv_address(attrs['address'])
     res.width = int(attrs['element-width'], 0)
     if attrs['access-mode'] == 'rmw':
-        res.width //= 2
+        #res.width //= 2
         res.x_gena['type'] = 'rmw'
     res.access = conv_access(attrs['access-mode'])
     for child in el:
@@ -164,12 +184,12 @@ def conv_register_data(parent, el):
         else:
             raise UnknownValue('bit-encoding', enc)
         res.fields.append(cheby.tree.FieldReg(res))
-        res.preset = attrs.get('preset', None)
+        res.preset = conv_int(attrs.get('preset', None))
     else:
         # Move preset to fields
         preset = attrs.get('preset', None)
         if preset is not None:
-            preset = int(preset, 0)
+            preset = conv_int(preset)
             for f in res.fields:
                 if f.preset is None:
                     if f.hi is None:
@@ -204,7 +224,13 @@ def conv_memory_data(parent, el):
     reg.width = int(attrs['element-width'], 0)
     reg.access = conv_access(attrs['access-mode'])
 
+    bus_width = parent.get_root().c_word_size * cheby.tree.BYTE_SIZE
+    if reg.width < bus_width:
+        print('memory data of {} is widened from {} to {}.'.format(
+                res.name, reg.width, bus_width), file=sys.stderr)
+        reg.width = bus_width
     res.repeat //= reg.width // cheby.tree.BYTE_SIZE
+
     for child in el:
         if child.tag == 'memory-channel':
             pass
@@ -307,12 +333,15 @@ def conv_root(root, filename):
     res.name = d.get('name', os.path.basename(filename))
     if acc_mode == 'A24/D8':
         res.bus = 'cern-be-vme-8'
+        res.c_word_size = 1
         bus_size = 24
     elif acc_mode == 'A24/D16':
         res.bus = 'cern-be-vme-16'
+        res.c_word_size = 2
         bus_size = 24
     elif acc_mode == 'A32/D32':
         res.bus = 'cern-be-vme-32'
+        res.c_word_size = 4
         bus_size = 32
     else:
         raise UnknownValue('mem-map-access-mode', acc_mode)

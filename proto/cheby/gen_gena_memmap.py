@@ -6,10 +6,12 @@ from cheby.hdltree import (HDLPackage,
                            HDLHexConst, HDLBinConst)
 
 def get_gena(n, name, default=None):
-    if hasattr(n, 'x_gena'):
-        return n.x_gena.get(name, default)
-    else:
+    if not hasattr(n, 'x_gena'):
         return default
+    x_gena = n.x_gena
+    if x_gena is None:
+        return default
+    return x_gena.get(name, default)
 
 def get_note(n):
     return get_gena(n, 'note', '')

@@ -50,6 +50,12 @@ class NamedNode(Node):
         else:
             return self._parent.get_path() + p
 
+    def get_root(self):
+        if self._parent is None:
+            return self
+        else:
+            return self._parent.get_root()
+
 
 class CompositeNode(NamedNode):
     """Base class for Cheby nodes with elements; they are also named.
@@ -73,6 +79,7 @@ class Root(CompositeNode):
         self.size = None
         # Computed variables
         self.c_word_size = None  # Word size in bytes
+        self.c_filename = None   # Filename for the tree.
 
 
 class Reg(NamedNode):

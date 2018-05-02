@@ -11,9 +11,15 @@ class ParseException(Exception):
 def error(msg):
     raise ParseException(msg)
 
+def isstr(s):
+    "Test if s is a string (python 2 and 3)"
+    try:
+        return isinstance(s, basestring)
+    except NameError:
+        return isinstance(s, str)
 
 def read_text(parent, key, val):
-    if isinstance(val, str):
+    if isstr(val):
         return val
     if val is None:
         return None
@@ -187,6 +193,7 @@ def parse_yaml(filename):
         error("open error: {}: bad format (not yaml)".format(filename))
 
     res = tree.Root()
+    res.c_filename = filename
     for k, v in el.items():
         if parse_composite(res, k, v):
             pass

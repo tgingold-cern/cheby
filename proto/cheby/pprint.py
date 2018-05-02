@@ -49,9 +49,9 @@ class PrettyPrinter(tree.Visitor):
         if s is None:
             return
         self.pp_indent()
-        if any(c in s for c in "'\n:"):
+        if any(c in s for c in "'[]\n:"):
             s = "'" + ''.join([self.trans.get(c, c) for c in s]) + "'"
-        elif s in ['on', 'off']:
+        elif s.lower() in ['on', 'off', 'false', 'true']:
             s = "'" + s + "'"
         self.pp_raw("{}: {}\n".format(name, s))
 
@@ -118,7 +118,7 @@ def pprint_reg(pp, n):
     pprint_address(pp, n)
     has_one = len(n.fields) == 1 and isinstance(n.fields[0], tree.FieldReg)
     if has_one:
-        pp.pp_str('preset', n.preset)
+        pp.pp_hex('preset', n.preset)
     pprint_extensions(pp, n)
     if not has_one and n.fields:
         pp.pp_list('fields')
