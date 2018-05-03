@@ -52,15 +52,16 @@ def gen_reg_addr(n, root, decls, name, pfx):
     for e in n.elements:
         if isinstance(e, tree.Reg):
             addr = e.c_address // root.c_word_size
+            # FIXME: Gena looks to use 1 instead of word_width
             if e.c_size > root.c_word_size:
                 num = e.c_size // root.c_word_size
                 for i in range(num):
                     gen_addr_cst(decls, addr + i,
                         'C_Reg_{}_{}_{}'.format(pfx, e.name, num - i - 1),
-                        addr_width, word_width, word_width)
+                        addr_width, word_width, 1)
             else:
                 gen_addr_cst(decls, addr, 'C_Reg_{}_{}'.format(pfx, e.name),
-                    addr_width, word_width, word_width)
+                    addr_width, word_width, 1)
 
 def compute_acm(reg):
     res = get_gena(reg, 'auto-clear', 0)
@@ -144,12 +145,12 @@ def gen_memory_data(n, root, decls, name, pfx):
     addr_width = ilog2(n.c_size) - word_width
     for e in n.elements:
         if isinstance(e, tree.Array):
-            addr = e.c_address // root.c_word_size
+            addr = e.c_address >> word_width
             gen_addr_cst(decls, addr, 'C_Mem_{}_{}_Sta'.format(pfx, e.name),
-                addr_width, word_width, word_width)
-            addr = (e.c_address + e.c_size - 1) // root.c_word_size
+                addr_width, word_width, 1)
+            addr = (e.c_address + e.c_size - 1) >> word_width
             gen_addr_cst(decls, addr, 'C_Mem_{}_{}_End'.format(pfx, e.name),
-                addr_width, word_width, word_width)
+                addr_width, word_width, 1)
 
 def gen_submap_addr(n, root, decls, name, pfx):
     decls.append(HDLComment('Submap Addresses : {}'.format(name), nl=False))
@@ -160,7 +161,7 @@ def gen_submap_addr(n, root, decls, name, pfx):
             addr_width = ilog2(n.c_size) - block_width
             addr = e.c_address >> block_width
             gen_addr_cst(decls, addr, 'C_Submap_{}_{}'.format(pfx, e.name),
-                addr_width, block_width, word_width)
+                addr_width, block_width, 1)
 
 def gen_block(n, root, decls, name, pfx):
     gen_reg_addr(n, root, decls, name, pfx)
