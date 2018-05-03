@@ -88,8 +88,11 @@ def gen_mask(decls, mask, root, reg, pfx):
 
     word_width = root.c_word_size * tree.BYTE_SIZE
     if reg.width <= word_width:
+        reg_width = reg.width
+        if get_gena(reg, 'type', None) == 'rmw':
+            reg_width //= 2
         gen_one_mask(decls,
-                     mask, '{}_{}'.format(pfx, reg.name), reg.width, 0)
+                     mask, '{}_{}'.format(pfx, reg.name), reg_width, 0)
     else:
         num = reg.width / word_width
         for i in reversed(range(num)):
