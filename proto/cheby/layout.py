@@ -215,8 +215,8 @@ def layout_array(lo, n):
     if n.align is None or n.align:
         # Align to power of 2.
         n.c_elsize = round_pow2(n.c_elsize)
-        n.c_size = n.c_elsize * round_pow2(n.repeat)
-        n.c_align = n.c_size
+        n.c_size = n.c_elsize * n.repeat
+        n.c_align = n.c_elsize * round_pow2(n.repeat)
     else:
         n.c_size = n.c_elsize * n.repeat
     # FIXME: only significant when aligned ?
