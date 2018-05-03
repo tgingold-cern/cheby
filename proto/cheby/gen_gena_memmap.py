@@ -21,9 +21,10 @@ def gen_header(root, decls):
         cpfx = 'C_{}'.format(root.name)
         ident_code = root.x_gena.get('ident-code')
         if ident_code:
+            width = root.c_word_size * tree.BYTE_SIZE
             decls.append(HDLComment('Ident Code'))
-            decls.append(HDLConstant(cpfx + '_IdentCode', 16,
-                         value=HDLHexConst(ident_code, 16)))
+            decls.append(HDLConstant(cpfx + '_IdentCode', width,
+                         value=HDLHexConst(ident_code, width)))
 
         version = root.x_gena.get('map-version')
         if version:
