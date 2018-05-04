@@ -82,6 +82,10 @@ def conv_bit_field_data(reg, el):
         elif k == 'bit-preset':
             if v == 'true':
                 res.preset = 1
+            elif v == 'false':
+                res.preset = 0
+            else:
+                raise UnknownValue("bit-preset", v)
         elif k in ['name', 'bit']:
             # Handled
             pass
