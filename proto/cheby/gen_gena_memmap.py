@@ -130,17 +130,19 @@ def gen_code_fields(n, root, decls):
 
     for e in reversed(n.elements):
         if isinstance(e, tree.Reg):
+            # code-fields for fields
+            for f in e.fields:
+                codes = get_gena(f, 'code-fields', None)
+                if codes is not None:
+                    gen_one_cf(codes, 'C_Code_{}_{}_{}'.format(
+                                root.name, e.name, f.name),
+                               f.c_width, f.lo)
+            # code-fiels for registers
             codes = get_gena(e, 'code-fields', None)
             if codes is not None:
+                width = max([(f.hi or f.lo) + 1 for f in e.fields])
                 gen_one_cf(codes, 'C_Code_{}_{}'.format(root.name, e.name),
-                           e.width, 0)
-            else:
-                for f in e.fields:
-                    codes = get_gena(f, 'code-fields', None)
-                    if codes is not None:
-                        gen_one_cf(codes, 'C_Code_{}_{}_{}'.format(
-                                    root.name, e.name, f.name),
-                                   f.c_width, f.lo)
+                           width, 0)
 
 def gen_memory_data(n, root, decls, name, pfx):
     decls.append(HDLComment('Memory Data : {}'.format(name), nl=False))

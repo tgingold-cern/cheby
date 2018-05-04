@@ -109,6 +109,7 @@ def conv_bit_field_data(reg, el):
 
 def conv_sub_reg(reg, el):
     res = cheby.tree.Field(reg)
+    res.x_gena = {}
     attrs = el.attrib
     for k, v in attrs.items():
         if conv_common(res, k, v):
@@ -116,7 +117,11 @@ def conv_sub_reg(reg, el):
         elif k in ['name', 'range']:
             # Handled
             pass
-        elif k in ['auto-clear-mask', 'sub-reg-preset-mask', 'gen',
+        elif k == 'sub-reg-preset-mask':
+            res.preset = conv_int(v)
+        elif k == 'auto-clear-mask':
+            res.x_gena['auto-clear'] = v
+        elif k in ['gen',
                    'unit', 'read-conversion-factor', 'write-conversion-factor',
                    'constant-value']:
             # Ignored
@@ -132,7 +137,6 @@ def conv_sub_reg(reg, el):
     elif res.lo > res.hi:
         # Swap incorrect order.
         res.lo, res.hi = (res.hi, res.lo)
-    res.x_gena = {}
     for child in el:
         if child.tag == 'code-field':
             conv_codefield(res, child)
