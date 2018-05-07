@@ -5,9 +5,10 @@ from cheby.hdltree import (HDLPackage,
                            HDLConstant, HDLSignal, HDLPort,
                            bit_0, bit_1,
                            HDLSlice, HDLIndex,
+                           HDLZext, HDLReplicate,
                            HDLAssign,
                            HDLSwitch, HDLChoiceExpr, HDLChoiceDefault,
-                           HDLInstance, HDLComb,
+                           HDLInstance, HDLComb, HDLSync,
                            HDLHexConst, HDLBinConst, HDLNumber)
 import cheby.gen_hdl as gen_hdl
 
@@ -227,6 +228,7 @@ def gen_hdl_reg_decls(reg, pfx, root, module, isigs):
         portname = reg.name + (('_' + f.name) if f.name is not None else '')
         port = HDLPort(portname, size=sz, dir=mode)
         f.h_port = port
+        module.ports.append(f.h_port)
     # Create Loc_ signal
     reg.h_loc = HDLSignal('Loc_{}'.format(reg.name), reg.c_rwidth)
     module.signals.append(reg.h_loc)
@@ -309,6 +311,43 @@ def gen_hdl_wrseldec(root, module, isigs, area, wrseldec):
     sw.choices.append(ch)
     module.stmts.append(proc)
 
+def gen_hdl_cregrdmux(root, module, isigs, area, wrseldec):
+    proc = HDLComb()
+    proc.name = 'CRegRdMux'
+    proc.sensitivity.append(root.h_bus['adr'])
+    sw = HDLSwitch(HDLSlice(root.h_bus['adr'],
+                            root.c_addr_word_bits,
+                            ilog2(area.c_size) - root.c_addr_word_bits))
+    proc.stmts.append(sw)
+    for reg in wrseldec:
+        ch = HDLChoiceExpr(reg.h_gena_regaddr)
+        proc.sensitivity.append(reg.h_loc)
+        if reg.access == 'wo':
+            val = HDLReplicate(bit_0, None)
+            ok = bit_0
+        else:
+            val = reg.h_loc
+            val = HDLSlice(val, 0, reg.c_rwidth)
+            if reg.c_rwidth < root.c_word_bits:
+                val = HDLZext(val, root.c_word_bits)
+            ok = bit_1
+        ch.stmts.append(HDLAssign(isigs.Loc_CRegRdData, val))
+        ch.stmts.append(HDLAssign(isigs.Loc_CRegRdOK, ok))
+        sw.choices.append(ch)
+    ch = HDLChoiceDefault()
+    ch.stmts.append(HDLAssign(isigs.Loc_CRegRdData, HDLReplicate(bit_0, None)))
+    ch.stmts.append(HDLAssign(isigs.Loc_CRegRdOK, bit_0))
+    sw.choices.append(ch)
+    module.stmts.append(proc)
+
+def gen_hdl_cregrdmux_dff(root, module, isigs):
+    proc = HDLSync(root.h_bus['clk'], None)
+    proc.name = 'CRegRdMux_DFF'
+    proc.sync_stmts.append(HDLAssign(isigs.CRegRdData, isigs.Loc_CRegRdData))
+    proc.sync_stmts.append(HDLAssign(isigs.CRegRdOK, isigs.Loc_CRegRdOK))
+    proc.sync_stmts.append(HDLAssign(isigs.CRegWrOK, isigs.Loc_CRegWrOK))
+    module.stmts.append(proc)
+
 def gen_hdl_area(area, pfx, root, module, root_isigs):
     isigs = gen_hdl.Isigs()
     for tpl, size in [('{}CRegRdData', root.c_word_bits),
@@ -353,6 +392,8 @@ def gen_hdl_area(area, pfx, root, module, root_isigs):
 
     if wrseldec:
         gen_hdl_wrseldec(root, module, isigs, area, wrseldec)
+        gen_hdl_cregrdmux(root, module, isigs, area, wrseldec)
+        gen_hdl_cregrdmux_dff(root, module, isigs)
 
 def gen_gena_regctrl(root):
     module, isigs = gen_hdl.gen_hdl_header(root)

@@ -117,6 +117,9 @@ def generate_expr(e, nested=False):
             return res
     elif isinstance(e, hdltree.HDLReplicate):
         return "(others => {})".format(generate_expr(e.expr, False))
+    elif isinstance(e, hdltree.HDLZext):
+        return "std_logic_vector(resize(unsigned({}), {}))".format(
+            generate_expr(e.expr, False), e.size)
     elif isinstance(e, hdltree.HDLBit):
         return "'{}'".format(e.val)
     elif isinstance(e, hdltree.HDLUndef):
@@ -245,27 +248,43 @@ def generate_stmts(fd, stmts, indent):
                 else:
                     w(fd, ", ")
                 w(fd, generate_expr(e))
-            wln(fd, ")")
-            wln(fd, "  begin")
+            wln(fd, ") begin")
+            # wln(fd, "  begin")
             for s1 in s.stmts:
                 generate_seq(fd, s1, 2)
-            wln(fd, "  end process;")
+            w(fd, "  end process")
+            if s.name is not None:
+                w(fd, ' {}'.format(s.name))
+            wln(fd, ";")
         elif isinstance(s, hdltree.HDLSync):
-            wln(fd, sindent + "process ({}, {})".format(generate_expr(s.clk),
-                                                        generate_expr(s.rst)))
-            wln(fd, sindent + "begin")
-            wln(fd, sindent + "  if {} = '0' then ".format(
-                generate_expr(s.rst)))
-            for s1 in s.rst_stmts:
-                generate_seq(fd, s1, indent + 2)
-            wln(fd, sindent + "  elsif rising_edge({}) then".format(
+            wln(fd)
+            w(fd, sindent)
+            if s.name is not None:
+                w(fd, '{}: '.format(s.name))
+            w(fd, "process ({}".format(generate_expr(s.clk)))
+            if s.rst is not None:
+                w(fd, ", {}".format(generate_expr(s.rst)))
+            wln(fd, ") begin")
+            # wln(fd, sindent + "begin")
+            if s.rst is not None:
+                wln(fd, sindent + "  if {} = '0' then ".format(
+                    generate_expr(s.rst)))
+                for s1 in s.rst_stmts:
+                    generate_seq(fd, s1, indent + 2)
+                w(fd, sindent + "  elsif ")
+            else:
+                w(fd, sindent + "  if ")
+            wln(fd, "rising_edge({}) then".format(
                 generate_expr(s.clk)))
             for s1 in s.sync_stmts:
                 generate_seq(fd, s1, indent + 2)
             wln(fd, sindent + "  end if;")
-            wln(fd, sindent + "end process;")
+            w(fd, sindent + "end process")
+            if s.name is not None:
+                w(fd, ' {}'.format(s.name))
+            wln(fd, ";")
         elif isinstance(s, hdltree.HDLInstance):
-            wln(fd, sindent + "{} : {}".format(s.name, s.module_name))
+            wln(fd, sindent + "{}: {}".format(s.name, s.module_name))
 
             def generate_map(mapping, indent):
                 first = True

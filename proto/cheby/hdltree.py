@@ -223,8 +223,16 @@ class HDLReplicate(HDLExpr):
     def __init__(self, expr, num):
         super(HDLReplicate, self).__init__()
         self.expr = expr
-        assert isinstance(num, int)
+        assert num is None or isinstance(num, int)
         self.num = num
+
+
+class HDLZext(HDLExpr):
+    def __init__(self, expr, sz):
+        super(HDLZext, self).__init__()
+        assert expr is not None
+        self.expr = expr
+        self.size = sz
 
 
 class HDLUnary(HDLExpr):
