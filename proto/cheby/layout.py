@@ -298,17 +298,19 @@ def layout_root(lo, n):
 
 def layout_cheby(n):
     flag_align_reg = True
+    n.c_buserr = False
     if n.bus is None or n.bus == 'wb-32-be':
         n.c_word_size = 4
-    elif n.bus == 'cern-be-vme-32':
-        n.c_word_size = 4
-        flag_align_reg = False
-    elif n.bus == 'cern-be-vme-16':
-        n.c_word_size = 2
-        flag_align_reg = False
-    elif n.bus == 'cern-be-vme-8':
-        n.c_word_size = 1
-        flag_align_reg = False
+    elif n.bus.startswith('cern-be-vme-'):
+        buses = {'cern-be-vme-32':     (4, False, False),
+                 'cern-be-vme-err-32': (4, False, True),
+                 'cern-be-vme-16':     (2, False, False),
+                 'cern-be-vme-err-16': (2, False, True),
+                 'cern-be-vme-8':      (1, False, False),
+                 'cern-be-vme-err-8':  (1, False, True) }
+        if n.bus not in buses:
+            raise LayoutException(n, "unknown bus '{}'".format(n.bus))
+        n.c_word_size, flag_align_reg, n.c_buserr = buses[n.bus]
     else:
         raise LayoutException(n, "unknown bus '{}'".format(n.bus))
     lo = Layout(n.c_word_size)

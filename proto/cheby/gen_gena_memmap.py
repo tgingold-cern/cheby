@@ -257,7 +257,7 @@ def gen_hdl_reg_decls(reg, pfx, root, module, isigs):
             ('CReg', HDLSlice(reg.h_loc, 0, reg.c_rwidth))]
         module.stmts.append(inst)
 
-def gen_hdl_reg_stmts(reg, pfx, root, module, isigs, wrseldec):
+def gen_hdl_reg_stmts(reg, pfx, root, module, isigs, wr_reg, rd_reg):
     # Create bitlist, a list of ordered (lo + width, lo, field)
     # Fill gaps with (lo + width, lo, None)
     bitlist = []
@@ -289,7 +289,9 @@ def gen_hdl_reg_stmts(reg, pfx, root, module, isigs, wrseldec):
         else:
             module.stmts.append(HDLAssign(src, tgt))
     if reg.access in ('rw', 'wo'):
-        wrseldec.append(reg)
+        wr_reg.append(reg)
+    if reg.access in ('ro'):
+        rd_reg.append(reg)
 
 def gen_hdl_wrseldec(root, module, isigs, area, wrseldec):
     proc = HDLComb()
@@ -348,6 +350,40 @@ def gen_hdl_cregrdmux_dff(root, module, isigs):
     proc.sync_stmts.append(HDLAssign(isigs.CRegWrOK, isigs.Loc_CRegWrOK))
     module.stmts.append(proc)
 
+def gen_hdl_regrdmux(root, module, isigs, area, rd_reg):
+    proc = HDLComb()
+    proc.name = 'RegRdMux'
+    proc.sensitivity.append(root.h_bus['adr'])
+    proc.sensitivity.append(isigs.CRegRdData)
+    proc.sensitivity.append(isigs.CRegRdOK)
+    sw = HDLSwitch(HDLSlice(root.h_bus['adr'],
+                            root.c_addr_word_bits,
+                            ilog2(area.c_size) - root.c_addr_word_bits))
+    proc.stmts.append(sw)
+    for reg in rd_reg:
+        ch = HDLChoiceExpr(reg.h_gena_regaddr)
+        proc.sensitivity.append(reg.h_loc)
+        val = reg.h_loc
+        val = HDLSlice(val, 0, reg.c_rwidth)
+        if reg.c_rwidth < root.c_word_bits:
+            val = HDLZext(val, root.c_word_bits)
+        ch.stmts.append(HDLAssign(isigs.Loc_RegRdData, val))
+        ch.stmts.append(HDLAssign(isigs.Loc_RegRdOK, bit_1))
+        sw.choices.append(ch)
+    ch = HDLChoiceDefault()
+    ch.stmts.append(HDLAssign(isigs.Loc_RegRdData, isigs.CRegRdData))
+    ch.stmts.append(HDLAssign(isigs.Loc_RegRdOK, isigs.CRegRdOK))
+    sw.choices.append(ch)
+    module.stmts.append(proc)
+
+def gen_hdl_regrdmux_dff(root, module, isigs):
+    proc = HDLSync(root.h_bus['clk'], None)
+    proc.name = 'RegRdMux_DFF'
+    proc.sync_stmts.append(HDLAssign(isigs.RegRdData, isigs.Loc_RegRdData))
+    proc.sync_stmts.append(HDLAssign(isigs.RegRdOK, isigs.Loc_RegRdOK))
+    # proc.sync_stmts.append(HDLAssign(isigs.RegWrOK, isigs.Loc_RegWrOK))
+    module.stmts.append(proc)
+
 def gen_hdl_area(area, pfx, root, module, root_isigs):
     isigs = gen_hdl.Isigs()
     for tpl, size in [('{}CRegRdData', root.c_word_bits),
@@ -382,18 +418,22 @@ def gen_hdl_area(area, pfx, root, module, root_isigs):
         else:
             raise AssertionError
 
-    wrseldec = []
+    wr_reg = []
+    rd_reg = []
     for el in area.elements:
         npfx = '_'.join([pfx, el.name])
         if isinstance(el, tree.Reg):
-            gen_hdl_reg_stmts(el, npfx, root, module, isigs, wrseldec)
+            gen_hdl_reg_stmts(el, npfx, root, module, isigs, wr_reg, rd_reg)
         else:
             raise AssertionError
 
-    if wrseldec:
-        gen_hdl_wrseldec(root, module, isigs, area, wrseldec)
-        gen_hdl_cregrdmux(root, module, isigs, area, wrseldec)
+    if wr_reg:
+        gen_hdl_wrseldec(root, module, isigs, area, wr_reg)
+        gen_hdl_cregrdmux(root, module, isigs, area, wr_reg)
         gen_hdl_cregrdmux_dff(root, module, isigs)
+    if rd_reg:
+        gen_hdl_regrdmux(root, module, isigs, area, rd_reg)
+        gen_hdl_regrdmux_dff(root, module, isigs)
 
 def gen_gena_regctrl(root):
     module, isigs = gen_hdl.gen_hdl_header(root)

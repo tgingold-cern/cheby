@@ -99,7 +99,7 @@ def add_decode_cern_be_vme(root, module, isigs):
     module.stmts.append(HDLAssign(root.h_bus['wack'], isigs.wr_ack))
 
 
-def expand_cern_be_vme(root, module, isigs):
+def expand_cern_be_vme(root, module, isigs, buserr):
     """Create CERN-BE interface."""
     bus = [('clk',   HDLPort("Clk")),
            ('rst',   HDLPort("Rst")),
@@ -110,6 +110,9 @@ def expand_cern_be_vme(root, module, isigs):
            ('wr',    HDLPort("VMEWrMem")),
            ('rack',  HDLPort("VMERdDone", dir='OUT')),
            ('wack',  HDLPort("VMEWrDone", dir='OUT'))]
+    if buserr:
+        bus.extend([('rderr', HDLPort('VMERdError', dir='OUT')),
+                    ('wrerr', HDLPort('VMEWrError', dir='OUT'))])
     add_bus(root, module, bus)
 
     if isigs:
@@ -533,7 +536,10 @@ def gen_hdl_header(root, isigs=None):
         expand_wishbone(root, module, isigs)
     elif root.bus in ['cern-be-vme-32', 'cern-be-vme-16', 'cern-be-vme-8']:
         root.h_make_port_name = make_port_name_simple
-        expand_cern_be_vme(root, module, isigs)
+        expand_cern_be_vme(root, module, isigs, False)
+    elif root.bus in ('cern-be-vme-err-32'):
+        root.h_make_port_name = make_port_name_simple
+        expand_cern_be_vme(root, module, isigs, True)
     else:
         raise HdlError("Unhandled bus '{}'".format(root.bus))
 
