@@ -34,6 +34,8 @@ def decode_args():
                          help='generate encore file')
     aparser.add_argument('--gen-gena-memmap', action='store_true',
                          help='generate Gena MemMap file')
+    aparser.add_argument('--gen-gena-regctrl', action='store_true',
+                         help='generate Gena RegCtrl file')
     aparser.add_argument('FILE', nargs='+')
 
     return aparser.parse_args()
@@ -72,6 +74,11 @@ def handle_file(args, filename):
     expand_hdl.expand_hdl(t)
     if args.print_simple_expanded:
         sprint.sprint_cheby(sys.stdout, t, True)
+    if args.gen_gena_regctrl:
+        if not args.gen_gena_memmap:
+            gen_gena_memmap.gen_gena_memmap(t)
+        h = gen_gena_memmap.gen_gena_regctrl(t)
+        print_vhdl.print_vhdl(sys.stdout, h)
     if args.gen_vhdl:
         if False:
             pprint.pprint_cheby(sys.stdout, t)

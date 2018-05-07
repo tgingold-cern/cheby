@@ -96,6 +96,7 @@ class HDLInstance(HDLStmt):
 class HDLComb(HDLStmt):
     def __init__(self):
         super(HDLComb, self).__init__()
+        self.name = None
         self.stmts = []
         self.sensitivity = []
 
@@ -103,6 +104,7 @@ class HDLComb(HDLStmt):
 class HDLSync(HDLStmt):
     def __init__(self, clk, rst):
         super(HDLSync, self).__init__()
+        self.name = None
         self.clk = clk
         self.rst = rst
         self.rst_stmts = []

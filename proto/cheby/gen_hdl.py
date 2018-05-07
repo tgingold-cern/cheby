@@ -108,25 +108,42 @@ def expand_cern_be_vme(root, module, isigs):
            ('dati',  HDLPort("VMEWrData", root.c_word_bits)),
            ('rd',    HDLPort("VMERdMem")),
            ('wr',    HDLPort("VMEWrMem")),
-           ('rack',  HDLPort("VMERdDone")),
-           ('wack',  HDLPort("VMEWrDone"))]
+           ('rack',  HDLPort("VMERdDone", dir='OUT')),
+           ('wack',  HDLPort("VMEWrDone", dir='OUT'))]
     add_bus(root, module, bus)
 
-    add_decode_cern_be_vme(root, module, isigs)
+    if isigs:
+        add_decode_cern_be_vme(root, module, isigs)
 
-
-def add_ports_reg(module, prefix, n):
-    if n.c_type is None:
-        pfx = prefix + n.name + '_'
+def make_port_name_simple(el, suffix, di):
+    if isinstance(el, tree.Field):
+        return '{}_{}'.format(el._parent.name, el.name)
     else:
-        pfx = prefix
+        return el.name
+
+def make_port_name_prefix(el, suffix, di):
+    if suffix:
+        pfx = '_' + suffix
+    else:
+        pfx = ''
+    l = el
+    while l is not None:
+        pfx = (('_'+ l.name) if l.name else '') + pfx
+        l = l._parent
+
+    if di:
+        return pfx[1:] + '_' + di
+    else:
+        return pfx[1:]
+
+def add_ports_reg(root, module, n):
     for f in n.fields:
         w = None if f.c_width == 1 else f.c_width
 
         # Input
         if f.hdl_type == 'wire' and n.access in ['ro', 'rw']:
-            name = pfx + f.name + '_i'
-            f.h_iport = HDLPort(name.lower(), w, dir='IN')
+            f.h_iport = HDLPort(root.h_make_port_name(f, None, 'i'),
+                                w, dir='IN')
             f.h_iport.comment = f.description
             module.ports.append(f.h_iport)
         else:
@@ -134,8 +151,8 @@ def add_ports_reg(module, prefix, n):
 
         # Output
         if n.access in ['wo', 'rw']:
-            name = pfx + f.name + '_o'
-            f.h_oport = HDLPort(name.lower(), w, dir='OUT')
+            f.h_oport = HDLPort(root.h_make_port_name(f, None, 'o'),
+                                w, dir='OUT')
             f.h_oport.comment = f.description
             module.ports.append(f.h_oport)
         else:
@@ -143,16 +160,15 @@ def add_ports_reg(module, prefix, n):
 
         # Write strobe
         if f.hdl_write_strobe:
-            name = pfx + f.name + '_wr_o'
-            f.h_wport = HDLPort(name.lower(), None, dir='OUT')
+            f.h_wport = HDLPort(root.h_make_port_name(f, 'wr', 'o'),
+                                None, dir='OUT')
             module.ports.append(f.h_wport)
         else:
             f.h_wport = None
 
         # Register
         if f.hdl_type == 'reg':
-            name = pfx + f.name + '_reg'
-            f.h_reg = HDLSignal(name.lower(), w)
+            f.h_reg = HDLSignal(root.h_make_port_name(f, 'reg', None), w)
             module.signals.append(f.h_reg)
         else:
             f.h_reg = None
@@ -195,7 +211,7 @@ def add_ports(root, module, prefix, node):
             # TODO
             raise AssertionError
         elif isinstance(n, tree.Reg):
-            add_ports_reg(module, prefix, n)
+            add_ports_reg(root, module, n)
         else:
             raise AssertionError
 
@@ -502,7 +518,7 @@ def add_write_process(root, module, isigs):
     add_decoder(root, wr_if.then_stmts, root.h_bus['adr'], root, add_write)
 
 
-def generate_hdl(root):
+def gen_hdl_header(root, isigs=None):
     module = HDLModule()
     module.name = root.name
 
@@ -511,15 +527,23 @@ def generate_hdl(root):
     # Number of bits in a word
     root.c_word_bits = root.c_word_size * tree.BYTE_SIZE
 
-    isigs = Isigs()
-
     # Create the bus
     if root.bus == 'wb-32-be':
+        root.h_make_port_name = make_port_name_prefix
         expand_wishbone(root, module, isigs)
-    elif root.bus == 'cern-be-vme-16':
+    elif root.bus in ['cern-be-vme-32', 'cern-be-vme-16', 'cern-be-vme-8']:
+        root.h_make_port_name = make_port_name_simple
         expand_cern_be_vme(root, module, isigs)
     else:
         raise HdlError("Unhandled bus '{}'".format(root.bus))
+
+    return (module, isigs)
+
+
+def generate_hdl(root):
+    isigs = Isigs()
+
+    module, isigs = gen_hdl_header(root, isigs)
 
     # Add ports
     add_ports(root, module, root.name.lower() + '_', root)

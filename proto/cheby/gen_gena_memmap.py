@@ -2,16 +2,17 @@ from cheby.layout import ilog2
 import cheby.tree as tree
 from cheby.hdltree import (HDLPackage,
                            HDLComment,
-                           HDLConstant,
-                           HDLHexConst, HDLBinConst)
+                           HDLConstant, HDLSignal, HDLPort,
+                           bit_0, bit_1,
+                           HDLSlice, HDLIndex,
+                           HDLAssign,
+                           HDLSwitch, HDLChoiceExpr, HDLChoiceDefault,
+                           HDLInstance, HDLComb,
+                           HDLHexConst, HDLBinConst, HDLNumber)
+import cheby.gen_hdl as gen_hdl
 
 def get_gena(n, name, default=None):
-    if not hasattr(n, 'x_gena'):
-        return default
-    x_gena = n.x_gena
-    if x_gena is None:
-        return default
-    return x_gena.get(name, default)
+    return n.get_extension('x_gena', name, default)
 
 def get_note(n):
     return get_gena(n, 'note', '')
@@ -42,6 +43,7 @@ def gen_addr_cst(decls, addr, name, addr_width, block_width, word_width):
         addr, addr_width // 4,
         (addr << word_width) & ((1 << addr_width) - 1), addr_width // 4)
     decls.append(cst)
+    return cst
 
 def gen_reg_addr(n, root, decls, name, pfx):
     decls.append(HDLComment('Register Addresses : {}'.format(name),
@@ -49,19 +51,23 @@ def gen_reg_addr(n, root, decls, name, pfx):
     word_width = ilog2(root.c_word_size)
     addr_width = ilog2(n.c_size) - word_width
 
-    for e in n.elements:
-        if isinstance(e, tree.Reg):
-            addr = e.c_address // root.c_word_size
+    for reg in n.elements:
+        if isinstance(reg, tree.Reg):
+            addr = reg.c_address // root.c_word_size
             # FIXME: Gena looks to use 1 instead of word_width
-            if e.c_size > root.c_word_size:
-                num = e.c_size // root.c_word_size
+            if reg.c_size > root.c_word_size:
+                num = reg.c_size // root.c_word_size
+                reg.h_gena_regaddr = []
                 for i in range(num):
-                    gen_addr_cst(decls, addr + i,
-                        'C_Reg_{}_{}_{}'.format(pfx, e.name, num - i - 1),
+                    cst = gen_addr_cst(decls, addr + i,
+                        'C_Reg_{}_{}_{}'.format(pfx, reg.name, num - i - 1),
                         addr_width, word_width, 1)
+                    reg.h_gena_regaddr.append(cst)
             else:
-                gen_addr_cst(decls, addr, 'C_Reg_{}_{}'.format(pfx, e.name),
-                    addr_width, word_width, 1)
+                cst = gen_addr_cst(decls, addr,
+                        'C_Reg_{}_{}'.format(pfx, reg.name),
+                        addr_width, word_width, 1)
+                reg.h_gena_regaddr = cst
 
 def compute_acm(reg):
     res = get_gena(reg, 'auto-clear', 0)
@@ -80,26 +86,30 @@ def compute_preset(reg):
     return res
 
 def gen_mask(decls, mask, root, reg, pfx):
-    def gen_one_mask(decls, acm, name, w, lo_idx):
+    def gen_one_mask(acm, name, w, lo_idx):
         acm &= (1 << w) - 1
         cst = HDLConstant(name, w, lo_idx=lo_idx, value=HDLBinConst(acm, w))
         cst.eol_comment = ' : Value : X"{:0{}x}"'.format(acm, w / 4)
-        decls.append(cst)
+        return cst
 
     word_width = root.c_word_size * tree.BYTE_SIZE
     if reg.width <= word_width:
         reg_width = reg.width
         if get_gena(reg, 'type', None) == 'rmw':
             reg_width //= 2
-        gen_one_mask(decls,
-                     mask, '{}_{}'.format(pfx, reg.name), reg_width, 0)
+        res = gen_one_mask(mask, '{}_{}'.format(pfx, reg.name), reg_width, 0)
+        decls.append(res)
+        return res
     else:
         num = reg.width / word_width
+        res = []
         for i in reversed(range(num)):
-            gen_one_mask(decls,
-                         mask >> (i * word_width),
-                         '{}_{}_{}'.format(pfx, reg.name, i),
-                         word_width, i * word_width)
+            r = gen_one_mask(mask >> (i * word_width),
+                            '{}_{}_{}'.format(pfx, reg.name, i),
+                            word_width, i * word_width)
+            decls.append(r)
+            res.insert(0, r)
+        return res
 
 def gen_reg_acm(n, root, decls, name, pfx):
     decls.append(HDLComment('Register Auto Clear Masks : {}'.format(name)))
@@ -108,7 +118,7 @@ def gen_reg_acm(n, root, decls, name, pfx):
     for e in n.elements:
         if isinstance(e, tree.Reg):
             acm = compute_acm(e)
-            gen_mask(decls, acm, root, e, mpfx)
+            e.h_gena_acm = gen_mask(decls, acm, root, e, mpfx)
 
 def gen_reg_psm(n, root, decls, name, pfx):
     decls.append(HDLComment('Register Preset Masks : {}'.format(name)))
@@ -116,7 +126,7 @@ def gen_reg_psm(n, root, decls, name, pfx):
     for e in n.elements:
         if isinstance(e, tree.Reg):
             psm = compute_preset(e)
-            gen_mask(decls, psm, root, e, mpfx)
+            e.h_gena_psm = gen_mask(decls, psm, root, e, mpfx)
 
 def gen_code_fields(n, root, decls):
     decls.append(HDLComment('CODE FIELDS'))
@@ -159,7 +169,7 @@ def gen_memory_data(n, root, decls, name, pfx):
 
 def gen_submap_addr(n, root, decls, name, pfx):
     decls.append(HDLComment('Submap Addresses : {}'.format(name), nl=False))
-    word_width = ilog2(root.c_word_size)
+    # word_width = ilog2(root.c_word_size)
     for e in n.elements:
         if isinstance(e, tree.Block) and e.submap_file is not None:
             block_width = ilog2(e.c_size)
@@ -206,6 +216,151 @@ def gen_gena_memmap(root):
 
     gen_block(root, root, decls, 'Memory Map', root.name)
 
-
     res.decls = decls
     return res
+
+def gen_hdl_reg_decls(reg, pfx, root, module, isigs):
+    # Generate ports
+    for f in sorted(reg.fields, key=(lambda x: x.lo)):
+        mode = 'OUT' if reg.access in ('rw', 'wo') else 'IN'
+        sz = None if f.hi is None else f.c_width
+        portname = reg.name + (('_' + f.name) if f.name is not None else '')
+        port = HDLPort(portname, size=sz, dir=mode)
+        f.h_port = port
+    # Create Loc_ signal
+    reg.h_loc = HDLSignal('Loc_{}'.format(reg.name), reg.c_rwidth)
+    module.signals.append(reg.h_loc)
+    # Create Sel_ signal
+    if reg.access in ('rw', 'wo'):
+        reg.h_wrsel = HDLSignal('WrSel_{}'.format(reg.name))
+        module.signals.append(reg.h_wrsel)
+        # Create Register
+        gena_type = reg.get_extension('x_gena', 'type')
+        if gena_type == 'rmw':
+            reg_tpl = 'RMWReg'
+        elif gena_type is None:
+            reg_tpl = 'CtrlRegN'
+        else:
+            raise AssertionError
+        inst = HDLInstance('Reg_{}'.format(reg.name), reg_tpl)
+        inst.params = [('N', HDLNumber(reg.c_rwidth))]
+        inst.conns = [
+            ('VMEWrData', HDLSlice(root.h_bus['dati'], 0, reg.c_dwidth)),
+            ('Clk', root.h_bus['clk']),
+            ('Rst', root.h_bus['rst']),
+            ('WriteMem', root.h_bus['wr']),
+            ('CRegSel', reg.h_wrsel),
+            ('AutoClrMsk', reg.h_gena_acm),
+            ('Preset', reg.h_gena_psm),
+            ('CReg', HDLSlice(reg.h_loc, 0, reg.c_rwidth))]
+        module.stmts.append(inst)
+
+def gen_hdl_reg_stmts(reg, pfx, root, module, isigs, wrseldec):
+    # Create bitlist, a list of ordered (lo + width, lo, field)
+    # Fill gaps with (lo + width, lo, None)
+    bitlist = []
+    nbit = 0
+    for f in sorted(reg.fields, key=(lambda x: x.lo)):
+        if f.lo > nbit:
+            bitlist.append((f.lo, nbit, None))
+        nbit = f.lo + f.c_width
+        bitlist.append((nbit, f.lo, f))
+    if nbit != reg.c_rwidth:
+        bitlist.append((reg.c_rwidth, nbit, None))
+    # Assign Loc_ from inputs; assign outputs from Loc_
+    for hi, lo, f in reversed(bitlist):
+        if hi == lo + 1:
+            tgt = HDLIndex(reg.h_loc, lo)
+        elif lo == 0 and hi == reg.c_rwidth:
+            tgt = reg.h_loc
+        else:
+            tgt = HDLSlice(reg.h_loc, lo, hi - lo)
+        if f is None:
+            if hi == lo + 1:
+                src = HDLIndex(reg.h_gena_psm, lo)
+            else:
+                src = HDLSlice(reg.h_gena_psm, lo, hi - lo)
+        else:
+            src = f.h_port
+        if reg.access in ('ro'):
+            module.stmts.append(HDLAssign(tgt, src))
+        else:
+            module.stmts.append(HDLAssign(src, tgt))
+    if reg.access in ('rw', 'wo'):
+        wrseldec.append(reg)
+
+def gen_hdl_wrseldec(root, module, isigs, area, wrseldec):
+    proc = HDLComb()
+    proc.name = 'WrSelDec'
+    proc.sensitivity.append(root.h_bus['adr'])
+    for r in wrseldec:
+        proc.stmts.append(HDLAssign(r.h_wrsel, bit_0))
+    sw = HDLSwitch(HDLSlice(root.h_bus['adr'],
+                            root.c_addr_word_bits,
+                            ilog2(area.c_size) - root.c_addr_word_bits))
+    proc.stmts.append(sw)
+    for reg in wrseldec:
+        ch = HDLChoiceExpr(reg.h_gena_regaddr)
+        ch.stmts.append(HDLAssign(reg.h_wrsel, bit_1))
+        ch.stmts.append(HDLAssign(isigs.Loc_CRegWrOK, bit_1))
+        sw.choices.append(ch)
+    ch = HDLChoiceDefault()
+    ch.stmts.append(HDLAssign(isigs.Loc_CRegWrOK, bit_0))
+    sw.choices.append(ch)
+    module.stmts.append(proc)
+
+def gen_hdl_area(area, pfx, root, module, root_isigs):
+    isigs = gen_hdl.Isigs()
+    for tpl, size in [('{}CRegRdData', root.c_word_bits),
+                    ('{}CRegRdOK', None),
+                    ('{}CRegWrOK', None),
+                    ('Loc_{}CRegRdData', root.c_word_bits),
+                    ('Loc_{}CRegRdOK', None),
+                    ('Loc_{}CRegWrOK', None),
+                    ('{}RegRdDone', None),
+                    ('{}RegWrDone', None),
+                    ('{}RegRdData', root.c_word_bits),
+                    ('{}RegRdOK', None),
+                    ('Loc_{}RegRdData', root.c_word_bits),
+                    ('Loc_{}RegRdOK', None),
+                    ('{}MemRdData', root.c_word_bits),
+                    ('{}MemRdDone', None),
+                    ('{}MemWrDone', None),
+                    ('Loc_{}MemRdData', root.c_word_bits),
+                    ('Loc_{}MemRdDone', None),
+                    ('Loc_{}MemWrDone', None),
+                    ('{}RdData', root.c_word_bits),
+                    ('{}RdDone', None),
+                    ('{}WrDone', None)]:
+        name = tpl.format(pfx)
+        s = HDLSignal(name, size)
+        setattr(isigs, tpl.format(''), s)
+        module.signals.append(s)
+    for el in area.elements:
+        npfx = '_'.join([pfx, el.name])
+        if isinstance(el, tree.Reg):
+            gen_hdl_reg_decls(el, npfx, root, module, isigs)
+        else:
+            raise AssertionError
+
+    wrseldec = []
+    for el in area.elements:
+        npfx = '_'.join([pfx, el.name])
+        if isinstance(el, tree.Reg):
+            gen_hdl_reg_stmts(el, npfx, root, module, isigs, wrseldec)
+        else:
+            raise AssertionError
+
+    if wrseldec:
+        gen_hdl_wrseldec(root, module, isigs, area, wrseldec)
+
+def gen_gena_regctrl(root):
+    module, isigs = gen_hdl.gen_hdl_header(root)
+    module.name = 'RegCtrl_{}'.format(root.name)
+    isigs = gen_hdl.Isigs()
+    isigs.Loc_VMERdMem = HDLSignal('Loc_VMERdMem', 3)
+    isigs.Loc_VMEWrMem = HDLSignal('Loc_VMEWrMem', 2)
+    module.signals.extend([isigs.Loc_VMERdMem, isigs.Loc_VMEWrMem])
+    gen_hdl_area(root, '', root, module, isigs)
+
+    return module

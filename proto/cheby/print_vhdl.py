@@ -68,7 +68,7 @@ def generate_signal(fd, s):
         typ = generate_vhdl_type(s)
     else:
         typ = "std_logic"
-    w(fd, "  signal {:<40} : {typ};\n".format(s.name, typ=typ))
+    w(fd, "  signal {:<30} : {typ};\n".format(s.name, typ=typ))
 
 
 def generate_constant(fd, s, indent):
@@ -233,7 +233,10 @@ def generate_stmts(fd, stmts, indent):
             w(fd, sindent)
             generate_assign(fd, s)
         elif isinstance(s, hdltree.HDLComb):
+            wln(fd)
             w(fd, sindent)
+            if s.name is not None:
+                w(fd, '{}: '.format(s.name))
             w(fd, "process (")
             first = True
             for e in s.sensitivity:
@@ -242,13 +245,11 @@ def generate_stmts(fd, stmts, indent):
                 else:
                     w(fd, ", ")
                 w(fd, generate_expr(e))
-            wln(fd, "  )")
+            wln(fd, ")")
             wln(fd, "  begin")
             for s1 in s.stmts:
                 generate_seq(fd, s1, 2)
             wln(fd, "  end process;")
-            wln(fd, "  ")
-            wln(fd, "  ")
         elif isinstance(s, hdltree.HDLSync):
             wln(fd, sindent + "process ({}, {})".format(generate_expr(s.clk),
                                                         generate_expr(s.rst)))
@@ -275,14 +276,14 @@ def generate_stmts(fd, stmts, indent):
                         wln(fd, ",")
                     w(fd, "  " * indent)
                     w(fd, "  {:<20} => {}".format(p, generate_expr(e)))
-                wln()
+                wln(fd)
             if s.params:
                 wln(fd, sindent + "  generic map (")
-                generate_map(fd, s.params, indent + 1)
+                generate_map(s.params, indent + 1)
                 wln(fd, sindent + "  )")
             if s.conns:
                 wln(fd, sindent + "  port map (")
-                generate_map(fd, s.conns, indent + 1)
+                generate_map(s.conns, indent + 1)
                 wln(fd, sindent + "  );")
             wln(fd, sindent)
         elif isinstance(s, hdltree.HDLGenIf):

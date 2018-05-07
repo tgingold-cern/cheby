@@ -123,6 +123,14 @@ def layout_reg(lo, n):
         raise LayoutException(n,
             "incorrect access for register {}".format(n.get_path()))
     n.c_size = n.width // tree.BYTE_SIZE
+    gena_type = n.get_extension('x_gena', 'type')
+    if gena_type == 'rmw':
+        # RMW registers uses the top half part to mask bits.
+        n.c_rwidth = n.width // 2
+        n.c_dwidth = n.width
+    else:
+        n.c_rwidth = n.width
+        n.c_dwidth = n.width
     if lo.align_reg:
         # A register is aligned at least on a word and always naturally aligned.
         n.c_align = align(n.c_size, lo.word_size)
@@ -146,11 +154,11 @@ def layout_reg(lo, n):
         # Create the artificial field
         f = tree.FieldReg(n)
         n.fields.append(f)
-        f.name = n.name
+        f.name = None
         f.description = n.description
         f.lo = 0
-        f.hi = n.width - 1
-        f.c_width = n.width
+        f.hi = n.c_rwidth - 1
+        f.c_width = n.c_rwidth
 
         if n.type is None:
             # Default is unsigned

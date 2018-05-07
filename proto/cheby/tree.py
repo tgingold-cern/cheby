@@ -56,6 +56,14 @@ class NamedNode(Node):
         else:
             return self._parent.get_root()
 
+    def get_extension(self, ext, name, default=None):
+        if not hasattr(self, ext):
+            return default
+        x = getattr(self, ext)
+        if x is None:
+            return default
+        return x.get(name, default)
+
 
 class CompositeNode(NamedNode):
     """Base class for Cheby nodes with elements; they are also named.
@@ -93,6 +101,14 @@ class Reg(NamedNode):
         self.address = None
         self.fields = []
         self.preset = None
+        # Computed
+        self.c_size = None    # Size in bytes
+        self.c_rwidth = None  # Width of the register (can be smaller than
+                              # the width if data are partially generated or
+                              # used, like the rmw)
+        self.c_dwidth = None  # Width of the data path (== self.width)
+        self.c_align = None   # Alignment
+        self.c_type = None    # Type. None if register with fields.
 
 
 class FieldBase(NamedNode):
