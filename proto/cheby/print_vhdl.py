@@ -94,6 +94,7 @@ def generate_decl(fd, d, indent):
 
 operator = {hdltree.HDLAnd: 'and',
             hdltree.HDLOr:  'or',
+            hdltree.HDLConcat: '&',
             hdltree.HDLNot: 'not',
             hdltree.HDLEq: '='}
 
@@ -111,7 +112,7 @@ def generate_expr(e, nested=False):
             return res
     elif isinstance(e, hdltree.HDLUnary):
         res = "{} {}".format(operator[type(e)], generate_expr(e.expr, True))
-        if nested:
+        if False and nested:
             return "({})".format(res)
         else:
             return res

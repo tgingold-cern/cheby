@@ -265,3 +265,7 @@ class HDLOr(HDLBinary):
 
 class HDLEq(HDLBinary):
     pass
+
+
+class HDLConcat(HDLBinary):
+    pass
