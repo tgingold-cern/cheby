@@ -20,6 +20,11 @@ def generate_header(fd, module):
     wln(fd, "library ieee;")
     wln(fd, "use ieee.std_logic_1164.all;")
     wln(fd, "use ieee.numeric_std.all;")
+    if module.libraries:
+        wln(fd)
+        for l in module.libraries:
+            wln(fd, 'library {};'.format(l))
+        wln(fd)
     for d in module.deps:
         wln(fd, "use work.{}.all;".format(d))
     wln(fd)
@@ -89,6 +94,7 @@ def generate_constant(fd, s, indent):
         w(fd, "--" + s.eol_comment)
     wln(fd)
 
+
 def generate_component(fd, comp, indent):
     windent(fd, indent)
     wln(fd, "component {}".format(comp.name))
@@ -97,6 +103,12 @@ def generate_component(fd, comp, indent):
     windent(fd, indent)
     wln(fd, "end component;")
 
+
+def generate_component_spec(fd, spec, indent):
+    windent(fd, indent)
+    wln(fd, "for all : {} use entity {};".format(spec.comp.name, spec.bind))
+
+
 def generate_decl(fd, d, indent):
     if isinstance(d, hdltree.HDLSignal):
         generate_signal(fd, d, indent)
@@ -104,6 +116,8 @@ def generate_decl(fd, d, indent):
         generate_constant (fd, d, indent)
     elif isinstance(d, hdltree.HDLComponent):
         generate_component (fd, d, indent)
+    elif isinstance(d, hdltree.HDLComponentSpec):
+        generate_component_spec (fd, d, indent)
     elif isinstance(d, hdltree.HDLComment):
         generate_comment (fd, d, indent)
     else:
@@ -113,7 +127,7 @@ def generate_decl(fd, d, indent):
 operator = {hdltree.HDLAnd: (' and ', 4),
             hdltree.HDLOr:  (' or ', 3),
             hdltree.HDLConcat: (' & ', 0),
-            hdltree.HDLNot: ('not', 0),
+            hdltree.HDLNot: ('not', 5),
             hdltree.HDLSub: ('-', 1),
             hdltree.HDLMul: ('*', 2),
             hdltree.HDLEq:  (' = ', 5)}

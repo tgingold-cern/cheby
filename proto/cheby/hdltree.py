@@ -12,6 +12,7 @@ class HDLModule(HDLNode):
         self.ports = []
         self.signals = []
         self.stmts = []
+        self.libraries = []
         self.deps = []
 
     def add_dependence(self, name):
@@ -31,6 +32,12 @@ class HDLComponent(HDLNode):
         self.name = name
         self.params = []
         self.ports = []
+
+
+class HDLComponentSpec(HDLNode):
+    def __init__(self, comp, bind):
+        self.comp = comp
+        self.bind = bind
 
 
 class HDLObject(HDLNode):
