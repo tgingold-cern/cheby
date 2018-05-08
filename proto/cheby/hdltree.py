@@ -26,15 +26,21 @@ class HDLPackage(HDLNode):
         self.deps = []
 
 
+class HDLComponent(HDLNode):
+    def __init__(self, name):
+        self.name = name
+        self.params = []
+        self.ports = []
+
+
 class HDLObject(HDLNode):
     def __init__(self, name=None, size=None, lo_idx=0, typ='L'):
-        assert typ in "LUSI"  # Logic, Unsigned, Signed, Integer
+        assert typ in "LUSIN"  # Logic, Unsigned, Signed, Integer, Natural
         self.name = name
         self.size = size
         self.lo_idx = lo_idx
         self.typ = typ
         self.comment = None
-        assert size is None or isinstance(size, int)
 
 
 class HDLSignal(HDLObject):
@@ -42,8 +48,8 @@ class HDLSignal(HDLObject):
 
 
 class HDLPort(HDLObject):
-    def __init__(self, name=None, size=None, typ='L', dir='IN'):
-        super(HDLPort, self).__init__(name, size, 0, typ)
+    def __init__(self, name=None, size=None, lo_idx=0, typ='L', dir='IN'):
+        super(HDLPort, self).__init__(name, size, lo_idx, typ)
         self.dir = dir
 
 
@@ -82,7 +88,6 @@ class HDLAssign(HDLStmt):
         assert expr is not None
         self.target = target
         self.expr = expr
-
 
 class HDLInstance(HDLStmt):
     def __init__(self, name, module_name):
@@ -268,4 +273,12 @@ class HDLEq(HDLBinary):
 
 
 class HDLConcat(HDLBinary):
+    pass
+
+
+class HDLMul(HDLBinary):
+    pass
+
+
+class HDLSub(HDLBinary):
     pass

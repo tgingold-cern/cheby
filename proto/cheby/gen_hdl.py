@@ -103,7 +103,7 @@ def expand_cern_be_vme(root, module, isigs, buserr):
     """Create CERN-BE interface."""
     bus = [('clk',   HDLPort("Clk")),
            ('rst',   HDLPort("Rst")),
-           ('adr',   HDLPort("VMEAddr", root.c_sel_bits + root.c_blk_bits)),
+           ('adr',   HDLPort("VMEAddr", root.c_sel_bits + root.c_blk_bits - root.c_addr_word_bits, lo_idx=root.c_addr_word_bits)),
            ('dato',  HDLPort("VMERdData", root.c_word_bits, dir='OUT')),
            ('dati',  HDLPort("VMEWrData", root.c_word_bits)),
            ('rd',    HDLPort("VMERdMem")),

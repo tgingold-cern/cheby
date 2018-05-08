@@ -33,17 +33,22 @@ def generate_type_mark(s):
 
 def generate_vhdl_type(p):
     if p.size is not None:
-        return "{}({} downto {})".format(generate_type_mark(p),
-                                         p.lo_idx + p.size - 1, p.lo_idx)
+        if isinstance(p.size, int):
+            hi = str(p.lo_idx + p.size - 1)
+        else:
+            assert p.lo_idx == 0
+            hi = generate_expr(p.size)
+        return "{}({} downto {})".format(generate_type_mark(p), hi, p.lo_idx)
     else:
-        assert p.typ in 'LI', p.typ
-        return {'L': 'std_logic', 'I': 'integer'}[p.typ]
+        assert p.typ in 'LIN', p.typ
+        return {'L': 'std_logic', 'I': 'integer', 'N': 'natural'}[p.typ]
 
 
-def generate_port(fd, p):
+def generate_port(fd, p, indent):
     if p.comment:
         wln(fd)
-        wln(fd, "    -- {}".format(p.comment))
+        windent(fd, indent)
+        wln(fd, "-- {}".format(p.comment))
     typ = generate_vhdl_type(p)
     if p.dir == 'IN':
         dir = "in   "
@@ -51,24 +56,28 @@ def generate_port(fd, p):
         dir = "out  "
     else:
         dir = "inout"
-    w(fd, "    {:<32} : {dir} {typ}".format(p.name, dir=dir, typ=typ))
+    windent(fd, indent)
+    w(fd, "{:<20} : {dir} {typ}".format(p.name, dir=dir, typ=typ))
 
 
-def generate_param(fd, p):
+def generate_param(fd, p, indent):
     if p.comment:
+        windent(fd, indent)
         wln(fd, "-- {}".format(p.comment))
     typ = generate_vhdl_type(p)
-    w(fd, "        {} : {typ}".format(p.name, typ=typ))
+    windent(fd, indent)
+    w(fd, "{} : {typ}".format(p.name, typ=typ))
     if p.value:
         w(fd, " := {}".format(generate_expr(p.value)))
 
 
-def generate_signal(fd, s):
+def generate_signal(fd, s, indent):
     if s.size:
         typ = generate_vhdl_type(s)
     else:
         typ = "std_logic"
-    w(fd, "  signal {:<30} : {typ};\n".format(s.name, typ=typ))
+    windent(fd, indent)
+    w(fd, "signal {:<30} : {typ};\n".format(s.name, typ=typ))
 
 
 def generate_constant(fd, s, indent):
@@ -80,47 +89,60 @@ def generate_constant(fd, s, indent):
         w(fd, "--" + s.eol_comment)
     wln(fd)
 
+def generate_component(fd, comp, indent):
+    windent(fd, indent)
+    wln(fd, "component {}".format(comp.name))
+    print_inters_list(fd, comp.params, "generic", indent + 1)
+    print_inters_list(fd, comp.ports, "port", indent + 1)
+    windent(fd, indent)
+    wln(fd, "end component;")
 
 def generate_decl(fd, d, indent):
     if isinstance(d, hdltree.HDLSignal):
-        generate_signal(fd, d, 0)
+        generate_signal(fd, d, indent)
     elif isinstance(d, hdltree.HDLConstant):
         generate_constant (fd, d, indent)
+    elif isinstance(d, hdltree.HDLComponent):
+        generate_component (fd, d, indent)
     elif isinstance(d, hdltree.HDLComment):
         generate_comment (fd, d, indent)
     else:
-        raise AssertionError
+        raise AssertionError(d)
 
 
-operator = {hdltree.HDLAnd: 'and',
-            hdltree.HDLOr:  'or',
-            hdltree.HDLConcat: '&',
-            hdltree.HDLNot: 'not',
-            hdltree.HDLEq: '='}
+operator = {hdltree.HDLAnd: (' and ', 4),
+            hdltree.HDLOr:  (' or ', 3),
+            hdltree.HDLConcat: (' & ', 0),
+            hdltree.HDLNot: ('not', 0),
+            hdltree.HDLSub: ('-', 1),
+            hdltree.HDLMul: ('*', 2),
+            hdltree.HDLEq:  (' = ', 5)}
 
 
-def generate_expr(e, nested=False):
+def generate_expr(e, prio=-1):
     if isinstance(e, hdltree.HDLObject):
         return e.name
     elif isinstance(e, hdltree.HDLBinary):
-        res = "{} {} {}".format(generate_expr(e.left, True),
-                                operator[type(e)],
-                                generate_expr(e.right, True))
-        if nested:
+        opname, opprio = operator[type(e)]
+        res = ''.join([generate_expr(e.left, opprio),
+                       opname,
+                       generate_expr(e.right, opprio)])
+        if opprio <= prio:
             return "({})".format(res)
         else:
             return res
     elif isinstance(e, hdltree.HDLUnary):
-        res = "{} {}".format(operator[type(e)], generate_expr(e.expr, True))
-        if False and nested:
+        opname, opprio = operator[type(e)]
+        res = "{} {}".format(opname, generate_expr(e.expr, opprio))
+        if opprio <= prio:
             return "({})".format(res)
         else:
             return res
     elif isinstance(e, hdltree.HDLReplicate):
-        return "(others => {})".format(generate_expr(e.expr, False))
+        return "(others => {})".format(generate_expr(e.expr))
     elif isinstance(e, hdltree.HDLZext):
         return "std_logic_vector(resize(unsigned({}), {}))".format(
-            generate_expr(e.expr, False), e.size)
+            generate_expr(e.expr), e.size)
     elif isinstance(e, hdltree.HDLBit):
         return "'{}'".format(e.val)
     elif isinstance(e, hdltree.HDLUndef):
@@ -316,32 +338,37 @@ def generate_stmts(fd, stmts, indent):
             assert False, "unhandled hdl stmt {}".format(s)
 
 
+def print_inters_list(fd, lst, name, indent):
+    if not lst:
+        return
+    windent(fd, indent)
+    wln(fd, "{} (".format(name))
+    first = True
+    for p in lst:
+        if first:
+            first = False
+        else:
+            wln(fd, ";")
+        if isinstance(p, hdltree.HDLPort):
+            generate_port(fd, p, indent + 1)
+        elif isinstance(p, hdltree.HDLParam):
+            generate_param(fd, p, indent + 1)
+        else:
+            raise AssertionError
+    wln(fd)
+    windent(fd, indent)
+    wln(fd, ");")
+
 def print_module(fd, module):
     generate_header(fd, module)
     wln(fd, "entity {} is".format(module.name))
-
-    def _generate_inters(lst, name, gen_el):
-        if lst:
-            wln(fd, "  {} (".format(name))
-            first = True
-            for p in lst:
-                if first:
-                    first = False
-                else:
-                    wln(fd, ";")
-                gen_el(fd, p)
-            if name == "port":
-                wln(fd)
-            else:
-                w(fd, "  ")
-            wln(fd, "  );")
-    _generate_inters(module.params, "generic", generate_param)
-    _generate_inters(module.ports, "port", generate_port)
+    print_inters_list(fd, module.params, "generic", 1)
+    print_inters_list(fd, module.ports, "port", 1)
     wln(fd, "end {};".format(module.name))
     wln(fd)
     wln(fd, "architecture syn of {} is".format(module.name))
     for s in module.signals:
-        generate_signal(fd, s)
+        generate_decl(fd, s, 1)
     wln(fd)
     wln(fd, "begin")
     generate_stmts(fd, module.stmts, 1)

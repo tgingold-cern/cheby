@@ -1,10 +1,11 @@
 from cheby.layout import ilog2
 import cheby.tree as tree
 from cheby.hdltree import (HDLPackage,
-                           HDLComment,
-                           HDLConstant, HDLSignal, HDLPort,
+                           HDLComment, HDLComponent,
+                           HDLConstant, HDLSignal, HDLPort, HDLParam,
                            bit_0, bit_1,
                            HDLSlice, HDLIndex,
+                           HDLSub, HDLMul,
                            HDLAnd, HDLNot,
                            HDLZext, HDLReplicate, HDLConcat,
                            HDLAssign,
@@ -517,6 +518,38 @@ def gen_hdl_area(area, pfx, root, module, root_isigs):
     gen_hdl_strobeseq(root, module, root_isigs)
     gen_hdl_misc_root(root, module, isigs)
 
+def gen_hdl_components(root, module):
+    if True:
+        comp = HDLComponent('RMWReg')
+        param_n = HDLParam('N', typ='N', value=HDLNumber(8))
+        comp.params.append(param_n)
+        comp.ports.extend([HDLPort('VMEWrData',
+                                   HDLSub(HDLMul(HDLNumber(2), param_n),
+                                          HDLNumber(1))),
+                           HDLPort('Clk'),
+                           HDLPort('AutoClrMsk', HDLSub(param_n, HDLNumber(1))),
+                           HDLPort('Rst'),
+                           HDLPort('CRegSel'),
+                           HDLPort('CReg',
+                                   HDLSub(param_n, HDLNumber(1)), dir='OUT'),
+                           HDLPort('WriteMem'),
+                           HDLPort('Preset', HDLSub(param_n, HDLNumber(1)))])
+        module.signals.insert(0, comp)
+    if True:
+        comp = HDLComponent('CtrlRegN')
+        param_n = HDLParam('N', typ='I', value=HDLNumber(16))
+        comp.params.append(param_n)
+        comp.ports.extend([HDLPort('Clk'),
+                           HDLPort('Rst'),
+                           HDLPort('CRegSel'),
+                           HDLPort('WriteMem'),
+                           HDLPort('VMEWrData', HDLSub(param_n, HDLNumber(1))),
+                           HDLPort('AutoClrMsk', HDLSub(param_n, HDLNumber(1))),
+                           HDLPort('CReg',
+                                   HDLSub(param_n, HDLNumber(1)), dir='OUT'),
+                           HDLPort('Preset', HDLSub(param_n, HDLNumber(1)))])
+        module.signals.insert(1, comp)
+
 def gen_gena_regctrl(root):
     module, isigs = gen_hdl.gen_hdl_header(root)
     module.name = 'RegCtrl_{}'.format(root.name)
@@ -525,5 +558,6 @@ def gen_gena_regctrl(root):
     isigs.Loc_VMEWrMem = HDLSignal('Loc_VMEWrMem', 2)
     module.signals.extend([isigs.Loc_VMERdMem, isigs.Loc_VMEWrMem])
     gen_hdl_area(root, '', root, module, isigs)
+    gen_hdl_components(root, module)
 
     return module
