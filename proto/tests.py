@@ -195,7 +195,8 @@ def compare_buffer_and_file(buf, filename):
 
 
 def test_gena():
-    files=['CRegs', 'CRegs_Regs', 'CRegs_NoRMW', 'CRegs_Regs_NoRMW']
+    files=['CRegs', 'CRegs_Regs', 'CRegs_NoRMW', 'CRegs_Regs_NoRMW',
+           'Regs']
     for f in files:
         # Test Gena to Cheby conversion
         xmlfile = srcdir + 'gena/' + f + '.xml'

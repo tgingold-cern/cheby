@@ -153,13 +153,22 @@ def gen_hdl_cregrdmux(root, module, isigs, area, wrseldec):
     sw.choices.append(ch)
     module.stmts.append(proc)
 
+def gen_hdl_cregrdmux_asgn(stmts, isigs):
+    stmts.append(HDLAssign(isigs.CRegRdData, isigs.Loc_CRegRdData))
+    stmts.append(HDLAssign(isigs.CRegRdOK, isigs.Loc_CRegRdOK))
+    stmts.append(HDLAssign(isigs.CRegWrOK, isigs.Loc_CRegWrOK))
+
 def gen_hdl_cregrdmux_dff(root, module, isigs):
     proc = HDLSync(root.h_bus['clk'], None)
     proc.name = 'CRegRdMux_DFF'
-    proc.sync_stmts.append(HDLAssign(isigs.CRegRdData, isigs.Loc_CRegRdData))
-    proc.sync_stmts.append(HDLAssign(isigs.CRegRdOK, isigs.Loc_CRegRdOK))
-    proc.sync_stmts.append(HDLAssign(isigs.CRegWrOK, isigs.Loc_CRegWrOK))
+    gen_hdl_cregrdmux_asgn(proc.sync_stmts, isigs)
     module.stmts.append(proc)
+
+def gen_hdl_no_cregrdmux_dff(root, module, isigs):
+    module.stmts.append(HDLAssign(isigs.Loc_CRegRdData, HDLReplicate(bit_0, None)))
+    module.stmts.append(HDLAssign(isigs.Loc_CRegRdOK, bit_0))
+    module.stmts.append(HDLAssign(isigs.Loc_CRegWrOK, bit_0))
+    gen_hdl_cregrdmux_asgn(module.stmts, isigs)
 
 def gen_hdl_regrdmux(root, module, isigs, area, rd_reg):
     proc = HDLComb()
@@ -204,22 +213,22 @@ def gen_hdl_no_regrdmux(root, module, isigs):
     module.stmts.append(HDLAssign(isigs.RegRdData, isigs.Loc_RegRdData))
     module.stmts.append(HDLAssign(isigs.RegRdOK, isigs.Loc_RegRdOK))
 
-def gen_hdl_regdone(root, module, isigs, root_isigs, rd_delay):
+def gen_hdl_regdone(root, module, isigs, root_isigs, rd_delay, wr_delay):
     asgn = HDLAssign(isigs.RegRdDone,
                      HDLAnd(HDLIndex(root_isigs.Loc_VMERdMem, rd_delay),
                             isigs.RegRdOK))
     module.stmts.append(asgn)
     asgn = HDLAssign(isigs.RegWrDone,
-                     HDLAnd(HDLIndex(root_isigs.Loc_VMEWrMem, 1),
+                     HDLAnd(HDLIndex(root_isigs.Loc_VMEWrMem, wr_delay),
                             isigs.CRegWrOK))
     module.stmts.append(asgn)
     if root.c_buserr:
         asgn = HDLAssign(isigs.RegRdError,
-                         HDLAnd(HDLIndex(root_isigs.Loc_VMERdMem, 2),
+                         HDLAnd(HDLIndex(root_isigs.Loc_VMERdMem, rd_delay),
                                 HDLNot(isigs.RegRdOK)))
         module.stmts.append(asgn)
         asgn = HDLAssign(isigs.RegWrError,
-                         HDLAnd(HDLIndex(root_isigs.Loc_VMEWrMem, 1),
+                         HDLAnd(HDLIndex(root_isigs.Loc_VMEWrMem, wr_delay),
                                 HDLNot(isigs.CRegWrOK)))
         module.stmts.append(asgn)
 
@@ -326,15 +335,19 @@ def gen_hdl_area(area, pfx, root, module, root_isigs):
         gen_hdl_wrseldec(root, module, isigs, area, wr_reg)
         gen_hdl_cregrdmux(root, module, isigs, area, wr_reg)
         gen_hdl_cregrdmux_dff(root, module, isigs)
+        wr_delay = 1
+    else:
+        gen_hdl_no_cregrdmux_dff(root, module, isigs)
+        wr_delay = 0
     if rd_reg:
         gen_hdl_regrdmux(root, module, isigs, area, rd_reg)
         gen_hdl_regrdmux_dff(root, module, isigs)
-        rd_delay = 2
+        rd_delay = wr_delay + 1
     else:
         gen_hdl_no_regrdmux(root, module, isigs)
-        rd_delay = 1
+        rd_delay = wr_delay
 
-    gen_hdl_regdone(root, module, isigs, root_isigs, rd_delay)
+    gen_hdl_regdone(root, module, isigs, root_isigs, rd_delay, wr_delay)
 
     gen_hdl_misc(root, module, isigs)
 
