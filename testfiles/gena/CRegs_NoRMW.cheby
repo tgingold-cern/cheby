@@ -1,0 +1,47 @@
+name: cregsNoRMW
+bus: cern-be-vme-16
+size: 1048576
+x-gena:
+  ident-code: 0xff
+  map-version: 20161031
+elements:
+  - reg:
+      name: test1
+      width: 16
+      access: rw
+      address: 0x0
+  - reg:
+      name: test2
+      width: 32
+      access: rw
+      address: next
+  - reg:
+      name: test3
+      width: 16
+      access: rw
+      address: 0x40
+  - reg:
+      name: test4
+      width: 32
+      access: rw
+      address: next
+  - reg:
+      name: test5
+      width: 16
+      access: wo
+      address: next
+  - reg:
+      name: test6
+      width: 32
+      access: wo
+      address: next
+  - reg:
+      name: test7
+      width: 16
+      access: rw
+      address: next
+  - reg:
+      name: test8
+      width: 32
+      access: rw
+      address: next

@@ -38,8 +38,10 @@ def gen_hdl_reg_decls(reg, pfx, root, module, isigs):
         gena_type = reg.get_extension('x_gena', 'type')
         if gena_type == 'rmw':
             reg_tpl = 'RMWReg'
+            root.h_has_rmw = True
         elif gena_type is None:
             reg_tpl = 'CtrlRegN'
+            root.h_has_creg = True
         else:
             raise AssertionError
         for i in reversed(range(reg.c_nwords)):
@@ -195,9 +197,16 @@ def gen_hdl_regrdmux_dff(root, module, isigs):
     # proc.sync_stmts.append(HDLAssign(isigs.RegWrOK, isigs.Loc_RegWrOK))
     module.stmts.append(proc)
 
-def gen_hdl_regdone(root, module, isigs, root_isigs):
+def gen_hdl_no_regrdmux(root, module, isigs):
+    module.stmts.append(HDLAssign(isigs.Loc_RegRdData, isigs.CRegRdData))
+    module.stmts.append(HDLAssign(isigs.Loc_RegRdOK, isigs.CRegRdOK))
+
+    module.stmts.append(HDLAssign(isigs.RegRdData, isigs.Loc_RegRdData))
+    module.stmts.append(HDLAssign(isigs.RegRdOK, isigs.Loc_RegRdOK))
+
+def gen_hdl_regdone(root, module, isigs, root_isigs, rd_delay):
     asgn = HDLAssign(isigs.RegRdDone,
-                     HDLAnd(HDLIndex(root_isigs.Loc_VMERdMem, 2),
+                     HDLAnd(HDLIndex(root_isigs.Loc_VMERdMem, rd_delay),
                             isigs.RegRdOK))
     module.stmts.append(asgn)
     asgn = HDLAssign(isigs.RegWrDone,
@@ -320,7 +329,12 @@ def gen_hdl_area(area, pfx, root, module, root_isigs):
     if rd_reg:
         gen_hdl_regrdmux(root, module, isigs, area, rd_reg)
         gen_hdl_regrdmux_dff(root, module, isigs)
-    gen_hdl_regdone(root, module, isigs, root_isigs)
+        rd_delay = 2
+    else:
+        gen_hdl_no_regrdmux(root, module, isigs)
+        rd_delay = 1
+
+    gen_hdl_regdone(root, module, isigs, root_isigs, rd_delay)
 
     gen_hdl_misc(root, module, isigs)
 
@@ -328,7 +342,7 @@ def gen_hdl_area(area, pfx, root, module, root_isigs):
     gen_hdl_misc_root(root, module, isigs)
 
 def gen_hdl_components(root, module):
-    if True:
+    if root.h_has_creg:
         comp = HDLComponent('CtrlRegN')
         param_n = HDLParam('N', typ='I', value=HDLNumber(16))
         comp.params.append(param_n)
@@ -344,7 +358,7 @@ def gen_hdl_components(root, module):
         module.decls.insert(0, comp)
         spec = HDLComponentSpec(comp, "CommonVisual.CtrlRegN(V1)")
         module.decls.insert(1, spec)
-    if True:
+    if root.h_has_rmw:
         comp = HDLComponent('RMWReg')
         param_n = HDLParam('N', typ='N', value=HDLNumber(8))
         comp.params.append(param_n)
@@ -372,6 +386,8 @@ def gen_gena_regctrl(root):
     isigs.Loc_VMERdMem = HDLSignal('Loc_VMERdMem', 3)
     isigs.Loc_VMEWrMem = HDLSignal('Loc_VMEWrMem', 2)
     module.decls.extend([isigs.Loc_VMERdMem, isigs.Loc_VMEWrMem])
+    root.h_has_rmw = False
+    root.h_has_creg = False
     gen_hdl_area(root, '', root, module, isigs)
     gen_hdl_components(root, module)
 
