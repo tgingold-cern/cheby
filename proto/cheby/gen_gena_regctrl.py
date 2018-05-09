@@ -6,8 +6,9 @@ from cheby.hdltree import (HDLComponent, HDLComponentSpec,
                            HDLSlice, HDLIndex,
                            HDLSub, HDLMul,
                            HDLAnd, HDLNot,
+                           HDLGe, HDLLe,
                            HDLZext, HDLReplicate, HDLConcat,
-                           HDLAssign,
+                           HDLAssign, HDLIfElse,
                            HDLSwitch, HDLChoiceExpr, HDLChoiceDefault,
                            HDLInstance, HDLComb, HDLSync,
                            HDLNumber)
@@ -233,25 +234,144 @@ def gen_hdl_regdone(root, module, isigs, root_isigs, rd_delay, wr_delay):
         module.stmts.append(asgn)
 
 
+def gen_hdl_mem_decls(mem, pfx, root, module, isigs):
+    data = mem.elements[0]
+    # Generate ports
+    mem.h_sel = HDLPort('{}_Sel'.format(mem.name), dir='OUT')
+    mem.h_addr = HDLPort('{}_Addr'.format(mem.name), size=mem.c_sel_bits,
+                         lo_idx=root.c_addr_word_bits, dir='OUT')
+    mem.h_rddata = HDLPort('{}_RdData'.format(mem.name), size=data.width)
+    mem.h_wrdata = HDLPort('{}_WrData'.format(mem.name), size=data.width, dir='OUT')
+    mem.h_rdmem = HDLPort('{}_RdMem'.format(mem.name), dir='OUT')
+    mem.h_wrmem = HDLPort('{}_WrMem'.format(mem.name), dir='OUT')
+    mem.h_rddone = HDLPort('{}_RdDone'.format(mem.name))
+    mem.h_wrdone = HDLPort('{}_WrDone'.format(mem.name))
+    module.ports.extend([mem.h_sel, mem.h_addr, mem.h_rddata, mem.h_wrdata,
+                         mem.h_rdmem, mem.h_wrmem, mem.h_rddone, mem.h_wrdone])
+    # Create Sel_ signal
+    sig = HDLSignal('Sel_{}'.format(mem.name))
+    mem.h_wrsel = sig
+    module.decls.append(sig)
+
+def gen_hdl_reg2locmem_rd(root, module, isigs, stmts):
+    stmts.append (HDLAssign(isigs.Loc_MemRdData, isigs.RegRdData))
+    stmts.append (HDLAssign(isigs.Loc_MemRdDone, isigs.RegRdDone))
+    if root.c_buserr:
+        stmts.append (HDLAssign(isigs.Loc_MemRdError, isigs.RegRdError))
+
+def gen_hdl_memrdmux(root, module, isigs, area, mems):
+    proc = HDLComb()
+    proc.name = 'MemRdMux'
+    proc.sensitivity.extend(
+        [root.h_bus['adr'], isigs.RegRdData, isigs.RegRdDone])
+
+    adr_sz = ilog2(area.c_size) - root.c_addr_word_bits
+    adr_lo = root.c_addr_word_bits
+
+    last = proc.stmts
+    for m in mems:
+        proc.sensitivity.extend([m.h_rddata, m.h_rddone])
+        proc.stmts.append(HDLAssign(m.h_wrsel, bit_0))
+    for m in mems:
+        cond = HDLAnd(HDLGe(HDLSlice(root.h_bus['adr'], adr_lo, adr_sz),
+                            m.h_gena_sta),
+                      HDLLe(HDLSlice(root.h_bus['adr'], adr_lo, adr_sz),
+                            m.h_gena_end))
+        stmt = HDLIfElse(cond)
+        stmt.then_stmts.append(HDLAssign(m.h_wrsel, bit_1))
+        stmt.then_stmts.append(HDLAssign(isigs.Loc_MemRdData, m.h_rddata))
+        stmt.then_stmts.append(HDLAssign(isigs.Loc_MemRdDone, m.h_rddone))
+        last.append(stmt)
+        last = stmt.else_stmts
+    gen_hdl_reg2locmem_rd(root, module, isigs, last)
+    module.stmts.append(proc)
+
+
+def gen_hdl_no_memrdmux(root, module, isigs):
+    gen_hdl_reg2locmem_rd(root, module, isigs, module.stmts)
+
+
+def gen_hdl_locmem2mem_rd(root, module, isigs, stmts):
+    stmts.append (HDLAssign(isigs.MemRdData, isigs.Loc_MemRdData))
+    stmts.append (HDLAssign(isigs.MemRdDone, isigs.Loc_MemRdDone))
+    if root.c_buserr:
+        stmts.append (HDLAssign(isigs.MemRdError, isigs.Loc_MemRdError))
+
+
+def gen_hdl_memrdmux_dff(root, module, isigs):
+    proc = HDLSync(root.h_bus['clk'], None)
+    proc.name = 'MemRdMux_DFF'
+    gen_hdl_locmem2mem_rd(root, module, isigs, proc.sync_stmts)
+    module.stmts.append(proc)
+
+
+def gen_hdl_no_memrdmux_dff(root, module, isigs):
+    gen_hdl_locmem2mem_rd(root, module, isigs, module.stmts)
+
+
+def gen_hdl_reg2locmem_wr(root, module, isigs, stmts):
+    stmts.append (HDLAssign(isigs.Loc_MemWrDone, isigs.RegWrDone))
+    if root.c_buserr:
+        stmts.append (HDLAssign(isigs.Loc_MemWrError, isigs.RegWrError))
+
+
+def gen_hdl_memwrmux(root, module, isigs, area, mems):
+    proc = HDLComb()
+    proc.name = 'MemWrMux'
+    proc.sensitivity.extend([root.h_bus['adr'], isigs.RegWrDone])
+
+    adr_sz = ilog2(area.c_size) - root.c_addr_word_bits
+    adr_lo = root.c_addr_word_bits
+
+    last = proc.stmts
+    for m in mems:
+        proc.sensitivity.append(m.h_wrdone)
+        cond = HDLAnd(HDLGe(HDLSlice(root.h_bus['adr'], adr_lo, adr_sz),
+                            m.h_gena_sta),
+                      HDLLe(HDLSlice(root.h_bus['adr'], adr_lo, adr_sz),
+                            m.h_gena_end))
+        stmt = HDLIfElse(cond)
+        stmt.then_stmts.append(HDLAssign(isigs.Loc_MemWrDone, m.h_wrdone))
+        last.append(stmt)
+        last = stmt.else_stmts
+    gen_hdl_reg2locmem_wr(root, module, isigs, last)
+    module.stmts.append(proc)
+
+
+def gen_hdl_no_memwrmux(root, module, isigs):
+    gen_hdl_reg2locmem_wr(root, module, isigs, module.stmts)
+
+
+def gen_hdl_locmem2mem_wr(root, module, isigs, stmts):
+    stmts.append (HDLAssign(isigs.MemWrDone, isigs.Loc_MemWrDone))
+    if root.c_buserr:
+        stmts.append (HDLAssign(isigs.MemWrError, isigs.Loc_MemWrError))
+
+
+def gen_hdl_memwrmux_dff(root, module, isigs):
+    proc = HDLSync(root.h_bus['clk'], None)
+    proc.name = 'MemWrMux_DFF'
+    gen_hdl_locmem2mem_wr(root, module, isigs, proc.sync_stmts)
+    module.stmts.append(proc)
+
+
+def gen_hdl_no_memwrmux_dff(root, module, isigs):
+    gen_hdl_locmem2mem_wr(root, module, isigs, module.stmts)
+
+
+def gen_hdl_mem_asgn(root, module, isigs, area, mems):
+    for m in mems:
+        module.stmts.append(
+            HDLAssign(m.h_addr,
+                      HDLSlice(root.h_bus['adr'],
+                               root.c_addr_word_bits, m.c_sel_bits)))
+        module.stmts.append(HDLAssign(m.h_sel, m.h_wrsel))
+        module.stmts.append(HDLAssign(m.h_rdmem, HDLAnd(m.h_wrsel, root.h_bus['rd'])))
+        module.stmts.append(HDLAssign(m.h_wrmem, HDLAnd(m.h_wrsel, root.h_bus['wr'])))
+        module.stmts.append(HDLAssign(m.h_wrdata, root.h_bus['dati']))
+
+
 def gen_hdl_misc(root, module, isigs):
-    module.stmts.append (HDLAssign(isigs.Loc_MemRdData, isigs.RegRdData))
-    module.stmts.append (HDLAssign(isigs.Loc_MemRdDone, isigs.RegRdDone))
-    if root.c_buserr:
-        module.stmts.append (HDLAssign(isigs.Loc_MemRdError, isigs.RegRdError))
-
-    module.stmts.append (HDLAssign(isigs.MemRdData, isigs.Loc_MemRdData))
-    module.stmts.append (HDLAssign(isigs.MemRdDone, isigs.Loc_MemRdDone))
-    if root.c_buserr:
-        module.stmts.append (HDLAssign(isigs.MemRdError, isigs.Loc_MemRdError))
-
-    module.stmts.append (HDLAssign(isigs.Loc_MemWrDone, isigs.RegWrDone))
-    if root.c_buserr:
-        module.stmts.append (HDLAssign(isigs.Loc_MemWrError, isigs.RegWrError))
-
-    module.stmts.append (HDLAssign(isigs.MemWrDone, isigs.Loc_MemWrDone))
-    if root.c_buserr:
-        module.stmts.append (HDLAssign(isigs.MemWrError, isigs.Loc_MemWrError))
-
     module.stmts.append (HDLAssign(isigs.RdData, isigs.MemRdData))
     module.stmts.append (HDLAssign(isigs.RdDone, isigs.MemRdDone))
     module.stmts.append (HDLAssign(isigs.WrDone, isigs.MemWrDone))
@@ -270,6 +390,7 @@ def gen_hdl_strobeseq(root, module, isigs):
         HDLConcat(HDLSlice(isigs.Loc_VMEWrMem, 0, 1), root.h_bus['wr'])))
     module.stmts.append(proc)
 
+
 def gen_hdl_misc_root(root, module, isigs):
     module.stmts.append (HDLAssign(root.h_bus['dato'], isigs.RdData))
     module.stmts.append (HDLAssign(root.h_bus['rack'], isigs.RdDone))
@@ -277,6 +398,7 @@ def gen_hdl_misc_root(root, module, isigs):
     if root.c_buserr:
         module.stmts.append (HDLAssign(root.h_bus['rderr'], isigs.RdError))
         module.stmts.append (HDLAssign(root.h_bus['wrerr'], isigs.WrError))
+
 
 def gen_hdl_area(area, pfx, root, module, root_isigs):
     isigs = gen_hdl.Isigs()
@@ -319,15 +441,20 @@ def gen_hdl_area(area, pfx, root, module, root_isigs):
         npfx = '_'.join([pfx, el.name])
         if isinstance(el, tree.Reg):
             gen_hdl_reg_decls(el, npfx, root, module, isigs)
+        elif isinstance(el, tree.Array):
+            gen_hdl_mem_decls(el, npfx, root, module, isigs)
         else:
             raise AssertionError
 
     wr_reg = []
     rd_reg = []
+    mems = []
     for el in area.elements:
         npfx = '_'.join([pfx, el.name])
         if isinstance(el, tree.Reg):
             gen_hdl_reg_stmts(el, npfx, root, module, isigs, wr_reg, rd_reg)
+        elif isinstance(el, tree.Array):
+            mems.append(el)
         else:
             raise AssertionError
 
@@ -348,6 +475,18 @@ def gen_hdl_area(area, pfx, root, module, root_isigs):
         rd_delay = wr_delay
 
     gen_hdl_regdone(root, module, isigs, root_isigs, rd_delay, wr_delay)
+
+    if mems:
+        gen_hdl_memrdmux(root, module, isigs, area, mems)
+        gen_hdl_memrdmux_dff(root, module, isigs)
+        gen_hdl_memwrmux(root, module, isigs, area, mems)
+        gen_hdl_memwrmux_dff(root, module, isigs)
+        gen_hdl_mem_asgn(root, module, isigs, area, mems)
+    else:
+        gen_hdl_no_memrdmux(root, module, isigs)
+        gen_hdl_no_memrdmux_dff(root, module, isigs)
+        gen_hdl_no_memwrmux(root, module, isigs)
+        gen_hdl_no_memwrmux_dff(root, module, isigs)
 
     gen_hdl_misc(root, module, isigs)
 

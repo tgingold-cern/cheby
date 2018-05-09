@@ -151,10 +151,12 @@ def gen_memory_data(n, root, decls, name, pfx):
     for e in n.elements:
         if isinstance(e, tree.Array):
             addr = e.c_address >> word_width
-            gen_addr_cst(decls, addr, 'C_Mem_{}_{}_Sta'.format(pfx, e.name),
+            e.h_gena_sta = gen_addr_cst(
+                decls, addr, 'C_Mem_{}_{}_Sta'.format(pfx, e.name),
                 addr_width, word_width, 1)
             addr = (e.c_address + e.c_size - 1) >> word_width
-            gen_addr_cst(decls, addr, 'C_Mem_{}_{}_End'.format(pfx, e.name),
+            e.h_gena_end = gen_addr_cst(
+                decls, addr, 'C_Mem_{}_{}_End'.format(pfx, e.name),
                 addr_width, word_width, 1)
 
 def gen_submap_addr(n, root, decls, name, pfx):

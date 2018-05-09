@@ -130,7 +130,9 @@ operator = {hdltree.HDLAnd: (' and ', 4),
             hdltree.HDLNot: ('not', 5),
             hdltree.HDLSub: ('-', 1),
             hdltree.HDLMul: ('*', 2),
-            hdltree.HDLEq:  (' = ', 5)}
+            hdltree.HDLEq:  (' = ', 5),
+            hdltree.HDLGe:  (' >= ', 5),
+            hdltree.HDLLe:  (' <= ', 5)}
 
 
 def generate_expr(e, prio=-1):
@@ -226,14 +228,23 @@ def generate_seq(fd, s, level):
         generate_assign(fd, s)
     elif isinstance(s, hdltree.HDLIfElse):
         w(fd, indent)
-        wln(fd, "if {} then".format(generate_expr(s.cond)))
-        for s1 in s.then_stmts:
-            generate_seq(fd, s1, level + 1)
-        if s.else_stmts is not None:
-            w(fd, indent)
-            wln(fd, "else")
-            for s1 in s.else_stmts:
+        while True:
+            wln(fd, "if {} then".format(generate_expr(s.cond)))
+            for s1 in s.then_stmts:
                 generate_seq(fd, s1, level + 1)
+            if s.else_stmts is not None:
+                w(fd, indent)
+                if len(s.else_stmts) == 1 \
+                   and isinstance(s.else_stmts[0], hdltree.HDLIfElse):
+                    w(fd, "els")
+                    s = s.else_stmts[0]
+                else:
+                    wln(fd, "else")
+                    for s1 in s.else_stmts:
+                        generate_seq(fd, s1, level + 1)
+                    break
+            else:
+                break
         w(fd, indent)
         wln(fd, "end if;")
     elif isinstance(s, hdltree.HDLSwitch):

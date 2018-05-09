@@ -283,6 +283,14 @@ class HDLEq(HDLBinary):
     pass
 
 
+class HDLGe(HDLBinary):
+    pass
+
+
+class HDLLe(HDLBinary):
+    pass
+
+
 class HDLConcat(HDLBinary):
     pass
 
