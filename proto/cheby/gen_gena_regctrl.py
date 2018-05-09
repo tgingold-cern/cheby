@@ -25,7 +25,7 @@ def gen_hdl_reg_decls(reg, pfx, root, module, isigs):
         module.ports.append(f.h_port)
     # Create Loc_ signal
     reg.h_loc = HDLSignal('Loc_{}'.format(reg.name), reg.c_rwidth)
-    module.signals.append(reg.h_loc)
+    module.decls.append(reg.h_loc)
     # Create Sel_ signal
     if reg.access in ('rw', 'wo'):
         reg.h_wrsel = []
@@ -33,7 +33,7 @@ def gen_hdl_reg_decls(reg, pfx, root, module, isigs):
             sig = HDLSignal('WrSel_{}{}'.format(
                 reg.name, subsuffix(i, reg.c_nwords)))
             reg.h_wrsel.insert(0, sig)
-            module.signals.append(sig)
+            module.decls.append(sig)
         # Create Register
         gena_type = reg.get_extension('x_gena', 'type')
         if gena_type == 'rmw':
@@ -296,7 +296,7 @@ def gen_hdl_area(area, pfx, root, module, root_isigs):
         name = tpl.format(pfx)
         s = HDLSignal(name, size)
         setattr(isigs, tpl.format(''), s)
-        module.signals.append(s)
+        module.decls.append(s)
     for el in area.elements:
         npfx = '_'.join([pfx, el.name])
         if isinstance(el, tree.Reg):
@@ -341,9 +341,9 @@ def gen_hdl_components(root, module):
                            HDLPort('CReg',
                                    HDLSub(param_n, HDLNumber(1)), dir='OUT'),
                            HDLPort('Preset', HDLSub(param_n, HDLNumber(1)))])
-        module.signals.insert(0, comp)
+        module.decls.insert(0, comp)
         spec = HDLComponentSpec(comp, "CommonVisual.CtrlRegN(V1)")
-        module.signals.insert(1, spec)
+        module.decls.insert(1, spec)
     if True:
         comp = HDLComponent('RMWReg')
         param_n = HDLParam('N', typ='N', value=HDLNumber(8))
@@ -359,9 +359,9 @@ def gen_hdl_components(root, module):
                                    HDLSub(param_n, HDLNumber(1)), dir='OUT'),
                            HDLPort('WriteMem'),
                            HDLPort('Preset', HDLSub(param_n, HDLNumber(1)))])
-        module.signals.insert(0, comp)
+        module.decls.insert(0, comp)
         spec = HDLComponentSpec(comp, "CommonVisual.RMWReg(RMWReg)")
-        module.signals.insert(1, spec)
+        module.decls.insert(1, spec)
 
 def gen_gena_regctrl(root):
     module, isigs = gen_hdl.gen_hdl_header(root)
@@ -371,7 +371,7 @@ def gen_gena_regctrl(root):
     isigs = gen_hdl.Isigs()
     isigs.Loc_VMERdMem = HDLSignal('Loc_VMERdMem', 3)
     isigs.Loc_VMEWrMem = HDLSignal('Loc_VMEWrMem', 2)
-    module.signals.extend([isigs.Loc_VMERdMem, isigs.Loc_VMEWrMem])
+    module.decls.extend([isigs.Loc_VMERdMem, isigs.Loc_VMEWrMem])
     gen_hdl_area(root, '', root, module, isigs)
     gen_hdl_components(root, module)
 

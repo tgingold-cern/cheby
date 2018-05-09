@@ -381,7 +381,7 @@ def print_module(fd, module):
     wln(fd, "end {};".format(module.name))
     wln(fd)
     wln(fd, "architecture syn of {} is".format(module.name))
-    for s in module.signals:
+    for s in module.decls:
         generate_decl(fd, s, 1)
     wln(fd)
     wln(fd, "begin")

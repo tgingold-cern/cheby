@@ -53,8 +53,8 @@ def add_decode_wb(root, module, isigs):
     # Internal signals for wb.
     isigs.wb_en = HDLSignal('wb_en')
     isigs.ack_int = HDLSignal('ack_int')      # Ack
-    module.signals.extend([isigs.wb_en, isigs.rd_int, isigs.wr_int,
-                           isigs.ack_int, isigs.rd_ack, isigs.wr_ack])
+    module.decls.extend([isigs.wb_en, isigs.rd_int, isigs.wr_int,
+                         isigs.ack_int, isigs.rd_ack, isigs.wr_ack])
     module.stmts.append(
         HDLAssign(isigs.wb_en, HDLAnd(root.h_bus['cyc'], root.h_bus['stb'])))
     module.stmts.append(
@@ -94,7 +94,7 @@ def add_decode_cern_be_vme(root, module, isigs):
     isigs.wr_int = root.h_bus['wr']
     isigs.rd_ack = HDLSignal('rd_ack_int')    # Ack for read
     isigs.wr_ack = HDLSignal('wr_ack_int')    # Ack for write
-    module.signals.extend([isigs.rd_ack, isigs.wr_ack])
+    module.decls.extend([isigs.rd_ack, isigs.wr_ack])
     module.stmts.append(HDLAssign(root.h_bus['rack'], isigs.rd_ack))
     module.stmts.append(HDLAssign(root.h_bus['wack'], isigs.wr_ack))
 
@@ -172,7 +172,7 @@ def add_ports_reg(root, module, n):
         # Register
         if f.hdl_type == 'reg':
             f.h_reg = HDLSignal(root.h_make_port_name(f, 'reg', None), w)
-            module.signals.append(f.h_reg)
+            module.decls.append(f.h_reg)
         else:
             f.h_reg = None
 

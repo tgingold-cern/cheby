@@ -21,7 +21,7 @@ class HDLModule(HDLUnit):
         super(HDLModule, self).__init__()
         self.params = []
         self.ports = []
-        self.signals = []
+        self.decls = []
         self.stmts = []
 
 
