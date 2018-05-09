@@ -60,19 +60,14 @@ def gen_reg_addr(n, root, decls, name, pfx):
         if isinstance(reg, tree.Reg):
             addr = reg.c_address // root.c_word_size
             # FIXME: Gena looks to use 1 instead of word_width
-            if reg.c_nwords > 1:
-                num = reg.c_nwords
-                reg.h_gena_regaddr = []
-                for i in range(num):
-                    cst = gen_addr_cst(decls, addr + i,
-                        'C_Reg_{}_{}_{}'.format(pfx, reg.name, num - i - 1),
-                        addr_width, word_width, 1)
-                    reg.h_gena_regaddr.append(cst)
-            else:
-                cst = gen_addr_cst(decls, addr,
-                        'C_Reg_{}_{}'.format(pfx, reg.name),
-                        addr_width, word_width, 1)
-                reg.h_gena_regaddr = cst
+            num = reg.c_nwords
+            reg.h_gena_regaddr = []
+            for i in range(num):
+                cst = gen_addr_cst(decls, addr + i,
+                    'C_Reg_{}_{}{}'.format(
+                        pfx, reg.name, subsuffix(num - i - 1, num)),
+                    addr_width, word_width, 1)
+                reg.h_gena_regaddr.insert(0, cst)
 
 def compute_acm(reg):
     res = get_gena(reg, 'auto-clear', 0)
@@ -225,6 +220,9 @@ def gen_gena_memmap(root):
     res.decls = decls
     return res
 
+################################################################
+
+
 def gen_hdl_reg_decls(reg, pfx, root, module, isigs):
     # Generate ports
     for f in reg.fields:
@@ -239,8 +237,12 @@ def gen_hdl_reg_decls(reg, pfx, root, module, isigs):
     module.signals.append(reg.h_loc)
     # Create Sel_ signal
     if reg.access in ('rw', 'wo'):
-        reg.h_wrsel = HDLSignal('WrSel_{}'.format(reg.name))
-        module.signals.append(reg.h_wrsel)
+        reg.h_wrsel = []
+        for i in reversed(range(reg.c_nwords)):
+            sig = HDLSignal('WrSel_{}{}'.format(
+                reg.name, subsuffix(i, reg.c_nwords)))
+            reg.h_wrsel.insert(0, sig)
+            module.signals.append(sig)
         # Create Register
         gena_type = reg.get_extension('x_gena', 'type')
         if gena_type == 'rmw':
@@ -249,18 +251,23 @@ def gen_hdl_reg_decls(reg, pfx, root, module, isigs):
             reg_tpl = 'CtrlRegN'
         else:
             raise AssertionError
-        inst = HDLInstance('Reg_{}'.format(reg.name), reg_tpl)
-        inst.params = [('N', HDLNumber(reg.c_rwidth))]
-        inst.conns = [
-            ('VMEWrData', HDLSlice(root.h_bus['dati'], 0, reg.c_dwidth)),
-            ('Clk', root.h_bus['clk']),
-            ('Rst', root.h_bus['rst']),
-            ('WriteMem', root.h_bus['wr']),
-            ('CRegSel', reg.h_wrsel),
-            ('AutoClrMsk', reg.h_gena_acm[0]),
-            ('Preset', reg.h_gena_psm[0]),
-            ('CReg', HDLSlice(reg.h_loc, 0, reg.c_rwidth))]
-        module.stmts.append(inst)
+        for i in reversed(range(reg.c_nwords)):
+            inst = HDLInstance(
+                'Reg_{}{}'.format(reg.name, subsuffix(i, reg.c_nwords)),
+                reg_tpl)
+            iwidth = reg.c_rwidth // reg.c_nwords
+            inst.params = [('N', HDLNumber(iwidth))]
+            inst.conns = [
+                ('VMEWrData', HDLSlice(root.h_bus['dati'], 0,
+                                       reg.c_dwidth // reg.c_nwords)),
+                ('Clk', root.h_bus['clk']),
+                ('Rst', root.h_bus['rst']),
+                ('WriteMem', root.h_bus['wr']),
+                ('CRegSel', reg.h_wrsel[i]),
+                ('AutoClrMsk', reg.h_gena_acm[i]),
+                ('Preset', reg.h_gena_psm[i]),
+                ('CReg', HDLSlice(reg.h_loc, i * iwidth, iwidth))]
+            module.stmts.append(inst)
 
 def gen_hdl_reg_stmts(reg, pfx, root, module, isigs, wr_reg, rd_reg):
     # Create bitlist, a list of ordered (lo + width, lo, field)
@@ -283,16 +290,18 @@ def gen_hdl_reg_stmts(reg, pfx, root, module, isigs, wr_reg, rd_reg):
         else:
             tgt = HDLSlice(reg.h_loc, lo, hi - lo)
         if f is None:
+            idx = lo // root.c_word_bits
             if hi == lo + 1:
-                src = HDLIndex(reg.h_gena_psm, lo)
+                src = HDLIndex(reg.h_gena_psm[idx], lo)
             else:
-                src = HDLSlice(reg.h_gena_psm, lo, hi - lo)
+                src = HDLSlice(reg.h_gena_psm[idx], lo, hi - lo)
         else:
             src = f.h_port
         if reg.access in ('ro'):
             module.stmts.append(HDLAssign(tgt, src))
         else:
-            module.stmts.append(HDLAssign(src, tgt))
+            if f is not None:
+                module.stmts.append(HDLAssign(src, tgt))
     if reg.access in ('rw', 'wo'):
         wr_reg.append(reg)
     if reg.access in ('ro'):
@@ -303,16 +312,18 @@ def gen_hdl_wrseldec(root, module, isigs, area, wrseldec):
     proc.name = 'WrSelDec'
     proc.sensitivity.append(root.h_bus['adr'])
     for r in wrseldec:
-        proc.stmts.append(HDLAssign(r.h_wrsel, bit_0))
+        for i in reversed(range(r.c_nwords)):
+            proc.stmts.append(HDLAssign(r.h_wrsel[i], bit_0))
     sw = HDLSwitch(HDLSlice(root.h_bus['adr'],
                             root.c_addr_word_bits,
                             ilog2(area.c_size) - root.c_addr_word_bits))
     proc.stmts.append(sw)
     for reg in wrseldec:
-        ch = HDLChoiceExpr(reg.h_gena_regaddr)
-        ch.stmts.append(HDLAssign(reg.h_wrsel, bit_1))
-        ch.stmts.append(HDLAssign(isigs.Loc_CRegWrOK, bit_1))
-        sw.choices.append(ch)
+        for i in reversed(range(reg.c_nwords)):
+            ch = HDLChoiceExpr(reg.h_gena_regaddr[i])
+            ch.stmts.append(HDLAssign(reg.h_wrsel[i], bit_1))
+            ch.stmts.append(HDLAssign(isigs.Loc_CRegWrOK, bit_1))
+            sw.choices.append(ch)
     ch = HDLChoiceDefault()
     ch.stmts.append(HDLAssign(isigs.Loc_CRegWrOK, bit_0))
     sw.choices.append(ch)
@@ -327,20 +338,22 @@ def gen_hdl_cregrdmux(root, module, isigs, area, wrseldec):
                             ilog2(area.c_size) - root.c_addr_word_bits))
     proc.stmts.append(sw)
     for reg in wrseldec:
-        ch = HDLChoiceExpr(reg.h_gena_regaddr)
         proc.sensitivity.append(reg.h_loc)
-        if reg.access == 'wo':
-            val = HDLReplicate(bit_0, None)
-            ok = bit_0
-        else:
-            val = reg.h_loc
-            val = HDLSlice(val, 0, reg.c_rwidth)
-            if reg.c_rwidth < root.c_word_bits:
-                val = HDLZext(val, root.c_word_bits)
-            ok = bit_1
-        ch.stmts.append(HDLAssign(isigs.Loc_CRegRdData, val))
-        ch.stmts.append(HDLAssign(isigs.Loc_CRegRdOK, ok))
-        sw.choices.append(ch)
+        for i in reversed(range(reg.c_nwords)):
+            ch = HDLChoiceExpr(reg.h_gena_regaddr[i])
+            if reg.access == 'wo':
+                val = HDLReplicate(bit_0, None)
+                ok = bit_0
+            else:
+                val = reg.h_loc
+                val = HDLSlice(val, i * root.c_word_bits,
+                               reg.c_rwidth // reg.c_nwords)
+                if reg.c_rwidth < root.c_word_bits:
+                    val = HDLZext(val, root.c_word_bits)
+                ok = bit_1
+            ch.stmts.append(HDLAssign(isigs.Loc_CRegRdData, val))
+            ch.stmts.append(HDLAssign(isigs.Loc_CRegRdOK, ok))
+            sw.choices.append(ch)
     ch = HDLChoiceDefault()
     ch.stmts.append(HDLAssign(isigs.Loc_CRegRdData, HDLReplicate(bit_0, None)))
     ch.stmts.append(HDLAssign(isigs.Loc_CRegRdOK, bit_0))
@@ -366,15 +379,17 @@ def gen_hdl_regrdmux(root, module, isigs, area, rd_reg):
                             ilog2(area.c_size) - root.c_addr_word_bits))
     proc.stmts.append(sw)
     for reg in rd_reg:
-        ch = HDLChoiceExpr(reg.h_gena_regaddr)
         proc.sensitivity.append(reg.h_loc)
-        val = reg.h_loc
-        val = HDLSlice(val, 0, reg.c_rwidth)
-        if reg.c_rwidth < root.c_word_bits:
-            val = HDLZext(val, root.c_word_bits)
-        ch.stmts.append(HDLAssign(isigs.Loc_RegRdData, val))
-        ch.stmts.append(HDLAssign(isigs.Loc_RegRdOK, bit_1))
-        sw.choices.append(ch)
+        for i in reversed(range(reg.c_nwords)):
+            ch = HDLChoiceExpr(reg.h_gena_regaddr[i])
+            val = reg.h_loc
+            vwidth = reg.c_rwidth // reg.c_nwords
+            val = HDLSlice(val, i * root.c_word_bits, vwidth)
+            if vwidth < root.c_word_bits:
+                val = HDLZext(val, vwidth)
+            ch.stmts.append(HDLAssign(isigs.Loc_RegRdData, val))
+            ch.stmts.append(HDLAssign(isigs.Loc_RegRdOK, bit_1))
+            sw.choices.append(ch)
     ch = HDLChoiceDefault()
     ch.stmts.append(HDLAssign(isigs.Loc_RegRdData, isigs.CRegRdData))
     ch.stmts.append(HDLAssign(isigs.Loc_RegRdOK, isigs.CRegRdOK))

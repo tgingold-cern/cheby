@@ -1,0 +1,62 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type="text/xsl" href="http://abwww.cern.ch/ap/dist/accsoft/rf/accsoft-rf-cheburashka/PRO/src/java/cern/accsoft/rf/cheburashka/xml/schema/MemMapStyleSheet.xsl"?><memory-map xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" area-depth="1024k" ident-code="0xff" map-version="20161031" mem-map-access-mode="A24/D16" name="cregsRegs" xsi:schemaLocation="http://abwww.cern.ch/ap/dist/accsoft/rf/accsoft-rf-cheburashka/PRO/src/java/cern/accsoft/rf/cheburashka/xml/schema/TemplateMemMap.xsd">
+  <register-data access-mode="rmw" address="0x00" code-generation-rule="HW,Fesa" element-width="16" name="test1" persistence="Fesa">
+    <code-field code="0" name="hello"/>
+    <code-field code="1" name="World"/>
+  </register-data>
+  <!-- tgingold: access-mode was "rmw", but some fields are beyond 16 -->
+  <register-data access-mode="rw" address="next" code-generation-rule="HW,Fesa" element-width="32" name="test2" persistence="Fesa">
+    <bit-field-data autoclear="true" bit="31" bit-preset="true" name="msBit">
+      <code-field code="0" name="hello"/>
+      <code-field code="1" name="world"/>
+    </bit-field-data>
+    <sub-reg auto-clear-mask="0xf" name="msReg" range="25-22" sub-reg-preset-mask="0xf">
+      <code-field code="0" name="hello"/>
+      <code-field code="1" name="world"/>
+    </sub-reg>
+    <sub-reg auto-clear-mask="0xf" name="boundryReg" range="17-14" sub-reg-preset-mask="0xf"/>
+    <sub-reg auto-clear-mask="0xf" name="isReg" range="9-6" sub-reg-preset-mask="0xf"/>
+    <bit-field-data autoclear="true" bit="0" bit-preset="true" name="lsBit"/>
+  </register-data>
+  <register-data access-mode="rw" address="next" code-generation-rule="HW,Fesa" element-width="16" name="test3" persistence="Fesa"/>
+  <register-data access-mode="rw" address="next" auto-clear="0xffff" code-generation-rule="HW,Fesa" element-width="32" name="test4" persistence="Fesa" preset="0xffff">
+    <bit-field-data autoclear="false" bit="31" bit-preset="false" name="msBit">
+      <code-field code="0" name="hello"/>
+      <code-field code="1" name="world"/>
+    </bit-field-data>
+    <sub-reg auto-clear-mask="0x0" name="msReg" range="25-22" sub-reg-preset-mask="0x0">
+      <code-field code="0" name="hello"/>
+      <code-field code="1" name="world"/>
+    </sub-reg>
+    <sub-reg auto-clear-mask="0x0" name="boundryReg" range="17-14" sub-reg-preset-mask="0x0"/>
+    <sub-reg auto-clear-mask="0x0" name="isReg" range="9-6" sub-reg-preset-mask="0x0"/>
+    <bit-field-data autoclear="false" bit="0" bit-preset="false" name="lsBit"/>
+  </register-data>
+  <register-data access-mode="w" address="next" code-generation-rule="HW,Fesa" element-width="16" name="test5" persistence="Fesa"/>
+  <register-data access-mode="w" address="next" auto-clear="0x0" code-generation-rule="HW,Fesa" element-width="32" name="test6" persistence="Fesa" preset="0x0">
+    <bit-field-data autoclear="true" bit="31" bit-preset="true" name="msBit">
+      <code-field code="0" name="hello"/>
+      <code-field code="1" name="world"/>
+    </bit-field-data>
+    <sub-reg auto-clear-mask="0xf" name="msReg" range="25-22" sub-reg-preset-mask="0xf">
+      <code-field code="0" name="hello"/>
+      <code-field code="1" name="world"/>
+    </sub-reg>
+    <sub-reg auto-clear-mask="0xf" name="boundryReg" range="17-14" sub-reg-preset-mask="0xf"/>
+    <sub-reg auto-clear-mask="0xf" name="isReg" range="9-6" sub-reg-preset-mask="0xf"/>
+    <bit-field-data autoclear="true" bit="0" bit-preset="true" name="lsBit"/>
+  </register-data>
+  <register-data access-mode="r" address="next" code-generation-rule="HW,Fesa" element-width="16" name="test7" persistence="Fesa"/>
+  <register-data access-mode="r" address="next" auto-clear="0xffffffff" code-generation-rule="HW,Fesa" element-width="32" name="test8" persistence="Fesa" preset="0xffffffff">
+    <bit-field-data autoclear="false" bit="31" bit-preset="false" name="msBit">
+      <code-field code="0" name="hello"/>
+      <code-field code="1" name="world"/>
+    </bit-field-data>
+    <sub-reg auto-clear-mask="0x0" name="msReg" range="25-22" sub-reg-preset-mask="0x0">
+      <code-field code="0" name="hello"/>
+      <code-field code="1" name="world"/>
+    </sub-reg>
+    <sub-reg auto-clear-mask="0x0" name="boundryReg" range="17-14" sub-reg-preset-mask="0x0"/>
+    <sub-reg auto-clear-mask="0x0" name="isReg" range="9-6" sub-reg-preset-mask="0x0"/>
+    <bit-field-data autoclear="false" bit="0" bit-preset="false" name="lsBit"/>
+  </register-data>
+</memory-map>

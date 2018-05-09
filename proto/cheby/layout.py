@@ -89,7 +89,10 @@ def layout_field(f, parent, pos):
     # Check for overlap
     if r[-1] >= parent.width:
         raise LayoutException(f,
-            "field {} overflows its register size".format(f.get_path()))
+            "field {} width overflows its register size".format(f.get_path()))
+    elif r[-1] >= parent.c_rwidth:
+        raise LayoutException(f,
+            "field {} extends beyond register storage size".format(f.get_path()))
     for i in r:
         if pos[i] is None:
             pos[i] = f
