@@ -19,6 +19,10 @@ class UnknownValue(Exception):
         self.name = name
         self.val = val
 
+def error(str):
+    sys.stderr.write(str + '\n')
+
+
 def conv_access(acc):
     # TODO: incorrect for rmw
     return {'r': 'ro', 'rmw': 'rw', 'rw': 'rw', 'w': 'wo'}[acc]
@@ -234,8 +238,8 @@ def conv_memory_data(parent, el):
 
     bus_width = parent.get_root().c_word_size * cheby.tree.BYTE_SIZE
     if reg.width < bus_width:
-        print('memory data of {} is widened from {} to {}.'.format(
-                res.name, reg.width, bus_width), file=sys.stderr)
+        error('memory data of {} is widened from {} to {}.'.format(
+                res.name, reg.width, bus_width))
         reg.width = bus_width
     res.repeat //= reg.width // cheby.tree.BYTE_SIZE
 
@@ -348,7 +352,8 @@ def conv_root(root, filename):
         res.c_word_size = 2
         bus_size = 24
     elif acc_mode == 'A32/D32':
-        res.bus = 'cern-be-vme-32'
+        # TODO: handle gen['error']
+        res.bus = 'cern-be-vme-err-32'
         res.c_word_size = 4
         bus_size = 32
     else:
@@ -366,17 +371,18 @@ def conv_root(root, filename):
     return res
 
 
+def convert(filename):
+    tree = ET.parse(filename)
+    root = tree.getroot()
+    return conv_root(root, filename)
+
+
 def main():
     aparser = argparse.ArgumentParser(description='Gena to Cheby converter')
     aparser.add_argument('FILE')
 
     args = aparser.parse_args()
-    f = args.FILE
-    tree = ET.parse(f)
-    root = tree.getroot()
-
-    res = conv_root(root, f)
-
+    res = convert(args.FILE)
     cheby.pprint.pprint_cheby(sys.stdout, res)
 
 

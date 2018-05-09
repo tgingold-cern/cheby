@@ -224,7 +224,7 @@ def gen_gena_memmap(root):
 
 def gen_hdl_reg_decls(reg, pfx, root, module, isigs):
     # Generate ports
-    for f in sorted(reg.fields, key=(lambda x: x.lo)):
+    for f in reg.fields:
         mode = 'OUT' if reg.access in ('rw', 'wo') else 'IN'
         sz = None if f.hi is None else f.c_width
         portname = reg.name + (('_' + f.name) if f.name is not None else '')

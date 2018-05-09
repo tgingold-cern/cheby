@@ -5,13 +5,10 @@ class HDLNode(object):
     pass
 
 
-class HDLModule(HDLNode):
+class HDLUnit(HDLNode):
+    # Top level unit
     def __init__(self):
         self.name = None
-        self.params = []
-        self.ports = []
-        self.signals = []
-        self.stmts = []
         self.libraries = []
         self.deps = []
 
@@ -19,12 +16,19 @@ class HDLModule(HDLNode):
         if name not in self.deps:
             self.deps.append(name)
 
-
-class HDLPackage(HDLNode):
+class HDLModule(HDLUnit):
     def __init__(self):
-        self.name = None
+        super(HDLModule, self).__init__()
+        self.params = []
+        self.ports = []
+        self.signals = []
+        self.stmts = []
+
+
+class HDLPackage(HDLUnit):
+    def __init__(self):
+        super(HDLPackage, self).__init__()
         self.decls = []
-        self.deps = []
 
 
 class HDLComponent(HDLNode):

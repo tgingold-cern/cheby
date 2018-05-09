@@ -12,6 +12,8 @@ import cheby.gen_hdl as gen_hdl
 import cheby.print_vhdl as print_vhdl
 import cheby.gen_laychk as gen_laychk
 import cheby.expand_hdl as expand_hdl
+import cheby.gen_gena_memmap as gen_gena_memmap
+import gena2cheby
 
 srcdir = '../testfiles/'
 verbose = False
@@ -21,14 +23,29 @@ class TestError(Exception):
         self.msg = msg
 
 
+def werr(str):
+    sys.stderr.write(str + '\n')
+
+
 def error(msg):
-    raise TestError('error: {}\n'.format(msg))
+    raise TestError('error: {}'.format(msg))
 
 
 class write_null(object):
     """A class that could be used as a very simple write-only stream"""
     def write(self, str):
         pass
+
+class write_buffer(object):
+    """A class that could be used as a very simple write stream"""
+    def __init__(self):
+        self.buffer = ''
+
+    def write(self, str):
+        self.buffer += str
+
+    def get(self):
+        return self.buffer
 
 
 def parse_ok(f):
@@ -157,6 +174,47 @@ def test_self():
     test((lambda : layout_err(t)), "layout_err")
 
 
+def compare_buffer_and_file(buf, filename):
+    buf = buf.buffer
+    ref = open(filename, 'r').read()
+    if ref == buf:
+        return True
+
+    buf_lines = buf.split()
+    ref_lines = ref.split()
+    if len(buf_lines) != len(ref_lines):
+        werr('Number of lines mismatch')
+    return False
+
+
+def test_gena():
+    files=['CRegs']
+    for f in files:
+        # Test Gena to Cheby conversion
+        xmlfile = srcdir + 'gena/' + f + '.xml'
+        chebfile = srcdir + 'gena/' + f + '.cheby'
+        t = gena2cheby.convert(xmlfile)
+        buf = write_buffer ()
+        pprint.pprint_cheby(buf, t)
+        if not compare_buffer_and_file(buf, chebfile):
+            error('gena2cheby conversion error for {}'.format(f))
+        # Test parse+layout
+        t = parse_ok(chebfile)
+        layout_ok(t)
+        # Test memmap generation
+        hmemmap = gen_gena_memmap.gen_gena_memmap(t)
+        buf = write_buffer()
+        print_vhdl.print_vhdl(buf, hmemmap)
+        memmapfile = srcdir + 'gena/' + 'MemMap_' + t.name + '.vhd'
+        if not compare_buffer_and_file(buf, memmapfile):
+            error('gena memmap generation error for {}'.format(f))
+        # Test regctrl generation
+        hregctrl = gen_gena_memmap.gen_gena_regctrl(t)
+        buf = write_buffer()
+        print_vhdl.print_vhdl(buf, hregctrl)
+        regctrlfile = srcdir + 'gena/' + 'RegCtrl_' + t.name + '.vhd'
+        if not compare_buffer_and_file(buf, regctrlfile):
+            error('gena regctrl generation error for {}'.format(f))
 
 def main():
     global verbose
@@ -171,9 +229,10 @@ def main():
         test_layout()
         test_print()
         test_hdl()
+        test_gena()
         print("Done!")
     except TestError as e:
-        sys.stderr.write(e.msg)
+        werr(e.msg)
         sys.exit(2)
 
 if __name__ == '__main__':
