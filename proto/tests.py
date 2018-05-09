@@ -13,6 +13,7 @@ import cheby.print_vhdl as print_vhdl
 import cheby.gen_laychk as gen_laychk
 import cheby.expand_hdl as expand_hdl
 import cheby.gen_gena_memmap as gen_gena_memmap
+import cheby.gen_gena_regctrl as gen_gena_regctrl
 import gena2cheby
 
 srcdir = '../testfiles/'
@@ -215,7 +216,7 @@ def test_gena():
         if not compare_buffer_and_file(buf, memmapfile):
             error('gena memmap generation error for {}'.format(f))
         # Test regctrl generation
-        hregctrl = gen_gena_memmap.gen_gena_regctrl(t)
+        hregctrl = gen_gena_regctrl.gen_gena_regctrl(t)
         buf = write_buffer()
         print_vhdl.print_vhdl(buf, hregctrl)
         regctrlfile = srcdir + 'gena/' + 'RegCtrl_' + t.name + '.vhd'

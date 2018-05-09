@@ -12,6 +12,7 @@ import cheby.print_vhdl as print_vhdl
 import cheby.print_encore as print_encore
 import cheby.expand_hdl as expand_hdl
 import cheby.gen_gena_memmap as gen_gena_memmap
+import cheby.gen_gena_regctrl as gen_gena_regctrl
 
 
 def decode_args():
@@ -77,7 +78,7 @@ def handle_file(args, filename):
     if args.gen_gena_regctrl:
         if not args.gen_gena_memmap:
             gen_gena_memmap.gen_gena_memmap(t)
-        h = gen_gena_memmap.gen_gena_regctrl(t)
+        h = gen_gena_regctrl.gen_gena_regctrl(t)
         print_vhdl.print_vhdl(sys.stdout, h)
     if args.gen_vhdl:
         if False:
