@@ -101,12 +101,13 @@ class Reg(NamedNode):
         self.address = None
         self.fields = []
         self.preset = None
-        # Computed
+        # Computed (by layout)
         self.c_size = None    # Size in bytes
         self.c_rwidth = None  # Width of the register (can be smaller than
                               # the width if data are partially generated or
                               # used, like the rmw)
         self.c_dwidth = None  # Width of the data path (== self.width)
+        self.c_nwords = None  # Number of words for multi-words registers
         self.c_align = None   # Alignment
         self.c_type = None    # Type. None if register with fields.
 

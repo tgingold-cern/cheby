@@ -123,6 +123,8 @@ def layout_reg(lo, n):
         raise LayoutException(n,
             "incorrect access for register {}".format(n.get_path()))
     n.c_size = n.width // tree.BYTE_SIZE
+    word_bits = lo.word_size * tree.BYTE_SIZE
+    n.c_nwords = (n.width + word_bits - 1) // word_bits
     gena_type = n.get_extension('x_gena', 'type')
     if gena_type == 'rmw':
         # RMW registers uses the top half part to mask bits.

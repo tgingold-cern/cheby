@@ -60,8 +60,8 @@ def gen_reg_addr(n, root, decls, name, pfx):
         if isinstance(reg, tree.Reg):
             addr = reg.c_address // root.c_word_size
             # FIXME: Gena looks to use 1 instead of word_width
-            if reg.c_size > root.c_word_size:
-                num = reg.c_size // root.c_word_size
+            if reg.c_nwords > 1:
+                num = reg.c_nwords
                 reg.h_gena_regaddr = []
                 for i in range(num):
                     cst = gen_addr_cst(decls, addr + i,
@@ -106,8 +106,7 @@ def gen_mask(decls, mask, root, reg, pfx):
         cst.eol_comment = ' : Value : X"{:0{}x}"'.format(acm, w / 4)
         return cst
 
-    word_width = root.c_word_size * tree.BYTE_SIZE
-    num = reg.width / word_width
+    num = reg.c_nwords
     res = []
     rwidth = reg.c_rwidth // num
     for i in reversed(range(num)):
@@ -230,9 +229,9 @@ def gen_hdl_reg_decls(reg, pfx, root, module, isigs):
     # Generate ports
     for f in reg.fields:
         mode = 'OUT' if reg.access in ('rw', 'wo') else 'IN'
-        sz = None if f.hi is None else f.c_width
+        sz, lo = (None, None) if f.hi is None else (f.c_width, f.lo)
         portname = reg.name + (('_' + f.name) if f.name is not None else '')
-        port = HDLPort(portname, size=sz, dir=mode)
+        port = HDLPort(portname, size=sz, lo_idx=lo, dir=mode)
         f.h_port = port
         module.ports.append(f.h_port)
     # Create Loc_ signal
