@@ -79,7 +79,8 @@ def compute_acm(reg):
     for f in reg.fields:
         v = get_gena(f, 'auto-clear', None)
         if v is not None:
-            res = (res & ~(1 << f.lo)) | (v << f.lo)
+            mask = (1 << f.c_width) - 1
+            res = (res & ~(mask << f.lo)) | (v << f.lo)
     return res
 
 def compute_preset(reg):
@@ -87,8 +88,16 @@ def compute_preset(reg):
     for f in reg.fields:
         v = f.preset
         if v is not None:
-            res = (res & ~(1 << f.lo)) | (v << f.lo)
+            mask = (1 << f.c_width) - 1
+            res = (res & ~(mask << f.lo)) | (v << f.lo)
     return res
+
+def subsuffix(n,num):
+    if num == 1:
+        assert n == 0
+        return ''
+    else:
+        return '_{}'.format(n)
 
 def gen_mask(decls, mask, root, reg, pfx):
     def gen_one_mask(acm, name, w, lo_idx):
@@ -98,23 +107,16 @@ def gen_mask(decls, mask, root, reg, pfx):
         return cst
 
     word_width = root.c_word_size * tree.BYTE_SIZE
-    if reg.width <= word_width:
-        reg_width = reg.width
-        if get_gena(reg, 'type', None) == 'rmw':
-            reg_width //= 2
-        res = gen_one_mask(mask, '{}_{}'.format(pfx, reg.name), reg_width, 0)
-        decls.append(res)
-        return res
-    else:
-        num = reg.width / word_width
-        res = []
-        for i in reversed(range(num)):
-            r = gen_one_mask(mask >> (i * word_width),
-                            '{}_{}_{}'.format(pfx, reg.name, i),
-                            word_width, i * word_width)
-            decls.append(r)
-            res.insert(0, r)
-        return res
+    num = reg.width / word_width
+    res = []
+    rwidth = reg.c_rwidth // num
+    for i in reversed(range(num)):
+        r = gen_one_mask(mask >> (i * rwidth),
+                        '{}_{}{}'.format(pfx, reg.name, subsuffix(i, num)),
+                        rwidth, i * rwidth)
+        decls.append(r)
+        res.insert(0, r)
+    return res
 
 def gen_reg_acm(n, root, decls, name, pfx):
     decls.append(HDLComment('Register Auto Clear Masks : {}'.format(name)))
@@ -256,8 +258,8 @@ def gen_hdl_reg_decls(reg, pfx, root, module, isigs):
             ('Rst', root.h_bus['rst']),
             ('WriteMem', root.h_bus['wr']),
             ('CRegSel', reg.h_wrsel),
-            ('AutoClrMsk', reg.h_gena_acm),
-            ('Preset', reg.h_gena_psm),
+            ('AutoClrMsk', reg.h_gena_acm[0]),
+            ('Preset', reg.h_gena_psm[0]),
             ('CReg', HDLSlice(reg.h_loc, 0, reg.c_rwidth))]
         module.stmts.append(inst)
 
