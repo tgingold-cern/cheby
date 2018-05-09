@@ -8,7 +8,7 @@ package MemMap_cregs is
   constant C_cregs_IdentCode : std_logic_vector(31 downto 0) := X"000000FF";
 
   -- Memory Map Version
-  constant C_cregs_MemMapVersion : std_logic_vector(31 downto 0) := X"0133A207";
+  constant C_cregs_MemMapVersion : std_logic_vector(31 downto 0) := X"0133A207";--20161031
   -- Register Addresses : Memory Map
   constant C_Reg_cregs_test1 : std_logic_vector(19 downto 2) := "000000000000000000";-- : Word address : "00" & X"0000"; Byte Address : X"0000"
   constant C_Reg_cregs_test2 : std_logic_vector(19 downto 2) := "000000000000000001";-- : Word address : "00" & X"0001"; Byte Address : X"0002"

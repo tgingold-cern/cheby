@@ -33,8 +33,10 @@ def gen_header(root, decls):
         version = root.x_gena.get('map-version')
         if version:
             decls.append(HDLComment('Memory Map Version'))
-            decls.append(HDLConstant(cpfx + '_MemMapVersion', 32,
-                         value=HDLHexConst(version, 32)))
+            cst = HDLConstant(cpfx + '_MemMapVersion', 32,
+                              value=HDLHexConst(version, 32))
+            cst.eol_comment='{}'.format(version)
+            decls.append(cst)
 
 def gen_addr_cst(decls, addr, name, addr_width, block_width, word_width):
     val = HDLBinConst(addr, addr_width)

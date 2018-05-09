@@ -180,10 +180,16 @@ def compare_buffer_and_file(buf, filename):
     if ref == buf:
         return True
 
-    buf_lines = buf.split()
-    ref_lines = ref.split()
-    if len(buf_lines) != len(ref_lines):
+    buf_lines = buf.splitlines()
+    ref_lines = ref.splitlines()
+    nlines = len(buf_lines)
+    if nlines != len(ref_lines):
         werr('Number of lines mismatch')
+    for i in range(nlines):
+        if buf_lines[i] == ref_lines[i]:
+            continue
+        print('>' + buf_lines[i])
+        print('<' + ref_lines[i])
     return False
 
 
