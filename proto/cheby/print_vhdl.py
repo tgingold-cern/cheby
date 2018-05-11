@@ -189,7 +189,7 @@ def generate_expr(e, prio=-1):
         else:
             return "false"
     elif isinstance(e, hdltree.HDLSlice):
-        if e.size == 1:
+        if e.size is None:
             return "{}({})".format(generate_expr(e.prefix), e.index)
         else:
             return "{}({} downto {})".format(

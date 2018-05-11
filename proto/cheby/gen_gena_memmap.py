@@ -187,6 +187,7 @@ def gen_areas_address(areas, root, decls):
         sz = addr_width - area_width
         cst = HDLConstant(cpfx + '_' + e.name, sz, lo_idx=area_width,
                           value=HDLBinConst(e.c_address >> area_width, sz))
+        e.h_gena_area = cst
         #cst.eol_comment = '{} : Word Address : X"{:X}"; Byte Address : 0x{:x}'.format(
         #    get_note(e), e.c_address // root.c_word_size, e.c_address)
         decls.append(cst)

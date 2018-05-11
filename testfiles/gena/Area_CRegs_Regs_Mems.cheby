@@ -1,0 +1,136 @@
+name: areaCRegsRegsMems
+bus: cern-be-vme-16
+size: 1048576
+x-gena:
+  ident-code: 0xff
+  map-version: 20161031
+elements:
+  - reg:
+      name: test1
+      width: 32
+      access: rw
+      address: 0x0
+      x-gena:
+        type: rmw
+  - reg:
+      name: test2
+      width: 64
+      access: rw
+      address: next
+      x-gena:
+        type: rmw
+  - reg:
+      name: test3
+      width: 32
+      access: rw
+      address: next
+  - reg:
+      name: test4
+      width: 64
+      access: rw
+      address: next
+  - reg:
+      name: test5
+      width: 32
+      access: wo
+      address: next
+  - reg:
+      name: test6
+      width: 64
+      access: wo
+      address: next
+  - reg:
+      name: test7
+      width: 32
+      access: ro
+      address: 0x80
+  - reg:
+      name: test8
+      width: 64
+      access: ro
+      address: next
+  - array:
+      name: mem1
+      address: next
+      repeat: 256
+      elements:
+        - reg:
+            name: mem1
+            width: 32
+            access: rw
+  - array:
+      name: mem2
+      address: next
+      repeat: 256
+      elements:
+        - reg:
+            name: mem2
+            width: 32
+            access: rw
+  - block:
+      name: area
+      address: next
+      size: 524288
+      elements:
+        - reg:
+            name: test1
+            width: 32
+            access: rw
+            address: 0x0
+            x-gena:
+              type: rmw
+        - reg:
+            name: test2
+            width: 64
+            access: rw
+            address: next
+            x-gena:
+              type: rmw
+        - reg:
+            name: test3
+            width: 32
+            access: rw
+            address: next
+        - reg:
+            name: test4
+            width: 64
+            access: rw
+            address: next
+        - reg:
+            name: test5
+            width: 32
+            access: wo
+            address: next
+        - reg:
+            name: test6
+            width: 64
+            access: wo
+            address: next
+        - reg:
+            name: test7
+            width: 64
+            access: ro
+            address: 0x80
+        - reg:
+            name: test8
+            width: 64
+            access: ro
+            address: next
+        - array:
+            name: mem1
+            address: next
+            repeat: 256
+            elements:
+              - reg:
+                  name: mem1
+                  width: 32
+                  access: rw
+        - array:
+            name: mem2
+            address: next
+            repeat: 256
+            elements:
+              - reg:
+                  name: mem2
+                  width: 32
+                  access: rw

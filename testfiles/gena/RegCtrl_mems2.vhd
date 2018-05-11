@@ -134,7 +134,7 @@ begin
   mem2_Addr <= VMEAddr(9 downto 1);
   mem2_Sel <= Sel_mem2;
   mem2_RdMem <= Sel_mem2 and VMERdMem;
-  mem3_Addr <= VMEAddr(8 downto 1);
+  mem3_Addr <= VMEAddr(9 downto 1);
   mem3_Sel <= Sel_mem3;
   mem3_WrMem <= Sel_mem3 and VMEWrMem;
   mem3_WrData <= VMEWrData;
