@@ -23,19 +23,19 @@ def gen_hdl_reg_decls(reg, pfx, root, module, isigs):
     for f in reg.fields:
         mode = 'OUT' if reg.access in WRITE_ACCESS else 'IN'
         sz, lo = (None, None) if f.hi is None else (f.c_width, f.lo)
-        portname = reg.name + (('_' + f.name) if f.name is not None else '')
+        portname = pfx + reg.name + (('_' + f.name) if f.name is not None else '')
         port = HDLPort(portname, size=sz, lo_idx=lo, dir=mode)
         f.h_port = port
         module.ports.append(f.h_port)
     # Create Loc_ signal
-    reg.h_loc = HDLSignal('Loc_{}'.format(reg.name), reg.c_rwidth)
+    reg.h_loc = HDLSignal('Loc_{}{}'.format(pfx, reg.name), reg.c_rwidth)
     module.decls.append(reg.h_loc)
     # Create Sel_ signal
     if reg.access in WRITE_ACCESS:
         reg.h_wrsel = []
         for i in reversed(range(reg.c_nwords)):
-            sig = HDLSignal('WrSel_{}{}'.format(
-                reg.name, subsuffix(i, reg.c_nwords)))
+            sig = HDLSignal('WrSel_{}{}{}'.format(
+                pfx, reg.name, subsuffix(i, reg.c_nwords)))
             reg.h_wrsel.insert(0, sig)
             module.decls.append(sig)
         # Create Register
@@ -241,32 +241,32 @@ def gen_hdl_mem_decls(mem, pfx, root, module, isigs):
     data = mem.elements[0]
     # Generate ports
     dwidth = min(data.width, root.c_word_bits)
-    mem.h_sel = HDLPort('{}_Sel'.format(mem.name), dir='OUT')
+    mem.h_sel = HDLPort('{}{}_Sel'.format(pfx, mem.name), dir='OUT')
     adr_sz = ilog2(mem.c_size) - root.c_addr_word_bits
     adr_lo = root.c_addr_word_bits
-    mem.h_addr = HDLPort('{}_Addr'.format(mem.name),
+    mem.h_addr = HDLPort('{}{}_Addr'.format(pfx, mem.name),
                          size=adr_sz, lo_idx=adr_lo, dir='OUT')
     module.ports.extend([mem.h_sel, mem.h_addr])
     if data.access in READ_ACCESS:
-        mem.h_rddata = HDLPort('{}_RdData'.format(mem.name), size=dwidth)
+        mem.h_rddata = HDLPort('{}{}_RdData'.format(pfx, mem.name), size=dwidth)
         module.ports.append(mem.h_rddata)
     if data.access in WRITE_ACCESS:
-        mem.h_wrdata = HDLPort('{}_WrData'.format(mem.name), size=dwidth, dir='OUT')
+        mem.h_wrdata = HDLPort('{}{}_WrData'.format(pfx, mem.name), size=dwidth, dir='OUT')
         module.ports.append(mem.h_wrdata)
     if data.access in READ_ACCESS:
-        mem.h_rdmem = HDLPort('{}_RdMem'.format(mem.name), dir='OUT')
+        mem.h_rdmem = HDLPort('{}{}_RdMem'.format(pfx, mem.name), dir='OUT')
         module.ports.append(mem.h_rdmem)
     if data.access in WRITE_ACCESS:
-        mem.h_wrmem = HDLPort('{}_WrMem'.format(mem.name), dir='OUT')
+        mem.h_wrmem = HDLPort('{}{}_WrMem'.format(pfx, mem.name), dir='OUT')
         module.ports.append(mem.h_wrmem)
     if data.access in READ_ACCESS:
-        mem.h_rddone = HDLPort('{}_RdDone'.format(mem.name))
+        mem.h_rddone = HDLPort('{}{}_RdDone'.format(pfx, mem.name))
         module.ports.append(mem.h_rddone)
     if data.access in WRITE_ACCESS:
-        mem.h_wrdone = HDLPort('{}_WrDone'.format(mem.name))
+        mem.h_wrdone = HDLPort('{}{}_WrDone'.format(pfx, mem.name))
         module.ports.append(mem.h_wrdone)
     # Create Sel_ signal
-    sig = HDLSignal('Sel_{}'.format(mem.name))
+    sig = HDLSignal('Sel_{}{}'.format(pfx, mem.name))
     mem.h_wrsel = sig
     module.decls.append(sig)
 
@@ -442,8 +442,7 @@ def gen_hdl_misc_root(root, module, isigs):
         module.stmts.append (HDLAssign(root.h_bus['wrerr'], isigs.WrError))
 
 
-def gen_hdl_area(area, pfx, root, module, root_isigs):
-    isigs = gen_hdl.Isigs()
+def gen_hdl_area_decls(area, pfx, root, module, isigs, root_isigs):
     sigs = [('{}CRegRdData', root.c_word_bits),
             ('{}CRegRdOK', None),
             ('{}CRegWrOK', None),
@@ -480,13 +479,22 @@ def gen_hdl_area(area, pfx, root, module, root_isigs):
         setattr(isigs, tpl.format(''), s)
         module.decls.append(s)
     for el in area.elements:
-        npfx = '_'.join([pfx, el.name])
         if isinstance(el, tree.Reg):
-            gen_hdl_reg_decls(el, npfx, root, module, isigs)
+            gen_hdl_reg_decls(el, pfx, root, module, isigs)
         elif isinstance(el, tree.Array):
-            gen_hdl_mem_decls(el, npfx, root, module, isigs)
+            gen_hdl_mem_decls(el, pfx, root, module, isigs)
+        elif isinstance(el, tree.Block):
+            npfx = pfx + el.name + '_'
+            blk_isigs = gen_hdl.Isigs()
+            gen_hdl_area_decls(el, npfx, root, module, blk_isigs, root_isigs)
+            pass
         else:
             raise AssertionError
+
+def gen_hdl_area(area, pfx, root, module, root_isigs):
+    isigs = gen_hdl.Isigs()
+
+    gen_hdl_area_decls(area, pfx, root, module, isigs, root_isigs)
 
     wr_reg = []
     rd_reg = []
@@ -497,6 +505,8 @@ def gen_hdl_area(area, pfx, root, module, root_isigs):
             gen_hdl_reg_stmts(el, npfx, root, module, isigs, wr_reg, rd_reg)
         elif isinstance(el, tree.Array):
             mems.append(el)
+        elif isinstance(el, tree.Block):
+            pass
         else:
             raise AssertionError
 
