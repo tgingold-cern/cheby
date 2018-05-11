@@ -133,9 +133,6 @@ def layout_reg(lo, n):
         # RMW registers uses the top half part to mask bits.
         n.c_rwidth = n.width // 2
         n.c_dwidth = n.width
-        if n.width > word_bits:
-            # RMW needs atomic write.
-            raise LayoutException(n, 'rmw width is larger than word width')
     else:
         n.c_rwidth = n.width
         n.c_dwidth = n.width

@@ -143,9 +143,9 @@ def gen_hdl_cregrdmux(root, module, isigs, area, wrseldec):
                 ok = bit_0
             else:
                 val = reg.h_loc
-                val = HDLSlice(val, i * root.c_word_bits,
-                               reg.c_rwidth // reg.c_nwords)
-                if reg.c_rwidth < root.c_word_bits:
+                regw = reg.c_rwidth // reg.c_nwords
+                val = HDLSlice(val, i * regw, regw)
+                if regw < root.c_word_bits:
                     val = HDLZext(val, root.c_word_bits)
                 ok = bit_1
             ch.stmts.append(HDLAssign(isigs.Loc_CRegRdData, val))

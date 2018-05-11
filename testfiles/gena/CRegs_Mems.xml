@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type="text/xsl" href="http://abwww.cern.ch/ap/dist/accsoft/rf/accsoft-rf-cheburashka/PRO/src/java/cern/accsoft/rf/cheburashka/xml/schema/MemMapStyleSheet.xsl"?><memory-map xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" area-depth="1024k" ident-code="0xff" map-version="20161031" mem-map-access-mode="A24/D16" name="cregsMems" xsi:schemaLocation="http://abwww.cern.ch/ap/dist/accsoft/rf/accsoft-rf-cheburashka/PRO/src/java/cern/accsoft/rf/cheburashka/xml/schema/TemplateMemMap.xsd">
+  <register-data access-mode="rmw" address="0x00" code-generation-rule="HW,Fesa" element-width="16" name="test1" persistence="Fesa"/>
+  <register-data access-mode="rmw" address="next" code-generation-rule="HW,Fesa" element-width="32" name="test2" persistence="Fesa"/>
+  <register-data access-mode="rw" address="next" code-generation-rule="HW,Fesa" element-width="16" name="test3" persistence="Fesa"/>
+  <register-data access-mode="rw" address="next" code-generation-rule="HW,Fesa" element-width="32" name="test4" persistence="Fesa"/>
+  <register-data access-mode="w" address="next" code-generation-rule="HW,Fesa" element-width="16" name="test5" persistence="Fesa"/>
+  <register-data access-mode="w" address="next" code-generation-rule="HW,Fesa" element-width="32" name="test6" persistence="Fesa"/>
+  <register-data access-mode="rw" address="next" code-generation-rule="HW,Fesa" element-width="16" name="test7" persistence="Fesa"/>
+  <register-data access-mode="rw" address="next" code-generation-rule="HW,Fesa" element-width="32" name="test8" persistence="Fesa"/>
+  <memory-data access-mode="rw" address="next" element-depth="1k" element-width="16" name="mem1" persistence="Fesa"/>
+  <memory-data access-mode="rw" address="next" element-depth="1k" element-width="16" name="mem2" persistence="Fesa"/>
+</memory-map>
