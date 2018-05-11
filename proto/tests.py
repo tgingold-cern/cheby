@@ -160,6 +160,8 @@ def test_hdl():
 def test_self():
     """Auto-test"""
     def test(func, func_name):
+        if verbose:
+            print('test self: {}'.format(func_name))
         ok = False
         try:
             func()
@@ -196,8 +198,11 @@ def compare_buffer_and_file(buf, filename):
 
 def test_gena():
     files=['CRegs', 'CRegs_Regs', 'CRegs_NoRMW', 'CRegs_Regs_NoRMW',
-           'Regs', 'Regs_Mems']
+           'Regs', 'Regs_Mems',
+           'Mems']
     for f in files:
+        if verbose:
+            print('test gena: {}'.format(f))
         # Test Gena to Cheby conversion
         xmlfile = srcdir + 'gena/' + f + '.xml'
         chebfile = srcdir + 'gena/' + f + '.cheby'
