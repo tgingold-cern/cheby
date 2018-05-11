@@ -199,7 +199,7 @@ def compare_buffer_and_file(buf, filename):
 def test_gena():
     files=['CRegs', 'CRegs_Regs', 'CRegs_NoRMW', 'CRegs_Regs_NoRMW',
            'Regs', 'Regs_Mems',
-           'Mems', 'CRegs_Mems']
+           'Mems', 'CRegs_Mems', 'CRegs_Regs_Mems']
     for f in files:
         if verbose:
             print('test gena: {}'.format(f))
