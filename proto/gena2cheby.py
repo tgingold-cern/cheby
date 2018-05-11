@@ -10,6 +10,10 @@ class UnknownAttribute(Exception):
     def __init__(self, msg):
         self.msg = msg
 
+class UnknownGenAttribute(Exception):
+    def __init__(self, msg):
+        self.msg = msg
+
 class UnknownTag(Exception):
     def __init__(self, msg):
         self.msg = msg
@@ -165,8 +169,17 @@ def conv_register_data(parent, el):
             pass
         elif k in ['note', 'auto-clear', 'preset']:
             res.x_gena[k] = v
+        elif k == 'gen':
+            gen = v.split(',')
+            xg = {}
+            for e in gen:
+                if e == 'write-strobe':
+                    xg[e] = True
+                else:
+                    raise UnknownGenAttribute(e)
+            res.x_gena['gen'] = xg
         elif k in ['code-generation-rule',
-                   'persistence', 'max-val', 'min-val', 'gen',
+                   'persistence', 'max-val', 'min-val',
                    'unit', 'read-conversion-factor', 'write-conversion-factor']:
             # Ignored
             pass
@@ -176,7 +189,6 @@ def conv_register_data(parent, el):
     res.address = conv_address(attrs['address'])
     res.width = int(attrs['element-width'], 0)
     if attrs['access-mode'] == 'rmw':
-        #res.width //= 2
         res.x_gena['type'] = 'rmw'
     res.access = conv_access(attrs['access-mode'])
     for child in el:

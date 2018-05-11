@@ -200,7 +200,8 @@ def test_gena():
     files=['CRegs', 'CRegs_Regs', 'CRegs_NoRMW', 'CRegs_Regs_NoRMW',
            'Regs', 'Regs_Mems',
            'Mems', 'Mems2', 'CRegs_Mems', 'CRegs_Regs_Mems',
-           'Area_CRegs_Regs_Mems', 'Area_CRegs_Regs_Mems_EmptyRoot']
+           'Area_CRegs_Regs_Mems', 'Area_CRegs_Regs_Mems_EmptyRoot',
+           'CRegs_wrstrobe']
     for f in files:
         if verbose:
             print('test gena: {}'.format(f))

@@ -73,8 +73,10 @@ def pprint_extension(pp, name, n):
         pp.pp_endlist()
     elif isinstance(n, str):
         pp.pp_str(name, n)
+    elif isinstance(n, bool):
+        pp.pp_bool(name, n)
     else:
-        raise AssertionError
+        raise AssertionError(n)
 
 def pprint_extensions(pp, n):
     if hasattr(n, 'x_gena'):

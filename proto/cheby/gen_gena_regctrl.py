@@ -18,6 +18,13 @@ import cheby.gen_hdl as gen_hdl
 READ_ACCESS = ('ro', 'rw')
 WRITE_ACCESS = ('wo', 'rw')
 
+def get_gena_gen(n, name, default=False):
+    gena_gen = n.get_extension('x_gena', 'gen')
+    if gena_gen is None:
+        return default
+    return gena_gen.get(name, default)
+
+
 def gen_hdl_reg_decls(reg, pfx, root, module, isigs):
     # Generate ports
     for f in reg.fields:
@@ -27,6 +34,16 @@ def gen_hdl_reg_decls(reg, pfx, root, module, isigs):
         port = HDLPort(portname, size=sz, lo_idx=lo, dir=mode)
         f.h_port = port
         module.ports.append(f.h_port)
+
+    reg.h_wrstrobe = []
+    if get_gena_gen(reg, 'write-strobe'):
+        for i in reversed(range(reg.c_nwords)):
+            port = HDLPort(
+                pfx + reg.name + '_WrStrobe' + subsuffix(i, reg.c_nwords),
+                dir='OUT')
+            reg.h_wrstrobe.insert(0, port)
+            module.ports.append(port)
+
     # Create Loc_ signal
     reg.h_loc = HDLSignal('Loc_{}{}'.format(pfx, reg.name), reg.c_rwidth)
     module.decls.append(reg.h_loc)
@@ -108,6 +125,12 @@ def gen_hdl_reg_stmts(reg, pfx, root, module, isigs, wr_reg, rd_reg):
         wr_reg.append(reg)
     else:
         rd_reg.append(reg)
+
+    if reg.h_wrstrobe:
+        for i in reversed(range(reg.c_nwords)):
+            module.stmts.append(HDLAssign(reg.h_wrstrobe[i],
+                HDLAnd(reg.h_wrsel[i], isigs.RegWrDone)))
+
 
 def gen_hdl_wrseldec(root, module, isigs, area, pfx, wrseldec):
     proc = HDLComb()
