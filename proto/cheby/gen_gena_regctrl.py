@@ -240,15 +240,18 @@ def gen_hdl_regdone(root, module, isigs, root_isigs, rd_delay, wr_delay):
 def gen_hdl_mem_decls(mem, pfx, root, module, isigs):
     data = mem.elements[0]
     # Generate ports
+    dwidth = min(data.width, root.c_word_bits)
     mem.h_sel = HDLPort('{}_Sel'.format(mem.name), dir='OUT')
-    mem.h_addr = HDLPort('{}_Addr'.format(mem.name), size=mem.c_sel_bits,
-                         lo_idx=root.c_addr_word_bits, dir='OUT')
+    adr_sz = ilog2(mem.c_size) - root.c_addr_word_bits
+    adr_lo = root.c_addr_word_bits
+    mem.h_addr = HDLPort('{}_Addr'.format(mem.name),
+                         size=adr_sz, lo_idx=adr_lo, dir='OUT')
     module.ports.extend([mem.h_sel, mem.h_addr])
     if data.access in READ_ACCESS:
-        mem.h_rddata = HDLPort('{}_RdData'.format(mem.name), size=data.width)
+        mem.h_rddata = HDLPort('{}_RdData'.format(mem.name), size=dwidth)
         module.ports.append(mem.h_rddata)
     if data.access in WRITE_ACCESS:
-        mem.h_wrdata = HDLPort('{}_WrData'.format(mem.name), size=data.width, dir='OUT')
+        mem.h_wrdata = HDLPort('{}_WrData'.format(mem.name), size=dwidth, dir='OUT')
         module.ports.append(mem.h_wrdata)
     if data.access in READ_ACCESS:
         mem.h_rdmem = HDLPort('{}_RdMem'.format(mem.name), dir='OUT')
