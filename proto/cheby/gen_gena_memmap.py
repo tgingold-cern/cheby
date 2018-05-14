@@ -167,8 +167,9 @@ def gen_submap_addr(n, root, decls, name, pfx):
             block_width = ilog2(e.c_size)
             addr_width = ilog2(n.c_size) - block_width
             addr = e.c_address >> block_width
-            gen_addr_cst(decls, addr, 'C_Submap_{}_{}'.format(pfx, e.name),
+            cst = gen_addr_cst(decls, addr, 'C_Submap_{}_{}'.format(pfx, e.name),
                 addr_width, block_width, 1)
+            e.h_gena_area = cst
 
 def gen_block(n, root, decls, name, pfx):
     gen_reg_addr(n, root, decls, name, pfx)

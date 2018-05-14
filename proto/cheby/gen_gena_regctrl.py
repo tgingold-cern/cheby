@@ -655,7 +655,13 @@ def gen_hdl_area(area, pfx, root, module, root_isigs):
         elif isinstance(el, tree.Array):
             mems.append(el)
         elif isinstance(el, tree.Block):
-            blks.append(el)
+            if el.submap_file is not None:
+                include = get_gena_gen(el, 'include', None)
+            else:
+                # A regular area.
+                include = True
+            if include is not None:
+                blks.append(el)
         else:
             raise AssertionError
 

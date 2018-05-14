@@ -304,7 +304,20 @@ def conv_submap(parent, el):
         elif k in ['address', 'name', 'filename']:
             # Handled
             pass
-        elif k in ['gen', 'ro2wo', 'access-mode-flip']:
+        elif k == 'gen':
+            gen = v.split(',')
+            xg = {}
+            for e in gen:
+                if e == 'include':
+                    xg['include'] = 'include'
+                elif e == 'include=ext':
+                    xg['include'] = 'external'
+                elif e.startswith('include'):
+                    raise UnknownGenAttribute(e, res)
+                else:
+                    raise UnknownGenAttribute(e, res)
+            res.x_gena['gen'] = xg
+        elif k in ['ro2wo', 'access-mode-flip']:
             # Ignored
             pass
         else:
