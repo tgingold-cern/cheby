@@ -129,7 +129,7 @@ def gen_hdl_reg_insts(reg, pfx, root, module, isigs):
         module.stmts.append(inst)
 
 
-def gen_hdl_reg_stmts(reg, pfx, root, module, isigs, wr_reg, rd_reg):
+def gen_hdl_reg_stmts(reg, pfx, root, module, isigs):
     if reg.h_SRFF:
         module.stmts.append(HDLAssign(reg.h_SRFF, reg.h_loc_SRFF))
     if get_gena_gen(reg, 'no-split'):
@@ -177,11 +177,6 @@ def gen_hdl_reg_stmts(reg, pfx, root, module, isigs, wr_reg, rd_reg):
                     if f.c_iowidth < f.c_rwidth:
                         tgt = HDLZext(tgt, f.c_iowidth)
                     module.stmts.append(HDLAssign(src, tgt))
-    if reg.access in WRITE_ACCESS:
-        wr_reg.append(reg)
-    else:
-        rd_reg.append(reg)
-
     if reg.h_wrstrobe:
         for i in reversed(range(reg.c_nwords)):
             module.stmts.append(HDLAssign(reg.h_wrstrobe[i],
@@ -665,8 +660,6 @@ def gen_hdl_area_decls(area, pfx, root, module, isigs):
 def gen_hdl_area(area, pfx, root, module, root_isigs):
     isigs = area.h_isigs
 
-    wr_reg = []
-    rd_reg = []
     regs = []
     mems = []
     blks = []
@@ -690,8 +683,14 @@ def gen_hdl_area(area, pfx, root, module, root_isigs):
         gen_hdl_reg_decls(el, pfx, root, module, isigs)
         gen_hdl_reg_insts(el, pfx, root, module, isigs)
 
-    for el in regs:
-        gen_hdl_reg_stmts(el, pfx, root, module, isigs, wr_reg, rd_reg)
+    wr_reg = []
+    rd_reg = []
+    for reg in regs:
+        gen_hdl_reg_stmts(reg, pfx, root, module, isigs)
+        if reg.access in WRITE_ACCESS:
+            wr_reg.append(reg)
+        else:
+            rd_reg.append(reg)
     if wr_reg:
         gen_hdl_wrseldec(root, module, isigs, area, pfx, wr_reg)
         gen_hdl_cregrdmux(root, module, isigs, area, pfx, wr_reg)
