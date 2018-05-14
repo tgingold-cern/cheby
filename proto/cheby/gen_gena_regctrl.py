@@ -42,13 +42,10 @@ def gen_hdl_reg_decls(reg, pfx, root, module, isigs):
             f.h_port = port
             module.ports.append(f.h_port)
 
-    reg.h_busout = []
+    reg.h_busout = None
     if get_gena_gen(reg, 'bus-out'):
-        for i in reversed(range(reg.c_nwords)):
-            port = HDLPort(pfx + reg.name + subsuffix(i, reg.c_nwords),
-                           size=reg.c_rwidth, dir='OUT')
-            reg.h_busout.insert(0, port)
-            module.ports.append(port)
+        reg.h_busout = HDLPort(pfx + reg.name, size=reg.c_rwidth, dir='OUT')
+        module.ports.append(reg.h_busout)
 
     reg.h_wrstrobe = []
     if get_gena_gen(reg, 'write-strobe'):
@@ -141,6 +138,9 @@ def gen_hdl_reg_stmts(reg, pfx, root, module, isigs, wr_reg, rd_reg):
         else:
             module.stmts.append(HDLAssign(reg.h_port, reg.h_loc))
     else:
+        if reg.h_busout is not None:
+            module.stmts.append(HDLAssign(reg.h_busout, reg.h_loc))
+
         # Create bitlist, a list of ordered (lo + width, lo, field)
         # Fill gaps with (lo + width, lo, None)
         bitlist = []

@@ -158,6 +158,11 @@ def layout_reg(lo, n):
             raise LayoutException(n,
                 "width cannot be smaller than word width for srff {}".format(
                     n.get_path()))
+    if get_gena_gen(n, 'bus-out'):
+        if n.access != 'ro':
+            raise LayoutException(n,
+                "'gen=bus-out' only for 'access=ro' in register {}".format(
+                    n.get_path()))
     if gena_type == 'rmw':
         if resize is not None:
             raise LayoutException(n,
