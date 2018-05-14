@@ -33,7 +33,16 @@ def gen_hdl_reg_decls(reg, pfx, root, module, isigs):
         reg.h_port = HDLPort(pfx + reg.name, size=reg.c_rwidth, dir=mode)
         module.ports.append(reg.h_port)
     elif get_gena_gen(reg, 'ext-creg'):
-        pass
+        if reg.access in READ_ACCESS:
+            reg.h_port = HDLPort(pfx + reg.name, size=reg.c_rwidth, dir='IN')
+            module.ports.append(reg.h_port)
+        if reg.access in WRITE_ACCESS:
+            reg.h_portsel = []
+            for i in reversed(range(reg.c_nwords)):
+                sig = HDLPort('{}{}_Sel{}'.format(
+                    pfx, reg.name, subsuffix(i, reg.c_nwords)), dir='OUT')
+                reg.h_portsel.insert(0, sig)
+                module.ports.append(sig)
     else:
         for f in reg.fields:
             sz, lo = (None, None) if f.hi is None else (f.c_iowidth, f.lo)
@@ -55,6 +64,7 @@ def gen_hdl_reg_decls(reg, pfx, root, module, isigs):
                 dir='OUT')
             reg.h_wrstrobe.insert(0, port)
             module.ports.append(port)
+
     reg.h_SRFF = None
     reg.h_ClrSRFF = None
     srff = get_gena_gen(reg, 'srff')
@@ -66,8 +76,11 @@ def gen_hdl_reg_decls(reg, pfx, root, module, isigs):
         module.ports.append(reg.h_ClrSRFF)
 
     # Create Loc_ signal
-    reg.h_loc = HDLSignal('Loc_{}{}'.format(pfx, reg.name), reg.c_rwidth)
-    module.decls.append(reg.h_loc)
+    if get_gena_gen(reg, 'ext-creg') and reg.access == 'wo':
+        reg.h_loc = None
+    else:
+        reg.h_loc = HDLSignal('Loc_{}{}'.format(pfx, reg.name), reg.c_rwidth)
+        module.decls.append(reg.h_loc)
     # Create Loc_x_SRFF
     reg.h_loc_SRFF = None
     if srff:
@@ -100,6 +113,9 @@ def gen_hdl_reg_insts(reg, pfx, root, module, isigs):
 
     if reg.access not in WRITE_ACCESS:
         return
+    if get_gena_gen(reg, 'ext-creg'):
+        return
+
     # Create Register
     gena_type = reg.get_extension('x_gena', 'type')
     if gena_type == 'rmw':
@@ -137,6 +153,12 @@ def gen_hdl_reg_stmts(reg, pfx, root, module, isigs):
             module.stmts.append(HDLAssign(reg.h_loc, reg.h_port))
         else:
             module.stmts.append(HDLAssign(reg.h_port, reg.h_loc))
+    elif get_gena_gen(reg, 'ext-creg'):
+        if reg.access in READ_ACCESS:
+            module.stmts.append(HDLAssign(reg.h_loc, reg.h_port))
+        if reg.access in WRITE_ACCESS:
+            for i in reversed(range(reg.c_nwords)):
+                module.stmts.append(HDLAssign(reg.h_portsel[i], reg.h_wrsel[i]))
     else:
         if reg.h_busout is not None:
             module.stmts.append(HDLAssign(reg.h_busout, reg.h_loc))
@@ -227,7 +249,9 @@ def gen_hdl_cregrdmux(root, module, isigs, area, pfx, wrseldec):
     else:
         proc.stmts.append(sw)
     for reg in wrseldec:
-        proc.sensitivity.append(reg.h_loc)
+        if reg.h_loc:
+            # NOTE: not needed for WO registers!
+            proc.sensitivity.append(reg.h_loc)
         for i in reversed(range(reg.c_nwords)):
             ch = HDLChoiceExpr(reg.h_gena_regaddr[i])
             if reg.access == 'wo':
