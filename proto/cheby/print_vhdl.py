@@ -65,7 +65,7 @@ def generate_port(fd, p, indent):
     windent(fd, indent)
     w(fd, "{:<20} : {dir} {typ}".format(p.name, dir=dir, typ=typ))
     if p.default:
-        w(fd,':={}'.format(generate_expr(p.default)))
+        w(fd,' := {}'.format(generate_expr(p.default)))
 
 
 def generate_param(fd, p, indent):

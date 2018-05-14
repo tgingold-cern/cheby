@@ -349,6 +349,12 @@ def gen_hdl_mem_decls(mem, pfx, root, module, isigs):
     if data.access in WRITE_ACCESS:
         mem.h_wrdone = HDLPort('{}{}_WrDone'.format(pfx, mem.name))
         module.ports.append(mem.h_wrdone)
+    if data.access in READ_ACCESS and root.c_buserr:
+        mem.h_rderror = HDLPort('{}{}_RdError'.format(pfx, mem.name), default=bit_0)
+        module.ports.append(mem.h_rderror)
+    if data.access in WRITE_ACCESS and root.c_buserr:
+        mem.h_wrerror = HDLPort('{}{}_WrError'.format(pfx, mem.name), default=bit_0)
+        module.ports.append(mem.h_wrerror)
     # Create Sel_ signal
     sig = HDLSignal('Sel_{}{}'.format(pfx, mem.name))
     mem.h_wrsel = sig
@@ -365,6 +371,8 @@ def gen_hdl_memrdmux(root, module, isigs, area, pfx, mems):
     proc.name = pfx + 'MemRdMux'
     proc.sensitivity.extend(
         [root.h_bus['adr'], isigs.RegRdData, isigs.RegRdDone])
+    if root.c_buserr:
+        proc.sensitivity.append(isigs.RegRdError)
 
     adr_sz = ilog2(area.c_size) - root.c_addr_word_bits
     adr_lo = root.c_addr_word_bits
@@ -375,6 +383,8 @@ def gen_hdl_memrdmux(root, module, isigs, area, pfx, mems):
         data = m.elements[0]
         if data.access in READ_ACCESS:
             proc.sensitivity.extend([m.h_rddata, m.h_rddone])
+            if root.c_buserr:
+                proc.sensitivity.append(m.h_rderror)
             proc.stmts.append(HDLAssign(m.h_wrsel, bit_0))
         cond = HDLAnd(HDLGe(HDLSlice(root.h_bus['adr'], adr_lo, adr_sz),
                             m.h_gena_sta),
@@ -385,10 +395,14 @@ def gen_hdl_memrdmux(root, module, isigs, area, pfx, mems):
             stmt.then_stmts.append(HDLAssign(m.h_wrsel, bit_1))
             stmt.then_stmts.append(HDLAssign(isigs.Loc_MemRdData, m.h_rddata))
             stmt.then_stmts.append(HDLAssign(isigs.Loc_MemRdDone, m.h_rddone))
+            if root.c_buserr:
+                stmt.then_stmts.append(HDLAssign(isigs.Loc_MemRdError, m.h_rderror))
         else:
             stmt.then_stmts.append(HDLAssign(isigs.Loc_MemRdData,
                                              HDLReplicate(bit_0, data.width)))
             stmt.then_stmts.append(HDLAssign(isigs.Loc_MemRdDone, bit_0))
+            if root.c_buserr:
+                stmt.then_stmts.append(HDLAssign(isigs.Loc_MemRdError, root.h_bus['rd']))
         last.append(stmt)
         last = stmt.else_stmts
     gen_hdl_reg2locmem_rd(root, module, isigs, last)
@@ -434,6 +448,8 @@ def gen_hdl_memwrmux(root, module, isigs, area, pfx, mems):
     proc = HDLComb()
     proc.name = pfx + 'MemWrMux'
     proc.sensitivity.extend([root.h_bus['adr'], isigs.RegWrDone])
+    if root.c_buserr:
+        proc.sensitivity.append(isigs.RegWrError)
 
     adr_sz = ilog2(area.c_size) - root.c_addr_word_bits
     adr_lo = root.c_addr_word_bits
@@ -442,8 +458,6 @@ def gen_hdl_memwrmux(root, module, isigs, area, pfx, mems):
     last = first
     for m in mems:
         data = m.elements[0]
-        if data.access in WRITE_ACCESS:
-            proc.sensitivity.append(m.h_wrdone)
         if data.access == 'wo':
             proc.stmts.append(HDLAssign(m.h_wrsel, bit_0))
         cond = HDLAnd(HDLGe(HDLSlice(root.h_bus['adr'], adr_lo, adr_sz),
@@ -454,10 +468,18 @@ def gen_hdl_memwrmux(root, module, isigs, area, pfx, mems):
         if data.access == 'wo':
             stmt.then_stmts.append(HDLAssign(m.h_wrsel, bit_1))
         if data.access in WRITE_ACCESS:
+            proc.sensitivity.append(m.h_wrdone)
             done = m.h_wrdone
         else:
             done = bit_0
         stmt.then_stmts.append(HDLAssign(isigs.Loc_MemWrDone, done))
+        if root.c_buserr:
+            if data.access in WRITE_ACCESS:
+                proc.sensitivity.append(m.h_wrerror)
+                err = m.h_wrerror
+            else:
+                err = root.h_bus['wr']
+            stmt.then_stmts.append(HDLAssign(isigs.Loc_MemWrError, err))
         last.append(stmt)
         last = stmt.else_stmts
     gen_hdl_reg2locmem_wr(root, module, isigs, last)
@@ -541,6 +563,9 @@ def gen_hdl_areardmux(root, module, isigs, area, areas):
         stmt = gen_hdl_area_decode(root, module, a)
         stmt.then_stmts.append(HDLAssign(isigs.RdData, a.h_isigs.RdData))
         stmt.then_stmts.append(HDLAssign(isigs.RdDone, a.h_isigs.RdDone))
+        if root.c_buserr:
+            proc.sensitivity.append(a.h_isigs.RdError)
+            stmt.then_stmts.append(HDLAssign(isigs.RdError, a.h_isigs.RdError))
         last.append(stmt)
         last = stmt.else_stmts
     gen_hdl_mem2top_rd(root, module, isigs, last)
@@ -559,6 +584,9 @@ def gen_hdl_areawrmux(root, module, isigs, area, areas):
         proc.sensitivity.append(a.h_isigs.WrDone)
         stmt = gen_hdl_area_decode(root, module, a)
         stmt.then_stmts.append(HDLAssign(isigs.WrDone, a.h_isigs.WrDone))
+        if root.c_buserr:
+            proc.sensitivity.append(a.h_isigs.WrError)
+            stmt.then_stmts.append(HDLAssign(isigs.WrError, a.h_isigs.WrError))
         last.append(stmt)
         last = stmt.else_stmts
     gen_hdl_mem2top_wr(root, module, isigs, last)

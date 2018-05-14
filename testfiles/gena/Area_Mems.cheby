@@ -1,0 +1,39 @@
+name: areaMems
+bus: cern-be-vme-err-32
+size: 1048576
+x-gena:
+  ident-code: 0xff
+  map-version: 20161031
+elements:
+  - block:
+      name: area
+      address: next
+      size: 524288
+      elements:
+        - array:
+            name: mem1
+            address: next
+            repeat: 256
+            elements:
+              - reg:
+                  name: mem1
+                  width: 32
+                  access: rw
+        - array:
+            name: mem2
+            address: next
+            repeat: 256
+            elements:
+              - reg:
+                  name: mem2
+                  width: 32
+                  access: wo
+        - array:
+            name: mem3
+            address: next
+            repeat: 256
+            elements:
+              - reg:
+                  name: mem3
+                  width: 32
+                  access: ro

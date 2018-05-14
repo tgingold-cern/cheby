@@ -35,9 +35,9 @@ architecture syn of RegCtrl_cregs_srff is
     );
     port (
       Clk                  : in    std_logic;
-      Rst                  : in    std_logic:='0';
+      Rst                  : in    std_logic := '0';
       Set                  : in    std_logic_vector(N-1 downto 0);
-      Clr                  : in    std_logic:='0';
+      Clr                  : in    std_logic := '0';
       Q                    : out   std_logic_vector(N-1 downto 0)
     );
   end component;
