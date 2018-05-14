@@ -154,6 +154,10 @@ def layout_reg(lo, n):
             raise LayoutException(n,
                 "'gen=srff' incompatible with 'type=' in register {}".format(
                     n.get_path()))
+        if n.width < word_bits:
+            raise LayoutException(n,
+                "width cannot be smaller than word width for srff {}".format(
+                    n.get_path()))
     if gena_type == 'rmw':
         if resize is not None:
             raise LayoutException(n,
