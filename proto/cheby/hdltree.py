@@ -10,7 +10,7 @@ class HDLUnit(HDLNode):
     def __init__(self):
         self.name = None
         self.libraries = []
-        self.deps = []
+        self.deps = []      # list of (lib, pkg)
 
     def add_dependence(self, name):
         if name not in self.deps:

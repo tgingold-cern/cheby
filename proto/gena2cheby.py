@@ -175,7 +175,8 @@ def conv_register_data(parent, el):
             gen = v.split(',')
             xg = {}
             for e in gen:
-                if e in ('write-strobe', 'srff'):
+                if e in ('write-strobe', 'srff',
+                         'bus-out', 'no-split', 'ext-creg'):
                     xg[e] = True
                 elif e.startswith('resize='):
                     kg, vg = e.split('=')
@@ -362,6 +363,18 @@ def conv_root(root, filename):
         elif k in ['map-version', 'ident-code']:
             # x-gena extension
             res.x_gena[k] = v
+        elif k == 'gen':
+            gen = v.split(',')
+            xg = {}
+            for e in gen:
+                if e == '':
+                    pass
+                elif e.startswith('library='):
+                    kg, vg = e.split('=')
+                    xg['vhdl-library'] = vg
+                else:
+                    raise UnknownGenAttribute(e, res)
+            res.x_gena['gen'] = xg
         elif k in ['driver-name',
                    'equipment-code', 'note', 'module-type',
                    'semantic-mem-map-version', 'gen',

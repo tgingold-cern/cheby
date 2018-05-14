@@ -25,8 +25,8 @@ def generate_header(fd, module):
         for l in module.libraries:
             wln(fd, 'library {};'.format(l))
         wln(fd)
-    for d in module.deps:
-        wln(fd, "use work.{}.all;".format(d))
+    for lib, pkg in module.deps:
+        wln(fd, "use {}.{}.all;".format(lib, pkg))
     wln(fd)
 
 
