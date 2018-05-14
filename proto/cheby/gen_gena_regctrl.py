@@ -29,7 +29,7 @@ def gen_hdl_reg_decls(reg, pfx, root, module, isigs):
     # Generate ports
     for f in reg.fields:
         mode = 'OUT' if reg.access in WRITE_ACCESS else 'IN'
-        sz, lo = (None, None) if f.hi is None else (f.c_width, f.lo)
+        sz, lo = (None, None) if f.hi is None else (f.c_iowidth, f.lo)
         portname = pfx + reg.name + (('_' + f.name) if f.name is not None else '')
         port = HDLPort(portname, size=sz, lo_idx=lo, dir=mode)
         f.h_port = port
@@ -43,10 +43,25 @@ def gen_hdl_reg_decls(reg, pfx, root, module, isigs):
                 dir='OUT')
             reg.h_wrstrobe.insert(0, port)
             module.ports.append(port)
+    reg.h_SRFF = None
+    reg.h_ClrSRFF = None
+    srff = get_gena_gen(reg, 'srff')
+    if srff:
+        reg.h_SRFF = HDLPort(
+            pfx + reg.name + '_SRFF', size=reg.c_rwidth, dir='OUT')
+        module.ports.append(reg.h_SRFF)
+        reg.h_ClrSRFF = HDLPort(pfx + reg.name + '_ClrSRFF')
+        module.ports.append(reg.h_ClrSRFF)
 
     # Create Loc_ signal
     reg.h_loc = HDLSignal('Loc_{}{}'.format(pfx, reg.name), reg.c_rwidth)
     module.decls.append(reg.h_loc)
+    # Create Loc_x_SRFF
+    reg.h_loc_SRFF = None
+    if srff:
+        reg.h_loc_SRFF = HDLSignal('Loc_{}{}_SRFF'.format(pfx, reg.name),
+                                   reg.c_rwidth)
+        module.decls.append(reg.h_loc_SRFF)
     # Create Sel_ signal
     if reg.access in WRITE_ACCESS:
         reg.h_wrsel = []
@@ -57,6 +72,20 @@ def gen_hdl_reg_decls(reg, pfx, root, module, isigs):
             module.decls.append(sig)
 
 def gen_hdl_reg_insts(reg, pfx, root, module, isigs):
+    # For SRFF.
+    if get_gena_gen(reg, 'srff'):
+        root.h_has_srff = True
+        inst = HDLInstance('SRFF_{}{}'.format(pfx, reg.name), 'SRFFxN')
+        inst.params = [('N', HDLNumber(reg.c_rwidth))]
+        inst.conns = [
+            ('Clk', root.h_bus['clk']),
+            ('Rst', root.h_bus['rst']),
+            ('Set', reg.h_loc),
+            ('Clr', reg.h_ClrSRFF),
+            ('Q', reg.h_loc_SRFF)]
+        module.stmts.append(inst)
+        return
+
     if reg.access not in WRITE_ACCESS:
         return
     # Create Register
@@ -70,14 +99,14 @@ def gen_hdl_reg_insts(reg, pfx, root, module, isigs):
     else:
         raise AssertionError
     for i in reversed(range(reg.c_nwords)):
-        inst = HDLInstance(
-            'Reg_{}{}{}'.format(pfx, reg.name, subsuffix(i, reg.c_nwords)),
-            reg_tpl)
+        inst = HDLInstance('Reg_{}{}{}'.format(
+                                pfx, reg.name, subsuffix(i, reg.c_nwords)),
+                            reg_tpl)
         iwidth = reg.c_rwidth // reg.c_nwords
         inst.params = [('N', HDLNumber(iwidth))]
         inst.conns = [
             ('VMEWrData', HDLSlice(root.h_bus['dati'], 0,
-                                   reg.c_dwidth // reg.c_nwords)),
+                                   reg.c_mwidth // reg.c_nwords)),
             ('Clk', root.h_bus['clk']),
             ('Rst', root.h_bus['rst']),
             ('WriteMem', root.h_bus['wr']),
@@ -89,6 +118,8 @@ def gen_hdl_reg_insts(reg, pfx, root, module, isigs):
 
 
 def gen_hdl_reg_stmts(reg, pfx, root, module, isigs, wr_reg, rd_reg):
+    if reg.h_SRFF:
+        module.stmts.append(HDLAssign(reg.h_SRFF, reg.h_loc_SRFF))
     # Create bitlist, a list of ordered (lo + width, lo, field)
     # Fill gaps with (lo + width, lo, None)
     bitlist = []
@@ -96,7 +127,7 @@ def gen_hdl_reg_stmts(reg, pfx, root, module, isigs, wr_reg, rd_reg):
     for f in sorted(reg.fields, key=(lambda x: x.lo)):
         if f.lo > nbit:
             bitlist.append((f.lo, nbit, None))
-        nbit = f.lo + f.c_width
+        nbit = f.lo + f.c_rwidth
         bitlist.append((nbit, f.lo, f))
     if nbit != reg.c_rwidth:
         bitlist.append((reg.c_rwidth, nbit, None))
@@ -116,6 +147,8 @@ def gen_hdl_reg_stmts(reg, pfx, root, module, isigs, wr_reg, rd_reg):
                 src = HDLSlice(reg.h_gena_psm[idx], lo, hi - lo)
         else:
             src = f.h_port
+            if f.c_iowidth < f.c_rwidth:
+                src = HDLZext(src, f.c_rwidth)
         if reg.access in ('ro'):
             module.stmts.append(HDLAssign(tgt, src))
         else:
@@ -233,10 +266,11 @@ def gen_hdl_regrdmux(root, module, isigs, area, pfx, rd_reg):
     else:
         proc.stmts.append(sw)
     for reg in rd_reg:
-        proc.sensitivity.append(reg.h_loc)
+        loc = reg.h_loc_SRFF or reg.h_loc
+        proc.sensitivity.append(loc)
         for i in reversed(range(reg.c_nwords)):
             ch = HDLChoiceExpr(reg.h_gena_regaddr[i])
-            val = reg.h_loc
+            val = loc
             vwidth = reg.c_rwidth // reg.c_nwords
             val = HDLSlice(val, i * root.c_word_bits, vwidth)
             if vwidth < root.c_word_bits:
@@ -647,6 +681,18 @@ def gen_hdl_area(area, pfx, root, module, root_isigs):
         gen_hdl_no_area(root, module, isigs)
 
 def gen_hdl_components(root, module):
+    if root.h_has_srff:
+        comp = HDLComponent('SRFFxN')
+        param_n = HDLParam('N', typ='P', value=HDLNumber(16))
+        comp.params.append(param_n)
+        comp.ports.extend([HDLPort('Clk'),
+                           HDLPort('Rst', default=bit_0),
+                           HDLPort('Set', HDLSub(param_n, HDLNumber(1))),
+                           HDLPort('Clr', default=bit_0),
+                           HDLPort('Q', HDLSub(param_n, HDLNumber(1)), dir='OUT')])
+        module.decls.insert(0, comp)
+        spec = HDLComponentSpec(comp, "CommonVisual.SRFFxN(V1)")
+        module.decls.insert(1, spec)
     if root.h_has_creg:
         comp = HDLComponent('CtrlRegN')
         param_n = HDLParam('N', typ='I', value=HDLNumber(16))
@@ -713,6 +759,7 @@ def gen_gena_regctrl(root):
     module.decls.extend([isigs.Loc_VMERdMem, isigs.Loc_VMEWrMem])
     root.h_has_rmw = False
     root.h_has_creg = False
+    root.h_has_srff = False
     gen_hdl_area_decls(root, '', root, module, isigs)
     gen_hdl_area(root, '', root, module, isigs)
 

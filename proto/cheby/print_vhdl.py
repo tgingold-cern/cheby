@@ -45,8 +45,9 @@ def generate_vhdl_type(p):
             hi = generate_expr(p.size)
         return "{}({} downto {})".format(generate_type_mark(p), hi, p.lo_idx)
     else:
-        assert p.typ in 'LIN', p.typ
-        return {'L': 'std_logic', 'I': 'integer', 'N': 'natural'}[p.typ]
+        assert p.typ in 'LINP', p.typ
+        return {'L': 'std_logic',
+                'I': 'integer', 'N': 'natural', 'P': 'positive'}[p.typ]
 
 
 def generate_port(fd, p, indent):
@@ -63,6 +64,8 @@ def generate_port(fd, p, indent):
         dir = "inout"
     windent(fd, indent)
     w(fd, "{:<20} : {dir} {typ}".format(p.name, dir=dir, typ=typ))
+    if p.default:
+        w(fd,':={}'.format(generate_expr(p.default)))
 
 
 def generate_param(fd, p, indent):

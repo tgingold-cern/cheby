@@ -141,7 +141,7 @@ def make_port_name_prefix(el, suffix, di):
 
 def add_ports_reg(root, module, n):
     for f in n.fields:
-        w = None if f.c_width == 1 else f.c_width
+        w = None if f.c_iowidth == 1 else f.c_iowidth
 
         # Input
         if f.hdl_type == 'wire' and n.access in ['ro', 'rw']:
@@ -234,7 +234,7 @@ def add_init_reg(stmts, node):
                         v = 0
                     else:
                         v = f.preset
-                    stmts.append(HDLAssign(f.h_reg, HDLConst(v, f.c_width)))
+                    stmts.append(HDLAssign(f.h_reg, HDLConst(v, f.c_rwidth)))
         else:
             raise AssertionError
 
@@ -390,9 +390,9 @@ def field_decode(root, reg, f, off, val, dat):
        OFF and field F or register REG."""
     # Register and value bounds
     d_lo = f.lo
-    d_hi = f.lo + f.c_width - 1
+    d_hi = f.lo + f.c_rwidth - 1
     v_lo = 0
-    v_hi = f.c_width - 1
+    v_hi = f.c_rwidth - 1
     # Next field if not affected by this read.
     if d_hi < off:
         return (None, None)
@@ -415,7 +415,7 @@ def field_decode(root, reg, f, off, val, dat):
         pass
     else:
         dat = HDLSlice(dat, d_lo, d_hi - d_lo + 1)
-    if v_hi == f.c_width - 1 and v_lo == 0:
+    if v_hi == f.c_rwidth - 1 and v_lo == 0:
         pass
     else:
         val = HDLSlice(val, v_lo, v_hi - v_lo + 1)
@@ -444,7 +444,7 @@ def add_read_process(root, module, isigs):
             elif n.access == 'ro':
                 src = f.h_iport
             elif n.access == 'cst':
-                src = HDLConst(f.preset, f.c_width)
+                src = HDLConst(f.preset, f.c_rwidth)
             else:
                 raise AssertionError
             reg, dat = field_decode(root, n, f, off, src, rd_data)

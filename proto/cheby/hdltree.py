@@ -46,7 +46,7 @@ class HDLComponentSpec(HDLNode):
 
 class HDLObject(HDLNode):
     def __init__(self, name=None, size=None, lo_idx=0, typ='L'):
-        assert typ in "LUSIN"  # Logic, Unsigned, Signed, Integer, Natural
+        assert typ in "LUSINP"  # Logic, Unsigned, Signed, Integer, Natural, Positive
         self.name = name
         self.size = size
         self.lo_idx = lo_idx
@@ -59,9 +59,11 @@ class HDLSignal(HDLObject):
 
 
 class HDLPort(HDLObject):
-    def __init__(self, name=None, size=None, lo_idx=0, typ='L', dir='IN'):
+    def __init__(self, name=None, size=None,
+                 lo_idx=0, typ='L', dir='IN', default=None):
         super(HDLPort, self).__init__(name, size, lo_idx, typ)
         self.dir = dir
+        self.default = default
 
 
 class HDLConstant(HDLObject):

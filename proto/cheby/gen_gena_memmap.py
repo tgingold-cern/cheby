@@ -63,7 +63,7 @@ def compute_acm(reg):
     for f in reg.fields:
         v = get_gena(f, 'auto-clear', None)
         if v is not None:
-            mask = (1 << f.c_width) - 1
+            mask = (1 << f.c_rwidth) - 1
             res = (res & ~(mask << f.lo)) | (v << f.lo)
     return res
 
@@ -72,7 +72,7 @@ def compute_preset(reg):
     for f in reg.fields:
         v = f.preset
         if v is not None:
-            mask = (1 << f.c_width) - 1
+            mask = (1 << f.c_rwidth) - 1
             res = (res & ~(mask << f.lo)) | (v << f.lo)
     return res
 
@@ -136,7 +136,7 @@ def gen_code_fields(n, root, decls):
                 if codes is not None:
                     gen_one_cf(codes, 'C_Code_{}_{}_{}'.format(
                                 root.name, e.name, f.name),
-                               f.c_width, f.lo)
+                               f.c_rwidth, f.lo)
             # code-fiels for registers
             codes = get_gena(e, 'code-fields', None)
             if codes is not None:

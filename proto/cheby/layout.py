@@ -31,6 +31,19 @@ def align(n, mul):
     return ((n + mul - 1) // mul) * mul
 
 
+def get_gena(n, name, default=None):
+    "Get the value from a gena extension"
+    return n.get_extension('x_gena', name, default)
+
+
+def get_gena_gen(n, name, default=None):
+    "Get the value of the gena/gen extension"
+    gen = get_gena(n, 'gen', None)
+    if gen is None:
+        return default
+    return gen.get(name, default)
+
+
 class Layout(tree.Visitor):
     def __init__(self, word_size):
         super(Layout, self).__init__()
@@ -76,7 +89,8 @@ def layout_field(f, parent, pos):
     # Compute width
     if f.hi is None:
         r = [f.lo]
-        f.c_width = 1
+        f.c_rwidth = 1
+        f.c_iowidth = 1
     else:
         if f.hi < f.lo:
             raise LayoutException(f,
@@ -85,7 +99,8 @@ def layout_field(f, parent, pos):
             raise LayoutException(f,
                 "one-bit range for field {}".format(f.get_path()))
         r = range(f.lo, f.hi + 1)
-        f.c_width = f.hi - f.lo + 1
+        f.c_rwidth = f.hi - f.lo + 1
+        f.c_iowidth = f.c_rwidth
     # Check for overlap
     if r[-1] >= parent.width:
         raise LayoutException(f,
@@ -101,7 +116,7 @@ def layout_field(f, parent, pos):
                 "field {} overlaps field {} in bit {}".format(
                     f.get_path(), pos[i].get_path(), i))
     # Check preset
-    if f.preset is not None and f.preset >= (1 << f.c_width):
+    if f.preset is not None and f.preset >= (1 << f.c_rwidth):
         raise LayoutException(f,
             "incorrect preset value for field {}".format(f.get_path()))
 
@@ -128,14 +143,33 @@ def layout_reg(lo, n):
     n.c_size = n.width // tree.BYTE_SIZE
     word_bits = lo.word_size * tree.BYTE_SIZE
     n.c_nwords = (n.width + word_bits - 1) // word_bits
-    gena_type = n.get_extension('x_gena', 'type')
+    gena_type = get_gena(n, 'type')
+    resize = get_gena_gen(n, 'resize')
+    if get_gena_gen(n, 'srff'):
+        if n.access != 'ro':
+            raise LayoutException(n,
+                "'gen=srff' only for 'access=ro' in register {}".format(
+                    n.get_path()))
+        if gena_type is not None:
+            raise LayoutException(n,
+                "'gen=srff' incompatible with 'type=' in register {}".format(
+                    n.get_path()))
     if gena_type == 'rmw':
+        if resize is not None:
+            raise LayoutException(n,
+                "gen.resize incompatible with type=rmw for {}".format(
+                    n.get_path()))
         # RMW registers uses the top half part to mask bits.
         n.c_rwidth = n.width // 2
-        n.c_dwidth = n.width
+        n.c_iowidth = n.width // 2
+        n.c_mwidth = n.width
     else:
         n.c_rwidth = n.width
-        n.c_dwidth = n.width
+        n.c_mwidth = n.width
+        if resize is None:
+            n.c_iowidth = n.width
+        else:
+            n.c_iowidth = resize
     if lo.align_reg:
         # A register is aligned at least on a word and always naturally aligned.
         n.c_align = align(n.c_size, lo.word_size)
@@ -163,7 +197,8 @@ def layout_reg(lo, n):
         f.description = n.description
         f.lo = 0
         f.hi = n.c_rwidth - 1
-        f.c_width = n.c_rwidth
+        f.c_rwidth = n.c_rwidth
+        f.c_iowidth = n.c_iowidth
 
         if n.type is None:
             # Default is unsigned

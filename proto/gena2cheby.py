@@ -11,8 +11,9 @@ class UnknownAttribute(Exception):
         self.msg = msg
 
 class UnknownGenAttribute(Exception):
-    def __init__(self, msg):
+    def __init__(self, msg, n):
         self.msg = msg
+        self.node = n
 
 class UnknownTag(Exception):
     def __init__(self, msg):
@@ -160,6 +161,7 @@ def conv_register_data(parent, el):
     res = cheby.tree.Reg(parent)
     res.x_gena = {}
     attrs = el.attrib
+    res.name = attrs['name']
     for k, v in attrs.items():
         if conv_common(res, k, v):
             pass
@@ -173,10 +175,13 @@ def conv_register_data(parent, el):
             gen = v.split(',')
             xg = {}
             for e in gen:
-                if e == 'write-strobe':
+                if e in ('write-strobe', 'srff'):
                     xg[e] = True
+                elif e.startswith('resize='):
+                    kg, vg = e.split('=')
+                    xg[kg] = vg
                 else:
-                    raise UnknownGenAttribute(e)
+                    raise UnknownGenAttribute(e, res)
             res.x_gena['gen'] = xg
         elif k in ['code-generation-rule',
                    'persistence', 'max-val', 'min-val',
@@ -185,7 +190,6 @@ def conv_register_data(parent, el):
             pass
         else:
             raise UnknownAttribute(k)
-    res.name = attrs['name']
     res.address = conv_address(attrs['address'])
     res.width = int(attrs['element-width'], 0)
     if attrs['access-mode'] == 'rmw':
@@ -210,6 +214,7 @@ def conv_register_data(parent, el):
         res.fields.append(cheby.tree.FieldReg(res))
         res.preset = conv_int(attrs.get('preset', None))
     else:
+        # FIXME: what about bit-encoding ?  For resizing ?
         # Move preset to fields
         preset = attrs.get('preset', None)
         if preset is not None:
@@ -394,7 +399,12 @@ def main():
     aparser.add_argument('FILE')
 
     args = aparser.parse_args()
-    res = convert(args.FILE)
+    try:
+        res = convert(args.FILE)
+    except UnknownGenAttribute as e:
+        error("error: unknown 'gen=' attribute '{}' in {}".format(
+            e.msg, e.node.get_path()))
+        sys.exit(1)
     cheby.pprint.pprint_cheby(sys.stdout, res)
 
 
