@@ -202,7 +202,7 @@ def test_gena():
            'Mems', 'Mems2', 'CRegs_Mems', 'CRegs_Regs_Mems',
            'Area_CRegs_Regs_Mems', 'Area_CRegs_Regs_Mems_EmptyRoot',
            'Area_Mems',
-           'CRegs_wrstrobe', 'CRegs_srff', 'CRegs_resize']
+           'CRegs_wrstrobe', 'CRegs_srff', 'CRegs_resize', 'CRegs_nosplit']
     for f in files:
         if verbose:
             print('test gena: {}'.format(f))
