@@ -147,12 +147,14 @@ def gen_hdl_reg_stmts(reg, pfx, root, module, isigs, wr_reg, rd_reg):
                 src = HDLSlice(reg.h_gena_psm[idx], lo, hi - lo)
         else:
             src = f.h_port
-            if f.c_iowidth < f.c_rwidth:
-                src = HDLZext(src, f.c_rwidth)
         if reg.access in ('ro'):
+            if f and f.c_iowidth < f.c_rwidth:
+                src = HDLZext(src, f.c_rwidth)
             module.stmts.append(HDLAssign(tgt, src))
         else:
             if f is not None:
+                if f.c_iowidth < f.c_rwidth:
+                    tgt = HDLZext(tgt, f.c_iowidth)
                 module.stmts.append(HDLAssign(src, tgt))
     if reg.access in WRITE_ACCESS:
         wr_reg.append(reg)
