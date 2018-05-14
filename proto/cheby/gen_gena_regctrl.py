@@ -159,7 +159,7 @@ def gen_hdl_reg_stmts(reg, pfx, root, module, isigs):
         if reg.access in WRITE_ACCESS:
             for i in reversed(range(reg.c_nwords)):
                 module.stmts.append(HDLAssign(reg.h_portsel[i], reg.h_wrsel[i]))
-    else:
+    elif reg.access in ('ro'):
         if reg.h_busout is not None:
             module.stmts.append(HDLAssign(reg.h_busout, reg.h_loc))
 
@@ -190,15 +190,21 @@ def gen_hdl_reg_stmts(reg, pfx, root, module, isigs):
                     src = HDLSlice(reg.h_gena_psm[idx], lo, hi - lo)
             else:
                 src = f.h_port
-            if reg.access in ('ro'):
-                if f and f.c_iowidth < f.c_rwidth:
-                    src = HDLZext(src, f.c_rwidth)
-                module.stmts.append(HDLAssign(tgt, src))
+            if f and f.c_iowidth < f.c_rwidth:
+                src = HDLZext(src, f.c_rwidth)
+            module.stmts.append(HDLAssign(tgt, src))
+    else:
+        for f in reg.fields:
+            if f.hi is None:
+                src = HDLIndex(reg.h_loc, f.lo)
+            elif f.lo == 0 and f.hi == reg.c_rwidth - 1:
+                src = reg.h_loc
             else:
-                if f is not None:
-                    if f.c_iowidth < f.c_rwidth:
-                        tgt = HDLZext(tgt, f.c_iowidth)
-                    module.stmts.append(HDLAssign(src, tgt))
+                src = HDLSlice(reg.h_loc, f.lo, f.hi - f.lo + 1)
+            if f.c_iowidth < f.c_rwidth:
+                src = HDLZext(src, f.c_iowidth)
+            module.stmts.append(HDLAssign(f.h_port, src))
+
     if reg.h_wrstrobe:
         for i in reversed(range(reg.c_nwords)):
             module.stmts.append(HDLAssign(reg.h_wrstrobe[i],
