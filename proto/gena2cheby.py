@@ -62,6 +62,14 @@ def conv_int(s):
     else:
         return int(s)
 
+def conv_bool(k, s):
+    if s.lower() in ('true'):
+        return True
+    elif s.lower() in ('false'):
+        return False
+    else:
+        raise UnknownValue(k, s)
+
 def conv_common(node, k, v):
     if k == 'description':
         node.description = v
@@ -89,23 +97,12 @@ def conv_bit_field_data(reg, el):
         if conv_common(res, k, v):
             pass
         elif k == 'bit-preset':
-            if v == 'true':
-                res.preset = 1
-            elif v == 'false':
-                res.preset = 0
-            else:
-                raise UnknownValue("bit-preset", v)
+            res.preset = 1 if conv_bool(k, v) else 0
         elif k in ['name', 'bit']:
             # Handled
             pass
         elif k == 'autoclear':
-            if v == 'true':
-                val = '1'
-            elif v == 'false':
-                val = '0'
-            else:
-                raise UnknownValue("auto-clear", v)
-            res.x_gena['auto-clear'] = val
+            res.x_gena['auto-clear'] = '1' if conv_bool(k, v) else '0'
         elif k in ['alarm-level', 'gen']:
             # Ignored
             pass
@@ -277,11 +274,10 @@ def conv_area(parent, el):
         if conv_common(res, k, v):
             pass
         elif k in ['address', 'name', 'element-depth']:
-            # Handled
+            # Handled and required
             pass
         elif k == 'is-reserved':
-            # FIXME: todo
-            pass
+            res.x_gena['reserved'] = conv_bool(k, v)
         elif k in ['note']:
             res.x_gena[k] = v
         elif k in ['persistence', 'gen']:

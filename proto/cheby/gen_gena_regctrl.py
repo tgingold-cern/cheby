@@ -723,6 +723,9 @@ def gen_hdl_area(area, pfx, root, module, root_isigs):
         elif isinstance(el, tree.Array):
             mems.append(el)
         elif isinstance(el, tree.Block):
+            if el.get_extension('x_gena', 'reserved', False):
+                # Discard
+                continue
             if el.submap_file is not None:
                 include = get_gena_gen(el, 'include', None)
             else:
