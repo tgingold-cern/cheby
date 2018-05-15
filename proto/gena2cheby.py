@@ -174,7 +174,7 @@ def conv_register_data(parent, el):
                 if e == '':
                     pass
                 elif e in ('write-strobe', 'srff', 'bus-out', 'no-split',
-                         'ext-creg', 'ext-acm', 'ignore'):
+                         'ext-creg', 'ext-acm', 'ignore', 'read-strobe'):
                     xg[e] = True
                 elif e.startswith('resize='):
                     kg, vg = e.split('=')

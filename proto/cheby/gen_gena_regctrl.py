@@ -81,6 +81,15 @@ def gen_hdl_reg_decls(reg, pfx, root, module, isigs):
         reg.h_ClrSRFF = HDLPort(pfx + reg.name + '_ClrSRFF')
         module.ports.append(reg.h_ClrSRFF)
 
+    reg.h_rdstrobe = []
+    if get_gena_gen(reg, 'read-strobe'):
+        for i in reversed(range(reg.c_nwords)):
+            port = HDLPort(
+                pfx + reg.name + '_RdStrobe' + subsuffix(i, reg.c_nwords),
+                dir='OUT')
+            reg.h_rdstrobe.insert(0, port)
+            module.ports.append(port)
+
     # Create Loc_ signal
     if get_gena_gen(reg, 'ext-creg') and reg.access == 'wo':
         reg.h_loc = None
@@ -93,9 +102,17 @@ def gen_hdl_reg_decls(reg, pfx, root, module, isigs):
         reg.h_loc_SRFF = HDLSignal('Loc_{}{}_SRFF'.format(pfx, reg.name),
                                    reg.c_rwidth)
         module.decls.append(reg.h_loc_SRFF)
-    # Create Sel_ signal
+    # Create RdSel_ signals
+    reg.h_rdsel = []
+    if reg.h_rdstrobe:
+        for i in reversed(range(reg.c_nwords)):
+            sig = HDLSignal('RdSel_{}{}{}'.format(
+                pfx, reg.name, subsuffix(i, reg.c_nwords)))
+            reg.h_rdsel.insert(0, sig)
+            module.decls.append(sig)
+    # Create WrSel_ signals
+    reg.h_wrsel = []
     if reg.access in WRITE_ACCESS:
-        reg.h_wrsel = []
         for i in reversed(range(reg.c_nwords)):
             sig = HDLSignal('WrSel_{}{}{}'.format(
                 pfx, reg.name, subsuffix(i, reg.c_nwords)))
@@ -215,6 +232,10 @@ def gen_hdl_reg_stmts(reg, pfx, root, module, isigs):
                 src = HDLZext(src, f.c_iowidth)
             module.stmts.append(HDLAssign(f.h_port, src))
 
+    if reg.h_rdstrobe:
+        for i in reversed(range(reg.c_nwords)):
+            module.stmts.append(HDLAssign(reg.h_rdstrobe[i],
+                HDLAnd(reg.h_rdsel[i], isigs.RegRdDone)))
     if reg.h_wrstrobe:
         for i in reversed(range(reg.c_nwords)):
             module.stmts.append(HDLAssign(reg.h_wrstrobe[i],
@@ -312,6 +333,10 @@ def gen_hdl_regrdmux(root, module, isigs, area, pfx, rd_reg):
     proc.sensitivity.append(root.h_bus['adr'])
     proc.sensitivity.append(isigs.CRegRdData)
     proc.sensitivity.append(isigs.CRegRdOK)
+    for reg in rd_reg:
+        if reg.h_rdsel:
+            for i in reversed(range(reg.c_nwords)):
+                proc.stmts.append(HDLAssign(reg.h_rdsel[i], bit_0))
     sw = HDLSwitch(HDLSlice(root.h_bus['adr'],
                             root.c_addr_word_bits,
                             ilog2(area.c_size) - root.c_addr_word_bits))
@@ -335,6 +360,8 @@ def gen_hdl_regrdmux(root, module, isigs, area, pfx, rd_reg):
                 val = HDLZext(val, vwidth)
             ch.stmts.append(HDLAssign(isigs.Loc_RegRdData, val))
             ch.stmts.append(HDLAssign(isigs.Loc_RegRdOK, bit_1))
+            if reg.h_rdsel:
+                ch.stmts.append(HDLAssign(reg.h_rdsel[i], bit_1))
             sw.choices.append(ch)
     ch = HDLChoiceDefault()
     ch.stmts.append(HDLAssign(isigs.Loc_RegRdData, isigs.CRegRdData))
