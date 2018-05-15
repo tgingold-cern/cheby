@@ -763,12 +763,24 @@ def gen_hdl_area(area, pfx, root, module, root_isigs):
     gen_hdl_regdone(root, module, isigs, root_isigs, rd_delay, wr_delay)
 
     if mems:
+        mem_rd = False
+        mem_wr = False
         for el in mems:
             gen_hdl_mem_decls(el, pfx, root, module, isigs)
-        gen_hdl_memrdmux(root, module, isigs, area, pfx, mems)
-        gen_hdl_memrdmux_dff(root, module, isigs, pfx)
-        gen_hdl_memwrmux(root, module, isigs, area, pfx, mems)
-        gen_hdl_memwrmux_dff(root, module, isigs, pfx)
+            mem_rd = mem_rd or (el.elements[0].access in READ_ACCESS)
+            mem_wr = mem_wr or (el.elements[0].access in WRITE_ACCESS)
+        if mem_rd:
+            gen_hdl_memrdmux(root, module, isigs, area, pfx, mems)
+            gen_hdl_memrdmux_dff(root, module, isigs, pfx)
+        else:
+            gen_hdl_no_memrdmux(root, module, isigs)
+            gen_hdl_no_memrdmux_dff(root, module, isigs)
+        if mem_wr:
+            gen_hdl_memwrmux(root, module, isigs, area, pfx, mems)
+            gen_hdl_memwrmux_dff(root, module, isigs, pfx)
+        else:
+            gen_hdl_no_memwrmux(root, module, isigs)
+            gen_hdl_no_memwrmux_dff(root, module, isigs)
         gen_hdl_mem_asgn(root, module, isigs, area, mems)
     else:
         gen_hdl_no_memrdmux(root, module, isigs)
@@ -802,6 +814,7 @@ def gen_hdl_area(area, pfx, root, module, root_isigs):
         gen_hdl_no_area(root, module, isigs)
 
 def gen_hdl_components(root, module):
+    "Generate component declarations (but only the used ones)."
     if root.h_has_srff:
         comp = HDLComponent('SRFFxN')
         param_n = HDLParam('N', typ='P', value=HDLNumber(16))
