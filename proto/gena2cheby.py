@@ -172,9 +172,8 @@ def conv_register_data(parent, el):
         elif k in ['note', 'auto-clear', 'preset']:
             res.x_gena[k] = v
         elif k == 'gen':
-            gen = v.split(',')
             xg = {}
-            for e in gen:
+            for e in [g.strip() for g in v.split(',')]:
                 if e == '':
                     pass
                 elif e in ('write-strobe', 'srff', 'bus-out', 'no-split',
@@ -367,20 +366,22 @@ def conv_root(root, filename):
             # x-gena extension
             res.x_gena[k] = v
         elif k == 'gen':
-            gen = v.split(',')
             xg = {}
-            for e in gen:
+            for e in [g.strip() for g in v.split(',')]:
                 if e == '':
                     pass
                 elif e.startswith('library='):
                     kg, vg = e.split('=')
                     xg['vhdl-library'] = vg
+                elif e in ('no-creg-mux-dff', 'no-reg-mux-dff',
+                           'no-mem-mux-dff'):
+                    xg[e] = True
                 else:
                     raise UnknownGenAttribute(e, res)
             res.x_gena['gen'] = xg
         elif k in ['driver-name',
                    'equipment-code', 'note', 'module-type',
-                   'semantic-mem-map-version', 'gen',
+                   'semantic-mem-map-version',
                    'vme-base-addr', 'vme-base-address']:
             # Ignored
             pass

@@ -747,8 +747,12 @@ def gen_hdl_area(area, pfx, root, module, root_isigs):
     if wr_reg:
         gen_hdl_wrseldec(root, module, isigs, area, pfx, wr_reg)
         gen_hdl_cregrdmux(root, module, isigs, area, pfx, wr_reg)
-        gen_hdl_cregrdmux_dff(root, module, isigs, pfx)
-        wr_delay = 1
+        if not get_gena_gen(root, 'no-creg-mux-dff'):
+            gen_hdl_cregrdmux_dff(root, module, isigs, pfx)
+            wr_delay = 1
+        else:
+            gen_hdl_cregrdmux_asgn(module.stmts, isigs)
+            wr_delay = 0
     else:
         gen_hdl_no_cregrdmux_dff(root, module, isigs)
         wr_delay = 0
