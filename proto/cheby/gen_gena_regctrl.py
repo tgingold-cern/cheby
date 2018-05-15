@@ -762,32 +762,29 @@ def gen_hdl_area(area, pfx, root, module, root_isigs):
 
     gen_hdl_regdone(root, module, isigs, root_isigs, rd_delay, wr_delay)
 
-    if mems:
-        mem_rd = False
-        mem_wr = False
-        for el in mems:
-            gen_hdl_mem_decls(el, pfx, root, module, isigs)
-            mem_rd = mem_rd or (el.elements[0].access in READ_ACCESS)
-            mem_wr = mem_wr or (el.elements[0].access in WRITE_ACCESS)
-        if mem_rd:
-            gen_hdl_memrdmux(root, module, isigs, area, pfx, mems)
-            gen_hdl_memrdmux_dff(root, module, isigs, pfx)
-        else:
-            gen_hdl_no_memrdmux(root, module, isigs)
-            gen_hdl_no_memrdmux_dff(root, module, isigs)
-        if mem_wr:
-            gen_hdl_memwrmux(root, module, isigs, area, pfx, mems)
-            gen_hdl_memwrmux_dff(root, module, isigs, pfx)
-        else:
-            gen_hdl_no_memwrmux(root, module, isigs)
-            gen_hdl_no_memwrmux_dff(root, module, isigs)
-        gen_hdl_mem_asgn(root, module, isigs, area, mems)
+    # Memories
+    mem_rd = False
+    mem_wr = False
+    for el in mems:
+        gen_hdl_mem_decls(el, pfx, root, module, isigs)
+        mem_rd = mem_rd or (el.elements[0].access in READ_ACCESS)
+        mem_wr = mem_wr or (el.elements[0].access in WRITE_ACCESS)
+    if mem_rd:
+        gen_hdl_memrdmux(root, module, isigs, area, pfx, mems)
+        gen_hdl_memrdmux_dff(root, module, isigs, pfx)
     else:
         gen_hdl_no_memrdmux(root, module, isigs)
         gen_hdl_no_memrdmux_dff(root, module, isigs)
+    if mem_wr:
+        gen_hdl_memwrmux(root, module, isigs, area, pfx, mems)
+        gen_hdl_memwrmux_dff(root, module, isigs, pfx)
+    else:
         gen_hdl_no_memwrmux(root, module, isigs)
         gen_hdl_no_memwrmux_dff(root, module, isigs)
+    if mems:
+        gen_hdl_mem_asgn(root, module, isigs, area, mems)
 
+    # Areas and submaps.
     if blks:
         for el in blks:
             el_isigs = gen_hdl.Isigs()
