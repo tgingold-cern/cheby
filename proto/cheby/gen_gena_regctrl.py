@@ -65,6 +65,12 @@ def gen_hdl_reg_decls(reg, pfx, root, module, isigs):
             reg.h_wrstrobe.insert(0, port)
             module.ports.append(port)
 
+    if get_gena_gen(reg, 'ext-acm') and reg.access != 'ro':
+        reg.h_acm = HDLPort(pfx + reg.name + '_ACM', size=reg.c_rwidth)
+        module.ports.append(reg.h_acm)
+    else:
+        reg.h_acm = None
+
     reg.h_SRFF = None
     reg.h_ClrSRFF = None
     srff = get_gena_gen(reg, 'srff')
@@ -132,6 +138,10 @@ def gen_hdl_reg_insts(reg, pfx, root, module, isigs):
                             reg_tpl)
         iwidth = reg.c_rwidth // reg.c_nwords
         inst.params = [('N', HDLNumber(iwidth))]
+        if reg.h_acm is None:
+            acm = reg.h_gena_acm[i]
+        else:
+            acm = HDLSlice(reg.h_acm, i * iwidth, iwidth)
         inst.conns = [
             ('VMEWrData', HDLSlice(root.h_bus['dati'], 0,
                                    reg.c_mwidth // reg.c_nwords)),
@@ -139,7 +149,7 @@ def gen_hdl_reg_insts(reg, pfx, root, module, isigs):
             ('Rst', root.h_bus['rst']),
             ('WriteMem', root.h_bus['wr']),
             ('CRegSel', reg.h_wrsel[i]),
-            ('AutoClrMsk', reg.h_gena_acm[i]),
+            ('AutoClrMsk', acm),
             ('Preset', reg.h_gena_psm[i]),
             ('CReg', HDLSlice(reg.h_loc, i * iwidth, iwidth))]
         module.stmts.append(inst)
