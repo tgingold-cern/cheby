@@ -57,10 +57,10 @@ class PrettyPrinter(tree.Visitor):
 
 
 def pprint_extension(pp, name, n):
-    if not n:
-        # Do nothing if the extension is empty.
-        return
     if isinstance(n, dict):
+        if len(n) == 0:
+            # Discard empty dict.
+            return
         pp.pp_obj(name)
         for k in sorted(n):
             v = n[k]

@@ -278,9 +278,9 @@ def conv_area(parent, el):
             pass
         elif k == 'is-reserved':
             res.x_gena['reserved'] = conv_bool(k, v)
-        elif k in ['note']:
+        elif k in ('note',):
             res.x_gena[k] = v
-        elif k in ['persistence', 'gen']:
+        elif k in ('persistence', 'gen'):
             # Ignored
             pass
         else:
@@ -304,9 +304,8 @@ def conv_submap(parent, el):
             # Handled
             pass
         elif k == 'gen':
-            gen = v.split(',')
             xg = {}
-            for e in gen:
+            for e in [g.strip() for g in v.split(',')]:
                 if e == 'include':
                     xg['include'] = 'include'
                 elif e == 'include=ext':
@@ -315,6 +314,10 @@ def conv_submap(parent, el):
                     xg['include'] = 'internal'
                 elif e.startswith('include'):
                     raise UnknownGenAttribute(e, res)
+                elif e in ('no-creg-mux-dff', 'no-reg-mux-dff',
+                           'no-mem-mux-dff'):
+                    # Discard ?
+                    pass
                 else:
                     raise UnknownGenAttribute(e, res)
             res.x_gena['gen'] = xg

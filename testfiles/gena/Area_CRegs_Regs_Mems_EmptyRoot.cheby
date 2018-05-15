@@ -9,6 +9,8 @@ elements:
       name: area
       address: next
       size: 524288
+      x-gena:
+        reserved: False
       elements:
         - reg:
             name: test1

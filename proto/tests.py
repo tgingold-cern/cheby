@@ -188,6 +188,7 @@ def compare_buffer_and_file(buf, filename):
     nlines = len(buf_lines)
     if nlines != len(ref_lines):
         werr('Number of lines mismatch')
+        return
     for i in range(nlines):
         if buf_lines[i] == ref_lines[i]:
             continue

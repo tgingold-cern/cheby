@@ -709,22 +709,19 @@ def gen_hdl_area_decls(area, pfx, root, module, isigs):
         setattr(isigs, tpl.format(''), s)
         module.decls.append(s)
 
-
-def gen_hdl_area(area, pfx, root, module, root_isigs):
-    isigs = area.h_isigs
-
-    regs = []
-    mems = []
-    blks = []
     for el in area.elements:
+        el.h_ignored = False
         if isinstance(el, tree.Reg):
-            if not get_gena_gen(el, 'ignore'):
-                regs.append(el)
+            if get_gena_gen(el, 'ignore'):
+                el.h_ignored = True
+            else:
+                gen_hdl_reg_decls(el, pfx, root, module, isigs)
         elif isinstance(el, tree.Array):
-            mems.append(el)
+            gen_hdl_mem_decls(el, pfx, root, module, isigs)
         elif isinstance(el, tree.Block):
             if el.get_extension('x_gena', 'reserved', False):
                 # Discard
+                el.h_ignored = True
                 continue
             if el.submap_file is not None:
                 include = get_gena_gen(el, 'include', None)
@@ -733,14 +730,48 @@ def gen_hdl_area(area, pfx, root, module, root_isigs):
                 include = True
             if include is not None:
                 el.h_has_external = (include == 'external')
-                blks.append(el)
+
+                el_isigs = gen_hdl.Isigs()
+                npfx = pfx + el.name + '_'
+                if el.h_has_external:
+                    gen_hdl_ext_bus(el, el.c_submap.c_word_size * tree.BYTE_SIZE,
+                        'rw', pfx, root, module)
+                    el_isigs.RdData = el.h_rddata
+                    el_isigs.RdDone = el.h_rddone
+                    el_isigs.WrDone = el.h_wrdone
+                    el.h_isigs = el_isigs
+                else:
+                    if hasattr(el, 'c_submap'):
+                        assert len(el.elements) == 0
+                        assert get_gena_gen(el, 'include') == 'internal'
+                        el.elements = el.c_submap.elements
+                    gen_hdl_area_decls(el, npfx, root, module, el_isigs)
+            else:
+                el.h_ignored = True
         else:
             raise AssertionError
 
-    for el in regs:
-        gen_hdl_reg_decls(el, pfx, root, module, isigs)
-        gen_hdl_reg_insts(el, pfx, root, module, isigs)
+def gen_hdl_area(area, pfx, root, module, root_isigs):
+    isigs = area.h_isigs
 
+    regs = []
+    mems = []
+    blks = []
+    for el in area.elements:
+        if el.h_ignored:
+            continue
+        if isinstance(el, tree.Reg):
+            regs.append(el)
+        elif isinstance(el, tree.Array):
+            mems.append(el)
+        elif isinstance(el, tree.Block):
+            blks.append(el)
+        else:
+            raise AssertionError
+
+    # Registers
+    for el in regs:
+        gen_hdl_reg_insts(el, pfx, root, module, isigs)
     wr_reg = []
     rd_reg = []
     for reg in regs:
@@ -779,7 +810,6 @@ def gen_hdl_area(area, pfx, root, module, root_isigs):
     mem_rd = False
     mem_wr = False
     for el in mems:
-        gen_hdl_mem_decls(el, pfx, root, module, isigs)
         mem_rd = mem_rd or (el.elements[0].access in READ_ACCESS)
         mem_wr = mem_wr or (el.elements[0].access in WRITE_ACCESS)
     if mem_rd:
@@ -799,35 +829,14 @@ def gen_hdl_area(area, pfx, root, module, root_isigs):
 
     # Areas and submaps.
     if blks:
-        for el in blks:
-            el_isigs = gen_hdl.Isigs()
-            npfx = pfx + el.name + '_'
-            if el.h_has_external:
-                gen_hdl_ext_bus(el, el.c_submap.c_word_size * tree.BYTE_SIZE,
-                    'rw', pfx, root, module)
-                el_isigs.RdData = el.h_rddata
-                el_isigs.RdDone = el.h_rddone
-                el_isigs.WrDone = el.h_wrdone
-                el.h_isigs = el_isigs
-            else:
-                gen_hdl_area_decls(el, npfx, root, module, el_isigs)
         gen_hdl_areardmux(root, module, isigs, area, blks)
         gen_hdl_areawrmux(root, module, isigs, area, blks)
-        for el in blks:
-            if hasattr(el, 'c_submap'):
-                if el.h_has_external:
-                    gen_hdl_ext_bus_asgn(el, 'rw', root, module)
-                else:
-                    assert len(el.elements) == 0
-                    assert get_gena_gen(el, 'include') == 'internal'
-                    el.elements = el.c_submap.elements
-                    npfx = pfx + el.name + '_'
-                    gen_hdl_area(el, npfx, root, module, root_isigs)
+        for el in reversed(blks):
+            if el.h_has_external:
+                gen_hdl_ext_bus_asgn(el, 'rw', root, module)
             else:
                 npfx = pfx + el.name + '_'
                 gen_hdl_area(el, npfx, root, module, root_isigs)
-
-
     else:
         gen_hdl_no_area(root, module, isigs)
 
@@ -903,6 +912,7 @@ def gen_hdl_misc_root(root, module, isigs):
 def gen_gena_regctrl(root):
     module, isigs = gen_hdl.gen_hdl_header(root)
     module.name = 'RegCtrl_{}'.format(root.name)
+
     module.libraries.append('CommonVisual')
     lib = get_gena_gen(root, 'vhdl-library')
     if lib:
@@ -910,6 +920,7 @@ def gen_gena_regctrl(root):
     else:
         lib = 'work'
     module.deps.append((lib, 'MemMap_{}'.format(root.name)))
+
     isigs = gen_hdl.Isigs()
     isigs.Loc_VMERdMem = HDLSignal('Loc_VMERdMem', 3)
     isigs.Loc_VMEWrMem = HDLSignal('Loc_VMEWrMem', 2)
