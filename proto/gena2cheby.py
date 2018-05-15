@@ -175,8 +175,10 @@ def conv_register_data(parent, el):
             gen = v.split(',')
             xg = {}
             for e in gen:
-                if e in ('write-strobe', 'srff',
-                         'bus-out', 'no-split', 'ext-creg'):
+                if e == '':
+                    pass
+                elif e in ('write-strobe', 'srff', 'bus-out', 'no-split',
+                         'ext-creg', 'ext-acm', 'ignore'):
                     xg[e] = True
                 elif e.startswith('resize='):
                     kg, vg = e.split('=')
@@ -298,6 +300,7 @@ def conv_area(parent, el):
 
 def conv_submap(parent, el):
     res = cheby.tree.Block(parent)
+    res.x_gena = {}
     attrs = el.attrib
     for k, v in attrs.items():
         if conv_common(res, k, v):

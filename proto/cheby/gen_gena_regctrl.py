@@ -367,44 +367,49 @@ def gen_hdl_regdone(root, module, isigs, root_isigs, rd_delay, wr_delay):
         module.stmts.append(asgn)
 
 
+def gen_hdl_ext_bus(n, bwidth, acc, pfx, root, module):
+    # Generate ports
+    dwidth = min(bwidth, root.c_word_bits)
+    n.h_sel = HDLPort('{}{}_Sel'.format(pfx, n.name), dir='OUT')
+    adr_sz = ilog2(n.c_size) - root.c_addr_word_bits
+    adr_lo = root.c_addr_word_bits
+    n.h_addr = HDLPort('{}{}_Addr'.format(pfx, n.name),
+                         size=adr_sz, lo_idx=adr_lo, dir='OUT')
+    module.ports.extend([n.h_sel, n.h_addr])
+    if acc in READ_ACCESS:
+        n.h_rddata = HDLPort('{}{}_RdData'.format(pfx, n.name), size=dwidth)
+        module.ports.append(n.h_rddata)
+    if acc in WRITE_ACCESS:
+        n.h_wrdata = HDLPort('{}{}_WrData'.format(pfx, n.name), size=dwidth, dir='OUT')
+        module.ports.append(n.h_wrdata)
+    if acc in READ_ACCESS:
+        n.h_rdmem = HDLPort('{}{}_RdMem'.format(pfx, n.name), dir='OUT')
+        module.ports.append(n.h_rdmem)
+    if acc in WRITE_ACCESS:
+        n.h_wrmem = HDLPort('{}{}_WrMem'.format(pfx, n.name), dir='OUT')
+        module.ports.append(n.h_wrmem)
+    if acc in READ_ACCESS:
+        n.h_rddone = HDLPort('{}{}_RdDone'.format(pfx, n.name))
+        module.ports.append(n.h_rddone)
+    if acc in WRITE_ACCESS:
+        n.h_wrdone = HDLPort('{}{}_WrDone'.format(pfx, n.name))
+        module.ports.append(n.h_wrdone)
+    if acc in READ_ACCESS and root.c_buserr:
+        n.h_rderror = HDLPort('{}{}_RdError'.format(pfx, n.name), default=bit_0)
+        module.ports.append(n.h_rderror)
+    if acc in WRITE_ACCESS and root.c_buserr:
+        n.h_wrerror = HDLPort('{}{}_WrError'.format(pfx, n.name), default=bit_0)
+        module.ports.append(n.h_wrerror)
+    # Create Sel_ signal
+    sig = HDLSignal('Sel_{}{}'.format(pfx, n.name))
+    n.h_wrsel = sig
+    module.decls.append(sig)
+
+
 def gen_hdl_mem_decls(mem, pfx, root, module, isigs):
     data = mem.elements[0]
-    # Generate ports
-    dwidth = min(data.width, root.c_word_bits)
-    mem.h_sel = HDLPort('{}{}_Sel'.format(pfx, mem.name), dir='OUT')
-    adr_sz = ilog2(mem.c_size) - root.c_addr_word_bits
-    adr_lo = root.c_addr_word_bits
-    mem.h_addr = HDLPort('{}{}_Addr'.format(pfx, mem.name),
-                         size=adr_sz, lo_idx=adr_lo, dir='OUT')
-    module.ports.extend([mem.h_sel, mem.h_addr])
-    if data.access in READ_ACCESS:
-        mem.h_rddata = HDLPort('{}{}_RdData'.format(pfx, mem.name), size=dwidth)
-        module.ports.append(mem.h_rddata)
-    if data.access in WRITE_ACCESS:
-        mem.h_wrdata = HDLPort('{}{}_WrData'.format(pfx, mem.name), size=dwidth, dir='OUT')
-        module.ports.append(mem.h_wrdata)
-    if data.access in READ_ACCESS:
-        mem.h_rdmem = HDLPort('{}{}_RdMem'.format(pfx, mem.name), dir='OUT')
-        module.ports.append(mem.h_rdmem)
-    if data.access in WRITE_ACCESS:
-        mem.h_wrmem = HDLPort('{}{}_WrMem'.format(pfx, mem.name), dir='OUT')
-        module.ports.append(mem.h_wrmem)
-    if data.access in READ_ACCESS:
-        mem.h_rddone = HDLPort('{}{}_RdDone'.format(pfx, mem.name))
-        module.ports.append(mem.h_rddone)
-    if data.access in WRITE_ACCESS:
-        mem.h_wrdone = HDLPort('{}{}_WrDone'.format(pfx, mem.name))
-        module.ports.append(mem.h_wrdone)
-    if data.access in READ_ACCESS and root.c_buserr:
-        mem.h_rderror = HDLPort('{}{}_RdError'.format(pfx, mem.name), default=bit_0)
-        module.ports.append(mem.h_rderror)
-    if data.access in WRITE_ACCESS and root.c_buserr:
-        mem.h_wrerror = HDLPort('{}{}_WrError'.format(pfx, mem.name), default=bit_0)
-        module.ports.append(mem.h_wrerror)
-    # Create Sel_ signal
-    sig = HDLSignal('Sel_{}{}'.format(pfx, mem.name))
-    mem.h_wrsel = sig
-    module.decls.append(sig)
+    gen_hdl_ext_bus(mem, data.width, data.access, pfx, root, module)
+
 
 def gen_hdl_reg2locmem_rd(root, module, isigs, stmts):
     stmts.append (HDLAssign(isigs.Loc_MemRdData, isigs.RegRdData))
@@ -560,21 +565,24 @@ def gen_hdl_no_memwrmux_dff(root, module, isigs):
     gen_hdl_locmem2mem_wr(root, module, isigs, module.stmts)
 
 
+def gen_hdl_ext_bus_asgn(n, acc, root, module):
+    adr_sz = ilog2(n.c_size) - root.c_addr_word_bits
+    adr_lo = root.c_addr_word_bits
+    module.stmts.append(
+        HDLAssign(n.h_addr, HDLSlice(root.h_bus['adr'], adr_lo, adr_sz)))
+    module.stmts.append(HDLAssign(n.h_sel, n.h_wrsel))
+    if acc in READ_ACCESS:
+        module.stmts.append(HDLAssign(n.h_rdmem,
+                                      HDLAnd(n.h_wrsel, root.h_bus['rd'])))
+    if acc in WRITE_ACCESS:
+        module.stmts.append(HDLAssign(n.h_wrmem,
+                                      HDLAnd(n.h_wrsel, root.h_bus['wr'])))
+        module.stmts.append(HDLAssign(n.h_wrdata, root.h_bus['dati']))
+
 def gen_hdl_mem_asgn(root, module, isigs, area, mems):
     for m in mems:
         data = m.elements[0]
-        adr_sz = ilog2(m.c_size) - root.c_addr_word_bits
-        adr_lo = root.c_addr_word_bits
-        module.stmts.append(
-            HDLAssign(m.h_addr, HDLSlice(root.h_bus['adr'], adr_lo, adr_sz)))
-        module.stmts.append(HDLAssign(m.h_sel, m.h_wrsel))
-        if data.access in READ_ACCESS:
-            module.stmts.append(HDLAssign(m.h_rdmem,
-                                          HDLAnd(m.h_wrsel, root.h_bus['rd'])))
-        if data.access in WRITE_ACCESS:
-            module.stmts.append(HDLAssign(m.h_wrmem,
-                                          HDLAnd(m.h_wrsel, root.h_bus['wr'])))
-            module.stmts.append(HDLAssign(m.h_wrdata, root.h_bus['dati']))
+        gen_hdl_ext_bus_asgn(m, data.access, root, module)
 
 
 def gen_hdl_mem2top_rd(root, module, isigs, stmts):
@@ -612,6 +620,9 @@ def gen_hdl_areardmux(root, module, isigs, area, areas):
         if root.c_buserr:
             proc.sensitivity.append(a.h_isigs.RdError)
             stmt.then_stmts.append(HDLAssign(isigs.RdError, a.h_isigs.RdError))
+        if a.h_has_external:
+            proc.stmts.append(HDLAssign(a.h_wrsel, bit_0))
+            stmt.then_stmts.append(HDLAssign(a.h_wrsel, bit_1))
         last.append(stmt)
         last = stmt.else_stmts
     gen_hdl_mem2top_rd(root, module, isigs, last)
@@ -695,7 +706,8 @@ def gen_hdl_area(area, pfx, root, module, root_isigs):
     blks = []
     for el in area.elements:
         if isinstance(el, tree.Reg):
-            regs.append(el)
+            if not get_gena_gen(el, 'ignore'):
+                regs.append(el)
         elif isinstance(el, tree.Array):
             mems.append(el)
         elif isinstance(el, tree.Block):
@@ -705,6 +717,7 @@ def gen_hdl_area(area, pfx, root, module, root_isigs):
                 # A regular area.
                 include = True
             if include is not None:
+                el.h_has_external = (include == 'external')
                 blks.append(el)
         else:
             raise AssertionError
@@ -757,12 +770,24 @@ def gen_hdl_area(area, pfx, root, module, root_isigs):
         for el in blks:
             el_isigs = gen_hdl.Isigs()
             npfx = pfx + el.name + '_'
-            gen_hdl_area_decls(el, npfx, root, module, el_isigs)
+            if el.h_has_external:
+                gen_hdl_ext_bus(el, el.c_submap.c_word_size * tree.BYTE_SIZE,
+                    'rw', pfx, root, module)
+                el_isigs.RdData = el.h_rddata
+                el_isigs.RdDone = el.h_rddone
+                el_isigs.WrDone = el.h_wrdone
+                el.h_isigs = el_isigs
+            else:
+                gen_hdl_area_decls(el, npfx, root, module, el_isigs)
         gen_hdl_areardmux(root, module, isigs, area, blks)
         gen_hdl_areawrmux(root, module, isigs, area, blks)
         for el in blks:
-            npfx = pfx + el.name + '_'
-            gen_hdl_area(el, npfx, root, module, root_isigs)
+            if not el.h_has_external:
+                npfx = pfx + el.name + '_'
+                gen_hdl_area(el, npfx, root, module, root_isigs)
+            else:
+                gen_hdl_ext_bus_asgn(el, 'rw', root, module)
+
     else:
         gen_hdl_no_area(root, module, isigs)
 
