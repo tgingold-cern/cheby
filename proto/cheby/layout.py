@@ -164,7 +164,7 @@ def layout_reg(lo, n):
                 "'gen=bus-out' only for 'access=ro' in register {}".format(
                     n.get_path()))
     if gena_type == 'rmw':
-        if resize is not None:
+        if resize is not None and resize != (n.width // 2):
             raise LayoutException(n,
                 "gen.resize incompatible with type=rmw for {}".format(
                     n.get_path()))

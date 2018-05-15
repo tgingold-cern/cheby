@@ -30,7 +30,7 @@ def gen_hdl_reg_decls(reg, pfx, root, module, isigs):
     mode = 'OUT' if reg.access in WRITE_ACCESS else 'IN'
     reg.h_port = []
     if get_gena_gen(reg, 'no-split'):
-        reg.h_port = HDLPort(pfx + reg.name, size=reg.c_rwidth, dir=mode)
+        reg.h_port = HDLPort(pfx + reg.name, size=reg.c_iowidth, dir=mode)
         module.ports.append(reg.h_port)
     elif get_gena_gen(reg, 'ext-creg'):
         if reg.access in READ_ACCESS:
@@ -56,6 +56,12 @@ def gen_hdl_reg_decls(reg, pfx, root, module, isigs):
         reg.h_busout = HDLPort(pfx + reg.name, size=reg.c_rwidth, dir='OUT')
         module.ports.append(reg.h_busout)
 
+    if get_gena_gen(reg, 'ext-acm') and reg.access != 'ro':
+        reg.h_acm = HDLPort(pfx + reg.name + '_ACM', size=reg.c_rwidth)
+        module.ports.append(reg.h_acm)
+    else:
+        reg.h_acm = None
+
     reg.h_wrstrobe = []
     if get_gena_gen(reg, 'write-strobe'):
         for i in reversed(range(reg.c_nwords)):
@@ -64,12 +70,6 @@ def gen_hdl_reg_decls(reg, pfx, root, module, isigs):
                 dir='OUT')
             reg.h_wrstrobe.insert(0, port)
             module.ports.append(port)
-
-    if get_gena_gen(reg, 'ext-acm') and reg.access != 'ro':
-        reg.h_acm = HDLPort(pfx + reg.name + '_ACM', size=reg.c_rwidth)
-        module.ports.append(reg.h_acm)
-    else:
-        reg.h_acm = None
 
     reg.h_SRFF = None
     reg.h_ClrSRFF = None
@@ -177,7 +177,10 @@ def gen_hdl_reg_stmts(reg, pfx, root, module, isigs):
         module.stmts.append(HDLAssign(reg.h_SRFF, reg.h_loc_SRFF))
     if get_gena_gen(reg, 'no-split'):
         if reg.access in ('ro'):
-            module.stmts.append(HDLAssign(reg.h_loc, reg.h_port))
+            src = reg.h_port
+            if reg.c_iowidth < reg.c_rwidth:
+                src = HDLZext(src, reg.c_rwidth)
+            module.stmts.append(HDLAssign(reg.h_loc, src))
         else:
             module.stmts.append(HDLAssign(reg.h_port, reg.h_loc))
     elif get_gena_gen(reg, 'ext-creg'):
