@@ -751,7 +751,7 @@ def gen_hdl_area_decls(area, pfx, root, module, isigs):
         else:
             raise AssertionError
 
-def gen_hdl_area(area, pfx, root, module, root_isigs):
+def gen_hdl_area(area, pfx, area_root, root, module, root_isigs):
     isigs = area.h_isigs
 
     regs = []
@@ -783,7 +783,7 @@ def gen_hdl_area(area, pfx, root, module, root_isigs):
     if wr_reg:
         gen_hdl_wrseldec(root, module, isigs, area, pfx, wr_reg)
         gen_hdl_cregrdmux(root, module, isigs, area, pfx, wr_reg)
-        if not get_gena_gen(root, 'no-creg-mux-dff'):
+        if not get_gena_gen(area_root, 'no-creg-mux-dff'):
             gen_hdl_cregrdmux_dff(root, module, isigs, pfx)
             wr_delay = 1
         else:
@@ -794,7 +794,7 @@ def gen_hdl_area(area, pfx, root, module, root_isigs):
         wr_delay = 0
     if rd_reg:
         gen_hdl_regrdmux(root, module, isigs, area, pfx, rd_reg)
-        if not get_gena_gen(root, 'no-reg-mux-dff'):
+        if not get_gena_gen(area_root, 'no-reg-mux-dff'):
             gen_hdl_regrdmux_dff(root, module, pfx, isigs)
             rd_delay = wr_delay + 1
         else:
@@ -835,8 +835,9 @@ def gen_hdl_area(area, pfx, root, module, root_isigs):
             if el.h_has_external:
                 gen_hdl_ext_bus_asgn(el, 'rw', root, module)
             else:
+                submap = el.c_submap if hasattr(el, 'c_submap') else area_root
                 npfx = pfx + el.name + '_'
-                gen_hdl_area(el, npfx, root, module, root_isigs)
+                gen_hdl_area(el, npfx, submap, root, module, root_isigs)
     else:
         gen_hdl_no_area(root, module, isigs)
 
@@ -929,7 +930,7 @@ def gen_gena_regctrl(root):
     root.h_has_creg = False
     root.h_has_srff = False
     gen_hdl_area_decls(root, '', root, module, isigs)
-    gen_hdl_area(root, '', root, module, isigs)
+    gen_hdl_area(root, '', root, root, module, isigs)
 
     gen_hdl_strobeseq(root, module, isigs)
     gen_hdl_misc_root(root, module, isigs)
