@@ -342,11 +342,14 @@ def gen_hdl_regrdmux(root, module, isigs, area, pfx, rd_reg):
     sw.choices.append(ch)
     module.stmts.append(proc)
 
+def gen_hdl_locregrd2regrd(stmts, isigs):
+    stmts.append(HDLAssign(isigs.RegRdData, isigs.Loc_RegRdData))
+    stmts.append(HDLAssign(isigs.RegRdOK, isigs.Loc_RegRdOK))
+
 def gen_hdl_regrdmux_dff(root, module, pfx, isigs):
     proc = HDLSync(root.h_bus['clk'], None)
     proc.name = '{}RegRdMux_DFF'.format(pfx)
-    proc.sync_stmts.append(HDLAssign(isigs.RegRdData, isigs.Loc_RegRdData))
-    proc.sync_stmts.append(HDLAssign(isigs.RegRdOK, isigs.Loc_RegRdOK))
+    gen_hdl_locregrd2regrd(proc.sync_stmts, isigs)
     # proc.sync_stmts.append(HDLAssign(isigs.RegWrOK, isigs.Loc_RegWrOK))
     module.stmts.append(proc)
 
@@ -354,8 +357,7 @@ def gen_hdl_no_regrdmux(root, module, isigs):
     module.stmts.append(HDLAssign(isigs.Loc_RegRdData, isigs.CRegRdData))
     module.stmts.append(HDLAssign(isigs.Loc_RegRdOK, isigs.CRegRdOK))
 
-    module.stmts.append(HDLAssign(isigs.RegRdData, isigs.Loc_RegRdData))
-    module.stmts.append(HDLAssign(isigs.RegRdOK, isigs.Loc_RegRdOK))
+    gen_hdl_locregrd2regrd(module.stmts, isigs)
 
 def gen_hdl_regdone(root, module, isigs, root_isigs, rd_delay, wr_delay):
     asgn = HDLAssign(isigs.RegRdDone,
@@ -758,8 +760,12 @@ def gen_hdl_area(area, pfx, root, module, root_isigs):
         wr_delay = 0
     if rd_reg:
         gen_hdl_regrdmux(root, module, isigs, area, pfx, rd_reg)
-        gen_hdl_regrdmux_dff(root, module, pfx, isigs)
-        rd_delay = wr_delay + 1
+        if not get_gena_gen(root, 'no-reg-mux-dff'):
+            gen_hdl_regrdmux_dff(root, module, pfx, isigs)
+            rd_delay = wr_delay + 1
+        else:
+            gen_hdl_locregrd2regrd(module.stmts, isigs)
+            rd_delay = wr_delay
     else:
         gen_hdl_no_regrdmux(root, module, isigs)
         rd_delay = wr_delay
@@ -805,11 +811,19 @@ def gen_hdl_area(area, pfx, root, module, root_isigs):
         gen_hdl_areardmux(root, module, isigs, area, blks)
         gen_hdl_areawrmux(root, module, isigs, area, blks)
         for el in blks:
-            if not el.h_has_external:
+            if hasattr(el, 'c_submap'):
+                if el.h_has_external:
+                    gen_hdl_ext_bus_asgn(el, 'rw', root, module)
+                else:
+                    assert len(el.elements) == 0
+                    assert get_gena_gen(el, 'include') == 'internal'
+                    el.elements = el.c_submap.elements
+                    npfx = pfx + el.name + '_'
+                    gen_hdl_area(el, npfx, root, module, root_isigs)
+            else:
                 npfx = pfx + el.name + '_'
                 gen_hdl_area(el, npfx, root, module, root_isigs)
-            else:
-                gen_hdl_ext_bus_asgn(el, 'rw', root, module)
+
 
     else:
         gen_hdl_no_area(root, module, isigs)

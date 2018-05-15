@@ -199,8 +199,10 @@ def gen_gena_memmap(root):
     decls = []
     gen_header(root, decls)
 
-    areas = [e for e in root.elements
-             if isinstance(e, tree.Block) and not hasattr(e, 'c_submap')] # or isinstance(e, tree.Array))]
+    blocks = [e for e in root.elements if isinstance(e, tree.Block)]
+    areas =  [e for e in blocks if not hasattr(e, 'c_submap')] # or isinstance(e, tree.Array))]
+    submaps = [e.c_submap for e in blocks if hasattr(e, 'c_submap')]
+
     if areas:
         gen_areas_address(areas, root, decls)
         for e in areas:
@@ -211,4 +213,11 @@ def gen_gena_memmap(root):
     gen_block(root, root, decls, 'Memory Map', root.name)
 
     res.decls = decls
+    root.h_gena_pkg = res
+
+    # Recurse
+    for e in submaps:
+        if not hasattr(e, 'h_gena_pkg'):
+            gen_gena_memmap(e)
+
     return res
