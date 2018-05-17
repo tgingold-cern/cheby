@@ -380,6 +380,9 @@ def conv_root(root, filename):
                     xg[e] = True
                 elif e == 'split-address':
                     split_suffix = '-split'
+                elif e.startswith('include'):
+                    # Bogus use, discard.
+                    pass
                 else:
                     raise UnknownGenAttribute(e, res)
             res.x_gena['gen'] = xg
