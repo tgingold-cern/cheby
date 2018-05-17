@@ -351,15 +351,28 @@ def layout_cheby(n):
     if n.bus is None or n.bus == 'wb-32-be':
         n.c_word_size = 4
     elif n.bus.startswith('cern-be-vme-'):
-        buses = {'cern-be-vme-32':     (4, False, False),
-                 'cern-be-vme-err-32': (4, False, True),
-                 'cern-be-vme-16':     (2, False, False),
-                 'cern-be-vme-err-16': (2, False, True),
-                 'cern-be-vme-8':      (1, False, False),
-                 'cern-be-vme-err-8':  (1, False, True) }
-        if n.bus not in buses:
+        params = n.bus[12:].split('-')
+        if params[0] == 'err':
+            n.c_buserr = True
+            del params[0]
+        else:
+            n.c_buserr = False
+        if params[0] == 'split':
+            n.c_bussplit = True
+            del params[0]
+        else:
+            n.c_bussplit = False
+        if len(params) != 1:
             raise LayoutException(n, "unknown bus '{}'".format(n.bus))
-        n.c_word_size, flag_align_reg, n.c_buserr = buses[n.bus]
+        if params[0] == '32':
+            n.c_word_size = 4
+        elif params[0] == '16':
+            n.c_word_size = 2
+        elif params[0] == '8':
+            n.c_word_size = 1
+        else:
+            raise LayoutException(n, "unknown bus size '{}'".format(n.bus))
+        flag_align_reg = False
     else:
         raise LayoutException(n, "unknown bus '{}'".format(n.bus))
     lo = Layout(n.c_word_size)

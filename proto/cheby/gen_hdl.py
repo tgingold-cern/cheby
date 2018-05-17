@@ -99,21 +99,34 @@ def add_decode_cern_be_vme(root, module, isigs):
     module.stmts.append(HDLAssign(root.h_bus['wack'], isigs.wr_ack))
 
 
-def expand_cern_be_vme(root, module, isigs, buserr):
+def expand_cern_be_vme(root, module, isigs, buserr, split):
     """Create CERN-BE interface."""
     bus = [('clk',   HDLPort("Clk")),
-           ('rst',   HDLPort("Rst")),
-           ('adr',   HDLPort("VMEAddr", root.c_sel_bits + root.c_blk_bits - root.c_addr_word_bits, lo_idx=root.c_addr_word_bits)),
-           ('dato',  HDLPort("VMERdData", root.c_word_bits, dir='OUT')),
-           ('dati',  HDLPort("VMEWrData", root.c_word_bits)),
-           ('rd',    HDLPort("VMERdMem")),
-           ('wr',    HDLPort("VMEWrMem")),
-           ('rack',  HDLPort("VMERdDone", dir='OUT')),
-           ('wack',  HDLPort("VMEWrDone", dir='OUT'))]
+           ('rst',   HDLPort("Rst"))]
+    addr_width = root.c_sel_bits + root.c_blk_bits - root.c_addr_word_bits
+    if split:
+        bus.extend(
+            [('adro',   HDLPort("VMERdAddr", addr_width, lo_idx=root.c_addr_word_bits)),
+             ('adri',   HDLPort("VMEWrAddr", addr_width, lo_idx=root.c_addr_word_bits))])
+    else:
+        bus.extend(
+            [('adr',   HDLPort("VMEAddr", addr_width, lo_idx=root.c_addr_word_bits))])
+    bus.extend(
+        [('dato',  HDLPort("VMERdData", root.c_word_bits, dir='OUT')),
+         ('dati',  HDLPort("VMEWrData", root.c_word_bits)),
+         ('rd',    HDLPort("VMERdMem")),
+         ('wr',    HDLPort("VMEWrMem")),
+         ('rack',  HDLPort("VMERdDone", dir='OUT')),
+         ('wack',  HDLPort("VMEWrDone", dir='OUT'))])
     if buserr:
         bus.extend([('rderr', HDLPort('VMERdError', dir='OUT')),
                     ('wrerr', HDLPort('VMEWrError', dir='OUT'))])
     add_bus(root, module, bus)
+
+    root.h_bussplit = split
+    if not split:
+        root.h_bus['adro'] = root.h_bus['adr']
+        root.h_bus['adri'] = root.h_bus['adr']
 
     if isigs:
         add_decode_cern_be_vme(root, module, isigs)
@@ -534,12 +547,17 @@ def gen_hdl_header(root, isigs=None):
     if root.bus == 'wb-32-be':
         root.h_make_port_name = make_port_name_prefix
         expand_wishbone(root, module, isigs)
-    elif root.bus in ['cern-be-vme-32', 'cern-be-vme-16', 'cern-be-vme-8']:
+    elif root.bus.startswith('cern-be-vme-'):
+        names = root.bus[12:].split('-')
+        err = names[0] == 'err'
+        if err:
+            del names[0]
+        split = names[0] == 'split'
+        if split:
+            del names[0]
+        assert len(names) == 1
         root.h_make_port_name = make_port_name_simple
-        expand_cern_be_vme(root, module, isigs, False)
-    elif root.bus in ('cern-be-vme-err-32'):
-        root.h_make_port_name = make_port_name_simple
-        expand_cern_be_vme(root, module, isigs, True)
+        expand_cern_be_vme(root, module, isigs, err, split)
     else:
         raise HdlError("Unhandled bus '{}'".format(root.bus))
 

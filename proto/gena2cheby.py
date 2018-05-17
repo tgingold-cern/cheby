@@ -354,6 +354,7 @@ def conv_root(root, filename):
     res.x_gena = {}
     acc_mode = None
     size = None
+    split_suffix = ''
     for k, v in root.attrib.items():
         if conv_common(res, k, v):
             pass
@@ -377,6 +378,8 @@ def conv_root(root, filename):
                 elif e in ('no-creg-mux-dff', 'no-reg-mux-dff',
                            'no-mem-mux-dff'):
                     xg[e] = True
+                elif e == 'split-address':
+                    split_suffix = '-split'
                 else:
                     raise UnknownGenAttribute(e, res)
             res.x_gena['gen'] = xg
@@ -392,16 +395,16 @@ def conv_root(root, filename):
             raise UnknownAttribute(k)
     res.name = d.get('name', os.path.basename(filename))
     if acc_mode == 'A24/D8':
-        res.bus = 'cern-be-vme-8'
+        res.bus = 'cern-be-vme' + split_suffix + '-8'
         res.c_word_size = 1
         bus_size = 24
     elif acc_mode == 'A24/D16':
-        res.bus = 'cern-be-vme-16'
+        res.bus = 'cern-be-vme' + split_suffix + '-16'
         res.c_word_size = 2
         bus_size = 24
     elif acc_mode == 'A32/D32':
         # TODO: handle gen['error']
-        res.bus = 'cern-be-vme-err-32'
+        res.bus = 'cern-be-vme-err' + split_suffix + '-32'
         res.c_word_size = 4
         bus_size = 32
     else:
