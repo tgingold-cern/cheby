@@ -318,6 +318,8 @@ def conv_submap(parent, el):
                            'no-mem-mux-dff'):
                     # Discard ?
                     pass
+                elif e in ('generate',):
+                    xg[e] = True
                 else:
                     raise UnknownGenAttribute(e, res)
             res.x_gena['gen'] = xg

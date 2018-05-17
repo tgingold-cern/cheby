@@ -803,6 +803,9 @@ def gen_hdl_area_decls(area, pfx, root, module, isigs):
                     el_isigs.RdData = el.h_rddata
                     el_isigs.RdDone = el.h_rddone
                     el_isigs.WrDone = el.h_wrdone
+                    if root.c_buserr:
+                        el_isigs.RdError = el.h_rderror
+                        el_isigs.WrError = el.h_wrerror
                     el.h_isigs = el_isigs
                 else:
                     if hasattr(el, 'c_submap'):
