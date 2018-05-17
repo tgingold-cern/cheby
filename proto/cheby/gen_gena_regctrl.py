@@ -789,6 +789,8 @@ def gen_hdl_area_decls(area, pfx, root, module, isigs):
                 continue
             if el.submap_file is not None:
                 include = get_gena_gen(el, 'include', None)
+            elif get_gena_gen(el, 'ext-area', False):
+                include = 'external'
             else:
                 # A regular area.
                 include = True
@@ -798,7 +800,7 @@ def gen_hdl_area_decls(area, pfx, root, module, isigs):
                 el_isigs = gen_hdl.Isigs()
                 npfx = pfx + el.name + '_'
                 if el.h_has_external:
-                    gen_hdl_ext_bus(el, el.c_submap.c_word_size * tree.BYTE_SIZE,
+                    gen_hdl_ext_bus(el, root.c_word_size * tree.BYTE_SIZE,
                         'rw', pfx, root, module)
                     el_isigs.RdData = el.h_rddata
                     el_isigs.RdDone = el.h_rddone

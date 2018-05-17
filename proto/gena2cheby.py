@@ -280,7 +280,15 @@ def conv_area(parent, el):
             res.x_gena['reserved'] = conv_bool(k, v)
         elif k in ('note',):
             res.x_gena[k] = v
-        elif k in ('persistence', 'gen'):
+        elif k == 'gen':
+            xg = {}
+            for e in [g.strip() for g in v.split(',')]:
+                if e in ('ext-area',):
+                    xg[e] = True
+                else:
+                    raise UnknownGenAttribute(e, res)
+            res.x_gena['gen'] = xg
+        elif k in ('persistence',):
             # Ignored
             pass
         else:
