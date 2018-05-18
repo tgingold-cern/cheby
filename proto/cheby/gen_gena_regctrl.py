@@ -884,13 +884,19 @@ def gen_hdl_area(area, pfx, area_root, root, module, root_isigs):
         mem_wr = mem_wr or (el.elements[0].access in WRITE_ACCESS)
     if mem_rd:
         gen_hdl_memrdmux(root, module, isigs, area, pfx, mems)
-        gen_hdl_memrdmux_dff(root, module, isigs, pfx)
+        if not get_gena_gen(area_root, 'no-mem-mux-dff'):
+            gen_hdl_memrdmux_dff(root, module, isigs, pfx)
+        else:
+            gen_hdl_no_memrdmux_dff(root, module, isigs)
     else:
         gen_hdl_no_memrdmux(root, module, isigs)
         gen_hdl_no_memrdmux_dff(root, module, isigs)
     if mem_wr:
         gen_hdl_memwrmux(root, module, isigs, area, pfx, mems)
-        gen_hdl_memwrmux_dff(root, module, isigs, pfx)
+        if not get_gena_gen(area_root, 'no-mem-mux-dff'):
+            gen_hdl_memwrmux_dff(root, module, isigs, pfx)
+        else:
+            gen_hdl_no_memwrmux_dff(root, module, isigs)
     else:
         gen_hdl_no_memwrmux(root, module, isigs)
         gen_hdl_no_memwrmux_dff(root, module, isigs)
