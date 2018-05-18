@@ -576,7 +576,7 @@ def gen_hdl_memwrmux(root, module, isigs, area, pfx, mems):
     last = first
     for m in mems:
         data = m.elements[0]
-        set_wrsel = data.access == 'wo' or root.c_bussplit
+        set_wrsel = data.access == 'wo' or (data.access == 'rw' and root.c_bussplit)
         if set_wrsel:
             proc.stmts.append(HDLAssign(m.h_wrsel_sig, bit_0))
         cond = HDLAnd(HDLGe(HDLSlice(bus_addr, adr_lo, adr_sz), m.h_gena_sta),

@@ -285,6 +285,10 @@ def conv_area(parent, el):
             for e in [g.strip() for g in v.split(',')]:
                 if e in ('ext-area',):
                     xg[e] = True
+                elif e in ('no-creg-mux-dff', 'no-reg-mux-dff',
+                           'no-mem-mux-dff'):
+                    # Discard ?
+                    pass
                 else:
                     raise UnknownGenAttribute(e, res)
             res.x_gena['gen'] = xg
