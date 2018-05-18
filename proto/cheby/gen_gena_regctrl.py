@@ -576,12 +576,13 @@ def gen_hdl_memwrmux(root, module, isigs, area, pfx, mems):
     last = first
     for m in mems:
         data = m.elements[0]
-        if data.access == 'wo':
+        set_wrsel = data.access == 'wo' or root.c_bussplit
+        if set_wrsel:
             proc.stmts.append(HDLAssign(m.h_wrsel_sig, bit_0))
         cond = HDLAnd(HDLGe(HDLSlice(bus_addr, adr_lo, adr_sz), m.h_gena_sta),
                       HDLLe(HDLSlice(bus_addr, adr_lo, adr_sz), m.h_gena_end))
         stmt = HDLIfElse(cond)
-        if data.access == 'wo':
+        if set_wrsel:
             stmt.then_stmts.append(HDLAssign(m.h_wrsel_sig, bit_1))
         if data.access in WRITE_ACCESS:
             proc.sensitivity.append(m.h_wrdone)
