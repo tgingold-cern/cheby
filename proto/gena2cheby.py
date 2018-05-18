@@ -109,6 +109,9 @@ def conv_bit_field_data(reg, el):
             for e in [g.strip() for g in v.split(',')]:
                 if e == '':
                     pass
+                elif e.startswith('ext-codes='):
+                    kg, vg = e.split('=')
+                    xg[kg] = vg
                 else:
                     raise UnknownGenAttribute(e, res)
             res.x_gena['gen'] = xg
@@ -148,6 +151,8 @@ def conv_sub_reg(reg, el):
                 elif e.startswith('ext-codes='):
                     kg, vg = e.split('=')
                     xg[kg] = vg
+                elif e in ('ignore', ):
+                    xg[e] = True
                 else:
                     raise UnknownGenAttribute(e, res)
             res.x_gena['gen'] = xg
@@ -203,7 +208,7 @@ def conv_register_data(parent, el):
                 else:
                     raise UnknownGenAttribute(e, res)
             res.x_gena['gen'] = xg
-        elif k in ['code-generation-rule',
+        elif k in ['code-generation-rule', 'bit-encoding',
                    'persistence', 'max-val', 'min-val',
                    'unit', 'read-conversion-factor', 'write-conversion-factor']:
             # Ignored
@@ -248,8 +253,71 @@ def conv_register_data(parent, el):
                     f.preset = (preset >> f.lo) & ((1 << w) - 1)
     parent.elements.append(res)
 
+def conv_memory_bit_field_data(el):
+    res = {}
+    attrs = el.attrib
+    res['name'] = attrs['name']
+    for k, v in attrs.items():
+        if k in ('bit', 'name', 'description', 'comment', 'comment-encoding'):
+            res[k] = v
+        else:
+            raise UnknownAttribute(k)
+
+    for child in el:
+        raise UnknownTag(child.tag)
+    return res
+
+
+def conv_memory_buffer(el):
+    res = {}
+    attrs = el.attrib
+    res['name'] = attrs['name']
+    for k, v in attrs.items():
+        if k in ('description', 'buffer-type', 'buffer-select-code', 'name',
+                 'read-conversion-factor', 'write-conversion-factor', 'unit',
+                 'bit-encoding', 'note', 'comment', 'comment-encoding'):
+            res[k] = v
+        else:
+            raise UnknownAttribute(k)
+
+    bit_fields = []
+    for child in el:
+        if child.tag == 'bit-field-data':
+            bit_fields.append(conv_memory_bit_field_data(child))
+        else:
+            raise UnknownTag(child.tag)
+    if bit_fields:
+        res['bit-field-data'] = bit_fields
+    return res
+
+
+def conv_memory_channel(el):
+    res = {}
+    attrs = el.attrib
+    res['name'] = attrs['name']
+    for k, v in attrs.items():
+        if k in ('description', 'acq-base-freq', 'acq-width',
+                 'buffer-alignment', 'channel-select-code',
+                 'ors-definition',
+                 'note', 'name', 'comment', 'comment-encoding'):
+            res[k] = v
+        else:
+            raise UnknownAttribute(k)
+
+    memory_buffers = []
+    for child in el:
+        if child.tag == 'memory-buffer':
+            memory_buffers.append(conv_memory_buffer(child))
+        else:
+            raise UnknownTag(child.tag)
+    if memory_buffers:
+        res['memory-buffer'] = memory_buffers
+    return res
+
+
 def conv_memory_data(parent, el):
     res = cheby.tree.Array(parent)
+    res.x_gena = {}
     attrs = el.attrib
     res.name = attrs['name']
     for k, v in attrs.items():
@@ -288,11 +356,14 @@ def conv_memory_data(parent, el):
         reg.width = bus_width
     res.repeat //= reg.width // cheby.tree.BYTE_SIZE
 
+    memory_channel = []
     for child in el:
         if child.tag == 'memory-channel':
-            pass
+            memory_channel.append(conv_memory_channel(child))
         else:
             raise UnknownTag(child.tag)
+    if memory_channel:
+        res.x_gena['memory-channel'] = memory_channel
     parent.elements.append(res)
 
 def conv_area(parent, el):
@@ -315,7 +386,7 @@ def conv_area(parent, el):
                 if e in ('ext-area',):
                     xg[e] = True
                 elif e in ('no-creg-mux-dff', 'no-reg-mux-dff',
-                           'no-mem-mux-dff'):
+                           'no-mem-mux-dff', 'ext-creg'):
                     # Discard ?
                     pass
                 else:
@@ -351,7 +422,7 @@ def conv_submap(parent, el):
                     xg['include'] = 'include'
                 elif e == 'include=ext':
                     xg['include'] = 'external'
-                elif e == 'include=int':
+                elif e == 'include=int' or e == 'include=generate':
                     xg['include'] = 'internal'
                 elif e.startswith('include'):
                     raise UnknownGenAttribute(e, res)
