@@ -93,6 +93,7 @@ def conv_bit_field_data(reg, el):
     res = cheby.tree.Field(reg)
     res.x_gena = {}
     attrs = el.attrib
+    res.name = attrs['name']
     for k, v in attrs.items():
         if conv_common(res, k, v):
             pass
@@ -103,12 +104,19 @@ def conv_bit_field_data(reg, el):
             pass
         elif k == 'autoclear':
             res.x_gena['auto-clear'] = '1' if conv_bool(k, v) else '0'
-        elif k in ['alarm-level', 'gen']:
+        elif k == 'gen':
+            xg = {}
+            for e in [g.strip() for g in v.split(',')]:
+                if e == '':
+                    pass
+                else:
+                    raise UnknownGenAttribute(e, res)
+            res.x_gena['gen'] = xg
+        elif k in ['alarm-level']:
             # Ignored
             pass
         else:
             raise UnknownAttribute(k)
-    res.name = attrs['name']
     res.lo = int(attrs['bit'])
     for child in el:
         if child.tag == 'code-field':
@@ -121,6 +129,7 @@ def conv_sub_reg(reg, el):
     res = cheby.tree.Field(reg)
     res.x_gena = {}
     attrs = el.attrib
+    res.name = attrs['name']
     for k, v in attrs.items():
         if conv_common(res, k, v):
             pass
@@ -131,14 +140,23 @@ def conv_sub_reg(reg, el):
             res.preset = conv_int(v)
         elif k == 'auto-clear-mask':
             res.x_gena['auto-clear'] = v
-        elif k in ['gen',
-                   'unit', 'read-conversion-factor', 'write-conversion-factor',
+        elif k == 'gen':
+            xg = {}
+            for e in [g.strip() for g in v.split(',')]:
+                if e == '':
+                    pass
+                elif e.startswith('ext-codes='):
+                    kg, vg = e.split('=')
+                    xg[kg] = vg
+                else:
+                    raise UnknownGenAttribute(e, res)
+            res.x_gena['gen'] = xg
+        elif k in ['unit', 'read-conversion-factor', 'write-conversion-factor',
                    'constant-value']:
             # Ignored
             pass
         else:
             raise UnknownAttribute(k)
-    res.name = attrs['name']
     rng = attrs['range'].split('-')
     res.hi = int(rng[0])
     res.lo = int(rng[1])
@@ -179,6 +197,9 @@ def conv_register_data(parent, el):
                 elif e.startswith('resize='):
                     kg, vg = e.split('=')
                     xg[kg] = vg
+                elif e.startswith('mux='):
+                    kg, vg = e.split('=')
+                    xg[kg] = vg.replace('_', '.')
                 else:
                     raise UnknownGenAttribute(e, res)
             res.x_gena['gen'] = xg
@@ -230,6 +251,7 @@ def conv_register_data(parent, el):
 def conv_memory_data(parent, el):
     res = cheby.tree.Array(parent)
     attrs = el.attrib
+    res.name = attrs['name']
     for k, v in attrs.items():
         if conv_common(res, k, v):
             pass
@@ -237,12 +259,19 @@ def conv_memory_data(parent, el):
                    'element-depth']:
             # Handled
             pass
-        elif k in ['persistence', 'note', 'gen']:
+        elif k == 'gen':
+            xg = {}
+            for e in [g.strip() for g in v.split(',')]:
+                if e == '':
+                    pass
+                else:
+                    raise UnknownGenAttribute(e, res)
+            res.x_gena['gen'] = xg
+        elif k in ['persistence', 'note']:
             # Ignored
             pass
         else:
             raise UnknownAttribute(k)
-    res.name = attrs['name']
     res.address = conv_address(attrs['address'])
     res.repeat = conv_depth(attrs['element-depth'])
 
@@ -364,17 +393,18 @@ def conv_element(parent, child):
 def conv_root(root, filename):
     res = cheby.tree.Root()
 
-    d = {}
     res.x_gena = {}
     acc_mode = None
     size = None
     split_suffix = ''
     err_suffix = ''
-    for k, v in root.attrib.items():
+    attrs = root.attrib
+    res.name = attrs.get('name', os.path.basename(filename))
+    for k, v in attrs.items():
         if conv_common(res, k, v):
             pass
         elif k in ['name']:
-            d[k] = v
+            pass
         elif k == 'mem-map-access-mode':
             acc_mode = v
         elif k == 'area-depth':
@@ -413,7 +443,6 @@ def conv_root(root, filename):
             pass
         else:
             raise UnknownAttribute(k)
-    res.name = d.get('name', os.path.basename(filename))
     if acc_mode == 'A24/D8':
         res.bus = 'cern-be-vme' + err_suffix + split_suffix + '-8'
         res.c_word_size = 1
