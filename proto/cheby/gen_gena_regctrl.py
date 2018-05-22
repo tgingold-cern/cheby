@@ -135,7 +135,7 @@ def gen_hdl_reg_decls(reg, pfx, root, module, isigs):
         reg.h_acm = None
 
     reg.h_wrstrobe = []
-    if get_gena_gen(reg, 'write-strobe'):
+    if get_gena_gen(reg, 'write-strobe') and reg.access in WRITE_ACCESS:
         for i in reversed(range(reg.c_nwords)):
             ports = []
             for suff, _ in reg.h_mux.codelist:
@@ -157,7 +157,7 @@ def gen_hdl_reg_decls(reg, pfx, root, module, isigs):
         module.ports.append(reg.h_ClrSRFF)
 
     reg.h_rdstrobe = []
-    if get_gena_gen(reg, 'read-strobe'):
+    if get_gena_gen(reg, 'read-strobe') and reg.access in READ_ACCESS:
         for i in reversed(range(reg.c_nwords)):
             port = HDLPort(
                 pfx + reg.name + '_RdStrobe' + subsuffix(i, reg.c_nwords),
