@@ -1,0 +1,39 @@
+name: cregs_nodff
+bus: cern-be-vme-err-32
+size: 1048576
+x-gena:
+  gen:
+    no-creg-mux-dff: True
+  ident-code: 0xff
+  map-version: 20161031
+elements:
+  - reg:
+      name: test1
+      width: 32
+      access: ro
+      address: 0x0
+      fields:
+        - field:
+            name: b15
+            description: b15
+            range: 15
+  - reg:
+      name: test3
+      width: 64
+      access: rw
+      address: next
+  - reg:
+      name: test5
+      width: 32
+      access: rw
+      address: next
+  - reg:
+      name: test7
+      width: 32
+      access: ro
+      address: next
+      fields:
+        - field:
+            name: b31
+            description: b31
+            range: 31
