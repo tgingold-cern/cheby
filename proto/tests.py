@@ -207,7 +207,7 @@ def test_gena():
            'Area_Mems', 'Area_extarea', 'Area_extarea_error',
            'CRegs_wrstrobe', 'CRegs_srff', 'CRegs_resize', 'CRegs_nosplit',
            'CRegs_busout', 'CRegs_extcreg', 'CRegs_extacm',
-           'CRegs_nodff', 'CRegs_splitaddr',
+           'CRegs_nodff', 'CRegs_splitaddr', 'CRegs_library',
            'Submap',
            'Muxed']
     for f in files:
