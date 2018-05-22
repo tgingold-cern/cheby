@@ -209,7 +209,7 @@ def test_gena():
            'CRegs_wrstrobe', 'CRegs_srff', 'CRegs_resize', 'CRegs_nosplit',
            'CRegs_busout', 'CRegs_extcreg', 'CRegs_extacm',
            'CRegs_nodff', 'CRegs_splitaddr', 'CRegs_library',
-           'CRegs_resize_nosplit', 'CRegs_ignore',
+           'CRegs_resize_nosplit', 'CRegs_ignore', 'CRegs_Preset',
            'Submap', 'Submap_internal',
            'Muxed', 'Muxed2']
     for f in files:
