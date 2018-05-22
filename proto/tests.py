@@ -199,7 +199,7 @@ def compare_buffer_and_file(buf, filename):
 
 def test_gena():
     files=['CRegs', 'CRegs_Regs', 'CRegs_NoRMW', 'CRegs_Regs_NoRMW',
-           'Regs', 'Regs_Mems', 'Regs_rdstrobe',
+           'Regs', 'Regs_Mems', 'Regs_rdstrobe', 'Regs_nodff',
            'Mems', 'Mems2', 'Mems_RO', 'Mems_WO',
            'CRegs_Mems', 'CRegs_Regs_Mems',
            'Area_CRegs_Regs_Mems', 'Area_CRegs_Regs_Mems_EmptyRoot',

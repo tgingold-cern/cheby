@@ -1,0 +1,19 @@
+name: regs_nodff
+bus: cern-be-vme-16
+size: 1048576
+x-gena:
+  gen:
+    no-reg-mux-dff: True
+  ident-code: 0xff
+  map-version: 20161101
+elements:
+  - reg:
+      name: test1
+      width: 16
+      access: ro
+      address: 0x0
+  - reg:
+      name: test2
+      width: 32
+      access: ro
+      address: next
