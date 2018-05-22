@@ -205,6 +205,7 @@ def test_gena():
            'CRegs_Mems', 'CRegs_Regs_Mems',
            'Area_CRegs_Regs_Mems', 'Area_CRegs_Regs_Mems_EmptyRoot',
            'Area_Mems', 'Area_extarea', 'Area_extarea_error',
+           'Area_reserved',
            'CRegs_wrstrobe', 'CRegs_srff', 'CRegs_resize', 'CRegs_nosplit',
            'CRegs_busout', 'CRegs_extcreg', 'CRegs_extacm',
            'CRegs_nodff', 'CRegs_splitaddr', 'CRegs_library',
