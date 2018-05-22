@@ -1,0 +1,14 @@
+name: submap_internal
+bus: cern-be-vme-err-32
+size: 1048576
+x-gena:
+  ident-code: 0xff
+  map-version: 20161101
+elements:
+  - block:
+      name: submap1
+      address: next
+      submap_file: Inc_CRegs.cheby
+      x-gena:
+        gen:
+          include: internal

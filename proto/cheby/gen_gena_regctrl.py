@@ -996,6 +996,10 @@ def gen_hdl_area_decls(area, pfx, root, module, isigs):
                         assert len(el.elements) == 0
                         assert get_gena_gen(el, 'include') == 'internal'
                         el.elements = el.c_submap.elements
+                        lib = get_gena_gen(el.c_submap, 'vhdl-library')
+                        if not lib:
+                            lib = 'work'
+                        module.deps.append((lib, 'MemMap_{}'.format(el.c_submap.name)))
                     gen_hdl_area_decls(el, npfx, root, module, el_isigs)
             else:
                 el.h_ignored = True
