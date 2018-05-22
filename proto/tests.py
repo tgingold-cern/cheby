@@ -210,6 +210,7 @@ def test_gena():
            'CRegs_busout', 'CRegs_extcreg', 'CRegs_extacm',
            'CRegs_nodff', 'CRegs_splitaddr', 'CRegs_library',
            'CRegs_resize_nosplit', 'CRegs_ignore', 'CRegs_Preset',
+           'CRegs_Address',
            'Submap', 'Submap_internal',
            'Muxed', 'Muxed2']
     for f in files:

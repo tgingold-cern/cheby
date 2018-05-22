@@ -325,11 +325,11 @@ def layout_composite(lo, n):
         n.c_blk_bits = ilog2(n.c_size)
         n.c_sel_bits = 0
     # Keep elements in order.
-    n.elements = sorted(n.elements, key=(lambda x: x.c_address))
+    n.c_sorted_elements = sorted(n.elements, key=(lambda x: x.c_address))
     # Check for no-overlap.
     last_addr = 0
     last_node = None
-    for c in n.elements:
+    for c in n.c_sorted_elements:
         if c.c_address < last_addr:
             raise LayoutException(c,
                 "element {} overlap {}".format(
