@@ -336,7 +336,10 @@ def gen_hdl_reg_stmts(reg, pfx, root, module, isigs):
                     src = HDLZext(src, reg.c_rwidth)
                 module.stmts.append(HDLAssign(reg.h_loc_mux[i], src))
             else:
-                module.stmts.append(HDLAssign(reg.h_port[i], reg.h_loc_mux[i]))
+                src = reg.h_loc_mux[i]
+                if reg.c_iowidth < reg.c_rwidth:
+                    src = HDLZext(src, reg.c_iowidth)
+                module.stmts.append(HDLAssign(reg.h_port[i], src))
     elif get_gena_gen(reg, 'ext-creg'):
         if reg.access in READ_ACCESS:
             module.stmts.append(HDLAssign(reg.h_loc, reg.h_port))

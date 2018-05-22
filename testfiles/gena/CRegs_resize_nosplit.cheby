@@ -1,0 +1,34 @@
+name: cregs_resize_nosplit
+bus: cern-be-vme-err-32
+size: 1048576
+x-gena:
+  ident-code: 0xff
+  map-version: 20161031
+elements:
+  - reg:
+      name: test1
+      width: 32
+      access: ro
+      address: next
+      x-gena:
+        gen:
+          no-split: True
+          resize: 17
+  - reg:
+      name: test3
+      width: 32
+      access: rw
+      address: next
+      x-gena:
+        gen:
+          no-split: True
+          resize: 17
+  - reg:
+      name: test5
+      width: 32
+      access: wo
+      address: next
+      x-gena:
+        gen:
+          no-split: True
+          resize: 17
