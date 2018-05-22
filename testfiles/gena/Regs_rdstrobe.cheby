@@ -1,0 +1,23 @@
+name: regs_rdstrobe
+bus: cern-be-vme-16
+size: 1048576
+x-gena:
+  ident-code: 0xff
+  map-version: 20161101
+elements:
+  - reg:
+      name: test1
+      width: 16
+      access: ro
+      address: 0x0
+      x-gena:
+        gen:
+          read-strobe: True
+  - reg:
+      name: test2
+      width: 32
+      access: ro
+      address: next
+      x-gena:
+        gen:
+          read-strobe: True
