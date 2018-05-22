@@ -273,22 +273,23 @@ def gen_hdl_reg_insts(reg, pfx, root, module, isigs):
 
 def gen_hdl_field(base, field):
     if field.hi is None:
-        return HDLIndex(base, field.lo)
+        return (HDLIndex(base, field.lo), None)
     elif field.lo == 0 and field.hi == field._parent.c_rwidth - 1:
-        return base
+        return (base, field.c_rwidth)
     else:
-        return HDLSlice(base, field.lo, field.hi - field.lo + 1)
+        return (HDLSlice(base, field.lo, field.c_rwidth), field.c_rwidth)
 
 def gen_hdl_reg_rdmux(reg, pfx, root, module, isigs):
     proc = HDLComb()
     proc.name = 'Reg_{}{}_RdMux'.format(pfx, reg.name)
     sel_field = reg.h_mux.sel
     proc.sensitivity.append(sel_field._parent.h_loc)
-    sw = HDLSwitch(gen_hdl_field(sel_field._parent.h_loc, sel_field))
+    sel_val, sel_width = gen_hdl_field(sel_field._parent.h_loc, sel_field)
+    sw = HDLSwitch(sel_val)
     proc.stmts.append(sw)
     m = 0
     for suff, val in reg.h_mux.codelist:
-        ch = HDLChoiceExpr(HDLBinConst(val, sel_field.c_rwidth))
+        ch = HDLChoiceExpr(HDLBinConst(val, sel_width))
         ch.stmts.append(HDLAssign(reg.h_loc, reg.h_loc_mux[m]))
         proc.sensitivity.append(reg.h_loc_mux[m])
         ch.stmts.append(HDLAssign(reg.h_regok, bit_1))
@@ -305,7 +306,8 @@ def gen_hdl_reg_wrseldec(reg, pfx, root, module, isigs):
     proc.name = 'Reg_{}{}_WrSelDec'.format(pfx, reg.name)
     sel_field = reg.h_mux.sel
     proc.sensitivity.append(sel_field._parent.h_loc)
-    sw = HDLSwitch(gen_hdl_field(sel_field._parent.h_loc, sel_field))
+    sel_val, sel_width = gen_hdl_field(sel_field._parent.h_loc, sel_field)
+    sw = HDLSwitch(sel_val)
     for i in reversed(range(reg.c_nwords)):
         proc.sensitivity.append(reg.h_wrsel[i])
     for i in reversed(range(reg.c_nwords)):
@@ -313,7 +315,7 @@ def gen_hdl_reg_wrseldec(reg, pfx, root, module, isigs):
             proc.stmts.append(HDLAssign(reg.h_wrsel_mux[i][m], bit_0))
     m = 0
     for _, val in reg.h_mux.codelist:
-        ch = HDLChoiceExpr(HDLBinConst(val, sel_field.c_rwidth))
+        ch = HDLChoiceExpr(HDLBinConst(val, sel_width))
         for i in reversed(range(reg.c_nwords)):
             ch.stmts.append(HDLAssign(reg.h_wrsel_mux[i][m], reg.h_wrsel[i]))
         m += 1

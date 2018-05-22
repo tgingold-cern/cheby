@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type="text/xsl" href="http://abwww.cern.ch/ap/dist/accsoft/rf/accsoft-rf-cheburashka/PRO/src/java/cern/accsoft/rf/cheburashka/xml/schema/MemMapStyleSheet.xsl"?><memory-map xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" area-depth="1M" description="Muxed registers" ident-code="0x00" map-version="20180513" mem-map-access-mode="A24/D16"
+ name="muxed2"
+ xsi:schemaLocation="http://abwww.cern.ch/ap/dist/accsoft/rf/accsoft-rf-cheburashka/PRO/src/java/cern/accsoft/rf/cheburashka/xml/schema/TemplateMemMap.xsd">
+
+  <register-data access-mode="r" address="next" code-generation-rule="HW,Fesa" description="muxed-reg-ro" element-width="32" gen="mux=regSel_channelSelect" name="muxedRegRO" persistence="PPM"/>
+  <register-data access-mode="rw" address="next" code-generation-rule="HW,Fesa" description="muxed-reg-rw" element-width="32" gen="mux=regSel_channelSelect" name="muxedRegRW" persistence="PPM"/>
+  <register-data access-mode="rw" address="next" code-generation-rule="HW,Fesa" description="Acquisition buffer selection" element-width="16" name="regSel" persistence="PPM">
+    <bit-field-data comment="" description="Channel selection" gen="ext-codes=Mem.memory-channel" name="channelSelect" bit='15'/>
+    <sub-reg comment="" description="Buffer selection" name="bufferSelect" range="7-0"/>
+  </register-data>
+
+  <memory-data access-mode="rw" address="next" description="Memory" element-depth="512k" element-width="16" name="Mem" persistence="PPM">
+    <memory-channel acq-width="16" channel-select-code="0" description="chan 0" name="channel0"/>
+    <memory-channel acq-width="16" channel-select-code="1" description="chan 1" name="channel1"/>
+  </memory-data>
+</memory-map>
