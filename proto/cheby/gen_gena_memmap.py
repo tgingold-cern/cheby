@@ -6,9 +6,6 @@ from cheby.hdltree import (HDLPackage, HDLComment, HDLConstant,
 def get_gena(n, name, default=None):
     return n.get_extension('x_gena', name, default)
 
-def get_note(n):
-    return get_gena(n, 'note', '')
-
 def gen_header(root, decls):
     if hasattr(root, 'x_gena'):
         cpfx = 'C_{}'.format(root.name)

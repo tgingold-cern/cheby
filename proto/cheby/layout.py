@@ -7,6 +7,7 @@
    - check names are C identifiers
 """
 
+import sys
 import os.path
 import cheby.tree as tree
 import cheby.parser
@@ -230,7 +231,7 @@ def load_submap(blk, filename):
     while not isinstance(root, tree.Root):
         root = root._parent
     # FIXME: create a directory ?
-    print('Loading {}...'.format(filename))
+    sys.stderr.write('Loading {}...\n'.format(filename))
     if not os.path.isabs(filename):
         filename = os.path.join(os.path.dirname(root.c_filename), filename)
     submap = cheby.parser.parse_yaml(filename)
