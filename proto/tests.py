@@ -208,7 +208,8 @@ def test_gena():
            'CRegs_wrstrobe', 'CRegs_srff', 'CRegs_resize', 'CRegs_nosplit',
            'CRegs_busout', 'CRegs_extcreg', 'CRegs_extacm',
            'CRegs_nodff',
-           'Submap']
+           'Submap',
+           'Muxed']
     for f in files:
         if verbose:
             print('test gena: {}'.format(f))
