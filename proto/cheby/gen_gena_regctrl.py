@@ -11,7 +11,7 @@ from cheby.hdltree import (HDLComponent, HDLComponentSpec,
                            HDLAssign, HDLIfElse,
                            HDLSwitch, HDLChoiceExpr, HDLChoiceDefault,
                            HDLInstance, HDLComb, HDLSync,
-                           HDLNumber)
+                           HDLNumber, HDLBinConst)
 from gen_gena_memmap import subsuffix
 import cheby.gen_hdl as gen_hdl
 
@@ -24,14 +24,83 @@ def get_gena_gen(n, name, default=False):
         return default
     return gena_gen.get(name, default)
 
+class GenHDLException(Exception):
+    def __init__(self, msg):
+        self.msg = msg
+
+    def __str__(self):
+        return self.msg
+
+def find_by_name(root, path, ref):
+    base = root
+    for p in path:
+        n = None
+        if isinstance(base, (tree.Root, tree.Block)):
+            for e in base.elements:
+                if e.name == p:
+                    n = e
+                    break
+        elif isinstance(base, tree.Reg):
+            for e in base.fields:
+                if e.name == p:
+                    n = e
+                    break
+        if n == None:
+            raise GenHDLException("cannot find '{}' in '{}' for '{}'".format(
+                p, base.name, ref))
+        else:
+            base = n
+    return base
+
+class Mux:
+    def __init__(self):
+        self.codelist = []
+        self.sel = None
+    pass
+
+def extract_mux(root, mux, reg):
+    res = Mux()
+    res.sel = find_by_name(root, mux.split('.'), reg.name)
+    assert isinstance(res.sel, tree.Field)
+    code = get_gena_gen(res.sel, 'ext-codes', None)
+    if code:
+        path = code.split('.')
+        code_obj = find_by_name(root, path[:-1], res.sel.name)
+        code_attr = path[-1]
+    else:
+        code_obj = res.sel
+        code_attr = 'code'
+    if code_attr == 'memory-channel':
+        assert isinstance(code_obj, tree.Array)
+        channels = code_obj.get_extension('x_gena', 'memory-channels', None)
+        for d in channels:
+            chan = d['memory-channel']
+            res.codelist.append(
+                ('_' + chan['name'], chan['channel-select-code']))
+    else:
+        raise GenHDLException("unhandled ext-code kind '{}'".format(code_attr))
+    return res
+
 
 def gen_hdl_reg_decls(reg, pfx, root, module, isigs):
     # Generate ports
     mode = 'OUT' if reg.access in WRITE_ACCESS else 'IN'
-    reg.h_port = []
+    mux = get_gena_gen(reg, 'mux', None)
+    # FIXME: should it be an error ?
+    reg.h_has_mux = mux != None and not get_gena_gen(reg, 'ext-creg', False)
+    if mux:
+        mux = extract_mux(root, mux, reg)
+    else:
+        mux = Mux()
+        mux.codelist = [('', 0)]
+    reg.h_mux = mux
+    reg.h_port = None
     if get_gena_gen(reg, 'no-split'):
-        reg.h_port = HDLPort(pfx + reg.name, size=reg.c_iowidth, dir=mode)
-        module.ports.append(reg.h_port)
+        reg.h_port = []
+        for suff, _ in reg.h_mux.codelist:
+            port = HDLPort(pfx + reg.name + suff, size=reg.c_iowidth, dir=mode)
+            module.ports.append(port)
+            reg.h_port.append(port)
     elif get_gena_gen(reg, 'ext-creg'):
         if reg.access in READ_ACCESS:
             reg.h_port = HDLPort(pfx + reg.name, size=reg.c_rwidth, dir='IN')
@@ -46,10 +115,13 @@ def gen_hdl_reg_decls(reg, pfx, root, module, isigs):
     else:
         for f in reg.fields:
             sz, lo = (None, None) if f.hi is None else (f.c_iowidth, f.lo)
-            portname = pfx + reg.name + (('_' + f.name) if f.name is not None else '')
-            port = HDLPort(portname, size=sz, lo_idx=lo, dir=mode)
-            f.h_port = port
-            module.ports.append(f.h_port)
+            fname = ('_' + f.name) if f.name is not None else ''
+            f.h_port = []
+            for suff, _ in reg.h_mux.codelist:
+                port = HDLPort(pfx + reg.name + suff + fname,
+                               size=sz, lo_idx=lo, dir=mode)
+                module.ports.append(port)
+                f.h_port.append(port)
 
     reg.h_busout = None
     if get_gena_gen(reg, 'bus-out'):
@@ -65,11 +137,14 @@ def gen_hdl_reg_decls(reg, pfx, root, module, isigs):
     reg.h_wrstrobe = []
     if get_gena_gen(reg, 'write-strobe'):
         for i in reversed(range(reg.c_nwords)):
-            port = HDLPort(
-                pfx + reg.name + '_WrStrobe' + subsuffix(i, reg.c_nwords),
-                dir='OUT')
-            reg.h_wrstrobe.insert(0, port)
-            module.ports.append(port)
+            ports = []
+            for suff, _ in reg.h_mux.codelist:
+                port = HDLPort(
+                    pfx + reg.name + suff + '_WrStrobe' + subsuffix(i, reg.c_nwords),
+                    dir='OUT')
+                ports.append(port)
+                module.ports.append(port)
+            reg.h_wrstrobe.insert(0, ports)
 
     reg.h_SRFF = None
     reg.h_ClrSRFF = None
@@ -96,6 +171,18 @@ def gen_hdl_reg_decls(reg, pfx, root, module, isigs):
     else:
         reg.h_loc = HDLSignal('Loc_{}{}'.format(pfx, reg.name), reg.c_rwidth)
         module.decls.append(reg.h_loc)
+        if reg.h_has_mux:
+            reg.h_loc_mux = []
+            for suff, _ in mux.codelist:
+                sig = HDLSignal(
+                    'Loc_{}{}{}'.format(pfx, reg.name, suff), reg.c_rwidth)
+                module.decls.append(sig)
+                reg.h_loc_mux.append(sig)
+            reg.h_regok = HDLSignal('RegOK_{}{}'.format(pfx, reg.name))
+            module.decls.append(reg.h_regok)
+        else:
+            reg.h_loc_mux = [reg.h_loc]
+
     # Create Loc_x_SRFF
     reg.h_loc_SRFF = None
     if srff:
@@ -112,12 +199,23 @@ def gen_hdl_reg_decls(reg, pfx, root, module, isigs):
             module.decls.append(sig)
     # Create WrSel_ signals
     reg.h_wrsel = []
+    reg.h_wrsel_mux = []
     if reg.access in WRITE_ACCESS:
         for i in reversed(range(reg.c_nwords)):
             sig = HDLSignal('WrSel_{}{}{}'.format(
                 pfx, reg.name, subsuffix(i, reg.c_nwords)))
-            reg.h_wrsel.insert(0, sig)
             module.decls.append(sig)
+            reg.h_wrsel.insert(0, sig)
+            if reg.h_has_mux:
+                sels = []
+                for suff, _ in reg.h_mux.codelist:
+                    sig = HDLSignal('WrSel_{}{}{}{}'.format(
+                        pfx, reg.name, suff, subsuffix(i, reg.c_nwords)))
+                    sels.append(sig)
+                    module.decls.append(sig)
+                reg.h_wrsel_mux.insert(0, sels)
+            else:
+                reg.h_wrsel_mux.insert(0, [reg.h_wrsel[0]])
 
 def gen_hdl_reg_insts(reg, pfx, root, module, isigs):
     # For SRFF.
@@ -150,39 +248,93 @@ def gen_hdl_reg_insts(reg, pfx, root, module, isigs):
     else:
         raise AssertionError
     for i in reversed(range(reg.c_nwords)):
-        inst = HDLInstance('Reg_{}{}{}'.format(
-                                pfx, reg.name, subsuffix(i, reg.c_nwords)),
-                            reg_tpl)
-        iwidth = reg.c_rwidth // reg.c_nwords
-        inst.params = [('N', HDLNumber(iwidth))]
-        if reg.h_acm is None:
-            acm = reg.h_gena_acm[i]
-        else:
-            acm = HDLSlice(reg.h_acm, i * iwidth, iwidth)
-        inst.conns = [
-            ('VMEWrData', HDLSlice(root.h_bus['dati'], 0,
-                                   reg.c_mwidth // reg.c_nwords)),
-            ('Clk', root.h_bus['clk']),
-            ('Rst', root.h_bus['rst']),
-            ('WriteMem', root.h_bus['wr']),
-            ('CRegSel', reg.h_wrsel[i]),
-            ('AutoClrMsk', acm),
-            ('Preset', reg.h_gena_psm[i]),
-            ('CReg', HDLSlice(reg.h_loc, i * iwidth, iwidth))]
-        module.stmts.append(inst)
+        j = 0
+        for suff, _ in reg.h_mux.codelist:
+            inst = HDLInstance('Reg_{}{}{}{}'.format(
+                pfx, reg.name, suff, subsuffix(i, reg.c_nwords)), reg_tpl)
+            iwidth = reg.c_rwidth // reg.c_nwords
+            inst.params = [('N', HDLNumber(iwidth))]
+            if reg.h_acm is None:
+                acm = reg.h_gena_acm[i]
+            else:
+                acm = HDLSlice(reg.h_acm, i * iwidth, iwidth)
+            inst.conns = [
+                ('VMEWrData', HDLSlice(root.h_bus['dati'], 0,
+                                       reg.c_mwidth // reg.c_nwords)),
+                ('Clk', root.h_bus['clk']),
+                ('Rst', root.h_bus['rst']),
+                ('WriteMem', root.h_bus['wr']),
+                ('CRegSel', reg.h_wrsel_mux[i][j]),
+                ('AutoClrMsk', acm),
+                ('Preset', reg.h_gena_psm[i]),
+                ('CReg', HDLSlice(reg.h_loc_mux[j], i * iwidth, iwidth))]
+            module.stmts.append(inst)
+            j += 1
 
+def gen_hdl_field(base, field):
+    if field.hi is None:
+        return HDLIndex(base, field.lo)
+    elif field.lo == 0 and field.hi == field._parent.c_rwidth - 1:
+        return base
+    else:
+        return HDLSlice(base, field.lo, field.hi - field.lo + 1)
+
+def gen_hdl_reg_rdmux(reg, pfx, root, module, isigs):
+    proc = HDLComb()
+    proc.name = 'Reg_{}{}_RdMux'.format(pfx, reg.name)
+    sel_field = reg.h_mux.sel
+    proc.sensitivity.append(sel_field._parent.h_loc)
+    sw = HDLSwitch(gen_hdl_field(sel_field._parent.h_loc, sel_field))
+    proc.stmts.append(sw)
+    m = 0
+    for suff, val in reg.h_mux.codelist:
+        ch = HDLChoiceExpr(HDLBinConst(val, sel_field.c_rwidth))
+        ch.stmts.append(HDLAssign(reg.h_loc, reg.h_loc_mux[m]))
+        proc.sensitivity.append(reg.h_loc_mux[m])
+        ch.stmts.append(HDLAssign(reg.h_regok, bit_1))
+        sw.choices.append(ch)
+        m += 1
+    ch = HDLChoiceDefault()
+    ch.stmts.append(HDLAssign(reg.h_loc, HDLReplicate(bit_0, sel_field.c_rwidth)))
+    ch.stmts.append(HDLAssign(reg.h_regok, bit_0))
+    sw.choices.append(ch)
+    module.stmts.append(proc)
+
+def gen_hdl_reg_wrseldec(reg, pfx, root, module, isigs):
+    proc = HDLComb()
+    proc.name = 'Reg_{}{}_WrSelDec'.format(pfx, reg.name)
+    sel_field = reg.h_mux.sel
+    proc.sensitivity.append(sel_field._parent.h_loc)
+    sw = HDLSwitch(gen_hdl_field(sel_field._parent.h_loc, sel_field))
+    for i in reversed(range(reg.c_nwords)):
+        proc.sensitivity.append(reg.h_wrsel[i])
+    for i in reversed(range(reg.c_nwords)):
+        for m in range(len(reg.h_mux.codelist)):
+            proc.stmts.append(HDLAssign(reg.h_wrsel_mux[i][m], bit_0))
+    m = 0
+    for _, val in reg.h_mux.codelist:
+        ch = HDLChoiceExpr(HDLBinConst(val, sel_field.c_rwidth))
+        for i in reversed(range(reg.c_nwords)):
+            ch.stmts.append(HDLAssign(reg.h_wrsel_mux[i][m], reg.h_wrsel[i]))
+        m += 1
+        sw.choices.append(ch)
+    ch = HDLChoiceDefault()
+    sw.choices.append(ch)
+    proc.stmts.append(sw)
+    module.stmts.append(proc)
 
 def gen_hdl_reg_stmts(reg, pfx, root, module, isigs):
     if reg.h_SRFF:
         module.stmts.append(HDLAssign(reg.h_SRFF, reg.h_loc_SRFF))
     if get_gena_gen(reg, 'no-split'):
-        if reg.access in ('ro'):
-            src = reg.h_port
-            if reg.c_iowidth < reg.c_rwidth:
-                src = HDLZext(src, reg.c_rwidth)
-            module.stmts.append(HDLAssign(reg.h_loc, src))
-        else:
-            module.stmts.append(HDLAssign(reg.h_port, reg.h_loc))
+        for i in range(len(reg.h_mux.codelist)):
+            if reg.access in ('ro'):
+                src = reg.h_port[i]
+                if reg.c_iowidth < reg.c_rwidth:
+                    src = HDLZext(src, reg.c_rwidth)
+                module.stmts.append(HDLAssign(reg.h_loc_mux[i], src))
+            else:
+                module.stmts.append(HDLAssign(reg.h_port[i], reg.h_loc_mux[i]))
     elif get_gena_gen(reg, 'ext-creg'):
         if reg.access in READ_ACCESS:
             module.stmts.append(HDLAssign(reg.h_loc, reg.h_port))
@@ -206,34 +358,38 @@ def gen_hdl_reg_stmts(reg, pfx, root, module, isigs):
             bitlist.append((reg.c_rwidth, nbit, None))
         # Assign Loc_ from inputs; assign outputs from Loc_
         for hi, lo, f in reversed(bitlist):
-            if hi == lo + 1:
-                tgt = HDLIndex(reg.h_loc, lo)
-            elif lo == 0 and hi == reg.c_rwidth:
-                tgt = reg.h_loc
-            else:
-                tgt = HDLSlice(reg.h_loc, lo, hi - lo)
-            if f is None:
-                idx = lo // root.c_word_bits
+            for m in range(len(reg.h_loc_mux)):
+                tgt = reg.h_loc_mux[m]
                 if hi == lo + 1:
-                    src = HDLIndex(reg.h_gena_psm[idx], lo)
+                    tgt = HDLIndex(tgt, lo)
+                elif lo == 0 and hi == reg.c_rwidth:
+                    pass
                 else:
-                    src = HDLSlice(reg.h_gena_psm[idx], lo, hi - lo)
-            else:
-                src = f.h_port
-            if f and f.c_iowidth < f.c_rwidth:
-                src = HDLZext(src, f.c_rwidth)
-            module.stmts.append(HDLAssign(tgt, src))
+                    tgt = HDLSlice(tgt, lo, hi - lo)
+                if f is None:
+                    idx = lo // root.c_word_bits
+                    if hi == lo + 1:
+                        src = HDLIndex(reg.h_gena_psm[idx], lo)
+                    else:
+                        src = HDLSlice(reg.h_gena_psm[idx], lo, hi - lo)
+                else:
+                    src = f.h_port[m]
+                if f and f.c_iowidth < f.c_rwidth:
+                    src = HDLZext(src, f.c_rwidth)
+                module.stmts.append(HDLAssign(tgt, src))
     else:
-        for f in reg.fields:
-            if f.hi is None:
-                src = HDLIndex(reg.h_loc, f.lo)
-            elif f.lo == 0 and f.hi == reg.c_rwidth - 1:
-                src = reg.h_loc
-            else:
-                src = HDLSlice(reg.h_loc, f.lo, f.hi - f.lo + 1)
-            if f.c_iowidth < f.c_rwidth:
-                src = HDLZext(src, f.c_iowidth)
-            module.stmts.append(HDLAssign(f.h_port, src))
+        for m in range(len(reg.h_loc_mux)):
+            for f in reg.fields:
+                src = reg.h_loc_mux[m]
+                if f.hi is None:
+                    src = HDLIndex(src, f.lo)
+                elif f.lo == 0 and f.hi == reg.c_rwidth - 1:
+                    pass
+                else:
+                    src = HDLSlice(src, f.lo, f.hi - f.lo + 1)
+                if f.c_iowidth < f.c_rwidth:
+                    src = HDLZext(src, f.c_iowidth)
+                module.stmts.append(HDLAssign(f.h_port[m], src))
 
     if reg.h_rdstrobe:
         for i in reversed(range(reg.c_nwords)):
@@ -241,8 +397,14 @@ def gen_hdl_reg_stmts(reg, pfx, root, module, isigs):
                 HDLAnd(reg.h_rdsel[i], isigs.RegRdDone)))
     if reg.h_wrstrobe:
         for i in reversed(range(reg.c_nwords)):
-            module.stmts.append(HDLAssign(reg.h_wrstrobe[i],
-                HDLAnd(reg.h_wrsel[i], isigs.RegWrDone)))
+            for j in range(len(reg.h_mux.codelist)):
+                module.stmts.append(HDLAssign(reg.h_wrstrobe[i][j],
+                    HDLAnd(reg.h_wrsel_mux[i][j], isigs.RegWrDone)))
+
+    if reg.h_has_mux:
+        if reg.access in WRITE_ACCESS:
+            gen_hdl_reg_wrseldec(reg, pfx, root, module, isigs)
+        gen_hdl_reg_rdmux(reg, pfx, root, module, isigs)
 
 
 def gen_hdl_wrseldec(root, module, isigs, area, pfx, wrseldec):
@@ -264,10 +426,15 @@ def gen_hdl_wrseldec(root, module, isigs, area, pfx, wrseldec):
     else:
         proc.stmts.append(sw)
     for reg in wrseldec:
+        if reg.h_has_mux:
+            proc.sensitivity.append(reg.h_regok)
+            regok = reg.h_regok
+        else:
+            regok = bit_1
         for i in reversed(range(reg.c_nwords)):
             ch = HDLChoiceExpr(reg.h_gena_regaddr[i])
             ch.stmts.append(HDLAssign(reg.h_wrsel[i], bit_1))
-            ch.stmts.append(HDLAssign(isigs.Loc_CRegWrOK, bit_1))
+            ch.stmts.append(HDLAssign(isigs.Loc_CRegWrOK, regok))
             sw.choices.append(ch)
     ch = HDLChoiceDefault()
     ch.stmts.append(HDLAssign(isigs.Loc_CRegWrOK, bit_0))
@@ -290,6 +457,7 @@ def gen_hdl_cregrdmux(root, module, isigs, area, pfx, wrseldec):
         proc.stmts.append(stmt)
     else:
         proc.stmts.append(sw)
+    regok_sensitivity = []
     for reg in wrseldec:
         if reg.h_loc:
             # NOTE: not needed for WO registers!
@@ -305,13 +473,19 @@ def gen_hdl_cregrdmux(root, module, isigs, area, pfx, wrseldec):
                 val = HDLSlice(val, i * regw, regw)
                 if regw < root.c_word_bits:
                     val = HDLZext(val, root.c_word_bits)
-                ok = bit_1
+                if reg.h_has_mux:
+                    if i == 0:
+                        regok_sensitivity.append(reg.h_regok)
+                    ok = reg.h_regok
+                else:
+                    ok = bit_1
             ch.stmts.append(HDLAssign(isigs.Loc_CRegRdData, val))
             ch.stmts.append(HDLAssign(isigs.Loc_CRegRdOK, ok))
             sw.choices.append(ch)
     ch = HDLChoiceDefault()
     ch.stmts.append(HDLAssign(isigs.Loc_CRegRdData, HDLReplicate(bit_0, None)))
     ch.stmts.append(HDLAssign(isigs.Loc_CRegRdOK, bit_0))
+    proc.sensitivity.extend(regok_sensitivity)
     sw.choices.append(ch)
     module.stmts.append(proc)
 
@@ -354,9 +528,15 @@ def gen_hdl_regrdmux(root, module, isigs, area, pfx, rd_reg):
         proc.stmts.append(stmt)
     else:
         proc.stmts.append(sw)
+    regok_sensitivity = []
     for reg in rd_reg:
         loc = reg.h_loc_SRFF or reg.h_loc
         proc.sensitivity.append(loc)
+        if reg.h_has_mux:
+            regok_sensitivity.append(reg.h_regok)
+            regok = reg.h_regok
+        else:
+            regok = bit_1
         for i in reversed(range(reg.c_nwords)):
             ch = HDLChoiceExpr(reg.h_gena_regaddr[i])
             val = loc
@@ -365,13 +545,14 @@ def gen_hdl_regrdmux(root, module, isigs, area, pfx, rd_reg):
             if vwidth < root.c_word_bits:
                 val = HDLZext(val, vwidth)
             ch.stmts.append(HDLAssign(isigs.Loc_RegRdData, val))
-            ch.stmts.append(HDLAssign(isigs.Loc_RegRdOK, bit_1))
+            ch.stmts.append(HDLAssign(isigs.Loc_RegRdOK, regok))
             if reg.h_rdsel:
                 ch.stmts.append(HDLAssign(reg.h_rdsel[i], bit_1))
             sw.choices.append(ch)
     ch = HDLChoiceDefault()
     ch.stmts.append(HDLAssign(isigs.Loc_RegRdData, isigs.CRegRdData))
     ch.stmts.append(HDLAssign(isigs.Loc_RegRdOK, isigs.CRegRdOK))
+    proc.sensitivity.extend(regok_sensitivity)
     sw.choices.append(ch)
     module.stmts.append(proc)
 
