@@ -224,14 +224,14 @@ def test_gena():
         hmemmap = gen_gena_memmap.gen_gena_memmap(t)
         buf = write_buffer()
         print_vhdl.print_vhdl(buf, hmemmap)
-        memmapfile = srcdir + 'gena/' + 'MemMap_' + t.name + '.vhd'
+        memmapfile = srcdir + 'gena/HDL/' + 'MemMap_' + t.name + '.vhd'
         if not compare_buffer_and_file(buf, memmapfile):
             error('gena memmap generation error for {}'.format(f))
         # Test regctrl generation
         hregctrl = gen_gena_regctrl.gen_gena_regctrl(t)
         buf = write_buffer()
         print_vhdl.print_vhdl(buf, hregctrl)
-        regctrlfile = srcdir + 'gena/' + 'RegCtrl_' + t.name + '.vhd'
+        regctrlfile = srcdir + 'gena/HDL/' + 'RegCtrl_' + t.name + '.vhd'
         if not compare_buffer_and_file(buf, regctrlfile):
             error('gena regctrl generation error for {}'.format(f))
 
