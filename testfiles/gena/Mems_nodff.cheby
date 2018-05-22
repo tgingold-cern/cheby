@@ -1,0 +1,36 @@
+name: mems_nodff
+bus: cern-be-vme-16
+size: 1048576
+x-gena:
+  gen:
+    no-mem-mux-dff: True
+  ident-code: 0xff
+  map-version: 20161101
+elements:
+  - array:
+      name: mem1
+      address: next
+      repeat: 512
+      elements:
+        - reg:
+            name: mem1
+            width: 16
+            access: rw
+  - array:
+      name: mem2
+      address: next
+      repeat: 512
+      elements:
+        - reg:
+            name: mem2
+            width: 16
+            access: ro
+  - array:
+      name: mem3
+      address: next
+      repeat: 512
+      elements:
+        - reg:
+            name: mem3
+            width: 16
+            access: wo
