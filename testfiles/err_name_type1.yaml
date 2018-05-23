@@ -2,7 +2,7 @@ memory-map:
   bus: wb-32-be
   name: 121
   description: a single register
-  elements:
+  children:
     - reg:
         name: areg1
         width: 32

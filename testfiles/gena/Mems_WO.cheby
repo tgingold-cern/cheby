@@ -5,12 +5,12 @@ memory-map:
   x-gena:
     ident-code: 0xff
     map-version: 20161101
-  elements:
+  children:
     - array:
         name: mem1
         address: next
         repeat: 512
-        elements:
+        children:
           - reg:
               name: mem1
               width: 16

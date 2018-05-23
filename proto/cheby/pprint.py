@@ -123,7 +123,7 @@ def pprint_reg(pp, n):
         pp.pp_hex('preset', n.preset)
     pprint_extensions(pp, n)
     if not has_one and n.fields:
-        pp.pp_list('fields')
+        pp.pp_list('children')
         for el in n.fields:
             pprint_field(pp, el)
         pp.pp_endlist()
@@ -166,7 +166,7 @@ def pprint_composite_head(pp, n):
 def pprint_composite_tail(pp, n):
     pprint_extensions(pp, n)
     if n.elements:
-        pp.pp_list('elements')
+        pp.pp_list('children')
         for el in n.elements:
             pp.visit(el)
         pp.pp_endlist()

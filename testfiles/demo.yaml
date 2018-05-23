@@ -5,7 +5,7 @@ memory-map:
   description: Routing Table Unit (RTU)
   x-wbgen:
     hdl_entity: rtu_wishbone_slave
-  elements:
+  children:
   #  Port Configuration Register
   - reg:
       name: GCR
@@ -15,7 +15,7 @@ memory-map:
       description: RTU Global Control Register
       comment: |
         Control register containing global (port-independent) settings of the RTU.
-      fields:
+      children:
       - field:
           name: G_ENA
           range: 0
@@ -73,7 +73,7 @@ memory-map:
       description: Port Select Register
       comment: |
         Selects the port to control through the PCR register
-      fields:
+      children:
       - field:
           name: PORT_SEL
           range: 7-0
@@ -102,7 +102,7 @@ memory-map:
       description: Port Control Register
       comment: |
         Register controlling the mode of the RTU port selected by PSELR register.
-      fields:
+      children:
       - field:
           name: LEARN_EN
           range: 0
@@ -181,7 +181,7 @@ memory-map:
       width: 32
       access: rw
       description: VLAN Table Register 1
-      fields:
+      children:
       - field:
           name: VID
           range: 11-0
@@ -261,14 +261,14 @@ memory-map:
         depth: 128
         wire_full: True
         wire_empty: True
-      elements:
+      children:
       - reg:
           name: ufifo_r0
           address: 0x00000000
           width: 32
           access: ro
           description: FIFO 'Unrecognized request FIFO (UFIFO)' data output register 0
-          fields:
+          children:
           - field:
               name: DMAC_LO
               range: 31-0
@@ -283,7 +283,7 @@ memory-map:
           width: 32
           access: ro
           description: FIFO 'Unrecognized request FIFO (UFIFO)' data output register 1
-          fields:
+          children:
           - field:
               name: DMAC_HI
               range: 15-0
@@ -298,7 +298,7 @@ memory-map:
           width: 32
           access: ro
           description: FIFO 'Unrecognized request FIFO (UFIFO)' data output register 2
-          fields:
+          children:
           - field:
               name: SMAC_LO
               range: 31-0
@@ -313,7 +313,7 @@ memory-map:
           width: 32
           access: ro
           description: FIFO 'Unrecognized request FIFO (UFIFO)' data output register 3
-          fields:
+          children:
           - field:
               name: SMAC_HI
               range: 15-0
@@ -328,7 +328,7 @@ memory-map:
           width: 32
           access: ro
           description: FIFO 'Unrecognized request FIFO (UFIFO)' data output register 4
-          fields:
+          children:
           - field:
               name: VID
               range: 11-0
@@ -379,7 +379,7 @@ memory-map:
           description: FIFO 'Unrecognized request FIFO (UFIFO)' control/status register
           x-wbgen:
             kind: fifocs
-          fields:
+          children:
           - field:
               name: empty
               range: 17
@@ -412,7 +412,7 @@ memory-map:
       x-wbgen:
         kind: ram
         access_dev: READ_WRITE
-      elements:
+      children:
       - reg:
           name: data
           width: 32
@@ -431,7 +431,7 @@ memory-map:
             description: UFIFO Not Empty IRQ
             comment: |
               Interrupt active when there are some requests in UFIFO.
-      elements:
+      children:
       - reg:
           name: eic_idr
           address: 0x00000000
@@ -440,7 +440,7 @@ memory-map:
           description: Interrupt disable register
           comment: |
             Writing 1 disables handling of the interrupt associated with corresponding bit. Writin 0 has no effect.
-          fields:
+          children:
           - field:
               name: nempty
               range: 0
@@ -459,7 +459,7 @@ memory-map:
           description: Interrupt enable register
           comment: |
             Writing 1 enables handling of the interrupt associated with corresponding bit. Writin 0 has no effect.
-          fields:
+          children:
           - field:
               name: nempty
               range: 0
@@ -478,7 +478,7 @@ memory-map:
           description: Interrupt mask register
           comment: |
             Shows which interrupts are enabled. 1 means that the interrupt associated with the bitfield is enabled
-          fields:
+          children:
           - field:
               name: nempty
               range: 0
@@ -497,7 +497,7 @@ memory-map:
           description: Interrupt status register
           comment: |
             Each bit represents the state of corresponding interrupt. 1 means the interrupt is pending. Writing 1 to a bit clears the corresponding interrupt. Writing 0 has no effect.
-          fields:
+          children:
           - field:
               name: nempty
               range: 0

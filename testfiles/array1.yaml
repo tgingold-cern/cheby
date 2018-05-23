@@ -1,11 +1,11 @@
 memory-map:
   bus: wb-32-be
   name: arr1
-  elements:
+  children:
   - array:
       name: arr
       repeat: 8
-      elements:
+      children:
       - reg:
           name: areg
           access: rw

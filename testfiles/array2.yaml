@@ -2,12 +2,12 @@ memory-map:
   bus: wb-32-be
   name: array2
   description: a simple array
-  elements:
+  children:
     - array:
         name: arr1
         repeat: 2
         align: False
-        elements:
+        children:
           - reg:
               name: areg1
               access: rw

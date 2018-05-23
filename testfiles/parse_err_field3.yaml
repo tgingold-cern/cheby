@@ -1,10 +1,10 @@
 memory-map:
   bus: wb-32-be
   name: parse_err_field
-  elements:
+  children:
   - reg:
       name: areg
-      fields:
+      children:
       - field:
         name: foo
         range: 1

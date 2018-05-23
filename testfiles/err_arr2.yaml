@@ -1,6 +1,6 @@
 memory-map:
   bus: wb-32-be
   name: arr1
-  elements:
+  children:
   - array:
       name: arr  # No repeat

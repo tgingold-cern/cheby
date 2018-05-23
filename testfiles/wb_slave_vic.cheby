@@ -7,14 +7,14 @@ memory-map:
     Module implementing a 2 to 32-input prioritized interrupt controller with internal interrupt vector storage support.
   x-wbgen:
     hdl_entity: wb_slave_vic
-  elements:
+  children:
   - reg:
       name: CTL
       address: 0x00000000
       width: 32
       access: rw
       description: VIC Control Register
-      fields:
+      children:
       - field:
           name: ENABLE
           range: 0

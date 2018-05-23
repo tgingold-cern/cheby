@@ -2,11 +2,11 @@ memory-map:
   bus: super-new-bus # Error
   name: sreg2
   description: a single register
-  elements:
+  children:
     - reg:
         name: areg
         width: 32
-        fields:
+        children:
           - field:
               name: afield
               range: 1

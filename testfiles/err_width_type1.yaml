@@ -2,7 +2,7 @@ memory-map:
   bus: wb-32-be
   name: err_width
   description: a single register
-  elements:
+  children:
     - reg:
         name: areg1
         width: abab

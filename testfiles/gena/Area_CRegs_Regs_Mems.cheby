@@ -5,7 +5,7 @@ memory-map:
   x-gena:
     ident-code: 0xff
     map-version: 20161031
-  elements:
+  children:
     - reg:
         name: test1
         width: 32
@@ -54,7 +54,7 @@ memory-map:
         name: mem1
         address: next
         repeat: 256
-        elements:
+        children:
           - reg:
               name: mem1
               width: 32
@@ -63,7 +63,7 @@ memory-map:
         name: mem2
         address: next
         repeat: 256
-        elements:
+        children:
           - reg:
               name: mem2
               width: 32
@@ -74,7 +74,7 @@ memory-map:
         size: 524288
         x-gena:
           reserved: False
-        elements:
+        children:
           - reg:
               name: test1
               width: 32
@@ -123,7 +123,7 @@ memory-map:
               name: mem1
               address: next
               repeat: 256
-              elements:
+              children:
                 - reg:
                     name: mem1
                     width: 32
@@ -132,7 +132,7 @@ memory-map:
               name: mem2
               address: next
               repeat: 256
-              elements:
+              children:
                 - reg:
                     name: mem2
                     width: 32

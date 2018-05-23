@@ -2,7 +2,7 @@ memory-map:
   bus: wb-32-be
   name: reg_value1
   description: register without field
-  elements:
+  children:
     - reg:
         name: areg32
         description: simple 32 bit register

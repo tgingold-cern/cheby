@@ -2,12 +2,12 @@ memory-map:
   bus: wb-32-be
   name: sreg2
   description: a single register
-  elements:
+  children:
     - reg:
         name: areg1
         width: 32
         access: rw
-        fields:
+        children:
           - field:
               name: afield
               range: 1
@@ -17,7 +17,7 @@ memory-map:
         width: 32
         access: rw
         address: 0x00  # Same address
-        fields:
+        children:
           - field:
               name: afield
               range: 1

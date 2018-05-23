@@ -5,13 +5,13 @@ memory-map:
   x-gena:
     ident-code: 0xff
     map-version: 20161031
-  elements:
+  children:
     - reg:
         name: test1
         width: 32
         access: ro
         address: 0x0
-        fields:
+        children:
           - field:
               name: b15
               description: b15
@@ -31,7 +31,7 @@ memory-map:
         width: 32
         access: ro
         address: next
-        fields:
+        children:
           - field:
               name: b31
               description: b31

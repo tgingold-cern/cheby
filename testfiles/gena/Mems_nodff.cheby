@@ -7,12 +7,12 @@ memory-map:
       no-mem-mux-dff: True
     ident-code: 0xff
     map-version: 20161101
-  elements:
+  children:
     - array:
         name: mem1
         address: next
         repeat: 512
-        elements:
+        children:
           - reg:
               name: mem1
               width: 16
@@ -21,7 +21,7 @@ memory-map:
         name: mem2
         address: next
         repeat: 512
-        elements:
+        children:
           - reg:
               name: mem2
               width: 16
@@ -30,7 +30,7 @@ memory-map:
         name: mem3
         address: next
         repeat: 512
-        elements:
+        children:
           - reg:
               name: mem3
               width: 16

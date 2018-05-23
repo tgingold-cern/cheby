@@ -6,7 +6,7 @@ memory-map:
   x-gena:
     ident-code: 0x00
     map-version: 20180513
-  elements:
+  children:
     - reg:
         name: muxedRegRO
         description: muxed-reg-ro
@@ -31,7 +31,7 @@ memory-map:
         width: 16
         access: rw
         address: next
-        fields:
+        children:
           - field:
               name: channelSelect
               description: Channel selection
@@ -60,7 +60,7 @@ memory-map:
                 channel-select-code: 1
                 description: chan 1
                 name: channel1
-        elements:
+        children:
           - reg:
               name: Mem
               width: 16

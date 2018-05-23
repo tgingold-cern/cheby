@@ -2,7 +2,7 @@ memory-map:
   bus: wb-32-be
   name: sreg
   description: a single register
-  elements:
+  children:
     - reg:
         name: areg
         width: 32

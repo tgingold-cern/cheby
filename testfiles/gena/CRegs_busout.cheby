@@ -5,7 +5,7 @@ memory-map:
   x-gena:
     ident-code: 0xff
     map-version: 20161031
-  elements:
+  children:
     - reg:
         name: test1
         width: 32
@@ -14,7 +14,7 @@ memory-map:
         x-gena:
           gen:
             bus-out: True
-        fields:
+        children:
           - field:
               name: b15
               description: b15
@@ -27,7 +27,7 @@ memory-map:
         x-gena:
           gen:
             bus-out: True
-        fields:
+        children:
           - field:
               name: b31
               description: b31
@@ -40,7 +40,7 @@ memory-map:
         x-gena:
           gen:
             bus-out: True
-        fields:
+        children:
           - field:
               name: b31
               description: b31
@@ -53,7 +53,7 @@ memory-map:
         x-gena:
           gen:
             bus-out: True
-        fields:
+        children:
           - field:
               name: b31
               description: b31

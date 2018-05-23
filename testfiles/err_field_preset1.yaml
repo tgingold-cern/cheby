@@ -2,12 +2,12 @@ memory-map:
   bus: wb-32-be
   name: err_preset1
   description: bad presset value
-  elements:
+  children:
     - reg:
         name: areg
         width: 32
         access: rw
-        fields:
+        children:
           - field:
               name: fname
               range: 4-0

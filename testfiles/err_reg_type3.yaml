@@ -2,7 +2,7 @@ memory-map:
   bus: wb-32-be
   name: reg_type3
   description: register with bad width
-  elements:
+  children:
     - reg:
         name: areg
         description: simple 32 bit register

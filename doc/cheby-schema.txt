@@ -76,7 +76,7 @@ description: string
   Short string (should fit on one line) that describes the map.
 comment: string
   Longer text that explains the purpose of the map.
-elements: { reg | block | array }
+children: { reg | block | array }
   Content of a memory map.
 
 Compatibility:
@@ -124,7 +124,7 @@ address: address
   and the other is wo.  This is needed to described existing devices
   (like wb i2c master), but this practice is deprecated.  HDL generators
   don't need to support overlap.
-fields: { field }
+children: { field }
 
 Compatibility:
 In wbgen, a register is always composed of fields.  But when a register is
@@ -182,15 +182,15 @@ align: boolean
   alignment. The default value is true.
 submap: string
   Optional filename that described the content of that area.  If present,
-  the block must not have any elements.
+  the block must not have any children.
 interface: boolean
   If set to true, the block is represented as an external HW module, connected
   through its parent via a bus.  If set to false, the block is directly
   implemented. (TODO: default is ???)
 size: number
   Number of bytes for that block. Must be large enough to contain all
-  the elements.
-elements: { reg | block | array }
+  the children.
+children: { reg | block | array }
 
 Compatibility:
 There are two features in Cheburashka:
@@ -227,8 +227,8 @@ repeat: number
   Number of element in the array.  Expected to be a power of 2 for a memory.
 size: number
   Number of bytes for the array. Must be large enough to contain all
-  the elements.
-elements: { reg | block | array }
+  the children.
+children: { reg | block | array }
 
 
 Notes:

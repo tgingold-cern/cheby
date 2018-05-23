@@ -2,12 +2,12 @@ memory-map:
   bus: wb-32-be
   name: err_width
   description: a single register
-  elements:
+  children:
     - array:
         name: arr1
         repeat: 2
         align: 123
-        elements:
+        children:
           - reg:
               name: areg1
               width: 32

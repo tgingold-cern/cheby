@@ -5,7 +5,7 @@ memory-map:
   x-gena:
     ident-code: 0xff
     map-version: 20161031
-  elements:
+  children:
     - reg:
         name: test1
         width: 32
@@ -21,7 +21,7 @@ memory-map:
           gen:
             ext-area: True
           reserved: False
-        elements:
+        children:
           - reg:
               name: test1
               width: 32

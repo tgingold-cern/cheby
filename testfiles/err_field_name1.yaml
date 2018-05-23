@@ -2,12 +2,12 @@ memory-map:
   bus: wb-32-be
   name: sreg2
   description: bad field
-  elements:
+  children:
     - reg:
         name: areg
         width: 32
         access: rw
-        fields:
+        children:
           - field:
               name: fname
               range: 4-0

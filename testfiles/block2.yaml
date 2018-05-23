@@ -1,7 +1,7 @@
 memory-map:
   bus: wb-32-be
   name: block2
-  elements:
+  children:
   - block:
       name: blk
       submap_file: simple_reg1.yaml

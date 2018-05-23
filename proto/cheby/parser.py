@@ -63,9 +63,9 @@ def parse_named(node, key, val):
     return True
 
 
-def parse_elements(node, val):
+def parse_children(node, val):
     if not isinstance(val, list):
-        error("'elements' of {} must be a list".format(node.get_path()))
+        error("'children' of {} must be a list".format(node.get_path()))
     for el in val:
         for k, v in el.items():
             if k == 'reg':
@@ -75,7 +75,7 @@ def parse_elements(node, val):
             elif k == 'array':
                 ch = parse_array(node, v)
             else:
-                error("unhandled '{}' in elements of {}".format(
+                error("unhandled '{}' in children of {}".format(
                       k, node.get_path()))
             node.elements.append(ch)
 
@@ -83,8 +83,8 @@ def parse_elements(node, val):
 def parse_composite(node, key, val):
     if parse_named(node, key, val):
         return True
-    elif key == 'elements':
-        parse_elements(node, val)
+    elif key == 'children':
+        parse_children(node, val)
         return True
     else:
         return False
@@ -92,7 +92,7 @@ def parse_composite(node, key, val):
 
 def parse_field(parent, el):
     if not isinstance(el, dict):
-        error("'fields' of {} must be a dictionnary".format(parent.get_path()))
+        error("'children' of {} must be a dictionnary".format(parent.get_path()))
     res = tree.Field(parent)
     for k, v in el.items():
         if parse_named(res, k, v):
@@ -127,13 +127,13 @@ def parse_reg(parent, el):
             res.access = read_text(res, k, v)
         elif k == 'address':
             res.address = read_address(res, k, v)
-        elif k == 'fields':
+        elif k == 'children':
             for f in v:
                 for k1, v1 in f.items():
                     if k1 == 'field':
                         ch = parse_field(res, v1)
                     else:
-                        error("unhandled '{}' in {}/fields".format(
+                        error("unhandled '{}' in {}/children".format(
                               k1, parent.get_path()))
                     res.fields.append(ch)
         else:
@@ -196,7 +196,7 @@ def parse_yaml(filename):
     if len(el) != 1:
         error("open error: {}: more than one root node".format(filename))
     el = el['memory-map']
-    
+
     res = tree.Root()
     res.c_filename = filename
     for k, v in el.items():

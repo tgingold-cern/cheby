@@ -1,14 +1,14 @@
 memory-map:
   bus: wb-32-be
   name: parse_err_array
-  elements:
+  children:
   - array:
       name: arr
       count: 4  # Error: repeat
-      elements:
+      children:
       - reg:
           name: areg
-          fields:
+          children:
           - field:
               name: foo
               range: 1

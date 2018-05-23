@@ -1,11 +1,11 @@
 memory-map:
   bus: wb-32-be
   name: block3
-  elements:
+  children:
   - block:
       name: blk
       align: false
-      elements:
+      children:
       - reg:
           name: areg
           access: rw

@@ -5,7 +5,7 @@ memory-map:
   x-gena:
     ident-code: 0xff
     map-version: 20161031
-  elements:
+  children:
     - reg:
         name: test1
         width: 16
@@ -25,7 +25,7 @@ memory-map:
         width: 32
         access: rw
         address: next
-        fields:
+        children:
           - field:
               name: msBit
               range: 31
@@ -83,7 +83,7 @@ memory-map:
         x-gena:
           auto-clear: 0xffff
           preset: 0xffff
-        fields:
+        children:
           - field:
               name: msBit
               range: 31
@@ -141,7 +141,7 @@ memory-map:
         x-gena:
           auto-clear: 0x0
           preset: 0x0
-        fields:
+        children:
           - field:
               name: msBit
               range: 31
@@ -199,7 +199,7 @@ memory-map:
         x-gena:
           auto-clear: 0xffffffff
           preset: 0xffffffff
-        fields:
+        children:
           - field:
               name: msBit
               range: 31

@@ -5,7 +5,7 @@ memory-map:
   x-gena:
     ident-code: 0xff
     map-version: 20161031
-  elements:
+  children:
     - reg:
         name: test1
         width: 32
@@ -13,7 +13,7 @@ memory-map:
         address: 0x0
         x-gena:
           preset: 0xe0
-        fields:
+        children:
           - field:
               name: b15
               description: b15

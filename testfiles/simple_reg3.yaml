@@ -2,12 +2,12 @@ memory-map:
   bus: wb-32-be
   name: sreg2
   description: a single register
-  elements:
+  children:
     - reg:
         name: areg
         width: 32
         access: rw
-        fields:
+        children:
           - field:
               name: fa_1
               description: Field for testing
@@ -17,7 +17,7 @@ memory-map:
         name: breg
         width: 32
         access: rw
-        fields:
+        children:
           - field:
               name: fb_1
               description: Field for testing

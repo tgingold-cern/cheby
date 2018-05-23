@@ -3,7 +3,7 @@ memory-map:
   bus: wb-32-be
   name: rtu
   doc: Routing Table Unit (RTU)
-  elements:
+  children:
   #  Port Configuration Register
   - reg:
       name: GCR
@@ -13,7 +13,7 @@ memory-map:
       description: RTU Global Control Register
       comment: |
         Control register containing global (port-independent) settings of the RTU.
-      fields:
+      children:
       - field:
           name: G_ENA
           range: 0
