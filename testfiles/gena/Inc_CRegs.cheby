@@ -1,4 +1,4 @@
-name: incCRegs 
+name: incCRegs
 bus: cern-be-vme-err-32
 size: 1024
 x-gena:

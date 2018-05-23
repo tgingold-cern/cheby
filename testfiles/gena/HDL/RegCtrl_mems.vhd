@@ -65,18 +65,21 @@ architecture syn of RegCtrl_mems is
   signal Sel_mem1                       : std_logic;
   signal Sel_mem2                       : std_logic;
   signal Sel_mem3                       : std_logic;
-
 begin
   Loc_CRegRdData <= (others => '0');
   Loc_CRegRdOK <= '0';
   Loc_CRegWrOK <= '0';
+
   CRegRdData <= Loc_CRegRdData;
   CRegRdOK <= Loc_CRegRdOK;
   CRegWrOK <= Loc_CRegWrOK;
+
   Loc_RegRdData <= CRegRdData;
   Loc_RegRdOK <= CRegRdOK;
+
   RegRdData <= Loc_RegRdData;
   RegRdOK <= Loc_RegRdOK;
+
   RegRdDone <= Loc_VMERdMem(0) and RegRdOK;
   RegWrDone <= Loc_VMEWrMem(0) and CRegWrOK;
 
@@ -126,18 +129,22 @@ begin
       MemWrDone <= Loc_MemWrDone;
     end if;
   end process MemWrMux_DFF;
+
   mem1_Addr <= VMEAddr(9 downto 1);
   mem1_Sel <= Sel_mem1;
   mem1_RdMem <= Sel_mem1 and VMERdMem;
   mem1_WrMem <= Sel_mem1 and VMEWrMem;
   mem1_WrData <= VMEWrData;
+
   mem2_Addr <= VMEAddr(9 downto 1);
   mem2_Sel <= Sel_mem2;
   mem2_RdMem <= Sel_mem2 and VMERdMem;
+
   mem3_Addr <= VMEAddr(9 downto 1);
   mem3_Sel <= Sel_mem3;
   mem3_WrMem <= Sel_mem3 and VMEWrMem;
   mem3_WrData <= VMEWrData;
+
   RdData <= MemRdData;
   RdDone <= MemRdDone;
   WrDone <= MemWrDone;
@@ -148,7 +155,9 @@ begin
       Loc_VMEWrMem <= Loc_VMEWrMem(0) & VMEWrMem;
     end if;
   end process StrobeSeq;
+
   VMERdData <= RdData;
   VMERdDone <= RdDone;
   VMEWrDone <= WrDone;
+
 end syn;

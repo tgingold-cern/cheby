@@ -48,13 +48,15 @@ architecture syn of RegCtrl_regs_nodff is
   signal WrDone                         : std_logic;
   signal Loc_test1                      : std_logic_vector(15 downto 0);
   signal Loc_test2                      : std_logic_vector(31 downto 0);
-
 begin
   Loc_test1 <= test1;
+
   Loc_test2 <= test2;
+
   Loc_CRegRdData <= (others => '0');
   Loc_CRegRdOK <= '0';
   Loc_CRegWrOK <= '0';
+
   CRegRdData <= Loc_CRegRdData;
   CRegRdOK <= Loc_CRegRdOK;
   CRegWrOK <= Loc_CRegWrOK;
@@ -75,16 +77,22 @@ begin
       Loc_RegRdOK <= CRegRdOK;
     end case;
   end process RegRdMux;
+
   RegRdData <= Loc_RegRdData;
   RegRdOK <= Loc_RegRdOK;
   RegRdDone <= Loc_VMERdMem(0) and RegRdOK;
   RegWrDone <= Loc_VMEWrMem(0) and CRegWrOK;
+
   Loc_MemRdData <= RegRdData;
   Loc_MemRdDone <= RegRdDone;
+
   MemRdData <= Loc_MemRdData;
   MemRdDone <= Loc_MemRdDone;
+
   Loc_MemWrDone <= RegWrDone;
+
   MemWrDone <= Loc_MemWrDone;
+
   RdData <= MemRdData;
   RdDone <= MemRdDone;
   WrDone <= MemWrDone;
@@ -95,7 +103,9 @@ begin
       Loc_VMEWrMem <= Loc_VMEWrMem(0) & VMEWrMem;
     end if;
   end process StrobeSeq;
+
   VMERdData <= RdData;
   VMERdDone <= RdDone;
   VMEWrDone <= WrDone;
+
 end syn;

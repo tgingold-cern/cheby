@@ -44,7 +44,9 @@ architecture syn of RegCtrl_cregsNoRMW is
       Preset               : in    std_logic_vector(N-1 downto 0)
     );
   end component;
+
   for all : CtrlRegN use entity CommonVisual.CtrlRegN(V1);
+
   signal Loc_VMERdMem                   : std_logic_vector(2 downto 0);
   signal Loc_VMEWrMem                   : std_logic_vector(1 downto 0);
   signal CRegRdData                     : std_logic_vector(15 downto 0);
@@ -88,7 +90,6 @@ architecture syn of RegCtrl_cregsNoRMW is
   signal Loc_test8                      : std_logic_vector(31 downto 0);
   signal WrSel_test8_1                  : std_logic;
   signal WrSel_test8_0                  : std_logic;
-
 begin
   Reg_test1: CtrlRegN
     generic map (
@@ -271,12 +272,19 @@ begin
     );
   
   test1 <= Loc_test1;
+
   test2 <= Loc_test2;
+
   test3 <= Loc_test3;
+
   test4 <= Loc_test4;
+
   test5 <= Loc_test5;
+
   test6 <= Loc_test6;
+
   test7 <= Loc_test7;
+
   test8 <= Loc_test8;
 
   WrSelDec: process (VMEAddr) begin
@@ -385,18 +393,26 @@ begin
       CRegWrOK <= Loc_CRegWrOK;
     end if;
   end process CRegRdMux_DFF;
+
   Loc_RegRdData <= CRegRdData;
   Loc_RegRdOK <= CRegRdOK;
+
   RegRdData <= Loc_RegRdData;
   RegRdOK <= Loc_RegRdOK;
+
   RegRdDone <= Loc_VMERdMem(1) and RegRdOK;
   RegWrDone <= Loc_VMEWrMem(1) and CRegWrOK;
+
   Loc_MemRdData <= RegRdData;
   Loc_MemRdDone <= RegRdDone;
+
   MemRdData <= Loc_MemRdData;
   MemRdDone <= Loc_MemRdDone;
+
   Loc_MemWrDone <= RegWrDone;
+
   MemWrDone <= Loc_MemWrDone;
+
   RdData <= MemRdData;
   RdDone <= MemRdDone;
   WrDone <= MemWrDone;
@@ -407,7 +423,9 @@ begin
       Loc_VMEWrMem <= Loc_VMEWrMem(0) & VMEWrMem;
     end if;
   end process StrobeSeq;
+
   VMERdData <= RdData;
   VMERdDone <= RdDone;
   VMEWrDone <= WrDone;
+
 end syn;

@@ -60,7 +60,9 @@ architecture syn of RegCtrl_cregsRegs is
       Preset               : in    std_logic_vector(N-1 downto 0)
     );
   end component;
+
   for all : RMWReg use entity CommonVisual.RMWReg(RMWReg);
+
   component CtrlRegN
     generic (
       N : integer := 16
@@ -76,7 +78,9 @@ architecture syn of RegCtrl_cregsRegs is
       Preset               : in    std_logic_vector(N-1 downto 0)
     );
   end component;
+
   for all : CtrlRegN use entity CommonVisual.CtrlRegN(V1);
+
   signal Loc_VMERdMem                   : std_logic_vector(2 downto 0);
   signal Loc_VMEWrMem                   : std_logic_vector(1 downto 0);
   signal CRegRdData                     : std_logic_vector(15 downto 0);
@@ -117,7 +121,6 @@ architecture syn of RegCtrl_cregsRegs is
   signal WrSel_test6_0                  : std_logic;
   signal Loc_test7                      : std_logic_vector(15 downto 0);
   signal Loc_test8                      : std_logic_vector(31 downto 0);
-
 begin
   Reg_test1: RMWReg
     generic map (
@@ -255,24 +258,31 @@ begin
     );
   
   test1 <= Loc_test1;
+
   test2_msBit <= Loc_test2(31);
   test2_msReg <= Loc_test2(25 downto 22);
   test2_boundryReg <= Loc_test2(17 downto 14);
   test2_isReg <= Loc_test2(9 downto 6);
   test2_lsBit <= Loc_test2(0);
+
   test3 <= Loc_test3;
+
   test4_msBit <= Loc_test4(31);
   test4_msReg <= Loc_test4(25 downto 22);
   test4_boundryReg <= Loc_test4(17 downto 14);
   test4_isReg <= Loc_test4(9 downto 6);
   test4_lsBit <= Loc_test4(0);
+
   test5 <= Loc_test5;
+
   test6_msBit <= Loc_test6(31);
   test6_msReg <= Loc_test6(25 downto 22);
   test6_boundryReg <= Loc_test6(17 downto 14);
   test6_isReg <= Loc_test6(9 downto 6);
   test6_lsBit <= Loc_test6(0);
+
   Loc_test7 <= test7;
+
   Loc_test8(31) <= test8_msBit;
   Loc_test8(30 downto 26) <= C_PSM_cregsRegs_test8_1(30 downto 26);
   Loc_test8(25 downto 22) <= test8_msReg;
@@ -392,14 +402,20 @@ begin
       RegRdOK <= Loc_RegRdOK;
     end if;
   end process RegRdMux_DFF;
+
   RegRdDone <= Loc_VMERdMem(2) and RegRdOK;
   RegWrDone <= Loc_VMEWrMem(1) and CRegWrOK;
+
   Loc_MemRdData <= RegRdData;
   Loc_MemRdDone <= RegRdDone;
+
   MemRdData <= Loc_MemRdData;
   MemRdDone <= Loc_MemRdDone;
+
   Loc_MemWrDone <= RegWrDone;
+
   MemWrDone <= Loc_MemWrDone;
+
   RdData <= MemRdData;
   RdDone <= MemRdDone;
   WrDone <= MemWrDone;
@@ -410,7 +426,9 @@ begin
       Loc_VMEWrMem <= Loc_VMEWrMem(0) & VMEWrMem;
     end if;
   end process StrobeSeq;
+
   VMERdData <= RdData;
   VMERdDone <= RdDone;
   VMEWrDone <= WrDone;
+
 end syn;

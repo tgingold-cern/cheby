@@ -47,7 +47,9 @@ architecture syn of RegCtrl_submap_internal is
       Preset               : in    std_logic_vector(N-1 downto 0)
     );
   end component;
+
   for all : RMWReg use entity CommonVisual.RMWReg(RMWReg);
+
   component CtrlRegN
     generic (
       N : integer := 16
@@ -63,7 +65,9 @@ architecture syn of RegCtrl_submap_internal is
       Preset               : in    std_logic_vector(N-1 downto 0)
     );
   end component;
+
   for all : CtrlRegN use entity CommonVisual.CtrlRegN(V1);
+
   signal Loc_VMERdMem                   : std_logic_vector(2 downto 0);
   signal Loc_VMEWrMem                   : std_logic_vector(1 downto 0);
   signal CRegRdData                     : std_logic_vector(31 downto 0);
@@ -138,30 +142,38 @@ architecture syn of RegCtrl_submap_internal is
   signal WrSel_submap1_test6            : std_logic;
   signal Loc_submap1_test7              : std_logic_vector(31 downto 0);
   signal Loc_submap1_test8              : std_logic_vector(31 downto 0);
-
 begin
   Loc_CRegRdData <= (others => '0');
   Loc_CRegRdOK <= '0';
   Loc_CRegWrOK <= '0';
+
   CRegRdData <= Loc_CRegRdData;
   CRegRdOK <= Loc_CRegRdOK;
   CRegWrOK <= Loc_CRegWrOK;
+
   Loc_RegRdData <= CRegRdData;
   Loc_RegRdOK <= CRegRdOK;
+
   RegRdData <= Loc_RegRdData;
   RegRdOK <= Loc_RegRdOK;
+
   RegRdDone <= Loc_VMERdMem(0) and RegRdOK;
   RegWrDone <= Loc_VMEWrMem(0) and CRegWrOK;
+
   RegRdError <= Loc_VMERdMem(0) and not RegRdOK;
   RegWrError <= Loc_VMEWrMem(0) and not CRegWrOK;
+
   Loc_MemRdData <= RegRdData;
   Loc_MemRdDone <= RegRdDone;
   Loc_MemRdError <= RegRdError;
+
   MemRdData <= Loc_MemRdData;
   MemRdDone <= Loc_MemRdDone;
   MemRdError <= Loc_MemRdError;
+
   Loc_MemWrDone <= RegWrDone;
   Loc_MemWrError <= RegWrError;
+
   MemWrDone <= Loc_MemWrDone;
   MemWrError <= Loc_MemWrError;
 
@@ -186,6 +198,7 @@ begin
       WrError <= MemWrError;
     end if;
   end process AreaWrMux;
+
   Reg_submap1_test1: RMWReg
     generic map (
       N                    => 16
@@ -277,12 +290,19 @@ begin
     );
   
   submap1_test1 <= Loc_submap1_test1;
+
   submap1_test2 <= Loc_submap1_test2;
+
   submap1_test3 <= Loc_submap1_test3;
+
   submap1_test4 <= Loc_submap1_test4;
+
   submap1_test5 <= Loc_submap1_test5;
+
   submap1_test6 <= Loc_submap1_test6;
+
   Loc_submap1_test7 <= submap1_test7;
+
   Loc_submap1_test8 <= submap1_test8;
 
   submap1_WrSelDec: process (VMEAddr) begin
@@ -384,20 +404,27 @@ begin
       submap1_RegRdOK <= Loc_submap1_RegRdOK;
     end if;
   end process submap1_RegRdMux_DFF;
+
   submap1_RegRdDone <= Loc_VMERdMem(2) and submap1_RegRdOK;
   submap1_RegWrDone <= Loc_VMEWrMem(1) and submap1_CRegWrOK;
+
   submap1_RegRdError <= Loc_VMERdMem(2) and not submap1_RegRdOK;
   submap1_RegWrError <= Loc_VMEWrMem(1) and not submap1_CRegWrOK;
+
   Loc_submap1_MemRdData <= submap1_RegRdData;
   Loc_submap1_MemRdDone <= submap1_RegRdDone;
   Loc_submap1_MemRdError <= submap1_RegRdError;
+
   submap1_MemRdData <= Loc_submap1_MemRdData;
   submap1_MemRdDone <= Loc_submap1_MemRdDone;
   submap1_MemRdError <= Loc_submap1_MemRdError;
+
   Loc_submap1_MemWrDone <= submap1_RegWrDone;
   Loc_submap1_MemWrError <= submap1_RegWrError;
+
   submap1_MemWrDone <= Loc_submap1_MemWrDone;
   submap1_MemWrError <= Loc_submap1_MemWrError;
+
   submap1_RdData <= submap1_MemRdData;
   submap1_RdDone <= submap1_MemRdDone;
   submap1_WrDone <= submap1_MemWrDone;
@@ -410,9 +437,11 @@ begin
       Loc_VMEWrMem <= Loc_VMEWrMem(0) & VMEWrMem;
     end if;
   end process StrobeSeq;
+
   VMERdData <= RdData;
   VMERdDone <= RdDone;
   VMEWrDone <= WrDone;
   VMERdError <= RdError;
   VMEWrError <= WrError;
+
 end syn;

@@ -108,30 +108,38 @@ architecture syn of RegCtrl_areaMems is
   signal Sel_area_mem1                  : std_logic;
   signal Sel_area_mem2                  : std_logic;
   signal Sel_area_mem3                  : std_logic;
-
 begin
   Loc_CRegRdData <= (others => '0');
   Loc_CRegRdOK <= '0';
   Loc_CRegWrOK <= '0';
+
   CRegRdData <= Loc_CRegRdData;
   CRegRdOK <= Loc_CRegRdOK;
   CRegWrOK <= Loc_CRegWrOK;
+
   Loc_RegRdData <= CRegRdData;
   Loc_RegRdOK <= CRegRdOK;
+
   RegRdData <= Loc_RegRdData;
   RegRdOK <= Loc_RegRdOK;
+
   RegRdDone <= Loc_VMERdMem(0) and RegRdOK;
   RegWrDone <= Loc_VMEWrMem(0) and CRegWrOK;
+
   RegRdError <= Loc_VMERdMem(0) and not RegRdOK;
   RegWrError <= Loc_VMEWrMem(0) and not CRegWrOK;
+
   Loc_MemRdData <= RegRdData;
   Loc_MemRdDone <= RegRdDone;
   Loc_MemRdError <= RegRdError;
+
   MemRdData <= Loc_MemRdData;
   MemRdDone <= Loc_MemRdDone;
   MemRdError <= Loc_MemRdError;
+
   Loc_MemWrDone <= RegWrDone;
   Loc_MemWrError <= RegWrError;
+
   MemWrDone <= Loc_MemWrDone;
   MemWrError <= Loc_MemWrError;
 
@@ -156,18 +164,24 @@ begin
       WrError <= MemWrError;
     end if;
   end process AreaWrMux;
+
   Loc_area_CRegRdData <= (others => '0');
   Loc_area_CRegRdOK <= '0';
   Loc_area_CRegWrOK <= '0';
+
   area_CRegRdData <= Loc_area_CRegRdData;
   area_CRegRdOK <= Loc_area_CRegRdOK;
   area_CRegWrOK <= Loc_area_CRegWrOK;
+
   Loc_area_RegRdData <= area_CRegRdData;
   Loc_area_RegRdOK <= area_CRegRdOK;
+
   area_RegRdData <= Loc_area_RegRdData;
   area_RegRdOK <= Loc_area_RegRdOK;
+
   area_RegRdDone <= Loc_VMERdMem(0) and area_RegRdOK;
   area_RegWrDone <= Loc_VMEWrMem(0) and area_CRegWrOK;
+
   area_RegRdError <= Loc_VMERdMem(0) and not area_RegRdOK;
   area_RegWrError <= Loc_VMEWrMem(0) and not area_CRegWrOK;
 
@@ -238,18 +252,22 @@ begin
       area_MemWrError <= Loc_area_MemWrError;
     end if;
   end process area_MemWrMux_DFF;
+
   area_mem1_Addr <= VMEAddr(9 downto 2);
   area_mem1_Sel <= Sel_area_mem1;
   area_mem1_RdMem <= Sel_area_mem1 and VMERdMem;
   area_mem1_WrMem <= Sel_area_mem1 and VMEWrMem;
   area_mem1_WrData <= VMEWrData;
+
   area_mem2_Addr <= VMEAddr(9 downto 2);
   area_mem2_Sel <= Sel_area_mem2;
   area_mem2_WrMem <= Sel_area_mem2 and VMEWrMem;
   area_mem2_WrData <= VMEWrData;
+
   area_mem3_Addr <= VMEAddr(9 downto 2);
   area_mem3_Sel <= Sel_area_mem3;
   area_mem3_RdMem <= Sel_area_mem3 and VMERdMem;
+
   area_RdData <= area_MemRdData;
   area_RdDone <= area_MemRdDone;
   area_WrDone <= area_MemWrDone;
@@ -262,9 +280,11 @@ begin
       Loc_VMEWrMem <= Loc_VMEWrMem(0) & VMEWrMem;
     end if;
   end process StrobeSeq;
+
   VMERdData <= RdData;
   VMERdDone <= RdDone;
   VMEWrDone <= WrDone;
   VMERdError <= RdError;
   VMEWrError <= WrError;
+
 end syn;

@@ -60,7 +60,9 @@ architecture syn of RegCtrl_areaCRegsRegsMemsER is
       Preset               : in    std_logic_vector(N-1 downto 0)
     );
   end component;
+
   for all : RMWReg use entity CommonVisual.RMWReg(RMWReg);
+
   component CtrlRegN
     generic (
       N : integer := 16
@@ -76,7 +78,9 @@ architecture syn of RegCtrl_areaCRegsRegsMemsER is
       Preset               : in    std_logic_vector(N-1 downto 0)
     );
   end component;
+
   for all : CtrlRegN use entity CommonVisual.CtrlRegN(V1);
+
   signal Loc_VMERdMem                   : std_logic_vector(2 downto 0);
   signal Loc_VMEWrMem                   : std_logic_vector(1 downto 0);
   signal CRegRdData                     : std_logic_vector(15 downto 0);
@@ -149,25 +153,32 @@ architecture syn of RegCtrl_areaCRegsRegsMemsER is
   signal Loc_area_test8                 : std_logic_vector(63 downto 0);
   signal Sel_area_mem1                  : std_logic;
   signal Sel_area_mem2                  : std_logic;
-
 begin
   Loc_CRegRdData <= (others => '0');
   Loc_CRegRdOK <= '0';
   Loc_CRegWrOK <= '0';
+
   CRegRdData <= Loc_CRegRdData;
   CRegRdOK <= Loc_CRegRdOK;
   CRegWrOK <= Loc_CRegWrOK;
+
   Loc_RegRdData <= CRegRdData;
   Loc_RegRdOK <= CRegRdOK;
+
   RegRdData <= Loc_RegRdData;
   RegRdOK <= Loc_RegRdOK;
+
   RegRdDone <= Loc_VMERdMem(0) and RegRdOK;
   RegWrDone <= Loc_VMEWrMem(0) and CRegWrOK;
+
   Loc_MemRdData <= RegRdData;
   Loc_MemRdDone <= RegRdDone;
+
   MemRdData <= Loc_MemRdData;
   MemRdDone <= Loc_MemRdDone;
+
   Loc_MemWrDone <= RegWrDone;
+
   MemWrDone <= Loc_MemWrDone;
 
   AreaRdMux: process (VMEAddr, MemRdData, MemRdDone, area_RdData, area_RdDone) begin
@@ -187,6 +198,7 @@ begin
       WrDone <= MemWrDone;
     end if;
   end process AreaWrMux;
+
   Reg_area_test1_1: RMWReg
     generic map (
       N                    => 8
@@ -458,12 +470,19 @@ begin
     );
   
   area_test1 <= Loc_area_test1;
+
   area_test2 <= Loc_area_test2;
+
   area_test3 <= Loc_area_test3;
+
   area_test4 <= Loc_area_test4;
+
   area_test5 <= Loc_area_test5;
+
   area_test6 <= Loc_area_test6;
+
   Loc_area_test7 <= area_test7;
+
   Loc_area_test8 <= area_test8;
 
   area_WrSelDec: process (VMEAddr) begin
@@ -667,6 +686,7 @@ begin
       area_RegRdOK <= Loc_area_RegRdOK;
     end if;
   end process area_RegRdMux_DFF;
+
   area_RegRdDone <= Loc_VMERdMem(2) and area_RegRdOK;
   area_RegWrDone <= Loc_VMEWrMem(1) and area_CRegWrOK;
 
@@ -718,16 +738,19 @@ begin
       area_MemWrDone <= Loc_area_MemWrDone;
     end if;
   end process area_MemWrMux_DFF;
+
   area_mem1_Addr <= VMEAddr(9 downto 1);
   area_mem1_Sel <= Sel_area_mem1;
   area_mem1_RdMem <= Sel_area_mem1 and VMERdMem;
   area_mem1_WrMem <= Sel_area_mem1 and VMEWrMem;
   area_mem1_WrData <= VMEWrData;
+
   area_mem2_Addr <= VMEAddr(9 downto 1);
   area_mem2_Sel <= Sel_area_mem2;
   area_mem2_RdMem <= Sel_area_mem2 and VMERdMem;
   area_mem2_WrMem <= Sel_area_mem2 and VMEWrMem;
   area_mem2_WrData <= VMEWrData;
+
   area_RdData <= area_MemRdData;
   area_RdDone <= area_MemRdDone;
   area_WrDone <= area_MemWrDone;
@@ -738,7 +761,9 @@ begin
       Loc_VMEWrMem <= Loc_VMEWrMem(0) & VMEWrMem;
     end if;
   end process StrobeSeq;
+
   VMERdData <= RdData;
   VMERdDone <= RdDone;
   VMEWrDone <= WrDone;
+
 end syn;

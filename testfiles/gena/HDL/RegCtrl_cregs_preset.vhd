@@ -57,15 +57,16 @@ architecture syn of RegCtrl_cregs_preset is
   signal RdError                        : std_logic;
   signal WrError                        : std_logic;
   signal Loc_test1                      : std_logic_vector(31 downto 0);
-
 begin
   Loc_test1(31 downto 16) <= C_PSM_cregs_preset_test1(31 downto 16);
   Loc_test1(15) <= test1_b15;
   Loc_test1(14) <= C_PSM_cregs_preset_test1(14);
   Loc_test1(13 downto 0) <= test1_w14;
+
   Loc_CRegRdData <= (others => '0');
   Loc_CRegRdOK <= '0';
   Loc_CRegWrOK <= '0';
+
   CRegRdData <= Loc_CRegRdData;
   CRegRdOK <= Loc_CRegRdOK;
   CRegWrOK <= Loc_CRegWrOK;
@@ -87,20 +88,27 @@ begin
       RegRdOK <= Loc_RegRdOK;
     end if;
   end process RegRdMux_DFF;
+
   RegRdDone <= Loc_VMERdMem(1) and RegRdOK;
   RegWrDone <= Loc_VMEWrMem(0) and CRegWrOK;
+
   RegRdError <= Loc_VMERdMem(1) and not RegRdOK;
   RegWrError <= Loc_VMEWrMem(0) and not CRegWrOK;
+
   Loc_MemRdData <= RegRdData;
   Loc_MemRdDone <= RegRdDone;
   Loc_MemRdError <= RegRdError;
+
   MemRdData <= Loc_MemRdData;
   MemRdDone <= Loc_MemRdDone;
   MemRdError <= Loc_MemRdError;
+
   Loc_MemWrDone <= RegWrDone;
   Loc_MemWrError <= RegWrError;
+
   MemWrDone <= Loc_MemWrDone;
   MemWrError <= Loc_MemWrError;
+
   RdData <= MemRdData;
   RdDone <= MemRdDone;
   WrDone <= MemWrDone;
@@ -113,9 +121,11 @@ begin
       Loc_VMEWrMem <= Loc_VMEWrMem(0) & VMEWrMem;
     end if;
   end process StrobeSeq;
+
   VMERdData <= RdData;
   VMERdDone <= RdDone;
   VMEWrDone <= WrDone;
   VMERdError <= RdError;
   VMEWrError <= WrError;
+
 end syn;

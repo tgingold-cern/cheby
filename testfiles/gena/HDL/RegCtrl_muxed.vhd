@@ -50,7 +50,9 @@ architecture syn of RegCtrl_muxed is
       Preset               : in    std_logic_vector(N-1 downto 0)
     );
   end component;
+
   for all : CtrlRegN use entity CommonVisual.CtrlRegN(V1);
+
   signal Loc_VMERdMem                   : std_logic_vector(2 downto 0);
   signal Loc_VMEWrMem                   : std_logic_vector(1 downto 0);
   signal CRegRdData                     : std_logic_vector(15 downto 0);
@@ -91,7 +93,6 @@ architecture syn of RegCtrl_muxed is
   signal Loc_regSel                     : std_logic_vector(15 downto 0);
   signal WrSel_regSel                   : std_logic;
   signal Sel_Mem                        : std_logic;
-
 begin
   Reg_muxedRegRW_channel0_1: CtrlRegN
     generic map (
@@ -184,6 +185,7 @@ begin
       RegOK_muxedRegRO <= '0';
     end case;
   end process Reg_muxedRegRO_RdMux;
+
   muxedRegRW_channel0 <= Loc_muxedRegRW_channel0;
   muxedRegRW_channel1 <= Loc_muxedRegRW_channel1;
 
@@ -216,6 +218,7 @@ begin
       RegOK_muxedRegRW <= '0';
     end case;
   end process Reg_muxedRegRW_RdMux;
+
   regSel_channelSelect <= Loc_regSel(15 downto 8);
   regSel_bufferSelect <= Loc_regSel(7 downto 0);
 
@@ -283,6 +286,7 @@ begin
       RegRdOK <= Loc_RegRdOK;
     end if;
   end process RegRdMux_DFF;
+
   RegRdDone <= Loc_VMERdMem(2) and RegRdOK;
   RegWrDone <= Loc_VMEWrMem(1) and CRegWrOK;
 
@@ -318,11 +322,13 @@ begin
       MemWrDone <= Loc_MemWrDone;
     end if;
   end process MemWrMux_DFF;
+
   Mem_Addr <= VMEAddr(18 downto 1);
   Mem_Sel <= Sel_Mem;
   Mem_RdMem <= Sel_Mem and VMERdMem;
   Mem_WrMem <= Sel_Mem and VMEWrMem;
   Mem_WrData <= VMEWrData;
+
   RdData <= MemRdData;
   RdDone <= MemRdDone;
   WrDone <= MemWrDone;
@@ -333,7 +339,9 @@ begin
       Loc_VMEWrMem <= Loc_VMEWrMem(0) & VMEWrMem;
     end if;
   end process StrobeSeq;
+
   VMERdData <= RdData;
   VMERdDone <= RdDone;
   VMEWrDone <= WrDone;
+
 end syn;

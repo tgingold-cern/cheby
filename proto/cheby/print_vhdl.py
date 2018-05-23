@@ -276,8 +276,9 @@ def generate_seq(fd, s, level):
 def generate_comment(fd, n, indent):
     if n.nl:
         wln(fd)
-    windent(fd, indent)
-    wln(fd, "-- {}".format(n.comment))
+    if n.comment is not None:
+        windent(fd, indent)
+        wln(fd, "-- {}".format(n.comment))
 
 
 def generate_stmts(fd, stmts, indent):
@@ -290,7 +291,6 @@ def generate_stmts(fd, stmts, indent):
             w(fd, sindent)
             generate_assign(fd, s)
         elif isinstance(s, hdltree.HDLComb):
-            wln(fd)
             w(fd, sindent)
             if s.name is not None:
                 w(fd, '{}: '.format(s.name))
@@ -311,7 +311,6 @@ def generate_stmts(fd, stmts, indent):
                 w(fd, ' {}'.format(s.name))
             wln(fd, ";")
         elif isinstance(s, hdltree.HDLSync):
-            wln(fd)
             w(fd, sindent)
             if s.name is not None:
                 w(fd, '{}: '.format(s.name))
@@ -400,7 +399,6 @@ def print_module(fd, module):
     wln(fd, "architecture syn of {} is".format(module.name))
     for s in module.decls:
         generate_decl(fd, s, 1)
-    wln(fd)
     wln(fd, "begin")
     generate_stmts(fd, module.stmts, 1)
     wln(fd, "end syn;")

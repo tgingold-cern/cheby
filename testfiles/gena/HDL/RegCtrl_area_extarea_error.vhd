@@ -49,7 +49,9 @@ architecture syn of RegCtrl_area_extarea_error is
       Preset               : in    std_logic_vector(N-1 downto 0)
     );
   end component;
+
   for all : RMWReg use entity CommonVisual.RMWReg(RMWReg);
+
   signal Loc_VMERdMem                   : std_logic_vector(2 downto 0);
   signal Loc_VMEWrMem                   : std_logic_vector(1 downto 0);
   signal CRegRdData                     : std_logic_vector(15 downto 0);
@@ -85,7 +87,6 @@ architecture syn of RegCtrl_area_extarea_error is
   signal WrSel_test1_1                  : std_logic;
   signal WrSel_test1_0                  : std_logic;
   signal Sel_area                       : std_logic;
-
 begin
   Reg_test1_1: RMWReg
     generic map (
@@ -155,22 +156,30 @@ begin
       CRegWrOK <= Loc_CRegWrOK;
     end if;
   end process CRegRdMux_DFF;
+
   Loc_RegRdData <= CRegRdData;
   Loc_RegRdOK <= CRegRdOK;
+
   RegRdData <= Loc_RegRdData;
   RegRdOK <= Loc_RegRdOK;
+
   RegRdDone <= Loc_VMERdMem(1) and RegRdOK;
   RegWrDone <= Loc_VMEWrMem(1) and CRegWrOK;
+
   RegRdError <= Loc_VMERdMem(1) and not RegRdOK;
   RegWrError <= Loc_VMEWrMem(1) and not CRegWrOK;
+
   Loc_MemRdData <= RegRdData;
   Loc_MemRdDone <= RegRdDone;
   Loc_MemRdError <= RegRdError;
+
   MemRdData <= Loc_MemRdData;
   MemRdDone <= Loc_MemRdDone;
   MemRdError <= Loc_MemRdError;
+
   Loc_MemWrDone <= RegWrDone;
   Loc_MemWrError <= RegWrError;
+
   MemWrDone <= Loc_MemWrDone;
   MemWrError <= Loc_MemWrError;
 
@@ -197,6 +206,7 @@ begin
       WrError <= MemWrError;
     end if;
   end process AreaWrMux;
+
   area_Addr <= VMEAddr(18 downto 1);
   area_Sel <= Sel_area;
   area_RdMem <= Sel_area and VMERdMem;
@@ -209,9 +219,11 @@ begin
       Loc_VMEWrMem <= Loc_VMEWrMem(0) & VMEWrMem;
     end if;
   end process StrobeSeq;
+
   VMERdData <= RdData;
   VMERdDone <= RdDone;
   VMEWrDone <= WrDone;
   VMERdError <= RdError;
   VMEWrError <= WrError;
+
 end syn;

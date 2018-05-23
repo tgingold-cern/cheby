@@ -42,7 +42,9 @@ architecture syn of RegCtrl_cregs_nodff is
       Preset               : in    std_logic_vector(N-1 downto 0)
     );
   end component;
+
   for all : CtrlRegN use entity CommonVisual.CtrlRegN(V1);
+
   signal Loc_VMERdMem                   : std_logic_vector(2 downto 0);
   signal Loc_VMEWrMem                   : std_logic_vector(1 downto 0);
   signal CRegRdData                     : std_logic_vector(31 downto 0);
@@ -81,7 +83,6 @@ architecture syn of RegCtrl_cregs_nodff is
   signal Loc_test5                      : std_logic_vector(31 downto 0);
   signal WrSel_test5                    : std_logic;
   signal Loc_test7                      : std_logic_vector(31 downto 0);
-
 begin
   Reg_test3_1: CtrlRegN
     generic map (
@@ -131,8 +132,11 @@ begin
   Loc_test1(31 downto 16) <= C_PSM_cregs_nodff_test1(31 downto 16);
   Loc_test1(15) <= test1_b15;
   Loc_test1(14 downto 0) <= C_PSM_cregs_nodff_test1(14 downto 0);
+
   test3 <= Loc_test3;
+
   test5 <= Loc_test5;
+
   Loc_test7(31) <= test7_b31;
   Loc_test7(30 downto 0) <= C_PSM_cregs_nodff_test7(30 downto 0);
 
@@ -171,10 +175,10 @@ begin
       Loc_CRegRdOK <= '0';
     end case;
   end process CRegRdMux;
+
   CRegRdData <= Loc_CRegRdData;
   CRegRdOK <= Loc_CRegRdOK;
   CRegWrOK <= Loc_CRegWrOK;
-
   RegRdMux: process (VMEAddr, CRegRdData, CRegRdOK, Loc_test1, Loc_test7) begin
     case VMEAddr(19 downto 2) is
     when C_Reg_cregs_nodff_test1 => 
@@ -195,20 +199,27 @@ begin
       RegRdOK <= Loc_RegRdOK;
     end if;
   end process RegRdMux_DFF;
+
   RegRdDone <= Loc_VMERdMem(1) and RegRdOK;
   RegWrDone <= Loc_VMEWrMem(0) and CRegWrOK;
+
   RegRdError <= Loc_VMERdMem(1) and not RegRdOK;
   RegWrError <= Loc_VMEWrMem(0) and not CRegWrOK;
+
   Loc_MemRdData <= RegRdData;
   Loc_MemRdDone <= RegRdDone;
   Loc_MemRdError <= RegRdError;
+
   MemRdData <= Loc_MemRdData;
   MemRdDone <= Loc_MemRdDone;
   MemRdError <= Loc_MemRdError;
+
   Loc_MemWrDone <= RegWrDone;
   Loc_MemWrError <= RegWrError;
+
   MemWrDone <= Loc_MemWrDone;
   MemWrError <= Loc_MemWrError;
+
   RdData <= MemRdData;
   RdDone <= MemRdDone;
   WrDone <= MemWrDone;
@@ -221,9 +232,11 @@ begin
       Loc_VMEWrMem <= Loc_VMEWrMem(0) & VMEWrMem;
     end if;
   end process StrobeSeq;
+
   VMERdData <= RdData;
   VMERdDone <= RdDone;
   VMEWrDone <= WrDone;
   VMERdError <= RdError;
   VMEWrError <= WrError;
+
 end syn;

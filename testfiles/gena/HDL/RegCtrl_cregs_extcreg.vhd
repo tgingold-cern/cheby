@@ -68,14 +68,16 @@ architecture syn of RegCtrl_cregs_extcreg is
   signal WrSel_test3_0                  : std_logic;
   signal WrSel_test5                    : std_logic;
   signal Loc_test7                      : std_logic_vector(31 downto 0);
-
 begin
   Loc_test1 <= test1;
   test1_Sel <= WrSel_test1;
+
   Loc_test3 <= test3;
   test3_Sel_1 <= WrSel_test3_1;
   test3_Sel_0 <= WrSel_test3_0;
+
   test5_Sel <= WrSel_test5;
+
   Loc_test7 <= test7;
 
   WrSelDec: process (VMEAddr) begin
@@ -146,20 +148,27 @@ begin
       RegRdOK <= Loc_RegRdOK;
     end if;
   end process RegRdMux_DFF;
+
   RegRdDone <= Loc_VMERdMem(2) and RegRdOK;
   RegWrDone <= Loc_VMEWrMem(1) and CRegWrOK;
+
   RegRdError <= Loc_VMERdMem(2) and not RegRdOK;
   RegWrError <= Loc_VMEWrMem(1) and not CRegWrOK;
+
   Loc_MemRdData <= RegRdData;
   Loc_MemRdDone <= RegRdDone;
   Loc_MemRdError <= RegRdError;
+
   MemRdData <= Loc_MemRdData;
   MemRdDone <= Loc_MemRdDone;
   MemRdError <= Loc_MemRdError;
+
   Loc_MemWrDone <= RegWrDone;
   Loc_MemWrError <= RegWrError;
+
   MemWrDone <= Loc_MemWrDone;
   MemWrError <= Loc_MemWrError;
+
   RdData <= MemRdData;
   RdDone <= MemRdDone;
   WrDone <= MemWrDone;
@@ -172,9 +181,11 @@ begin
       Loc_VMEWrMem <= Loc_VMEWrMem(0) & VMEWrMem;
     end if;
   end process StrobeSeq;
+
   VMERdData <= RdData;
   VMERdDone <= RdDone;
   VMEWrDone <= WrDone;
   VMERdError <= RdError;
   VMEWrError <= WrError;
+
 end syn;

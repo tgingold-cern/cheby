@@ -60,19 +60,27 @@ architecture syn of RegCtrl_regs is
   signal Loc_test6                      : std_logic_vector(31 downto 0);
   signal Loc_test7                      : std_logic_vector(15 downto 0);
   signal Loc_test8                      : std_logic_vector(31 downto 0);
-
 begin
   Loc_test1 <= test1;
+
   Loc_test2 <= test2;
+
   Loc_test3 <= test3;
+
   Loc_test4 <= test4;
+
   Loc_test5 <= test5;
+
   Loc_test6 <= test6;
+
   Loc_test7 <= test7;
+
   Loc_test8 <= test8;
+
   Loc_CRegRdData <= (others => '0');
   Loc_CRegRdOK <= '0';
   Loc_CRegWrOK <= '0';
+
   CRegRdData <= Loc_CRegRdData;
   CRegRdOK <= Loc_CRegRdOK;
   CRegWrOK <= Loc_CRegWrOK;
@@ -127,14 +135,20 @@ begin
       RegRdOK <= Loc_RegRdOK;
     end if;
   end process RegRdMux_DFF;
+
   RegRdDone <= Loc_VMERdMem(1) and RegRdOK;
   RegWrDone <= Loc_VMEWrMem(0) and CRegWrOK;
+
   Loc_MemRdData <= RegRdData;
   Loc_MemRdDone <= RegRdDone;
+
   MemRdData <= Loc_MemRdData;
   MemRdDone <= Loc_MemRdDone;
+
   Loc_MemWrDone <= RegWrDone;
+
   MemWrDone <= Loc_MemWrDone;
+
   RdData <= MemRdData;
   RdDone <= MemRdDone;
   WrDone <= MemWrDone;
@@ -145,7 +159,9 @@ begin
       Loc_VMEWrMem <= Loc_VMEWrMem(0) & VMEWrMem;
     end if;
   end process StrobeSeq;
+
   VMERdData <= RdData;
   VMERdDone <= RdDone;
   VMEWrDone <= WrDone;
+
 end syn;

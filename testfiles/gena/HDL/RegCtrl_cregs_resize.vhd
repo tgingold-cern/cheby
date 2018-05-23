@@ -44,7 +44,9 @@ architecture syn of RegCtrl_cregs_resize is
       Preset               : in    std_logic_vector(N-1 downto 0)
     );
   end component;
+
   for all : CtrlRegN use entity CommonVisual.CtrlRegN(V1);
+
   signal Loc_VMERdMem                   : std_logic_vector(2 downto 0);
   signal Loc_VMEWrMem                   : std_logic_vector(1 downto 0);
   signal CRegRdData                     : std_logic_vector(31 downto 0);
@@ -88,7 +90,6 @@ architecture syn of RegCtrl_cregs_resize is
   signal Loc_test6                      : std_logic_vector(63 downto 0);
   signal WrSel_test6_1                  : std_logic;
   signal WrSel_test6_0                  : std_logic;
-
 begin
   Reg_test3: CtrlRegN
     generic map (
@@ -181,10 +182,15 @@ begin
     );
   
   Loc_test1 <= std_logic_vector(resize(unsigned(test1), 32));
+
   Loc_test2 <= std_logic_vector(resize(unsigned(test2), 64));
+
   test3 <= std_logic_vector(resize(unsigned(Loc_test3), 17));
+
   test4 <= std_logic_vector(resize(unsigned(Loc_test4), 20));
+
   test5 <= std_logic_vector(resize(unsigned(Loc_test5), 17));
+
   test6 <= std_logic_vector(resize(unsigned(Loc_test6), 20));
 
   WrSelDec: process (VMEAddr) begin
@@ -275,20 +281,27 @@ begin
       RegRdOK <= Loc_RegRdOK;
     end if;
   end process RegRdMux_DFF;
+
   RegRdDone <= Loc_VMERdMem(2) and RegRdOK;
   RegWrDone <= Loc_VMEWrMem(1) and CRegWrOK;
+
   RegRdError <= Loc_VMERdMem(2) and not RegRdOK;
   RegWrError <= Loc_VMEWrMem(1) and not CRegWrOK;
+
   Loc_MemRdData <= RegRdData;
   Loc_MemRdDone <= RegRdDone;
   Loc_MemRdError <= RegRdError;
+
   MemRdData <= Loc_MemRdData;
   MemRdDone <= Loc_MemRdDone;
   MemRdError <= Loc_MemRdError;
+
   Loc_MemWrDone <= RegWrDone;
   Loc_MemWrError <= RegWrError;
+
   MemWrDone <= Loc_MemWrDone;
   MemWrError <= Loc_MemWrError;
+
   RdData <= MemRdData;
   RdDone <= MemRdDone;
   WrDone <= MemWrDone;
@@ -301,9 +314,11 @@ begin
       Loc_VMEWrMem <= Loc_VMEWrMem(0) & VMEWrMem;
     end if;
   end process StrobeSeq;
+
   VMERdData <= RdData;
   VMERdDone <= RdDone;
   VMEWrDone <= WrDone;
   VMERdError <= RdError;
   VMEWrError <= WrError;
+
 end syn;

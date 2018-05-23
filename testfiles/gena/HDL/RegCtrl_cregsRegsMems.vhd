@@ -60,7 +60,9 @@ architecture syn of RegCtrl_cregsRegsMems is
       Preset               : in    std_logic_vector(N-1 downto 0)
     );
   end component;
+
   for all : RMWReg use entity CommonVisual.RMWReg(RMWReg);
+
   component CtrlRegN
     generic (
       N : integer := 16
@@ -76,7 +78,9 @@ architecture syn of RegCtrl_cregsRegsMems is
       Preset               : in    std_logic_vector(N-1 downto 0)
     );
   end component;
+
   for all : CtrlRegN use entity CommonVisual.CtrlRegN(V1);
+
   signal Loc_VMERdMem                   : std_logic_vector(2 downto 0);
   signal Loc_VMEWrMem                   : std_logic_vector(1 downto 0);
   signal CRegRdData                     : std_logic_vector(15 downto 0);
@@ -122,7 +126,6 @@ architecture syn of RegCtrl_cregsRegsMems is
   signal WrSel_test8_0                  : std_logic;
   signal Sel_mem1                       : std_logic;
   signal Sel_mem2                       : std_logic;
-
 begin
   Reg_test1: RMWReg
     generic map (
@@ -305,12 +308,19 @@ begin
     );
   
   test1 <= Loc_test1;
+
   test2 <= Loc_test2;
+
   test3 <= Loc_test3;
+
   test4 <= Loc_test4;
+
   test5 <= Loc_test5;
+
   test6 <= Loc_test6;
+
   test7 <= Loc_test7;
+
   test8 <= Loc_test8;
 
   WrSelDec: process (VMEAddr) begin
@@ -419,10 +429,13 @@ begin
       CRegWrOK <= Loc_CRegWrOK;
     end if;
   end process CRegRdMux_DFF;
+
   Loc_RegRdData <= CRegRdData;
   Loc_RegRdOK <= CRegRdOK;
+
   RegRdData <= Loc_RegRdData;
   RegRdOK <= Loc_RegRdOK;
+
   RegRdDone <= Loc_VMERdMem(1) and RegRdOK;
   RegWrDone <= Loc_VMEWrMem(1) and CRegWrOK;
 
@@ -465,16 +478,19 @@ begin
       MemWrDone <= Loc_MemWrDone;
     end if;
   end process MemWrMux_DFF;
+
   mem1_Addr <= VMEAddr(9 downto 1);
   mem1_Sel <= Sel_mem1;
   mem1_RdMem <= Sel_mem1 and VMERdMem;
   mem1_WrMem <= Sel_mem1 and VMEWrMem;
   mem1_WrData <= VMEWrData;
+
   mem2_Addr <= VMEAddr(9 downto 1);
   mem2_Sel <= Sel_mem2;
   mem2_RdMem <= Sel_mem2 and VMERdMem;
   mem2_WrMem <= Sel_mem2 and VMEWrMem;
   mem2_WrData <= VMEWrData;
+
   RdData <= MemRdData;
   RdDone <= MemRdDone;
   WrDone <= MemWrDone;
@@ -485,7 +501,9 @@ begin
       Loc_VMEWrMem <= Loc_VMEWrMem(0) & VMEWrMem;
     end if;
   end process StrobeSeq;
+
   VMERdData <= RdData;
   VMERdDone <= RdDone;
   VMEWrDone <= WrDone;
+
 end syn;
