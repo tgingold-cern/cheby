@@ -80,6 +80,7 @@ begin
 
   RegRdData <= Loc_RegRdData;
   RegRdOK <= Loc_RegRdOK;
+
   RegRdDone <= Loc_VMERdMem(0) and RegRdOK;
   RegWrDone <= Loc_VMEWrMem(0) and CRegWrOK;
 

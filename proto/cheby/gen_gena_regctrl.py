@@ -1099,6 +1099,7 @@ def gen_hdl_area(area, pfx, area_root, root, module, root_isigs):
             rd_delay = wr_delay + 1
         else:
             gen_hdl_locregrd2regrd(module.stmts, isigs)
+            module.stmts.append(HDLComment(None))
             rd_delay = wr_delay
     else:
         gen_hdl_no_regrdmux(root, module, isigs)
