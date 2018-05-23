@@ -39,7 +39,7 @@ class SimplePrinter(tree.Visitor):
 def sprint_reg(sp, n):
     sp.sp_name('reg', n)
     if sp.with_fields:
-        for f in n.fields:
+        for f in n.children:
             sp.sp_field(f)
 
 
@@ -71,7 +71,7 @@ def sprint_composite(sp, n):
     sp.sp_info("[al: {}, sz: {}, sel: {}, blk: {}] ".format(
                 n.c_align, n.c_size, n.c_sel_bits, n.c_blk_bits))
     sp.inc()
-    for el in n.elements:
+    for el in n.children:
         sp.visit(el)
     sp.dec()
 

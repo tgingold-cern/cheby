@@ -27,10 +27,10 @@ class EncoreBlock(object):
         for r in self.regs:
             if not isinstance(r, tree.Reg):
                 raise AssertionError
-            elif isinstance(r.fields[0], tree.FieldReg):
-                self.write_field_reg(r, r.fields[0], fd)
+            elif isinstance(r.children[0], tree.FieldReg):
+                self.write_field_reg(r, r.children[0], fd)
             else:
-                for f in r.fields:
+                for f in r.children:
                     self.write_field(r, f, fd)
         fd.write('\n')
 
@@ -76,12 +76,12 @@ def p_vme_header(fd, root):
     fd.write("\n")
 
 def p_body(e, n):
-    for el in n.elements:
+    for el in n.children:
         if isinstance(el, tree.Reg):
             e.cur_block.regs.append(el)
         elif isinstance(el, tree.Array) \
-            and len(el.elements) == 1 \
-            and isinstance(el.elements[0], tree.Reg) \
+            and len(el.children) == 1 \
+            and isinstance(el.children[0], tree.Reg) \
             and (el.align is None or el.align):
             # A regular memory
             e.cur_block.regs.append(el)

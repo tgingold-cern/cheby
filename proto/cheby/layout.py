@@ -186,13 +186,13 @@ def layout_reg(lo, n):
     else:
         n.c_align = lo.word_size
     names = set()
-    if n.fields:
+    if n.children:
         if n.type is not None:
             raise LayoutException(n,
                 "register {} with both a type and fields".format(n.get_path()))
         n.c_type = None
         pos = [None] * n.width
-        for f in n.fields:
+        for f in n.children:
             if f.name in names:
                 raise LayoutException(f,
                     "field '{}' reuse a name in reg {}".format(
@@ -202,7 +202,7 @@ def layout_reg(lo, n):
     else:
         # Create the artificial field
         f = tree.FieldReg(n)
-        n.fields.append(f)
+        n.children.append(f)
         f.name = None
         f.description = n.description
         f.lo = 0
@@ -240,7 +240,7 @@ def load_submap(blk, filename):
 
 @Layout.register(tree.Block)
 def layout_block(lo, n):
-    if n.elements:
+    if n.children:
         layout_composite(lo, n)
     else:
         if n.submap_file:
@@ -262,7 +262,7 @@ def layout_block(lo, n):
 @Layout.register(tree.Array)
 def layout_array(lo, n):
     # Sanity check
-    if len(n.elements) != 1:
+    if len(n.children) != 1:
         raise LayoutException(n,
             "array '{}' must have one element".format(n.get_path()))
     if n.repeat is None:
@@ -288,30 +288,30 @@ def layout_composite(lo, n):
 
     # Check each child has a unique name.
     names = set()
-    for c in n.elements:
+    for c in n.children:
         if c.name in names:
             raise LayoutException(c,
                 "child {} reuse name '{}'".format(c.get_path(), c.name))
         names.add(c.name)
 
-    # Compute size and alignment of elements.
+    # Compute size and alignment of children.
     lo1 = lo.duplicate()
     max_align = 0
-    for c in n.elements:
+    for c in n.children:
         lo1.visit(c)
         max_align = max(max_align, c.c_align)
     has_aligned = False
-    for c in n.elements:
+    for c in n.children:
         if isinstance(c, tree.ComplexNode) and (c.align is None or c.align):
             has_aligned = True
     n.c_size = 0
-    for c in n.elements:
+    for c in n.children:
         lo1.compute_address(c)
         n.c_size = max(n.c_size, c.c_address + c.c_size)
     n.c_align = max_align
     if n.size is not None:
         if n.size < n.c_size:
-            for c in n.elements:
+            for c in n.children:
                 print('0x{:08x} - 0x{:08x}: {}'.format(
                     c.c_address, c.c_address + c.c_size, c.name))
             raise LayoutException(n,
@@ -324,12 +324,12 @@ def layout_composite(lo, n):
     else:
         n.c_blk_bits = ilog2(n.c_size)
         n.c_sel_bits = 0
-    # Keep elements in order.
-    n.c_sorted_elements = sorted(n.elements, key=(lambda x: x.c_address))
+    # Keep children in order.
+    n.c_sorted_children = sorted(n.children, key=(lambda x: x.c_address))
     # Check for no-overlap.
     last_addr = 0
     last_node = None
-    for c in n.c_sorted_elements:
+    for c in n.c_sorted_children:
         if c.c_address < last_addr:
             raise LayoutException(c,
                 "element {} overlap {}".format(
@@ -340,7 +340,7 @@ def layout_composite(lo, n):
 
 @Layout.register(tree.Root)
 def layout_root(lo, n):
-    if not n.elements:
+    if not n.children:
         raise LayoutException(n, "empty description '{}'".format(n.name))
     n.c_address = 0
     layout_composite(lo, n)

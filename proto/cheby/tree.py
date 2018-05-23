@@ -66,13 +66,13 @@ class NamedNode(Node):
 
 
 class CompositeNode(NamedNode):
-    """Base class for Cheby nodes with elements; they are also named.
-       :var elements: is the list of elements."""
+    """Base class for Cheby nodes with children; they are also named.
+       :var children: is the list of children."""
     _dispatcher = {}
 
     def __init__(self, parent):
         super(CompositeNode, self).__init__(parent)
-        self.elements = []
+        self.children = []
         # Computed variables
         self.c_blk_bits = None   # Number of bits for sub-blocks
         self.c_sel_bits = None   # Number of bits to select sub-blocks
@@ -99,7 +99,7 @@ class Reg(NamedNode):
         self.type = None
         self.access = None
         self.address = None
-        self.fields = []
+        self.children = []
         self.preset = None
         # Computed (by layout)
         self.c_size = None    # Size in bytes

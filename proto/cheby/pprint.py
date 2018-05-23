@@ -118,13 +118,13 @@ def pprint_reg(pp, n):
     pp.pp_str('type', n.type)
     pp.pp_str('access', n.access)
     pprint_address(pp, n)
-    has_one = len(n.fields) == 1 and isinstance(n.fields[0], tree.FieldReg)
+    has_one = len(n.children) == 1 and isinstance(n.children[0], tree.FieldReg)
     if has_one:
         pp.pp_hex('preset', n.preset)
     pprint_extensions(pp, n)
-    if not has_one and n.fields:
+    if not has_one and n.children:
         pp.pp_list('children')
-        for el in n.fields:
+        for el in n.children:
             pprint_field(pp, el)
         pp.pp_endlist()
     pp.pp_endobj()
@@ -165,9 +165,9 @@ def pprint_composite_head(pp, n):
 
 def pprint_composite_tail(pp, n):
     pprint_extensions(pp, n)
-    if n.elements:
+    if n.children:
         pp.pp_list('children')
-        for el in n.elements:
+        for el in n.children:
             pp.visit(el)
         pp.pp_endlist()
 

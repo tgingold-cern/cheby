@@ -153,7 +153,7 @@ def make_port_name_prefix(el, suffix, di):
         return pfx[1:]
 
 def add_ports_reg(root, module, n):
-    for f in n.fields:
+    for f in n.children:
         w = None if f.c_iowidth == 1 else f.c_iowidth
 
         # Input
@@ -215,9 +215,9 @@ def add_ports_block(root, module, prefix, n):
 
 def add_ports(root, module, prefix, node):
     """Create ports for a composite node."""
-    for n in node.elements:
+    for n in node.children:
         if isinstance(n, tree.Block):
-            if n.elements:
+            if n.children:
                 # Recurse
                 add_ports(root, module, prefix + n.name + '_', n)
             else:
@@ -235,13 +235,13 @@ def add_ports(root, module, prefix, node):
 def add_init_reg(stmts, node):
     """Create assignment for reset values."""
 
-    for n in node.elements:
+    for n in node.children:
         if isinstance(n, tree.Block):
             add_init_reg(stmts, n)
         elif isinstance(n, tree.Array):
             pass
         elif isinstance(n, tree.Reg):
-            for f in n.fields:
+            for f in n.children:
                 if f.h_reg is not None:
                     if f.preset is None:
                         v = 0
@@ -255,7 +255,7 @@ def add_init_reg(stmts, node):
 def add_clear_wstrobe(stmts, node):
     """Create assignment to clear the wstrobe."""
 
-    for n in node.elements:
+    for n in node.children:
         if isinstance(n, tree.Block):
             if n.interface is None:
                 add_clear_wstrobe(stmts, n)
@@ -266,7 +266,7 @@ def add_clear_wstrobe(stmts, node):
         elif isinstance(n, tree.Array):
             pass
         elif isinstance(n, tree.Reg):
-            for f in n.fields:
+            for f in n.children:
                 if f.h_wport is not None:
                     stmts.append(HDLAssign(f.h_wport, bit_0))
         else:
@@ -276,7 +276,7 @@ def add_clear_wstrobe(stmts, node):
 def wire_regs(root, module, isigs, node):
     """Create assignment from register to outputs."""
     stmts = module.stmts
-    for n in node.elements:
+    for n in node.children:
         if isinstance(n, tree.Block):
             if n.interface is None:
                 wire_regs(root, module, isigs, n)
@@ -292,7 +292,7 @@ def wire_regs(root, module, isigs, node):
         elif isinstance(n, tree.Array):
             pass
         elif isinstance(n, tree.Reg):
-            for f in n.fields:
+            for f in n.children:
                 if f.h_reg is not None and f.h_oport is not None:
                     stmts.append(HDLAssign(f.h_oport, f.h_reg))
         else:
@@ -302,8 +302,8 @@ def wire_regs(root, module, isigs, node):
 def add_reg_decoder(root, stmts, addr, func, els, blk_bits):
     """Call :param func: for each element of :param n:.  :param func: can also
        be called with None when a decoder is generated and could handle an
-       address that has no corresponding elements."""
-    # Decode directly all the elements
+       address that has no corresponding children."""
+    # Decode directly all the children
     width = blk_bits - root.c_addr_word_bits
     if width == 0:
         # There is only one register, handle it directly
@@ -339,24 +339,24 @@ def add_reg_decoder(root, stmts, addr, func, els, blk_bits):
 def add_block_decoder(root, stmts, addr, func, n):
     """Call :param func: for each element of :param n:.  :param func: can also
        be called with None when a decoder is generated and could handle an
-       address that has no corresponding elements."""
-    # Block without elements: interface
-    if not n.elements:
+       address that has no corresponding children."""
+    # Block without children: interface
+    if not n.children:
         func(stmts, n, 0)
         return
 
     if n.c_sel_bits == 0:
         # Only one selector level.
         # Either there is only one child, or only regs.
-        el = n.elements[0]
+        el = n.children[0]
         if isinstance(el, tree.Reg):
-            add_reg_decoder(root, stmts, addr, func, n.elements, n.c_blk_bits)
+            add_reg_decoder(root, stmts, addr, func, n.children, n.c_blk_bits)
             return
-        assert len(n.elements) == 1
+        assert len(n.children) == 1
         if isinstance(el, tree.Array):
             func(stmts, el, 0)
         else:
-            add_block_decoder(root, stmts, addr, func, n.elements[0])
+            add_block_decoder(root, stmts, addr, func, n.children[0])
         return
 
     # Put children into sub-blocks
@@ -365,7 +365,7 @@ def add_block_decoder(root, stmts, addr, func, n):
     subblocks = [None] * n_subblocks
     for i in range(n_subblocks):
         subblocks[i] = []
-    for el in n.elements:
+    for el in n.children:
         idx = (el.c_address >> subblocks_bits) & (n_subblocks - 1)
         subblocks[idx].append(el)
 
@@ -394,7 +394,7 @@ def add_block_decoder(root, stmts, addr, func, n):
 def add_decoder(root, stmts, addr, n, func):
     """Call :param func: for each element of :param n:.  :param func: can also
        be called with None when a decoder is generated and could handle an
-       address that has no corresponding elements."""
+       address that has no corresponding children."""
     add_block_decoder(root, stmts, addr, func, n)
 
 
@@ -451,7 +451,7 @@ def add_read_process(root, module, isigs):
     rd_if.else_stmts.append(HDLAssign(isigs.rd_ack, bit_0))
 
     def add_read_reg(s, n, off):
-        for f in n.fields:
+        for f in n.children:
             if n.access in ['wo', 'rw']:
                 src = f.h_reg
             elif n.access == 'ro':
@@ -502,7 +502,7 @@ def add_write_process(root, module, isigs):
         s.append(HDLAssign(n.h_wr_o, bit_1))
 
     def add_write_reg(s, n, off):
-        for f in n.fields:
+        for f in n.children:
             if f.hdl_type == 'reg':
                 r = f.h_reg
             elif f.hdl_type == 'wire':

@@ -42,7 +42,7 @@ def gen_reg_addr(n, root, decls, name, pfx):
     word_width = ilog2(root.c_word_size)
     addr_width = ilog2(n.c_size) - word_width
 
-    for reg in n.elements:
+    for reg in n.children:
         if isinstance(reg, tree.Reg):
             addr = reg.c_address // root.c_word_size
             # FIXME: Gena looks to use 1 instead of word_width
@@ -57,7 +57,7 @@ def gen_reg_addr(n, root, decls, name, pfx):
 
 def compute_acm(reg):
     res = get_gena(reg, 'auto-clear', 0)
-    for f in reg.fields:
+    for f in reg.children:
         v = get_gena(f, 'auto-clear', None)
         if v is not None:
             mask = (1 << f.c_rwidth) - 1
@@ -66,7 +66,7 @@ def compute_acm(reg):
 
 def compute_preset(reg):
     res = get_gena(reg, 'preset', 0)
-    for f in reg.fields:
+    for f in reg.children:
         v = f.preset
         if v is not None:
             mask = (1 << f.c_rwidth) - 1
@@ -102,7 +102,7 @@ def gen_reg_acm(n, root, decls, name, pfx):
     decls.append(HDLComment('Register Auto Clear Masks : {}'.format(name)))
 
     mpfx = 'C_ACM_{}'.format(pfx)
-    for e in n.elements:
+    for e in n.children:
         if isinstance(e, tree.Reg):
             acm = compute_acm(e)
             e.h_gena_acm = gen_mask(decls, acm, root, e, mpfx)
@@ -110,7 +110,7 @@ def gen_reg_acm(n, root, decls, name, pfx):
 def gen_reg_psm(n, root, decls, name, pfx):
     decls.append(HDLComment('Register Preset Masks : {}'.format(name)))
     mpfx = 'C_PSM_{}'.format(pfx)
-    for e in n.elements:
+    for e in n.children:
         if isinstance(e, tree.Reg):
             psm = compute_preset(e)
             e.h_gena_psm = gen_mask(decls, psm, root, e, mpfx)
@@ -125,10 +125,10 @@ def gen_code_fields(n, root, decls):
                               value=HDLBinConst(cf['code'], sz))
             decls.append(cst)
 
-    for e in reversed(n.elements):
+    for e in reversed(n.children):
         if isinstance(e, tree.Reg):
             # code-fields for fields
-            for f in e.fields:
+            for f in e.children:
                 codes = get_gena(f, 'code-fields', None)
                 if codes is not None:
                     gen_one_cf(codes, 'C_Code_{}_{}_{}'.format(
@@ -137,7 +137,7 @@ def gen_code_fields(n, root, decls):
             # code-fiels for registers
             codes = get_gena(e, 'code-fields', None)
             if codes is not None:
-                width = max([(f.hi or f.lo) + 1 for f in e.fields])
+                width = max([(f.hi or f.lo) + 1 for f in e.children])
                 gen_one_cf(codes, 'C_Code_{}_{}'.format(root.name, e.name),
                            width, 0)
 
@@ -145,7 +145,7 @@ def gen_memory_data(n, root, decls, name, pfx):
     decls.append(HDLComment('Memory Data : {}'.format(name), nl=False))
     word_width = ilog2(root.c_word_size)
     addr_width = ilog2(n.c_size) - word_width
-    for e in n.elements:
+    for e in n.children:
         if isinstance(e, tree.Array):
             addr = e.c_address >> word_width
             e.h_gena_sta = gen_addr_cst(
@@ -159,7 +159,7 @@ def gen_memory_data(n, root, decls, name, pfx):
 def gen_submap_addr(n, root, decls, name, pfx):
     decls.append(HDLComment('Submap Addresses : {}'.format(name), nl=False))
     # word_width = ilog2(root.c_word_size)
-    for e in n.elements:
+    for e in n.children:
         if isinstance(e, tree.Block) and e.submap_file is not None:
             block_width = ilog2(e.c_size)
             addr_width = ilog2(n.c_size) - block_width
@@ -196,7 +196,7 @@ def gen_gena_memmap(root):
     decls = []
     gen_header(root, decls)
 
-    blocks = [e for e in root.elements if isinstance(e, tree.Block)]
+    blocks = [e for e in root.children if isinstance(e, tree.Block)]
     areas =  [e for e in blocks if not hasattr(e, 'c_submap')] # or isinstance(e, tree.Array))]
     submaps = [e.c_submap for e in blocks if hasattr(e, 'c_submap')]
 

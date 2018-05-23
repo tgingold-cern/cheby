@@ -44,7 +44,7 @@ def chklayout_complex(cg, n):
 
 @ChkGen.register(tree.CompositeNode)
 def chklayout_composite(cg, n):
-    for el in n.elements:
+    for el in n.children:
         cg.cg_offset(n.name, el.name, el.c_address)
         cg.visit(el)
 

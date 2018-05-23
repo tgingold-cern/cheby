@@ -77,7 +77,7 @@ def parse_children(node, val):
             else:
                 error("unhandled '{}' in children of {}".format(
                       k, node.get_path()))
-            node.elements.append(ch)
+            node.children.append(ch)
 
 
 def parse_composite(node, key, val):
@@ -135,7 +135,7 @@ def parse_reg(parent, el):
                     else:
                         error("unhandled '{}' in {}/children".format(
                               k1, parent.get_path()))
-                    res.fields.append(ch)
+                    res.children.append(ch)
         else:
             error("unhandled '{}' in reg {}".format(k, parent.get_path()))
     return res

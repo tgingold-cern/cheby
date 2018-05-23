@@ -9,8 +9,8 @@ class UALValue(object):
         self._node = node
         self._offset = offset
 
-    def _get_child(self, name, elements):
-        els = [el for el in elements if el.name == name]
+    def _get_child(self, name, children):
+        els = [el for el in children if el.name == name]
         if len(els) != 1:
             raise AttributeError("no {} in {}".format(name, self._node.name))
         return els[0]
@@ -45,7 +45,7 @@ class UALValue(object):
 
     def __getattr__(self, name):
         if isinstance(self._node, (tree.Root, tree.Block, tree.Array)):
-            el = self._get_child(name, self._node.elements)
+            el = self._get_child(name, self._node.children)
             return UALValue(self._ual, self._root, el,
                             self._offset + el.c_address)
         elif isinstance(self._node, tree.Reg) and self._node.type is None:
@@ -59,7 +59,7 @@ class UALValue(object):
         if name[0] == '_':
             object.__setattr__(self, name, value)
         elif isinstance(self._node, tree.Reg) and self._node.type is None:
-            el = self._get_child(name, self._node.fields)
+            el = self._get_child(name, self._node.children)
             val = self._read_val()
             mask = ((1 << el.c_width) - 1) << el.lo
             val &= ~mask

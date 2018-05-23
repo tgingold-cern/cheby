@@ -36,13 +36,8 @@ def find_by_name(root, path, ref):
     base = root
     for p in path:
         n = None
-        if isinstance(base, (tree.Root, tree.Block)):
-            for e in base.elements:
-                if e.name == p:
-                    n = e
-                    break
-        elif isinstance(base, tree.Reg):
-            for e in base.fields:
+        if isinstance(base, (tree.Root, tree.Block, tree.Reg)):
+            for e in base.children:
                 if e.name == p:
                     n = e
                     break
@@ -114,7 +109,7 @@ def gen_hdl_reg_decls(reg, pfx, root, module, isigs):
                 reg.h_portsel.insert(0, sig)
                 module.ports.append(sig)
     else:
-        for f in reg.fields:
+        for f in reg.children:
             sz, lo = (None, None) if f.hi is None else (f.c_iowidth, f.lo)
             fname = ('_' + f.name) if f.name is not None else ''
             f.h_port = []
@@ -358,7 +353,7 @@ def gen_hdl_reg_stmts(reg, pfx, root, module, isigs):
         # Fill gaps with (lo + width, lo, None)
         bitlist = []
         nbit = 0
-        for f in sorted(reg.fields, key=(lambda x: x.lo)):
+        for f in sorted(reg.children, key=(lambda x: x.lo)):
             if f.lo > nbit:
                 bitlist.append((f.lo, nbit, None))
             nbit = f.lo + f.c_rwidth
@@ -388,7 +383,7 @@ def gen_hdl_reg_stmts(reg, pfx, root, module, isigs):
                 module.stmts.append(HDLAssign(tgt, src))
     else:
         for m in range(len(reg.h_loc_mux)):
-            for f in reg.fields:
+            for f in reg.children:
                 src = reg.h_loc_mux[m]
                 if f.hi is None:
                     src = HDLIndex(src, f.lo)
@@ -686,7 +681,7 @@ def gen_hdl_ext_bus(n, bwidth, acc, pfx, root, module):
 
 
 def gen_hdl_mem_decls(mem, pfx, root, module, isigs):
-    data = mem.elements[0]
+    data = mem.children[0]
     gen_hdl_ext_bus(mem, data.width, data.access, pfx, root, module)
 
 
@@ -710,7 +705,7 @@ def gen_hdl_memrdmux(root, module, isigs, area, pfx, mems):
     first = []
     last = first
     for m in mems:
-        data = m.elements[0]
+        data = m.children[0]
         if data.access in READ_ACCESS:
             proc.sensitivity.extend([m.h_rddata, m.h_rddone])
             if root.c_buserr:
@@ -790,7 +785,7 @@ def gen_hdl_memwrmux(root, module, isigs, area, pfx, mems):
     first = []
     last = first
     for m in mems:
-        data = m.elements[0]
+        data = m.children[0]
         set_wrsel = data.access == 'wo' or (data.access == 'rw' and root.c_bussplit)
         if set_wrsel:
             proc.stmts.append(HDLAssign(m.h_wrsel_sig, bit_0))
@@ -877,7 +872,7 @@ def gen_hdl_ext_bus_asgn(n, acc, root, module):
 
 def gen_hdl_mem_asgn(root, module, isigs, area, mems):
     for m in mems:
-        data = m.elements[0]
+        data = m.children[0]
         gen_hdl_ext_bus_asgn(m, data.access, root, module)
 
 
@@ -999,7 +994,7 @@ def gen_hdl_area_decls(area, pfx, root, module, isigs):
         setattr(isigs, tpl.format(''), s)
         module.decls.append(s)
 
-    for el in area.elements:
+    for el in area.children:
         el.h_ignored = False
         if isinstance(el, tree.Reg):
             if get_gena_gen(el, 'ignore'):
@@ -1037,9 +1032,9 @@ def gen_hdl_area_decls(area, pfx, root, module, isigs):
                     el.h_isigs = el_isigs
                 else:
                     if hasattr(el, 'c_submap'):
-                        assert len(el.elements) == 0
+                        assert len(el.children) == 0
                         assert get_gena_gen(el, 'include') == 'internal'
-                        el.elements = el.c_submap.elements
+                        el.children = el.c_submap.children
                         lib = get_gena_gen(el.c_submap, 'vhdl-library')
                         if not lib:
                             lib = 'work'
@@ -1053,11 +1048,11 @@ def gen_hdl_area_decls(area, pfx, root, module, isigs):
 def gen_hdl_area(area, pfx, area_root, root, module, root_isigs):
     isigs = area.h_isigs
 
-    # Build lists of elements.
+    # Build lists of children.
     regs = []
     mems = []
     blks = []
-    for el in area.elements:
+    for el in area.children:
         if el.h_ignored:
             continue
         if isinstance(el, tree.Reg):
@@ -1112,8 +1107,8 @@ def gen_hdl_area(area, pfx, area_root, root, module, root_isigs):
     mem_rd = False
     mem_wr = False
     for el in mems:
-        mem_rd = mem_rd or (el.elements[0].access in READ_ACCESS)
-        mem_wr = mem_wr or (el.elements[0].access in WRITE_ACCESS)
+        mem_rd = mem_rd or (el.children[0].access in READ_ACCESS)
+        mem_wr = mem_wr or (el.children[0].access in WRITE_ACCESS)
     if mem_rd:
         gen_hdl_memrdmux(root, module, isigs, area, pfx, mems)
         if not get_gena_gen(area_root, 'no-mem-mux-dff'):

@@ -22,21 +22,21 @@ def expand_x_hdl(n):
     if isinstance(n, tree.Field):
         expand_x_hdl_field(n, n, x_hdl)
     elif isinstance(n, tree.Reg):
-        if len(n.fields) == 1 and isinstance(n.fields[0], tree.FieldReg):
-            expand_x_hdl_field(n.fields[0], n, x_hdl)
+        if len(n.children) == 1 and isinstance(n.children[0], tree.FieldReg):
+            expand_x_hdl_field(n.children[0], n, x_hdl)
 
     # Visit children
     if isinstance(n, tree.CompositeNode):
-        for el in n.elements:
+        for el in n.children:
             expand_x_hdl(el)
     elif isinstance(n, tree.Reg):
-        for f in n.fields:
+        for f in n.children:
             expand_x_hdl(f)
 
 def tree_copy(n):
     if isinstance(n, tree.Reg):
         res = copy.copy(n)
-        res.fields = [tree_copy(f) for f in n.fields]
+        res.children = [tree_copy(f) for f in n.children]
         return res
     elif isinstance(n, tree.Field):
         res = copy.copy(n)
@@ -54,14 +54,14 @@ def unroll_array(n):
     res.c_sel_bits = n.c_sel_bits
     res.c_blk_bits = n.c_blk_bits
     res.c_size = n.c_size
-    assert len(n.elements) == 1
-    el = n.elements[0]
+    assert len(n.children) == 1
+    el = n.children[0]
     for i in range(n.repeat):
         c = tree_copy(el)
         c.name = "{}{:x}".format(el.name, i)
         c._parent = res
         c.c_address = n.c_address + i * n.c_elsize
-        res.elements.append(c)
+        res.children.append(c)
     return res
 
 
@@ -72,8 +72,8 @@ def unroll_arrays(n):
         if n.align == False:
             return unroll_array(n)
     if isinstance(n, tree.CompositeNode):
-        nl = [unroll_arrays(el) for el in n.elements]
-        n.elements = nl
+        nl = [unroll_arrays(el) for el in n.children]
+        n.children = nl
         return n
     raise AssertionError
 

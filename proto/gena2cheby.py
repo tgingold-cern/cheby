@@ -126,7 +126,7 @@ def conv_bit_field_data(reg, el):
             conv_codefield(res, child)
         else:
             raise UnknownTag(child.tag)
-    reg.fields.append(res)
+    reg.children.append(res)
 
 def conv_sub_reg(reg, el):
     res = cheby.tree.Field(reg)
@@ -175,7 +175,7 @@ def conv_sub_reg(reg, el):
             conv_codefield(res, child)
         else:
             raise UnknownTag(child.tag)
-    reg.fields.append(res)
+    reg.children.append(res)
 
 def conv_register_data(parent, el):
     res = cheby.tree.Reg(parent)
@@ -229,29 +229,29 @@ def conv_register_data(parent, el):
             conv_sub_reg(res, child)
         else:
             raise UnknownTag(child.tag)
-    if not res.fields:
-        # No fields, scalar register
+    if not res.children:
+        # No children, scalar register
         enc = attrs.get('bit-encoding', None)
         if enc in [None, 'unsigned', 'signed', 'float']:
             res.type = enc
         else:
             raise UnknownValue('bit-encoding', enc)
-        res.fields.append(cheby.tree.FieldReg(res))
+        res.children.append(cheby.tree.FieldReg(res))
         res.preset = conv_int(attrs.get('preset', None))
     else:
         # FIXME: what about bit-encoding ?  For resizing ?
-        # Move preset to fields
+        # Move preset to children
         preset = attrs.get('preset', None)
         if preset is not None:
             preset = conv_int(preset)
-            for f in res.fields:
+            for f in res.children:
                 if f.preset is None:
                     if f.hi is None:
                         w = 1
                     else:
                         w = f.hi - f.lo + 1
                     f.preset = (preset >> f.lo) & ((1 << w) - 1)
-    parent.elements.append(res)
+    parent.children.append(res)
 
 def conv_memory_bit_field_data(el):
     res = {}
@@ -344,7 +344,7 @@ def conv_memory_data(parent, el):
     res.repeat = conv_depth(attrs['element-depth'])
 
     reg = cheby.tree.Reg(res)
-    res.elements.append(reg)
+    res.children.append(reg)
     reg.name = res.name
     reg.width = int(attrs['element-width'], 0)
     reg.access = conv_access(attrs['access-mode'])
@@ -364,7 +364,7 @@ def conv_memory_data(parent, el):
             raise UnknownTag(child.tag)
     if memory_channel:
         res.x_gena['memory-channel'] = memory_channel
-    parent.elements.append(res)
+    parent.children.append(res)
 
 def conv_area(parent, el):
     res = cheby.tree.Block(parent)
@@ -403,7 +403,7 @@ def conv_area(parent, el):
 
     for child in el:
         conv_element(res, child)
-    parent.elements.append(res)
+    parent.children.append(res)
 
 def conv_submap(parent, el):
     res = cheby.tree.Block(parent)
@@ -446,7 +446,7 @@ def conv_submap(parent, el):
 
     for child in el:
         conv_element(res, child)
-    parent.elements.append(res)
+    parent.children.append(res)
 
 def conv_element(parent, child):
     if child.tag == 'register-data':
