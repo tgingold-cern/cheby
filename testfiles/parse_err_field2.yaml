@@ -1,11 +1,12 @@
-bus: wb-32-be
-name: parse_err_field2
-elements:
-- reg:
-    name: areg
-    fields:
-    - reg:  # Not allowed
-       name: areg2
-    - field:
-       name: foo
-       range: 1
+memory-map:
+  bus: wb-32-be
+  name: parse_err_field2
+  elements:
+  - reg:
+      name: areg
+      fields:
+      - reg:  # Not allowed
+         name: areg2
+      - field:
+         name: foo
+         range: 1

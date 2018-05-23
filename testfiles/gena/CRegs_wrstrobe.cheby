@@ -1,32 +1,33 @@
-name: cregs_wrstrobe
-bus: cern-be-vme-err-32
-size: 1048576
-x-gena:
-  ident-code: 0xff
-  map-version: 20161031
-elements:
-  - reg:
-      name: test1
-      width: 32
-      access: rw
-      address: 0x0
-      x-gena:
-        gen:
-          write-strobe: True
-        type: rmw
-  - reg:
-      name: test3
-      width: 32
-      access: rw
-      address: next
-      x-gena:
-        gen:
-          write-strobe: True
-  - reg:
-      name: test5
-      width: 64
-      access: wo
-      address: next
-      x-gena:
-        gen:
-          write-strobe: True
+memory-map:
+  name: cregs_wrstrobe
+  bus: cern-be-vme-err-32
+  size: 1048576
+  x-gena:
+    ident-code: 0xff
+    map-version: 20161031
+  elements:
+    - reg:
+        name: test1
+        width: 32
+        access: rw
+        address: 0x0
+        x-gena:
+          gen:
+            write-strobe: True
+          type: rmw
+    - reg:
+        name: test3
+        width: 32
+        access: rw
+        address: next
+        x-gena:
+          gen:
+            write-strobe: True
+    - reg:
+        name: test5
+        width: 64
+        access: wo
+        address: next
+        x-gena:
+          gen:
+            write-strobe: True

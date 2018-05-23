@@ -1,10 +1,11 @@
-bus: wb-32-be
-name: block1
-elements:
-- block:
-    name: blk
-    elements:
-    - reg:
-        name: areg
-        access: rw
-        width: 32
+memory-map:
+  bus: wb-32-be
+  name: block1
+  elements:
+  - block:
+      name: blk
+      elements:
+      - reg:
+          name: areg
+          access: rw
+          width: 32

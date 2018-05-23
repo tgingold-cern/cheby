@@ -1,13 +1,14 @@
-bus: wb-32-be
-name: parse_err_array
-elements:
-- array:
-    name: arr
-    count: 4  # Error: repeat
-    elements:
-    - reg:
-        name: areg
-        fields:
-        - field:
-            name: foo
-            range: 1
+memory-map:
+  bus: wb-32-be
+  name: parse_err_array
+  elements:
+  - array:
+      name: arr
+      count: 4  # Error: repeat
+      elements:
+      - reg:
+          name: areg
+          fields:
+          - field:
+              name: foo
+              range: 1

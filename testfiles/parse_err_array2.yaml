@@ -1,5 +1,6 @@
-bus: wb-32-be
-name: parse_err_elem2
-elements:
-- array:  # Error: array is empty
-  name: my_arr
+memory-map:
+  bus: wb-32-be
+  name: parse_err_elem2
+  elements:
+  - array:  # Error: array is empty
+    name: my_arr

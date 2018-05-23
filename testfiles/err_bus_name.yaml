@@ -1,12 +1,13 @@
-bus: super-new-bus # Error
-name: sreg2
-description: a single register
-elements:
-  - reg:
-      name: areg
-      width: 32
-      fields:
-        - field:
-            name: afield
-            range: 1
-            preset: 0
+memory-map:
+  bus: super-new-bus # Error
+  name: sreg2
+  description: a single register
+  elements:
+    - reg:
+        name: areg
+        width: 32
+        fields:
+          - field:
+              name: afield
+              range: 1
+              preset: 0

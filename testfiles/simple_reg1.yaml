@@ -1,9 +1,10 @@
-bus: wb-32-be
-name: sreg
-description: a single register
-elements:
-  - reg:
-      name: areg
-      width: 32
-      access: rw
-      type: unsigned
+memory-map:
+  bus: wb-32-be
+  name: sreg
+  description: a single register
+  elements:
+    - reg:
+        name: areg
+        width: 32
+        access: rw
+        type: unsigned

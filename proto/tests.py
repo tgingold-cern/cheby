@@ -67,6 +67,8 @@ def parse_err(f):
 def test_parser():
     for f in ['demo.yaml', 'simple_reg1.yaml', 'simple_reg2.yaml',
               'block1.yaml', 'block2.yaml', 'block3.yaml', 'block4.yaml']:
+        if verbose:
+            print('test parser: {}'.format(f))
         parse_ok(srcdir + f)
     for f in ['no-such-file.yaml', 'error1.yaml',
               'err_name_type1.yaml', 'err_width_type1.yaml',
@@ -77,6 +79,8 @@ def test_parser():
               'parse_err_field3.yaml',
               'parse_err_array1.yaml', 'parse_err_array2.yaml',
               'parse_err_block1.yaml']:
+        if verbose:
+            print('test parser: {}'.format(f))
         parse_err(srcdir + f)
 
 

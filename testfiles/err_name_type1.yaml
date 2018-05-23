@@ -1,7 +1,8 @@
-bus: wb-32-be
-name: 121
-description: a single register
-elements:
-  - reg:
-      name: areg1
-      width: 32
+memory-map:
+  bus: wb-32-be
+  name: 121
+  description: a single register
+  elements:
+    - reg:
+        name: areg1
+        width: 32

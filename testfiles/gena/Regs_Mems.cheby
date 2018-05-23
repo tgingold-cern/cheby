@@ -1,67 +1,68 @@
-name: regsMems
-bus: cern-be-vme-16
-size: 1048576
-x-gena:
-  ident-code: 0xff
-  map-version: 20161101
-elements:
-  - reg:
-      name: test1
-      width: 16
-      access: rw
-      address: 0x0
-      x-gena:
-        type: rmw
-  - reg:
-      name: test2
-      width: 32
-      access: ro
-      address: next
-  - reg:
-      name: test3
-      width: 16
-      access: ro
-      address: next
-  - reg:
-      name: test4
-      width: 32
-      access: ro
-      address: next
-  - reg:
-      name: test5
-      width: 16
-      access: ro
-      address: next
-  - reg:
-      name: test6
-      width: 32
-      access: ro
-      address: next
-  - reg:
-      name: test7
-      width: 16
-      access: ro
-      address: next
-  - reg:
-      name: test8
-      width: 32
-      access: ro
-      address: next
-  - array:
-      name: mem1
-      address: next
-      repeat: 512
-      elements:
-        - reg:
-            name: mem1
-            width: 16
-            access: rw
-  - array:
-      name: mem2
-      address: next
-      repeat: 512
-      elements:
-        - reg:
-            name: mem2
-            width: 16
-            access: rw
+memory-map:
+  name: regsMems
+  bus: cern-be-vme-16
+  size: 1048576
+  x-gena:
+    ident-code: 0xff
+    map-version: 20161101
+  elements:
+    - reg:
+        name: test1
+        width: 16
+        access: rw
+        address: 0x0
+        x-gena:
+          type: rmw
+    - reg:
+        name: test2
+        width: 32
+        access: ro
+        address: next
+    - reg:
+        name: test3
+        width: 16
+        access: ro
+        address: next
+    - reg:
+        name: test4
+        width: 32
+        access: ro
+        address: next
+    - reg:
+        name: test5
+        width: 16
+        access: ro
+        address: next
+    - reg:
+        name: test6
+        width: 32
+        access: ro
+        address: next
+    - reg:
+        name: test7
+        width: 16
+        access: ro
+        address: next
+    - reg:
+        name: test8
+        width: 32
+        access: ro
+        address: next
+    - array:
+        name: mem1
+        address: next
+        repeat: 512
+        elements:
+          - reg:
+              name: mem1
+              width: 16
+              access: rw
+    - array:
+        name: mem2
+        address: next
+        repeat: 512
+        elements:
+          - reg:
+              name: mem2
+              width: 16
+              access: rw

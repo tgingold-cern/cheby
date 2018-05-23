@@ -61,7 +61,8 @@ File format
 Root node
 ---------
 
-The root node starts the description of the memory map.
+The root node starts the description of the memory map.  The name of the root
+node is 'memory-map', there is only one root node, and it has these attributes:
 
 bus: string
   Define the physical interface for the memory map as well as the physical

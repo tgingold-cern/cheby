@@ -1,511 +1,512 @@
-#   demo file (from rtu-regs.wb)
-bus: wb-32-be
-name: demo
-description: Routing Table Unit (RTU)
-x-wbgen:
-  hdl_entity: rtu_wishbone_slave
-elements:
-#  Port Configuration Register
-- reg:
-    name: GCR
-    address: 0x00000000
-    width: 32
-    access: rw
-    description: RTU Global Control Register
-    comment: |
-      Control register containing global (port-independent) settings of the RTU.
-    fields:
-    - field:
-        name: G_ENA
-        range: 0
-        description: RTU Global Enable
-        comment: |
-          Global RTU enable bit. Overrides all port settings.
-          0: RTU is disabled. All packets are dropped.
-          1: RTU is enabled.
-        x-wbgen:
-          type: BIT
-          access_bus: READ_WRITE
-          access_dev: READ_ONLY
-          clock: clk_match_i
-    - field:
-        name: MFIFOTRIG
-        range: 1
-        description: MFIFO Trigger
-        comment: |
-          write 1: triggers a flush of MFIFO into the hash table (blocks the RTU for a few cycles)
-          write 0: no effect
-          read 1: MFIFO is busy
-          read 0: MFIFO is idle
-        x-wbgen:
-          type: BIT
-          access_bus: READ_WRITE
-          access_dev: READ_WRITE
-          clock: clk_match_i
-          load: LOAD_EXT
-    - field:
-        name: POLY_VAL
-        range: 23-8
-        description: Hash Poly
-        comment: |
-          Determines the polynomial used for hash computation. Currently available:  0x1021, 0x8005, 0x0589
-        x-wbgen:
-          type: SLV
-          access_bus: READ_WRITE
-          access_dev: READ_ONLY
-          clock: clk_match_i
-    - field:
-        name: RTU_VERSION
-        range: 27-24
-        description: Version
-        comment: |
-          Information about the version of RTU gateware
-        x-wbgen:
-          type: SLV
-          access_bus: READ_ONLY
-          access_dev: WRITE_ONLY
-- reg:
-    name: PSR
-    address: 0x00000004
-    width: 32
-    access: rw
-    description: Port Select Register
-    comment: |
-      Selects the port to control through the PCR register
-    fields:
-    - field:
-        name: PORT_SEL
-        range: 7-0
-        description: Port Select
-        comment: |
-          Selected Port
-        x-wbgen:
-          type: SLV
-          access_bus: READ_WRITE
-          access_dev: READ_ONLY
-    - field:
-        name: N_PORTS
-        range: 15-8
-        description: Number of ports
-        comment: |
-          Number of RTU ports compiled in.
-        x-wbgen:
-          type: SLV
-          access_bus: READ_ONLY
-          access_dev: WRITE_ONLY
-- reg:
-    name: PCR
-    address: 0x00000008
-    width: 32
-    access: rw
-    description: Port Control Register
-    comment: |
-      Register controlling the mode of the RTU port selected by PSELR register.
-    fields:
-    - field:
-        name: LEARN_EN
-        range: 0
-        description: Learning enable
-        comment: |
-          1: enables learning process on this port. Unrecognized requests will be put into UFIFO
-          0: disables learning. Unrecognized requests will be either broadcast or dropped.
-        x-wbgen:
-          type: BIT
-          access_bus: READ_WRITE
-          access_dev: READ_WRITE
-          load: LOAD_EXT
-    - field:
-        name: PASS_ALL
-        range: 1
-        description: Pass all packets
-        comment: |
-          1: all packets are passed (depending on the rules in RT table).
-          0: all packets are dropped on this port.
-        x-wbgen:
-          type: BIT
-          access_bus: READ_WRITE
-          access_dev: READ_WRITE
-          load: LOAD_EXT
-    - field:
-        name: PASS_BPDU
-        range: 2
-        description: Pass BPDUs
-        comment: |
-          1: BPDU packets (with dst MAC 01:80:c2:00:00:00) are passed according to RT rules. This setting overrides PASS_ALL.
-          0: BPDU packets are passed according to RTU rules only if PASS_ALL is set.[ML by modified]
-        x-wbgen:
-          type: BIT
-          access_bus: READ_WRITE
-          access_dev: READ_WRITE
-          load: LOAD_EXT
-    - field:
-        name: FIX_PRIO
-        range: 3
-        description: Fix priority
-        comment: |
-          1: Port has fixed priority of value PRIO_VAL. It overrides the priority coming from the endpoint
-          0: Use priority from the endpoint
-        x-wbgen:
-          type: BIT
-          access_bus: READ_WRITE
-          access_dev: READ_WRITE
-          load: LOAD_EXT
-    - field:
-        name: PRIO_VAL
-        range: 6-4
-        description: Priority value
-        comment: |
-          Fixed priority value for the port. Used instead the endpoint-assigned priority when FIX_PRIO = 1
-        x-wbgen:
-          type: SLV
-          access_bus: READ_WRITE
-          access_dev: READ_WRITE
-          load: LOAD_EXT
-    - field:
-        name: B_UNREC
-        range: 7
-        description: Unrecognized request behaviour
-        comment: |
-          Sets the port behaviour for all unrecognized requests:
-          0: packet is dropped
-          1: packet is broadcast
-        x-wbgen:
-          type: BIT
-          access_bus: READ_WRITE
-          access_dev: READ_WRITE
-          load: LOAD_EXT
-- reg:
-    name: VTR1
-    address: 0x0000000c
-    width: 32
-    access: rw
-    description: VLAN Table Register 1
-    fields:
-    - field:
-        name: VID
-        range: 11-0
-        description: VLAN ID
-        x-wbgen:
-          type: SLV
-          access_bus: READ_WRITE
-          access_dev: READ_ONLY
-    - field:
-        name: FID
-        range: 19-12
-        description: Filtering Database ID
-        comment: |
-          Assigns the VID to a particular filtering database
-        x-wbgen:
-          type: SLV
-          access_bus: READ_WRITE
-          access_dev: READ_ONLY
-    - field:
-        name: DROP
-        range: 20
-        description: Drop
-        comment: |
-          1: drop all packets belonging to this VLAN
-        x-wbgen:
-          type: BIT
-          access_bus: READ_WRITE
-          access_dev: READ_ONLY
-    - field:
-        name: HAS_PRIO
-        range: 21
-        description: Has user-defined priority
-        comment: |
-          1: VLAN has user-defined priority
-        x-wbgen:
-          type: BIT
-          access_bus: READ_WRITE
-          access_dev: READ_ONLY
-    - field:
-        name: PRIO_OVERRIDE
-        range: 22
-        description: Override endpoint-assigned priority
-        comment: |
-          1: always take the priority from the PRIO field, regardless of the priority value assigned at the endpoint.
-        x-wbgen:
-          type: BIT
-          access_bus: READ_WRITE
-          access_dev: READ_ONLY
-    - field:
-        name: PRIO
-        range: 25-23
-        description: Priority value
-        x-wbgen:
-          type: SLV
-          access_bus: READ_WRITE
-          access_dev: READ_ONLY
-    - field:
-        name: UPDATE
-        range: 26
-        description: Force VLAN table entry update
-        comment: |
-          write 1: flush VTR1 and VTR2 registers to VLAN table entry designated in VTR1.VID
-        x-wbgen:
-          type: MONOSTABLE
-- block:
-    name: UFIFO
-    address: 0x00000030
-    size: 24
-    description: Unrecognized request FIFO (UFIFO)
-    comment: |
-      FIFO containing all RTU requests for which matching entries haven't been found. CPU reads these requests,
-      evaluates them and updates the RTU tables accordingly.
-    align: False
-    x-wbgen:
-      kind: fifo
-      direction: CORE_TO_BUS
-      depth: 128
-      wire_full: True
-      wire_empty: True
-    elements:
-    - reg:
-        name: ufifo_r0
-        address: 0x00000000
-        width: 32
-        access: ro
-        description: FIFO 'Unrecognized request FIFO (UFIFO)' data output register 0
-        fields:
-        - field:
-            name: DMAC_LO
-            range: 31-0
-            description: Destination MAC address least-significant part
-            comment: |
-              Bits [31:0] of packet destination MAC address
-            x-wbgen:
-              type: SLV
-    - reg:
-        name: ufifo_r1
-        address: 0x00000004
-        width: 32
-        access: ro
-        description: FIFO 'Unrecognized request FIFO (UFIFO)' data output register 1
-        fields:
-        - field:
-            name: DMAC_HI
-            range: 15-0
-            description: Destination MAC address most-significant part
-            comment: |
-              Bits [47:32] of packet destination MAC address
-            x-wbgen:
-              type: SLV
-    - reg:
-        name: ufifo_r2
-        address: 0x00000008
-        width: 32
-        access: ro
-        description: FIFO 'Unrecognized request FIFO (UFIFO)' data output register 2
-        fields:
-        - field:
-            name: SMAC_LO
-            range: 31-0
-            description: Source MAC address least-significant part
-            comment: |
-              Bits [31:0] of packet source MAC address
-            x-wbgen:
-              type: SLV
-    - reg:
-        name: ufifo_r3
-        address: 0x0000000c
-        width: 32
-        access: ro
-        description: FIFO 'Unrecognized request FIFO (UFIFO)' data output register 3
-        fields:
-        - field:
-            name: SMAC_HI
-            range: 15-0
-            description: Source MAC address most-significant part
-            comment: |
-              Bits [47:32] of packet source MAC address
-            x-wbgen:
-              type: SLV
-    - reg:
-        name: ufifo_r4
-        address: 0x00000010
-        width: 32
-        access: ro
-        description: FIFO 'Unrecognized request FIFO (UFIFO)' data output register 4
-        fields:
-        - field:
-            name: VID
-            range: 11-0
-            description: VLAN Identifier
-            comment: |
-              VLAN ID of the packet (from the endpoint)
-            x-wbgen:
-              type: SLV
-        - field:
-            name: PRIO
-            range: 14-12
-            description: Priority
-            comment: |
-              Priority value (from the endpoint)
-            x-wbgen:
-              type: SLV
-        - field:
-            name: PID
-            range: 23-16
-            description: Port ID
-            comment: |
-              Identifier of RTU port to which came the request.
-            x-wbgen:
-              type: SLV
-        - field:
-            name: HAS_VID
-            range: 24
-            description: VID valid
-            comment: |
-              1: VID value is valid
-              0: packet had no VLAN ID
-            x-wbgen:
-              type: BIT
-        - field:
-            name: HAS_PRIO
-            range: 25
-            description: PRIO valid
-            comment: |
-              1: PRIO value is valid
-              0: packet had no priority assigned
-            x-wbgen:
-              type: BIT
-    - reg:
-        name: ufifo_csr
-        address: 0x00000014
-        width: 32
-        access: ro
-        description: FIFO 'Unrecognized request FIFO (UFIFO)' control/status register
-        x-wbgen:
-          kind: fifocs
-        fields:
-        - field:
-            name: empty
-            range: 17
-            description: FIFO empty flag
-            comment: |
-              1: FIFO 'Unrecognized request FIFO (UFIFO)' is empty
-              0: FIFO is not empty
-            x-wbgen:
-              type: BIT
-              kind: empty
-        - field:
-            name: count
-            range: 6-0
-            description: FIFO counter
-            comment: |
-              Number of data records currently being stored in FIFO 'Unrecognized request FIFO (UFIFO)'
-            x-wbgen:
-              kind: count
-- array:
-    name: ARAM
-    address: 0x00000400
-    repeat: 256
-    description: Aging bitmap for main hashtable
-    comment: |
-      Each bit in this memory reflects the state of corresponding entry in main hashtable:
-      0: entry wasn't matched
-      1: entry was matched at least once.
-      CPU reads this bitmap and subsequently clears it every few seconds to update the aging counters.
-    align: True
-    x-wbgen:
-      kind: ram
-      access_dev: READ_WRITE
-    elements:
-    - reg:
-        name: data
-        width: 32
-        access: rw
-- block:
-    name: eic
-    address: 0x00000020
-    align: False
-    x-wbgen:
-      kind: irq
-      irqs:
-      - irq:
-          name: nempty
-          trigger: LEVEL_0
-          pos: 6
-          description: UFIFO Not Empty IRQ
+memory-map:
+  #   demo file (from rtu-regs.wb)
+  bus: wb-32-be
+  name: demo
+  description: Routing Table Unit (RTU)
+  x-wbgen:
+    hdl_entity: rtu_wishbone_slave
+  elements:
+  #  Port Configuration Register
+  - reg:
+      name: GCR
+      address: 0x00000000
+      width: 32
+      access: rw
+      description: RTU Global Control Register
+      comment: |
+        Control register containing global (port-independent) settings of the RTU.
+      fields:
+      - field:
+          name: G_ENA
+          range: 0
+          description: RTU Global Enable
           comment: |
-            Interrupt active when there are some requests in UFIFO.
-    elements:
-    - reg:
-        name: eic_idr
-        address: 0x00000000
-        width: 32
-        access: wo
-        description: Interrupt disable register
-        comment: |
-          Writing 1 disables handling of the interrupt associated with corresponding bit. Writin 0 has no effect.
-        fields:
-        - field:
+            Global RTU enable bit. Overrides all port settings.
+            0: RTU is disabled. All packets are dropped.
+            1: RTU is enabled.
+          x-wbgen:
+            type: BIT
+            access_bus: READ_WRITE
+            access_dev: READ_ONLY
+            clock: clk_match_i
+      - field:
+          name: MFIFOTRIG
+          range: 1
+          description: MFIFO Trigger
+          comment: |
+            write 1: triggers a flush of MFIFO into the hash table (blocks the RTU for a few cycles)
+            write 0: no effect
+            read 1: MFIFO is busy
+            read 0: MFIFO is idle
+          x-wbgen:
+            type: BIT
+            access_bus: READ_WRITE
+            access_dev: READ_WRITE
+            clock: clk_match_i
+            load: LOAD_EXT
+      - field:
+          name: POLY_VAL
+          range: 23-8
+          description: Hash Poly
+          comment: |
+            Determines the polynomial used for hash computation. Currently available:  0x1021, 0x8005, 0x0589
+          x-wbgen:
+            type: SLV
+            access_bus: READ_WRITE
+            access_dev: READ_ONLY
+            clock: clk_match_i
+      - field:
+          name: RTU_VERSION
+          range: 27-24
+          description: Version
+          comment: |
+            Information about the version of RTU gateware
+          x-wbgen:
+            type: SLV
+            access_bus: READ_ONLY
+            access_dev: WRITE_ONLY
+  - reg:
+      name: PSR
+      address: 0x00000004
+      width: 32
+      access: rw
+      description: Port Select Register
+      comment: |
+        Selects the port to control through the PCR register
+      fields:
+      - field:
+          name: PORT_SEL
+          range: 7-0
+          description: Port Select
+          comment: |
+            Selected Port
+          x-wbgen:
+            type: SLV
+            access_bus: READ_WRITE
+            access_dev: READ_ONLY
+      - field:
+          name: N_PORTS
+          range: 15-8
+          description: Number of ports
+          comment: |
+            Number of RTU ports compiled in.
+          x-wbgen:
+            type: SLV
+            access_bus: READ_ONLY
+            access_dev: WRITE_ONLY
+  - reg:
+      name: PCR
+      address: 0x00000008
+      width: 32
+      access: rw
+      description: Port Control Register
+      comment: |
+        Register controlling the mode of the RTU port selected by PSELR register.
+      fields:
+      - field:
+          name: LEARN_EN
+          range: 0
+          description: Learning enable
+          comment: |
+            1: enables learning process on this port. Unrecognized requests will be put into UFIFO
+            0: disables learning. Unrecognized requests will be either broadcast or dropped.
+          x-wbgen:
+            type: BIT
+            access_bus: READ_WRITE
+            access_dev: READ_WRITE
+            load: LOAD_EXT
+      - field:
+          name: PASS_ALL
+          range: 1
+          description: Pass all packets
+          comment: |
+            1: all packets are passed (depending on the rules in RT table).
+            0: all packets are dropped on this port.
+          x-wbgen:
+            type: BIT
+            access_bus: READ_WRITE
+            access_dev: READ_WRITE
+            load: LOAD_EXT
+      - field:
+          name: PASS_BPDU
+          range: 2
+          description: Pass BPDUs
+          comment: |
+            1: BPDU packets (with dst MAC 01:80:c2:00:00:00) are passed according to RT rules. This setting overrides PASS_ALL.
+            0: BPDU packets are passed according to RTU rules only if PASS_ALL is set.[ML by modified]
+          x-wbgen:
+            type: BIT
+            access_bus: READ_WRITE
+            access_dev: READ_WRITE
+            load: LOAD_EXT
+      - field:
+          name: FIX_PRIO
+          range: 3
+          description: Fix priority
+          comment: |
+            1: Port has fixed priority of value PRIO_VAL. It overrides the priority coming from the endpoint
+            0: Use priority from the endpoint
+          x-wbgen:
+            type: BIT
+            access_bus: READ_WRITE
+            access_dev: READ_WRITE
+            load: LOAD_EXT
+      - field:
+          name: PRIO_VAL
+          range: 6-4
+          description: Priority value
+          comment: |
+            Fixed priority value for the port. Used instead the endpoint-assigned priority when FIX_PRIO = 1
+          x-wbgen:
+            type: SLV
+            access_bus: READ_WRITE
+            access_dev: READ_WRITE
+            load: LOAD_EXT
+      - field:
+          name: B_UNREC
+          range: 7
+          description: Unrecognized request behaviour
+          comment: |
+            Sets the port behaviour for all unrecognized requests:
+            0: packet is dropped
+            1: packet is broadcast
+          x-wbgen:
+            type: BIT
+            access_bus: READ_WRITE
+            access_dev: READ_WRITE
+            load: LOAD_EXT
+  - reg:
+      name: VTR1
+      address: 0x0000000c
+      width: 32
+      access: rw
+      description: VLAN Table Register 1
+      fields:
+      - field:
+          name: VID
+          range: 11-0
+          description: VLAN ID
+          x-wbgen:
+            type: SLV
+            access_bus: READ_WRITE
+            access_dev: READ_ONLY
+      - field:
+          name: FID
+          range: 19-12
+          description: Filtering Database ID
+          comment: |
+            Assigns the VID to a particular filtering database
+          x-wbgen:
+            type: SLV
+            access_bus: READ_WRITE
+            access_dev: READ_ONLY
+      - field:
+          name: DROP
+          range: 20
+          description: Drop
+          comment: |
+            1: drop all packets belonging to this VLAN
+          x-wbgen:
+            type: BIT
+            access_bus: READ_WRITE
+            access_dev: READ_ONLY
+      - field:
+          name: HAS_PRIO
+          range: 21
+          description: Has user-defined priority
+          comment: |
+            1: VLAN has user-defined priority
+          x-wbgen:
+            type: BIT
+            access_bus: READ_WRITE
+            access_dev: READ_ONLY
+      - field:
+          name: PRIO_OVERRIDE
+          range: 22
+          description: Override endpoint-assigned priority
+          comment: |
+            1: always take the priority from the PRIO field, regardless of the priority value assigned at the endpoint.
+          x-wbgen:
+            type: BIT
+            access_bus: READ_WRITE
+            access_dev: READ_ONLY
+      - field:
+          name: PRIO
+          range: 25-23
+          description: Priority value
+          x-wbgen:
+            type: SLV
+            access_bus: READ_WRITE
+            access_dev: READ_ONLY
+      - field:
+          name: UPDATE
+          range: 26
+          description: Force VLAN table entry update
+          comment: |
+            write 1: flush VTR1 and VTR2 registers to VLAN table entry designated in VTR1.VID
+          x-wbgen:
+            type: MONOSTABLE
+  - block:
+      name: UFIFO
+      address: 0x00000030
+      size: 24
+      description: Unrecognized request FIFO (UFIFO)
+      comment: |
+        FIFO containing all RTU requests for which matching entries haven't been found. CPU reads these requests,
+        evaluates them and updates the RTU tables accordingly.
+      align: False
+      x-wbgen:
+        kind: fifo
+        direction: CORE_TO_BUS
+        depth: 128
+        wire_full: True
+        wire_empty: True
+      elements:
+      - reg:
+          name: ufifo_r0
+          address: 0x00000000
+          width: 32
+          access: ro
+          description: FIFO 'Unrecognized request FIFO (UFIFO)' data output register 0
+          fields:
+          - field:
+              name: DMAC_LO
+              range: 31-0
+              description: Destination MAC address least-significant part
+              comment: |
+                Bits [31:0] of packet destination MAC address
+              x-wbgen:
+                type: SLV
+      - reg:
+          name: ufifo_r1
+          address: 0x00000004
+          width: 32
+          access: ro
+          description: FIFO 'Unrecognized request FIFO (UFIFO)' data output register 1
+          fields:
+          - field:
+              name: DMAC_HI
+              range: 15-0
+              description: Destination MAC address most-significant part
+              comment: |
+                Bits [47:32] of packet destination MAC address
+              x-wbgen:
+                type: SLV
+      - reg:
+          name: ufifo_r2
+          address: 0x00000008
+          width: 32
+          access: ro
+          description: FIFO 'Unrecognized request FIFO (UFIFO)' data output register 2
+          fields:
+          - field:
+              name: SMAC_LO
+              range: 31-0
+              description: Source MAC address least-significant part
+              comment: |
+                Bits [31:0] of packet source MAC address
+              x-wbgen:
+                type: SLV
+      - reg:
+          name: ufifo_r3
+          address: 0x0000000c
+          width: 32
+          access: ro
+          description: FIFO 'Unrecognized request FIFO (UFIFO)' data output register 3
+          fields:
+          - field:
+              name: SMAC_HI
+              range: 15-0
+              description: Source MAC address most-significant part
+              comment: |
+                Bits [47:32] of packet source MAC address
+              x-wbgen:
+                type: SLV
+      - reg:
+          name: ufifo_r4
+          address: 0x00000010
+          width: 32
+          access: ro
+          description: FIFO 'Unrecognized request FIFO (UFIFO)' data output register 4
+          fields:
+          - field:
+              name: VID
+              range: 11-0
+              description: VLAN Identifier
+              comment: |
+                VLAN ID of the packet (from the endpoint)
+              x-wbgen:
+                type: SLV
+          - field:
+              name: PRIO
+              range: 14-12
+              description: Priority
+              comment: |
+                Priority value (from the endpoint)
+              x-wbgen:
+                type: SLV
+          - field:
+              name: PID
+              range: 23-16
+              description: Port ID
+              comment: |
+                Identifier of RTU port to which came the request.
+              x-wbgen:
+                type: SLV
+          - field:
+              name: HAS_VID
+              range: 24
+              description: VID valid
+              comment: |
+                1: VID value is valid
+                0: packet had no VLAN ID
+              x-wbgen:
+                type: BIT
+          - field:
+              name: HAS_PRIO
+              range: 25
+              description: PRIO valid
+              comment: |
+                1: PRIO value is valid
+                0: packet had no priority assigned
+              x-wbgen:
+                type: BIT
+      - reg:
+          name: ufifo_csr
+          address: 0x00000014
+          width: 32
+          access: ro
+          description: FIFO 'Unrecognized request FIFO (UFIFO)' control/status register
+          x-wbgen:
+            kind: fifocs
+          fields:
+          - field:
+              name: empty
+              range: 17
+              description: FIFO empty flag
+              comment: |
+                1: FIFO 'Unrecognized request FIFO (UFIFO)' is empty
+                0: FIFO is not empty
+              x-wbgen:
+                type: BIT
+                kind: empty
+          - field:
+              name: count
+              range: 6-0
+              description: FIFO counter
+              comment: |
+                Number of data records currently being stored in FIFO 'Unrecognized request FIFO (UFIFO)'
+              x-wbgen:
+                kind: count
+  - array:
+      name: ARAM
+      address: 0x00000400
+      repeat: 256
+      description: Aging bitmap for main hashtable
+      comment: |
+        Each bit in this memory reflects the state of corresponding entry in main hashtable:
+        0: entry wasn't matched
+        1: entry was matched at least once.
+        CPU reads this bitmap and subsequently clears it every few seconds to update the aging counters.
+      align: True
+      x-wbgen:
+        kind: ram
+        access_dev: READ_WRITE
+      elements:
+      - reg:
+          name: data
+          width: 32
+          access: rw
+  - block:
+      name: eic
+      address: 0x00000020
+      align: False
+      x-wbgen:
+        kind: irq
+        irqs:
+        - irq:
             name: nempty
-            range: 0
+            trigger: LEVEL_0
+            pos: 6
             description: UFIFO Not Empty IRQ
             comment: |
-              write 1: disable interrupt 'UFIFO Not Empty IRQ'
-              write 0: no effect
-            x-wbgen:
-              type: BIT
-              access_bus: WRITE_ONLY
-    - reg:
-        name: eic_ier
-        address: 0x00000004
-        width: 32
-        access: wo
-        description: Interrupt enable register
-        comment: |
-          Writing 1 enables handling of the interrupt associated with corresponding bit. Writin 0 has no effect.
-        fields:
-        - field:
-            name: nempty
-            range: 0
-            description: UFIFO Not Empty IRQ
-            comment: |
-              write 1: enable interrupt 'UFIFO Not Empty IRQ'
-              write 0: no effect
-            x-wbgen:
-              type: BIT
-              access_bus: WRITE_ONLY
-    - reg:
-        name: eic_imr
-        address: 0x00000008
-        width: 32
-        access: ro
-        description: Interrupt mask register
-        comment: |
-          Shows which interrupts are enabled. 1 means that the interrupt associated with the bitfield is enabled
-        fields:
-        - field:
-            name: nempty
-            range: 0
-            description: UFIFO Not Empty IRQ
-            comment: |
-              read 1: interrupt 'UFIFO Not Empty IRQ' is enabled
-              read 0: interrupt 'UFIFO Not Empty IRQ' is disabled
-            x-wbgen:
-              type: BIT
-              access_bus: READ_ONLY
-    - reg:
-        name: eic_isr
-        address: 0x0000000c
-        width: 32
-        access: rw
-        description: Interrupt status register
-        comment: |
-          Each bit represents the state of corresponding interrupt. 1 means the interrupt is pending. Writing 1 to a bit clears the corresponding interrupt. Writing 0 has no effect.
-        fields:
-        - field:
-            name: nempty
-            range: 0
-            description: UFIFO Not Empty IRQ
-            comment: |
-              read 1: interrupt 'UFIFO Not Empty IRQ' is pending
-              read 0: interrupt not pending
-              write 1: clear interrupt 'UFIFO Not Empty IRQ'
-              write 0: no effect
-            x-wbgen:
-              type: BIT
-              access_bus: READ_WRITE
+              Interrupt active when there are some requests in UFIFO.
+      elements:
+      - reg:
+          name: eic_idr
+          address: 0x00000000
+          width: 32
+          access: wo
+          description: Interrupt disable register
+          comment: |
+            Writing 1 disables handling of the interrupt associated with corresponding bit. Writin 0 has no effect.
+          fields:
+          - field:
+              name: nempty
+              range: 0
+              description: UFIFO Not Empty IRQ
+              comment: |
+                write 1: disable interrupt 'UFIFO Not Empty IRQ'
+                write 0: no effect
+              x-wbgen:
+                type: BIT
+                access_bus: WRITE_ONLY
+      - reg:
+          name: eic_ier
+          address: 0x00000004
+          width: 32
+          access: wo
+          description: Interrupt enable register
+          comment: |
+            Writing 1 enables handling of the interrupt associated with corresponding bit. Writin 0 has no effect.
+          fields:
+          - field:
+              name: nempty
+              range: 0
+              description: UFIFO Not Empty IRQ
+              comment: |
+                write 1: enable interrupt 'UFIFO Not Empty IRQ'
+                write 0: no effect
+              x-wbgen:
+                type: BIT
+                access_bus: WRITE_ONLY
+      - reg:
+          name: eic_imr
+          address: 0x00000008
+          width: 32
+          access: ro
+          description: Interrupt mask register
+          comment: |
+            Shows which interrupts are enabled. 1 means that the interrupt associated with the bitfield is enabled
+          fields:
+          - field:
+              name: nempty
+              range: 0
+              description: UFIFO Not Empty IRQ
+              comment: |
+                read 1: interrupt 'UFIFO Not Empty IRQ' is enabled
+                read 0: interrupt 'UFIFO Not Empty IRQ' is disabled
+              x-wbgen:
+                type: BIT
+                access_bus: READ_ONLY
+      - reg:
+          name: eic_isr
+          address: 0x0000000c
+          width: 32
+          access: rw
+          description: Interrupt status register
+          comment: |
+            Each bit represents the state of corresponding interrupt. 1 means the interrupt is pending. Writing 1 to a bit clears the corresponding interrupt. Writing 0 has no effect.
+          fields:
+          - field:
+              name: nempty
+              range: 0
+              description: UFIFO Not Empty IRQ
+              comment: |
+                read 1: interrupt 'UFIFO Not Empty IRQ' is pending
+                read 0: interrupt not pending
+                write 1: clear interrupt 'UFIFO Not Empty IRQ'
+                write 0: no effect
+              x-wbgen:
+                type: BIT
+                access_bus: READ_WRITE

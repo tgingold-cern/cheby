@@ -1,34 +1,35 @@
-name: mems2
-bus: cern-be-vme-16
-size: 1048576
-x-gena:
-  ident-code: 0xff
-  map-version: 20161101
-elements:
-  - array:
-      name: mem1
-      address: next
-      repeat: 512
-      elements:
-        - reg:
-            name: mem1
-            width: 16
-            access: rw
-  - array:
-      name: mem2
-      address: next
-      repeat: 512
-      elements:
-        - reg:
-            name: mem2
-            width: 16
-            access: ro
-  - array:
-      name: mem3
-      address: next
-      repeat: 256
-      elements:
-        - reg:
-            name: mem3
-            width: 32
-            access: wo
+memory-map:
+  name: mems2
+  bus: cern-be-vme-16
+  size: 1048576
+  x-gena:
+    ident-code: 0xff
+    map-version: 20161101
+  elements:
+    - array:
+        name: mem1
+        address: next
+        repeat: 512
+        elements:
+          - reg:
+              name: mem1
+              width: 16
+              access: rw
+    - array:
+        name: mem2
+        address: next
+        repeat: 512
+        elements:
+          - reg:
+              name: mem2
+              width: 16
+              access: ro
+    - array:
+        name: mem3
+        address: next
+        repeat: 256
+        elements:
+          - reg:
+              name: mem3
+              width: 32
+              access: wo

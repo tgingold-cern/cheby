@@ -191,7 +191,12 @@ def parse_yaml(filename):
 
     if not isinstance(el, dict):
         error("open error: {}: bad format (not yaml)".format(filename))
-
+    if 'memory-map' not in el:
+        error("open error: {}: missing 'memory-map' root node".format(filename))
+    if len(el) != 1:
+        error("open error: {}: more than one root node".format(filename))
+    el = el['memory-map']
+    
     res = tree.Root()
     res.c_filename = filename
     for k, v in el.items():

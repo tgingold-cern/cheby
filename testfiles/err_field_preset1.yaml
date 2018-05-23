@@ -1,13 +1,14 @@
-bus: wb-32-be
-name: err_preset1
-description: bad presset value
-elements:
-  - reg:
-      name: areg
-      width: 32
-      access: rw
-      fields:
-        - field:
-            name: fname
-            range: 4-0
-            preset: 0x2f
+memory-map:
+  bus: wb-32-be
+  name: err_preset1
+  description: bad presset value
+  elements:
+    - reg:
+        name: areg
+        width: 32
+        access: rw
+        fields:
+          - field:
+              name: fname
+              range: 4-0
+              preset: 0x2f

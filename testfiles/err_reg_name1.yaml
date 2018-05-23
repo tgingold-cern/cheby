@@ -1,20 +1,21 @@
-bus: wb-32-be
-name: sreg2
-description: bad field
-elements:
-  - reg:
-      name: areg
-      access: rw
-      width: 32
-      fields:
-        - field:
-            name: fname
-            range: 4-0
-  - reg:
-      name: areg
-      access: rw
-      width: 32
-      fields:
-        - field:
-            name: fname
-            range: 4-0
+memory-map:
+  bus: wb-32-be
+  name: sreg2
+  description: bad field
+  elements:
+    - reg:
+        name: areg
+        access: rw
+        width: 32
+        fields:
+          - field:
+              name: fname
+              range: 4-0
+    - reg:
+        name: areg
+        access: rw
+        width: 32
+        fields:
+          - field:
+              name: fname
+              range: 4-0

@@ -1,12 +1,13 @@
-bus: wb-32-be
-name: sreg2
-description: bad field
-elements:
-  - reg:
-      name: areg
-      access: rw
-      width: 32
-      fields:
-        - field:
-            name: afield
-            range: 32-0  # Range too large
+memory-map:
+  bus: wb-32-be
+  name: sreg2
+  description: bad field
+  elements:
+    - reg:
+        name: areg
+        access: rw
+        width: 32
+        fields:
+          - field:
+              name: afield
+              range: 32-0  # Range too large

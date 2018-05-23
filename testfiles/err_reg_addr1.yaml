@@ -1,14 +1,15 @@
-bus: wb-32-be
-name: sreg2
-description: a single register
-elements:
-  - reg:
-      name: areg
-      width: 32
-      access: rw
-      address: 0x002  # Not aligned
-      fields:
-        - field:
-            name: afield
-            range: 1
-            preset: 0
+memory-map:
+  bus: wb-32-be
+  name: sreg2
+  description: a single register
+  elements:
+    - reg:
+        name: areg
+        width: 32
+        access: rw
+        address: 0x002  # Not aligned
+        fields:
+          - field:
+              name: afield
+              range: 1
+              preset: 0

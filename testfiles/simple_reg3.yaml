@@ -1,29 +1,30 @@
-bus: wb-32-be
-name: sreg2
-description: a single register
-elements:
-  - reg:
-      name: areg
-      width: 32
-      access: rw
-      fields:
-        - field:
-            name: fa_1
-            description: Field for testing
-            range: 1
-            preset: 0
-  - reg:
-      name: breg
-      width: 32
-      access: rw
-      fields:
-        - field:
-            name: fb_1
-            description: Field for testing
-            range: 0
-            preset: 0
-        - field:
-            name: fb_2
-            description: Field for testing
-            range: 4-3
-            preset: 0
+memory-map:
+  bus: wb-32-be
+  name: sreg2
+  description: a single register
+  elements:
+    - reg:
+        name: areg
+        width: 32
+        access: rw
+        fields:
+          - field:
+              name: fa_1
+              description: Field for testing
+              range: 1
+              preset: 0
+    - reg:
+        name: breg
+        width: 32
+        access: rw
+        fields:
+          - field:
+              name: fb_1
+              description: Field for testing
+              range: 0
+              preset: 0
+          - field:
+              name: fb_2
+              description: Field for testing
+              range: 4-3
+              preset: 0

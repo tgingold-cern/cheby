@@ -1,11 +1,12 @@
-name: submap
-bus: cern-be-vme-16
-size: 1048576
-x-gena:
-  ident-code: 0xff
-  map-version: 20161101
-elements:
-  - block:
-      name: submap1
-      address: next
-      submap_file: Inc_CRegs.cheby
+memory-map:
+  name: submap
+  bus: cern-be-vme-16
+  size: 1048576
+  x-gena:
+    ident-code: 0xff
+    map-version: 20161101
+  elements:
+    - block:
+        name: submap1
+        address: next
+        submap_file: Inc_CRegs.cheby

@@ -1,22 +1,23 @@
-bus: wb-32-be
-name: reg_value1
-description: register without field
-elements:
-  - reg:
-      name: areg32
-      description: simple 32 bit register
-      width: 32
-      access: rw
-      type: unsigned
-  - reg:
-      name: areg16
-      description: simple 16 bit register
-      width: 16
-      access: rw
-      type: unsigned
-  - reg:
-      name: areg8
-      description: simple 8 bit register
-      width: 8
-      access: rw
-      type: unsigned
+memory-map:
+  bus: wb-32-be
+  name: reg_value1
+  description: register without field
+  elements:
+    - reg:
+        name: areg32
+        description: simple 32 bit register
+        width: 32
+        access: rw
+        type: unsigned
+    - reg:
+        name: areg16
+        description: simple 16 bit register
+        width: 16
+        access: rw
+        type: unsigned
+    - reg:
+        name: areg8
+        description: simple 8 bit register
+        width: 8
+        access: rw
+        type: unsigned

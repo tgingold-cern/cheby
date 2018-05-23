@@ -1,6 +1,7 @@
-bus: wb-32-be
-name: sreg2
-description: bad field
-elements:
-  - block:
-      name: aram
+memory-map:
+  bus: wb-32-be
+  name: sreg2
+  description: bad field
+  elements:
+    - block:
+        name: aram

@@ -1,3 +1,4 @@
-bus: wb-32-be
-name: parse_err_elem2
-elements: err # error: not a list
+memory-map:
+  bus: wb-32-be
+  name: parse_err_elem2
+  elements: err # error: not a list

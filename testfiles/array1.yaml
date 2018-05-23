@@ -1,11 +1,12 @@
-bus: wb-32-be
-name: arr1
-elements:
-- array:
-    name: arr
-    repeat: 8
-    elements:
-    - reg:
-        name: areg
-        access: rw
-        width: 32
+memory-map:
+  bus: wb-32-be
+  name: arr1
+  elements:
+  - array:
+      name: arr
+      repeat: 8
+      elements:
+      - reg:
+          name: areg
+          access: rw
+          width: 32

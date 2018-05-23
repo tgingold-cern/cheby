@@ -1,11 +1,12 @@
-bus: wb-32-be
-name: sreg2
-description: no access
-elements:
-  - reg: # no access
-      name: areg
-      width: 32
-      fields:
-        - field:
-            name: fname
-            range: 4-0
+memory-map:
+  bus: wb-32-be
+  name: sreg2
+  description: no access
+  elements:
+    - reg: # no access
+        name: areg
+        width: 32
+        fields:
+          - field:
+              name: fname
+              range: 4-0

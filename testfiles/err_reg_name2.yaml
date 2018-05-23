@@ -1,17 +1,18 @@
-bus: wb-32-be
-name: sreg2
-description: missing reg name
-elements:
-  - reg: # No name
-      width: 32
-      fields:
-        - field:
-            name: fname
-            range: 4-0
-  - reg:
-      name: areg
-      width: 32
-      fields:
-        - field:
-            name: fname
-            range: 4-0
+memory-map:
+  bus: wb-32-be
+  name: sreg2
+  description: missing reg name
+  elements:
+    - reg: # No name
+        width: 32
+        fields:
+          - field:
+              name: fname
+              range: 4-0
+    - reg:
+        name: areg
+        width: 32
+        fields:
+          - field:
+              name: fname
+              range: 4-0

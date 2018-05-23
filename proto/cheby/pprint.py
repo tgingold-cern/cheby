@@ -173,10 +173,12 @@ def pprint_composite_tail(pp, n):
 
 @PrettyPrinter.register(tree.Root)
 def pprint_root(pp, n):
+    pp.pp_obj('memory-map')
     pprint_composite_head(pp, n)
     pp.pp_str('bus', n.bus)
     pp.pp_int('size', n.size)
     pprint_composite_tail(pp, n)
+    pp.pp_endobj()
 
 
 def pprint_cheby(fd, root):

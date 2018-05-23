@@ -1,5 +1,6 @@
-bus: wb-32-be
-name: arr1
-elements:
-- array:
-    name: arr  # No repeat
+memory-map:
+  bus: wb-32-be
+  name: arr1
+  elements:
+  - array:
+      name: arr  # No repeat
