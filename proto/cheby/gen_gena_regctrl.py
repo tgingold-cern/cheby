@@ -1181,11 +1181,7 @@ def gen_gena_regctrl(root):
     module.name = 'RegCtrl_{}'.format(root.name)
 
     module.libraries.append('CommonVisual')
-    lib = get_gena_gen(root, 'vhdl-library')
-    if lib:
-        module.libraries.append(lib)
-    else:
-        lib = 'work'
+    lib = get_gena_gen(root, 'vhdl-library', 'work')
     module.deps.append((lib, 'MemMap_{}'.format(root.name)))
 
     isigs = gen_hdl.Isigs()

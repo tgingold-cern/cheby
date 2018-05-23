@@ -3,8 +3,8 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 library CommonVisual;
-library mylib;
 
+library mylib;
 use mylib.MemMap_cregs_library.all;
 
 entity RegCtrl_cregs_library is

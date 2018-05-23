@@ -26,6 +26,9 @@ def generate_header(fd, module):
             wln(fd, 'library {};'.format(l))
         wln(fd)
     for lib, pkg in module.deps:
+        # It is OK in vhdl to duplicate use/library clauses.
+        if lib != 'work':
+            wln(fd, 'library {};'.format(lib))
         wln(fd, "use {}.{}.all;".format(lib, pkg))
     wln(fd)
 
