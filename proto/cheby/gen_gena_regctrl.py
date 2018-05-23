@@ -1088,6 +1088,7 @@ def gen_hdl_area(area, pfx, area_root, root, module, root_isigs):
             wr_delay = 1
         else:
             gen_hdl_cregrdmux_asgn(module.stmts, isigs)
+            module.stmts.append(HDLComment(None))
             wr_delay = 0
     else:
         gen_hdl_no_cregrdmux_dff(root, module, isigs)
@@ -1138,10 +1139,11 @@ def gen_hdl_area(area, pfx, area_root, root, module, root_isigs):
     if blks:
         gen_hdl_areardmux(root, module, isigs, area, blks)
         gen_hdl_areawrmux(root, module, isigs, area, blks)
-        for el in reversed(blks):
+        for el in blks:
             if el.h_has_external:
                 gen_hdl_ext_bus_asgn(el, 'rw', root, module)
-            else:
+        for el in reversed(blks):
+            if not el.h_has_external:
                 submap = el.c_submap if hasattr(el, 'c_submap') else area_root
                 npfx = pfx + el.name + '_'
                 gen_hdl_area(el, npfx, submap, root, module, root_isigs)

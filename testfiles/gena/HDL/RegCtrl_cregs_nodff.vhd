@@ -179,6 +179,7 @@ begin
   CRegRdData <= Loc_CRegRdData;
   CRegRdOK <= Loc_CRegRdOK;
   CRegWrOK <= Loc_CRegWrOK;
+
   RegRdMux: process (VMEAddr, CRegRdData, CRegRdOK, Loc_test1, Loc_test7) begin
     case VMEAddr(19 downto 2) is
     when C_Reg_cregs_nodff_test1 => 
