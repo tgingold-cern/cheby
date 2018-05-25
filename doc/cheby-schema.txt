@@ -167,12 +167,11 @@ Fields correspond to subreg in Cheburashka.
 block
 -----
 
-A block is a group of registers.
+A block regroups declarations.
 
 name: string
 description: string
 comment: string
-  Like for the root node but applied on a field.
   If several blocks have the same name, they are considered as the same logical
   block; and only the first one can have a desription and a comment [TO BE
   REFINED]
@@ -180,17 +179,33 @@ address: address
 align: boolean
   If set to false, then doesn't enfore any restriction on size and
   alignment. The default value is true.
-submap: string
-  Optional filename that described the content of that area.  If present,
-  the block must not have any children.
+size: number
+  Number of bytes for that block. Must be large enough to contain all
+  the children.
+children: { reg | block | array }
+
+
+submap
+------
+
+A submap allows to import a memory map from an external file.
+
+name: string
+description: string
+comment: string
+address: address
+align: boolean
+  If set to false, then doesn't enfore any restriction on size and
+  alignment. The default value is true.
+filename: string
+  Relative cheby filename to be imported.
 interface: boolean
   If set to true, the block is represented as an external HW module, connected
   through its parent via a bus.  If set to false, the block is directly
   implemented. (TODO: default is ???)
 size: number
-  Number of bytes for that block. Must be large enough to contain all
-  the children.
-children: { reg | block | array }
+  Number of bytes for that submap. Must be large enough to contain all
+  the children.  This is optional.
 
 Compatibility:
 There are two features in Cheburashka:
@@ -204,9 +219,6 @@ There are two features in Cheburashka:
 Blocks could be used to implement fifo from wbgen:
  add specific attributes for hdl generation
  no support for 'optional' and 'reset'.
-
-TODO:
-reserved area.
 
 
 array

@@ -2,7 +2,7 @@ memory-map:
   bus: wb-32-be
   name: block3
   children:
-  - block:
+  - submap:
       name: blk
-      submap_file: simple_reg1.yaml
+      filename: simple_reg1.yaml
       interface: external

@@ -238,25 +238,40 @@ def load_submap(blk, filename):
     layout_cheby(submap)
     return submap
 
-@Layout.register(tree.Block)
-def layout_block(lo, n):
-    if n.children:
-        layout_composite(lo, n)
-    else:
-        if n.submap_file:
-            n.c_submap = load_submap(n, n.submap_file)
-            n.c_size = n.c_submap.c_size
-        elif n.size is None:
-            raise LayoutException(n,
-                "no size in block '{}'".format(n.get_path()))
-        else:
-            n.c_size = n.size
-        n.c_blk_bits = ilog2(n.c_size)
-        n.c_width = lo.word_size * tree.BYTE_SIZE
+def align_block(lo, n):
+    n.c_blk_bits = ilog2(n.c_size)
+    n.c_width = lo.word_size * tree.BYTE_SIZE
     if n.align is None or n.align:
         # Align to power of 2.
         n.c_size = round_pow2(n.c_size)
         n.c_align = round_pow2(n.c_size)
+
+@Layout.register(tree.Submap)
+def layout_submap(lo, n):
+    if n.filename is None:
+        if n.size is None:
+            raise LayoutException(n,
+                "no size in submap '{}'".format(n.get_path()))
+        else:
+            n.c_size = n.size
+    else:
+        if n.size is not None:
+            raise LayoutException(n,
+                "size given for submap '{}'".format(n.get_path()))
+        n.c_submap = load_submap(n, n.filename)
+        n.c_size = n.c_submap.c_size
+    align_block(lo, n)
+
+@Layout.register(tree.Block)
+def layout_block(lo, n):
+    if n.children:
+        layout_composite(lo, n)
+    elif n.size is None:
+        raise LayoutException(n,
+            "no size in block '{}'".format(n.get_path()))
+    else:
+        n.c_size = n.size
+    align_block(lo, n)
 
 
 @Layout.register(tree.Array)

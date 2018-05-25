@@ -147,7 +147,14 @@ class Block(ComplexNode):
 
     def __init__(self, parent):
         super(Block, self).__init__(parent)
-        self.submap_file = None
+
+
+class Submap(ComplexNode):
+    _dispatcher = {}
+
+    def __init__(self, parent):
+        super(Submap, self).__init__(parent)
+        self.filename = None
         self.interface = None
 
 

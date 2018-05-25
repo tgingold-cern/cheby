@@ -151,7 +151,7 @@ memory-map:
       x-hdl:
         type: wire
         write-strobe: True
-  - block:
+  - submap:
       name: IVT_RAM
       address: 0x00000080
       size: 128

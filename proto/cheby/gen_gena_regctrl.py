@@ -423,7 +423,7 @@ def gen_hdl_wrseldec(root, module, isigs, area, pfx, wrseldec):
     sw = HDLSwitch(HDLSlice(bus_addr,
                             root.c_addr_word_bits,
                             ilog2(area.c_size) - root.c_addr_word_bits))
-    if isinstance(area, tree.Block):
+    if isinstance(area, (tree.Block, tree.Submap)):
         stmt = gen_hdl_area_decode(root, module, area, bus_addr)
         stmt.then_stmts.append(sw)
         stmt.else_stmts.append(HDLAssign(isigs.Loc_CRegWrOK, bit_0))
@@ -456,7 +456,7 @@ def gen_hdl_cregrdmux(root, module, isigs, area, pfx, wrseldec):
     sw = HDLSwitch(HDLSlice(bus_addr,
                             root.c_addr_word_bits,
                             ilog2(area.c_size) - root.c_addr_word_bits))
-    if isinstance(area, tree.Block):
+    if isinstance(area, (tree.Block, tree.Submap)):
         stmt = gen_hdl_area_decode(root, module, area, bus_addr)
         stmt.then_stmts.append(sw)
         stmt.else_stmts.append(HDLAssign(isigs.Loc_CRegRdData, HDLReplicate(bit_0, None)))
@@ -535,7 +535,7 @@ def gen_hdl_regrdmux(root, module, isigs, area, pfx, rd_reg):
     sw = HDLSwitch(HDLSlice(bus_addr,
                             root.c_addr_word_bits,
                             ilog2(area.c_size) - root.c_addr_word_bits))
-    if isinstance(area, tree.Block):
+    if isinstance(area, (tree.Block, tree.Submap)):
         stmt = gen_hdl_area_decode(root, module, area, bus_addr)
         stmt.then_stmts.append(sw)
         stmt.else_stmts.append(HDLAssign(isigs.Loc_RegRdData, isigs.CRegRdData))
@@ -729,7 +729,7 @@ def gen_hdl_memrdmux(root, module, isigs, area, pfx, mems):
         last.append(stmt)
         last = stmt.else_stmts
     gen_hdl_reg2locmem_rd(root, module, isigs, last)
-    if isinstance(area, tree.Block):
+    if isinstance(area, (tree.Block, tree.Submap)):
         stmt = gen_hdl_area_decode(root, module, area, bus_addr)
         stmt.then_stmts.extend(first)
         gen_hdl_reg2locmem_rd(root, module, isigs, stmt.else_stmts)
@@ -810,7 +810,7 @@ def gen_hdl_memwrmux(root, module, isigs, area, pfx, mems):
         last.append(stmt)
         last = stmt.else_stmts
     gen_hdl_reg2locmem_wr(root, module, isigs, last)
-    if isinstance(area, tree.Block):
+    if isinstance(area, (tree.Block, tree.Submap)):
         stmt = gen_hdl_area_decode(root, module, area, bus_addr)
         stmt.then_stmts.extend(first)
         gen_hdl_reg2locmem_wr(root, module, isigs, stmt.else_stmts)
@@ -1003,12 +1003,12 @@ def gen_hdl_area_decls(area, pfx, root, module, isigs):
                 gen_hdl_reg_decls(el, pfx, root, module, isigs)
         elif isinstance(el, tree.Array):
             gen_hdl_mem_decls(el, pfx, root, module, isigs)
-        elif isinstance(el, tree.Block):
+        elif isinstance(el, (tree.Block, tree.Submap)):
             if el.get_extension('x_gena', 'reserved', False):
                 # Discard
                 el.h_ignored = True
                 continue
-            if el.submap_file is not None:
+            if isinstance(el, tree.Submap):
                 include = get_gena_gen(el, 'include', None)
             elif get_gena_gen(el, 'ext-area', False):
                 include = 'external'
@@ -1031,7 +1031,7 @@ def gen_hdl_area_decls(area, pfx, root, module, isigs):
                         el_isigs.WrError = el.h_wrerror
                     el.h_isigs = el_isigs
                 else:
-                    if hasattr(el, 'c_submap'):
+                    if isinstance(el, tree.Submap):
                         assert len(el.children) == 0
                         assert get_gena_gen(el, 'include') == 'internal'
                         el.children = el.c_submap.children
@@ -1059,7 +1059,7 @@ def gen_hdl_area(area, pfx, area_root, root, module, root_isigs):
             regs.append(el)
         elif isinstance(el, tree.Array):
             mems.append(el)
-        elif isinstance(el, tree.Block):
+        elif isinstance(el, (tree.Block, tree.Submap)):
             blks.append(el)
         else:
             raise AssertionError

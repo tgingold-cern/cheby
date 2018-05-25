@@ -406,7 +406,7 @@ def conv_area(parent, el):
     parent.children.append(res)
 
 def conv_submap(parent, el):
-    res = cheby.tree.Block(parent)
+    res = cheby.tree.Submap(parent)
     res.x_gena = {}
     attrs = el.attrib
     for k, v in attrs.items():
@@ -441,12 +441,13 @@ def conv_submap(parent, el):
         else:
             raise UnknownAttribute(k)
     res.name = attrs['name']
-    res.submap_file = os.path.splitext(attrs['filename'])[0] + '.cheby'
+    res.filename = os.path.splitext(attrs['filename'])[0] + '.cheby'
     res.address = conv_address(attrs['address'])
 
     for child in el:
-        conv_element(res, child)
+        raise UnknownTag(child.tag)
     parent.children.append(res)
+
 
 def conv_element(parent, child):
     if child.tag == 'register-data':

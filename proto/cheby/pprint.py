@@ -134,7 +134,15 @@ def pprint_reg(pp, n):
 def pprint_block(pp, n):
     pp.pp_obj('block')
     pprint_complex_head(pp, n)
-    pp.pp_str('submap_file', n.submap_file)
+    pprint_complex_tail(pp, n)
+    pp.pp_endobj()
+
+
+@PrettyPrinter.register(tree.Submap)
+def pprint_submap(pp, n):
+    pp.pp_obj('submap')
+    pprint_complex_head(pp, n)
+    pp.pp_str('filename', n.filename)
     pp.pp_str('interface', n.interface)
     pprint_complex_tail(pp, n)
     pp.pp_endobj()

@@ -220,9 +220,9 @@ def add_ports(root, module, prefix, node):
             if n.children:
                 # Recurse
                 add_ports(root, module, prefix + n.name + '_', n)
-            else:
-                # Interface
-                add_ports_block(root, module, prefix, n)
+        elif isinstance(n, tree.Submap):
+            # Interface
+            add_ports_block(root, module, prefix, n)
         elif isinstance(n, tree.Array):
             # TODO
             raise AssertionError
@@ -238,6 +238,8 @@ def add_init_reg(stmts, node):
     for n in node.children:
         if isinstance(n, tree.Block):
             add_init_reg(stmts, n)
+        elif isinstance(n, tree.Submap):
+            pass
         elif isinstance(n, tree.Array):
             pass
         elif isinstance(n, tree.Reg):
@@ -257,9 +259,9 @@ def add_clear_wstrobe(stmts, node):
 
     for n in node.children:
         if isinstance(n, tree.Block):
-            if n.interface is None:
-                add_clear_wstrobe(stmts, n)
-            elif n.interface == 'sram':
+            add_clear_wstrobe(stmts, n)
+        elif isinstance(n, tree.Submap):
+            if n.interface == 'sram':
                 stmts.append(HDLAssign(n.h_wr_o, bit_0))
             else:
                 raise AssertionError
@@ -278,9 +280,9 @@ def wire_regs(root, module, isigs, node):
     stmts = module.stmts
     for n in node.children:
         if isinstance(n, tree.Block):
-            if n.interface is None:
-                wire_regs(root, module, isigs, n)
-            elif n.interface == 'sram':
+            wire_regs(root, module, isigs, n)
+        elif isinstance(n, tree.Submap):
+            if n.interface == 'sram':
                 stmts.append(HDLAssign(n.h_data_o, root.h_bus['dati']))
                 stmts.append(HDLAssign(n.h_addr_o,
                              HDLSlice(root.h_bus['adr'],
@@ -376,7 +378,7 @@ def add_block_decoder(root, stmts, addr, func, n):
         if el:
             ch = HDLChoiceExpr(HDLConst(i, n.c_sel_bits))
             sw.choices.append(ch)
-            if isinstance(el[0], tree.Block):
+            if isinstance(el[0], (tree.Block, tree.Submap)):
                 assert len(el) == 1
                 add_block_decoder(root, ch.stmts, addr, func, el[0])
             elif isinstance(el[0], tree.Array):

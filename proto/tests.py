@@ -66,7 +66,7 @@ def parse_err(f):
 
 def test_parser():
     for f in ['demo.yaml', 'simple_reg1.yaml', 'simple_reg2.yaml',
-              'block1.yaml', 'block2.yaml', 'block3.yaml', 'block4.yaml']:
+              'block1.yaml', 'submap2.yaml', 'submap3.yaml', 'block4.yaml']:
         if verbose:
             print('test parser: {}'.format(f))
         parse_ok(srcdir + f)

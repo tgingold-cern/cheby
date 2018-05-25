@@ -160,7 +160,7 @@ def gen_submap_addr(n, root, decls, name, pfx):
     decls.append(HDLComment('Submap Addresses : {}'.format(name), nl=False))
     # word_width = ilog2(root.c_word_size)
     for e in n.children:
-        if isinstance(e, tree.Block) and e.submap_file is not None:
+        if isinstance(e, tree.Submap):
             block_width = ilog2(e.c_size)
             addr_width = ilog2(n.c_size) - block_width
             addr = e.c_address >> block_width
@@ -196,9 +196,8 @@ def gen_gena_memmap(root):
     decls = []
     gen_header(root, decls)
 
-    blocks = [e for e in root.children if isinstance(e, tree.Block)]
-    areas =  [e for e in blocks if not hasattr(e, 'c_submap')] # or isinstance(e, tree.Array))]
-    submaps = [e.c_submap for e in blocks if hasattr(e, 'c_submap')]
+    areas = [e for e in root.children if isinstance(e, tree.Block)]
+    submaps = [e for e in root.children if isinstance(e, tree.Submap)]
 
     if areas:
         gen_areas_address(areas, root, decls)
@@ -215,6 +214,6 @@ def gen_gena_memmap(root):
     # Recurse
     for e in submaps:
         if not hasattr(e, 'h_gena_pkg'):
-            gen_gena_memmap(e)
+            gen_gena_memmap(e.c_submap)
 
     return res

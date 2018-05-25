@@ -6,7 +6,7 @@ memory-map:
     ident-code: 0xff
     map-version: 20161101
   children:
-    - block:
+    - submap:
         name: submap1
         address: next
-        submap_file: Inc_CRegs.cheby
+        filename: Inc_CRegs.cheby

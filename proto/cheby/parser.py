@@ -72,6 +72,8 @@ def parse_children(node, val):
                 ch = parse_reg(node, v)
             elif k == 'block':
                 ch = parse_block(node, v)
+            elif k == 'submap':
+                ch = parse_submap(node, v)
             elif k == 'array':
                 ch = parse_array(node, v)
             else:
@@ -160,12 +162,22 @@ def parse_block(parent, el):
     for k, v in el.items():
         if parse_complex(res, k, v):
             pass
-        elif k == 'submap_file':
-            res.submap_file = read_text(res, k, v)
+        else:
+            error("unhandled '{}' in block {}".format(k, parent.get_path()))
+    return res
+
+
+def parse_submap(parent, el):
+    res = tree.Submap(parent)
+    for k, v in el.items():
+        if parse_complex(res, k, v):
+            pass
+        elif k == 'filename':
+            res.filename = read_text(res, k, v)
         elif k == 'interface':
             res.interface = read_text(res, k, v)
         else:
-            error("unhandled '{}' in block {}".format(k, parent.get_path()))
+            error("unhandled '{}' in submap {}".format(k, parent.get_path()))
     return res
 
 
