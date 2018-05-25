@@ -2,7 +2,7 @@ memory-map:
   name: cregs_wrstrobe
   bus: cern-be-vme-err-32
   size: 1048576
-  x-gena:
+  x_gena:
     ident-code: 0xff
     map-version: 20161031
   children:
@@ -11,7 +11,7 @@ memory-map:
         width: 32
         access: rw
         address: 0x0
-        x-gena:
+        x_gena:
           gen:
             write-strobe: True
           type: rmw
@@ -20,7 +20,7 @@ memory-map:
         width: 32
         access: rw
         address: next
-        x-gena:
+        x_gena:
           gen:
             write-strobe: True
     - reg:
@@ -28,6 +28,6 @@ memory-map:
         width: 64
         access: wo
         address: next
-        x-gena:
+        x_gena:
           gen:
             write-strobe: True

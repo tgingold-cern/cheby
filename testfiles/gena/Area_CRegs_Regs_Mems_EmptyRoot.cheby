@@ -2,7 +2,7 @@ memory-map:
   name: areaCRegsRegsMemsER
   bus: cern-be-vme-16
   size: 1048576
-  x-gena:
+  x_gena:
     ident-code: 0xff
     map-version: 20161031
   children:
@@ -10,7 +10,7 @@ memory-map:
         name: area
         address: next
         size: 524288
-        x-gena:
+        x_gena:
           reserved: False
         children:
           - reg:
@@ -18,14 +18,14 @@ memory-map:
               width: 32
               access: rw
               address: 0x0
-              x-gena:
+              x_gena:
                 type: rmw
           - reg:
               name: test2
               width: 64
               access: rw
               address: next
-              x-gena:
+              x_gena:
                 type: rmw
           - reg:
               name: test3

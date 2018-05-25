@@ -2,7 +2,7 @@ memory-map:
   name: submap_internal
   bus: cern-be-vme-err-32
   size: 1048576
-  x-gena:
+  x_gena:
     ident-code: 0xff
     map-version: 20161101
   children:
@@ -10,6 +10,6 @@ memory-map:
         name: submap1
         address: next
         filename: Inc_CRegs.cheby
-        x-gena:
+        x_gena:
           gen:
             include: internal

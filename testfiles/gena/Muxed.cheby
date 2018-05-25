@@ -3,7 +3,7 @@ memory-map:
   description: Muxed registers
   bus: cern-be-vme-16
   size: 1048576
-  x-gena:
+  x_gena:
     ident-code: 0x00
     map-version: 20180513
   children:
@@ -13,7 +13,7 @@ memory-map:
         width: 32
         access: ro
         address: next
-        x-gena:
+        x_gena:
           gen:
             mux: regSel.channelSelect
     - reg:
@@ -22,7 +22,7 @@ memory-map:
         width: 32
         access: rw
         address: next
-        x-gena:
+        x_gena:
           gen:
             mux: regSel.channelSelect
     - reg:
@@ -36,7 +36,7 @@ memory-map:
               name: channelSelect
               description: Channel selection
               range: 15-8
-              x-gena:
+              x_gena:
                 gen:
                   ext-codes: Mem.memory-channel
           - field:
@@ -48,7 +48,7 @@ memory-map:
         description: Memory
         address: next
         repeat: 262144
-        x-gena:
+        x_gena:
           memory-channels:
             - memory-channel:
                 acq-width: 16

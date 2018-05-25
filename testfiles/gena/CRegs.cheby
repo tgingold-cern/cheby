@@ -2,7 +2,7 @@ memory-map:
   name: cregs
   bus: cern-be-vme-err-32
   size: 1048576
-  x-gena:
+  x_gena:
     ident-code: 0xff
     map-version: 20161031
   children:
@@ -11,14 +11,14 @@ memory-map:
         width: 32
         access: rw
         address: 0x0
-        x-gena:
+        x_gena:
           type: rmw
     - reg:
         name: test2
         width: 32
         access: rw
         address: next
-        x-gena:
+        x_gena:
           type: rmw
     - reg:
         name: test3

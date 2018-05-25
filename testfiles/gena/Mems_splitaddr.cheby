@@ -2,7 +2,7 @@ memory-map:
   name: mems_splitaddr
   bus: cern-be-vme-split-16
   size: 1048576
-  x-gena:
+  x_gena:
     ident-code: 0xff
     map-version: 20161101
   children:

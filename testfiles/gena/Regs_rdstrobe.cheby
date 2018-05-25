@@ -2,7 +2,7 @@ memory-map:
   name: regs_rdstrobe
   bus: cern-be-vme-16
   size: 1048576
-  x-gena:
+  x_gena:
     ident-code: 0xff
     map-version: 20161101
   children:
@@ -11,7 +11,7 @@ memory-map:
         width: 16
         access: ro
         address: 0x0
-        x-gena:
+        x_gena:
           gen:
             read-strobe: True
     - reg:
@@ -19,6 +19,6 @@ memory-map:
         width: 32
         access: ro
         address: next
-        x-gena:
+        x_gena:
           gen:
             read-strobe: True

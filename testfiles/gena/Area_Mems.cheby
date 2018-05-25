@@ -2,7 +2,7 @@ memory-map:
   name: areaMems
   bus: cern-be-vme-err-32
   size: 1048576
-  x-gena:
+  x_gena:
     ident-code: 0xff
     map-version: 20161031
   children:
@@ -10,7 +10,7 @@ memory-map:
         name: area
         address: next
         size: 524288
-        x-gena:
+        x_gena:
           reserved: False
         children:
           - array:

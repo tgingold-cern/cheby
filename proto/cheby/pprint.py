@@ -80,7 +80,7 @@ def pprint_extension(pp, name, n):
 
 def pprint_extensions(pp, n):
     if hasattr(n, 'x_gena'):
-        pprint_extension(pp, 'x-gena', n.x_gena)
+        pprint_extension(pp, 'x_gena', n.x_gena)
 
 def pprint_address(pp, n):
     if n.address is None:

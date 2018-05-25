@@ -16,6 +16,11 @@ a tree, each node is a set of name-value tuple.  The name is a string
 node, or a list of nodes.  In the Cheby format, the type of the value
 for a tuple is fixed.
 
+It is possible to add extensions to the description, using a node name
+that starts with 'x_' (or 'x-').  The extension to support Cheburaska
+particularities is 'x_gena'.
+
+
 Some definitions
 ----------------
 

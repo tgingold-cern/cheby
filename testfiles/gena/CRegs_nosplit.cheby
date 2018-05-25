@@ -2,7 +2,7 @@ memory-map:
   name: cregs_nosplit
   bus: cern-be-vme-err-32
   size: 1048576
-  x-gena:
+  x_gena:
     ident-code: 0xff
     map-version: 20161031
   children:
@@ -11,7 +11,7 @@ memory-map:
         width: 32
         access: rw
         address: 0x0
-        x-gena:
+        x_gena:
           gen:
             no-split: True
           type: rmw
@@ -25,7 +25,7 @@ memory-map:
         width: 64
         access: rw
         address: next
-        x-gena:
+        x_gena:
           gen:
             no-split: True
         children:
@@ -38,7 +38,7 @@ memory-map:
         width: 32
         access: wo
         address: next
-        x-gena:
+        x_gena:
           gen:
             no-split: True
         children:
@@ -51,7 +51,7 @@ memory-map:
         width: 32
         access: ro
         address: next
-        x-gena:
+        x_gena:
           gen:
             no-split: True
         children:
