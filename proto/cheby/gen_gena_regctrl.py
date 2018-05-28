@@ -362,7 +362,7 @@ def gen_hdl_reg_stmts(reg, pfx, root, module, isigs):
         # Create bitlist, a list of ordered (lo + width, lo, field)
         # Fill gaps with (lo + width, lo, None)
         bitlist = []
-        nbit = 0
+        nbit = 0    # Next bit (used for padding)
         for f in sorted(reg.children, key=(lambda x: x.lo)):
             if f.lo > nbit:
                 bitlist.append((f.lo, nbit, None))
@@ -374,23 +374,31 @@ def gen_hdl_reg_stmts(reg, pfx, root, module, isigs):
         for hi, lo, f in reversed(bitlist):
             for m in range(len(reg.h_loc_mux)):
                 tgt = reg.h_loc_mux[m]
-                if hi == lo + 1:
-                    tgt = HDLIndex(tgt, lo)
-                elif lo == 0 and hi == reg.c_rwidth:
-                    pass
-                else:
-                    tgt = HDLSlice(tgt, lo, hi - lo)
                 if f is None:
-                    idx = lo // root.c_word_bits
-                    if hi == lo + 1:
-                        src = HDLIndex(reg.h_gena_psm[idx], lo)
-                    else:
-                        src = HDLSlice(reg.h_gena_psm[idx], lo, hi - lo)
+                    idx = (hi - 1) // root.c_word_bits
+                    while True:
+                        l = max(idx * root.c_word_bits, lo)
+                        if hi == l + 1:
+                            src = HDLIndex(reg.h_gena_psm[idx], l)
+                            t = HDLIndex(tgt, l)
+                        else:
+                            src = HDLSlice(reg.h_gena_psm[idx], l, hi - l)
+                            t = HDLSlice(tgt, l, hi - l)
+                        module.stmts.append(HDLAssign(t, src))
+                        if l == lo:
+                            break
+                        idx -= 1
+                        hi -= root.c_word_bits
                 else:
+                    if hi == lo + 1:
+                        tgt = HDLIndex(tgt, lo)
+                    elif lo == 0 and hi == reg.c_rwidth:
+                        pass
+                    else:
+                        tgt = HDLSlice(tgt, lo, hi - lo)
                     src = f.h_port[m]
-                if f:
                     src = gen_reg_resize(reg, src, f.c_iowidth, f.c_rwidth)
-                module.stmts.append(HDLAssign(tgt, src))
+                    module.stmts.append(HDLAssign(tgt, src))
     else:
         for m in range(len(reg.h_loc_mux)):
             for f in reg.children:
