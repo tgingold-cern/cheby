@@ -275,7 +275,8 @@ def test_gena_regctrl_err():
 def test_gena2cheby():
     files=['const_value', 'fesa_class_prop', 'root_attr', 'root_gen_include',
            'submap_desc', 'comment', 'area_attrs', 'memory_gen',
-           'err_memory_width', 'memory_buffer', 'memory_bit_field']
+           'err_memory_width', 'memory_buffer', 'memory_bit_field',
+           'regs_gen']
     for f in files:
         if verbose:
             print('test gena2cheby: {}'.format(f))
@@ -288,7 +289,12 @@ def test_gena2cheby_err():
            'err_root_element', 'err_submap_child', 'err_submap_gen',
            'err_submap_attr', 'err_submap_include', 'err_comment',
            'err_area_attrs', 'err_area_gen',
-           'err_memory_gen', 'err_memory_attr', 'err_memory_child']
+           'err_memory_gen', 'err_memory_attr', 'err_memory_child',
+           'err_memory_channel_attrs', 'err_memory_channel_child',
+           'err_memory_buffer_child', 'err_memory_buffer_attrs',
+           'err_memory_bit_field_attrs', 'err_memory_bit_field_child',
+           'err_regs_gen', 'err_regs_attrs', 'err_regs_child',
+           'err_regs_bit_encoding']
     for f in files:
         if verbose:
             print('test gena2cheby err: {}'.format(f))
