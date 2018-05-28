@@ -204,7 +204,7 @@ def compare_buffer_and_file(buf, filename):
 def test_gena():
     files=['CRegs', 'CRegs_Regs', 'CRegs_NoRMW', 'CRegs_Regs_NoRMW',
            'Regs', 'Regs_Mems', 'Regs_rdstrobe', 'Regs_nodff',
-           'Regs_cross_words',
+           'Regs_cross_words', 'Regs_small',
            'Mems', 'Mems2', 'Mems_RO', 'Mems_WO',
            'Mems_nodff', 'Mems_splitaddr',
            'CRegs_Mems', 'CRegs_Regs_Mems',
