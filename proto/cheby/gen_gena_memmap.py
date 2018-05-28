@@ -10,7 +10,7 @@ def gen_header(root, decls):
     if hasattr(root, 'x_gena'):
         cpfx = 'C_{}'.format(root.name)
         ident_code = root.x_gena.get('ident-code')
-        if ident_code:
+        if ident_code is not None:
             width = root.c_word_size * tree.BYTE_SIZE
             decls.append(HDLComment('Ident Code'))
             decls.append(HDLConstant(cpfx + '_IdentCode', width,
