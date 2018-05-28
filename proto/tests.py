@@ -205,7 +205,7 @@ def test_gena():
     files=['CRegs', 'CRegs_Regs', 'CRegs_NoRMW', 'CRegs_Regs_NoRMW',
            'Regs', 'Regs_Mems', 'Regs_rdstrobe', 'Regs_nodff',
            'Regs_cross_words', 'Regs_small',
-           'sub_reg_swap', 'sub_reg_one',
+           'sub_reg_swap', 'sub_reg_one', 'sub_reg_preset', 'sub_reg_preset2',
            'Mems', 'Mems2', 'Mems_RO', 'Mems_WO',
            'Mems_nodff', 'Mems_splitaddr',
            'CRegs_Mems', 'CRegs_Regs_Mems',
@@ -278,7 +278,8 @@ def test_gena2cheby():
            'submap_desc', 'comment', 'area_attrs', 'memory_gen',
            'err_memory_width', 'memory_buffer', 'memory_bit_field',
            'regs_gen',
-           'sub_reg_gen', 'sub_reg_gen_ignore']
+           'sub_reg_gen', 'sub_reg_gen_ignore',
+           'bit_field_gen']
     for f in files:
         if verbose:
             print('test gena2cheby: {}'.format(f))
@@ -297,7 +298,9 @@ def test_gena2cheby_err():
            'err_memory_bit_field_attrs', 'err_memory_bit_field_child',
            'err_regs_gen', 'err_regs_attrs', 'err_regs_child',
            'err_regs_bit_encoding',
-           'err_sub_reg_gen', 'err_sub_reg_attrs', 'err_sub_reg_child']
+           'err_sub_reg_gen', 'err_sub_reg_attrs', 'err_sub_reg_child',
+           'err_bit_field_gen', 'err_bit_field_attrs', 'err_bit_field_child',
+           'err_bit_field_preset']
     for f in files:
         if verbose:
             print('test gena2cheby err: {}'.format(f))

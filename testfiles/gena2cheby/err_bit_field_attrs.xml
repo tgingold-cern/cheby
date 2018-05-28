@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type="text/xsl" href="http://abwww.cern.ch/ap/dist/accsoft/rf/accsoft-rf-cheburashka/PRO/src/java/cern/accsoft/rf/cheburashka/xml/schema/MemMapStyleSheet.xsl"?><memory-map xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" area-depth="1024k" ident-code="0xff" map-version="20161031" mem-map-access-mode="A32/D32"
+ name="err_bit_field_attrs"
+ xsi:schemaLocation="http://abwww.cern.ch/ap/dist/accsoft/rf/accsoft-rf-cheburashka/PRO/src/java/cern/accsoft/rf/cheburashka/xml/schema/TemplateMemMap.xsd">
+  <register-data access-mode="r" address="0x00" code-generation-rule="HW,Fesa" element-width="32" name="test1" preset="0xe0" persistence="Fesa">
+    <bit-field-data bit="15" description="b15" name="b15" unknown-err='True'/>
+  </register-data>
+</memory-map>
