@@ -272,6 +272,27 @@ def test_gena_regctrl_err():
         except gen_gena_regctrl.GenHDLException as e:
             assert(str(e) != '')
 
+def test_gena2cheby():
+    files=['const_value', 'fesa_class_prop']
+    for f in files:
+        if verbose:
+            print('test gena2cheby: {}'.format(f))
+        # Test Gena to Cheby conversion
+        xmlfile = srcdir + 'gena2cheby/' + f + '.xml'
+        gena2cheby.convert(xmlfile)
+
+def test_gena2cheby_err():
+    files=['err_memmap_acc_mode']
+    for f in files:
+        if verbose:
+            print('test gena2cheby err: {}'.format(f))
+        # Test Gena to Cheby conversion
+        xmlfile = srcdir + 'gena2cheby/' + f + '.xml'
+        try:
+            gena2cheby.convert(xmlfile)
+            error('gena2cheby error expected for {}'.format(f))
+        except gena2cheby.UnknownValue:
+            pass
 
 def main():
     global verbose
@@ -288,6 +309,8 @@ def main():
         test_hdl()
         test_gena()
         test_gena_regctrl_err()
+        test_gena2cheby()
+        test_gena2cheby_err()
         print("Done!")
     except TestError as e:
         werr(e.msg)
