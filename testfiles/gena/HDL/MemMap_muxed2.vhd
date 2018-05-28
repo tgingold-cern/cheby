@@ -4,6 +4,9 @@ use ieee.numeric_std.all;
 
 package MemMap_muxed2 is
 
+  -- Ident Code
+  constant C_muxed2_IdentCode : std_logic_vector(15 downto 0) := X"0000";
+
   -- Memory Map Version
   constant C_muxed2_MemMapVersion : std_logic_vector(31 downto 0) := X"0133EE21";--20180513
   -- Register Addresses : Memory Map

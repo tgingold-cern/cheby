@@ -165,6 +165,9 @@ def generate_expr(e, prio=-1):
     elif isinstance(e, hdltree.HDLZext):
         return "std_logic_vector(resize(unsigned({}), {}))".format(
             generate_expr(e.expr), e.size)
+    elif isinstance(e, hdltree.HDLSext):
+        return "std_logic_vector(resize(signed({}), {}))".format(
+            generate_expr(e.expr), e.size)
     elif isinstance(e, hdltree.HDLBit):
         return "'{}'".format(e.val)
     elif isinstance(e, hdltree.HDLUndef):

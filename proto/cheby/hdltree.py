@@ -245,13 +245,21 @@ class HDLReplicate(HDLExpr):
         self.num = num
 
 
-class HDLZext(HDLExpr):
+class HDLExtBase(HDLExpr):
+    "Size conversion (base type)"
     def __init__(self, expr, sz):
-        super(HDLZext, self).__init__()
+        super(HDLExtBase, self).__init__()
         assert expr is not None
         self.expr = expr
         self.size = sz
 
+
+class HDLZext(HDLExtBase):
+    pass
+
+
+class HDLSext(HDLExtBase):
+    pass
 
 class HDLUnary(HDLExpr):
     def __init__(self, expr):

@@ -7,7 +7,7 @@ from cheby.hdltree import (HDLComponent, HDLComponentSpec,
                            HDLSub, HDLMul,
                            HDLAnd, HDLNot,
                            HDLGe, HDLLe, HDLEq,
-                           HDLZext, HDLReplicate, HDLConcat,
+                           HDLZext, HDLSext, HDLReplicate, HDLConcat,
                            HDLAssign, HDLIfElse,
                            HDLSwitch, HDLChoiceExpr, HDLChoiceDefault,
                            HDLInstance, HDLComb, HDLSync,
@@ -324,6 +324,18 @@ def gen_hdl_reg_wrseldec(reg, pfx, root, module, isigs):
     module.stmts.append(proc)
     module.stmts.append(HDLComment(None))
 
+def gen_reg_resize(reg, val, reg_size, nsize):
+    if nsize == reg_size:
+        return val
+    else:
+        if reg.type == 'signed':
+            return HDLSext(val, nsize)
+        elif reg.type is None or reg.type == 'unsigned':
+            return HDLZext(val, nsize)
+        else:
+            raise AssertionError("unhandled resize conversion")
+
+
 def gen_hdl_reg_stmts(reg, pfx, root, module, isigs):
     if reg.h_SRFF:
         module.stmts.append(HDLAssign(reg.h_SRFF, reg.h_loc_SRFF))
@@ -331,13 +343,11 @@ def gen_hdl_reg_stmts(reg, pfx, root, module, isigs):
         for i in range(len(reg.h_mux.codelist)):
             if reg.access in ('ro'):
                 src = reg.h_port[i]
-                if reg.c_iowidth < reg.c_rwidth:
-                    src = HDLZext(src, reg.c_rwidth)
+                src = gen_reg_resize (reg, src, reg.c_iowidth, reg.c_rwidth)
                 module.stmts.append(HDLAssign(reg.h_loc_mux[i], src))
             else:
                 src = reg.h_loc_mux[i]
-                if reg.c_iowidth < reg.c_rwidth:
-                    src = HDLZext(src, reg.c_iowidth)
+                src = gen_reg_resize (reg, src, reg.c_rwidth, reg.c_iowidth)
                 module.stmts.append(HDLAssign(reg.h_port[i], src))
     elif get_gena_gen(reg, 'ext-creg'):
         if reg.access in READ_ACCESS:
@@ -378,8 +388,8 @@ def gen_hdl_reg_stmts(reg, pfx, root, module, isigs):
                         src = HDLSlice(reg.h_gena_psm[idx], lo, hi - lo)
                 else:
                     src = f.h_port[m]
-                if f and f.c_iowidth < f.c_rwidth:
-                    src = HDLZext(src, f.c_rwidth)
+                if f:
+                    src = gen_reg_resize(reg, src, f.c_iowidth, f.c_rwidth)
                 module.stmts.append(HDLAssign(tgt, src))
     else:
         for m in range(len(reg.h_loc_mux)):
@@ -391,8 +401,7 @@ def gen_hdl_reg_stmts(reg, pfx, root, module, isigs):
                     pass
                 else:
                     src = HDLSlice(src, f.lo, f.hi - f.lo + 1)
-                if f.c_iowidth < f.c_rwidth:
-                    src = HDLZext(src, f.c_iowidth)
+                src = gen_reg_resize(reg, src, f.c_rwidth, f.c_iowidth)
                 module.stmts.append(HDLAssign(f.h_port[m], src))
 
     if reg.h_rdstrobe:
