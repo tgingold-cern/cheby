@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type="text/xsl" href="http://abwww.cern.ch/ap/dist/accsoft/rf/accsoft-rf-cheburashka/PRO/src/java/cern/accsoft/rf/cheburashka/xml/schema/MemMapStyleSheet.xsl"?><memory-map xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" area-depth="1024k" ident-code="0xff" map-version="20161101" mem-map-access-mode="A24/D16"
+ name="memory_buffer"
+ xsi:schemaLocation="http://abwww.cern.ch/ap/dist/accsoft/rf/accsoft-rf-cheburashka/PRO/src/java/cern/accsoft/rf/cheburashka/xml/schema/TemplateMemMap.xsd">
+  <memory-data access-mode="rw" address="next" element-depth="512" element-width="16" name="mem1" persistence="PPM">
+    <memory-channel acq-base-freq="100MHz" acq-width="16" buffer-alignment="end" channel-select-code="0" name="plates" ors-definition="exponential">
+      <memory-buffer bit-encoding="signed" buffer-select-code="0" description="chopper drive monitoring" name="drive1"/>
+    </memory-channel>
+  </memory-data>
+</memory-map>

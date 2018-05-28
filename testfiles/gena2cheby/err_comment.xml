@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type="text/xsl" href="http://abwww.cern.ch/ap/dist/accsoft/rf/accsoft-rf-cheburashka/PRO/src/java/cern/accsoft/rf/cheburashka/xml/schema/MemMapStyleSheet.xsl"?><memory-map xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" area-depth="1024" ident-code="0xff" map-version="20161101" mem-map-access-mode="A24/D16"
+ name="err_comment"
+ xsi:schemaLocation="http://abwww.cern.ch/ap/dist/accsoft/rf/accsoft-rf-cheburashka/PRO/src/java/cern/accsoft/rf/cheburashka/xml/schema/TemplateMemMap.xsd">
+  <submap address="next" filename="Inc_CRegs.xml" name="submap1"
+          comment="a comment" comment-encoding="UTF-8" />
+</memory-map>
