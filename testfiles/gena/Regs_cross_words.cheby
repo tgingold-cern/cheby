@@ -1,0 +1,40 @@
+memory-map:
+  name: regs_cross_words
+  bus: cern-be-vme-16
+  size: 1048576
+  x_gena:
+    ident-code: 0xff
+    map-version: 20161101
+  children:
+    - reg:
+        name: test2
+        width: 32
+        access: ro
+        address: next
+        x_gena:
+          preset: 0xabcd1234
+        children:
+          - field:
+              name: hi
+              range: 31
+              preset: 0x1
+          - field:
+              name: lo
+              range: 0
+              preset: 0x0
+    - reg:
+        name: test3
+        width: 32
+        access: ro
+        address: next
+        x_gena:
+          preset: 0xabcd1234
+        children:
+          - field:
+              name: hi
+              range: 31
+              preset: 0x1
+          - field:
+              name: lo
+              range: 14
+              preset: 0x0

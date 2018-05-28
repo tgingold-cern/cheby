@@ -1,0 +1,57 @@
+memory-map:
+  name: cregs_resize_signed
+  bus: cern-be-vme-err-32
+  size: 1048576
+  x_gena:
+    ident-code: 0xff
+    map-version: 20161031
+  children:
+    - reg:
+        name: test1
+        width: 32
+        access: ro
+        address: next
+        x_gena:
+          gen:
+            resize: 17
+    - reg:
+        name: test2
+        width: 64
+        access: ro
+        address: next
+        x_gena:
+          gen:
+            resize: 20
+    - reg:
+        name: test3
+        width: 32
+        access: rw
+        address: next
+        x_gena:
+          gen:
+            resize: 17
+    - reg:
+        name: test4
+        width: 64
+        access: rw
+        address: next
+        x_gena:
+          gen:
+            resize: 20
+    - reg:
+        name: test5
+        width: 32
+        access: wo
+        address: next
+        x_gena:
+          gen:
+            resize: 17
+    - reg:
+        name: test6
+        width: 64
+        type: signed
+        access: wo
+        address: next
+        x_gena:
+          gen:
+            resize: 20

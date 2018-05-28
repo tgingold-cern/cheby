@@ -204,6 +204,7 @@ def compare_buffer_and_file(buf, filename):
 def test_gena():
     files=['CRegs', 'CRegs_Regs', 'CRegs_NoRMW', 'CRegs_Regs_NoRMW',
            'Regs', 'Regs_Mems', 'Regs_rdstrobe', 'Regs_nodff',
+           'Regs_cross_words',
            'Mems', 'Mems2', 'Mems_RO', 'Mems_WO',
            'Mems_nodff', 'Mems_splitaddr',
            'CRegs_Mems', 'CRegs_Regs_Mems',
@@ -214,7 +215,7 @@ def test_gena():
            'CRegs_busout', 'CRegs_extcreg', 'CRegs_extacm',
            'CRegs_nodff', 'CRegs_splitaddr', 'CRegs_library',
            'CRegs_resize_nosplit', 'CRegs_ignore', 'CRegs_Preset',
-           'CRegs_Address',
+           'CRegs_Address', 'CRegs_resize_signed',
            'Submap', 'Submap_internal',
            'Muxed', 'Muxed2']
     for f in files:
@@ -246,6 +247,32 @@ def test_gena():
         if not compare_buffer_and_file(buf, regctrlfile):
             error('gena regctrl generation error for {}'.format(f))
 
+def test_gena_regctrl_err():
+    files=['Muxed_name', 'Muxed_code']
+    for f in files:
+        if verbose:
+            print('test gena regctrl err: {}'.format(f))
+        # Test Gena to Cheby conversion
+        xmlfile = srcdir + 'err_gena/' + f + '.xml'
+        chebfile = srcdir + 'err_gena/' + f + '.cheby'
+        t = gena2cheby.convert(xmlfile)
+        buf = write_buffer ()
+        pprint.pprint_cheby(buf, t)
+        if not compare_buffer_and_file(buf, chebfile):
+            error('gena2cheby conversion error for {}'.format(f))
+        # Test parse+layout
+        t = parse_ok(chebfile)
+        layout_ok(t)
+        # Test memmap generation
+        gen_gena_memmap.gen_gena_memmap(t)
+        # Test regctrl generation
+        try:
+            gen_gena_regctrl.gen_gena_regctrl(t)
+            error('gen regctrl error expected for {}'.format(f))
+        except gen_gena_regctrl.GenHDLException as e:
+            assert(str(e) != '')
+
+
 def main():
     global verbose
 
@@ -260,6 +287,7 @@ def main():
         test_print()
         test_hdl()
         test_gena()
+        test_gena_regctrl_err()
         print("Done!")
     except TestError as e:
         werr(e.msg)

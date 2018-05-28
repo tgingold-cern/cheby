@@ -387,8 +387,8 @@ def gen_hdl_reg_stmts(reg, pfx, root, module, isigs):
                         module.stmts.append(HDLAssign(t, src))
                         if l == lo:
                             break
+                        hi = idx * root.c_word_bits
                         idx -= 1
-                        hi -= root.c_word_bits
                 else:
                     if hi == lo + 1:
                         tgt = HDLIndex(tgt, lo)
