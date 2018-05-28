@@ -273,7 +273,8 @@ def test_gena_regctrl_err():
             assert(str(e) != '')
 
 def test_gena2cheby():
-    files=['const_value', 'fesa_class_prop', 'root_attr', 'root_gen_include']
+    files=['const_value', 'fesa_class_prop', 'root_attr', 'root_gen_include',
+           'submap_desc']
     for f in files:
         if verbose:
             print('test gena2cheby: {}'.format(f))
@@ -282,7 +283,9 @@ def test_gena2cheby():
         gena2cheby.convert(xmlfile)
 
 def test_gena2cheby_err():
-    files=['err_memmap_acc_mode', 'err_root_attr', 'err_root_gen']
+    files=['err_memmap_acc_mode', 'err_root_attr', 'err_root_gen',
+           'err_root_element', 'err_submap_child', 'err_submap_gen',
+           'err_submap_attr', 'err_submap_include']
     for f in files:
         if verbose:
             print('test gena2cheby err: {}'.format(f))
@@ -296,6 +299,8 @@ def test_gena2cheby_err():
         except gena2cheby.UnknownAttribute:
             pass
         except gena2cheby.UnknownGenAttribute:
+            pass
+        except gena2cheby.UnknownTag:
             pass
 
 def main():
