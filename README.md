@@ -8,8 +8,9 @@ The Cheby project is the successor of the Cheburashka and Wbgen tools.
 
 ## Version 0.1
 
-The purpose of this version is to handle the Cheburashka files and to
-understand all the features available.  Currently there is no real packaging.
+The purpose of this version is to handle the Cheburashka files, to
+generate HDL, and to understand all the features available.
+TCurrently there is no real packaging.
 
 Two tools are available:
 
