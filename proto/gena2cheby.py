@@ -208,7 +208,7 @@ def conv_register_data(parent, el):
                 else:
                     raise UnknownGenAttribute(e, res)
             res.x_gena['gen'] = xg
-        elif k in ['code-generation-rule', 'bit-encoding',
+        elif k in ['code-generation-rule',
                    'persistence', 'max-val', 'min-val',
                    'unit', 'read-conversion-factor', 'write-conversion-factor']:
             # Ignored
@@ -253,10 +253,10 @@ def conv_register_data(parent, el):
                     f.preset = (preset >> f.lo) & ((1 << w) - 1)
     parent.children.append(res)
 
+
 def conv_memory_bit_field_data(el):
     res = {}
     attrs = el.attrib
-    res['name'] = attrs['name']
     for k, v in attrs.items():
         if k in ('bit', 'name', 'description', 'comment', 'comment-encoding'):
             res[k] = v
@@ -271,7 +271,6 @@ def conv_memory_bit_field_data(el):
 def conv_memory_buffer(el):
     res = {}
     attrs = el.attrib
-    res['name'] = attrs['name']
     for k, v in attrs.items():
         if k in ('description', 'buffer-type', 'buffer-select-code', 'name',
                  'read-conversion-factor', 'write-conversion-factor', 'unit',
@@ -294,7 +293,6 @@ def conv_memory_buffer(el):
 def conv_memory_channel(el):
     res = {}
     attrs = el.attrib
-    res['name'] = attrs['name']
     for k, v in attrs.items():
         if k in ('description', 'acq-base-freq', 'acq-width',
                  'buffer-alignment', 'channel-select-code',

@@ -1,0 +1,178 @@
+This file documents how gena/cheburashka files are translated to Cheby.
+
+memory-map (root node) -> memory-map
+- description -> description
+- comment -> comment
+- comment-encoding: only 'PlainText' is allowed, ignored.
+- name -> name
+- mem-map-access-mode: allows A24/D8, A24/D16, A32/D32
+- area-depth -> size
+- map-version -> x_gena.map-version
+- ident-code -> x_gena.ident_code
+- gen:
+  - library -> x_gena.gen.vhdl-library
+  - no-creg-mux-dff: ignored
+  - no-reg-mux-dff: ignored
+  - no-mem-mux-dff: ignored
+  - dsp: ignored
+  - split-address: modifies the bus name
+  - error=on: modified the bus name
+  - include: ignored
+- driver-name: ignored
+- equipment-code: ignored
+- note: ignored
+- module-type: ignored
+- semantic-mem-map-version: ignored
+- vme-base-addr: ignored
+- vme-base-address: ignored
+
+memory-map.constant-value:
+ ignored
+
+memory-map.fesa-class-properties:
+ ignored
+
+memory-map.register-data -> reg
+- description -> description
+- comment -> comment
+- comment-encoding: only 'PlainText' is allowed, ignored.
+- name -> name
+- access-mode -> access ('ro', 'rw' or 'wo'), rmw -> x_gena.type=rmw
+- address -> address
+- element-width -> width
+- bit-encoding -> type (unsigned, signed or float)
+- note -> x_gena.note
+- auto-clear -> x_gena.auto-clear
+- preset -> x_gena.preset
+- gen:
+  - write-strobe -> x_gena.gen.write-strobe
+  - srff -> x_gena.gen.srff
+  - bus-out -> x_gena.gen.bus-out
+  - no-split -> x_gena.gen.no-split
+  - ext-creg -> x_gena.gen.ext-creg
+  - ext-acm -> x_gena.gen.ext-acm
+  - ignore -> x_gena.gen.ignore
+  - read-strobe -> x_gena.gen.read-strobe
+  - resize -> x_gena.gen.resize
+  - mux -> x_gena.gen.mux
+- code-generation-rule: ignored
+- persistence: ignored
+- max-val: ignored
+- min-val: ignored
+- unit: ignored
+- read-conversion-factor: ignored
+- write-conversion-factor: ignored
+
+memory-map.register-data.code-field -> x_gena.code-field
+memory-map.register-data.sub-reg.code-field -> x_gena.code-field
+memory-map.register-data.bit-field.code-field -> x_gena.code-field
+- name: name
+- code: code
+
+memory-map.register-data.bit-field-data -> field
+- description -> description
+- comment -> comment
+- comment-encoding: only 'PlainText' is allowed, ignored.
+- name -> name
+- bit-preset -> preset
+- bit -> range
+- autoclear -> x_gena.auto-clear
+- gen:
+  - ext-codes: x_gena.gen.ext-codes
+- alarm-level: ignored
+
+memory-map.register-data.sub-reg -> field
+- description -> description
+- comment -> comment
+- comment-encoding: only 'PlainText' is allowed, ignored.
+- name -> name
+- range -> range
+- sub-reg-preset-mask -> preset
+- auto-clear-mask -> x_gena.auto-clear
+- gen:
+  - ext-codes -> x_gena.gen.ext-codes
+  - ignore -> x_gena.gen.ignore
+- unit: ignored
+- read-conversion-factor: ignored
+- write-conversion-factor: ignored
+- constant-value: ignored
+
+memory-map.memory-data -> array
+- description -> description
+- comment -> comment
+- comment-encoding: only 'PlainText' is allowed, ignored.
+- name -> name, reg.name
+- access-mode -> reg.access
+- address -> address
+- element-width -> repeat ( / reg.width)
+- element-depth -> reg.width
+- persistence: ignored
+- note: ignored
+
+memory-map.memory-data.memory-channel -> x_gena.memory-channel
+- name
+- desription
+- acq-base-freq
+- acq-width
+- buffer-alignment
+- channel-select-code
+- ors-definition
+- note
+- comment
+- comment-encoding
+
+memory-map.memory-data.memory-channel.memory-buffer -> memory-buffer
+- name
+- description
+- buffer-type
+- buffer-select-code
+- read-conversion-factor
+- write-conversion-factor
+- unit
+- bit-encoding
+- note
+- comment
+- comment-encoding
+
+memory-map.memory-data.memory-channel.memory-buffer.bit-field-data -> bit-field-data
+- name
+- bit
+- description
+- comment
+- comment-encoding
+
+memory-map.area -> block
+- description -> description
+- comment -> comment
+- comment-encoding: only 'PlainText' is allowed, ignored.
+- name -> name
+- address -> address
+- element-depth -> size
+- is-reserved -> x_gena.reserved
+- note -> x_gena.note
+- gen:
+  - ext-area -> x_gena.gen.ext-area
+  - no-creg-mux-dff: ignored
+  - no-reg-mux-dff: ignored
+  - no-mem-mux-dff: ignored
+  - ext-creg: ignored
+- persistence: ignored
+
+memory-map.submap -> submap
+- description -> description
+- comment -> comment
+- comment-encoding: only 'PlainText' is allowed, ignored.
+- name -> name
+- address -> address
+- filename -> filename (replacing the extension with .cheby)
+- gen:
+  - include -> x_gena.gen.include=include
+  - include=ext -> x_gena.gen.include=external
+  - include=int -> x_gena.gen.include=internal
+  - include=generate -> x_gena.gen.include=internal
+  - no-creg-mux-dff: ignored
+  - no-reg-mux-dff: ignored
+  - no-mem-mux-dff: ignored
+  - generate -> generate
+- ro2wo: ignored
+- access-mode-flip: ignored
