@@ -13,7 +13,7 @@ from cheby.hdltree import (HDLComponent, HDLComponentSpec,
                            HDLInstance, HDLComb, HDLSync,
                            HDLComment,
                            HDLNumber, HDLBinConst)
-from gen_gena_memmap import subsuffix
+from cheby.gen_gena_memmap import subsuffix
 import cheby.gen_hdl as gen_hdl
 
 READ_ACCESS = ('ro', 'rw')
