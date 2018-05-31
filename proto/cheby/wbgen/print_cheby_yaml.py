@@ -67,7 +67,7 @@ class Writer_YAML(object):
         """Write attribute (only if not None)."""
         if val is None:
             return
-        if isinstance(val, bool) or val == 'true' or val == 'false':
+        if isinstance(val, bool) or val == 'true' or val == 'false' or val == '':
             self.wattr_yaml(name, '"{}"'.format(val))
         elif ((len(val) > 0 and (val[0] == ' '
                                  or val[-1] == ' '
@@ -92,7 +92,7 @@ class Writer_YAML(object):
         self.wattr_num("address", "0x{:08x}".format(
                        (addr - self.block_addr[-1]) * layout.DATA_BYTES))
 
-    def write_comment(self, txt):
+    def write_comment(self, txt, name='comment'):
         if txt is None:
             return
         self.windent()
@@ -128,6 +128,9 @@ class Writer_YAML(object):
             # Explicit the size (range is a single value, so there is no
             # difference with no size)
             self.wattr_num("size", 1)
+        if n.prefix is None:
+            self.wattr_str("field_description", n.name)
+            self.write_comment(n.desc, "field_comment")
         self.weseq()
         if n.typ == 'PASS_THROUGH':
             self.wseq("x-hdl")
@@ -141,7 +144,7 @@ class Writer_YAML(object):
         if n.prefix is not None:
             name = n.prefix
         else:
-            name = parent.prefix
+            name = '' # parent.prefix
         self.wattr_str("name", name)
         if n.bit_len != 1:
             self.wattr_str("range",

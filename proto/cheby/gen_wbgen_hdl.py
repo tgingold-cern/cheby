@@ -4,8 +4,10 @@ import tree
 import hdltree
 from hdltree import (HDLPort, HDLSignal, HDLParam,
                      HDLGenIf, HDLAssign, HDLInstance, HDLComb,
-                     HDLComment, HDLConst, HDLNumber, HDLSlice,
-                     HDLIndex, HDLIfElse, HDLAnd, HDLEq, HDLNot,
+                     HDLComment, HDLConst, HDLNumber,
+                     HDLSlice, HDLIndex, Slice_or_Index,
+                     HDLIfElse,
+                     HDLAnd, HDLEq, HDLNot, HDLParen,
                      HDLSwitch, HDLChoiceExpr, HDLChoiceDefault,
                      HDLReplicate, HDLBool, bit_0, bit_1, bit_x)
 import gen_hdl
@@ -18,7 +20,7 @@ def get_wbgen(n, name, default=None):
     return n.get_extension('x_wbgen', name, default)
 
 def get_hdl_prefix(n):
-    return get_wbgen(n, 'hdl_prefix', n.name)
+    return get_wbgen(n, 'hdl_prefix', n.name.lower() if n.name is not None else None)
 
 def is_wbgen_fifo(n):
     return get_wbgen(n, 'kind', None) == 'fifo'
@@ -110,7 +112,8 @@ def gen_async_pulse(clk, rst, out, inp, sync0, sync1, sync2):
     res.sync_stmts.append(HDLAssign(sync0, inp))
     res.sync_stmts.append(HDLAssign(sync1, sync0))
     res.sync_stmts.append(HDLAssign(sync2, sync1))
-    res.sync_stmts.append(HDLAssign(out, HDLAnd(sync2, HDLNot(sync1))))
+    res.sync_stmts.append(HDLAssign(out,
+                                    HDLAnd(sync2, HDLParen(HDLNot(sync1)))))
     return res
 
 
@@ -152,7 +155,8 @@ def gen_async_lwb(clk, rst, port, isig, lwb, sync0, sync1, sync2):
     res.sync_stmts.append(HDLAssign(sync0, lwb))
     res.sync_stmts.append(HDLAssign(sync1, sync0))
     res.sync_stmts.append(HDLAssign(sync2, sync1))
-    s = HDLIfElse(HDLAnd(HDLEq(sync1, bit_1), HDLEq(sync2, bit_0)))
+    s = HDLIfElse(HDLParen(HDLAnd(HDLParen(HDLEq(sync1, bit_1)),
+                                  HDLParen(HDLEq(sync2, bit_0)))))
     s.then_stmts.append(HDLAssign(isig, port))
     s.else_stmts = None
     res.sync_stmts.append(s)
@@ -168,7 +172,8 @@ def gen_async_swb(clk, rst, port, isig, swb, sync0, sync1, sync2):
     res.sync_stmts.append(HDLAssign(sync0, swb))
     res.sync_stmts.append(HDLAssign(sync1, sync0))
     res.sync_stmts.append(HDLAssign(sync2, sync1))
-    s = HDLIfElse(HDLAnd(HDLEq(sync2, bit_0), HDLEq(sync1, bit_1)))
+    s = HDLIfElse(HDLParen(HDLAnd(HDLParen(HDLEq(sync2, bit_0)),
+                                  HDLParen(HDLEq(sync1, bit_1)))))
     s.then_stmts.append(HDLAssign(isig, port))
     s.else_stmts = None
     res.sync_stmts.append(s)
@@ -235,7 +240,7 @@ def expand_passthrough(f, reg, name, isig, bus):
     g.ports.extend([hdl_port, wr_port])
     g.asgn_code.append(HDLComment(
         "pass-through field: {name} in register: {reg}".format(
-            name=f.name, reg=reg.name)))
+            name=f.description, reg=reg.description)))
     g.asgn_code.append(HDLAssign(hdl_port,
                        expand_field_sel(isig['wrdata'], f)))
     if clock:
@@ -509,7 +514,7 @@ def expand_bit(f, reg, name, isig, bus):
                 g.asgn_code.append(HDLComment(
                     "synchronizer chain for field : {} "
                     "(type RO/WO, {} -> {})".format(
-                        f.name, clock, bus['clk'].name)))
+                        f.description, clock, bus['clk'].name)))
                 g.asgn_code.append(gen_async_inp(
                     isig[clock], bus['rst'], hdl_port, sync0_sig, sync1_sig))
             elif f.h_access in ['RW_RO']:
@@ -522,7 +527,7 @@ def expand_bit(f, reg, name, isig, bus):
                 g.asgn_code.append(HDLComment(
                     "synchronizer chain for field : {} "
                     "(type RW/RO, {} <-> {})".format(
-                        f.name, bus['clk'].name, clock)))
+                        f.description, bus['clk'].name, clock)))
                 g.asgn_code.append(gen_async_out(
                     isig[clock], bus['rst'],
                     hdl_port, hdl_sig, sync0_sig, sync1_sig))
@@ -544,14 +549,15 @@ def expand_bit(f, reg, name, isig, bus):
             g.rst_code.append(HDLAssign(prg_sig, bit_0))
             g.inack_code.append(HDLAssign(lwb_sig, dly_sig))
             g.inack_code.append(HDLAssign(dly_sig, bit_0))
-            s = HDLIfElse(HDLAnd(HDLEq(HDLIndex(isig['ack'], 1), bit_1),
-                                 HDLEq(prg_sig, bit_1)))
+            s = HDLIfElse(HDLParen(
+                HDLAnd(HDLParen(HDLEq(HDLIndex(isig['ack'], 1), bit_1)),
+                       HDLParen(HDLEq(prg_sig, bit_1)))))
             s.then_stmts.append(HDLAssign(expand_field_sel(isig['rddata'], f),
                                           hdl_sig))
             s.then_stmts.append(HDLAssign(prg_sig, bit_0))
             s.else_stmts = None
             g.inack_code.append(s)
-            s = HDLIfElse(HDLEq(bus['we'], bit_0))
+            s = HDLIfElse(HDLParen(HDLEq(bus['we'], bit_0)))
             s.then_stmts.append(HDLAssign(lwb_sig, bit_1))
             s.then_stmts.append(HDLAssign(dly_sig, bit_1))
             s.then_stmts.append(HDLAssign(prg_sig, bit_1))
@@ -560,7 +566,7 @@ def expand_bit(f, reg, name, isig, bus):
             g.asgn_code.append(HDLComment(
                 "asynchronous std_logic_vector register : {} "
                 "(type RO/WO, {} <-> {})".format(
-                    f.name, clock, bus['clk'].name)))
+                    f.description, clock, bus['clk'].name)))
             g.asgn_code.append(gen_async_lwb(
                 isig[clock], bus['rst'], hdl_port, hdl_sig, lwb_sig,
                 sync0_sig, sync1_sig, sync2_sig))
@@ -585,7 +591,7 @@ def expand_bit(f, reg, name, isig, bus):
             g.asgn_code.append(HDLComment(
                 "asynchronous std_logic_vector register : {} "
                 "(type RW/RO, {} <-> {})".format(
-                    f.name, clock, bus['clk'].name)))
+                    f.description, clock, bus['clk'].name)))
             g.asgn_code.append(gen_async_swb(
                 isig[clock], bus['rst'], hdl_sig, hdl_port, swb_sig,
                 sync0_sig, sync1_sig, sync2_sig))
@@ -626,9 +632,11 @@ def expand_bit(f, reg, name, isig, bus):
     return g
 
 
-def expand_reg_sel(periph, r, bus):
-    choice = HDLChoiceExpr(HDLConst(r.c_address, periph.c_sel_bits))
-    s = HDLIfElse(HDLEq(bus['we'], bit_1))
+def expand_reg_sel(root, r, bus):
+    wd = root.c_blk_bits - root.c_addr_word_bits
+    choice = HDLChoiceExpr(HDLConst(r.c_address >> root.c_addr_word_bits,
+                                    wd if wd > 1 else None))
+    s = HDLIfElse(HDLParen(HDLEq(bus['we'], bit_1)))
     s.else_stmts = None
     choice.stmts.append(s)
     return (choice, s.then_stmts)
@@ -707,10 +715,10 @@ def expand_reg(root, r, isig, bus):
         gr.signals.extend(g.signals)
         gr.rst_code.extend(g.rst_code)
         if not (typ == 'CONSTANT'
-                or (typ in ['SLV']) # and f.access in ['WO_RO'])
+                or (typ in ['SLV'] and f.h_access in ['WO_RO'])
                 or is_wbgen_fiforeg(r)
                 or is_wbgen_fifocs(r)):
-            gr.asgn_code.append(HDLComment(f.name))
+            gr.asgn_code.append(HDLComment(f.description))
         gr.asgn_code.extend(g.asgn_code)
         wr_stmts.extend(g.write_code)
         rd_stmts.extend(g.read_code)
@@ -852,11 +860,11 @@ def expand_irqs(root, module, bus, isig):
     return g
 
 
-def expand_sel_select(periph, sig):
-    if periph.sel_bits > 1:
-        return HDLSlice(sig, periph.blk_bits, periph.sel_bits)
+def expand_sel_select(root, sig):
+    if root.sel_bits > 1:
+        return HDLSlice(sig, root.blk_bits, root.sel_bits)
     else:
-        return HDLIndex(sig, periph.blk_bits)
+        return HDLIndex(sig, root.blk_bits)
 
 
 def expand_sel_choice(periph, num):
@@ -1249,6 +1257,13 @@ def expand_hdl(root):
         if isinstance(r, tree.Reg):
             for f in r.children:
                 compute_access(f)
+            if len(r.children) == 1 and r.children[0].name is None:
+                f = r.children[0]
+                if hasattr(r, 'x_wbgen'):
+                    # Copy x-wbgen attributes.  FIXME ?
+                    f.x_wbgen = r.x_wbgen
+                    f.comment = get_wbgen(r, 'field_comment')
+                    f.description = get_wbgen(r, 'field_description')
 
     # Gather clocks from fields and rams
     clk_sigs = []
@@ -1354,14 +1369,15 @@ def expand_hdl(root):
     ff.sync_stmts.append(HDLAssign(HDLSlice(isig['ack'], 0, 9),
                                    HDLSlice(isig['ack'], 1, 9)))
     ff.sync_stmts.append(HDLAssign(HDLIndex(isig['ack'], 9), bit_0))
-    s1 = HDLIfElse(HDLEq(isig['ackprg'], bit_1))
+    s1 = HDLIfElse(HDLParen(HDLEq(isig['ackprg'], bit_1)))
     ff.sync_stmts.append(s1)
-    s_ack = HDLIfElse(HDLEq(HDLIndex(isig['ack'], 0), bit_1))
+    s_ack = HDLIfElse(HDLParen(HDLEq(HDLIndex(isig['ack'], 0), bit_1)))
     s1.then_stmts.append(s_ack)
 
     # The select condition: true for the read or the write cycle.
-    s2 = HDLIfElse(HDLAnd(HDLEq(root.h_bus['cyc'], bit_1),
-                          HDLEq(root.h_bus['stb'], bit_1)))
+    s2 = HDLIfElse(HDLParen(
+        HDLAnd(HDLParen(HDLEq(root.h_bus['cyc'], bit_1)),
+               HDLParen(HDLEq(root.h_bus['stb'], bit_1)))))
     s1.else_stmts.append(s2)
     s2.else_stmts = None
 
@@ -1372,7 +1388,8 @@ def expand_hdl(root):
     else:
         sel_sw = None
     if root.h_reg_bits > 0:
-        blk_sw = HDLSwitch(HDLSlice(isig['rwaddr'], 0, root.h_reg_bits))
+        blk_sw = HDLSwitch(Slice_or_Index(
+            isig['rwaddr'], 0, root.h_reg_bits - root.c_addr_word_bits))
         if sel_sw:
             ch = HDLChoiceExpr(expand_sel_choice(root, 0))
             sel_sw.choices.append(ch)
@@ -1423,7 +1440,7 @@ def expand_hdl(root):
     m.stmts.append(HDLAssign(isig['rd'],
                    HDLAnd(root.h_bus['cyc'],
                           HDLAnd(root.h_bus['stb'],
-                                 HDLNot(root.h_bus['we'])))))
+                                 HDLParen(HDLNot(root.h_bus['we']))))))
     m.stmts.append(HDLAssign(isig['wr'],
                    HDLAnd(root.h_bus['cyc'],
                           HDLAnd(root.h_bus['stb'], root.h_bus['we']))))
@@ -1478,7 +1495,7 @@ def expand_hdl(root):
 
     m.stmts.append(HDLAssign(isig['rwaddr'], root.h_bus['adr']))
     m.stmts.append(HDLAssign(root.h_bus['stall'],
-                             HDLAnd(HDLNot(HDLIndex(isig['ack'], 0)),
+                             HDLAnd(HDLParen(HDLNot(HDLIndex(isig['ack'], 0))),
                                     HDLAnd(root.h_bus['stb'],
                                            root.h_bus['cyc']))))
     m.stmts.append(HDLComment(

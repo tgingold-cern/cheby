@@ -160,6 +160,8 @@ def generate_expr(e, prio=-1):
             return "({})".format(res)
         else:
             return res
+    elif isinstance(e, hdltree.HDLParen):
+        return "({})".format(generate_expr(e.expr))
     elif isinstance(e, hdltree.HDLReplicate):
         return "(others => {})".format(generate_expr(e.expr))
     elif isinstance(e, hdltree.HDLZext):

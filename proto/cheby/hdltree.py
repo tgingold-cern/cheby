@@ -238,7 +238,13 @@ class HDLSlice(HDLExpr):
         self.index = index
         self.size = size
 
+def Slice_or_Index(prefix, index, size):
+    if size == 1:
+        return HDLIndex(prefix, index)
+    else:
+        return HDLSlice(prefix, index, size)
 
+        
 class HDLReplicate(HDLExpr):
     def __init__(self, expr, num):
         super(HDLReplicate, self).__init__()
@@ -264,6 +270,7 @@ class HDLZext(HDLExtBase):
 class HDLSext(HDLExtBase):
     pass
 
+
 class HDLUnary(HDLExpr):
     def __init__(self, expr):
         super(HDLUnary, self).__init__()
@@ -273,6 +280,13 @@ class HDLUnary(HDLExpr):
 
 class HDLNot(HDLUnary):
     pass
+
+
+class HDLParen(HDLExpr):
+    def __init__(self, expr):
+        super(HDLParen, self).__init__()
+        assert expr is not None
+        self.expr = expr
 
 
 class HDLBinary(HDLExpr):
