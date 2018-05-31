@@ -1245,7 +1245,7 @@ def gen_hdl_misc_root(root, module, isigs):
 
 
 def gen_gena_regctrl(root):
-    module, isigs = gen_hdl.gen_hdl_header(root)
+    module = gen_hdl.gen_hdl_header(root)
     module.name = 'RegCtrl_{}'.format(root.name)
 
     module.libraries.append('CommonVisual')

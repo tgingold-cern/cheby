@@ -210,6 +210,10 @@ def layout_reg(lo, n):
         f.c_rwidth = n.c_rwidth
         f.c_iowidth = n.c_iowidth
 
+        if hasattr(n, 'x_wbgen'):
+            # Copy x-wbgen attributes.  FIXME ?
+            f.x_wbgen = n.x_wbgen
+
         if n.type is None:
             # Default is unsigned
             n.c_type = 'unsigned'

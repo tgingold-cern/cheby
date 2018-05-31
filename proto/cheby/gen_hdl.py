@@ -70,9 +70,10 @@ def add_decode_wb(root, module, isigs):
 
 def expand_wishbone(root, module, isigs):
     """Create wishbone interface."""
+    addr_width = root.c_sel_bits + root.c_blk_bits - root.c_addr_word_bits
     bus = [('rst',   HDLPort("rst_n_i")),
            ('clk',   HDLPort("clk_i")),
-           ('adr',   HDLPort("wb_adr_i", root.c_sel_bits + root.c_blk_bits)),
+           ('adr',   HDLPort("wb_adr_i", addr_width)),
            ('dati',  HDLPort("wb_dat_i", root.c_word_bits)),
            ('dato',  HDLPort("wb_dat_o", root.c_word_bits, dir='OUT')),
            ('cyc',   HDLPort("wb_cyc_i")),
@@ -82,10 +83,12 @@ def expand_wishbone(root, module, isigs):
            ('ack',   HDLPort("wb_ack_o", dir='OUT')),
            ('stall', HDLPort("wb_stall_o", dir='OUT'))]
     add_bus(root, module, bus)
+    root.h_bussplit = False
 
-    # Bus access
-    module.stmts.append(HDLComment('WB decode signals'))
-    add_decode_wb(root, module, isigs)
+    if isigs:
+        # Bus access
+        module.stmts.append(HDLComment('WB decode signals'))
+        add_decode_wb(root, module, isigs)
 
 
 def add_decode_cern_be_vme(root, module, isigs):
@@ -563,13 +566,13 @@ def gen_hdl_header(root, isigs=None):
     else:
         raise HdlError("Unhandled bus '{}'".format(root.bus))
 
-    return (module, isigs)
+    return module
 
 
 def generate_hdl(root):
     isigs = Isigs()
 
-    module, isigs = gen_hdl_header(root, isigs)
+    module = gen_hdl_header(root, isigs)
 
     # Add ports
     add_ports(root, module, root.name.lower() + '_', root)

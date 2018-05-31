@@ -47,6 +47,8 @@ class HDLComponentSpec(HDLNode):
 class HDLObject(HDLNode):
     def __init__(self, name=None, size=None, lo_idx=0, typ='L'):
         assert typ in "LUSINP"  # Logic, Unsigned, Signed, Integer, Natural, Positive
+        assert size is None or isinstance(size, (int, HDLExpr))
+        assert lo_idx is None or isinstance(lo_idx, int)
         self.name = name
         self.size = size
         self.lo_idx = lo_idx
@@ -250,6 +252,7 @@ class HDLExtBase(HDLExpr):
     def __init__(self, expr, sz):
         super(HDLExtBase, self).__init__()
         assert expr is not None
+        assert isinstance(sz, int)
         self.expr = expr
         self.size = sz
 

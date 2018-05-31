@@ -13,6 +13,7 @@ import cheby.print_encore as print_encore
 import cheby.expand_hdl as expand_hdl
 import cheby.gen_gena_memmap as gen_gena_memmap
 import cheby.gen_gena_regctrl as gen_gena_regctrl
+import cheby.gen_wbgen_hdl as gen_wbgen_hdl
 
 
 def decode_args():
@@ -37,6 +38,8 @@ def decode_args():
                          help='generate Gena MemMap file')
     aparser.add_argument('--gen-gena-regctrl', action='store_true',
                          help='generate Gena RegCtrl file')
+    aparser.add_argument('--gen-wbgen-vhdl', action='store_true',
+                         help='generate wbgen VHDL')
     aparser.add_argument('FILE', nargs='+')
 
     return aparser.parse_args()
@@ -79,6 +82,9 @@ def handle_file(args, filename):
         if not args.gen_gena_memmap:
             gen_gena_memmap.gen_gena_memmap(t)
         h = gen_gena_regctrl.gen_gena_regctrl(t)
+        print_vhdl.print_vhdl(sys.stdout, h)
+    if args.gen_wbgen_vhdl:
+        h = gen_wbgen_hdl.expand_hdl(t)
         print_vhdl.print_vhdl(sys.stdout, h)
     if args.gen_vhdl:
         if False:
