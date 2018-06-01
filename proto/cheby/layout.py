@@ -205,6 +205,7 @@ def layout_reg(lo, n):
         n.children.append(f)
         f.name = None
         f.description = n.description
+        f.preset = n.preset
         f.lo = 0
         f.hi = n.c_rwidth - 1
         f.c_rwidth = n.c_rwidth

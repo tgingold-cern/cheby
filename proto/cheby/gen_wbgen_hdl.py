@@ -210,20 +210,17 @@ def gen_async_rwrw(clk, rst, s0_sig, s1_sig, s2_sig, rd_sig, wr_sig,
     res.sync_stmts.append(HDLAssign(s0_sig, lw_sig))
     res.sync_stmts.append(HDLAssign(s1_sig, s0_sig))
     res.sync_stmts.append(HDLAssign(s2_sig, s1_sig))
-    s = HDLIfElse(HDLAnd(HDLEq(s2_sig, bit_0), HDLEq(s1_sig, bit_1)))
+    s = HDLIfElse(HDLParen(HDLAnd(HDLParen(HDLEq(s2_sig, bit_0)),
+                                  HDLParen(HDLEq(s1_sig, bit_1)))))
     s.else_stmts.append(HDLAssign(hdl_load, bit_0))
     res.sync_stmts.append(s)
-    s1 = HDLIfElse(HDLEq(sel_sig, bit_1))
+    s1 = HDLIfElse(HDLParen(HDLEq(sel_sig, bit_1)))
     s1.then_stmts.append(HDLAssign(hdl_port, wr_sig))
     s1.then_stmts.append(HDLAssign(hdl_load, bit_1))
     s1.else_stmts.append(HDLAssign(hdl_load, bit_0))
     s1.else_stmts.append(HDLAssign(rd_sig, hdl_iport))
     s.then_stmts.append(s1)
     return res
-
-
-def get_reset_val(f):
-    return get_wbgen(f, 'reset_value', 0)
 
 
 def expand_passthrough(f, reg, name, isig, bus):
@@ -411,6 +408,8 @@ def expand_bit(f, reg, name, isig, bus):
         dir = 'IN'
     port_name = name + mode_suffix_map[dir]
     typ = get_wbgen(f, 'type')
+    clock = get_wbgen(f, 'clock')
+    load = get_wbgen(f, 'load')
     if typ == 'BIT':
         size = None
     else:
@@ -418,14 +417,12 @@ def expand_bit(f, reg, name, isig, bus):
     port_type = {'SLV': 'L', 'BIT': 'L', 'UNSIGNED': 'U'}.get(typ, 'L')
     type_name = {'SLV': 'std_logic_vector',
                  'UNSIGNED': 'unsigned'}.get(typ, typ)
-    if typ == 'BIT' and f.h_access == 'RW_RW' and f.clock:
+    if typ == 'BIT' and f.h_access == 'RW_RW' and clock:
         typ_str = "RW/RW BIT"
     else:
         typ_str = type_name
     comment = "{typ} field: '{field}' in reg: '{reg}'".format(
         typ=typ_str, field=f.description, reg=reg.description)
-    clock = get_wbgen(f, 'clock')
-    load = get_wbgen(f, 'load')
     if clock:
         comment = "asynchronous (clock: {}) {}".format(clock, comment)
     if f.h_access not in ['WO_RO']:
@@ -453,7 +450,7 @@ def expand_bit(f, reg, name, isig, bus):
     if dir == 'OUT' and load != 'LOAD_EXT' and f.h_access not in ['WO_RO']:
         hdl_sig = HDLSignal(name + '_int', size=size)
         g.signals.append(hdl_sig)
-        asgn = HDLAssign(hdl_sig, HDLConst(get_reset_val(f), hdl_sig.size))
+        asgn = HDLAssign(hdl_sig, HDLConst(f.preset or 0, hdl_sig.size))
         g.rst_code.append(asgn)
         read_sig = hdl_sig
 
@@ -477,8 +474,9 @@ def expand_bit(f, reg, name, isig, bus):
             g.rst_code.append(HDLAssign(wr_sig, HDLConst(0, size)))
             g.inack_code.append(HDLAssign(lw_sig, dly_sig))
             g.inack_code.append(HDLAssign(dly_sig, bit_0))
-            s = HDLIfElse(HDLAnd(HDLEq(HDLIndex(isig['ack'], 1), bit_1),
-                                 HDLEq(prg_sig, bit_1)))
+            s = HDLIfElse(HDLParen(
+                HDLAnd(HDLParen(HDLEq(HDLIndex(isig['ack'], 1), bit_1)),
+                       HDLParen(HDLEq(prg_sig, bit_1)))))
             s.then_stmts.append(HDLAssign(expand_field_sel(isig['rddata'], f),
                                           rd_sig))
             s.then_stmts.append(HDLAssign(prg_sig, bit_0))
@@ -490,8 +488,8 @@ def expand_bit(f, reg, name, isig, bus):
             g.write_code.append(HDLAssign(dly_sig, bit_1))
             g.write_code.append(HDLAssign(prg_sig, bit_0))
             g.write_code.append(HDLAssign(sel_sig, bit_1))
-            s = HDLIfElse(HDLEq(bus['we'], bit_0))
-            if f.typ == 'BIT':
+            s = HDLIfElse(HDLParen(HDLEq(bus['we'], bit_0)))
+            if typ == 'BIT':
                 s.then_stmts.append(HDLAssign(
                     expand_field_sel(isig['rddata'], f), bit_x))
             s.then_stmts.append(HDLAssign(lw_sig, bit_1))
@@ -503,9 +501,9 @@ def expand_bit(f, reg, name, isig, bus):
             g.asgn_code.append(HDLComment(
                 "asynchronous {} register : {} "
                 "(type RW/WO, {} <-> {})".format(
-                    type_name, f.name, f.clock, bus['clk'].name)))
+                    type_name, f.description, clock, bus['clk'].name), False))
             g.asgn_code.append(gen_async_rwrw(
-                isig[f.clock], bus['rst'], s0_sig, s1_sig, s2_sig,
+                isig[clock], bus['rst'], s0_sig, s1_sig, s2_sig,
                 rd_sig, wr_sig, hdl_load, hdl_port, lw_sig, sel_sig,
                 hdl_iport))
             g.asgn_code.append(HDLComment(None))
