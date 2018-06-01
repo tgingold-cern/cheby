@@ -65,7 +65,7 @@ def expand_wishbone(module, periph):
 
 
 def expand_field_sel(prefix, field):
-    if get_wbgen(field, 'type') in ['BIT', 'MONOSTABLE']:
+    if field.hi is None or get_wbgen(field, 'type') in ['BIT', 'MONOSTABLE']:
         return HDLIndex(prefix, field.lo)
     else:
         return HDLSlice(prefix, field.lo, field.hi - field.lo + 1)
@@ -122,7 +122,7 @@ def gen_sync_pulse(clk, rst, out, inp, dly):
     res.rst_stmts.append(HDLAssign(dly, bit_0))
     res.rst_stmts.append(HDLAssign(out, bit_0))
     res.sync_stmts.append(HDLAssign(dly, inp))
-    res.sync_stmts.append(HDLAssign(out, HDLAnd(inp, HDLNot(dly))))
+    res.sync_stmts.append(HDLAssign(out, HDLAnd(inp, HDLParen(HDLNot(dly)))))
     return res
 
 
@@ -269,13 +269,13 @@ def expand_passthrough(f, reg, name, isig, bus):
 
 def expand_constant(f, reg, name, isig, bus):
     g = Code()
-    if f.size is None or f.size == 1:
-        targ = HDLIndex(isig['rddata'], f.bit_offset)
+    if f.c_rwidth is None or f.c_rwidth == 1:
+        targ = HDLIndex(isig['rddata'], f.lo)
         size = None
     else:
-        targ = HDLSlice(isig['rddata'], f.bit_offset, f.bit_len)
-        size = f.bit_len
-    g.read_code.append(HDLAssign(targ, HDLConst(f.value, size)))
+        targ = HDLSlice(isig['rddata'], f.lo, f.c_rwidth)
+        size = f.c_rwidth
+    g.read_code.append(HDLAssign(targ, HDLConst(f.preset, size)))
     return g
 
 
@@ -1285,7 +1285,7 @@ def expand_hdl(root):
                 if clk and clk not in clk_sigs:
                     clk_sigs.append(clk)
         elif is_wbgen_ram(r) or is_wbgen_fifo(r):
-            clk = get_wbgen(f, 'clock')
+            clk = get_wbgen(r, 'clock')
             if clk and clk not in clk_sigs:
                 clk_sigs.append(clk)
 
