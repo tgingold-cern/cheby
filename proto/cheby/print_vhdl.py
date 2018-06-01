@@ -2,6 +2,7 @@
 
 import cheby.hdltree as hdltree
 
+style = None
 
 def w(fd, str):
     fd.write(str)
@@ -55,7 +56,8 @@ def generate_vhdl_type(p):
 
 def generate_port(fd, p, indent):
     if p.comment:
-        wln(fd)
+        if style != 'wbgen':
+            wln(fd)
         windent(fd, indent)
         wln(fd, "-- {}".format(p.comment))
     typ = generate_vhdl_type(p)
@@ -245,7 +247,8 @@ def generate_seq(fd, s, level):
                 generate_seq(fd, s1, level + 1)
             if s.else_stmts is not None:
                 w(fd, indent)
-                if len(s.else_stmts) == 1 \
+                if style != 'wbgen' \
+                   and len(s.else_stmts) == 1 \
                    and isinstance(s.else_stmts[0], hdltree.HDLIfElse):
                     w(fd, "els")
                     s = s.else_stmts[0]
@@ -322,11 +325,18 @@ def generate_stmts(fd, stmts, indent):
             w(fd, "process ({}".format(generate_expr(s.clk)))
             if s.rst is not None:
                 w(fd, ", {}".format(generate_expr(s.rst)))
-            wln(fd, ") begin")
+            if style == 'wbgen':
+                wln(fd, ')')
+                w(fd, sindent)
+                wln(fd, 'begin')
+            else:
+                wln(fd, ") begin")
             # wln(fd, sindent + "begin")
             if s.rst is not None:
-                wln(fd, sindent + "  if {} = '0' then ".format(
-                    generate_expr(s.rst)))
+                cond = "{} = '0'".format(generate_expr(s.rst))
+                if style == 'wbgen':
+                    cond = '(' + cond + ')'
+                wln(fd, sindent + "  if {} then ".format(cond))
                 for s1 in s.rst_stmts:
                     generate_seq(fd, s1, indent + 2)
                 w(fd, sindent + "  elsif ")
@@ -402,8 +412,12 @@ def print_module(fd, module):
     wln(fd, "end {};".format(module.name))
     wln(fd)
     wln(fd, "architecture syn of {} is".format(module.name))
+    if style == 'wbgen':
+        wln(fd)
     for s in module.decls:
         generate_decl(fd, s, 1)
+    if style == 'wbgen':
+        wln(fd)
     wln(fd, "begin")
     generate_stmts(fd, module.stmts, 1)
     wln(fd, "end syn;")

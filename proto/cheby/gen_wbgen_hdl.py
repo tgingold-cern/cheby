@@ -188,7 +188,8 @@ def gen_async_wr(clk, rst, port, inp, sync0, sync1, sync2):
     res.sync_stmts.append(HDLAssign(sync0, inp))
     res.sync_stmts.append(HDLAssign(sync1, sync0))
     res.sync_stmts.append(HDLAssign(sync2, sync1))
-    res.sync_stmts.append(HDLAssign(port, HDLAnd(sync1, HDLNot(sync2))))
+    res.sync_stmts.append(HDLAssign(port, HDLAnd(sync1,
+                                                 HDLParen(HDLNot(sync2)))))
     return res
 
 
@@ -240,7 +241,7 @@ def expand_passthrough(f, reg, name, isig, bus):
     g.ports.extend([hdl_port, wr_port])
     g.asgn_code.append(HDLComment(
         "pass-through field: {name} in register: {reg}".format(
-            name=f.description, reg=reg.description)))
+            name=f.description, reg=reg.description), False))
     g.asgn_code.append(HDLAssign(hdl_port,
                        expand_field_sel(isig['wrdata'], f)))
     if clock:
@@ -258,6 +259,8 @@ def expand_passthrough(f, reg, name, isig, bus):
         g.write_code.append(HDLAssign(wr_dly, bit_1))
         g.asgn_code.append(gen_async_wr(isig[clock], bus['rst'], wr_port,
                            wr_int, hdl_s0, hdl_s1, hdl_s2))
+        g.asgn_code.append(HDLComment(None))
+        g.asgn_code.append(HDLComment(None))
         g.ack_len = 4
     else:
         g.rst_code.append(HDLAssign(wr_port, bit_0))
@@ -395,6 +398,8 @@ def expand_monostable(f, reg, name, isig, bus):
         g.ack_len = 3
         g.asgn_code.append(gen_sync_pulse(
             bus['clk'], bus['rst'], hdl_port, hdl_int, hdl_dly))
+    g.asgn_code.append(HDLComment(None))
+    g.asgn_code.append(HDLComment(None))
     return g
 
 
@@ -503,6 +508,8 @@ def expand_bit(f, reg, name, isig, bus):
                 isig[f.clock], bus['rst'], s0_sig, s1_sig, s2_sig,
                 rd_sig, wr_sig, hdl_load, hdl_port, lw_sig, sel_sig,
                 hdl_iport))
+            g.asgn_code.append(HDLComment(None))
+            g.asgn_code.append(HDLComment(None))
             g.ack_len = 6
             read_sig = bit_x
         elif typ == 'BIT':
@@ -514,7 +521,7 @@ def expand_bit(f, reg, name, isig, bus):
                 g.asgn_code.append(HDLComment(
                     "synchronizer chain for field : {} "
                     "(type RO/WO, {} -> {})".format(
-                        f.description, clock, bus['clk'].name)))
+                        f.description, clock, bus['clk'].name), False))
                 g.asgn_code.append(gen_async_inp(
                     isig[clock], bus['rst'], hdl_port, sync0_sig, sync1_sig))
             elif f.h_access in ['RW_RO']:
@@ -527,13 +534,15 @@ def expand_bit(f, reg, name, isig, bus):
                 g.asgn_code.append(HDLComment(
                     "synchronizer chain for field : {} "
                     "(type RW/RO, {} <-> {})".format(
-                        f.description, bus['clk'].name, clock)))
+                        f.description, bus['clk'].name, clock), False))
                 g.asgn_code.append(gen_async_out(
                     isig[clock], bus['rst'],
                     hdl_port, hdl_sig, sync0_sig, sync1_sig))
             else:
                 assert False, "unhandled async bit access {} " \
                     "for field {}".format(f.access, f.name)
+            g.asgn_code.append(HDLComment(None))
+            g.asgn_code.append(HDLComment(None))
         elif f.h_access in ['RO_WO']:
             hdl_sig = HDLSignal(name + '_int', size=size)
             lwb_sig = HDLSignal(name + '_lwb')
@@ -566,10 +575,12 @@ def expand_bit(f, reg, name, isig, bus):
             g.asgn_code.append(HDLComment(
                 "asynchronous std_logic_vector register : {} "
                 "(type RO/WO, {} <-> {})".format(
-                    f.description, clock, bus['clk'].name)))
+                    f.description, clock, bus['clk'].name), False))
             g.asgn_code.append(gen_async_lwb(
                 isig[clock], bus['rst'], hdl_port, hdl_sig, lwb_sig,
                 sync0_sig, sync1_sig, sync2_sig))
+            g.asgn_code.append(HDLComment(None))
+            g.asgn_code.append(HDLComment(None))
             g.ack_len = 6
             read_sig = bit_x
         elif f.h_access in ['RW_RO']:
@@ -591,10 +602,12 @@ def expand_bit(f, reg, name, isig, bus):
             g.asgn_code.append(HDLComment(
                 "asynchronous std_logic_vector register : {} "
                 "(type RW/RO, {} <-> {})".format(
-                    f.description, clock, bus['clk'].name)))
+                    f.description, clock, bus['clk'].name), False))
             g.asgn_code.append(gen_async_swb(
                 isig[clock], bus['rst'], hdl_sig, hdl_port, swb_sig,
                 sync0_sig, sync1_sig, sync2_sig))
+            g.asgn_code.append(HDLComment(None))
+            g.asgn_code.append(HDLComment(None))
             g.ack_len = 4
         else:
             assert False, "unhandled access {} for clocked reg".format(
@@ -718,7 +731,7 @@ def expand_reg(root, r, isig, bus):
                 or (typ in ['SLV'] and f.h_access in ['WO_RO'])
                 or is_wbgen_fiforeg(r)
                 or is_wbgen_fifocs(r)):
-            gr.asgn_code.append(HDLComment(f.description))
+            gr.asgn_code.append(HDLComment(f.description, False))
         gr.asgn_code.extend(g.asgn_code)
         wr_stmts.extend(g.write_code)
         rd_stmts.extend(g.read_code)
@@ -1255,15 +1268,15 @@ def expand_hdl(root):
     # Compute access
     for r in root.children:
         if isinstance(r, tree.Reg):
-            for f in r.children:
-                compute_access(f)
             if len(r.children) == 1 and r.children[0].name is None:
                 f = r.children[0]
                 if hasattr(r, 'x_wbgen'):
-                    # Copy x-wbgen attributes.  FIXME ?
+                    # Copy x-wbgen attributes.
                     f.x_wbgen = r.x_wbgen
                     f.comment = get_wbgen(r, 'field_comment')
                     f.description = get_wbgen(r, 'field_description')
+            for f in r.children:
+                compute_access(f)
 
     # Gather clocks from fields and rams
     clk_sigs = []
@@ -1434,7 +1447,7 @@ def expand_hdl(root):
     # * Internal assignments.
     m.stmts.append(HDLComment(
         "Some internal signals assignments. "
-        "For (foreseen) compatibility with other bus standards."))
+        "For (foreseen) compatibility with other bus standards.", False))
     m.stmts.append(HDLAssign(isig['wrdata'], root.h_bus['dati']))
     m.stmts.append(HDLAssign(isig['bwsel'], root.h_bus['sel']))
     m.stmts.append(HDLAssign(isig['rd'],
@@ -1449,8 +1462,8 @@ def expand_hdl(root):
     m.stmts.append(HDLAssign(isig['all0'],
                              HDLReplicate(bit_0, root.c_word_bits)))
 
-    m.stmts.append(HDLComment(""))
-    m.stmts.append(HDLComment("Main register bank access process."))
+    m.stmts.append(HDLComment("", False))
+    m.stmts.append(HDLComment("Main register bank access process.", False))
 
     # * Registers.
     m.stmts.append(ff)
@@ -1474,6 +1487,7 @@ def expand_hdl(root):
         m.stmts.append(HDLComment("Read & write lines decoder for RAMs"))
         m.stmts.extend(rams_code.decode_stmts)
     else:
+        m.stmts.append(HDLComment(None))
         m.stmts.append(HDLComment("Drive the data output bus"))
         m.stmts.append(HDLAssign(root.h_bus['dato'], isig['rddata']))
 
@@ -1499,7 +1513,7 @@ def expand_hdl(root):
                                     HDLAnd(root.h_bus['stb'],
                                            root.h_bus['cyc']))))
     m.stmts.append(HDLComment(
-        "ACK signal generation. Just pass the LSB of ACK counter."))
+        "ACK signal generation. Just pass the LSB of ACK counter.", False))
     m.stmts.append(HDLAssign(root.h_bus['ack'], HDLIndex(isig['ack'], 0)))
 
     return m

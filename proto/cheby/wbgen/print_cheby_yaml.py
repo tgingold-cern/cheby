@@ -98,9 +98,9 @@ class Writer_YAML(object):
         self.windent()
         if self.strict:
             s = ''.join({"\n": r'\n', "\\": "\\\\"}.get(c, c) for c in txt)
-            self.w('comment: "{}"\n'.format(s))
+            self.w('{}: "{}"\n'.format(name, s))
         else:
-            self.w('comment: |\n')
+            self.w('{}: |\n'.format(name))
             self.indent += 1
             for l in txt.rstrip().split('\n'):
                 self.windent()
