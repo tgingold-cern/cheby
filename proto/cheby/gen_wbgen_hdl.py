@@ -282,11 +282,12 @@ def expand_constant(f, reg, name, isig, bus):
 def expand_fiforeg(periph, reg, isig, bus):
     g = Code()
     g.choice = None
-    prefix = periph.get_hdl_prefix() + '_' + reg.get_hdl_prefix()
+    prefix = get_hdl_prefix(periph) + '_' + get_hdl_prefix(reg)
 
     # Create a register
-    (g.choice, wr_stmts) = expand_reg_sel(periph, reg, bus)
-    if reg.parent.direction == 'CORE_TO_BUS' and reg.num == 0:
+    (g.choice, wr_stmts) = expand_reg_sel(periph, reg.c_address, bus)
+    direction = get_wbgen(reg._parent, 'direction')
+    if direction == 'CORE_TO_BUS' and reg.num == 0:
         # FIFO read request at address 0.
         stmt = HDLIfElse(HDLEq(reg.parent.req_int0, bit_0))
         stmt.then_stmts.append(HDLAssign(reg.parent.req_int,
@@ -295,33 +296,33 @@ def expand_fiforeg(periph, reg, isig, bus):
         rd_stmts = stmt.else_stmts
     else:
         rd_stmts = g.choice.stmts
-    for f in reg.fields:
+    for f in reg.children:
         name = prefix
-        hdl_prefix = f.get_hdl_prefix()
+        hdl_prefix = get_hdl_prefix(f)
         if hdl_prefix:
             name += '_' + hdl_prefix
 
-        targ = HDLSlice(reg.parent.hdl_int, f.fifo_offset, f.bit_len)
-        if reg.parent.direction == 'BUS_TO_CORE':
+        targ = HDLSlice(reg._parent.hdl_int, f.h_fifo_offset, f.c_rwidth)
+        if direction == 'BUS_TO_CORE':
             wr_stmts.append(HDLAssign(targ,
                                       expand_field_sel(isig['wrdata'], f)))
-            if f.fifo_offset + f.bit_len == reg.parent.hdl_int.size:
+            if f.h_fifo_offset + f.c_rwidth == reg._parent.hdl_int.size:
                 # FIFO write request at the last address.
-                wr_stmts.append(HDLAssign(reg.parent.req_int, bit_1))
+                wr_stmts.append(HDLAssign(reg._parent.req_int, bit_1))
         else:
             rd_stmts.append(HDLAssign(expand_field_sel(isig['rddata'], f),
                                       targ))
     # Pad read list.  Hummm
     pad_read_stmts(periph, rd_stmts, isig)
 
-    if reg.parent.direction == 'CORE_TO_BUS' and reg.num == 0:
+    if direction == 'CORE_TO_BUS' and reg.num == 0:
         expand_ack0(rd_stmts, isig)
     else:
         expand_ack(rd_stmts, isig, 1)
 
     g.asgn_code.append(HDLComment(
         "extra code for reg/fifo/mem: {}".format(reg.name)))
-    if reg.parent.req_int0 is not None and reg.num == 0:
+    if reg._parent.req_int0 is not None and reg.num == 0:
         proc = hdltree.HDLSync(bus['clk'], bus['rst'])
         proc.rst_stmts.append(HDLAssign(reg.parent.req_int0, bit_0))
         proc.sync_stmts.append(HDLAssign(
@@ -333,17 +334,17 @@ def expand_fiforeg(periph, reg, isig, bus):
 
 def expand_fifocsreg(f, r, name, isig, bus):
     g = Code()
-    if f.c_prefix == 'CLEAR_BUS':
+    if get_wbgen(f, 'kind') == 'clear':
         asgn = HDLIfElse(HDLEq(expand_field_sel(isig['wrdata'], f), bit_1))
         asgn.then_stmts.append(
-            HDLAssign(r.parent.flag_signals[f.c_prefix], bit_1))
+            HDLAssign(r._parent.flag_signals[f.name], bit_1))
         asgn.else_stmts = None
         g.write_code.append(asgn)
         asgn = HDLAssign(expand_field_sel(isig['rddata'], f), bit_0)
         g.read_code.append(asgn)
     else:
         asgn = HDLAssign(expand_field_sel(isig['rddata'], f),
-                         r.parent.flag_signals[f.c_prefix])
+                         r._parent.flag_signals[f.name])
         g.read_code.append(asgn)
     return g
 
@@ -643,9 +644,9 @@ def expand_bit(f, reg, name, isig, bus):
     return g
 
 
-def expand_reg_sel(root, r, bus):
+def expand_reg_sel(root, addr, bus):
     wd = root.c_blk_bits - root.c_addr_word_bits
-    choice = HDLChoiceExpr(HDLConst(r.c_address >> root.c_addr_word_bits,
+    choice = HDLChoiceExpr(HDLConst(addr >> root.c_addr_word_bits,
                                     wd if wd > 1 else None))
     s = HDLIfElse(HDLParen(HDLEq(bus['we'], bit_1)))
     s.else_stmts = None
@@ -690,7 +691,7 @@ def expand_reg(root, r, isig, bus):
     gr.choice = None
     prefix = get_hdl_prefix(root) + '_' + get_hdl_prefix(r)
 
-    (gr.choice, wr_stmts) = expand_reg_sel(root, r, bus)
+    (gr.choice, wr_stmts) = expand_reg_sel(root, r.c_address, bus)
     rd_stmts = gr.choice.stmts
     ack_len = 1
     force_pad = 0
@@ -700,10 +701,11 @@ def expand_reg(root, r, isig, bus):
         if hdl_prefix:
             name += '_' + hdl_prefix
 
-        typ = get_wbgen(f, 'type', 'SLV')
         if is_wbgen_fifocs(r):
             g = expand_fifocsreg(f, r, name, isig, bus)
+            typ = 'FIFOCS'
         else:
+            typ = get_wbgen(f, 'type', 'SLV')
             if typ == 'PASS_THROUGH':
                 g = expand_passthrough(f, r, name, isig, bus)
             elif typ in ['BIT', 'SLV', 'UNSIGNED']:
@@ -752,23 +754,21 @@ def expand_irqs(root, module, bus, isig):
     g = Code()
     g.choices = []
     g.inpvec_sig = None
-    nbr_irqs = 0
-    level = []
+    irqs = []
     for r in root.children:
         if is_wbgen_irq(r):
-            trigger = get_wbgen(r, 'trigger')
-            if trigger:
-                level.append({'LEVEL_1': 3,
-                              'LEVEL_0': 2,
-                              'EDGE_FALLING': 1,
-                              'EDGE_RISING': 0}[trigger])
-            else:
-                level.append(0)
-            nbr_irqs += 1
+            for el in get_wbgen(r, 'irqs'):
+                irqs.append(el['irq'])
+    nbr_irqs = len(irqs)
     if nbr_irqs == 0:
         return g
+    level = [{'LEVEL_1': 3,
+              'LEVEL_0': 2,
+              'EDGE_FALLING': 1,
+              'EDGE_RISING': 0}[irq.get('trigger', 'EDGE_RISING')]
+             for irq in irqs]
 
-    module.add_dependence("wbgen2_pkg")
+    module.deps.append(('work', "wbgen2_pkg"))
     int_port = HDLPort('wb_int_o', dir='OUT')
     g.ports.append(int_port)
 
@@ -804,30 +804,32 @@ def expand_irqs(root, module, bus, isig):
                 HDLSlice(rd, 0, nbr_irqs)))
         if int_sig:
             g.asgn_code.append(HDLComment(
-                "extra code for reg/fifo/mem: {}".format(r.name)))
+                "extra code for reg/fifo/mem: {}".format(r.description), False))
             g.asgn_code.append(HDLAssign(
                 HDLSlice(int_sig, 0, nbr_irqs),
                 HDLSlice(isig['wrdata'], 0, nbr_irqs)))
-    for r in root.children:
-        if is_wbgen_irqreg(r):
-            (choice, wr_stmts) = expand_reg_sel(root, r, root.h_bus)
-            rd_stmts = choice.stmts
-            g.choices.append(choice)
-            if r.prefix == 'eic_idr':
-                _assign(idrw_sig, None, idr_sig, r)
-            elif r.prefix == 'eic_ier':
-                _assign(ierw_sig, None, ier_sig, r)
-            elif r.prefix == 'eic_imr':
-                _assign(None, imr_sig, None, r)
-            elif r.prefix == 'eic_isr':
-                _assign(isrw_sig, isrs_sig, isrc_sig, r)
-            else:
-                assert False, "unhandled eic register {}".format(r.prefix)
-            pad_read_stmts(root, rd_stmts, isig)
-            expand_ack(rd_stmts, isig, 1)
+    for b in root.children:
+        if is_wbgen_irq(b):
+            for r in r.children:
+                (choice, wr_stmts) = expand_reg_sel(
+                    root, b.c_address + r.c_address, root.h_bus)
+                rd_stmts = choice.stmts
+                g.choices.append(choice)
+                if r.name == 'eic_idr':
+                    _assign(idrw_sig, None, idr_sig, r)
+                elif r.name == 'eic_ier':
+                    _assign(ierw_sig, None, ier_sig, r)
+                elif r.name == 'eic_imr':
+                    _assign(None, imr_sig, None, r)
+                elif r.name == 'eic_isr':
+                    _assign(isrw_sig, isrs_sig, isrc_sig, r)
+                else:
+                    assert False, "unhandled eic register {}".format(r.name)
+                pad_read_stmts(root, rd_stmts, isig)
+                expand_ack(rd_stmts, isig, 1)
     # EIC controller.
     g.asgn_code.append(HDLComment(
-        "extra code for reg/fifo/mem: IRQ_CONTROLLER"))
+        "extra code for reg/fifo/mem: IRQ_CONTROLLER", False))
     ctrl = HDLInstance("eic_irq_controller_inst", "wbgen2_eic")
     ctrl.params.append(('g_num_interrupts', HDLNumber(nbr_irqs)))
     for i in range(root.c_word_bits):
@@ -849,40 +851,37 @@ def expand_irqs(root, module, bus, isig):
     g.asgn_code.append(ctrl)
     # Irq lines
     idx = 0
-    for r in root.children:
-        if is_wbgen_irq(r):
-            gi = Code()
-            pfx = get_hdl_prefix(r)
-            p = HDLPort("irq_{}_i".format(pfx))
-            gi.ports.append(p)
-            g.asgn_code.append(HDLAssign(HDLIndex(inp_vec, idx), p))
-            ack_line = get_wbgen(r, 'ack_line')
-            if ack_line:
-                ack = HDLPort("irq_{}_ack_o".format(pfx), dir='OUT')
-                gi.ports.append(ack)
-                g.asgn_code.append(HDLAssign(ack, HDLIndex(ack_sig, idx)))
-            mask_line = get_wbgen(r, 'mask_line')
-            if mask_line:
-                msk = HDLPort("irq_{}_mask_o".format(pfx), dir='OUT')
-                gi.ports.append(msk)
-                g.asgn_code.append(HDLAssign(msk, HDLIndex(imr_sig, idx)))
-            r.code = gi
-            idx += 1
+    for irq in irqs:
+        gi = Code()
+        pfx = irq['name']
+        p = HDLPort("irq_{}_i".format(pfx))
+        gi.ports.append(p)
+        g.asgn_code.append(HDLAssign(HDLIndex(inp_vec, idx), p))
+        if 'ack_line' in irq:
+            ack = HDLPort("irq_{}_ack_o".format(pfx), dir='OUT')
+            gi.ports.append(ack)
+            g.asgn_code.append(HDLAssign(ack, HDLIndex(ack_sig, idx)))
+        if 'mask_line' in irq:
+            msk = HDLPort("irq_{}_mask_o".format(pfx), dir='OUT')
+            gi.ports.append(msk)
+            g.asgn_code.append(HDLAssign(msk, HDLIndex(imr_sig, idx)))
+        irq['code'] = gi
+        idx += 1
     return g
 
 
 def expand_sel_select(root, sig):
-    if root.sel_bits > 1:
-        return HDLSlice(sig, root.blk_bits, root.sel_bits)
+    if root.c_sel_bits > 1:
+        return HDLSlice(sig, root.c_blk_bits - root.c_addr_word_bits, root.c_sel_bits)
     else:
-        return HDLIndex(sig, root.blk_bits)
+        return HDLIndex(sig, root.c_blk_bits - root.c_addr_word_bits)
 
 
 def expand_sel_choice(periph, num):
-    if periph.sel_bits == 1:
+    if periph.c_sel_bits == 1:
         v = HDLConst(num, size=None)
     else:
-        v = HDLConst(num, size=periph.sel_bits)
+        v = HDLConst(num, size=periph.c_sel_bits - root.c_addr_word_bits)
     return v
 
 
@@ -904,7 +903,7 @@ def expand_rams(root, module, bus, isig):
             r.code.clock_port = None
             prefix = get_hdl_prefix(root) + '_' + get_hdl_prefix(r)
             addr = HDLPort(prefix + '_addr_i', r.c_sel_bits, dir='IN')
-            addr.comment = "Ports for RAM: {}".format(r.name)
+            addr.comment = "Ports for RAM: {}".format(r.description)
             dato = HDLPort(prefix + '_data_o', reg.width, dir='OUT')
             dato.comment = "Read data output"
             rd_sig = HDLPort(prefix + '_rd_i', dir='IN')
@@ -930,7 +929,7 @@ def expand_rams(root, module, bus, isig):
 
             ch = HDLChoiceExpr(expand_sel_choice(root, num))
             g.sel_choices.append(ch)
-            s = HDLIfElse(HDLEq(isig['rd'], bit_1))
+            s = HDLIfElse(HDLParen(HDLEq(isig['rd'], bit_1)))
             s.then_stmts.append(HDLAssign(HDLIndex(isig['ack'], 0), bit_1))
             s.else_stmts.append(HDLAssign(HDLIndex(isig['ack'], 0), bit_1))
             ch.stmts.append(s)
@@ -939,18 +938,18 @@ def expand_rams(root, module, bus, isig):
             # The mux for data_o
             ch = HDLChoiceExpr(expand_sel_choice(periph, num))
             g.out_choices.append(ch)
-            s = HDLAssign(HDLSlice(bus['dato'], 0, r.width), rdat_int)
+            s = HDLAssign(HDLSlice(bus['dato'], 0, reg.c_rwidth), rdat_int)
             ch.stmts.append(s)
-            if r.width < layout.DATA_WIDTH:
+            if reg.c_rwidth < root.c_word_size * tree.BYTE_SIZE:
                 # Pad
-                w = layout.DATA_WIDTH - r.width
-                s = HDLAssign(HDLSlice(bus['dato'], r.width, w),
+                w = layout.DATA_WIDTH - reg.c_rwidth
+                s = HDLAssign(HDLSlice(bus['dato'], reg.c_rwidth, w),
                               HDLConst(0, w))
                 ch.stmts.append(s)
 
             # R/W lines decoder
-            s = HDLIfElse(HDLEq(expand_sel_select(periph, bus['adr']),
-                                expand_sel_choice(periph, num)))
+            s = HDLIfElse(HDLParen(HDLEq(expand_sel_select(periph, bus['adr']),
+                                         expand_sel_choice(periph, num))))
             comb.stmts.append(s)
             s.then_stmts.append(HDLAssign(rd_int, isig['rd']))
             s.then_stmts.append(HDLAssign(wr_int, isig['wr']))
@@ -958,115 +957,146 @@ def expand_rams(root, module, bus, isig):
             s.else_stmts.append(HDLAssign(rd_int, bit_0))
 
             # Instance
+            addr_bits = ilog2(r.repeat)
+            clock = get_wbgen(r, 'clock')
+            bwsel = get_wbgen(r, 'byte_select')
             g.asgn_code.append(HDLComment(
-                "extra code for reg/fifo/mem: {}".format(r.name)))
+                "extra code for reg/fifo/mem: {}".format(r.description), False))
             g.asgn_code.append(HDLComment(
-                "RAM block instantiation for memory: {}".format(r.name)))
+                "RAM block instantiation for memory: {}".format(r.description),
+                False))
             inst = HDLInstance(prefix + "_raminst", "wbgen2_dpssram")
-            inst.params.append(("g_data_width", HDLNumber(r.width)))
-            inst.params.append(("g_size", HDLNumber(r.size)))
-            inst.params.append(("g_addr_width", HDLNumber(r.addr_bits)))
-            inst.params.append(("g_dual_clock", HDLBool(r.clock is not None)))
-            inst.params.append(
-                ("g_use_bwsel", HDLBool(r.byte_select == 'true')))
+            inst.params.append(("g_data_width", HDLNumber(reg.c_rwidth)))
+            inst.params.append(("g_size", HDLNumber(r.repeat)))
+            inst.params.append(("g_addr_width", HDLNumber(addr_bits)))
+            inst.params.append(("g_dual_clock", HDLBool(clock is not None)))
+            inst.params.append(("g_use_bwsel", HDLBool(bwsel == 'true')))
             inst.conns.append(("clk_a_i", bus['clk']))
             inst.conns.append(
-                ("clk_b_i", bus['clk'] if r.clock is None else isig[r.clock]))
+                ("clk_b_i", bus['clk'] if clock is None else isig[clock]))
             inst.conns.append(("addr_b_i", addr))
             inst.conns.append(("addr_a_i",
-                               HDLSlice(isig['rwaddr'], 0, r.addr_bits)))
+                               HDLSlice(isig['rwaddr'], 0, addr_bits)))
             inst.conns.append(("data_b_o", dato))
             inst.conns.append(("rd_b_i", rd_sig))
-            if r.byte_select == 'true':
-                bwsel = bwsel_sig
+            if bwsel == 'true':
+                bwsel_val = bwsel_sig
             else:
-                bwsel = HDLSlice(isig['all1'], 0, r.width / 8)
-            if r.access_dev in ['READ_WRITE']:
+                bwsel_val = HDLSlice(isig['all1'], 0, reg.c_rwidth / 8)
+            if get_wbgen(r, 'access_dev') in ['READ_WRITE']:
                 inst.conns.append(("data_b_i", dati))
                 inst.conns.append(("wr_b_i", wr_sig))
-                inst.conns.append(("bwsel_b_i", bwsel))
+                inst.conns.append(("bwsel_b_i", bwsel_val))
             else:
-                inst.conns.append(("bwsel_b_i", bwsel))
+                inst.conns.append(("bwsel_b_i", bwsel_val))
                 inst.conns.append(("data_b_i",
-                                   HDLSlice(isig['all0'], 0, r.width)))
+                                   HDLSlice(isig['all0'], 0, reg.c_rwidth)))
                 inst.conns.append(("wr_b_i", HDLIndex(isig['all0'], 0)))
             inst.conns.append(("data_a_o",
-                               HDLSlice(rdat_int, 0, r.width)))
+                               HDLSlice(rdat_int, 0, reg.c_rwidth)))
             inst.conns.append(("rd_a_i", rd_int))
             inst.conns.append(("data_a_i",
-                               HDLSlice(isig['wrdata'], 0, r.width)))
+                               HDLSlice(isig['wrdata'], 0, reg.c_rwidth)))
             inst.conns.append(("wr_a_i", wr_int))
-            if r.byte_select == 'true':
-                bwsel = isig['bwsel']
+            if bwsel == 'true':
+                bwsel_val = isig['bwsel']
             else:
-                bwsel = isig['all1']
-            inst.conns.append(("bwsel_a_i", HDLSlice(bwsel, 0, r.width / 8)))
+                bwsel_val = isig['all1']
+            inst.conns.append(("bwsel_a_i", HDLSlice(bwsel_val, 0, reg.c_rwidth / 8)))
             g.asgn_code.append(inst)
 
-            if r.clock is not None:
-                r.code.clock_port = isig[r.clock]
+            if clock is not None:
+                r.code.clock_port = isig[clock]
             num += 1
 
     if num > 1:
         g.decode_stmts.append(comb)
 
     if g.ports:
-        module.add_dependence('wbgen2_pkg')
+        module.deps.append(('work', 'wbgen2_pkg'))
     return g
 
 
-def expand_fifo(module, periph, r, isig, bus):
+def expand_fifo(module, periph, fifo, isig, bus):
     g = Code()
     g.flag_signals = []
     g.inst_code = []
     g.params = []
 
-    if r.optional:
-        opt = HDLParam(r.optional, typ='I', value=HDLNumber(1))
+    opt = get_wbgen(fifo, 'optional')
+    if opt is not None:
+        opt = HDLParam(opt, typ='I', value=HDLNumber(1))
         g.params.append(opt)
-    else:
-        opt = None
-    prefix = periph.get_hdl_prefix() + '_' + r.get_hdl_prefix()
-    r.signals = {}
-    r.flag_signals = {}
+    prefix = get_hdl_prefix(periph) + '_' + get_hdl_prefix(fifo)
+    fifo.signals = {}
+    fifo.flag_signals = {}
     rst = HDLSignal(prefix + '_rst_n')
     g.signals.append(rst)
-    in_int = HDLSignal(prefix + '_in_int', size=r.width)
+
+    fifo_width = 0
+    cs_reg = None
+    fields = []
+    for reg in fifo.children:
+        if is_wbgen_fifocs(reg):
+            cs_reg = reg
+        else:
+            fields.extend(reg.children)
+            for f in reg.children:
+                f.h_fifo_offset = fifo_width
+                fifo_width += f.c_rwidth
+
+    in_int = HDLSignal(prefix + '_in_int', size=fifo_width)
     g.signals.append(in_int)
-    out_int = HDLSignal(prefix + '_out_int', size=r.width)
+    out_int = HDLSignal(prefix + '_out_int', size=fifo_width)
     g.signals.append(out_int)
     breq_int0 = None
-    if r.direction == 'BUS_TO_CORE':
+    direction = get_wbgen(fifo, 'direction')
+    if direction == 'BUS_TO_CORE':
         flag_prefix = prefix + '_rd'
         mode = 'OUT'
         bus_req = HDLPort(prefix + '_rd_req_i', dir='IN')
         bus_req.comment = "FIFO read request"
         breq_int = HDLSignal(prefix + '_wrreq_int')
         g.acked_code.append(HDLAssign(breq_int, bit_0))
-        r.hdl_int = in_int
+        fifo.hdl_int = in_int
         g.signals.append(breq_int)
-    elif r.direction == 'CORE_TO_BUS':
+    elif direction == 'CORE_TO_BUS':
         flag_prefix = prefix + '_wr'
         mode = 'IN'
         bus_req = HDLPort(prefix + '_wr_req_i', dir='IN')
         bus_req.comment = "FIFO write request"
         breq_int = HDLSignal(prefix + '_rdreq_int')
         breq_int0 = HDLSignal(prefix + '_rdreq_int_d0')
-        r.hdl_int = out_int
+        fifo.hdl_int = out_int
         g.signals.extend([breq_int, breq_int0])
     g.ports.append(bus_req)
-    r.req_int = breq_int
-    r.req_int0 = breq_int0
+    fifo.req_int = breq_int
+    fifo.req_int0 = breq_int0
 
-    if 'FIFO_FULL' in r.flags_dev:
+    depth = get_wbgen(fifo, 'depth')
+    log2_depth = ilog2(depth)
+
+    field_full = None
+    field_clear = None
+    field_count = None
+    for f in cs_reg.children:
+        kind = get_wbgen(f, 'kind')
+        if kind == 'full':
+            field_full = f
+        elif kind == 'clear':
+            field_clear = f
+        elif kind == 'count':
+            field_count = f
+
+    if get_wbgen(fifo, 'wire_full'):
         rd_full = HDLPort(flag_prefix + '_full_o', dir='OUT')
         rd_full.comment = "FIFO full flag"
         g.ports.append(rd_full)
     else:
         rd_full = None
-    if 'FIFO_FULL' in r.flags_bus:
+    if field_full is not None:
         full_int = HDLSignal(prefix + '_full_int')
-        r.flag_signals['FULL'] = full_int
+        fifo.flag_signals['full'] = full_int
         g.flag_signals.append(full_int)
     else:
         full_int = None
@@ -1074,28 +1104,28 @@ def expand_fifo(module, periph, r, isig, bus):
     rd_empty.comment = "FIFO empty flag"
     g.ports.append(rd_empty)
     empty_int = HDLSignal(prefix + '_empty_int')
-    r.flag_signals['EMPTY'] = empty_int
+    fifo.flag_signals['empty'] = empty_int
     g.flag_signals.append(empty_int)
 
-    if 'FIFO_CLEAR' in r.flags_bus:
+    if field_clear is not None:
         clear_int = HDLSignal(prefix + '_clear_bus_int')
-        r.flag_signals['CLEAR_BUS'] = clear_int
+        fifo.flag_signals['clear'] = clear_int
         g.flag_signals.append(clear_int)
         g.acked_code.append(HDLAssign(clear_int, bit_0))
         g.rst_code.append(HDLAssign(clear_int, bit_0))
     else:
         clear_int = None
 
-    if 'FIFO_COUNT' in r.flags_dev:
+    if get_wbgen(fifo, 'wire_count'):
         rd_usedw = HDLPort(flag_prefix + '_usedw_o',
-                           size=r.log2_size, dir='OUT')
+                           size=log2_depth, dir='OUT')
         rd_usedw.comment = "FIFO number of used words"
         g.ports.append(rd_usedw)
     else:
         rd_usedw = None
-    if 'FIFO_COUNT' in r.flags_bus:
-        usedw_int = HDLSignal(prefix + '_usedw_int', r.log2_size)
-        r.flag_signals['USEDW'] = usedw_int
+    if field_count is not None:
+        usedw_int = HDLSignal(prefix + '_usedw_int', log2_depth)
+        fifo.flag_signals['count'] = usedw_int
         g.flag_signals.append(usedw_int)
     else:
         usedw_int = None
@@ -1103,34 +1133,39 @@ def expand_fifo(module, periph, r, isig, bus):
     g.rst_code.append(HDLAssign(breq_int, bit_0))
 
     g.inst_code.append(HDLComment(
-        "extra code for reg/fifo/mem: {}".format(r.name)))
-    for f in r.fields:
-        prt_name = "{}_{}{}".format(
-            prefix, f.get_hdl_prefix(), mode_suffix_map[mode])
-        prt = HDLPort(prt_name, size=f.size, dir=mode)
-        g.ports.append(prt)
-        if r.direction == 'BUS_TO_CORE':
-            g.inst_code.append(
-                HDLAssign(prt,
-                          HDLSlice(out_int, f.fifo_offset, f.bit_len)))
-        else:
-            g.inst_code.append(
-                HDLAssign(HDLSlice(in_int, f.fifo_offset, f.bit_len),
-                          prt))
+        "extra code for reg/fifo/mem: {}".format(fifo.name)))
+    for reg in fifo.children:
+        if is_wbgen_fifocs(reg):
+            continue
+        for f in reg.children:
+            prt_name = "{}_{}{}".format(
+                prefix, get_hdl_prefix(f), mode_suffix_map[mode])
+            prt = HDLPort(prt_name, size=f.c_rwidth, dir=mode)
+            g.ports.append(prt)
+            if direction == 'BUS_TO_CORE':
+                g.inst_code.append(
+                    HDLAssign(prt,
+                              HDLSlice(out_int, f.h_fifo_offset, f.c_rwidth)))
+            else:
+                g.inst_code.append(
+                    HDLAssign(HDLSlice(in_int, f.h_fifo_offset, f.c_rwidth),
+                              prt))
+
     rst_val = bus['rst']
     if clear_int:
         rst_val = HDLAnd(rst_val, HDLNot(clear_int))
     g.inst_code.append(HDLAssign(rst, rst_val))
 
-    if r.clock is None:
+    clock = get_wbgen(fifo, 'clock')
+    if clock is None:
         inst = HDLInstance(prefix + "_INST", "wbgen2_fifo_sync")
     else:
         inst = HDLInstance(prefix + "_INST", "wbgen2_fifo_async")
     g.inst_code.append(inst)
-    inst.params.append(("g_size", HDLNumber(r.size)))
-    inst.params.append(("g_width", HDLNumber(r.width)))
-    inst.params.append(("g_usedw_size", HDLNumber(r.log2_size)))
-    if r.direction == 'BUS_TO_CORE':
+    inst.params.append(("g_size", HDLNumber(depth)))
+    inst.params.append(("g_width", HDLNumber(fifo_width)))
+    inst.params.append(("g_usedw_size", HDLNumber(log2_depth)))
+    if direction == 'BUS_TO_CORE':
         bus_port, dev_port = ("rd_", "wr_")
     else:
         bus_port, dev_port = ("wr_", "rd_")
@@ -1147,7 +1182,7 @@ def expand_fifo(module, periph, r, isig, bus):
         inst.conns.append((dev_port + "usedw_o", usedw_int))
     inst.conns.append((dev_port + "req_i", breq_int))
     inst.conns.append(("rst_n_i", rst))
-    if r.clock is None:
+    if clock is None:
         inst.conns.append(("clk_i", bus['clk']))
     else:
         inst.conns.append((bus_port + "clk_i", isig[r.clock]))
@@ -1161,7 +1196,7 @@ def expand_fifo(module, periph, r, isig, bus):
         cond_stmt.stmts = g.inst_code
         g.inst_code = [cond_stmt]
 
-    module.add_dependence('wbgen2_pkg')
+    module.deps.append(('work', 'wbgen2_pkg'))
     return g
 
 def compute_access(field):
@@ -1200,24 +1235,24 @@ def layout_wbgen(root):
     build_ordered_regs(root)
 
     # The registers (that includes Fifos as they have been expanded)
-    reg_len = 0
+    reg_len = 0  # in bytes
     for r in root.children:
         if isinstance(r, tree.Reg):
             reg_len = max(reg_len, r.address + r.c_rwidth // tree.BYTE_SIZE)
         elif is_wbgen_irq(r) or is_wbgen_fifo(r):
             for r1 in r.children:
-                reg_len = max(reg_len, r1.address + r1.c_rwidth // tree.BYTE_SIZE)
+                reg_len = max(reg_len, r.c_address + r1.c_address + r1.c_rwidth // tree.BYTE_SIZE)
 
     # The rams
-    max_ram_size = 0
+    max_ram_size = 0 # in bytes
     nbr_rams = 0
     for r in root.children:
         if is_wbgen_ram(r):
-            assert r.width <= root.c_word_bits
-            sz = r.size
-            assert sz > 0
-            r.ram_size = sz
-            max_ram_size = max(max_ram_size, sz)
+            reg = r.children[0]
+            bsz = reg.c_rwidth // tree.BYTE_SIZE
+            assert bsz <= root.c_word_size
+            r.h_ram_size = r.repeat * bsz
+            max_ram_size = max(max_ram_size, r.h_ram_size)
             nbr_rams += 1
 
     # Split the address space into blocks (of equal length). One block
@@ -1236,7 +1271,7 @@ def layout_wbgen(root):
     for r in root.children:
         if is_wbgen_ram(r):
             r.h_addr_base = ram_off
-            r.h_addr_len = r.ram_wrap_size
+            r.h_addr_len = r.h_ram_size
             ram_off += block_size
 
 def expand_hdl(root):
@@ -1304,13 +1339,16 @@ def expand_hdl(root):
         if isinstance(r, tree.Reg):
             g = expand_reg(root, r, isig, root.h_bus)
             r.ports = g.ports
-        elif isinstance(r, tree.FifoCSReg):
-            g = expand_reg(root, r, isig, root.h_bus)
-        elif isinstance(r, tree.FifoReg):
-            g = expand_fiforeg(root, r, isig, root.h_bus)
-        elif is_wbgen_fifo(r, tree.Fifo):
+        elif is_wbgen_fifo(r):
             g = expand_fifo(m, root, r, isig, root.h_bus)
             r.ports = g.ports
+            for fr in r.children:
+                if is_wbgen_fifocs(fr):
+                    fr.code = expand_reg(root, fr, isig, root.h_bus)
+                elif is_wbgen_fiforeg(fr):
+                    fr.code = expand_fiforeg(root, fr, isig, root.h_bus)
+                else:
+                    raise AssertionError
         else:
             continue
         r.code = g
@@ -1327,7 +1365,7 @@ def expand_hdl(root):
         # Insert wb int_o port
         bus_int = irq_code.ports.pop(0)
         m.ports.append(bus_int)
-        root.bus_ports.append(bus_int)
+        #root.bus_ports.append(bus_int)
     # Add clock ports
     for c in clk_sigs:
         m.ports.append(isig[c])
@@ -1339,7 +1377,8 @@ def expand_hdl(root):
         elif is_wbgen_fifo(r):
             m.ports.extend(r.code.ports)
         elif is_wbgen_irq(r):
-            m.ports.extend(r.code.ports)
+            for irq in get_wbgen(r, 'irqs'):
+                m.ports.extend(irq['irq']['code'].ports)
         elif is_wbgen_ram(r):
             m.ports.extend(rams_code.ports)
             rams_code.ports = []
@@ -1412,18 +1451,18 @@ def expand_hdl(root):
 
     #  FF rst, reg decode, inack, acked code.
     for r in root.h_ordered_regs:
-        if isinstance(r, tree.Reg) \
-           or isinstance(r, tree.FifoCSReg):
+        if is_wbgen_fiforeg(r):
+            blk_sw.choices.append(r.code.choice)
+        elif is_wbgen_irqreg(r):
+            blk_sw.choices.extend(irq_code.choices)
+            irq_code.choices = []
+        elif isinstance(r, tree.Reg) \
+           or is_wbgen_fifocs(r):
             reg_code = r.code
             ff.rst_stmts.extend(reg_code.rst_code)
             blk_sw.choices.append(reg_code.choice)
             s_ack.else_stmts.extend(reg_code.inack_code)
             s_ack.then_stmts.extend(reg_code.acked_code)
-        elif isinstance(r, tree.FifoReg):
-            blk_sw.choices.append(r.code.choice)
-        elif isinstance(r, tree.IrqReg):
-            blk_sw.choices.extend(irq_code.choices)
-            irq_code.choices = []
 
     ff.rst_stmts.extend(irq_code.rst_code)
     s_ack.then_stmts.extend(irq_code.acked_code)
@@ -1467,25 +1506,28 @@ def expand_hdl(root):
     m.stmts.append(ff)
 
     # * Muxes
+    m.stmts.append(HDLComment(None))
     if sel_sw:
         m.stmts.append(HDLComment("Data output multiplexer process"))
         dato_stmt = HDLComb()
         m.stmts.append(dato_stmt)
         dato_stmt.sensitivity.extend([isig['rddata'], isig['rwaddr']])
-        sw = HDLSwitch(expand_sel_select(periph, isig['rwaddr']))
+        sw = HDLSwitch(expand_sel_select(root, isig['rwaddr']))
         dato_stmt.stmts.append(sw)
         sw.choices.extend(rams_code.out_choices)
         for c in rams_code.out_choices:
             dato_stmt.sensitivity.append(c.stmts[0].expr)
         c = HDLChoiceDefault()
-        c.stmts.append(HDLAssign(bus['dato'], isig['rddata']))
+        c.stmts.append(HDLAssign(root.h_bus['dato'], isig['rddata']))
         sw.choices.append(c)
-        dato_stmt.sensitivity.append(bus['adr'])  # FIXME: why
+        dato_stmt.sensitivity.append(root.h_bus['adr'])  # FIXME: why
 
+        m.stmts.append(HDLComment(None))
         m.stmts.append(HDLComment("Read & write lines decoder for RAMs"))
         m.stmts.extend(rams_code.decode_stmts)
-    else:
         m.stmts.append(HDLComment(None))
+        m.stmts.append(HDLComment(None))
+    else:
         m.stmts.append(HDLComment("Drive the data output bus"))
         m.stmts.append(HDLAssign(root.h_bus['dato'], isig['rddata']))
 

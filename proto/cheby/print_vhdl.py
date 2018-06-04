@@ -310,7 +310,12 @@ def generate_stmts(fd, stmts, indent):
                 else:
                     w(fd, ", ")
                 w(fd, generate_expr(e))
-            wln(fd, ") begin")
+            if style == 'wbgen':
+                wln (fd, "  )")
+                w(fd, sindent)
+            else:
+                w(fd, ") ")
+            wln(fd, "begin")
             # wln(fd, "  begin")
             for s1 in s.stmts:
                 generate_seq(fd, s1, 2)
