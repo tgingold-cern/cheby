@@ -14,7 +14,7 @@ import cheby.gen_laychk as gen_laychk
 import cheby.expand_hdl as expand_hdl
 import cheby.gen_gena_memmap as gen_gena_memmap
 import cheby.gen_gena_regctrl as gen_gena_regctrl
-import gena2cheby
+import cheby.gena2cheby as gena2cheby
 
 srcdir = '../testfiles/'
 verbose = False
