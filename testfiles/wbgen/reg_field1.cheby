@@ -1,0 +1,37 @@
+memory-map:
+  bus: wb-32-be
+  name: reg1
+  description: register test 1
+  comment: |
+    A simple register
+  x-wbgen:
+  children:
+  - reg:
+      name: R1
+      address: 0x00000000
+      width: 32
+      access: rw
+      description: Register 1
+      comment: |
+        Register 1 has two fields
+      children:
+      - field:
+          name: reset
+          range: 0
+          description: Reset bit
+          comment: |
+            1 to reset
+          x-wbgen:
+            type: BIT
+            access_bus: READ_WRITE
+            access_dev: READ_ONLY
+      - field:
+          name: mode
+          range: 3-1
+          description: Mode
+          comment: |
+            Set device mode
+          x-wbgen:
+            type: SLV
+            access_bus: READ_WRITE
+            access_dev: READ_ONLY

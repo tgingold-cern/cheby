@@ -15,6 +15,8 @@ import cheby.expand_hdl as expand_hdl
 import cheby.gen_gena_memmap as gen_gena_memmap
 import cheby.gen_gena_regctrl as gen_gena_regctrl
 import cheby.gena2cheby as gena2cheby
+import cheby.wbgen2cheby as wbgen2cheby
+import cheby.gen_wbgen_hdl as gen_wbgen_hdl
 
 srcdir = '../testfiles/'
 verbose = False
@@ -318,6 +320,32 @@ def test_gena2cheby_err():
         except gena2cheby.UnknownTag:
             pass
 
+def test_wbgen2cheby():
+    files=['reg1', 'reg_field1']
+    print_vhdl.style = 'wbgen'
+    for f in files:
+        if verbose:
+            print('test wbgen2cheby: {}'.format(f))
+        # Test Gena to Cheby conversion
+        wbfile = srcdir + 'wbgen/' + f + '.wb'
+        chebfile = srcdir + 'wbgen/' + f + '.cheby'
+        buf = write_buffer ()
+        wbgen2cheby.convert(buf, wbfile)
+        if not compare_buffer_and_file(buf, chebfile):
+            error('wbgen2cheby conversion error for {}'.format(f))
+        # Test parse+layout
+        t = parse_ok(chebfile)
+        layout_ok(t)
+        # Test vhdl generation
+        h = gen_wbgen_hdl.expand_hdl(t)
+        buf = write_buffer()
+        print_vhdl.print_vhdl(buf, h)
+        hdlfile = srcdir + 'wbgen/' + f + '.vhd'
+        if not compare_buffer_and_file(buf, hdlfile):
+            error('wbgen vhdl generation error for {}'.format(f))
+    print_vhdl.style = None
+
+
 def main():
     global verbose
 
@@ -335,6 +363,7 @@ def main():
         test_gena_regctrl_err()
         test_gena2cheby()
         test_gena2cheby_err()
+        test_wbgen2cheby()
         print("Done!")
     except TestError as e:
         werr(e.msg)

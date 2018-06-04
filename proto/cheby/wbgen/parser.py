@@ -81,7 +81,7 @@ def parse_tableconstructor(it, comment):
             break
         else:
             it.unget((t, name, p))
-            f = parse_expr(it)
+            f = parse_expr(it, comment)
         fields.append(f)
 
         # Separator

@@ -9,7 +9,7 @@ import wbgen.expand_reg
 import wbgen.print_cheby_yaml
 
 
-def wbgen2cheby(filename):
+def convert(stream, filename):
     lt = wbgen.parser.parse(filename, open(filename).readline)
 
     t = wbgen.ltree2tree.convert(lt)
@@ -17,7 +17,7 @@ def wbgen2cheby(filename):
 
     wbgen.expand_reg.expand(t)
     wbgen.layout.layout(t)
-    wbgen.print_cheby_yaml.print_cheby(t, False)
+    wbgen.print_cheby_yaml.print_cheby(stream, t, False)
 
 
 def main():
@@ -29,7 +29,7 @@ def main():
     if ext != '.wb':
         sys.stderr.write("unhandled file format '{}'\n".format(ext))
         sys.exit(1)
-    wbgen2cheby(filename)
+    convert(sys.stdout, filename)
     sys.exit(0)
 
 

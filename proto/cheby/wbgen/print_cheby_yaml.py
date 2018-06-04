@@ -356,5 +356,5 @@ class Writer_YAML(object):
         self.weseq()
 
 
-def print_cheby(n, strict=True, file=sys.stdout):
-    Writer_YAML(strict=strict).write_top(n)
+def print_cheby(stream, n, strict=True):
+    Writer_YAML(file=stream, strict=strict).write_top(n)
