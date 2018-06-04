@@ -334,8 +334,9 @@ def expand_fiforeg(periph, reg, isig, bus):
 
 def expand_fifocsreg(f, r, name, isig, bus):
     g = Code()
-    if get_wbgen(f, 'kind') == 'clear':
-        asgn = HDLIfElse(HDLEq(expand_field_sel(isig['wrdata'], f), bit_1))
+    if get_wbgen(f, 'kind') == 'clear_bus':
+        asgn = HDLIfElse(HDLParen(
+            HDLEq(expand_field_sel(isig['wrdata'], f), bit_1)))
         asgn.then_stmts.append(
             HDLAssign(r._parent.flag_signals[f.name], bit_1))
         asgn.else_stmts = None
@@ -767,7 +768,7 @@ def expand_irqs(root, module, bus, isig):
               'EDGE_RISING': 0}[irq.get('trigger', 'EDGE_RISING')]
              for irq in irqs]
 
-    module.deps.append(('work', "wbgen2_pkg"))
+    module.deps = [('work', "wbgen2_pkg")]
     int_port = HDLPort('wb_int_o', dir='OUT')
     g.ports.append(int_port)
 
@@ -799,14 +800,14 @@ def expand_irqs(root, module, bus, isig):
             wr_stmts.append(HDLAssign(wr, bit_1))
         if rd:
             rd_stmts.append(HDLAssign(
-                HDLSlice(isig['rddata'], 0, nbr_irqs),
-                HDLSlice(rd, 0, nbr_irqs)))
+                Slice_or_Index(isig['rddata'], 0, nbr_irqs),
+                Slice_or_Index(rd, 0, nbr_irqs)))
         if int_sig:
             g.asgn_code.append(HDLComment(
                 "extra code for reg/fifo/mem: {}".format(r.description), False))
             g.asgn_code.append(HDLAssign(
-                HDLSlice(int_sig, 0, nbr_irqs),
-                HDLSlice(isig['wrdata'], 0, nbr_irqs)))
+                Slice_or_Index(int_sig, 0, nbr_irqs),
+                Slice_or_Index(isig['wrdata'], 0, nbr_irqs)))
     for b in root.children:
         if is_wbgen_irq(b):
             for r in r.children:
@@ -852,7 +853,7 @@ def expand_irqs(root, module, bus, isig):
     idx = 0
     for irq in irqs:
         gi = Code()
-        pfx = irq['name']
+        pfx = irq['name'].lower()
         p = HDLPort("irq_{}_i".format(pfx))
         gi.ports.append(p)
         g.asgn_code.append(HDLAssign(HDLIndex(inp_vec, idx), p))
@@ -860,7 +861,7 @@ def expand_irqs(root, module, bus, isig):
             ack = HDLPort("irq_{}_ack_o".format(pfx), dir='OUT')
             gi.ports.append(ack)
             g.asgn_code.append(HDLAssign(ack, HDLIndex(ack_sig, idx)))
-        if 'mask_line' in irq:
+        if irq.get('mask_line', False):
             msk = HDLPort("irq_{}_mask_o".format(pfx), dir='OUT')
             gi.ports.append(msk)
             g.asgn_code.append(HDLAssign(msk, HDLIndex(imr_sig, idx)))
@@ -1013,7 +1014,7 @@ def expand_rams(root, module, bus, isig):
         g.decode_stmts.append(comb)
 
     if g.ports:
-        module.deps.append(('work', 'wbgen2_pkg'))
+        module.deps = [('work', 'wbgen2_pkg')]
     return g
 
 
@@ -1083,10 +1084,14 @@ def expand_fifo(module, periph, fifo, isig, bus):
         kind = get_wbgen(f, 'kind')
         if kind == 'full':
             field_full = f
-        elif kind == 'clear':
+        elif kind == 'clear_bus':
             field_clear = f
         elif kind == 'count':
             field_count = f
+        elif kind in ('empty', ):
+            pass
+        else:
+            raise AssertionError("unhandled fifo kind '{}'".format(kind))
 
     if get_wbgen(fifo, 'wire_full'):
         rd_full = HDLPort(flag_prefix + '_full_o', dir='OUT')
@@ -1109,7 +1114,7 @@ def expand_fifo(module, periph, fifo, isig, bus):
 
     if field_clear is not None:
         clear_int = HDLSignal(prefix + '_clear_bus_int')
-        fifo.flag_signals['clear'] = clear_int
+        fifo.flag_signals['clear_bus'] = clear_int
         g.flag_signals.append(clear_int)
         g.acked_code.append(HDLAssign(clear_int, bit_0))
         g.rst_code.append(HDLAssign(clear_int, bit_0))
@@ -1151,7 +1156,7 @@ def expand_fifo(module, periph, fifo, isig, bus):
 
     rst_val = bus['rst']
     if clear_int:
-        rst_val = HDLAnd(rst_val, HDLNot(clear_int))
+        rst_val = HDLAnd(rst_val, HDLParen(HDLNot(clear_int)))
     g.inst_code.append(HDLAssign(rst, rst_val))
 
     clock = get_wbgen(fifo, 'clock')
@@ -1194,7 +1199,7 @@ def expand_fifo(module, periph, fifo, isig, bus):
         cond_stmt.stmts = g.inst_code
         g.inst_code = [cond_stmt]
 
-    module.deps.append(('work', 'wbgen2_pkg'))
+    module.deps = [('work', 'wbgen2_pkg')]
     return g
 
 def compute_access(field):

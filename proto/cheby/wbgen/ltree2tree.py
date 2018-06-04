@@ -30,7 +30,8 @@ def check_name(e, vals):
 
 
 def check_bool(e):
-    return check_name(e, ['true', 'false'])
+    v = check_name(e, ['true', 'false'])
+    return v == 'true'
 
 
 def check_identifier(e):

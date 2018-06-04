@@ -77,6 +77,12 @@ class Writer_YAML(object):
         else:
             self.wattr_yaml(name, val)
 
+    def wattr_bool(self, name, val):
+        if val is None:
+            return
+        assert isinstance(val, bool)
+        self.wattr_yaml(name, val)
+
     def wattr_num(self, name, val):
         if val is None:
             return
@@ -285,8 +291,8 @@ class Writer_YAML(object):
             self.wattr_str("name", irq.prefix)
             self.wattr_str("trigger", irq.trigger)
             self.wattr_num("pos", pos)
-            self.wattr_str("ack_line", irq.ack_line)
-            self.wattr_str("mask_line", irq.mask_line)
+            self.wattr_bool("ack_line", irq.ack_line)
+            self.wattr_bool("mask_line", irq.mask_line)
             self.wattr_str("description", irq.name)
             self.write_comment(irq.desc)
             self.weseq()
