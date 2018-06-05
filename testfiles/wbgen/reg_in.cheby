@@ -11,7 +11,7 @@ memory-map:
       name: R1
       address: 0x00000000
       width: 32
-      access: rw
+      access: ro
       description: Register 1
       comment: |
         Register 1 has two fields
@@ -24,8 +24,8 @@ memory-map:
             1 to reset
           x-wbgen:
             type: BIT
-            access_bus: READ_WRITE
-            access_dev: READ_ONLY
+            access_bus: READ_ONLY
+            access_dev: WRITE_ONLY
       - field:
           name: enable
           range: 1
@@ -34,5 +34,5 @@ memory-map:
             1 to enable device
           x-wbgen:
             type: BIT
-            access_bus: READ_WRITE
-            access_dev: READ_ONLY
+            access_bus: READ_ONLY
+            access_dev: WRITE_ONLY

@@ -72,8 +72,10 @@ def expand_wishbone(root, module, isigs):
     """Create wishbone interface."""
     addr_width = root.c_sel_bits + root.c_blk_bits - root.c_addr_word_bits
     bus = [('rst',   HDLPort("rst_n_i")),
-           ('clk',   HDLPort("clk_i")),
-           ('adr',   HDLPort("wb_adr_i", addr_width)),
+           ('clk',   HDLPort("clk_i"))]
+    if addr_width > 0:
+        bus.append(('adr',   HDLPort("wb_adr_i", addr_width)))
+    bus.extend([
            ('dati',  HDLPort("wb_dat_i", root.c_word_bits)),
            ('dato',  HDLPort("wb_dat_o", root.c_word_bits, dir='OUT')),
            ('cyc',   HDLPort("wb_cyc_i")),
@@ -81,7 +83,7 @@ def expand_wishbone(root, module, isigs):
            ('stb',   HDLPort("wb_stb_i")),
            ('we',    HDLPort("wb_we_i")),
            ('ack',   HDLPort("wb_ack_o", dir='OUT')),
-           ('stall', HDLPort("wb_stall_o", dir='OUT'))]
+           ('stall', HDLPort("wb_stall_o", dir='OUT'))])
     add_bus(root, module, bus)
     root.h_bussplit = False
 
@@ -487,7 +489,7 @@ def add_read_process(root, module, isigs):
         # All the read are ack'ed (including the read to unassigned addresses).
         s.append(HDLAssign(isigs.rd_ack, bit_1))
 
-    add_decoder(root, rd_if.then_stmts, root.h_bus['adr'], root, add_read)
+    add_decoder(root, rd_if.then_stmts, root.h_bus.get('adr', None), root, add_read)
 
 
 def add_write_process(root, module, isigs):
@@ -536,7 +538,7 @@ def add_write_process(root, module, isigs):
         # All the write are ack'ed (including the write to unassigned
         # addresses)
         s.append(HDLAssign(isigs.wr_ack, bit_1))
-    add_decoder(root, wr_if.then_stmts, root.h_bus['adr'], root, add_write)
+    add_decoder(root, wr_if.then_stmts, root.h_bus.get('adr', None), root, add_write)
 
 
 def gen_hdl_header(root, isigs=None):

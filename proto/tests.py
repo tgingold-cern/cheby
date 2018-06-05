@@ -321,7 +321,13 @@ def test_gena2cheby_err():
             pass
 
 def test_wbgen2cheby():
-    files=['reg1', 'reg_field1']
+    files=['reg1', 'reg_field1',
+           'reg_passthrough', 'reg_passthrough_async',
+           'reg_monostable', 'reg_monostable_async',
+           'reg_constant', 'reg_constant_bit',
+           'fifo1', 'fifo2', 'fifo_bclr',
+           'ram1',
+           'irq1']
     print_vhdl.style = 'wbgen'
     for f in files:
         if verbose:
@@ -340,7 +346,7 @@ def test_wbgen2cheby():
         h = gen_wbgen_hdl.expand_hdl(t)
         buf = write_buffer()
         print_vhdl.print_vhdl(buf, h)
-        hdlfile = srcdir + 'wbgen/' + f + '.vhd'
+        hdlfile = srcdir + 'wbgen/' + f + '.vhdl'
         if not compare_buffer_and_file(buf, hdlfile):
             error('wbgen vhdl generation error for {}'.format(f))
     print_vhdl.style = None

@@ -1,0 +1,21 @@
+memory-map:
+  bus: wb-32-be
+  name: ram1
+  description: Ram 1
+  x-wbgen:
+    hdl_entity: ram1
+  children:
+  - array:
+      name: ch1
+      address: 0x00000000
+      repeat: 2048
+      description: Channel 1
+      align: True
+      x-wbgen:
+        kind: ram
+        access_dev: READ_ONLY
+      children:
+      - reg:
+          name: data
+          width: 32
+          access: rw

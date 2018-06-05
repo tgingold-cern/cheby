@@ -1,0 +1,29 @@
+memory-map:
+  bus: wb-32-be
+  name: pt
+  description: register constant
+  comment: |
+    A simple passthrough register
+  x-wbgen:
+    hdl_entity: rcst
+  children:
+  - reg:
+      name: R1
+      address: 0x00000000
+      width: 32
+      access: ro
+      description: Register 1
+      comment: |
+        Register 1 has two fields
+      children:
+      - field:
+          name: ver
+          range: 7-0
+          description: version
+          comment: |
+            current version
+          preset: 19
+          x-wbgen:
+            type: CONSTANT
+            access_bus: READ_ONLY
+            access_dev: WRITE_ONLY

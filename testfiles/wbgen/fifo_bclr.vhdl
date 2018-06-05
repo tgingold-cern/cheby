@@ -1,12 +1,13 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+use work.wbgen2_pkg.all;
 
-entity reg1 is
+entity fifoclr is
   port (
     rst_n_i              : in    std_logic;
     clk_sys_i            : in    std_logic;
-    wb_adr_i             : in    std_logic_vector(-1 downto 0);
+    wb_adr_i             : in    std_logic_vector(0 downto 0);
     wb_dat_i             : in    std_logic_vector(31 downto 0);
     wb_dat_o             : out   std_logic_vector(31 downto 0);
     wb_cyc_i             : in    std_logic;
@@ -15,22 +16,26 @@ entity reg1 is
     wb_we_i              : in    std_logic;
     wb_ack_o             : out   std_logic;
     wb_stall_o           : out   std_logic;
-    -- Port for BIT field: 'Reset bit' in reg: 'Register 1'
-    reg1_r1_reset_o      : out   std_logic;
-    -- Port for std_logic_vector field: 'Mode' in reg: 'Register 1'
-    reg1_r1_mode_o       : out   std_logic_vector(2 downto 0)
+    -- FIFO read request
+    fifo_fifo_bclr_rd_req_i : in    std_logic;
+    -- FIFO full flag
+    fifo_fifo_bclr_rd_full_o : out   std_logic;
+    fifo_fifo_bclr_val_o : out   std_logic_vector(15 downto 0)
   );
-end reg1;
+end fifoclr;
 
-architecture syn of reg1 is
+architecture syn of fifoclr is
 
-  signal reg1_r1_reset_int              : std_logic;
-  signal reg1_r1_mode_int               : std_logic_vector(2 downto 0);
+  signal fifo_fifo_bclr_rst_n           : std_logic;
+  signal fifo_fifo_bclr_in_int          : std_logic_vector(15 downto 0);
+  signal fifo_fifo_bclr_out_int         : std_logic_vector(15 downto 0);
+  signal fifo_fifo_bclr_wrreq_int       : std_logic;
+  signal fifo_fifo_bclr_clear_bus_int   : std_logic;
   signal ack_sreg                       : std_logic_vector(9 downto 0);
   signal rddata_reg                     : std_logic_vector(31 downto 0);
   signal wrdata_reg                     : std_logic_vector(31 downto 0);
   signal bwsel_reg                      : std_logic_vector(3 downto 0);
-  signal rwaddr_reg                     : std_logic;
+  signal rwaddr_reg                     : std_logic_vector(0 downto 0);
   signal ack_in_progress                : std_logic;
   signal wr_int                         : std_logic;
   signal rd_int                         : std_logic;
@@ -53,27 +58,31 @@ begin
       ack_sreg <= "0000000000";
       ack_in_progress <= '0';
       rddata_reg <= "00000000000000000000000000000000";
-      reg1_r1_reset_int <= '0';
-      reg1_r1_mode_int <= "000";
+      fifo_fifo_bclr_clear_bus_int <= '0';
+      fifo_fifo_bclr_wrreq_int <= '0';
     elsif rising_edge(clk_sys_i) then
       -- advance the ACK generator shift register
       ack_sreg(8 downto 0) <= ack_sreg(9 downto 1);
       ack_sreg(9) <= '0';
       if (ack_in_progress = '1') then
         if (ack_sreg(0) = '1') then
+          fifo_fifo_bclr_wrreq_int <= '0';
+          fifo_fifo_bclr_clear_bus_int <= '0';
           ack_in_progress <= '0';
         else
         end if;
       else
         if ((wb_cyc_i = '1') and (wb_stb_i = '1')) then
-          case rwaddr_reg(-1 downto 0) is
+          case rwaddr_reg(0) is
           when '0' => 
             if (wb_we_i = '1') then
-              reg1_r1_reset_int <= wrdata_reg(0);
-              reg1_r1_mode_int <= wrdata_reg(3 downto 1);
+              fifo_fifo_bclr_in_int(15 downto 0) <= wrdata_reg(15 downto 0);
+              fifo_fifo_bclr_wrreq_int <= '1';
             end if;
-            rddata_reg(0) <= reg1_r1_reset_int;
-            rddata_reg(3 downto 1) <= reg1_r1_mode_int;
+            rddata_reg(0) <= 'X';
+            rddata_reg(1) <= 'X';
+            rddata_reg(2) <= 'X';
+            rddata_reg(3) <= 'X';
             rddata_reg(4) <= 'X';
             rddata_reg(5) <= 'X';
             rddata_reg(6) <= 'X';
@@ -104,6 +113,46 @@ begin
             rddata_reg(31) <= 'X';
             ack_sreg(0) <= '1';
             ack_in_progress <= '1';
+          when '1' => 
+            if (wb_we_i = '1') then
+              if (wrdata_reg(18) = '1') then
+                fifo_fifo_bclr_clear_bus_int <= '1';
+              end if;
+            end if;
+            rddata_reg(18) <= '0';
+            rddata_reg(0) <= 'X';
+            rddata_reg(1) <= 'X';
+            rddata_reg(2) <= 'X';
+            rddata_reg(3) <= 'X';
+            rddata_reg(4) <= 'X';
+            rddata_reg(5) <= 'X';
+            rddata_reg(6) <= 'X';
+            rddata_reg(7) <= 'X';
+            rddata_reg(8) <= 'X';
+            rddata_reg(9) <= 'X';
+            rddata_reg(10) <= 'X';
+            rddata_reg(11) <= 'X';
+            rddata_reg(12) <= 'X';
+            rddata_reg(13) <= 'X';
+            rddata_reg(14) <= 'X';
+            rddata_reg(15) <= 'X';
+            rddata_reg(16) <= 'X';
+            rddata_reg(17) <= 'X';
+            rddata_reg(19) <= 'X';
+            rddata_reg(20) <= 'X';
+            rddata_reg(21) <= 'X';
+            rddata_reg(22) <= 'X';
+            rddata_reg(23) <= 'X';
+            rddata_reg(24) <= 'X';
+            rddata_reg(25) <= 'X';
+            rddata_reg(26) <= 'X';
+            rddata_reg(27) <= 'X';
+            rddata_reg(28) <= 'X';
+            rddata_reg(29) <= 'X';
+            rddata_reg(30) <= 'X';
+            rddata_reg(31) <= 'X';
+            ack_sreg(0) <= '1';
+            ack_in_progress <= '1';
           when others =>
             -- prevent the slave from hanging the bus on invalid address
             ack_in_progress <= '1';
@@ -117,10 +166,26 @@ begin
 
   -- Drive the data output bus
   wb_dat_o <= rddata_reg;
-  -- Reset bit
-  reg1_r1_reset_o <= reg1_r1_reset_int;
-  -- Mode
-  reg1_r1_mode_o <= reg1_r1_mode_int;
+  -- extra code for reg/fifo/mem: fifo bus clear
+  fifo_fifo_bclr_val_o <= fifo_fifo_bclr_out_int(15 downto 0);
+  fifo_fifo_bclr_rst_n <= rst_n_i and (not fifo_fifo_bclr_clear_bus_int);
+  fifo_fifo_bclr_INST: wbgen2_fifo_sync
+    generic map (
+      g_size               => 256,
+      g_width              => 16,
+      g_usedw_size         => 8
+    )
+    port map (
+      rd_req_i             => fifo_fifo_bclr_rd_req_i,
+      rd_full_o            => fifo_fifo_bclr_rd_full_o,
+      wr_req_i             => fifo_fifo_bclr_wrreq_int,
+      rst_n_i              => fifo_fifo_bclr_rst_n,
+      clk_i                => clk_sys_i,
+      wr_data_i            => fifo_fifo_bclr_in_int,
+      rd_data_o            => fifo_fifo_bclr_out_int
+    );
+  
+  -- extra code for reg/fifo/mem: FIFO 'fifo bus clear' data input register 0
   rwaddr_reg <= wb_adr_i;
   wb_stall_o <= (not ack_sreg(0)) and (wb_stb_i and wb_cyc_i);
   -- ACK signal generation. Just pass the LSB of ACK counter.

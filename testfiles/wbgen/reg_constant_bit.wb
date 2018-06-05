@@ -1,0 +1,23 @@
+peripheral {
+   name = "register constant";
+   description = "A simple passthrough register";
+   prefix = "pt";
+   hdl_entity = "rcst1";
+
+   reg {
+     name = "Register 1";
+     description = "Register 1 has two fields";
+     prefix = "R1";
+
+      field {
+         name = "version";
+         description = "current version";
+         prefix = "ver";
+         type = CONSTANT;
+         size = 1;
+         value = 0;
+         access_bus = READ_ONLY;
+         access_dev = WRITE_ONLY;
+      };
+   };
+};

@@ -2,6 +2,7 @@ peripheral {
    name = "register test 1";
    description = "A simple register";
    prefix = "reg1";
+   hdl_entity="reg1";
 
    reg {
      name = "Register 1";

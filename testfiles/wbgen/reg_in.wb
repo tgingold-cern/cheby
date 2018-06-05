@@ -2,7 +2,7 @@ peripheral {
    name = "register test 1";
    description = "A simple register";
    prefix = "reg1";
-   hdl_entity="reg_field";
+   hdl_entity = "reg1";
 
    reg {
      name = "Register 1";
@@ -14,18 +14,17 @@ peripheral {
          description = "1 to reset";
          prefix = "reset";
          type = BIT;
-         access_bus = READ_WRITE;
-         access_dev = READ_ONLY;
+         access_bus = READ_ONLY;
+         access_dev = WRITE_ONLY;
       };
 
       field {
-         name = "Mode";
-         description = "Set device mode";
-         prefix = "mode";
-         size = 3;
-         type = SLV;
-         access_bus = READ_WRITE;
-         access_dev = READ_ONLY;
+         name = "Enable";
+         description = "1 to enable device";
+         prefix = "enable";
+         type = BIT;
+         access_bus = READ_ONLY;
+         access_dev = WRITE_ONLY;
       };
    };
 };

@@ -1,8 +1,8 @@
 peripheral {
-   name = "register test 1";
-   description = "A simple register";
-   prefix = "reg1";
-   hdl_entity="reg_field";
+   name = "irq1 1";
+   description = "An irq line with a simple register";
+   prefix = "irq1";
+   hdl_entity = "irq1";
 
    reg {
      name = "Register 1";
@@ -28,4 +28,12 @@ peripheral {
          access_dev = READ_ONLY;
       };
    };
+
+   irq {
+        name = "Interrupt 1";
+        description = "Interrupt #1";
+	 prefix = "int1";
+	 trigger = LEVEL_0;
+   };
+
 };

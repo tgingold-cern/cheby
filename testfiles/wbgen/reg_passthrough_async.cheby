@@ -1,17 +1,17 @@
 memory-map:
   bus: wb-32-be
-  name: reg1
-  description: register test 1
+  name: pt
+  description: register passthrough
   comment: |
-    A simple register
+    A simple passthrough register
   x-wbgen:
-    hdl_entity: reg1
+    hdl_entity: pthr
   children:
   - reg:
       name: R1
       address: 0x00000000
       width: 32
-      access: rw
+      access: wo
       description: Register 1
       comment: |
         Register 1 has two fields
@@ -23,16 +23,11 @@ memory-map:
           comment: |
             1 to reset
           x-wbgen:
-            type: BIT
-            access_bus: READ_WRITE
+            type: PASS_THROUGH
+            access_bus: WRITE_ONLY
             access_dev: READ_ONLY
-      - field:
-          name: enable
-          range: 1
-          description: Enable
-          comment: |
-            1 to enable device
-          x-wbgen:
-            type: BIT
-            access_bus: READ_WRITE
-            access_dev: READ_ONLY
+            clock: clk1
+            size: 1
+          x-hdl:
+            type: wire
+            write-strobe: True

@@ -5,6 +5,7 @@ memory-map:
   comment: |
     A simple register
   x-wbgen:
+    hdl_entity: reg_field
   children:
   - reg:
       name: R1

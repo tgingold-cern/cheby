@@ -1,0 +1,14 @@
+peripheral {
+	name ="Ram 1";
+	prefix="ram1";
+        hdl_entity="ram1";
+
+    ram { name = "Channel 1";
+        prefix = "ch1";
+        width = 32;
+        size = 2048;
+        access_bus = READ_WRITE;
+        access_dev = READ_ONLY;
+    };
+
+};
