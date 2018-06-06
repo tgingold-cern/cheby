@@ -13,20 +13,20 @@ provides an setup.py installer.
 
 To install cheby:
 
-$  python setup.py install [--user]
+    $  python setup.py install [--user]
 
 Add `--user` to install in user directory instead of a system wide
 installation.
 
 You can use the `wbgen2cheby` tool to convert from wbgen.
 
-Usage: wbgen2cheby FILE.wb > FILE.cheby
+    Usage: wbgen2cheby FILE.wb > FILE.cheby
 
 The tool generates on the standard output a cheby file that contains
 extensions for wbgen compatibility.  You can then generate a VHDL file
 from this cheby file:
 
-$ cheby --gen-wbgen-vhdl FILE.cheby > FILE.vhdl
+    $ cheby --gen-wbgen-vhdl FILE.cheby > FILE.vhdl
 
 ## Version 0.1
 
@@ -36,9 +36,9 @@ Currently there is no real packaging.
 
 Two tools are available:
 
-* gena2cheby.py
+* gena2cheby
 
-Usage: gena2cheby FILE
+    Usage: gena2cheby FILE
 
 Convert the Cheburashka/Gena file to the Cheby file format.  The
 result is sent to the standard output.  All valid files are supported,
@@ -52,19 +52,19 @@ The result follows the Cheby file format but many extensions (under
 the 'x_gena' name) are created to support features not defined in the
 Cheby core format.
 
-* cheby.py
+* cheby
 
-Usage: cheby.py --gen-gena-memmap FILE
+    Usage: cheby --gen-gena-memmap FILE
 
 Generate a VHDL memory map file from FILE.  The result is sent to the
 standard output.  The generated file is equivalent to the output of gena.py -m.
 
-Usage: cheby.py --gen-gena-regctrl FILE
+    Usage: cheby --gen-gena-regctrl FILE
 
 Generate a VHDL regctrl file from FILE.  The result is sent to the standard
 output.  The generated file is equivalent to the output of gena.py
 
-Usage: cheby.py --print-memmap FILE
-Usage: cheby.py --print-simple FILE
+    Usage: cheby --print-memmap FILE
+    Usage: cheby --print-simple FILE
 
 Display a textual description of the memory map described by FILE.
