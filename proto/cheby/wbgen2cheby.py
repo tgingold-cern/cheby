@@ -1,30 +1,32 @@
 #! /usr/bin/env python
 import sys
 import os.path
-import wbgen.parser
-import wbgen.ltree2tree
-import wbgen.field_layout
-import wbgen.layout
-import wbgen.expand_reg
-import wbgen.print_cheby_yaml
+import argparse
+import cheby.wbgen.parser
+import cheby.wbgen.ltree2tree
+import cheby.wbgen.field_layout
+import cheby.wbgen.layout
+import cheby.wbgen.expand_reg
+import cheby.wbgen.print_cheby_yaml
 
 
 def convert(stream, filename):
-    lt = wbgen.parser.parse(filename, open(filename).readline)
+    lt = cheby.wbgen.parser.parse(filename, open(filename).readline)
 
-    t = wbgen.ltree2tree.convert(lt)
-    wbgen.field_layout.field_layout(t)
+    t = cheby.wbgen.ltree2tree.convert(lt)
+    cheby.wbgen.field_layout.field_layout(t)
 
-    wbgen.expand_reg.expand(t)
-    wbgen.layout.layout(t)
-    wbgen.print_cheby_yaml.print_cheby(stream, t, False)
+    cheby.wbgen.expand_reg.expand(t)
+    cheby.wbgen.layout.layout(t)
+    cheby.wbgen.print_cheby_yaml.print_cheby(stream, t, False)
 
 
 def main():
-    if len(sys.argv) != 2:
-        sys.stderr.write("usage: wbgen2cheby FILE\n")
-        sys.exit(2)
-    filename = sys.argv[1]
+    aparser = argparse.ArgumentParser(description='wbgen to cheby converter')
+    aparser.add_argument('FILE')
+    args = aparser.parse_args()
+
+    filename = args.FILE
     (_, ext) = os.path.splitext(filename)
     if ext != '.wb':
         sys.stderr.write("unhandled file format '{}'\n".format(ext))

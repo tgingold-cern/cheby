@@ -1,13 +1,15 @@
 from setuptools import setup
 
 setup(
-    name="Cheby",
-    version="0.1",
-    packages=['cheby'],
+    name="cheby",
+    version="0.2",
+    packages=['cheby', 'cheby.wbgen'],
     package_dir={'': 'proto'},
     entry_points={
         'console_scripts': [
-            'cheby = cheby.main:main'
+            'cheby = cheby.main:main',
+            'gena2cheby = cheby.gena2cheby:main',
+            'wbgen2cheby = cheby.wbgen2cheby:main'
         ]
     },
 
