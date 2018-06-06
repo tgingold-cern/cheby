@@ -126,14 +126,3 @@ def generate_tokens(filename, readline, comment):
                     "unknown token '{}' at {}:{}".format(
                         c, lineno, tok_pos))
             pos += 1
-
-
-if __name__ == "__main__":
-    for t, s, p in generate_tokens("*stdin*", sys.stdin.readline):
-        name = tokens.tok_name[t]
-        if s is None:
-            print name,
-        else:
-            print "({}, {})".format(name, s),
-        if t == tokens.EOF:
-            break

@@ -1,0 +1,23 @@
+peripheral {
+   --[[  This is a
+      block comment.
+   ]]
+   name = "block comment";
+   description = "A simple register";
+   prefix = "regf";
+   hdl_entity="regf";
+
+   reg {
+     name = "Register 1";
+     description = "Register 1 has two fields";
+     prefix = "R1";
+
+      field {
+         name = "Value reg";
+         type = SLV;
+         size = 32;
+         access_bus = READ_WRITE;
+         access_dev = READ_ONLY;
+      };
+   };
+};

@@ -328,13 +328,14 @@ def test_wbgen2cheby():
            'reg_passthrough', 'reg_passthrough_async',
            'reg_monostable', 'reg_monostable_async', 'reg_monostable_pad',
            'reg_constant', 'reg_constant_bit',
-           'fifo1', 'fifo2', 'fifo_async', 'fifo_optional',
+           'fifo1', 'fifo2', 'fifo3', 'fifo_async', 'fifo_optional',
            'fifo_bclr', 'fifo_bus_count', 'fifo_bus_empty',
            'fifo_dev_empty', 'fifo_dev_count',
            'ram1', 'ram2', 'ram3',
            'ram_reg', 'ram_reg2',
            'ram_rw', 'ram_rw_bs', 'ram_pad', 'ram_async',
-           'irq1', 'irq_ack', 'irq_mask']
+           'irq1', 'irq_ack', 'irq_mask',
+           'description', 'comment1', 'comment_block']
     print_vhdl.style = 'wbgen'
     for f in files:
         if verbose:
