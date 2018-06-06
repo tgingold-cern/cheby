@@ -925,7 +925,7 @@ def expand_rams(root, module, bus, isig):
             wr_sig.comment = "Write strobe (active high)"
             r.code.ports.extend([dati, wr_sig])
             byte_select = get_wbgen(r, 'byte_select')
-            if byte_select == 'true':
+            if byte_select:
                 bwsel_sig = HDLPort(prefix + '_bwsel_i', reg.width / 8)
                 bwsel_sig.comment = "Byte select input (active high)"
                 r.code.ports.append(bwsel_sig)
@@ -950,7 +950,7 @@ def expand_rams(root, module, bus, isig):
         ch.stmts.append(s)
         if reg.c_rwidth < root.c_word_size * tree.BYTE_SIZE:
             # Pad
-            w = layout.DATA_WIDTH - reg.c_rwidth
+            w = root.c_word_size * tree.BYTE_SIZE - reg.c_rwidth
             s = HDLAssign(HDLSlice(bus['dato'], reg.c_rwidth, w),
                           HDLConst(0, w))
             ch.stmts.append(s)
@@ -978,7 +978,7 @@ def expand_rams(root, module, bus, isig):
         inst.params.append(("g_size", HDLNumber(r.repeat)))
         inst.params.append(("g_addr_width", HDLNumber(addr_bits)))
         inst.params.append(("g_dual_clock", HDLBool(clock is not None)))
-        inst.params.append(("g_use_bwsel", HDLBool(bwsel == 'true')))
+        inst.params.append(("g_use_bwsel", HDLBool(bwsel)))
         inst.conns.append(("clk_a_i", bus['clk']))
         inst.conns.append(
             ("clk_b_i", bus['clk'] if clock is None else isig[clock]))
@@ -987,7 +987,7 @@ def expand_rams(root, module, bus, isig):
                            HDLSlice(isig['rwaddr'], 0, addr_bits)))
         inst.conns.append(("data_b_o", dato))
         inst.conns.append(("rd_b_i", rd_sig))
-        if bwsel == 'true':
+        if bwsel:
             bwsel_val = bwsel_sig
         else:
             bwsel_val = HDLSlice(isig['all1'], 0, reg.c_rwidth / 8)
@@ -1006,7 +1006,7 @@ def expand_rams(root, module, bus, isig):
         inst.conns.append(("data_a_i",
                            HDLSlice(isig['wrdata'], 0, reg.c_rwidth)))
         inst.conns.append(("wr_a_i", wr_int))
-        if bwsel == 'true':
+        if bwsel:
             bwsel_val = isig['bwsel']
         else:
             bwsel_val = isig['all1']

@@ -263,6 +263,7 @@ class Writer_YAML(object):
         self.wattr_str("kind", 'ram')
         self.wattr_str("access_dev", n.access_dev)
         self.wattr_str("clock", n.clock)
+        self.wattr_bool("byte_select", n.byte_select)
         self.weseq()
 
         self.wlist("children")

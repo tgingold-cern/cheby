@@ -1,0 +1,40 @@
+memory-map:
+  bus: wb-32-be
+  name: ram1
+  description: Ram rw
+  x-wbgen:
+    hdl_entity: ramrw
+  children:
+  - reg:
+      name: R1
+      address: 0x00000000
+      width: 32
+      access: rw
+      description: Register 1
+      comment: |
+        Register 1 has two fields
+      children:
+      - field:
+          name: enable
+          range: 0
+          description: Enable
+          comment: |
+            1 to enable device
+          x-wbgen:
+            type: BIT
+            access_bus: READ_WRITE
+            access_dev: READ_ONLY
+  - array:
+      name: ch1
+      address: 0x00002000
+      repeat: 2048
+      description: Channel 1
+      align: True
+      x-wbgen:
+        kind: ram
+        access_dev: READ_WRITE
+      children:
+      - reg:
+          name: data
+          width: 32
+          access: rw
