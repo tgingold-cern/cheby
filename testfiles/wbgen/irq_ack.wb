@@ -1,0 +1,40 @@
+peripheral {
+   name = "irq1 ack";
+   description = "An irq line with a simple register";
+   prefix = "irq1";
+   hdl_entity = "irqack";
+
+   reg {
+     name = "Register 1";
+     description = "Register 1 has two fields";
+     prefix = "R1";
+
+      field {
+         name = "Reset bit";
+         description = "1 to reset";
+         prefix = "reset";
+         type = BIT;
+         access_bus = READ_WRITE;
+         access_dev = READ_ONLY;
+      };
+
+      field {
+         name = "Mode";
+         description = "Set device mode";
+         prefix = "mode";
+         size = 3;
+         type = SLV;
+         access_bus = READ_WRITE;
+         access_dev = READ_ONLY;
+      };
+   };
+
+   irq {
+        name = "Interrupt 1";
+        description = "Interrupt #1";
+        prefix = "int1";
+	trigger = LEVEL_0;
+        ack_line = true;
+   };
+
+};

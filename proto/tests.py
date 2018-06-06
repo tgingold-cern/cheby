@@ -329,7 +329,7 @@ def test_wbgen2cheby():
            'reg_constant', 'reg_constant_bit',
            'fifo1', 'fifo2', 'fifo_bclr',
            'ram1', 'ram2', 'ram_reg', 'ram_reg2',
-           'irq1']
+           'irq1', 'irq_ack', 'irq_mask']
     print_vhdl.style = 'wbgen'
     for f in files:
         if verbose:

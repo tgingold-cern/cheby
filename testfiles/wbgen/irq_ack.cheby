@@ -1,0 +1,132 @@
+memory-map:
+  bus: wb-32-be
+  name: irq1
+  description: irq1 ack
+  comment: |
+    An irq line with a simple register
+  x-wbgen:
+    hdl_entity: irqack
+  children:
+  - reg:
+      name: R1
+      address: 0x00000000
+      width: 32
+      access: rw
+      description: Register 1
+      comment: |
+        Register 1 has two fields
+      children:
+      - field:
+          name: reset
+          range: 0
+          description: Reset bit
+          comment: |
+            1 to reset
+          x-wbgen:
+            type: BIT
+            access_bus: READ_WRITE
+            access_dev: READ_ONLY
+      - field:
+          name: mode
+          range: 3-1
+          description: Mode
+          comment: |
+            Set device mode
+          x-wbgen:
+            type: SLV
+            access_bus: READ_WRITE
+            access_dev: READ_ONLY
+  - block:
+      name: eic
+      address: 0x00000020
+      align: False
+      x-wbgen:
+        kind: irq
+        irqs:
+        - irq:
+            name: int1
+            trigger: LEVEL_0
+            pos: 1
+            ack_line: True
+            description: Interrupt 1
+            comment: |
+              Interrupt #1
+      children:
+      - reg:
+          name: eic_idr
+          address: 0x00000000
+          width: 32
+          access: wo
+          description: Interrupt disable register
+          comment: |
+            Writing 1 disables handling of the interrupt associated with corresponding bit. Writin 0 has no effect.
+          children:
+          - field:
+              name: int1
+              range: 0
+              description: Interrupt 1
+              comment: |
+                write 1: disable interrupt 'Interrupt 1'
+                write 0: no effect
+              x-wbgen:
+                type: BIT
+                access_bus: WRITE_ONLY
+      - reg:
+          name: eic_ier
+          address: 0x00000004
+          width: 32
+          access: wo
+          description: Interrupt enable register
+          comment: |
+            Writing 1 enables handling of the interrupt associated with corresponding bit. Writin 0 has no effect.
+          children:
+          - field:
+              name: int1
+              range: 0
+              description: Interrupt 1
+              comment: |
+                write 1: enable interrupt 'Interrupt 1'
+                write 0: no effect
+              x-wbgen:
+                type: BIT
+                access_bus: WRITE_ONLY
+      - reg:
+          name: eic_imr
+          address: 0x00000008
+          width: 32
+          access: ro
+          description: Interrupt mask register
+          comment: |
+            Shows which interrupts are enabled. 1 means that the interrupt associated with the bitfield is enabled
+          children:
+          - field:
+              name: int1
+              range: 0
+              description: Interrupt 1
+              comment: |
+                read 1: interrupt 'Interrupt 1' is enabled
+                read 0: interrupt 'Interrupt 1' is disabled
+              x-wbgen:
+                type: BIT
+                access_bus: READ_ONLY
+      - reg:
+          name: eic_isr
+          address: 0x0000000c
+          width: 32
+          access: rw
+          description: Interrupt status register
+          comment: |
+            Each bit represents the state of corresponding interrupt. 1 means the interrupt is pending. Writing 1 to a bit clears the corresponding interrupt. Writing 0 has no effect.
+          children:
+          - field:
+              name: int1
+              range: 0
+              description: Interrupt 1
+              comment: |
+                read 1: interrupt 'Interrupt 1' is pending
+                read 0: interrupt not pending
+                write 1: clear interrupt 'Interrupt 1'
+                write 0: no effect
+              x-wbgen:
+                type: BIT
+                access_bus: READ_WRITE
