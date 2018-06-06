@@ -1,0 +1,23 @@
+peripheral {
+	name ="FIFO opt";
+	prefix="fifo";
+        hdl_entity="fifoopt";
+
+	fifo_reg {
+		size = 256;
+		direction = BUS_TO_CORE;
+		prefix = "fifo1";
+		name = "fifo1";
+		flags_bus = {FIFO_FULL};
+		flags_dev = {FIFO_EMPTY};
+                optional = "debug";
+
+		field {
+			name = "value";
+			prefix = "val";
+			type = SLV;
+			size = 16;
+		};
+
+	};
+};

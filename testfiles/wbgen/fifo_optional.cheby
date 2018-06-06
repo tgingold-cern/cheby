@@ -1,0 +1,52 @@
+memory-map:
+  bus: wb-32-be
+  name: fifo
+  description: FIFO opt
+  x-wbgen:
+    hdl_entity: fifoopt
+  children:
+  - block:
+      name: fifo1
+      address: 0x00000000
+      size: 8
+      description: fifo1
+      align: False
+      x-wbgen:
+        kind: fifo
+        direction: BUS_TO_CORE
+        depth: 256
+        wire_empty: True
+        optional: debug
+      children:
+      - reg:
+          name: fifo1_r0
+          address: 0x00000000
+          width: 32
+          access: wo
+          description: FIFO 'fifo1' data input register 0
+          children:
+          - field:
+              name: val
+              range: 15-0
+              description: value
+              x-wbgen:
+                type: SLV
+      - reg:
+          name: fifo1_csr
+          address: 0x00000004
+          width: 32
+          access: ro
+          description: FIFO 'fifo1' control/status register
+          x-wbgen:
+            kind: fifocs
+          children:
+          - field:
+              name: full
+              range: 16
+              description: FIFO full flag
+              comment: |
+                1: FIFO 'fifo1' is full
+                0: FIFO is not full
+              x-wbgen:
+                type: BIT
+                kind: full

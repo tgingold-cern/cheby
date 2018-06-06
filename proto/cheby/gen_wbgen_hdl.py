@@ -1063,6 +1063,7 @@ def expand_fifo(module, periph, fifo, isig, bus):
     field_full = None
     field_clear = None
     field_count = None
+    field_empty = None
     for f in cs_reg.children:
         kind = get_wbgen(f, 'kind')
         if kind == 'full':
@@ -1072,7 +1073,7 @@ def expand_fifo(module, periph, fifo, isig, bus):
         elif kind == 'count':
             field_count = f
         elif kind in ('empty', ):
-            pass
+            field_empty = f
         else:
             raise AssertionError("unhandled fifo kind '{}'".format(kind))
 
@@ -1092,11 +1093,13 @@ def expand_fifo(module, periph, fifo, isig, bus):
         rd_empty = HDLPort(flag_prefix + '_empty_o', dir='OUT')
         rd_empty.comment = "FIFO empty flag"
         g.ports.append(rd_empty)
+    else:
+        rd_empty = None
+    if field_empty is not None:
         empty_int = HDLSignal(prefix + '_empty_int')
         fifo.flag_signals['empty'] = empty_int
         g.flag_signals.append(empty_int)
     else:
-        rd_empty = None
         empty_int = None
 
     if field_clear is not None:
