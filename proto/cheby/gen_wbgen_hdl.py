@@ -904,7 +904,7 @@ def expand_rams(root, module, bus, isig):
     comb = HDLComb()
     comb.sensitivity.extend([bus['adr'], isig['rd'], isig['wr']])
 
-    num = 1 # TODO: if periph.reg_bits > 0 else 0
+    num = 1 if root.h_reg_bits > 0 else 0
     for r in rams:
         reg = r.children[0]
         r.code = Code()
@@ -1483,16 +1483,16 @@ def expand_hdl(root):
                 ch.stmts.extend(stmts)
                 blk_sw.choices.append(ch)
             irq_code.choices = []
-        elif isinstance(r, tree.Reg) \
-           or is_wbgen_fifocs(r):
+        elif isinstance(r, tree.Reg) or is_wbgen_fifocs(r):
             reg_code = r.code
             ff.rst_stmts.extend(reg_code.rst_code)
-            if blk_sw is None:
+            if blk_sw is None and sel_sw is None:
                 s2.then_stmts.extend(reg_code.choice_stmts)
             else:
+                sw = blk_sw if blk_sw is not None else sel_sw
                 ch = expand_reg_choice(root, r.c_address + r._parent.c_address)
                 ch.stmts.extend(reg_code.choice_stmts)
-                blk_sw.choices.append(ch)
+                sw.choices.append(ch)
             s_ack.else_stmts.extend(reg_code.inack_code)
             s_ack.then_stmts.extend(reg_code.acked_code)
 
