@@ -1,0 +1,26 @@
+memory-map:
+  bus: wb-32-be
+  name: pt
+  description: register monostable with padding
+  comment: |
+    A simple passthrough register
+  x-wbgen:
+    hdl_entity: mono
+  children:
+  - reg:
+      name: R1
+      address: 0x00000000
+      width: 32
+      access: wo
+      description: Register 1
+      comment: |
+        Register 1 has two fields
+      children:
+      - field:
+          name: reset
+          range: 0
+          description: Reset bit
+          comment: |
+            1 to reset
+          x-wbgen:
+            type: MONOSTABLE

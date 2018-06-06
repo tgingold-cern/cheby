@@ -41,29 +41,6 @@ def is_wbgen_irqreg(n):
     return isinstance(n, tree.Reg) and is_wbgen_irq(n._parent)
 
 
-def expand_wishbone(module, periph):
-    bus = {}
-    bus['rst'] = HDLPort("rst_n_i")
-    bus['clk'] = HDLPort("clk_sys_i")
-
-    bus['adr'] = HDLPort("wb_adr_i", periph.sel_bits + periph.blk_bits)
-    bus['dati'] = HDLPort("wb_dat_i", layout.DATA_WIDTH)
-    bus['dato'] = HDLPort("wb_dat_o", layout.DATA_WIDTH, dir='OUT')
-    bus['cyc'] = HDLPort("wb_cyc_i")
-    bus['sel'] = HDLPort("wb_sel_i", layout.DATA_BYTES)
-    bus['stb'] = HDLPort("wb_stb_i")
-    bus['we'] = HDLPort("wb_we_i")
-    bus['ack'] = HDLPort("wb_ack_o", dir='OUT')
-    bus['stall'] = HDLPort("wb_stall_o", dir='OUT')
-
-    names = ['rst', 'clk', 'adr', 'dati', 'dato', 'cyc', 'sel',
-             'stb', 'we', 'ack', 'stall']
-    for n in names:
-        module.ports.append(bus[n])
-        periph.bus_ports.append(bus[n])
-    return bus
-
-
 def expand_field_sel(prefix, field):
     if field.hi is None or get_wbgen(field, 'type') in ['BIT', 'MONOSTABLE']:
         return HDLIndex(prefix, field.lo)
