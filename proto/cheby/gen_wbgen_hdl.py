@@ -290,13 +290,6 @@ def expand_reg_rw(root, bus):
     return ([s], s.then_stmts)
 
 
-def expand_reg_sel(root, addr, bus):
-    choice = expand_reg_choice(root, addr)
-    s = expand_reg_rdwr(root, bus)
-    choice.stmts.append(s)
-    return (choice, s.then_stmts)
-
-
 def expand_fiforeg(periph, reg, isig, bus):
     g = Code()
     g.choice_stmts = None
@@ -304,7 +297,6 @@ def expand_fiforeg(periph, reg, isig, bus):
     prefix = get_hdl_prefix(periph) + '_' + get_hdl_prefix(reg)
 
     # Create a register
-    #(g.choice, wr_stmts) = expand_reg_sel(periph, fifo.c_address + reg.c_address, bus)
     (g.choice_stmts, wr_stmts) = expand_reg_rw(periph, bus)
     direction = get_wbgen(fifo, 'direction')
     if direction == 'CORE_TO_BUS' and reg.h_num == 0:
@@ -820,8 +812,6 @@ def expand_irqs(root, module, bus, isig):
     for b in root.children:
         if is_wbgen_irq(b):
             for r in r.children:
-#                (choice_stmts, wr_stmts) = expand_reg_sel(
-#                    root, b.c_address + r.c_address, root.h_bus)
                 (choice_stmts, wr_stmts) = expand_reg_rw(root, root.h_bus)
                 rd_stmts = choice_stmts
                 g.choices.append((r, choice_stmts))

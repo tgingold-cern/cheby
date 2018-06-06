@@ -14,15 +14,25 @@ entity reg1 is
     wb_we_i              : in    std_logic;
     wb_ack_o             : out   std_logic;
     wb_stall_o           : out   std_logic;
-    -- Port for BIT field: 'Reset bit' in reg: 'Register 1'
+    clk1                 : in    std_logic;
+    -- Ports for asynchronous (clock: clk1) RW/RW BIT field: 'Reset bit' in reg: 'Register 1'
+    reg1_r1_reset_o      : out   std_logic;
     reg1_r1_reset_i      : in    std_logic;
-    -- Port for BIT field: 'Enable' in reg: 'Register 1'
-    reg1_r1_enable_i     : in    std_logic
+    reg1_r1_reset_load_o : out   std_logic
   );
 end reg1;
 
 architecture syn of reg1 is
 
+  signal reg1_r1_reset_int_read         : std_logic;
+  signal reg1_r1_reset_int_write        : std_logic;
+  signal reg1_r1_reset_lw               : std_logic;
+  signal reg1_r1_reset_lw_delay         : std_logic;
+  signal reg1_r1_reset_lw_read_in_progress : std_logic;
+  signal reg1_r1_reset_lw_s0            : std_logic;
+  signal reg1_r1_reset_lw_s1            : std_logic;
+  signal reg1_r1_reset_lw_s2            : std_logic;
+  signal reg1_r1_reset_rwsel            : std_logic;
   signal ack_sreg                       : std_logic_vector(9 downto 0);
   signal rddata_reg                     : std_logic_vector(31 downto 0);
   signal wrdata_reg                     : std_logic_vector(31 downto 0);
@@ -50,6 +60,11 @@ begin
       ack_sreg <= "0000000000";
       ack_in_progress <= '0';
       rddata_reg <= "00000000000000000000000000000000";
+      reg1_r1_reset_lw <= '0';
+      reg1_r1_reset_lw_delay <= '0';
+      reg1_r1_reset_lw_read_in_progress <= '0';
+      reg1_r1_reset_rwsel <= '0';
+      reg1_r1_reset_int_write <= '0';
     elsif rising_edge(clk_sys_i) then
       -- advance the ACK generator shift register
       ack_sreg(8 downto 0) <= ack_sreg(9 downto 1);
@@ -58,13 +73,30 @@ begin
         if (ack_sreg(0) = '1') then
           ack_in_progress <= '0';
         else
+          reg1_r1_reset_lw <= reg1_r1_reset_lw_delay;
+          reg1_r1_reset_lw_delay <= '0';
+          if ((ack_sreg(1) = '1') and (reg1_r1_reset_lw_read_in_progress = '1')) then
+            rddata_reg(0) <= reg1_r1_reset_int_read;
+            reg1_r1_reset_lw_read_in_progress <= '0';
+          end if;
         end if;
       else
         if ((wb_cyc_i = '1') and (wb_stb_i = '1')) then
           if (wb_we_i = '1') then
+            reg1_r1_reset_int_write <= wrdata_reg(0);
+            reg1_r1_reset_lw <= '1';
+            reg1_r1_reset_lw_delay <= '1';
+            reg1_r1_reset_lw_read_in_progress <= '0';
+            reg1_r1_reset_rwsel <= '1';
           end if;
-          rddata_reg(0) <= reg1_r1_reset_i;
-          rddata_reg(1) <= reg1_r1_enable_i;
+          if (wb_we_i = '0') then
+            rddata_reg(0) <= 'X';
+            reg1_r1_reset_lw <= '1';
+            reg1_r1_reset_lw_delay <= '1';
+            reg1_r1_reset_lw_read_in_progress <= '1';
+            reg1_r1_reset_rwsel <= '0';
+          end if;
+          rddata_reg(1) <= 'X';
           rddata_reg(2) <= 'X';
           rddata_reg(3) <= 'X';
           rddata_reg(4) <= 'X';
@@ -95,7 +127,7 @@ begin
           rddata_reg(29) <= 'X';
           rddata_reg(30) <= 'X';
           rddata_reg(31) <= 'X';
-          ack_sreg(0) <= '1';
+          ack_sreg(5) <= '1';
           ack_in_progress <= '1';
         end if;
       end if;
@@ -106,7 +138,35 @@ begin
   -- Drive the data output bus
   wb_dat_o <= rddata_reg;
   -- Reset bit
-  -- Enable
+  -- asynchronous BIT register : Reset bit (type RW/WO, clk1 <-> clk_sys_i)
+  process (clk1, rst_n_i)
+  begin
+    if (rst_n_i = '0') then 
+      reg1_r1_reset_lw_s0 <= '0';
+      reg1_r1_reset_lw_s1 <= '0';
+      reg1_r1_reset_lw_s2 <= '0';
+      reg1_r1_reset_int_read <= '0';
+      reg1_r1_reset_load_o <= '0';
+      reg1_r1_reset_o <= '0';
+    elsif rising_edge(clk1) then
+      reg1_r1_reset_lw_s0 <= reg1_r1_reset_lw;
+      reg1_r1_reset_lw_s1 <= reg1_r1_reset_lw_s0;
+      reg1_r1_reset_lw_s2 <= reg1_r1_reset_lw_s1;
+      if ((reg1_r1_reset_lw_s2 = '0') and (reg1_r1_reset_lw_s1 = '1')) then
+        if (reg1_r1_reset_rwsel = '1') then
+          reg1_r1_reset_o <= reg1_r1_reset_int_write;
+          reg1_r1_reset_load_o <= '1';
+        else
+          reg1_r1_reset_load_o <= '0';
+          reg1_r1_reset_int_read <= reg1_r1_reset_i;
+        end if;
+      else
+        reg1_r1_reset_load_o <= '0';
+      end if;
+    end if;
+  end process;
+
+
   rwaddr_reg <= (others => '0');
   wb_stall_o <= (not ack_sreg(0)) and (wb_stb_i and wb_cyc_i);
   -- ACK signal generation. Just pass the LSB of ACK counter.

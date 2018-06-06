@@ -14,15 +14,16 @@ entity reg1 is
     wb_we_i              : in    std_logic;
     wb_ack_o             : out   std_logic;
     wb_stall_o           : out   std_logic;
-    -- Port for BIT field: 'Reset bit' in reg: 'Register 1'
-    reg1_r1_reset_i      : in    std_logic;
-    -- Port for BIT field: 'Enable' in reg: 'Register 1'
-    reg1_r1_enable_i     : in    std_logic
+    clk1                 : in    std_logic;
+    -- Port for asynchronous (clock: clk1) BIT field: 'Reset bit' in reg: 'Register 1'
+    reg1_r1_reset_i      : in    std_logic
   );
 end reg1;
 
 architecture syn of reg1 is
 
+  signal reg1_r1_reset_sync0            : std_logic;
+  signal reg1_r1_reset_sync1            : std_logic;
   signal ack_sreg                       : std_logic_vector(9 downto 0);
   signal rddata_reg                     : std_logic_vector(31 downto 0);
   signal wrdata_reg                     : std_logic_vector(31 downto 0);
@@ -63,8 +64,8 @@ begin
         if ((wb_cyc_i = '1') and (wb_stb_i = '1')) then
           if (wb_we_i = '1') then
           end if;
-          rddata_reg(0) <= reg1_r1_reset_i;
-          rddata_reg(1) <= reg1_r1_enable_i;
+          rddata_reg(0) <= reg1_r1_reset_sync1;
+          rddata_reg(1) <= 'X';
           rddata_reg(2) <= 'X';
           rddata_reg(3) <= 'X';
           rddata_reg(4) <= 'X';
@@ -106,7 +107,19 @@ begin
   -- Drive the data output bus
   wb_dat_o <= rddata_reg;
   -- Reset bit
-  -- Enable
+  -- synchronizer chain for field : Reset bit (type RO/WO, clk1 -> clk_sys_i)
+  process (clk1, rst_n_i)
+  begin
+    if (rst_n_i = '0') then 
+      reg1_r1_reset_sync0 <= '0';
+      reg1_r1_reset_sync1 <= '0';
+    elsif rising_edge(clk1) then
+      reg1_r1_reset_sync0 <= reg1_r1_reset_i;
+      reg1_r1_reset_sync1 <= reg1_r1_reset_sync0;
+    end if;
+  end process;
+
+
   rwaddr_reg <= (others => '0');
   wb_stall_o <= (not ack_sreg(0)) and (wb_stb_i and wb_cyc_i);
   -- ACK signal generation. Just pass the LSB of ACK counter.

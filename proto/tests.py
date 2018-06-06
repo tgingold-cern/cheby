@@ -321,7 +321,9 @@ def test_gena2cheby_err():
             pass
 
 def test_wbgen2cheby():
-    files=['reg1', 'reg_field1',
+    files=['reg1', 'reg_field1', 'reg_in', 'reg_loadext', 'reg_ackread',
+           'reg_rwrw_async', 'reg_rowo_async', 'reg_rwro_async',
+           'reg_bit_rowo_async', 'reg_bit_rwro_async', 'reg_bit_rwrw_async',
            'reg_passthrough', 'reg_passthrough_async',
            'reg_monostable', 'reg_monostable_async',
            'reg_constant', 'reg_constant_bit',
