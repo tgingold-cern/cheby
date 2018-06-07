@@ -27,3 +27,5 @@ memory-map:
             access_bus: READ_WRITE
             access_dev: READ_WRITE
             load: LOAD_EXT
+      x-hdl:
+        write-strobe: True

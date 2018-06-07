@@ -212,6 +212,15 @@ class Writer_YAML(object):
             for f in n.fields:
                 self.write_field(f, n)
             self.welist()
+        wr_strobe = any([f.load == 'LOAD_EXT' for f in n.fields])
+        rd_strobe = any([f.ack_read for f in n.fields])
+        if wr_strobe or rd_strobe:
+            self.wseq("x-hdl")
+            if wr_strobe:
+                self.wattr_str("write-strobe", "True")
+            if rd_strobe:
+                self.wattr_str("read-strobe", "True")
+            self.weseq()
         self.weseq()
 
     def write_fifo(self, n):

@@ -28,3 +28,5 @@ memory-map:
             access_dev: READ_WRITE
             clock: clk1
             load: LOAD_EXT
+      x-hdl:
+        write-strobe: True

@@ -27,3 +27,5 @@ memory-map:
             access_bus: READ_ONLY
             access_dev: WRITE_ONLY
             ack_read: "true"
+      x-hdl:
+        read-strobe: True
