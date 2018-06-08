@@ -21,7 +21,7 @@ from cheby.hdltree import (HDLModule,
                            HDLIfElse,
                            bit_1, bit_0, bit_x,
                            HDLAnd, HDLOr, HDLNot, HDLEq,
-                           HDLSlice, HDLReplicate,
+                           HDLSlice, HDLReplicate, Slice_or_Index,
                            HDLConst)
 import cheby.tree as tree
 from cheby.layout import ilog2
@@ -148,7 +148,7 @@ def make_port_name_prefix(el, suffix, di):
     else:
         pfx = ''
     l = el
-    while l is not None:
+    while l._parent is not None:
         pfx = (('_'+ l.name) if l.name else '') + pfx
         l = l._parent
 
@@ -194,7 +194,7 @@ def add_ports_reg(root, module, n):
         else:
             f.h_reg = None
 
-def add_ports_block(root, module, prefix, n):
+def add_ports_submap(root, module, prefix, n):
     assert n.interface is not None
     if n.interface == 'sram':
         name = prefix + n.name + '_addr_o'
@@ -227,7 +227,7 @@ def add_ports(root, module, prefix, node):
                 add_ports(root, module, prefix + n.name + '_', n)
         elif isinstance(n, tree.Submap):
             # Interface
-            add_ports_block(root, module, prefix, n)
+            add_ports_submap(root, module, prefix, n)
         elif isinstance(n, tree.Array):
             # TODO
             raise AssertionError
@@ -434,11 +434,11 @@ def field_decode(root, reg, f, off, val, dat):
     if d_hi == root.c_word_bits - 1 and d_lo == 0:
         pass
     else:
-        dat = HDLSlice(dat, d_lo, d_hi - d_lo + 1)
+        dat = Slice_or_Index(dat, d_lo, d_hi - d_lo + 1)
     if v_hi == f.c_rwidth - 1 and v_lo == 0:
         pass
     else:
-        val = HDLSlice(val, v_lo, v_hi - v_lo + 1)
+        val = Slice_or_Index(val, v_lo, v_hi - v_lo + 1)
     return (val, dat)
 
 

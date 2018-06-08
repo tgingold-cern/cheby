@@ -12,6 +12,8 @@ def expand_x_hdl_field(f, n, dct):
             f.hdl_type = parser.read_text(n, k, v)
         elif k == 'write-strobe':
             f.hdl_write_strobe = parser.read_bool(n, k, v)
+        elif k == 'read-strobe':
+            f.hdl_read_strobe = parser.read_bool(n, k, v)
         else:
             parser.error("unhandled '{}' in x-hdl of {}".format(
                   k, n.get_path()))
