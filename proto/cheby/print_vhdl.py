@@ -54,12 +54,15 @@ def generate_vhdl_type(p):
                 'I': 'integer', 'N': 'natural', 'P': 'positive'}[p.typ]
 
 
-def generate_port(fd, p, indent):
-    if p.comment:
+def generate_decl_comment(fd, comment, indent):
+    if comment:
         if style != 'wbgen':
             wln(fd)
         windent(fd, indent)
-        wln(fd, "-- {}".format(p.comment))
+        wln(fd, "-- {}".format(comment))
+
+def generate_port(fd, p, indent):
+    generate_decl_comment(fd, p.comment, indent)
     typ = generate_vhdl_type(p)
     if p.dir == 'IN':
         dir = "in   "
@@ -74,9 +77,7 @@ def generate_port(fd, p, indent):
 
 
 def generate_param(fd, p, indent):
-    if p.comment:
-        windent(fd, indent)
-        wln(fd, "-- {}".format(p.comment))
+    generate_decl_comment(fd, p.comment, indent)
     typ = generate_vhdl_type(p)
     windent(fd, indent)
     w(fd, "{} : {typ}".format(p.name, typ=typ))
@@ -144,6 +145,11 @@ operator = {hdltree.HDLAnd: (' and ', 4),
 
 
 def generate_expr(e, prio=-1):
+    if isinstance(e, hdltree.HDLPort):
+        if isinstance(e.parent, hdltree.HDLPortGroup):
+            return e.parent.name + ('_i' if e.dir == 'IN' else '_o') + '.' + e.name
+        else:
+            return e.name
     if isinstance(e, hdltree.HDLObject):
         return e.name
     elif isinstance(e, hdltree.HDLBinary):
@@ -403,6 +409,12 @@ def print_inters_list(fd, lst, name, indent):
             generate_port(fd, p, indent + 1)
         elif isinstance(p, hdltree.HDLParam):
             generate_param(fd, p, indent + 1)
+        elif isinstance(p, hdltree.HDLPortGroup):
+            windent(fd, indent + 1)
+            w(fd, "{:<20} : in    {}_in_{}".format(p.name + '_i', p.parent.name, p.name))
+            wln(fd, ";")
+            windent(fd, indent + 1)
+            w(fd, "{:<20} : out   {}_out_{}".format(p.name + '_o', p.parent.name, p.name))
         else:
             raise AssertionError
     wln(fd)

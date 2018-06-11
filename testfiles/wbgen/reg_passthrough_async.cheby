@@ -8,7 +8,7 @@ memory-map:
     hdl_entity: pthr
   children:
   - reg:
-      name: R1
+      name: r1
       address: 0x00000000
       width: 32
       access: wo

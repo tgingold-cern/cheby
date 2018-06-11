@@ -1,18 +1,18 @@
 """Create HDL from the tree"""
 
-import tree
-import hdltree
-from hdltree import (HDLPort, HDLSignal, HDLParam,
-                     HDLGenIf, HDLAssign, HDLInstance, HDLComb,
-                     HDLComment, HDLConst, HDLNumber,
-                     HDLSlice, HDLIndex, Slice_or_Index,
-                     HDLIfElse,
-                     HDLAnd, HDLEq, HDLNot, HDLParen,
-                     HDLSwitch, HDLChoiceExpr, HDLChoiceDefault,
-                     HDLReplicate, HDLBool, bit_0, bit_1, bit_x)
-import gen_hdl
-import layout
-from layout import ilog2
+import cheby.tree as tree
+import cheby.hdltree as hdltree
+from cheby.hdltree import (HDLPort, HDLSignal, HDLParam,
+                           HDLGenIf, HDLAssign, HDLInstance, HDLComb,
+                           HDLComment, HDLConst, HDLNumber,
+                           HDLSlice, HDLIndex, Slice_or_Index,
+                           HDLIfElse,
+                           HDLAnd, HDLEq, HDLNot, HDLParen,
+                           HDLSwitch, HDLChoiceExpr, HDLChoiceDefault,
+                           HDLReplicate, HDLBool, bit_0, bit_1, bit_x)
+import cheby.gen_hdl
+import cheby.layout
+from cheby.layout import ilog2
 
 mode_suffix_map = {'IN': '_i', 'OUT': '_o'}
 
@@ -1272,7 +1272,7 @@ def layout_wbgen(root):
 def expand_hdl(root):
     assert isinstance(root, tree.Root)
     layout_wbgen(root)
-    m = gen_hdl.gen_hdl_header(root)
+    m = cheby.gen_hdl.gen_hdl_header(root)
     m.name = get_wbgen(root, 'hdl_entity', root.name)
     #bus = expand_wishbone(m, periph)
 

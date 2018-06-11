@@ -6,6 +6,7 @@ def expand_x_hdl_field(f, n, dct):
     # Default values
     f.hdl_type = 'wire' if f._parent.access == 'ro' else 'reg'
     f.hdl_write_strobe = False
+    f.hdl_read_strobe = False
 
     for k, v in dct.items():
         if k == 'type':
@@ -28,12 +29,20 @@ def expand_x_hdl(n):
             expand_x_hdl_field(n.children[0], n, x_hdl)
 
     # Visit children
+    if isinstance(n, tree.Submap):
+        if n.filename is not None:
+            expand_hdl(n.c_submap)
+        return
     if isinstance(n, tree.CompositeNode):
         for el in n.children:
             expand_x_hdl(el)
     elif isinstance(n, tree.Reg):
         for f in n.children:
             expand_x_hdl(f)
+    elif isinstance(n, tree.FieldBase):
+        pass
+    else:
+        raise AssertionError(n)
 
 def tree_copy(n):
     if isinstance(n, tree.Reg):

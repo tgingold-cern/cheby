@@ -53,11 +53,12 @@ def sprint_block(sp, n):
 
 
 @SimplePrinter.register(tree.Submap)
-def sprint_block(sp, n):
+def sprint_submap(sp, n):
     sp.sp_name('submap', n)
     old_base = sp.base_addr
     sp.base_addr = n.c_address
-    sprint_complex(sp, n.c_submap)
+    if n.filename is not None:
+        sprint_complex(sp, n.c_submap)
     sp.base_addr = old_base
 
 

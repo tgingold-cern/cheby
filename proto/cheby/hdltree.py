@@ -8,6 +8,7 @@ class HDLNode(object):
 class HDLUnit(HDLNode):
     # Top level unit
     def __init__(self):
+        super(HDLUnit, self).__init__()
         self.name = None
         self.libraries = []
         self.deps = []      # list of (lib, pkg)
@@ -16,11 +17,30 @@ class HDLUnit(HDLNode):
         if name not in self.deps:
             self.deps.append(name)
 
-class HDLModule(HDLUnit):
+
+class HDLPortsBase(object):
+    "Base class for a class that has ports"
+    def __init__(self):
+        super(HDLPortsBase, self).__init__()
+        self.ports = []
+
+    def addPort(self, *args, **kwargs):
+        res = HDLPort(*args, **kwargs)
+        res.parent = self
+        self.ports.append(res)
+        return res
+
+    def addPortGroup(self, *args, **kwargs):
+        res = HDLPortGroup(*args, **kwargs)
+        res.parent = self
+        self.ports.append(res)
+        return res
+
+
+class HDLModule(HDLUnit, HDLPortsBase):
     def __init__(self):
         super(HDLModule, self).__init__()
         self.params = []
-        self.ports = []
         self.decls = []
         self.stmts = []
 
@@ -31,21 +51,23 @@ class HDLPackage(HDLUnit):
         self.decls = []
 
 
-class HDLComponent(HDLNode):
+class HDLComponent(HDLNode, HDLPortsBase):
     def __init__(self, name):
+        super(HDLComponent, self).__init__()
         self.name = name
         self.params = []
-        self.ports = []
 
 
 class HDLComponentSpec(HDLNode):
     def __init__(self, comp, bind):
+        super(HDLComponentSpec, self).__init__()
         self.comp = comp
         self.bind = bind
 
 
 class HDLObject(HDLNode):
     def __init__(self, name=None, size=None, lo_idx=0, typ='L'):
+        super(HDLObject, self).__init__()
         assert typ in "LUSINP"  # Logic, Unsigned, Signed, Integer, Natural, Positive
         assert size is None or isinstance(size, (int, HDLExpr))
         assert lo_idx is None or isinstance(lo_idx, int)
@@ -54,10 +76,18 @@ class HDLObject(HDLNode):
         self.lo_idx = lo_idx
         self.typ = typ
         self.comment = None
+        self.parent = None
 
 
 class HDLSignal(HDLObject):
     pass
+
+
+class HDLPortGroup(HDLNode, HDLPortsBase):
+    def __init__(self, name=None):
+        super(HDLPortGroup, self).__init__()
+        self.name = name
+        self.comment = None
 
 
 class HDLPort(HDLObject):
@@ -244,7 +274,7 @@ def Slice_or_Index(prefix, index, size):
     else:
         return HDLSlice(prefix, index, size)
 
-        
+
 class HDLReplicate(HDLExpr):
     def __init__(self, expr, num):
         super(HDLReplicate, self).__init__()

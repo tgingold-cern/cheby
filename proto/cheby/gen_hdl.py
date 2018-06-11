@@ -15,7 +15,7 @@
    also have conflicts with user names.
 """
 from cheby.hdltree import (HDLModule,
-                           HDLPort, HDLSignal,
+                           HDLPort, HDLSignal, HDLPortGroup,
                            HDLAssign, HDLSync, HDLComment,
                            HDLSwitch, HDLChoiceExpr, HDLChoiceDefault,
                            HDLIfElse,
@@ -66,7 +66,6 @@ def add_decode_wb(root, module, isigs):
     module.stmts.append(HDLAssign(root.h_bus['ack'], isigs.ack_int))
     module.stmts.append(HDLAssign(root.h_bus['stall'],
                                   HDLAnd(HDLNot(isigs.ack_int), isigs.wb_en)))
-
 
 def expand_wishbone(root, module, isigs):
     """Create wishbone interface."""
@@ -163,27 +162,24 @@ def add_ports_reg(root, module, n):
 
         # Input
         if f.hdl_type == 'wire' and n.access in ['ro', 'rw']:
-            f.h_iport = HDLPort(root.h_make_port_name(f, None, 'i'),
-                                w, dir='IN')
+            f.h_iport = root.h_ports.addPort(
+                root.h_make_port_name(f, None, 'i'), w, dir='IN')
             f.h_iport.comment = f.description
-            module.ports.append(f.h_iport)
         else:
             f.h_iport = None
 
         # Output
         if n.access in ['wo', 'rw']:
-            f.h_oport = HDLPort(root.h_make_port_name(f, None, 'o'),
-                                w, dir='OUT')
+            f.h_oport = root.h_ports.addPort(
+                root.h_make_port_name(f, None, 'o'), w, dir='OUT')
             f.h_oport.comment = f.description
-            module.ports.append(f.h_oport)
         else:
             f.h_oport = None
 
         # Write strobe
         if f.hdl_write_strobe:
-            f.h_wport = HDLPort(root.h_make_port_name(f, 'wr', 'o'),
-                                None, dir='OUT')
-            module.ports.append(f.h_wport)
+            f.h_wport = root.h_ports.addPort(
+                root.h_make_port_name(f, 'wr', 'o'), None, dir='OUT')
         else:
             f.h_wport = None
 
@@ -194,29 +190,70 @@ def add_ports_reg(root, module, n):
         else:
             f.h_reg = None
 
-def add_ports_submap(root, module, prefix, n):
-    assert n.interface is not None
-    if n.interface == 'sram':
-        name = prefix + n.name + '_addr_o'
-        n.h_addr_o = HDLPort(
-            name.lower(), n.c_blk_bits - root.c_addr_word_bits, dir='OUT')
-        n.h_addr_o.comment = n.description
-        module.ports.append(n.h_addr_o)
+def gen_bus_slave_wb32(decls, n, make_output, make_input):
+    n.h_bus['cyc'] = decls.addPort(make_output('cyc'), dir='OUT')
+    n.h_bus['stb'] = decls.addPort(make_output('stb'), dir='OUT')
+    n.h_bus['adr'] = decls.addPort(make_output('adr'), size=32, dir='OUT')
+    n.h_bus['sel'] = decls.addPort(make_output('adr'), size=4, dir='OUT')
+    n.h_bus['we'] = decls.addPort(make_output('we'), dir='OUT')
+    n.h_bus['dato'] = decls.addPort(make_output('dat'), size=32, dir='OUT')
+    n.h_bus['ack'] = decls.addPort(make_input('ack'), dir='IN')
+    n.h_bus['err'] = decls.addPort(make_input('err'), dir='IN')
+    n.h_bus['rty'] = decls.addPort(make_input('rty'), dir='IN')
+    n.h_bus['stall'] = decls.addPort(make_input('stall'), dir='IN')
+    n.h_bus['dati'] = decls.addPort(make_input('dat'), size=32, dir='IN')
 
-        name = prefix + n.name + '_data_i'
-        n.h_data_i = HDLPort(name.lower(), n.c_width, dir='IN')
-        module.ports.append(n.h_data_i)
+def wire_bus_slave_wb32(root, stmts, n):
+    pass
 
-        name = prefix + n.name + '_data_o'
-        n.h_data_o = HDLPort(name.lower(), n.c_width, dir='OUT')
-        module.ports.append(n.h_data_o)
+def gen_bus_slave_sram(root, prefix, n):
+    name = prefix + n.name + '_addr_o'
+    n.h_addr_o = root.h_ports.addPort(
+        name.lower(), n.c_blk_bits - root.c_addr_word_bits, dir='OUT')
+    n.h_addr_o.comment = n.description
 
-        name = prefix + n.name + '_wr_o'
-        n.h_wr_o = HDLPort(name.lower(), None, dir='OUT')
-        module.ports.append(n.h_wr_o)
+    name = prefix + n.name + '_data_i'
+    n.h_data_i = root.h_ports.addPort(name.lower(), n.c_width, dir='IN')
+
+    name = prefix + n.name + '_data_o'
+    n.h_data_o = root.h_ports.addPort(name.lower(), n.c_width, dir='OUT')
+
+    name = prefix + n.name + '_wr_o'
+    n.h_wr_o = root.h_ports.addPort(name.lower(), None, dir='OUT')
+
+def wire_bus_slave_sram(root, stmts, n):
+    stmts.append(HDLAssign(n.h_data_o, root.h_bus['dati']))
+    stmts.append(HDLAssign(n.h_addr_o,
+                 HDLSlice(root.h_bus['adr'],
+                          root.c_addr_word_bits,
+                          n.c_blk_bits - root.c_addr_word_bits)))
+
+def gen_bus_slave(root, module, prefix, n, interface):
+    n.h_bus = {}
+    if interface == 'wb-32-be':
+        gen_bus_slave_wb32(module, n,
+                           make_output=(lambda name: prefix + name + '_o'),
+                           make_input=(lambda name: prefix + name + '_i'))
+    elif interface == 'sram':
+        gen_bus_slave_sram(root, prefix, n)
     else:
-        raise AssertionError
+        raise AssertionError(interface)
 
+
+def add_ports_submap(root, module, prefix, n):
+    if n.filename is not None and n.interface == 'include':
+        # Inline
+        add_ports(root, module, prefix + n.name + '_', n.c_submap)
+    else:
+        gen_bus_slave(root, module, prefix, n, n.interface)
+
+def wire_submap(root, module, n, stmts):
+    if n.interface == 'wb-32-be':
+        wire_bus_slave_wb32(root, stmts, n)
+    elif n.interface == 'sram':
+        wire_bus_slave_sram(root, stmts, n)
+    else:
+        raise AssertionError(n.interface)
 
 def add_ports(root, module, prefix, node):
     """Create ports for a composite node."""
@@ -244,7 +281,8 @@ def add_init_reg(stmts, node):
         if isinstance(n, tree.Block):
             add_init_reg(stmts, n)
         elif isinstance(n, tree.Submap):
-            pass
+            if n.interface == 'include':
+                add_init_reg(stmts, n.c_submap)
         elif isinstance(n, tree.Array):
             pass
         elif isinstance(n, tree.Reg):
@@ -266,8 +304,12 @@ def add_clear_wstrobe(stmts, node):
         if isinstance(n, tree.Block):
             add_clear_wstrobe(stmts, n)
         elif isinstance(n, tree.Submap):
-            if n.interface == 'sram':
+            if n.interface == 'include':
+                add_clear_wstrobe(stmts, n.c_submap)
+            elif n.interface == 'sram':
                 stmts.append(HDLAssign(n.h_wr_o, bit_0))
+            elif n.interface == 'wb-32-be':
+                pass
             else:
                 raise AssertionError
         elif isinstance(n, tree.Array):
@@ -287,15 +329,10 @@ def wire_regs(root, module, isigs, node):
         if isinstance(n, tree.Block):
             wire_regs(root, module, isigs, n)
         elif isinstance(n, tree.Submap):
-            if n.interface == 'sram':
-                stmts.append(HDLAssign(n.h_data_o, root.h_bus['dati']))
-                stmts.append(HDLAssign(n.h_addr_o,
-                             HDLSlice(root.h_bus['adr'],
-                                      root.c_addr_word_bits,
-                                      n.c_blk_bits - root.c_addr_word_bits)))
-                pass
+            if n.interface == 'include':
+                wire_regs(root, module, isigs, n.c_submap)
             else:
-                raise AssertionError
+                wire_submap(root, module, n, stmts)
         elif isinstance(n, tree.Array):
             pass
         elif isinstance(n, tree.Reg):
@@ -577,6 +614,13 @@ def generate_hdl(root):
     module = gen_hdl_header(root, isigs)
 
     # Add ports
+    iogroup = root.get_extension('x_hdl', 'iogroup')
+    if iogroup is not None:
+        grp = module.addPortGroup(iogroup)
+        grp.comment = 'Wires and registers'
+        root.h_ports = grp
+    else:
+        root.h_ports = module
     add_ports(root, module, root.name.lower() + '_', root)
 
     module.stmts.append(HDLComment('Assign outputs'))
