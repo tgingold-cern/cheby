@@ -380,10 +380,83 @@ def add_reg_decoder(root, stmts, addr, func, els, blk_bits):
         sw.choices.append(ch)
         func(ch.stmts, None, 0)
 
-def add_block_decoder(root, stmts, addr, func, n):
+def gather_children(n):
+    if isinstance(n, tree.Reg):
+        return [n]
+    elif isinstance(n, tree.Submap):
+        if n.interface == 'include':
+            return gather_children(n.c_submap)
+        else:
+            return [n]
+    elif isinstance(n, (tree.Root, tree.ComplexNode)):
+        r = []
+        for e in n.children:
+            r.extend(gather_children(e))
+        return r
+        return reduce((lambda x, y: x.extend(y)),
+                      [gather_children(i) for i in n.children])
+    else:
+        raise AssertionError
+
+def add_block_decoder(root, stmts, addr, children, hi, func):
+    print("add_block_decoder: hi={}".format(hi))
+    for i in children:
+        print("{}: {:08x}".format(i.name, i.c_address))
+    print("----")
+    if len(children) == 1:
+        el = children[0]
+        if isinstance(el, tree.Reg):
+            add_reg_decoder(root, stmts, addr, func, children, hi)
+        else:
+            func(stmts, el, 0)
+        return
+
+    maxsz = max([e.c_size for e in children])
+    maxszl2 = ilog2(maxsz)
+    assert maxsz == 1 << maxszl2
+    mask = (1 << hi) - maxsz
+    assert maxszl2 < hi
+
+
+    sw = HDLSwitch(HDLSlice(addr, maxszl2, hi - maxszl2))
+    stmts.append(sw)
+
+    while len(children) > 0:
+        first = children[0]
+        children = children[1:]
+        l = [first]
+        base = first.c_address & mask
+        print("hi={} szl2={} first: {:08x}, base: {:08x}, mask: {:08x}".format(
+            hi, maxszl2, first.c_address, base, mask))
+        while len(children) > 0:
+            el = children[0]
+            if (el.c_address & mask) != base:
+                break
+            print(" {} c_addr={:08x}".format(el.name, el.c_address))
+            l.append(el)
+            children = children[1:]
+
+        ch = HDLChoiceExpr(HDLConst(base >> maxszl2, hi - maxszl2))
+        sw.choices.append(ch)
+        add_block_decoder(root, ch.stmts, addr, l, maxszl2, func)
+
+
+def add_decoder(root, stmts, addr, n, func):
     """Call :param func: for each element of :param n:.  :param func: can also
        be called with None when a decoder is generated and could handle an
        address that has no corresponding children."""
+    children = gather_children(root)
+    children = sorted(children, key=lambda x: x.c_address)
+
+    add_block_decoder(
+        root, stmts, addr, children, root.c_sel_bits + root.c_blk_bits, func)
+
+
+def add_block_decoder1(root, stmts, addr, func, n):
+    """Call :param func: for each element of :param n:.  :param func: can also
+       be called with None when a decoder is generated and could handle an
+       address that has no corresponding children."""
+
     # Block without children: interface
     if not n.children:
         func(stmts, n, 0)
@@ -434,13 +507,6 @@ def add_block_decoder(root, stmts, addr, func, n):
     ch = HDLChoiceDefault()
     sw.choices.append(ch)
     func(ch.stmts, None, 0)
-
-def add_decoder(root, stmts, addr, n, func):
-    """Call :param func: for each element of :param n:.  :param func: can also
-       be called with None when a decoder is generated and could handle an
-       address that has no corresponding children."""
-    add_block_decoder(root, stmts, addr, func, n)
-
 
 def field_decode(root, reg, f, off, val, dat):
     """Handle multi-word accesses.  Slice (if needed) VAL and DAT for offset
@@ -512,17 +578,18 @@ def add_read_process(root, module, isigs):
     def add_read(s, n, off):
         if n is not None:
             if isinstance(n, tree.Reg):
-                if n.access == 'wo':
-                    return
                 s.append(HDLComment(n.name))
-                add_read_reg(s, n, off)
+                if n.access != 'wo':
+                    add_read_reg(s, n, off)
             elif isinstance(n, tree.Block):
                 if n.interface == 'sram':
                     s.append(HDLAssign(rd_data, n.h_data_o))
                 else:
                     raise AssertionError
+            elif isinstance(n, tree.Submap):
+                s.append(HDLComment("TODO: submap {}".format(n.name)))
             else:
-                s.append(HDLComment("TODO"))
+                s.append(HDLComment("TODO: ??"))  # Array ?
         # All the read are ack'ed (including the read to unassigned addresses).
         s.append(HDLAssign(isigs.rd_ack, bit_1))
 
