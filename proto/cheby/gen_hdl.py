@@ -192,9 +192,10 @@ def add_ports_reg(root, module, n):
 
 def gen_bus_slave_wb32(decls, n, make_output, make_input):
     n.h_bus['cyc'] = decls.addPort(make_output('cyc'), dir='OUT')
+    n.h_bus['cyc'].comment = n.description
     n.h_bus['stb'] = decls.addPort(make_output('stb'), dir='OUT')
     n.h_bus['adr'] = decls.addPort(make_output('adr'), size=32, dir='OUT')
-    n.h_bus['sel'] = decls.addPort(make_output('adr'), size=4, dir='OUT')
+    n.h_bus['sel'] = decls.addPort(make_output('sel'), size=4, dir='OUT')
     n.h_bus['we'] = decls.addPort(make_output('we'), dir='OUT')
     n.h_bus['dato'] = decls.addPort(make_output('dat'), size=32, dir='OUT')
     n.h_bus['ack'] = decls.addPort(make_input('ack'), dir='IN')
@@ -204,7 +205,13 @@ def gen_bus_slave_wb32(decls, n, make_output, make_input):
     n.h_bus['dati'] = decls.addPort(make_input('dat'), size=32, dir='IN')
 
 def wire_bus_slave_wb32(root, stmts, n):
-    pass
+    stmts.append(HDLComment("Assignments for submap {}".format(n.name)))
+    stmts.append(HDLAssign(n.h_bus['cyc'], HDLOr(n.h_wr, n.h_rd)))
+    stmts.append(HDLAssign(n.h_bus['stb'], HDLOr(n.h_wr, n.h_rd)))
+    stmts.append(HDLAssign(n.h_bus['adr'], root.h_bus['adr']))
+    stmts.append(HDLAssign(n.h_bus['sel'], HDLReplicate(bit_1, 4)))
+    stmts.append(HDLAssign(n.h_bus['we'], n.h_wr))
+    stmts.append(HDLAssign(n.h_bus['dato'], root.h_bus['dati']))
 
 def gen_bus_slave_sram(root, prefix, n):
     name = prefix + n.name + '_addr_o'
@@ -234,6 +241,11 @@ def gen_bus_slave(root, module, prefix, n, interface):
         gen_bus_slave_wb32(module, n,
                            make_output=(lambda name: prefix + name + '_o'),
                            make_input=(lambda name: prefix + name + '_i'))
+        # Internal signals
+        n.h_wr = HDLSignal(prefix + 'wr')
+        module.decls.append(n.h_wr)
+        n.h_rd = HDLSignal(prefix + 'rd')
+        module.decls.append(n.h_rd)
     elif interface == 'sram':
         gen_bus_slave_sram(root, prefix, n)
     else:
@@ -241,11 +253,16 @@ def gen_bus_slave(root, module, prefix, n, interface):
 
 
 def add_ports_submap(root, module, prefix, n):
+    if True:
+        npfx = n.name + '_'
+    else:
+        npfx = prefix + n.name + '_'
     if n.filename is not None and n.interface == 'include':
         # Inline
-        add_ports(root, module, prefix + n.name + '_', n.c_submap)
+        add_ports(root, module, npfx, n.c_submap)
     else:
-        gen_bus_slave(root, module, prefix, n, n.interface)
+        gen_bus_slave(root, module, npfx, n, n.interface)
+
 
 def wire_submap(root, module, n, stmts):
     if n.interface == 'wb-32-be':
@@ -254,6 +271,7 @@ def wire_submap(root, module, n, stmts):
         wire_bus_slave_sram(root, stmts, n)
     else:
         raise AssertionError(n.interface)
+
 
 def add_ports(root, module, prefix, node):
     """Create ports for a composite node."""
@@ -270,54 +288,6 @@ def add_ports(root, module, prefix, node):
             raise AssertionError
         elif isinstance(n, tree.Reg):
             add_ports_reg(root, module, n)
-        else:
-            raise AssertionError
-
-
-def add_init_reg(stmts, node):
-    """Create assignment for reset values."""
-
-    for n in node.children:
-        if isinstance(n, tree.Block):
-            add_init_reg(stmts, n)
-        elif isinstance(n, tree.Submap):
-            if n.interface == 'include':
-                add_init_reg(stmts, n.c_submap)
-        elif isinstance(n, tree.Array):
-            pass
-        elif isinstance(n, tree.Reg):
-            for f in n.children:
-                if f.h_reg is not None:
-                    if f.preset is None:
-                        v = 0
-                    else:
-                        v = f.preset
-                    stmts.append(HDLAssign(f.h_reg, HDLConst(v, f.c_rwidth)))
-        else:
-            raise AssertionError
-
-
-def add_clear_wstrobe(stmts, node):
-    """Create assignment to clear the wstrobe."""
-
-    for n in node.children:
-        if isinstance(n, tree.Block):
-            add_clear_wstrobe(stmts, n)
-        elif isinstance(n, tree.Submap):
-            if n.interface == 'include':
-                add_clear_wstrobe(stmts, n.c_submap)
-            elif n.interface == 'sram':
-                stmts.append(HDLAssign(n.h_wr_o, bit_0))
-            elif n.interface == 'wb-32-be':
-                pass
-            else:
-                raise AssertionError
-        elif isinstance(n, tree.Array):
-            pass
-        elif isinstance(n, tree.Reg):
-            for f in n.children:
-                if f.h_wport is not None:
-                    stmts.append(HDLAssign(f.h_wport, bit_0))
         else:
             raise AssertionError
 
@@ -417,7 +387,6 @@ def add_block_decoder(root, stmts, addr, children, hi, func):
     mask = (1 << hi) - maxsz
     assert maxszl2 < hi
 
-
     sw = HDLSwitch(HDLSlice(addr, maxszl2, hi - maxszl2))
     stmts.append(sw)
 
@@ -451,62 +420,6 @@ def add_decoder(root, stmts, addr, n, func):
     add_block_decoder(
         root, stmts, addr, children, root.c_sel_bits + root.c_blk_bits, func)
 
-
-def add_block_decoder1(root, stmts, addr, func, n):
-    """Call :param func: for each element of :param n:.  :param func: can also
-       be called with None when a decoder is generated and could handle an
-       address that has no corresponding children."""
-
-    # Block without children: interface
-    if not n.children:
-        func(stmts, n, 0)
-        return
-
-    if n.c_sel_bits == 0:
-        # Only one selector level.
-        # Either there is only one child, or only regs.
-        el = n.children[0]
-        if isinstance(el, tree.Reg):
-            add_reg_decoder(root, stmts, addr, func, n.children, n.c_blk_bits)
-            return
-        assert len(n.children) == 1
-        if isinstance(el, tree.Array):
-            func(stmts, el, 0)
-        else:
-            add_block_decoder(root, stmts, addr, func, n.children[0])
-        return
-
-    # Put children into sub-blocks
-    n_subblocks = 1 << n.c_sel_bits
-    subblocks_bits = n.c_blk_bits
-    subblocks = [None] * n_subblocks
-    for i in range(n_subblocks):
-        subblocks[i] = []
-    for el in n.children:
-        idx = (el.c_address >> subblocks_bits) & (n_subblocks - 1)
-        subblocks[idx].append(el)
-
-    sw = HDLSwitch(HDLSlice(addr, subblocks_bits, n.c_sel_bits))
-    stmts.append(sw)
-    for i in range(n_subblocks):
-        el = subblocks[i]
-        if el:
-            ch = HDLChoiceExpr(HDLConst(i, n.c_sel_bits))
-            sw.choices.append(ch)
-            if isinstance(el[0], (tree.Block, tree.Submap)):
-                assert len(el) == 1
-                add_block_decoder(root, ch.stmts, addr, func, el[0])
-            elif isinstance(el[0], tree.Array):
-                assert len(el) == 1
-                func(ch.stmts, el, 0)
-            elif isinstance(el[0], tree.Reg):
-                # FIXME: compute the minimal subblocks_bits
-                add_reg_decoder(root, ch.stmts, addr, func, el, subblocks_bits)
-            else:
-                raise AssertionError
-    ch = HDLChoiceDefault()
-    sw.choices.append(ch)
-    func(ch.stmts, None, 0)
 
 def field_decode(root, reg, f, off, val, dat):
     """Handle multi-word accesses.  Slice (if needed) VAL and DAT for offset
@@ -582,38 +495,46 @@ def add_read_process(root, module, isigs):
                 if n.access != 'wo':
                     add_read_reg(s, n, off)
             elif isinstance(n, tree.Block):
-                if n.interface == 'sram':
-                    s.append(HDLAssign(rd_data, n.h_data_o))
+                raise AssertionError
+            elif isinstance(n, tree.Submap):
+                s.append(HDLComment("Submap {}".format(n.name)))
+                if n.interface == 'wb-32-be':
+                    s.append(HDLAssign(rd_data, n.h_bus['dati']))
+                    rdproc.rst_stmts.append(HDLAssign(n.h_rd, bit_0))
+                    rd_if.then_stmts.append(HDLAssign(n.h_rd, bit_0))
+                    s.append(HDLAssign(n.h_rd, bit_1))
+                    s.append(HDLAssign(isigs.rd_ack, n.h_bus['ack']))
+                    return
+                elif n.interface == 'sram':
+                    return
                 else:
                     raise AssertionError
-            elif isinstance(n, tree.Submap):
-                s.append(HDLComment("TODO: submap {}".format(n.name)))
             else:
                 s.append(HDLComment("TODO: ??"))  # Array ?
         # All the read are ack'ed (including the read to unassigned addresses).
         s.append(HDLAssign(isigs.rd_ack, bit_1))
 
-    add_decoder(root, rd_if.then_stmts, root.h_bus.get('adr', None), root, add_read)
+    then_stmts = []
+    add_decoder(root, then_stmts, root.h_bus.get('adr', None), root, add_read)
+    rd_if.then_stmts.extend(then_stmts)
 
 
 def add_write_process(root, module, isigs):
     # Register write
     wrproc = HDLSync(root.h_bus['clk'], root.h_bus['rst'])
     module.stmts.append(wrproc)
-    add_init_reg(wrproc.rst_stmts, root)
-    add_clear_wstrobe(wrproc.rst_stmts, root)
-    add_clear_wstrobe(wrproc.sync_stmts, root)
     wr_if = HDLIfElse(HDLAnd(HDLEq(isigs.wr_int, bit_1),
                              HDLEq(isigs.wr_ack, bit_0)))
-    wrproc.sync_stmts.append(wr_if)
     wr_if.else_stmts.append(HDLAssign(isigs.wr_ack, bit_0))
     wr_data = root.h_bus['dati']
 
-    def add_write_sram(s, n):
-        s.append(HDLAssign(n.h_wr_o, bit_1))
-
     def add_write_reg(s, n, off):
         for f in n.children:
+            # Reset code
+            if f.h_reg is not None:
+                v = 0 if f.preset is None else f.preset
+                wrproc.rst_stmts.append(HDLAssign(f.h_reg, HDLConst(v, f.c_rwidth)))
+            # Assign code
             if f.hdl_type == 'reg':
                 r = f.h_reg
             elif f.hdl_type == 'wire':
@@ -626,23 +547,40 @@ def add_write_process(root, module, isigs):
             s.append(HDLAssign(reg, dat))
             if f.h_wport is not None:
                 s.append(HDLAssign(f.h_wport, bit_1))
+                wrproc.rst_stmts.append(HDLAssign(f.h_wport, bit_0))
+                wrproc.sync_stmts.append(HDLAssign(f.h_wport, bit_0))
+
 
     def add_write(s, n, off):
         if n is not None:
             if isinstance(n, tree.Reg):
-                if n.access in ['ro', 'cst']:
+                s.append(HDLComment(n.name))
+                if n.access in ['wo', 'rw']:
+                    add_write_reg(s, n, off)
+            elif isinstance(n, tree.Block):
+                raise AssertionError
+            elif isinstance(n, tree.Submap):
+                s.append(HDLComment("Submap {}".format(n.name)))
+                if n.interface == 'wb-32-be':
+                    wrproc.rst_stmts.append(HDLAssign(n.h_wr, bit_0))
+                    wr_if.then_stmts.append(HDLAssign(n.h_wr, bit_0))
+                    s.append(HDLAssign(n.h_wr, bit_1))
+                    s.append(HDLAssign(isigs.rd_ack, n.h_bus['ack']))
+                    return
+                elif n.interface == 'sram':
+                    s.append(HDLAssign(n.h_wr_o, bit_1))
                     return
                 else:
-                    s.append(HDLComment(n.name))
-                    add_write_reg(s, n, off)
-            elif isinstance(n, tree.Block) and n.interface == 'sram':
-                add_write_sram(s, n)
+                    raise AssertionError
             else:
-                s.append(HDLComment("TODO"))
+                s.append(HDLComment("TODO: ??"))  # Array ?
         # All the write are ack'ed (including the write to unassigned
         # addresses)
         s.append(HDLAssign(isigs.wr_ack, bit_1))
-    add_decoder(root, wr_if.then_stmts, root.h_bus.get('adr', None), root, add_write)
+    then_stmts = []
+    add_decoder(root, then_stmts, root.h_bus.get('adr', None), root, add_write)
+    wr_if.then_stmts.extend(then_stmts)
+    wrproc.sync_stmts.append(wr_if)
 
 
 def gen_hdl_header(root, isigs=None):
