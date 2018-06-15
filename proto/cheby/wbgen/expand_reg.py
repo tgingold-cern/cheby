@@ -1,6 +1,6 @@
 """Expand registers: create registers for FIFOs"""
-import tree
-import layout
+import cheby.wbgen.tree as tree
+import cheby.wbgen.layout as layout
 
 
 irq_regs = [

@@ -1,6 +1,6 @@
 import sys
-import tree
-import layout
+import cheby.wbgen.tree as tree
+import cheby.wbgen.layout as layout
 
 # TODO:
 #  xml-ize strings (description, name)

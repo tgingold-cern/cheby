@@ -84,7 +84,7 @@ def gen_mask(decls, mask, root, reg, pfx):
     def gen_one_mask(acm, name, w, lo_idx):
         acm &= (1 << w) - 1
         cst = HDLConstant(name, w, lo_idx=lo_idx, value=HDLBinConst(acm, w))
-        cst.eol_comment = ' : Value : X"{:0{}x}"'.format(acm, w / 4)
+        cst.eol_comment = ' : Value : X"{:0{}x}"'.format(acm, w // 4)
         return cst
 
     num = reg.c_nwords

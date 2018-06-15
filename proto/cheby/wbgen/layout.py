@@ -1,6 +1,6 @@
 """Layout a peripheral: set addresses and bits."""
-import tree
-import field_layout
+import cheby.wbgen.tree as tree
+import cheby.wbgen.field_layout as field_layout
 
 DATA_WIDTH = field_layout.DATA_WIDTH
 DATA_BYTES = field_layout.DATA_BYTES

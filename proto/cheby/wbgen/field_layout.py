@@ -1,5 +1,5 @@
 """Layout a peripheral: set addresses and bits."""
-import tree
+import cheby.wbgen.tree as tree
 
 DATA_WIDTH = 32
 DATA_BYTES = DATA_WIDTH // 8

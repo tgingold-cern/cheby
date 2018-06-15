@@ -227,7 +227,8 @@ def layout_reg(lo, n):
                 "incorrect type for register {}".format(n.get_path()))
 
 
-def load_submap(blk, filename):
+def load_submap(blk):
+    filename = blk.filename
     root = blk
     while not isinstance(root, tree.Root):
         root = root._parent
@@ -236,7 +237,6 @@ def load_submap(blk, filename):
     if not os.path.isabs(filename):
         filename = os.path.join(os.path.dirname(root.c_filename), filename)
     submap = cheby.parser.parse_yaml(filename)
-    layout_cheby(submap)
     return submap
 
 def align_block(lo, n):
@@ -259,7 +259,9 @@ def layout_submap(lo, n):
         if n.size is not None:
             raise LayoutException(n,
                 "size given for submap '{}'".format(n.get_path()))
-        n.c_submap = load_submap(n, n.filename)
+        submap = load_submap(n)
+        layout_cheby(submap)
+        n.c_submap = submap
         n.c_size = n.c_submap.c_size
     align_block(lo, n)
 

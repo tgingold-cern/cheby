@@ -903,7 +903,7 @@ def expand_rams(root, module, bus, isig):
             r.code.ports.extend([dati, wr_sig])
             byte_select = get_wbgen(r, 'byte_select')
             if byte_select:
-                bwsel_sig = HDLPort(prefix + '_bwsel_i', reg.width / 8)
+                bwsel_sig = HDLPort(prefix + '_bwsel_i', reg.width // 8)
                 bwsel_sig.comment = "Byte select input (active high)"
                 r.code.ports.append(bwsel_sig)
         g.ports.extend(r.code.ports)
@@ -967,7 +967,7 @@ def expand_rams(root, module, bus, isig):
         if bwsel:
             bwsel_val = bwsel_sig
         else:
-            bwsel_val = HDLSlice(isig['all1'], 0, reg.c_rwidth / 8)
+            bwsel_val = HDLSlice(isig['all1'], 0, reg.c_rwidth // 8)
         if get_wbgen(r, 'access_dev') in ['READ_WRITE']:
             inst.conns.append(("data_b_i", dati))
             inst.conns.append(("wr_b_i", wr_sig))
@@ -987,7 +987,8 @@ def expand_rams(root, module, bus, isig):
             bwsel_val = isig['bwsel']
         else:
             bwsel_val = isig['all1']
-        inst.conns.append(("bwsel_a_i", HDLSlice(bwsel_val, 0, reg.c_rwidth / 8)))
+        inst.conns.append(("bwsel_a_i",
+                           HDLSlice(bwsel_val, 0, reg.c_rwidth // 8)))
         g.asgn_code.append(inst)
 
         if clock is not None:

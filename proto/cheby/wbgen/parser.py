@@ -1,6 +1,6 @@
-import tokens
-import tokenize
-import ltree
+import cheby.wbgen.tokens as tokens
+import cheby.wbgen.tokenize as tokenize
+import cheby.wbgen.ltree as ltree
 
 
 class ParseError(Exception):
@@ -18,7 +18,7 @@ class LookAhead(object):
             self._next = None
             return res
         else:
-            return self._gen.next()
+            return next(self._gen)
 
     def unget(self, val):
         assert self._next is None

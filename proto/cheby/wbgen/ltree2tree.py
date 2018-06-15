@@ -1,5 +1,5 @@
-import tree
-import ltree
+import cheby.wbgen.tree as tree
+import cheby.wbgen.ltree as ltree
 
 
 class ConvertExcept(Exception):
@@ -68,7 +68,6 @@ def check_list(e):
 
 def check_table(e):
     if not isinstance(e, ltree.Table):
-        print e._val
         raise ConvertExcept("attribute '{}' must be a table".format(
                             e._name))
 
