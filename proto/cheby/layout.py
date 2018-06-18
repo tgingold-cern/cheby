@@ -227,17 +227,20 @@ def layout_reg(lo, n):
                 "incorrect type for register {}".format(n.get_path()))
 
 
-def load_submap(blk):
-    filename = blk.filename
-    root = blk
+def compute_submap_absolute_filename(sm):
+    filename = sm.filename
+    root = sm
     while not isinstance(root, tree.Root):
         root = root._parent
-    # FIXME: create a directory ?
-    sys.stderr.write('Loading {}...\n'.format(filename))
     if not os.path.isabs(filename):
         filename = os.path.join(os.path.dirname(root.c_filename), filename)
-    submap = cheby.parser.parse_yaml(filename)
-    return submap
+    return filename
+
+def load_submap(blk):
+    sys.stderr.write('Loading {}...\n'.format(blk.filename))
+    filename = compute_submap_absolute_filename(blk)
+    return cheby.parser.parse_yaml(filename)
+
 
 def align_block(lo, n):
     n.c_blk_bits = ilog2(n.c_size)
