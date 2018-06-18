@@ -291,8 +291,33 @@ def empty_namespace(cmd_name, *args):
       name=namespace)
    connection.commit()
 
+def download_namespace(cmd_name, *args):
+   if len(args) != 1:
+      sys.stderr.write("usage: {} NAMESPACE\n".format(cmd_name))
+      return
+   namespace = args[0]
+   cursor = connection.cursor()
+   cursor.execute(
+      """SELECT file_name, file_content FROM cheby_files
+         WHERE namespace_id = (
+           SELECT ns.namespace_id
+           FROM cheby_namespaces ns
+           WHERE ns.namespace_name = :name)""",
+      name=namespace)
+   for filename, content in cursor.fetchall():
+      print("writing {}".format(filename))
+      with open(filename, "w") as f:
+         f.write(content.read())
+
+
+def cmd_help(cmd_name, *args):
+   print("list of commands:")
+   for k in commands:
+      print(" {}".format(k))
+
 commands = {
    'show': show,
+   'help': cmd_help,
    'list-namespaces': list_namespaces,
    'remove-namespace': remove_namespace,
    'add-namespace': cmd_add_namespace,
@@ -304,10 +329,11 @@ commands = {
    'add-include-by-id': add_include_by_id,
    'show-file-include': show_file_include,
    'upload-files': upload_files,
-   'empty-namespace': empty_namespace
+   'empty-namespace': empty_namespace,
+   'download-namespace': download_namespace
 }
 
-def bad_cmd(cmd_name):
+def bad_cmd(cmd_name, *args):
    sys.stderr.write("Unknown command '{}', try --help\n".format(cmd_name))
    sys.exit(1)
 
