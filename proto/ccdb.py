@@ -4,22 +4,32 @@ import argparse
 import sys
 import os
 import cx_Oracle
+import cheby.parser
+import cheby.tree as tree
+import cheby.pprint as pprint
+import cheby.layout
 
 connection = None
+
+class Buffer(object):
+    def __init__(self):
+        self.buffer = ''
+
+    def write(self, str):
+        self.buffer += str
+
 
 def show(cmd_name):
    cursor = connection.cursor()
 
    print('files:')
-   cursor.execute("""
-   SELECT * from cheby_files""")
+   cursor.execute("SELECT * from cheby_files")
    print('desc: {}'.format(cursor.description))
    for l in cursor:
         print(l)
 
    print('namespace:')
-   cursor.execute("""
-   SELECT * from cheby_namespaces""")
+   cursor.execute("SELECT * from cheby_namespaces")
    for l in cursor:
         print(l)
 
@@ -72,20 +82,27 @@ def remove_namespace(cmd_name, *args):
    connection.commit()
 
 
-def add_namespace(cmd_name, *args):
+def add_namespace(name, desc='', user=None):
+   if user is None:
+      usr = os.environ.get('USER', 'unknown')
+   else:
+      usr = user
+   cursor = connection.cursor()
+   cursor.execute(
+      """INSERT INTO cheby_namespaces
+          (namespace_name, namespace_description, creator)
+         VALUES('{}', '{}', '{}')""".format(name, desc, usr))
+   connection.commit()
+
+def cmd_add_namespace(cmd_name, *args):
    if len(args) == 0 or len(args) > 3 :
       sys.stderr.write(
          'usage: {} namespace [DESCRIPTION] [CREATOR]\n'.format(cmd_name))
       return
    name = args[0]
    desc = args[1] if len(args) > 1 else ''
-   user = args[2] if len(args) > 2 else os.environ.get('USER', 'unknown')
-   cursor = connection.cursor()
-   cursor.execute(
-      """INSERT INTO cheby_namespaces
-          (namespace_name, namespace_description, creator)
-         VALUES('{}', '{}', '{}')""".format(name, desc, user))
-   connection.commit()
+   user = args[2] if len(args) > 2 else None
+   add_namespace(name, desc, user)
 
 
 def get_namespace_id(name):
@@ -157,18 +174,137 @@ def add_include_by_id(cmd_name, *args):
          VALUES(:fid, :iid)""",
       fid=fid, iid=iid)
    connection.commit()
-   
+
+def extract_submaps(n):
+   """Return the list of all submaps contain in the hierarchy rooted by N"""
+   if isinstance(n, tree.Reg):
+      return []
+   elif isinstance(n, tree.Submap):
+      if n.filename is None:
+         return []
+      else:
+         return [n]
+   elif isinstance(n, tree.CompositeNode):
+      res = []
+      for e in n.children:
+         res.extend(extract_submaps(e))
+      return res
+   else:
+      raise AssertionError(n)
+
+class DepEntry(object):
+   def __init__(self, filename):
+      self.filename = filename
+      self.includes = set()
+      self.node = None
+      self.fid = None
+
+def compute_fileset(filename):
+   deps = {}
+   # Start with the first file
+   todo = [filename]
+   while todo:
+      # Extract the first file from todo.
+      filename = todo[0]
+      todo = todo[1:]
+      # Skip it if already handled.
+      basename = os.path.basename(filename)
+      if basename in deps:
+         continue
+      # Add it to deps, load it.
+      de = DepEntry(filename)
+      deps[basename] = de
+      de.node = cheby.parser.parse_yaml(de.filename)
+      de.node.c_filename = filename
+      # Update todo with submaps.
+      submaps = extract_submaps(de.node)
+      for sm in submaps:
+         # Use absolute filename.
+         absname = cheby.layout.compute_submap_absolute_filename(sm)
+         todo.append(absname)
+         # Add it in the includes list of SM.
+         bn = os.path.basename(sm.filename)
+         de.includes.add(bn)
+         # Rename the submap filename.
+         sm.filename = basename
+   return deps
+
+def show_file_include(cmd_name, *args):
+   if len(args) != 1:
+      sys.stderr.write("usage: {} FILE\n".format(cmd_name))
+      return
+   deps = compute_fileset(args[0])
+   for filename, de in deps.items():
+      print("{}: ({})".format(filename, de.filename))
+      for f in de.includes:
+         print ("  {}".format(f))
+
+def upload_files(cmd_name, *args):
+   if len(args) != 2:
+      sys.stderr.write("usage: {} FILE NAMESPACE\n".format(cmd_name))
+      return
+   filename = args[0]
+   namespace = args[1]
+   nid = get_namespace_id(namespace)
+   if nid is not None:
+      sys.stderr.write("namespace '{}' already used\n".format(namespace))
+      return
+   deps = compute_fileset(filename)
+   # Create namespace
+   add_namespace(namespace)
+   nid = get_namespace_id(namespace)
+   assert nid is not None
+   cursor = connection.cursor()
+   # Add files
+   for f, de in deps.items():
+      # Create id
+      cursor.execute("SELECT cheby_seq.nextval from dual")
+      rows = cursor.fetchall()
+      assert len(rows) == 1
+      de.fid = rows[0][0]
+      # Add file
+      buf = Buffer()
+      pprint.pprint_cheby(buf, de.node)
+      cursor.execute(
+         """INSERT INTO cheby_files
+            (file_id, file_name, namespace_id, file_content)
+            VALUES(:fid, :name, :nid, :content)""",
+         fid=de.fid,
+         name=f,
+         nid=nid,
+         content=buf.buffer)
+   connection.commit()
+      
+
+def empty_namespace(cmd_name, *args):
+   if len(args) != 1:
+      sys.stderr.write("usage: {} NAMESPACE\n".format(cmd_name))
+      return
+   namespace = args[0]
+   cursor = connection.cursor()
+   cursor.execute(
+      """DELETE FROM cheby_files
+         WHERE namespace_id = (
+           SELECT ns.namespace_id
+           FROM cheby_namespaces ns
+           WHERE ns.namespace_name = :name)""",
+      name=namespace)
+   connection.commit()
+
 commands = {
    'show': show,
    'list-namespaces': list_namespaces,
    'remove-namespace': remove_namespace,
-   'add-namespace': add_namespace,
+   'add-namespace': cmd_add_namespace,
    'get-namespace-id': cmd_get_namespace_id,
    'list-filenames': list_filenames,
    'add-file': add_file,
    'cat-file': cat_file,
    'list-includes': list_includes,
-   'add-include-by-id': add_include_by_id
+   'add-include-by-id': add_include_by_id,
+   'show-file-include': show_file_include,
+   'upload-files': upload_files,
+   'empty-namespace': empty_namespace
 }
 
 def bad_cmd(cmd_name):
