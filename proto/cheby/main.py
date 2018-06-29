@@ -26,6 +26,8 @@ def decode_args():
                          help='display the layout with fields')
     aparser.add_argument('--print-simple-expanded', action='store_true',
                          help='display the expanded layout with fields')
+    aparser.add_argument('--print-pretty-expanded', action='store_true',
+                         help='display the expanded input in YAML')
     aparser.add_argument('--print-memmap', action='store_true',
                          help='display the layout without fields')
     aparser.add_argument('--print-c', action='store', nargs='?', const='.',
@@ -80,6 +82,8 @@ def handle_file(args, filename):
     expand_hdl.expand_hdl(t)
     if args.print_simple_expanded:
         sprint.sprint_cheby(sys.stdout, t, True)
+    if args.print_pretty_expanded:
+        pprint.pprint_cheby(sys.stdout, t)
     if args.gen_gena_regctrl:
         if not args.gen_gena_memmap:
             gen_gena_memmap.gen_gena_memmap(t)
@@ -106,8 +110,6 @@ def handle_file(args, filename):
         print_vhdl.style = 'wbgen'
         print_vhdl.print_vhdl(sys.stdout, h)
     if args.gen_vhdl:
-        if False:
-            pprint.pprint_cheby(sys.stdout, t)
         h = gen_hdl.generate_hdl(t)
         print_vhdl.print_vhdl(sys.stdout, h)
 
