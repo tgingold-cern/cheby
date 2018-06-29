@@ -44,13 +44,15 @@ def expand_x_hdl(n):
     else:
         raise AssertionError(n)
 
-def tree_copy(n):
+def tree_copy(n, new_parent):
     if isinstance(n, tree.Reg):
         res = copy.copy(n)
-        res.children = [tree_copy(f) for f in n.children]
+        res._parent = new_parent
+        res.children = [tree_copy(f, res) for f in n.children]
         return res
     elif isinstance(n, tree.Field):
         res = copy.copy(n)
+        res._parent = new_parent
         return res
     else:
         raise AssertionError
@@ -68,9 +70,8 @@ def unroll_array(n):
     assert len(n.children) == 1
     el = n.children[0]
     for i in range(n.repeat):
-        c = tree_copy(el)
+        c = tree_copy(el, res)
         c.name = "{}{:x}".format(el.name, i)
-        c._parent = res
         c.c_address = n.c_address + i * n.c_elsize
         res.children.append(c)
     return res
