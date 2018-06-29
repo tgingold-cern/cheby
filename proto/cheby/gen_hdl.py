@@ -14,8 +14,8 @@
    The _i/_o suffixes are also used for ports, so the ports of the bus can
    also have conflicts with user names.
 """
-from cheby.hdltree import (HDLModule,
-                           HDLPort, HDLSignal, HDLPortGroup,
+from cheby.hdltree import (HDLModule, HDLPackage,
+                           HDLPort, HDLSignal,
                            HDLAssign, HDLSync, HDLComment,
                            HDLSwitch, HDLChoiceExpr, HDLChoiceDefault,
                            HDLIfElse,
@@ -26,6 +26,8 @@ from cheby.hdltree import (HDLModule,
 import cheby.tree as tree
 from cheby.layout import ilog2
 
+# Package wishbone_pkg that contains the wishbone interface
+wb_pkg = None
 
 class HdlError(Exception):
     def __init__(self, msg):
@@ -369,10 +371,11 @@ def gather_children(n):
         raise AssertionError
 
 def add_block_decoder(root, stmts, addr, children, hi, func):
-    print("add_block_decoder: hi={}".format(hi))
-    for i in children:
-        print("{}: {:08x}".format(i.name, i.c_address))
-    print("----")
+    if False:
+        print("add_block_decoder: hi={}".format(hi))
+        for i in children:
+            print("{}: {:08x}".format(i.name, i.c_address))
+        print("----")
     if len(children) == 1:
         el = children[0]
         if isinstance(el, tree.Reg):
@@ -395,13 +398,15 @@ def add_block_decoder(root, stmts, addr, children, hi, func):
         children = children[1:]
         l = [first]
         base = first.c_address & mask
-        print("hi={} szl2={} first: {:08x}, base: {:08x}, mask: {:08x}".format(
-            hi, maxszl2, first.c_address, base, mask))
+        if False:
+            print("hi={} szl2={} first: {:08x}, base: {:08x}, mask: {:08x}".format(
+                hi, maxszl2, first.c_address, base, mask))
         while len(children) > 0:
             el = children[0]
             if (el.c_address & mask) != base:
                 break
-            print(" {} c_addr={:08x}".format(el.name, el.c_address))
+            if False:
+                print(" {} c_addr={:08x}".format(el.name, el.c_address))
             l.append(el)
             children = children[1:]
 
@@ -611,6 +616,24 @@ def gen_hdl_header(root, isigs=None):
         raise HdlError("Unhandled bus '{}'".format(root.bus))
 
     return module
+
+def gen_wishbone_pkg():
+    if wb_pkg is not None:
+        return
+    wb_pkg = HDLPackage('wishbone_pkg')
+    wb = HDLInterface('t_wishbone')
+    wb_pkg.decls.append(wb)
+    wb.add_port('cyc', dir='OUT')
+    wb.add_port('stb', dir='OUT')
+    wb.add_port('adr', size=32, dir='OUT')
+    wb.add_port('sel', size=4, dir='OUT')
+    wb.add_port('we', dir='OUT')
+    wb.add_port('dat', size=32, dir='OUT')
+    wb.add_port('ack', dir='IN')
+    wb.add_port('err', dir='IN')
+    wb.add_port('rty', dir='IN')
+    wb.add_port('stall', dir='IN')
+    wb.add_port('dat', size=32, dir='IN')
 
 
 def generate_hdl(root):
