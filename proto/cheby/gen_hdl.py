@@ -327,7 +327,7 @@ def add_reg_decoder(root, stmts, addr, func, els, blk_bits):
         for el in els:
             func(stmts, el, 0)
     else:
-        sw = HDLSwitch(HDLSlice(addr, root.c_addr_word_bits, width))
+        sw = HDLSwitch(HDLSlice(addr, 0, width))
         stmts.append(sw)
         for el in els:
             suboff = 0
@@ -390,7 +390,8 @@ def add_block_decoder(root, stmts, addr, children, hi, func):
     mask = (1 << hi) - maxsz
     assert maxszl2 < hi
 
-    sw = HDLSwitch(HDLSlice(addr, maxszl2, hi - maxszl2))
+    # Note: addr has a word granularity.
+    sw = HDLSwitch(HDLSlice(addr, maxszl2 - root.c_addr_word_bits, hi - maxszl2))
     stmts.append(sw)
 
     while len(children) > 0:
