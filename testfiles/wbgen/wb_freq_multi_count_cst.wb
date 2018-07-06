@@ -1,0 +1,26 @@
+peripheral {
+  name = "Frequency Multi Counter registers";
+  description = "Wishbone slave for Frequency Multi Counters";
+  hdl_entity = "wb_freq_multi_count_csr";
+  prefix = "wb_freq_multi_count_csr";
+
+    -- RAM: 32 32-bit words, using synchronous clock, writable from both the bus and the core, without address wrap bit
+    ram {
+        name = "Frequency RAM";
+        prefix = "frequency";
+        -- number of words of size 'width' in the RAM
+        size = 32;
+        -- width (bit count) of the memory's data bus
+        width = 32;
+        -- false, we want the memory to be byte-addressable
+        byte_select = false;
+
+        -- here we define address wraparound. The memory address space is extended by 'wrap_bits' number of bits, thus mirroring the memory 2^(wrap_bits) times.
+        -- This allows for wrap-around read/write operations passing from the end to the beginning of the memory with no extra math. Useful for implementing circular buffers, etc.
+        wrap_bits = 0;
+
+        -- access. Defined the same way as for the registers.
+        access_bus = READ_WRITE;
+        access_dev = READ_WRITE;
+    };
+};

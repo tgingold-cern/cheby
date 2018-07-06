@@ -335,7 +335,8 @@ def test_wbgen2cheby():
            'ram_reg', 'ram_reg2',
            'ram_rw', 'ram_rw_bs', 'ram_pad', 'ram_async',
            'irq1', 'irq_ack', 'irq_mask',
-           'description', 'comment1', 'comment_block']
+           'description', 'comment1', 'comment_block',
+           'wb_freq_multi_count_cst']
     print_vhdl.style = 'wbgen'
     for f in files:
         if verbose:

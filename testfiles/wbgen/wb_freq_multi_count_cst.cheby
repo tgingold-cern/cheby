@@ -1,0 +1,24 @@
+memory-map:
+  bus: wb-32-be
+  name: wb_freq_multi_count_csr
+  description: Frequency Multi Counter registers
+  comment: |
+    Wishbone slave for Frequency Multi Counters
+  x-wbgen:
+    hdl_entity: wb_freq_multi_count_csr
+  children:
+  - array:
+      name: frequency
+      address: 0x00000000
+      repeat: 32
+      description: Frequency RAM
+      align: True
+      x-wbgen:
+        kind: ram
+        access_dev: READ_WRITE
+        byte_select: False
+      children:
+      - reg:
+          name: data
+          width: 32
+          access: rw

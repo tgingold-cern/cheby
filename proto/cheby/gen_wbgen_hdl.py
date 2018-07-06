@@ -849,7 +849,7 @@ def expand_irqs(root, module, bus, isig):
 
 def expand_sel_select(root, sig):
     lo = root.c_blk_bits - root.c_addr_word_bits
-    if root.c_sel_bits > 1:
+    if root.c_sel_bits != 1:
         return HDLSlice(sig, lo, root.c_sel_bits)
     else:
         return HDLIndex(sig, lo)
@@ -1435,7 +1435,7 @@ def expand_hdl(root):
             root.c_sel_bits, root.c_blk_bits, root.h_reg_bits))
 
     # Create the switch decoder.  Will be placed later...
-    if root.c_sel_bits > 0:
+    if root.c_sel_bits > 0 or rams_code.asgn_code:
         sel_sw = HDLSwitch(expand_sel_select(root, isig['rwaddr']))
         s2.then_stmts.append(sel_sw)
     else:
