@@ -2,7 +2,8 @@
 
 import cheby.tree as tree
 import cheby.hdltree as hdltree
-from cheby.hdltree import (HDLPort, HDLSignal, HDLParam,
+from cheby.hdltree import (HDLModule,
+                           HDLPort, HDLSignal, HDLParam,
                            HDLGenIf, HDLAssign, HDLInstance, HDLComb,
                            HDLComment, HDLConst, HDLNumber,
                            HDLSlice, HDLIndex, Slice_or_Index,
@@ -10,8 +11,6 @@ from cheby.hdltree import (HDLPort, HDLSignal, HDLParam,
                            HDLAnd, HDLEq, HDLNot, HDLParen,
                            HDLSwitch, HDLChoiceExpr, HDLChoiceDefault,
                            HDLReplicate, HDLBool, bit_0, bit_1, bit_x)
-import cheby.gen_hdl
-import cheby.layout
 from cheby.layout import ilog2
 
 mode_suffix_map = {'IN': '_i', 'OUT': '_o'}
@@ -1270,10 +1269,51 @@ def layout_wbgen(root):
             r.h_addr_len = r.h_ram_size
             ram_off += block_size
 
+def add_bus(root, module, bus):
+    root.h_bus = {}
+    for n, h in bus:
+        module.ports.append(h)
+        root.h_bus[n] = h
+
+
+def expand_wishbone(root, module):
+    """Create wishbone interface."""
+    addr_width = root.c_sel_bits + root.c_blk_bits - root.c_addr_word_bits
+    bus = [('rst',   HDLPort("rst_n_i")),
+           ('clk',   HDLPort("clk_i"))]
+    if addr_width > 0:
+        bus.append(('adr',   HDLPort("wb_adr_i", addr_width)))
+    bus.extend([
+           ('dati',  HDLPort("wb_dat_i", root.c_word_bits)),
+           ('dato',  HDLPort("wb_dat_o", root.c_word_bits, dir='OUT')),
+           ('cyc',   HDLPort("wb_cyc_i")),
+           ('sel',   HDLPort("wb_sel_i", root.c_word_size)),
+           ('stb',   HDLPort("wb_stb_i")),
+           ('we',    HDLPort("wb_we_i")),
+           ('ack',   HDLPort("wb_ack_o", dir='OUT')),
+           ('stall', HDLPort("wb_stall_o", dir='OUT'))])
+    add_bus(root, module, bus)
+
+
+def gen_hdl_header(root):
+    module = HDLModule()
+    module.name = root.name
+
+    # Number of bits in the address used by a word
+    root.c_addr_word_bits = ilog2(root.c_word_size)
+    # Number of bits in a word
+    root.c_word_bits = root.c_word_size * tree.BYTE_SIZE
+
+    # Create the bus
+    expand_wishbone(root, module)
+
+    return module
+
+
 def expand_hdl(root):
     assert isinstance(root, tree.Root)
     layout_wbgen(root)
-    m = cheby.gen_hdl.gen_hdl_header(root)
+    m = gen_hdl_header(root)
     m.name = get_wbgen(root, 'hdl_entity', root.name)
     #bus = expand_wishbone(m, periph)
 

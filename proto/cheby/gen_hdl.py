@@ -28,6 +28,8 @@ from cheby.layout import ilog2
 
 # Package wishbone_pkg that contains the wishbone interface
 wb_pkg = None
+wb_itf = None
+wb_ports = None
 
 class HdlError(Exception):
     def __init__(self, msg):
@@ -68,6 +70,37 @@ def add_decode_wb(root, module, isigs):
     module.stmts.append(HDLAssign(root.h_bus['ack'], isigs.ack_int))
     module.stmts.append(HDLAssign(root.h_bus['stall'],
                                   HDLAnd(HDLNot(isigs.ack_int), isigs.wb_en)))
+
+def gen_wishbone_bus(build_port, addr_bits, data_bits, is_master=False):
+    res = {}
+    inp, out = ('IN', 'OUT') if not is_master else ('OUT', 'IN')
+    res['cyc'] = build_port('cyc', None, dir=inp)
+    res['stb'] = build_port('stb', None, dir=inp)
+    if addr_bits > 0:
+        res['adr'] = build_port('adr', addr_bits, dir=inp)
+    res['sel'] = build_port('sel', data_bits / tree.BYTE_SIZE, dir=inp)
+    res['we'] = build_port('we', None, dir=inp)
+    res['dati'] = build_port('dat', data_bits, dir=inp)
+
+    res['ack'] = build_port('ack', None, dir=out)
+    res['err'] = build_port('err', None, dir=out)
+    res['rty'] = build_port('rty', None, dir=out)
+    res['stall'] = build_port('stall', None, dir=out)
+    res['dato'] = build_port('dat', data_bits, dir=out)
+    return res
+
+
+def gen_wishbone_pkg():
+    global wb_pkg, wb_ports, wb_itf
+    if wb_pkg is not None:
+        return
+    wb_pkg = HDLPackage('wishbone_pkg')
+    wb_itf = HDLInterface('t_wishbone')
+    wb_pkg.decls.append(wb_itf)
+    wb_ports = gen_wishbone_bus(
+        lambda n, sz, dir: wb_itf.add_port(n, size=sz, dir=dir), 32, 32, True)
+    return
+
 
 def expand_wishbone(root, module, isigs):
     """Create wishbone interface."""
@@ -617,25 +650,6 @@ def gen_hdl_header(root, isigs=None):
         raise HdlError("Unhandled bus '{}'".format(root.bus))
 
     return module
-
-def gen_wishbone_pkg():
-    global wb_pkg
-    if wb_pkg is not None:
-        return
-    wb_pkg = HDLPackage('wishbone_pkg')
-    wb = HDLInterface('t_wishbone')
-    wb_pkg.decls.append(wb)
-    wb.add_port('cyc', dir='OUT')
-    wb.add_port('stb', dir='OUT')
-    wb.add_port('adr', size=32, dir='OUT')
-    wb.add_port('sel', size=4, dir='OUT')
-    wb.add_port('we', dir='OUT')
-    wb.add_port('dat', size=32, dir='OUT')
-    wb.add_port('ack', dir='IN')
-    wb.add_port('err', dir='IN')
-    wb.add_port('rty', dir='IN')
-    wb.add_port('stall', dir='IN')
-    wb.add_port('dat', size=32, dir='IN')
 
 
 def generate_hdl(root):
