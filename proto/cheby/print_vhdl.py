@@ -61,6 +61,7 @@ def generate_decl_comment(fd, comment, indent):
         windent(fd, indent)
         wln(fd, "-- {}".format(comment))
 
+
 def generate_port(fd, p, indent):
     generate_decl_comment(fd, p.comment, indent)
     typ = generate_vhdl_type(p)
@@ -74,6 +75,31 @@ def generate_port(fd, p, indent):
     w(fd, "{:<20} : {dir} {typ}".format(p.name, dir=dir, typ=typ))
     if p.default:
         w(fd,' := {}'.format(generate_expr(p.default)))
+
+
+def generate_interface_port(fd, itf, dir, indent):
+    for p in itf.ports:
+        if p.dir == dir:
+            windent(fd, indent + 1)
+            wln(fd, "{:<16} : {}".format(p.name, generate_vhdl_type(p)))
+
+def generate_interface(fd, itf, indent):
+    generate_decl_comment(fd, itf.comment, indent)
+    windent(fd, indent)
+    wln(fd, "type {}_master_out is record".format(itf.name))
+    generate_interface_port(fd, itf, 'OUT', indent)
+    windent(fd, indent)
+    wln(fd, "end record {}_master_out;".format(itf.name))
+    windent(fd, indent)
+    wln(fd, "subtype {0}_slave_in is {0}_master_out;".format(itf.name))
+    wln(fd)
+    windent(fd, indent)
+    wln(fd, "type {}_slave_out is record".format(itf.name))
+    generate_interface_port(fd, itf, 'IN', indent)
+    windent(fd, indent)
+    wln(fd, "end record {}_slave_out;".format(itf.name))
+    windent(fd, indent)
+    wln(fd, "subtype {0}_master_in is {0}_slave_out;".format(itf.name))
 
 
 def generate_param(fd, p, indent):
@@ -122,13 +148,15 @@ def generate_decl(fd, d, indent):
     if isinstance(d, hdltree.HDLSignal):
         generate_signal(fd, d, indent)
     elif isinstance(d, hdltree.HDLConstant):
-        generate_constant (fd, d, indent)
+        generate_constant(fd, d, indent)
     elif isinstance(d, hdltree.HDLComponent):
-        generate_component (fd, d, indent)
+        generate_component(fd, d, indent)
     elif isinstance(d, hdltree.HDLComponentSpec):
-        generate_component_spec (fd, d, indent)
+        generate_component_spec(fd, d, indent)
     elif isinstance(d, hdltree.HDLComment):
-        generate_comment (fd, d, indent)
+        generate_comment(fd, d, indent)
+    elif isinstance(d, hdltree.HDLInterface):
+        generate_interface(fd, d, indent)
     else:
         raise AssertionError(d)
 

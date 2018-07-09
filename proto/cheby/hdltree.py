@@ -7,9 +7,9 @@ class HDLNode(object):
 
 class HDLUnit(HDLNode):
     # Top level unit
-    def __init__(self):
+    def __init__(self, name=None):
         super(HDLUnit, self).__init__()
-        self.name = None
+        self.name = name
         self.libraries = []
         self.deps = []      # list of (lib, pkg)
 
@@ -24,13 +24,13 @@ class HDLPortsBase(object):
         super(HDLPortsBase, self).__init__()
         self.ports = []
 
-    def addPort(self, *args, **kwargs):
+    def add_port(self, *args, **kwargs):
         res = HDLPort(*args, **kwargs)
         res.parent = self
         self.ports.append(res)
         return res
 
-    def addPortGroup(self, *args, **kwargs):
+    def add_port_group(self, *args, **kwargs):
         res = HDLPortGroup(*args, **kwargs)
         res.parent = self
         self.ports.append(res)
@@ -38,16 +38,16 @@ class HDLPortsBase(object):
 
 
 class HDLModule(HDLUnit, HDLPortsBase):
-    def __init__(self):
-        super(HDLModule, self).__init__()
+    def __init__(self, name=None):
+        super(HDLModule, self).__init__(name)
         self.params = []
         self.decls = []
         self.stmts = []
 
 
 class HDLPackage(HDLUnit):
-    def __init__(self):
-        super(HDLPackage, self).__init__()
+    def __init__(self, name=None):
+        super(HDLPackage, self).__init__(name)
         self.decls = []
 
 
@@ -86,6 +86,13 @@ class HDLSignal(HDLObject):
 class HDLPortGroup(HDLNode, HDLPortsBase):
     def __init__(self, name=None):
         super(HDLPortGroup, self).__init__()
+        self.name = name
+        self.comment = None
+
+
+class HDLInterface(HDLNode, HDLPortsBase):
+    def __init__(self, name=None):
+        super(HDLInterface, self).__init__()
         self.name = name
         self.comment = None
 
