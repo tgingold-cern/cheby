@@ -173,11 +173,6 @@ operator = {hdltree.HDLAnd: (' and ', 4),
 
 
 def generate_expr(e, prio=-1):
-    if isinstance(e, hdltree.HDLPort):
-        if isinstance(e.parent, hdltree.HDLPortGroup):
-            return e.parent.name + ('_i' if e.dir == 'IN' else '_o') + '.' + e.name
-        else:
-            return e.name
     if isinstance(e, hdltree.HDLObject):
         return e.name
     elif isinstance(e, hdltree.HDLBinary):
@@ -243,6 +238,9 @@ def generate_expr(e, prio=-1):
                 generate_expr(e.prefix), e.index + e.size - 1, e.index)
     elif isinstance(e, hdltree.HDLIndex):
         return "{}({})".format(generate_expr(e.prefix), e.index)
+    elif isinstance(e, hdltree.HDLInterfaceSelect):
+        sfx = 'i' if (e.subport.dir == 'IN') == (e.prefix.is_master) else 'o'
+        return "{}_{}.{}".format(e.prefix.name, sfx, e.subport.name)
     else:
         assert False, "unhandled hdl expr {}".format(e)
 
@@ -251,7 +249,9 @@ def get_base_name(s):
     if isinstance(s, hdltree.HDLObject):
         return s
     elif isinstance(s, hdltree.HDLSlice) or isinstance(s, hdltree.HDLIndex):
-        return s.prefix
+        return get_base_name(s.prefix)
+    elif isinstance(s, hdltree.HDLInterfaceSelect):
+        return get_base_name(s.subport)
     else:
         return None
 
@@ -438,11 +438,13 @@ def print_inters_list(fd, lst, name, indent):
         elif isinstance(p, hdltree.HDLParam):
             generate_param(fd, p, indent + 1)
         elif isinstance(p, hdltree.HDLPortGroup):
+            group_typename = '{}_{}'.format(p.interface.name,
+                'master' if p.is_master else 'slave')
             windent(fd, indent + 1)
-            w(fd, "{:<20} : in    {}_in_{}".format(p.name + '_i', p.parent.name, p.name))
+            w(fd, "{:<20} : in    {}_in".format(p.name + '_i', group_typename))
             wln(fd, ";")
             windent(fd, indent + 1)
-            w(fd, "{:<20} : out   {}_out_{}".format(p.name + '_o', p.parent.name, p.name))
+            w(fd, "{:<20} : out   {}_out".format(p.name + '_o', group_typename))
         else:
             raise AssertionError
     wln(fd)

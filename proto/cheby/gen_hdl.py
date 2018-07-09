@@ -14,7 +14,8 @@
    The _i/_o suffixes are also used for ports, so the ports of the bus can
    also have conflicts with user names.
 """
-from cheby.hdltree import (HDLModule, HDLPackage, HDLInterface,
+from cheby.hdltree import (HDLModule, HDLPackage,
+                           HDLInterface, HDLInterfaceSelect,
                            HDLPort, HDLSignal,
                            HDLAssign, HDLSync, HDLComment,
                            HDLSwitch, HDLChoiceExpr, HDLChoiceDefault,
@@ -89,6 +90,23 @@ def gen_wishbone_bus(build_port, addr_bits, data_bits, is_master=False):
     res['dato'] = build_port('dat', data_bits, dir=out)
     return res
 
+def gen_wishbone(module, ports, name, addr_bits, data_bits, is_master, is_bus):
+    if is_bus:
+        if wb_pkg is None:
+            gen_wishbone_pkg()
+            module.deps.append(('work', 'wishbone_pkg'))
+        port = ports.add_port_group(name, wb_itf, is_master)
+        res = {}
+        for name, sig in wb_ports.items():
+            res[name] = HDLInterfaceSelect(port, sig)
+        return res
+    else:
+        dirname={'IN': 'i', 'OUT': 'o'}
+        res = gen_wishbone_bus(
+            lambda n, sz, dir: ports.add_port(
+                '{}_{}_{}'.format(name, n , dirname[dir]), size=sz, dir=dir),
+            addr_bits, data_bits, is_master)
+        return res
 
 def gen_wishbone_pkg():
     global wb_pkg, wb_ports, wb_itf
@@ -104,21 +122,14 @@ def gen_wishbone_pkg():
 
 def expand_wishbone(root, module, isigs):
     """Create wishbone interface."""
-    addr_width = root.c_sel_bits + root.c_blk_bits - root.c_addr_word_bits
-    bus = [('rst',   HDLPort("rst_n_i")),
-           ('clk',   HDLPort("clk_i"))]
-    if addr_width > 0:
-        bus.append(('adr',   HDLPort("wb_adr_i", addr_width)))
-    bus.extend([
-           ('dati',  HDLPort("wb_dat_i", root.c_word_bits)),
-           ('dato',  HDLPort("wb_dat_o", root.c_word_bits, dir='OUT')),
-           ('cyc',   HDLPort("wb_cyc_i")),
-           ('sel',   HDLPort("wb_sel_i", root.c_word_size)),
-           ('stb',   HDLPort("wb_stb_i")),
-           ('we',    HDLPort("wb_we_i")),
-           ('ack',   HDLPort("wb_ack_o", dir='OUT')),
-           ('stall', HDLPort("wb_stall_o", dir='OUT'))])
-    add_bus(root, module, bus)
+    root.h_bus = {}
+    root.h_bus['rst'] = module.add_port('rst_n_i')
+    root.h_bus['clk'] = module.add_port('clk_i')
+
+    addr_bits = root.c_sel_bits + root.c_blk_bits - root.c_addr_word_bits
+
+    root.h_bus.update(
+        gen_wishbone(module, module, 'wb', addr_bits, root.c_word_bits, False, True))
     root.h_bussplit = False
 
     if isigs:
