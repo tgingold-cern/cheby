@@ -1,0 +1,67 @@
+# The top-level wishbone ports are grouped into records, as directed by the
+# 'x-dhl: busgroup: True' setting.
+
+# ------------------------------------------------------------------------------
+#  CERN BE-CO-HT
+#  Mock Turtle
+#  https://gitlab.cern.ch/coht/mockturtle
+# ------------------------------------------------------------------------------
+#
+#  unit name:   mt_cpu_xb
+#
+#  description: MT CPU Per-Core Local Bus
+#
+# ------------------------------------------------------------------------------
+#  Copyright CERN 2014-2018
+# ------------------------------------------------------------------------------
+#  Copyright and related rights are licensed under the Solderpad Hardware
+#  License, Version 2.0 (the "License"); you may not use this file except
+#  in compliance with the License. You may obtain a copy of the License at
+#  http://solderpad.org/licenses/SHL-2.0.
+#  Unless required by applicable law or agreed to in writing, software,
+#  hardware and materials distributed under this License is distributed on an
+#  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+#  or implied. See the License for the specific language governing permissions
+#  and limitations under the License.
+# ------------------------------------------------------------------------------
+
+memory-map:
+  bus: wb-32-be
+  name: mt_cpu_xb
+  description: Mock Turtle CPU Per-Core Local bus
+  x-hdl:
+    busgroup: True
+  children:
+  - submap:
+      address: 0x00100000
+      name: localreg
+      description: Per-Core Local Registers
+      filename: mt_cpu_lr.cheby
+  - submap:
+      address: 0x00200000
+      size:    0x00100000
+      name: hmq
+      description: Per-Core host message queue
+      interface: wb-32-be
+  - submap:
+      address: 0x00300000
+      size:    0x00100000
+      name: rmq
+      description: Per-Core remote message queue
+      interface: wb-32-be
+  - submap:
+      address: 0x20000000
+      size:    0x10000000
+      name: dp
+      description: Per-Core dedicated peripheral port
+      interface: wb-32-be
+      x-hdl:
+        busgroup: True
+  - submap:
+      address: 0x40000000
+      size:    0x40000000
+      name: si
+      description: Per-Core shared interconnect
+      interface: wb-32-be
+      x-hdl:
+        busgroup: True

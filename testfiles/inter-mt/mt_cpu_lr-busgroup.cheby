@@ -1,0 +1,262 @@
+# ------------------------------------------------------------------------------
+#  CERN BE-CO-HT
+#  Mock Turtle
+#  https://gitlab.cern.ch/coht/mockturtle
+# ------------------------------------------------------------------------------
+#
+#  unit name:   mt_cpu_lr
+#
+#  description: MT CPU Per-Core Local Registers block layout (wbgen2)
+#
+# ------------------------------------------------------------------------------
+#  Copyright CERN 2014-2018
+# ------------------------------------------------------------------------------
+#  Copyright and related rights are licensed under the Solderpad Hardware
+#  License, Version 2.0 (the "License"); you may not use this file except
+#  in compliance with the License. You may obtain a copy of the License at
+#  http://solderpad.org/licenses/SHL-2.0.
+#  Unless required by applicable law or agreed to in writing, software,
+#  hardware and materials distributed under this License is distributed on an
+#  "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express
+#  or implied. See the License for the specific language governing permissions
+#  and limitations under the License.
+# ------------------------------------------------------------------------------
+#  -*- Mode: LUA; tab-width: 2 -*-
+memory-map:
+  bus: wb-32-be
+  name: mt_cpu_lr
+  description: Mock Turtle CPU Per-Core Local Registers
+  x-wbgen:
+    hdl_entity: mt_cpu_lr_wb_slave
+  x-hdl:
+    iogroup: regs
+    busgroup: True
+  children:
+  - reg:
+      name: stat
+      address: 0x00000000
+      width: 32
+      access: ro
+      description: Status Register
+      children:
+      - field:
+          name: core_id
+          range: 3-0
+          description: ID (number) of the CPU core owning this register.
+          x-wbgen:
+            type: SLV
+            access_bus: READ_ONLY
+            access_dev: WRITE_ONLY
+  - reg:
+      name: ntf_int
+      address: 0x00000004
+      width: 32
+      access: rw
+      description: Notification Interrupt Register
+      children:
+      - field:
+          name: ""
+          range: 0
+          description: Write '1' to send a notification interrupt to the host.
+          x-wbgen:
+            type: SLV
+            access_bus: READ_WRITE
+            access_dev: READ_WRITE
+            load: LOAD_EXT
+            size: 1
+            field_description: Write '1' to send a notification interrupt to the host.
+      x-hdl:
+        write-strobe: True
+  - reg:
+      name: uart_chr
+      address: 0x00000008
+      width: 32
+      access: wo
+      description: Serial Console Output
+      children:
+      - field:
+          name: ""
+          range: 7-0
+          description: Write port for serial console.
+          x-wbgen:
+            type: PASS_THROUGH
+            field_description: Write port for serial console.
+          x-hdl:
+            type: wire
+            write-strobe: True
+  - reg:
+      name: hmq_stat
+      address: 0x00000040
+      width: 32
+      access: ro
+      description: HMQ Status Register
+      children:
+      - field:
+          name: in
+          range: 7-0
+          description: HMQ IN Slot Status
+          comment: |
+            Returns 1 if not empty (a message is available)
+          x-wbgen:
+            type: SLV
+            access_bus: READ_ONLY
+            access_dev: WRITE_ONLY
+      - field:
+          name: out
+          range: 23-16
+          description: HMQ OUT Slot Status
+          comment: |
+            Returns 1 if not full (a message can be sent)
+          x-wbgen:
+            type: SLV
+            access_bus: READ_ONLY
+            access_dev: WRITE_ONLY
+  - reg:
+      name: rmq_stat
+      address: 0x00000044
+      width: 32
+      access: ro
+      description: RMQ Status Register
+      children:
+      - field:
+          name: in
+          range: 7-0
+          description: RMQ IN Slot Status
+          comment: |
+            Returns 1 if not empty (a message is available)
+          x-wbgen:
+            type: SLV
+            access_bus: READ_ONLY
+            access_dev: WRITE_ONLY
+      - field:
+          name: out
+          range: 23-16
+          description: RMQ OUT Slot Status
+          comment: |
+            Returns 1 if not full (a message can be sent)
+          x-wbgen:
+            type: SLV
+            access_bus: READ_ONLY
+            access_dev: WRITE_ONLY
+  - reg:
+      name: wr_stat
+      address: 0x00000080
+      width: 32
+      access: ro
+      description: White Rabbit Status Register
+      children:
+      - field:
+          name: link_ok
+          range: 0
+          description: WR Link Up
+          x-wbgen:
+            type: BIT
+            access_bus: READ_ONLY
+            access_dev: WRITE_ONLY
+      - field:
+          name: time_ok
+          range: 1
+          description: WR Time OK
+          x-wbgen:
+            type: BIT
+            access_bus: READ_ONLY
+            access_dev: WRITE_ONLY
+      - field:
+          name: aux_clock_ok
+          range: 15-8
+          description: WR Aux Clock OK
+          x-wbgen:
+            type: SLV
+            access_bus: READ_ONLY
+            access_dev: WRITE_ONLY
+  - reg:
+      name: tai_cycles
+      address: 0x00000084
+      width: 32
+      access: ro
+      description: TAI Cycles
+      children:
+      - field:
+          name: ""
+          range: 27-0
+          description: When White Rabbit is enabled, this returns the TAI clock ticks.
+          comment: |
+            Without WR, it just counts ticks of the system clock
+          x-wbgen:
+            type: SLV
+            access_bus: READ_ONLY
+            access_dev: WRITE_ONLY
+            field_description: When White Rabbit is enabled, this returns the TAI clock ticks.
+            field_comment: |
+              Without WR, it just counts ticks of the system clock
+  - reg:
+      name: tai_sec
+      address: 0x00000088
+      width: 32
+      access: ro
+      description: TAI Seconds
+      comment: |
+        Without WR, it just counts seconds based on ticks of the system clock
+      x-wbgen:
+        type: SLV
+        access_bus: READ_ONLY
+        access_dev: WRITE_ONLY
+        ack_read: tai_sec_rd_ack_o
+        field_description: When White Rabbit is enabled, this returns the TAI seconds.
+        field_comment: |
+          Without WR, it just counts seconds based on ticks of the system clock
+      x-hdl:
+        read-strobe: True
+  - reg:
+      name: delay_cnt
+      address: 0x0000008c
+      width: 32
+      access: rw
+      description: Delay Counter Register
+      comment: |
+        Useful for generating delays.
+      x-wbgen:
+        type: SLV
+        access_bus: READ_WRITE
+        access_dev: READ_WRITE
+        load: LOAD_EXT
+        field_description: Counts down at every system clock cycle and stops at 0.
+        field_comment: |
+          Useful for generating delays.
+      x-hdl:
+        write-strobe: True
+  - reg:
+      name: gpio_in
+      address: 0x000000c0
+      width: 32
+      access: ro
+      description: GPIO Input
+      x-wbgen:
+        type: SLV
+        access_bus: READ_ONLY
+        access_dev: WRITE_ONLY
+        field_description: GPIO In
+  - reg:
+      name: gpio_set
+      address: 0x000000c4
+      width: 32
+      access: wo
+      description: GPIO Set
+      x-wbgen:
+        type: PASS_THROUGH
+        field_description: GPIO Set
+      x-hdl:
+        type: wire
+        write-strobe: True
+  - reg:
+      name: gpio_clear
+      address: 0x000000c8
+      width: 32
+      access: wo
+      description: GPIO Clear
+      x-wbgen:
+        type: PASS_THROUGH
+        field_description: GPIO Clear
+      x-hdl:
+        type: wire
+        write-strobe: True

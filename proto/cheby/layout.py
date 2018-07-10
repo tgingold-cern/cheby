@@ -258,6 +258,10 @@ def layout_submap(lo, n):
                 "no size in submap '{}'".format(n.get_path()))
         else:
             n.c_size = n.size
+        if n.interface is None:
+            raise LayoutException(n,
+                "no interface for generic submap '{}'".format(n.get_path()))
+        n.c_interface = n.interface
     else:
         if n.size is not None:
             raise LayoutException(n,
@@ -266,6 +270,14 @@ def layout_submap(lo, n):
         layout_cheby(submap)
         n.c_submap = submap
         n.c_size = n.c_submap.c_size
+        if n.interface is None:
+            n.c_interface = submap.bus
+        elif n.interface == 'include':
+            pass
+        else:
+            raise LayoutException(n,
+                "interface override is not allowed for submap '{}'".format(
+                    n.get_path()))
     align_block(lo, n)
 
 @Layout.register(tree.Block)

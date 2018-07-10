@@ -278,8 +278,7 @@ def wire_bus_slave_sram(root, stmts, n):
                           root.c_addr_word_bits,
                           n.c_blk_bits - root.c_addr_word_bits)))
 
-def gen_bus_slave(root, module, prefix, n, interface):
-    busgroup = n.get_extension('x_hdl', 'busgroup')
+def gen_bus_slave(root, module, prefix, n, interface, busgroup):
     if interface == 'wb-32-be':
         n.h_bus = gen_bus_slave_wb32(
             root, module, module, n.name, n.description, busgroup)
@@ -300,17 +299,23 @@ def add_ports_submap(root, module, prefix, n):
         npfx = n.name + '_'
     else:
         npfx = prefix + n.name + '_'
-    if n.filename is not None and n.interface == 'include':
-        # Inline
-        add_ports(root, module, npfx, n.c_submap)
+    if n.filename is None:
+        # Generic submap.
+        busgroup = n.get_extension('x_hdl', 'busgroup')
+        gen_bus_slave(root, module, npfx, n, n.interface, busgroup)
     else:
-        gen_bus_slave(root, module, npfx, n, n.interface)
+        if n.interface == 'include':
+            # Inline
+            add_ports(root, module, npfx, n.c_submap)
+        else:
+            busgroup = n.c_submap.get_extension('x_hdl', 'busgroup')
+            gen_bus_slave(root, module, npfx, n, n.c_interface, busgroup)
 
 
 def wire_submap(root, module, n, stmts):
-    if n.interface == 'wb-32-be':
+    if n.c_interface == 'wb-32-be':
         wire_bus_slave_wb32(root, stmts, n)
-    elif n.interface == 'sram':
+    elif n.c_interface == 'sram':
         wire_bus_slave_sram(root, stmts, n)
     else:
         raise AssertionError(n.interface)
@@ -545,14 +550,14 @@ def add_read_process(root, module, isigs):
                 raise AssertionError
             elif isinstance(n, tree.Submap):
                 s.append(HDLComment("Submap {}".format(n.name)))
-                if n.interface == 'wb-32-be':
+                if n.c_interface == 'wb-32-be':
                     s.append(HDLAssign(rd_data, n.h_bus['dati']))
                     rdproc.rst_stmts.append(HDLAssign(n.h_rd, bit_0))
                     rd_if.then_stmts.append(HDLAssign(n.h_rd, bit_0))
                     s.append(HDLAssign(n.h_rd, bit_1))
                     s.append(HDLAssign(isigs.rd_ack, n.h_bus['ack']))
                     return
-                elif n.interface == 'sram':
+                elif n.c_interface == 'sram':
                     return
                 else:
                     raise AssertionError
@@ -608,13 +613,13 @@ def add_write_process(root, module, isigs):
                 raise AssertionError
             elif isinstance(n, tree.Submap):
                 s.append(HDLComment("Submap {}".format(n.name)))
-                if n.interface == 'wb-32-be':
+                if n.c_interface == 'wb-32-be':
                     wrproc.rst_stmts.append(HDLAssign(n.h_wr, bit_0))
                     wr_if.then_stmts.append(HDLAssign(n.h_wr, bit_0))
                     s.append(HDLAssign(n.h_wr, bit_1))
                     s.append(HDLAssign(isigs.rd_ack, n.h_bus['ack']))
                     return
-                elif n.interface == 'sram':
+                elif n.c_interface == 'sram':
                     s.append(HDLAssign(n.h_wr_o, bit_1))
                     return
                 else:

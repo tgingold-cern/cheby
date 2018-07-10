@@ -153,7 +153,13 @@ def test_hdl():
     for f in ['simple_reg3.yaml', 'simple_reg4_ro.yaml',
               'reg_value1.yaml', 'reg_value2.yaml', 'reg_value3.yaml',
               'field_value1.yaml', 'field_value2.yaml',
-              'wb_slave_vic.cheby']:
+              'wb_slave_vic.cheby',
+              '../examples/svec-leds/leds.cheby',
+              'inter-mt/mt_cpu_xb.cheby',
+              'inter-mt/mt_cpu_xb-include.cheby',
+              'inter-mt/mt_cpu_xb-extern.cheby',
+              'inter-mt/mt_cpu_xb-busgroup.cheby',
+              'inter-mt/mt_cpu_xb-busgroup2.cheby']:
         if verbose:
             print('test hdl: {}'.format(f))
         t = parse_ok(srcdir + f)
