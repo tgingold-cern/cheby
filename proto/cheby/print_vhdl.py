@@ -438,6 +438,7 @@ def print_inters_list(fd, lst, name, indent):
         elif isinstance(p, hdltree.HDLParam):
             generate_param(fd, p, indent + 1)
         elif isinstance(p, hdltree.HDLPortGroup):
+            generate_decl_comment(fd, p.comment, indent + 1)
             group_typename = '{}_{}'.format(p.interface.name,
                 'master' if p.is_master else 'slave')
             windent(fd, indent + 1)

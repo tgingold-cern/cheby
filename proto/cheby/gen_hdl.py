@@ -72,10 +72,12 @@ def add_decode_wb(root, module, isigs):
     module.stmts.append(HDLAssign(root.h_bus['stall'],
                                   HDLAnd(HDLNot(isigs.ack_int), isigs.wb_en)))
 
-def gen_wishbone_bus(build_port, addr_bits, data_bits, is_master=False):
+def gen_wishbone_bus(build_port, addr_bits, data_bits, comment=None,
+                     is_master=False):
     res = {}
     inp, out = ('IN', 'OUT') if not is_master else ('OUT', 'IN')
     res['cyc'] = build_port('cyc', None, dir=inp)
+    res['cyc'].comment = comment
     res['stb'] = build_port('stb', None, dir=inp)
     if addr_bits > 0:
         res['adr'] = build_port('adr', addr_bits, dir=inp)
@@ -90,12 +92,14 @@ def gen_wishbone_bus(build_port, addr_bits, data_bits, is_master=False):
     res['dato'] = build_port('dat', data_bits, dir=out)
     return res
 
-def gen_wishbone(module, ports, name, addr_bits, data_bits, is_master, is_bus):
+def gen_wishbone(module, ports, name, addr_bits, data_bits, comment,
+                 is_master, is_bus):
     if is_bus:
         if wb_pkg is None:
             gen_wishbone_pkg()
             module.deps.append(('work', 'wishbone_pkg'))
         port = ports.add_port_group(name, wb_itf, is_master)
+        port.comment = comment
         res = {}
         for name, sig in wb_ports.items():
             res[name] = HDLInterfaceSelect(port, sig)
@@ -105,7 +109,7 @@ def gen_wishbone(module, ports, name, addr_bits, data_bits, is_master, is_bus):
         res = gen_wishbone_bus(
             lambda n, sz, dir: ports.add_port(
                 '{}_{}_{}'.format(name, n , dirname[dir]), size=sz, dir=dir),
-            addr_bits, data_bits, is_master)
+            addr_bits, data_bits, comment, is_master)
         return res
 
 def gen_wishbone_pkg():
@@ -126,10 +130,13 @@ def expand_wishbone(root, module, isigs):
     root.h_bus['rst'] = module.add_port('rst_n_i')
     root.h_bus['clk'] = module.add_port('clk_i')
 
+    busgroup = root.get_extension('x_hdl', 'busgroup')
+
     addr_bits = root.c_sel_bits + root.c_blk_bits - root.c_addr_word_bits
 
     root.h_bus.update(
-        gen_wishbone(module, module, 'wb', addr_bits, root.c_word_bits, False, True))
+        gen_wishbone(module, module, 'wb', addr_bits, root.c_word_bits,
+                     None, False, busgroup is True))
     root.h_bussplit = False
 
     if isigs:
@@ -236,19 +243,9 @@ def add_ports_reg(root, module, n):
         else:
             f.h_reg = None
 
-def gen_bus_slave_wb32(decls, n, make_output, make_input):
-    n.h_bus['cyc'] = decls.add_port(make_output('cyc'), dir='OUT')
-    n.h_bus['cyc'].comment = n.description
-    n.h_bus['stb'] = decls.add_port(make_output('stb'), dir='OUT')
-    n.h_bus['adr'] = decls.add_port(make_output('adr'), size=32, dir='OUT')
-    n.h_bus['sel'] = decls.add_port(make_output('sel'), size=4, dir='OUT')
-    n.h_bus['we'] = decls.add_port(make_output('we'), dir='OUT')
-    n.h_bus['dato'] = decls.add_port(make_output('dat'), size=32, dir='OUT')
-    n.h_bus['ack'] = decls.add_port(make_input('ack'), dir='IN')
-    n.h_bus['err'] = decls.add_port(make_input('err'), dir='IN')
-    n.h_bus['rty'] = decls.add_port(make_input('rty'), dir='IN')
-    n.h_bus['stall'] = decls.add_port(make_input('stall'), dir='IN')
-    n.h_bus['dati'] = decls.add_port(make_input('dat'), size=32, dir='IN')
+def gen_bus_slave_wb32(root, module, decls, name, comment, busgroup):
+    return gen_wishbone(module, decls, name, 32, root.c_word_bits, comment,
+                        True, busgroup is True)
 
 def wire_bus_slave_wb32(root, stmts, n):
     stmts.append(HDLComment("Assignments for submap {}".format(n.name)))
@@ -282,17 +279,17 @@ def wire_bus_slave_sram(root, stmts, n):
                           n.c_blk_bits - root.c_addr_word_bits)))
 
 def gen_bus_slave(root, module, prefix, n, interface):
-    n.h_bus = {}
+    busgroup = n.get_extension('x_hdl', 'busgroup')
     if interface == 'wb-32-be':
-        gen_bus_slave_wb32(module, n,
-                           make_output=(lambda name: prefix + name + '_o'),
-                           make_input=(lambda name: prefix + name + '_i'))
+        n.h_bus = gen_bus_slave_wb32(
+            root, module, module, n.name, n.description, busgroup)
         # Internal signals
         n.h_wr = HDLSignal(prefix + 'wr')
         module.decls.append(n.h_wr)
         n.h_rd = HDLSignal(prefix + 'rd')
         module.decls.append(n.h_rd)
     elif interface == 'sram':
+        n.h_bus = {}
         gen_bus_slave_sram(root, prefix, n)
     else:
         raise AssertionError(interface)
@@ -681,10 +678,10 @@ def generate_hdl(root):
     module.stmts.append(HDLComment('Assign outputs'))
     wire_regs(root, module, isigs, root)
 
-    module.stmts.append(HDLComment('Process to write registers.'))
+    module.stmts.append(HDLComment('Process for write requests.'))
     add_write_process(root, module, isigs)
 
-    module.stmts.append(HDLComment('Process to read registers.'))
+    module.stmts.append(HDLComment('Process for read requests.'))
     add_read_process(root, module, isigs)
 
     return module
