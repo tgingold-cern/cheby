@@ -27,6 +27,8 @@ from cheby.hdltree import (HDLModule, HDLPackage,
 import cheby.tree as tree
 from cheby.layout import ilog2
 
+dirname = {'IN': 'i', 'OUT': 'o'}
+
 # Package wishbone_pkg that contains the wishbone interface
 wb_pkg = None
 wb_itf = None
@@ -105,7 +107,6 @@ def gen_wishbone(module, ports, name, addr_bits, data_bits, comment,
             res[name] = HDLInterfaceSelect(port, sig)
         return res
     else:
-        dirname={'IN': 'i', 'OUT': 'o'}
         res = gen_wishbone_bus(
             lambda n, sz, dir: ports.add_port(
                 '{}_{}_{}'.format(name, n , dirname[dir]), size=sz, dir=dir),
@@ -188,13 +189,13 @@ def expand_cern_be_vme(root, module, isigs, buserr, split):
     if isigs:
         add_decode_cern_be_vme(root, module, isigs)
 
-def make_port_name_simple(el, suffix, di):
+def make_port_name_simple(el, suffix):
     if isinstance(el, tree.Field):
         return '{}_{}'.format(el._parent.name, el.name)
     else:
         return el.name
 
-def make_port_name_prefix(el, suffix, di):
+def make_port_name_prefix(el, suffix):
     if suffix:
         pfx = '_' + suffix
     else:
@@ -204,14 +205,11 @@ def make_port_name_prefix(el, suffix, di):
         pfx = (('_'+ l.name) if l.name else '') + pfx
         l = l._parent
 
-    if di:
-        return pfx[1:] + '_' + di
-    else:
-        return pfx[1:]
+    return pfx[1:]
 
 def add_module_port(root, module, name, size, dir):
     if root.h_itf is None:
-        return module.add_port(name, size, dir=dir)
+        return module.add_port(name + '_' + dirname[dir], size, dir=dir)
     else:
         p = root.h_itf.add_port(name, size, dir=dir)
         return HDLInterfaceSelect(root.h_ports, p)
@@ -223,7 +221,7 @@ def add_ports_reg(root, module, n):
         # Input
         if f.hdl_type == 'wire' and n.access in ['ro', 'rw']:
             f.h_iport = add_module_port(
-                root, module, root.h_make_port_name(f, None, 'i'), w, dir='IN')
+                root, module, root.h_make_port_name(f, None), w, dir='IN')
             f.h_iport.comment = f.description
         else:
             f.h_iport = None
@@ -231,7 +229,7 @@ def add_ports_reg(root, module, n):
         # Output
         if n.access in ['wo', 'rw']:
             f.h_oport = add_module_port(
-                root, module, root.h_make_port_name(f, None, 'o'), w, dir='OUT')
+                root, module, root.h_make_port_name(f, None), w, dir='OUT')
             f.h_oport.comment = f.description
         else:
             f.h_oport = None
@@ -239,13 +237,13 @@ def add_ports_reg(root, module, n):
         # Write strobe
         if f.hdl_write_strobe:
             f.h_wport = add_module_port(
-                root, module, root.h_make_port_name(f, 'wr', 'o'), None, dir='OUT')
+                root, module, root.h_make_port_name(f, 'wr'), None, dir='OUT')
         else:
             f.h_wport = None
 
         # Register
         if f.hdl_type == 'reg':
-            f.h_reg = HDLSignal(root.h_make_port_name(f, 'reg', None), w)
+            f.h_reg = HDLSignal(root.h_make_port_name(f, 'reg'), w)
             module.decls.append(f.h_reg)
         else:
             f.h_reg = None
