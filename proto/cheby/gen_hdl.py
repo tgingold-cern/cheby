@@ -468,6 +468,8 @@ def add_block_decoder(root, stmts, addr, children, hi, func):
         sw.choices.append(ch)
         add_block_decoder(root, ch.stmts, addr, l, maxszl2, func)
 
+    sw.choices.append(HDLChoiceDefault())
+
 
 def add_decoder(root, stmts, addr, n, func):
     """Call :param func: for each element of :param n:.  :param func: can also
@@ -592,7 +594,8 @@ def add_write_process(root, module, isigs):
             # Reset code
             if f.h_reg is not None:
                 v = 0 if f.preset is None else f.preset
-                wrproc.rst_stmts.append(HDLAssign(f.h_reg, HDLConst(v, f.c_rwidth)))
+                cst = HDLConst(v, f.c_iowidth if f.c_iowidth != 1 else None)
+                wrproc.rst_stmts.append(HDLAssign(f.h_reg, cst))
             # Assign code
             if f.hdl_type == 'reg':
                 r = f.h_reg
