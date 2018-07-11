@@ -120,7 +120,7 @@ def gen_wishbone_pkg():
     wb_itf = HDLInterface('t_wishbone')
     wb_pkg.decls.append(wb_itf)
     wb_ports = gen_wishbone_bus(
-        lambda n, sz, dir: wb_itf.add_port(n, size=sz, dir=dir), 32, 32, True)
+        lambda n, sz, dir: wb_itf.add_port(n, size=sz, dir=dir), 32, 32, None, True)
     return
 
 
@@ -209,30 +209,37 @@ def make_port_name_prefix(el, suffix, di):
     else:
         return pfx[1:]
 
+def add_module_port(root, module, name, size, dir):
+    if root.h_itf is None:
+        return module.add_port(name, size, dir=dir)
+    else:
+        p = root.h_itf.add_port(name, size, dir=dir)
+        return HDLInterfaceSelect(root.h_ports, p)
+
 def add_ports_reg(root, module, n):
     for f in n.children:
         w = None if f.c_iowidth == 1 else f.c_iowidth
 
         # Input
         if f.hdl_type == 'wire' and n.access in ['ro', 'rw']:
-            f.h_iport = root.h_ports.add_port(
-                root.h_make_port_name(f, None, 'i'), w, dir='IN')
+            f.h_iport = add_module_port(
+                root, module, root.h_make_port_name(f, None, 'i'), w, dir='IN')
             f.h_iport.comment = f.description
         else:
             f.h_iport = None
 
         # Output
         if n.access in ['wo', 'rw']:
-            f.h_oport = root.h_ports.add_port(
-                root.h_make_port_name(f, None, 'o'), w, dir='OUT')
+            f.h_oport = add_module_port(
+                root, module, root.h_make_port_name(f, None, 'o'), w, dir='OUT')
             f.h_oport.comment = f.description
         else:
             f.h_oport = None
 
         # Write strobe
         if f.hdl_write_strobe:
-            f.h_wport = root.h_ports.add_port(
-                root.h_make_port_name(f, 'wr', 'o'), None, dir='OUT')
+            f.h_wport = add_module_port(
+                root, module, root.h_make_port_name(f, 'wr', 'o'), None, dir='OUT')
         else:
             f.h_wport = None
 
@@ -673,10 +680,13 @@ def generate_hdl(root):
     # Add ports
     iogroup = root.get_extension('x_hdl', 'iogroup')
     if iogroup is not None:
-        grp = module.add_port_group(iogroup)
+        root.h_itf = HDLInterface('t_' + iogroup)
+        module.global_decls.append(root.h_itf)
+        grp = module.add_port_group(iogroup, root.h_itf, True)
         grp.comment = 'Wires and registers'
         root.h_ports = grp
     else:
+        root.h_itf = None
         root.h_ports = module
     add_ports(root, module, root.name.lower() + '_', root)
 

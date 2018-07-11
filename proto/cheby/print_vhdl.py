@@ -31,7 +31,6 @@ def generate_header(fd, module):
         if lib != 'work':
             wln(fd, 'library {};'.format(lib))
         wln(fd, "use {}.{}.all;".format(lib, pkg))
-    wln(fd)
 
 
 def generate_type_mark(s):
@@ -81,7 +80,7 @@ def generate_interface_port(fd, itf, dir, indent):
     for p in itf.ports:
         if p.dir == dir:
             windent(fd, indent + 1)
-            wln(fd, "{:<16} : {}".format(p.name, generate_vhdl_type(p)))
+            wln(fd, "{:<16} : {};".format(p.name, generate_vhdl_type(p)))
 
 def generate_interface(fd, itf, indent):
     generate_decl_comment(fd, itf.comment, indent)
@@ -239,6 +238,7 @@ def generate_expr(e, prio=-1):
     elif isinstance(e, hdltree.HDLIndex):
         return "{}({})".format(generate_expr(e.prefix), e.index)
     elif isinstance(e, hdltree.HDLInterfaceSelect):
+        # is_master means the direction is not reversed.
         sfx = 'i' if (e.subport.dir == 'IN') == (e.prefix.is_master) else 'o'
         return "{}_{}.{}".format(e.prefix.name, sfx, e.subport.name)
     else:
@@ -453,7 +453,19 @@ def print_inters_list(fd, lst, name, indent):
     wln(fd, ");")
 
 def print_module(fd, module):
+    if module.global_decls:
+        generate_header(fd, module)
+        wln(fd)
+        wln(fd, "package {}_pkg is".format(module.name))
+        for s in module.global_decls:
+            generate_decl(fd, s, 1)
+        wln(fd, "end {}_pkg;".format(module.name))
+        wln(fd)
+
     generate_header(fd, module)
+    if module.global_decls:
+        wln(fd, "use work.{}_pkg.all;".format(module.name))
+    wln(fd)
     wln(fd, "entity {} is".format(module.name))
     print_inters_list(fd, module.params, "generic", 1)
     print_inters_list(fd, module.ports, "port", 1)
@@ -472,6 +484,7 @@ def print_module(fd, module):
 
 def print_package(fd, n):
     generate_header(fd, n)
+    wln(fd)
     wln(fd, "package {} is".format(n.name))
     for d in n.decls:
         generate_decl(fd, d, 1)

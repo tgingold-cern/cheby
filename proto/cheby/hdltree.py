@@ -40,6 +40,7 @@ class HDLPortsBase(object):
 class HDLModule(HDLUnit, HDLPortsBase):
     def __init__(self, name=None):
         super(HDLModule, self).__init__(name)
+        self.global_decls = []
         self.params = []
         self.decls = []
         self.stmts = []
