@@ -259,7 +259,7 @@ def wire_bus_slave_wb32(root, stmts, n):
     stmts.append(HDLAssign(n.h_bus['adr'], root.h_bus['adr']))
     stmts.append(HDLAssign(n.h_bus['sel'], HDLReplicate(bit_1, 4)))
     stmts.append(HDLAssign(n.h_bus['we'], n.h_wr))
-    stmts.append(HDLAssign(n.h_bus['dato'], root.h_bus['dati']))
+    stmts.append(HDLAssign(n.h_bus['dati'], root.h_bus['dati']))
 
 def gen_bus_slave_sram(root, prefix, n):
     name = prefix + n.name + '_addr_o'
@@ -277,7 +277,7 @@ def gen_bus_slave_sram(root, prefix, n):
     n.h_wr_o = root.h_ports.add_port(name.lower(), None, dir='OUT')
 
 def wire_bus_slave_sram(root, stmts, n):
-    stmts.append(HDLAssign(n.h_data_o, root.h_bus['dati']))
+    stmts.append(HDLAssign(n.h_data_o, root.h_bus['dato']))
     stmts.append(HDLAssign(n.h_addr_o,
                  HDLSlice(root.h_bus['adr'],
                           root.c_addr_word_bits,
@@ -558,7 +558,7 @@ def add_read_process(root, module, isigs):
             elif isinstance(n, tree.Submap):
                 s.append(HDLComment("Submap {}".format(n.name)))
                 if n.c_interface == 'wb-32-be':
-                    s.append(HDLAssign(rd_data, n.h_bus['dati']))
+                    s.append(HDLAssign(rd_data, n.h_bus['dato']))
                     rdproc.rst_stmts.append(HDLAssign(n.h_rd, bit_0))
                     rd_if.then_stmts.append(HDLAssign(n.h_rd, bit_0))
                     s.append(HDLAssign(n.h_rd, bit_1))
