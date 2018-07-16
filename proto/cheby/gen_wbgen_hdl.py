@@ -403,9 +403,13 @@ def expand_bit(f, reg, name, isig, bus):
         size = None
     else:
         size = f.c_rwidth
-    port_type = {'SLV': 'L', 'BIT': 'L', 'UNSIGNED': 'U'}.get(typ, 'L')
+    port_type = {'SLV': 'L',
+                 'BIT': 'L',
+                 'UNSIGNED': 'U',
+                 'SIGNED': 'S'}.get(typ, 'L')
     type_name = {'SLV': 'std_logic_vector',
-                 'UNSIGNED': 'unsigned'}.get(typ, typ)
+                 'UNSIGNED': 'unsigned',
+                 'SIGNED': 'signed'}.get(typ, typ)
     if typ == 'BIT' and f.h_access == 'RW_RW' and clock:
         typ_str = "RW/RW BIT"
     else:
@@ -685,7 +689,7 @@ def expand_reg(root, r, isig, bus):
             typ = get_wbgen(f, 'type', 'SLV')
             if typ == 'PASS_THROUGH':
                 g = expand_passthrough(f, r, name, isig, bus)
-            elif typ in ['BIT', 'SLV', 'UNSIGNED']:
+            elif typ in ['BIT', 'SLV', 'UNSIGNED', 'SIGNED']:
                 g = expand_bit(f, r, name, isig, bus)
             elif typ == 'MONOSTABLE':
                 g = expand_monostable(f, r, name, isig, bus)
