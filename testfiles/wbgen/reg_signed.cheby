@@ -1,0 +1,28 @@
+memory-map:
+  bus: wb-32-be
+  name: reg1
+  description: register test 1
+  comment: |
+    A simple unsigned register
+  x-wbgen:
+    hdl_entity: reg1
+  children:
+  - reg:
+      name: r1
+      address: 0x00000000
+      width: 32
+      access: ro
+      description: Register 1
+      comment: |
+        Register 1 has two fields
+      children:
+      - field:
+          name: val
+          range: 3-0
+          description: Value
+          comment: |
+            Value of reg
+          x-wbgen:
+            type: SIGNED
+            access_bus: READ_ONLY
+            access_dev: WRITE_ONLY
