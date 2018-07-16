@@ -1,0 +1,22 @@
+peripheral {
+   name = "register test 1";
+   description = "A simple unsigned register";
+   prefix = "reg1";
+   hdl_entity = "reg1";
+
+   reg {
+     name = "Register 1";
+     description = "Register 1 has two fields";
+     prefix = "R1";
+
+      field {
+         name = "Value";
+         description = "Value of reg";
+         prefix = "val";
+         size = 4;
+         type = UNSIGNED;
+         access_bus = READ_ONLY;
+         access_dev = WRITE_ONLY;
+      };
+   };
+};

@@ -328,6 +328,7 @@ def test_gena2cheby_err():
 
 def test_wbgen2cheby():
     files=['reg1', 'reg_field1', 'reg_in', 'reg_noprefix',
+           'reg_unsigned',
            'reg_loadext', 'reg_ackread',
            'reg_rwrw_async', 'reg_rowo_async', 'reg_rwro_async',
            'reg_bit_rowo_async', 'reg_bit_rwro_async', 'reg_bit_rwrw_async',
