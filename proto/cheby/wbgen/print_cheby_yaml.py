@@ -151,7 +151,7 @@ class Writer_YAML(object):
             name = n.prefix
         else:
             name = '' # parent.prefix
-        self.wattr_str("name", name.lower())
+        self.wattr_str("name", name)
         if n.bit_len != 1:
             self.wattr_str("range",
                            "{}-{}".format(n.bit_offset + n.bit_len - 1,
@@ -189,7 +189,7 @@ class Writer_YAML(object):
             acc = accmap[acc][facc]
         self.write_pre_comment(n.pre_comment)
         self.wseq("reg")
-        self.wattr_str("name", n.prefix.lower())
+        self.wattr_str("name", n.prefix)
         self.write_address(n.addr_base)
         self.wattr_num("width", layout.DATA_WIDTH)
         self.wattr_str("access", acc)
