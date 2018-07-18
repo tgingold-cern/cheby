@@ -18,5 +18,9 @@ setup(
     description='Generate HDL/C/Doc from HW/SW interface description',
     license='GPLv2+',
     keywords="VHDL HDL registers driver",
-    url='https://gitlab.cern.ch/cohtdrivers/cheby'
+    url='https://gitlab.cern.ch/cohtdrivers/cheby',
+
+    install_requires=[
+        'pyyaml',
+    ],
 )
