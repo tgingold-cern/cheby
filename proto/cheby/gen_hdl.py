@@ -264,17 +264,17 @@ def wire_bus_slave_wb32(root, stmts, n):
 def gen_bus_slave_sram(root, prefix, n):
     name = prefix + n.name + '_addr_o'
     n.h_addr_o = root.h_ports.add_port(
-        name.lower(), n.c_blk_bits - root.c_addr_word_bits, dir='OUT')
+        name, n.c_blk_bits - root.c_addr_word_bits, dir='OUT')
     n.h_addr_o.comment = n.description
 
     name = prefix + n.name + '_data_i'
-    n.h_data_i = root.h_ports.add_port(name.lower(), n.c_width, dir='IN')
+    n.h_data_i = root.h_ports.add_port(name, n.c_width, dir='IN')
 
     name = prefix + n.name + '_data_o'
-    n.h_data_o = root.h_ports.add_port(name.lower(), n.c_width, dir='OUT')
+    n.h_data_o = root.h_ports.add_port(name, n.c_width, dir='OUT')
 
     name = prefix + n.name + '_wr_o'
-    n.h_wr_o = root.h_ports.add_port(name.lower(), None, dir='OUT')
+    n.h_wr_o = root.h_ports.add_port(name, None, dir='OUT')
 
 def wire_bus_slave_sram(root, stmts, n):
     stmts.append(HDLAssign(n.h_data_o, root.h_bus['dato']))
@@ -786,7 +786,7 @@ def generate_hdl(root):
     else:
         root.h_itf = None
         root.h_ports = module
-    add_ports(root, module, root.name.lower() + '_', root)
+    add_ports(root, module, root.name + '_', root)
 
     module.stmts.append(HDLComment('Assign outputs'))
     root.h_ram = None
