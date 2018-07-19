@@ -15,7 +15,7 @@
    also have conflicts with user names.
 """
 from cheby.hdltree import (HDLModule, HDLPackage,
-                           HDLInterface, HDLInterfaceSelect,
+                           HDLInterface, HDLInterfaceSelect, HDLInstance,
                            HDLPort, HDLSignal,
                            HDLAssign, HDLSync, HDLComment,
                            HDLSwitch, HDLChoiceExpr, HDLChoiceDefault,
@@ -23,7 +23,7 @@ from cheby.hdltree import (HDLModule, HDLPackage,
                            bit_1, bit_0, bit_x,
                            HDLAnd, HDLOr, HDLNot, HDLEq,
                            HDLSlice, HDLReplicate, Slice_or_Index,
-                           HDLConst)
+                           HDLConst, HDLNumber, HDLBool)
 import cheby.tree as tree
 from cheby.layout import ilog2
 
@@ -325,6 +325,75 @@ def wire_submap(root, module, n, stmts):
     else:
         raise AssertionError(n.interface)
 
+def add_ports_array_reg(root, module, prefix, reg):
+    # Compute width
+    # Create ports
+    reg.h_addr_width = ilog2(reg._parent.repeat)
+    reg.h_addr = add_module_port(
+        root, module, reg.name + '_adr', reg.h_addr_width, 'IN')
+    reg.h_addr.comment = "RAM port for {}".format(reg.name)
+    if reg.access == 'ro':
+        reg.h_we = add_module_port(
+            root, module, reg.name + '_we', None, 'IN')
+        reg.h_dat = add_module_port(
+            root, module, reg.name + '_dat', reg.c_rwidth, 'IN')
+    else:
+        reg.h_rd = add_module_port(
+            root, module, reg.name + '_rd', None, 'IN')
+        reg.h_dat = add_module_port(
+            root, module, reg.name + '_dat', reg.c_rwidth, 'OUT')
+
+def wire_array_reg(root, module, reg):
+    if root.h_ram is None:
+        module.deps.append(('work', 'wbgen2_pkg'))
+        root.h_ram = True
+    inst = HDLInstance(reg.name + "_raminst", "wbgen2_dpssram")
+    module.stmts.append(inst)
+    inst.params.append(("g_data_width", HDLNumber(reg.c_rwidth)))
+    inst.params.append(("g_size", HDLNumber(1 << reg.h_addr_width)))
+    inst.params.append(("g_addr_width", HDLNumber(reg.h_addr_width)))
+    inst.params.append(("g_dual_clock", HDLBool(False)))
+    inst.params.append(("g_use_bwsel", HDLBool(False)))
+    inst.conns.append(("clk_a_i", root.h_bus['clk']))
+    inst.conns.append(("clk_b_i", root.h_bus['clk']))
+    inst.conns.append(("addr_a_i",
+                       HDLSlice(root.h_bus['adr'], 0, reg.h_addr_width)))
+    inst.conns.append(("addr_b_i", reg.h_addr))
+
+    nbr_bytes = reg.c_rwidth // tree.BYTE_SIZE
+    reg.h_sig_bwsel = HDLSignal(reg.name + '_int_bwsel', nbr_bytes)
+    module.decls.append(reg.h_sig_bwsel)
+    inst.conns.append(("bwsel_b_i", reg.h_sig_bwsel))
+    inst.conns.append(("bwsel_a_i", reg.h_sig_bwsel))
+
+    if reg.access == 'ro':
+        raise AssertionError # TODO
+        inst.conns.append(("data_a_o", reg.h_dat))
+        inst.conns.append(("rd_a_i", rd_sig))
+    else:
+        reg.h_sig_dato = HDLSignal(reg.name + '_int_dato', reg.c_rwidth)
+        module.decls.append(reg.h_sig_dato)
+        reg.h_dat_ign = HDLSignal(reg.name + '_ext_dat', reg.c_rwidth)
+        module.decls.append(reg.h_dat_ign)
+        reg.h_sig_rd = HDLSignal(reg.name + '_int_rd')
+        module.decls.append(reg.h_sig_rd)
+        reg.h_sig_wr = HDLSignal(reg.name + '_int_wr')
+        module.decls.append(reg.h_sig_wr)
+        reg.h_ext_wr = HDLSignal(reg.name + '_ext_wr')
+        module.decls.append(reg.h_ext_wr)
+
+        inst.conns.append(("data_a_i", root.h_bus['dati']))
+        inst.conns.append(("data_a_o", reg.h_sig_dato))
+        inst.conns.append(("rd_a_i", reg.h_sig_rd))
+        inst.conns.append(("wr_a_i", reg.h_sig_wr))
+
+        inst.conns.append(("data_b_i", reg.h_dat_ign))
+        inst.conns.append(("data_b_o", reg.h_dat))
+        inst.conns.append(("rd_b_i", reg.h_rd))
+        inst.conns.append(("wr_b_i", reg.h_ext_wr))
+
+    module.stmts.append(HDLAssign(reg.h_sig_bwsel,
+                                  HDLReplicate(bit_1, nbr_bytes)))
 
 def add_ports(root, module, prefix, node):
     """Create ports for a composite node."""
@@ -337,8 +406,12 @@ def add_ports(root, module, prefix, node):
             # Interface
             add_ports_submap(root, module, prefix, n)
         elif isinstance(n, tree.Array):
-            # TODO
-            raise AssertionError
+            for c in n.children:
+                if isinstance(c, tree.Reg):
+                    # Ram
+                    add_ports_array_reg(root, module, prefix, c)
+                else:
+                    raise AssertionError(c)
         elif isinstance(n, tree.Reg):
             add_ports_reg(root, module, n)
         else:
@@ -357,7 +430,12 @@ def wire_regs(root, module, isigs, node):
             else:
                 wire_submap(root, module, n, stmts)
         elif isinstance(n, tree.Array):
-            pass
+            for c in n.children:
+                if isinstance(c, tree.Reg):
+                    # Ram
+                    wire_array_reg(root, module, c)
+                else:
+                    raise AssertionError(c)
         elif isinstance(n, tree.Reg):
             for f in n.children:
                 if f.h_reg is not None and f.h_oport is not None:
@@ -411,7 +489,9 @@ def gather_children(n):
             return gather_children(n.c_submap)
         else:
             return [n]
-    elif isinstance(n, (tree.Root, tree.ComplexNode)):
+    elif isinstance(n, tree.Array):
+        return [n]
+    elif isinstance(n, (tree.Root, tree.Block)):
         r = []
         for e in n.children:
             r.extend(gather_children(e))
@@ -553,8 +633,6 @@ def add_read_process(root, module, isigs):
                 s.append(HDLComment(n.name))
                 if n.access != 'wo':
                     add_read_reg(s, n, off)
-            elif isinstance(n, tree.Block):
-                raise AssertionError
             elif isinstance(n, tree.Submap):
                 s.append(HDLComment("Submap {}".format(n.name)))
                 if n.c_interface == 'wb-32-be':
@@ -568,8 +646,19 @@ def add_read_process(root, module, isigs):
                     return
                 else:
                     raise AssertionError
+            elif isinstance(n, tree.Array):
+                # TODO: handle list of registers!
+                r = n.children[0]
+                s.append(HDLAssign(rd_data, r.h_sig_dato))
+                rdproc.rst_stmts.append(HDLAssign(r.h_sig_rd, bit_0))
+                rd_if.else_stmts.append(HDLAssign(r.h_sig_rd, bit_0))
+                s.append(HDLAssign(r.h_sig_rd, bit_1))
+                s.append(HDLComment('TODO: delay ack'))
+                s.append(HDLAssign(isigs.rd_ack, bit_1))
+                return
             else:
-                s.append(HDLComment("TODO: ??"))  # Array ?
+                # Blocks have been handled.
+                raise AssertionError
         # All the read are ack'ed (including the read to unassigned addresses).
         s.append(HDLAssign(isigs.rd_ack, bit_1))
 
@@ -617,23 +706,31 @@ def add_write_process(root, module, isigs):
                 s.append(HDLComment(n.name))
                 if n.access in ['wo', 'rw']:
                     add_write_reg(s, n, off)
-            elif isinstance(n, tree.Block):
-                raise AssertionError
             elif isinstance(n, tree.Submap):
                 s.append(HDLComment("Submap {}".format(n.name)))
                 if n.c_interface == 'wb-32-be':
                     wrproc.rst_stmts.append(HDLAssign(n.h_wr, bit_0))
                     wr_if.then_stmts.append(HDLAssign(n.h_wr, bit_0))
                     s.append(HDLAssign(n.h_wr, bit_1))
-                    s.append(HDLAssign(isigs.rd_ack, n.h_bus['ack']))
+                    s.append(HDLAssign(isigs.wr_ack, n.h_bus['ack']))
                     return
                 elif n.c_interface == 'sram':
                     s.append(HDLAssign(n.h_wr_o, bit_1))
                     return
                 else:
                     raise AssertionError
+            elif isinstance(n, tree.Array):
+                # TODO: handle list of registers!
+                r = n.children[0]
+                wrproc.rst_stmts.append(HDLAssign(r.h_sig_wr, bit_0))
+                wr_if.else_stmts.append(HDLAssign(r.h_sig_wr, bit_0))
+                s.append(HDLAssign(r.h_sig_wr, bit_1))
+                s.append(HDLComment('TODO: delay ack'))
+                s.append(HDLAssign(isigs.wr_ack, bit_1))
+                return
             else:
-                s.append(HDLComment("TODO: ??"))  # Array ?
+                # Including blocks.
+                raise AssertionError
         # All the write are ack'ed (including the write to unassigned
         # addresses)
         s.append(HDLAssign(isigs.wr_ack, bit_1))
@@ -692,6 +789,7 @@ def generate_hdl(root):
     add_ports(root, module, root.name.lower() + '_', root)
 
     module.stmts.append(HDLComment('Assign outputs'))
+    root.h_ram = None
     wire_regs(root, module, isigs, root)
 
     module.stmts.append(HDLComment('Process for write requests.'))
