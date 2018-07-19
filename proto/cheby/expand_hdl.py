@@ -50,12 +50,12 @@ def tree_copy(n, new_parent):
         res._parent = new_parent
         res.children = [tree_copy(f, res) for f in n.children]
         return res
-    elif isinstance(n, tree.Field):
+    elif isinstance(n, tree.FieldBase):
         res = copy.copy(n)
         res._parent = new_parent
         return res
     else:
-        raise AssertionError
+        raise AssertionError(n)
 
 
 def unroll_array(n):
