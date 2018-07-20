@@ -83,7 +83,7 @@ def convert_common(res, e):
     elif e._name == 'c_prefix':
         res.c_prefix = s.upper()
     elif e._name == 'hdl_prefix':
-        res.hdl_prefix = s.lower()
+        res.hdl_prefix = s
 
 
 def convert_field_access(e):
