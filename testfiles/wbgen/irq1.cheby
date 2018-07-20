@@ -8,7 +8,7 @@ memory-map:
     hdl_entity: irq1
   children:
   - reg:
-      name: r1
+      name: R1
       address: 0x00000000
       width: 32
       access: rw

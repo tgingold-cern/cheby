@@ -6,7 +6,7 @@ memory-map:
     hdl_entity: ramreg
   children:
   - reg:
-      name: r1
+      name: R1
       address: 0x00000000
       width: 32
       access: rw
@@ -25,7 +25,7 @@ memory-map:
             access_bus: READ_WRITE
             access_dev: READ_ONLY
   - reg:
-      name: r2
+      name: R2
       address: 0x00000004
       width: 32
       access: rw

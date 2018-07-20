@@ -8,7 +8,7 @@ memory-map:
     hdl_entity: regf
   children:
   - reg:
-      name: r1
+      name: R1
       address: 0x00000000
       width: 32
       access: rw
