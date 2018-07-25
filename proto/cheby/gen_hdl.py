@@ -347,6 +347,10 @@ def wire_array_reg(root, module, reg):
     if root.h_ram is None:
         module.deps.append(('work', 'wbgen2_pkg'))
         root.h_ram = True
+        root.h_ram_rd_dly = HDLSignal("rd_dly_int")
+        module.decls.append(root.h_ram_rd_dly)
+        root.h_ram_wr_dly = HDLSignal("wr_dly_int")
+        module.decls.append(root.h_ram_wr_dly)
     inst = HDLInstance(reg.name + "_raminst", "wbgen2_dpssram")
     module.stmts.append(inst)
     inst.params.append(("g_data_width", HDLNumber(reg.c_rwidth)))
@@ -371,6 +375,7 @@ def wire_array_reg(root, module, reg):
         inst.conns.append(("data_a_o", reg.h_dat))
         inst.conns.append(("rd_a_i", rd_sig))
     else:
+        # External port is RO.
         reg.h_sig_dato = HDLSignal(reg.name + '_int_dato', reg.c_rwidth)
         module.decls.append(reg.h_sig_dato)
         reg.h_dat_ign = HDLSignal(reg.name + '_ext_dat', reg.c_rwidth)
@@ -381,6 +386,7 @@ def wire_array_reg(root, module, reg):
         module.decls.append(reg.h_sig_wr)
         reg.h_ext_wr = HDLSignal(reg.name + '_ext_wr')
         module.decls.append(reg.h_ext_wr)
+        module.stmts.append(HDLAssign(reg.h_ext_wr, bit_0))
 
         inst.conns.append(("data_a_i", root.h_bus['dati']))
         inst.conns.append(("data_a_o", reg.h_sig_dato))
@@ -607,6 +613,8 @@ def add_read_process(root, module, isigs):
                                       HDLReplicate(bit_x, root.c_word_bits)))
     rdproc.sync_stmts.append(HDLAssign(rd_data,
                                        HDLReplicate(bit_x, root.c_word_bits)))
+    if root.h_ram_rd_dly is not None:
+        rdproc.rst_stmts.append(HDLAssign(root.h_ram_rd_dly, bit_0))
     rd_if = HDLIfElse(HDLAnd(HDLEq(isigs.rd_int, bit_1),
                              HDLEq(isigs.rd_ack, bit_0)))
     rdproc.sync_stmts.append(rd_if)
@@ -652,9 +660,12 @@ def add_read_process(root, module, isigs):
                 s.append(HDLAssign(rd_data, r.h_sig_dato))
                 rdproc.rst_stmts.append(HDLAssign(r.h_sig_rd, bit_0))
                 rd_if.else_stmts.append(HDLAssign(r.h_sig_rd, bit_0))
-                s.append(HDLAssign(r.h_sig_rd, bit_1))
-                s.append(HDLComment('TODO: delay ack'))
-                s.append(HDLAssign(isigs.rd_ack, bit_1))
+                s2 = HDLIfElse(HDLEq(root.h_ram_rd_dly, bit_0))
+                s.append(s2)
+                s2.then_stmts.append(HDLAssign(r.h_sig_rd, bit_1))
+                s2.then_stmts.append(HDLAssign(root.h_ram_rd_dly, bit_1))
+                s2.else_stmts.append(HDLAssign(root.h_ram_rd_dly, bit_0))
+                s2.else_stmts.append(HDLAssign(isigs.rd_ack, bit_1))
                 return
             else:
                 # Blocks have been handled.
@@ -671,6 +682,8 @@ def add_write_process(root, module, isigs):
     # Register write
     wrproc = HDLSync(root.h_bus['clk'], root.h_bus['rst'])
     module.stmts.append(wrproc)
+    if root.h_ram_wr_dly is not None:
+        wrproc.rst_stmts.append(HDLAssign(root.h_ram_wr_dly, bit_0))
     wr_if = HDLIfElse(HDLAnd(HDLEq(isigs.wr_int, bit_1),
                              HDLEq(isigs.wr_ack, bit_0)))
     wr_if.else_stmts.append(HDLAssign(isigs.wr_ack, bit_0))
@@ -724,9 +737,12 @@ def add_write_process(root, module, isigs):
                 r = n.children[0]
                 wrproc.rst_stmts.append(HDLAssign(r.h_sig_wr, bit_0))
                 wr_if.else_stmts.append(HDLAssign(r.h_sig_wr, bit_0))
-                s.append(HDLAssign(r.h_sig_wr, bit_1))
-                s.append(HDLComment('TODO: delay ack'))
-                s.append(HDLAssign(isigs.wr_ack, bit_1))
+                s2 = HDLIfElse(HDLEq(root.h_ram_wr_dly, bit_0))
+                s.append(s2)
+                s2.then_stmts.append(HDLAssign(r.h_sig_wr, bit_1))
+                s2.then_stmts.append(HDLAssign(root.h_ram_wr_dly, bit_1))
+                s2.else_stmts.append(HDLAssign(root.h_ram_wr_dly, bit_0))
+                s2.else_stmts.append(HDLAssign(isigs.wr_ack, bit_1))
                 return
             else:
                 # Including blocks.
@@ -790,6 +806,8 @@ def generate_hdl(root):
 
     module.stmts.append(HDLComment('Assign outputs'))
     root.h_ram = None
+    root.h_ram_rd_dly = None
+    root.h_ram_wr_dly = None
     wire_regs(root, module, isigs, root)
 
     module.stmts.append(HDLComment('Process for write requests.'))
