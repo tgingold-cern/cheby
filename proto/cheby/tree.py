@@ -6,7 +6,8 @@
      They musnt' have an 'X_' prefix.
    - Extensions are stored as python data in a 'x_XXX' field, where 'XXX' is
      the name of the extension.
-   - Computed values have the 'c_' prefix."""
+   - Computed values have the 'c_' prefix (layout module).
+   - HDL fields have the 'h_' prefix (gen_hdl module). """
 
 BYTE_SIZE = 8
 

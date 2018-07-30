@@ -8,6 +8,7 @@ import cheby.layout as layout
 import cheby.pprint as pprint
 import cheby.sprint as sprint
 import cheby.cprint as cprint
+import cheby.gen_name as gen_name
 import cheby.gen_hdl as gen_hdl
 import cheby.print_vhdl as print_vhdl
 import cheby.gen_laychk as gen_laychk
@@ -165,6 +166,7 @@ def test_hdl():
         t = parse_ok(srcdir + f)
         layout_ok(t)
         expand_hdl.expand_hdl(t)
+        gen_name.gen_name_root(t)
         h = gen_hdl.generate_hdl(t)
         print_vhdl.print_vhdl(fd, h)
 

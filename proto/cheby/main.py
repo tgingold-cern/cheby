@@ -13,6 +13,7 @@ import cheby.gen_hdl as gen_hdl
 import cheby.print_vhdl as print_vhdl
 import cheby.print_encore as print_encore
 import cheby.expand_hdl as expand_hdl
+import cheby.gen_name as gen_name
 import cheby.gen_gena_memmap as gen_gena_memmap
 import cheby.gen_gena_regctrl as gen_gena_regctrl
 import cheby.gen_wbgen_hdl as gen_wbgen_hdl
@@ -110,6 +111,7 @@ def handle_file(args, filename):
         print_vhdl.style = 'wbgen'
         print_vhdl.print_vhdl(sys.stdout, h)
     if args.gen_vhdl:
+        gen_name.gen_name_root(t)
         h = gen_hdl.generate_hdl(t)
         print_vhdl.print_vhdl(sys.stdout, h)
 

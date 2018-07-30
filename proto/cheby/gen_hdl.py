@@ -189,24 +189,6 @@ def expand_cern_be_vme(root, module, isigs, buserr, split):
     if isigs:
         add_decode_cern_be_vme(root, module, isigs)
 
-def make_port_name_simple(el, suffix):
-    if isinstance(el, tree.Field):
-        return '{}_{}'.format(el._parent.name, el.name)
-    else:
-        return el.name
-
-def make_port_name_prefix(el, suffix):
-    if suffix:
-        pfx = '_' + suffix
-    else:
-        pfx = ''
-    l = el
-    while l._parent is not None:
-        pfx = (('_'+ l.name) if l.name else '') + pfx
-        l = l._parent
-
-    return pfx[1:]
-
 def add_module_port(root, module, name, size, dir):
     if root.h_itf is None:
         return module.add_port(name + '_' + dirname[dir], size, dir=dir)
@@ -220,16 +202,14 @@ def add_ports_reg(root, module, n):
 
         # Input
         if f.hdl_type == 'wire' and n.access in ['ro', 'rw']:
-            f.h_iport = add_module_port(
-                root, module, root.h_make_port_name(f, None), w, dir='IN')
+            f.h_iport = add_module_port(root, module, f.c_name, w, dir='IN')
             f.h_iport.comment = f.description
         else:
             f.h_iport = None
 
         # Output
         if n.access in ['wo', 'rw']:
-            f.h_oport = add_module_port(
-                root, module, root.h_make_port_name(f, None), w, dir='OUT')
+            f.h_oport = add_module_port(root, module, f.c_name, w, dir='OUT')
             f.h_oport.comment = f.description
         else:
             f.h_oport = None
@@ -237,13 +217,13 @@ def add_ports_reg(root, module, n):
         # Write strobe
         if f.hdl_write_strobe:
             f.h_wport = add_module_port(
-                root, module, root.h_make_port_name(f, 'wr'), None, dir='OUT')
+                root, module, f.c_name + '_wr', None, dir='OUT')
         else:
             f.h_wport = None
 
         # Register
         if f.hdl_type == 'reg':
-            f.h_reg = HDLSignal(root.h_make_port_name(f, 'reg'), w)
+            f.h_reg = HDLSignal(f.c_name + '_reg', w)
             module.decls.append(f.h_reg)
         else:
             f.h_reg = None
@@ -299,22 +279,18 @@ def gen_bus_slave(root, module, prefix, n, interface, busgroup):
         raise AssertionError(interface)
 
 
-def add_ports_submap(root, module, prefix, n):
-    if True:
-        npfx = n.name + '_'
-    else:
-        npfx = prefix + n.name + '_'
+def add_ports_submap(root, module, n):
     if n.filename is None:
         # Generic submap.
         busgroup = n.get_extension('x_hdl', 'busgroup')
-        gen_bus_slave(root, module, npfx, n, n.interface, busgroup)
+        gen_bus_slave(root, module, n.c_name + '_', n, n.interface, busgroup)
     else:
         if n.interface == 'include':
             # Inline
-            add_ports(root, module, npfx, n.c_submap)
+            add_ports(root, module, n.c_submap)
         else:
             busgroup = n.c_submap.get_extension('x_hdl', 'busgroup')
-            gen_bus_slave(root, module, npfx, n, n.c_interface, busgroup)
+            gen_bus_slave(root, module, n.c_name + '_', n, n.c_interface, busgroup)
 
 
 def wire_submap(root, module, n, stmts):
@@ -325,7 +301,7 @@ def wire_submap(root, module, n, stmts):
     else:
         raise AssertionError(n.interface)
 
-def add_ports_array_reg(root, module, prefix, reg):
+def add_ports_array_reg(root, module, reg):
     # Compute width
     # Create ports
     reg.h_addr_width = ilog2(reg._parent.repeat)
@@ -401,21 +377,21 @@ def wire_array_reg(root, module, reg):
     module.stmts.append(HDLAssign(reg.h_sig_bwsel,
                                   HDLReplicate(bit_1, nbr_bytes)))
 
-def add_ports(root, module, prefix, node):
+def add_ports(root, module, node):
     """Create ports for a composite node."""
     for n in node.children:
         if isinstance(n, tree.Block):
             if n.children:
                 # Recurse
-                add_ports(root, module, prefix + n.name + '_', n)
+                add_ports(root, module, n)
         elif isinstance(n, tree.Submap):
             # Interface
-            add_ports_submap(root, module, prefix, n)
+            add_ports_submap(root, module, n)
         elif isinstance(n, tree.Array):
             for c in n.children:
                 if isinstance(c, tree.Reg):
                     # Ram
-                    add_ports_array_reg(root, module, prefix, c)
+                    add_ports_array_reg(root, module, c)
                 else:
                     raise AssertionError(c)
         elif isinstance(n, tree.Reg):
@@ -767,7 +743,6 @@ def gen_hdl_header(root, isigs=None):
 
     # Create the bus
     if root.bus == 'wb-32-be':
-        root.h_make_port_name = make_port_name_prefix
         expand_wishbone(root, module, isigs)
     elif root.bus.startswith('cern-be-vme-'):
         names = root.bus[12:].split('-')
@@ -778,7 +753,6 @@ def gen_hdl_header(root, isigs=None):
         if split:
             del names[0]
         assert len(names) == 1
-        root.h_make_port_name = make_port_name_simple
         expand_cern_be_vme(root, module, isigs, err, split)
     else:
         raise HdlError("Unhandled bus '{}'".format(root.bus))
@@ -802,7 +776,7 @@ def generate_hdl(root):
     else:
         root.h_itf = None
         root.h_ports = module
-    add_ports(root, module, root.name + '_', root)
+    add_ports(root, module, root)
 
     module.stmts.append(HDLComment('Assign outputs'))
     root.h_ram = None
