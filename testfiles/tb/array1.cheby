@@ -1,6 +1,8 @@
 memory-map:
   bus: wb-32-be
   name: array1
+  x-hdl:
+    busgroup: True
   children:
   - array:
       name: arr
