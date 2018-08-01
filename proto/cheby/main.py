@@ -11,6 +11,7 @@ import cheby.gen_laychk as gen_laychk
 import cheby.layout as layout
 import cheby.gen_hdl as gen_hdl
 import cheby.print_vhdl as print_vhdl
+import cheby.print_verilog as print_verilog
 import cheby.print_encore as print_encore
 import cheby.expand_hdl as expand_hdl
 import cheby.gen_name as gen_name
@@ -37,6 +38,8 @@ def decode_args():
                          help='generate c file to check layout of the header')
     aparser.add_argument('--gen-vhdl', action='store_true',
                          help='generate vhdl file')
+    aparser.add_argument('--gen-verilog', action='store_true',
+                         help='generate verilog file')
     aparser.add_argument('--gen-encore', action='store_true',
                          help='generate encore file')
     aparser.add_argument('--gen-gena-memmap', action='store_true',
@@ -110,10 +113,13 @@ def handle_file(args, filename):
            date=time.strftime("%a %b %d %X %Y")))
         print_vhdl.style = 'wbgen'
         print_vhdl.print_vhdl(sys.stdout, h)
-    if args.gen_vhdl:
+    if args.gen_vhdl or args.gen_verilog:
         gen_name.gen_name_root(t)
         h = gen_hdl.generate_hdl(t)
-        print_vhdl.print_vhdl(sys.stdout, h)
+        if args.gen_vhdl:
+            print_vhdl.print_vhdl(sys.stdout, h)
+        if args.gen_verilog:
+            print_verilog.print_verilog(sys.stdout, h)
 
 
 def main():
