@@ -40,8 +40,6 @@ def decode_args():
                          help='select language for hdl generation')
     aparser.add_argument('--gen-hdl', action='store_true',
                          help='generate hdl file')
-    aparser.add_argument('--gen-verilog', action='store_true',
-                         help='generate verilog file')
     aparser.add_argument('--gen-encore', action='store_true',
                          help='generate encore file')
     aparser.add_argument('--gen-gena-memmap', action='store_true',
