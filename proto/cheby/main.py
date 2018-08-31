@@ -18,6 +18,7 @@ import cheby.gen_name as gen_name
 import cheby.gen_gena_memmap as gen_gena_memmap
 import cheby.gen_gena_regctrl as gen_gena_regctrl
 import cheby.gen_wbgen_hdl as gen_wbgen_hdl
+import cheby.print_html as print_html
 
 
 def decode_args():
@@ -48,6 +49,8 @@ def decode_args():
                          help='generate Gena RegCtrl file')
     aparser.add_argument('--gen-wbgen-hdl', action='store_true',
                          help='generate wbgen hdl')
+    aparser.add_argument('--gen-doc', action='store_true',
+                         help='generate documentation (html)')
     aparser.add_argument('FILE', nargs='+')
 
     return aparser.parse_args()
@@ -102,6 +105,8 @@ def handle_file(args, filename):
             gen_gena_memmap.gen_gena_memmap(t)
         h = gen_gena_regctrl.gen_gena_regctrl(t)
         print_vhdl.print_vhdl(sys.stdout, h)
+    if args.gen_doc:
+        print_html.pprint(t, sys.stdout)
     if args.gen_wbgen_hdl:
         h = gen_wbgen_hdl.expand_hdl(t)
         (basename, _) = os.path.splitext(os.path.basename(filename))

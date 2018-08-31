@@ -18,6 +18,10 @@ mode_suffix_map = {'IN': '_i', 'OUT': '_o'}
 def get_wbgen(n, name, default=None):
     return n.get_extension('x_wbgen', name, default)
 
+def get_hdl_entity(root):
+    assert isinstance(root, tree.Root)
+    return get_wbgen(root, 'hdl_entity', root.name)
+
 def get_hdl_prefix(n):
     return get_wbgen(n, 'hdl_prefix', n.name.lower() if n.name is not None else None)
 
