@@ -112,8 +112,17 @@ def print_symbol(periph):
     return res + print_symbol_table(left, right)
 
 
-def print_regdescr_reg(periph, r, num):
-    res = '''<a name="{cprefix}"></a>
+class SummaryRaw(object):
+    def __init__(self, address, typ, name, node):
+        self.address = address
+        self.typ = typ
+        self.name = name
+        self.node = node
+
+
+def print_regdescr_reg(periph, raw, num):
+    r = raw.node
+    res = '''<a name="{name}"></a>
 <h3><a name="sect_3_{n}">2.{n}. {name}</a></h3>
 <table cellpadding=0 cellspacing=0 border=0>
 <tr><td><b>HW prefix:  </b></td><td class="td_code">{hdlprefix}</td></tr>
@@ -125,7 +134,7 @@ def print_regdescr_reg(periph, r, num):
            hdlprefix="{}_{}".format(get_hdl_prefix(periph),
                                     get_hdl_prefix(r)),
            addr=r.c_address, caddr=r.c_address,
-           name=r.name)
+           name=raw.name)
     if r.description is not None:
         res += '''<p>
 {desc}
@@ -185,25 +194,17 @@ def print_regdescr_reg(periph, r, num):
     return res
 
 
-def print_regdescr(periph):
+def print_regdescr(periph, raws):
     res = '''
 <h3><a name="sect_3_0">2. Register description</a></h3>
 '''
     num = 1
-    for r in periph.c_sorted_children:
-        if isinstance(r, tree.Reg):
-            res += print_regdescr_reg(periph, r, num)
+    for raw in raws:
+        if isinstance(raw.node, tree.Reg):
+            res += print_regdescr_reg(periph, raw, num)
             num += 1
     res += '\n'
     return res
-
-class SummaryRaw(object):
-    def __init__(self, address, typ, name, node):
-        self.address = address
-        self.typ = typ
-        self.name = name
-        self.node = node
-
 
 def gen_memmap_summary(root, name_pfx="", addr_pfx=""):
     "Return a list of SummaryRaw"
@@ -303,7 +304,7 @@ def pprint_root(root, filename):
         # Sect2: Symbol
         w(print_symbol(root))
     # Sect2: Registers
-    w(print_regdescr(root))
+    w(print_regdescr(root, raws))
     wln('\n</BODY>\n</HTML>')
 
 
