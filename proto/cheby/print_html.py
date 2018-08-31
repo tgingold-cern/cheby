@@ -197,22 +197,38 @@ def print_regdescr(periph):
     res += '\n'
     return res
 
-
-def print_memmap_reg(typ, odd_even, periph, r, address):
-    return '''<tr class="tr_{odd_even}">
-<td class="td_code">{address}</td>
-<td>{typ}</td>
-<td><A href="#{cprefix}">{name}</a></td>
-<td class="td_code">{periph_prefix}_{hdlprefix}</td>
-<td class="td_code">{cprefix}</td>
-</tr>\n'''.format(typ=typ, odd_even=odd_even, address=address,
-                  cprefix=r.name, name=r.name,
-                  periph_prefix=get_hdl_prefix(periph),
-                  hdlprefix=get_hdl_prefix(r))
+class SummaryRaw(object):
+    def __init__(self, address, typ, name, node):
+        self.address = address
+        self.typ = typ
+        self.name = name
+        self.node = node
 
 
+def gen_memmap_summary(root, name_pfx="", addr_pfx=""):
+    "Return a list of SummaryRaw"
+    raws = []
+    for n in root.c_sorted_children:
+        rng = addr_pfx + '0x{:x}-0x{:x}'.format(n.c_address, n.c_address + n.c_size - 1)
+        name = name_pfx + n.name
+        if isinstance(n, tree.Reg):
+            rng = addr_pfx + '0x{:x}'.format(n.c_address)
+            raws.append(SummaryRaw(rng, 'REG', name, n))
+        elif isinstance(n, tree.Block):
+            raws.append(SummaryRaw(rng, 'BLOCK', name, n))
+            raws.extend(gen_memmap_summary(n, name + '.', ' +'))
+        elif isinstance(n, tree.Submap):
+            raws.append(SummaryRaw(rng, 'SUBMAP', name, n))
+        elif isinstance(n, tree.Array):
+            raws.append(SummaryRaw(rng, 'ARRAY', name, n))
+            raws.extend(gen_memmap_summary(n, name + '.', ' +'))
+        else:
+            assert False, "html: unhandled tree node {}".format(n)
+    return raws
 
-def print_memmap_summary(root):
+
+def phtml_memmap_summary(root, raws):
+    "HTML formatter for memmap_summary"
     res = '<h3><a name="sect_1_0">1. Memory map summary</a></h3>\n'
     res += '''<table cellpadding=2 cellspacing=0 border=0>
 <tr>
@@ -223,34 +239,24 @@ def print_memmap_summary(root):
 <th>C prefix</th>
 </tr>
 '''
-    odd_even = 'odd'
-    for n in root.c_sorted_children:
-        if isinstance(n, tree.Reg):
-            res += print_memmap_reg('REG', odd_even, root, n,
-                                    '0x{:x}'.format(n.c_address))
-        elif isinstance(n, tree.Block):
-            res += print_memmap_reg(
-                'BLOCK', odd_even, root, n,
-                '0x{:x}-0x{:x}'.format(n.c_address, n.c_address + n.c_size - 1))
-        elif isinstance(n, tree.Submap):
-            res += print_memmap_reg(
-                'SUBMAP', odd_even, root, n,
-                '0x{:x}-0x{:x}'.format(n.c_address, n.c_address + n.c_size - 1))
-        elif isinstance(n, tree.Array):
-            res += print_memmap_reg(
-                'ARRAY', odd_even, root, n,
-                '0x{:x}-0x{:x}'.format(n.c_address, n.c_address + n.c_size - 1))
-        else:
-            assert False, "html: unhandled tree node {}".format(n)
-        if odd_even == 'odd':
-            odd_even = 'even'
-        else:
-            odd_even = 'odd'
+    odd_even = ['odd', 'even']
+    for r in raws:
+        res += '''<tr class="tr_{odd_even}">
+<td class="td_code">{address}</td>
+<td>{typ}</td>
+<td><A href="#{cprefix}">{name}</a></td>
+<td class="td_code">{periph_prefix}_{hdlprefix}</td>
+<td class="td_code">{cprefix}</td>
+</tr>\n'''.format(typ=r.typ, odd_even=odd_even[0], address=r.address,
+                  cprefix=r.name, name=r.name,
+                  periph_prefix=get_hdl_prefix(root),
+                  hdlprefix=get_hdl_prefix(r.node))
+        odd_even = [odd_even[1], odd_even[0]]
     res += '</table>\n'
     return res
 
 
-def print_header(periph):
+def phtml_header(periph):
     entity = get_hdl_entity(periph)
     wln('''<HTML>
 <HEAD>
@@ -288,8 +294,9 @@ def print_header(periph):
 
 
 def pprint_root(root, filename):
-    print_header(root)
-    memmap_summary = print_memmap_summary(root)
+    phtml_header(root)
+    raws = gen_memmap_summary(root)
+    memmap_summary = phtml_memmap_summary(root, raws)
     # Sect1: Memory map summary
     w(memmap_summary)
     if False:
