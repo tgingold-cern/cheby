@@ -51,7 +51,8 @@ def decode_args():
                          help='generate wbgen hdl')
     aparser.add_argument('--gen-doc', action='store_true',
                          help='generate documentation (html)')
-    aparser.add_argument('FILE', nargs='+')
+    aparser.add_argument('--input', '-i', required=True,
+                         help='input file')
 
     return aparser.parse_args()
 
@@ -138,19 +139,19 @@ def handle_file(args, filename):
 
 def main():
     args = decode_args()
-    for f in args.FILE:
-        try:
-            handle_file(args, f)
-        except cheby.parser.ParseException as e:
-            sys.stderr.write("{}:parse error: {}\n".format(f, e.msg))
-            sys.exit(2)
-        except layout.LayoutException as e:
-            sys.stderr.write("{}:layout error: {}\n".format(
-                e.node.get_root().c_filename, e.msg))
-            sys.exit(2)
-        except gen_hdl.HdlError as e:
-            sys.stderr.write("{}:HDL error: {}\n".format(f, e.msg))
-            sys.exit(2)
+    f = args.input
+    try:
+        handle_file(args, f)
+    except cheby.parser.ParseException as e:
+        sys.stderr.write("{}:parse error: {}\n".format(f, e.msg))
+        sys.exit(2)
+    except layout.LayoutException as e:
+        sys.stderr.write("{}:layout error: {}\n".format(
+            e.node.get_root().c_filename, e.msg))
+        sys.exit(2)
+    except gen_hdl.HdlError as e:
+        sys.stderr.write("{}:HDL error: {}\n".format(f, e.msg))
+        sys.exit(2)
 
 
 if __name__ == '__main__':
