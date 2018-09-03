@@ -1,0 +1,57 @@
+Cheby User Guide
+============================
+:Author: Tristan Gingold
+:Date: 2018-09-03
+:Revision: 1.0
+
+What is Cheby ?
+---------------
+
+*Cheby* is both a text description of the interface between hardware
+and software, and a tool to automatically generate code or
+documentation from the text files.
+
+In Cheby, the hardware appears to the software as a block of address in the
+physical memory space.  There might be other way to interface hardware and
+software (for example through a standard serial bus like USB or through a
+network).
+
+The block of address is named the memory map of the hardware.  The memory map
+is a map between addresses and hardware elements like registers or memories.
+
+The hardware elements supported by Cheby are:
+* Registers.  A register uses one word of memory (usually 32 bits) or two (so
+  64 bits), and is divided into fields (a group of bit).  Some bits of the
+  registers can be unused.  The difference between a register and a memory is
+  that hardware has direct access to a register, there are wires between the
+  register and the hardware so as soon as the software writes to a register
+  the hardware 'can' see the new value.
+
+  A register is usually read-write: the value of the register is defined by the
+  last write (from the software) and the software always reads the last value.
+  A register can also be read-only: the hardware defines the value that is
+  read.  It is also possible that a read triggers some changes in the hardware.
+  Finally a register can be write-only, and usually a write triggers an
+  action.  In that case, a value read has no meaning.
+
+* Memories. A memory is like a RAM memory except that hardware also has direct
+  access to it (through a second port, hence the name dual port).  Memories
+  are used when a certain amount of data has to be transfered or to
+  configure hardware for data transfers (like DMA descriptors).  To avoid
+  possible conflicts, memories are usually one direction: the software can
+  read and the hardware can write, or the software can write and the hardwire
+  can read.
+
+* Submap.  A submap is a sub-block of the memory map (an aligned continuous
+  range of address) either defined by an external file or will be available
+  to the hardware designer.  Submaps make possible to create a hierarchy of
+  blocks and to create custom blocks.
+
+Quick Guide
+-----------
+
+Cheby Tools
+-----------
+
+Cheby File Format
+-----------------
