@@ -23,33 +23,33 @@ import cheby.print_html as print_html
 
 def decode_args():
     aparser = argparse.ArgumentParser(description='cheby utility')
-    aparser.add_argument('--print-pretty', action='store_true',
-                         help='display the input in YAML')
-    aparser.add_argument('--print-simple', action='store_true',
+    aparser.add_argument('--print-pretty', nargs='?', const='-',
+                         help='regenerate in YAML')
+    aparser.add_argument('--print-simple', nargs='?', const='-',
                          help='display the layout with fields')
-    aparser.add_argument('--print-simple-expanded', action='store_true',
+    aparser.add_argument('--print-simple-expanded', nargs='?', const='-',
                          help='display the expanded layout with fields')
-    aparser.add_argument('--print-pretty-expanded', action='store_true',
+    aparser.add_argument('--print-pretty-expanded', nargs='?', const='-',
                          help='display the expanded input in YAML')
-    aparser.add_argument('--print-memmap', action='store_true',
+    aparser.add_argument('--print-memmap', nargs='?', const='-',
                          help='display the layout without fields')
-    aparser.add_argument('--print-c', action='store', nargs='?', const='.',
+    aparser.add_argument('--print-c', nargs='?', const='-',
                          help='display the c header file')
-    aparser.add_argument('--print-c-check-layout', action='store_true',
+    aparser.add_argument('--print-c-check-layout', nargs='?', const='-',
                          help='generate c file to check layout of the header')
     aparser.add_argument('--hdl', choices=['vhdl', 'verilog'], default='vhdl',
                          help='select language for hdl generation')
-    aparser.add_argument('--gen-hdl', action='store_true',
+    aparser.add_argument('--gen-hdl', nargs='?', const='-',
                          help='generate hdl file')
-    aparser.add_argument('--gen-encore', action='store_true',
+    aparser.add_argument('--gen-encore', nargs='?', const='-',
                          help='generate encore file')
-    aparser.add_argument('--gen-gena-memmap', action='store_true',
+    aparser.add_argument('--gen-gena-memmap', nargs='?', const='-',
                          help='generate Gena MemMap file')
-    aparser.add_argument('--gen-gena-regctrl', action='store_true',
+    aparser.add_argument('--gen-gena-regctrl', nargs='?', const='-',
                          help='generate Gena RegCtrl file')
-    aparser.add_argument('--gen-wbgen-hdl', action='store_true',
+    aparser.add_argument('--gen-wbgen-hdl', nargs='?', const='-',
                          help='generate wbgen hdl')
-    aparser.add_argument('--gen-doc', action='store_true',
+    aparser.add_argument('--gen-doc', nargs='?', const='-',
                          help='generate documentation (html)')
     aparser.add_argument('--input', '-i', required=True,
                          help='input file')
@@ -66,55 +66,65 @@ def print_hdl(out, lang, h):
         raise AssertionError('unknown hdl language {}'.format(lang))
 
 
+def open_filename(name):
+    if name == '-':
+        return sys.stdout
+    else:
+        return open(name, 'w')
+
+
 def handle_file(args, filename):
     t = cheby.parser.parse_yaml(filename)
 
     layout.layout_cheby(t)
 
-    if args.print_pretty:
-        pprint.pprint_cheby(sys.stdout, t)
-    if args.print_memmap:
-        sprint.sprint_cheby(sys.stdout, t, False)
-    if args.print_simple:
-        sprint.sprint_cheby(sys.stdout, t, True)
+    if args.print_pretty is not None:
+        with open_filename(args.print_pretty) as f:
+            pprint.pprint_cheby(f, t)
+    if args.print_memmap is not None:
+        with open_filename(args.print_memmap) as f:
+            sprint.sprint_cheby (f, t, False)
+    if args.print_simple is not None:
+        with open_filename(args.print_simple) as f:
+            sprint.sprint_cheby(f, t, True)
     if args.print_c is not None:
-        if args.print_c == '-':
-            cprint.cprint_cheby(sys.stdout, t)
-        else:
-            if args.print_c == '.':
-                name = t.name + '.h'
-            else:
-                name = args.print_c
-            fd = open(name, 'w')
-            cprint.cprint_cheby(fd, t)
-            fd.close()
-    if args.print_c_check_layout:
-        gen_laychk.gen_chklayout_cheby(sys.stdout, t)
-    if args.gen_encore:
-        print_encore.print_encore(sys.stdout, t)
-    if args.gen_gena_memmap:
-        h = gen_gena_memmap.gen_gena_memmap(t)
-        print_vhdl.print_vhdl(sys.stdout, h)
+        with open_filename(args.print_c) as f:
+            cprint.cprint_cheby(f, t)
+    if args.print_c_check_layout is not None:
+        with open_filename(args.print_c_check_layout) as f:
+            gen_laychk.gen_chklayout_cheby(f, t)
+    if args.gen_encore is not None:
+        with open_filename(args.gen_encore) as f:
+            print_encore.print_encore(f, t)
+    if args.gen_gena_memmap is not None:
+        with open_filename(args.gen_gena_memmap) as f:
+            h = gen_gena_memmap.gen_gena_memmap(t)
+            print_vhdl.print_vhdl(f, h)
     # Decode x-hdl
     expand_hdl.expand_hdl(t)
-    if args.print_simple_expanded:
-        sprint.sprint_cheby(sys.stdout, t, True)
-    if args.print_pretty_expanded:
-        pprint.pprint_cheby(sys.stdout, t)
-    if args.gen_gena_regctrl:
+    if args.print_simple_expanded is not None:
+        with open_filename(args.print_simple_expanded) as f:
+            sprint.sprint_cheby(f, t, True)
+    if args.print_pretty_expanded is not None:
+        with open_filename(args.print_pretty_expanded) as f:
+            pprint.pprint_cheby(f, t)
+    if args.gen_gena_regctrl is not None:
         if not args.gen_gena_memmap:
             gen_gena_memmap.gen_gena_memmap(t)
-        h = gen_gena_regctrl.gen_gena_regctrl(t)
-        print_vhdl.print_vhdl(sys.stdout, h)
-    if args.gen_doc:
-        print_html.pprint(t, sys.stdout)
-    if args.gen_wbgen_hdl:
+        with open_filename(args.gen_gena_regctrl) as f:
+            h = gen_gena_regctrl.gen_gena_regctrl(t)
+            print_vhdl.print_vhdl(f, h)
+    if args.gen_doc is not None:
+        with open_filename(args.gen_doc) as f:
+            print_html.pprint(f, t)
+    if args.gen_wbgen_hdl is not None:
         h = gen_wbgen_hdl.expand_hdl(t)
-        (basename, _) = os.path.splitext(os.path.basename(filename))
-        c = {'vhdl': '--', 'verilog': '//'}[args.hdl]
-        l = c[0] * 79
-        ext = {'vhdl': 'vhdl', 'verilog': 'v'}[args.hdl]
-        sys.stdout.write(
+        with open_filename(args.gen_wbgen_hdl) as f:
+            (basename, _) = os.path.splitext(os.path.basename(filename))
+            c = {'vhdl': '--', 'verilog': '//'}[args.hdl]
+            l = c[0] * 79
+            ext = {'vhdl': 'vhdl', 'verilog': 'v'}[args.hdl]
+            f.write(
 """{l}
 {c} Title          : Wishbone slave core for {name}
 {l}
@@ -129,12 +139,13 @@ def handle_file(args, filename):
 
 """.format(name=t.description, basename=basename,
            date=time.strftime("%a %b %d %X %Y"), c=c, l=l, ext=ext))
-        print_vhdl.style = 'wbgen'
-        print_hdl(sys.stdout, args.hdl, h)
-    if args.gen_hdl:
+            print_vhdl.style = 'wbgen'
+            print_hdl(f, args.hdl, h)
+    if args.gen_hdl is not None:
         gen_name.gen_name_root(t)
         h = gen_hdl.generate_hdl(t)
-        print_hdl(sys.stdout, args.hdl, h)
+        with open_filename(args.gen_hdl) as f:
+            print_hdl(f, args.hdl, h)
 
 
 def main():

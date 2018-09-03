@@ -5,13 +5,13 @@ import cheby.hdltree as hdltree
 from cheby.gen_wbgen_hdl import get_hdl_prefix, get_hdl_entity
 
 
-def w(str):
-        sys.stdout.write(str)
+def w(fd, str):
+        fd.write(str)
 
 
-def wln(str=""):
-    w(str)
-    w('\n')
+def wln(fd, str=""):
+    fd.write(str)
+    fd.write('\n')
 
 
 def print_port_name(p):
@@ -257,12 +257,12 @@ def phtml_memmap_summary(root, raws):
     return res
 
 
-def phtml_header(periph):
+def phtml_header(fd, periph):
     entity = get_hdl_entity(periph)
-    wln('''<HTML>
+    wln(fd, '''<HTML>
 <HEAD>
 <TITLE>{entity}</TITLE>'''.format(entity=entity))
-    wln('''<STYLE TYPE="text/css" MEDIA="all">
+    wln(fd, '''<STYLE TYPE="text/css" MEDIA="all">
 
 	<!--
   BODY  { background: white; color: black;
@@ -286,7 +286,7 @@ def phtml_header(periph):
 	.tr_odd { background: #e0e0f0; }
 	-->
 </STYLE>''')
-    wln('''</HEAD>
+    wln(fd, '''</HEAD>
 <BODY>
 <h1 class="heading">{entity}</h1>
 <h3>{description}</h3>
@@ -294,20 +294,22 @@ def phtml_header(periph):
                         comment=periph.comment.replace('\n', '<br>') if periph.comment else ''))
 
 
-def pprint_root(root, filename):
-    phtml_header(root)
+def pprint_root(fd, root):
+    phtml_header(fd, root)
     raws = gen_memmap_summary(root)
     memmap_summary = phtml_memmap_summary(root, raws)
     # Sect1: Memory map summary
-    w(memmap_summary)
+    w(fd, memmap_summary)
     if False:
         # Sect2: Symbol
         w(print_symbol(root))
     # Sect2: Registers
-    w(print_regdescr(root, raws))
-    wln('\n</BODY>\n</HTML>')
+    w(fd, print_regdescr(root, raws))
+    wln(fd, '\n</BODY>\n</HTML>')
 
 
-def pprint(n, filename):
+def pprint(fd, n):
     if isinstance(n, tree.Root):
-        pprint_root(n, filename)
+        pprint_root(fd, n)
+    else:
+        raise AssertionError
