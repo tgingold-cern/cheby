@@ -83,7 +83,7 @@ def gen_wishbone_bus(build_port, addr_bits, data_bits, comment=None,
     res['stb'] = build_port('stb', None, dir=inp)
     if addr_bits > 0:
         res['adr'] = build_port('adr', addr_bits, dir=inp)
-    res['sel'] = build_port('sel', data_bits / tree.BYTE_SIZE, dir=inp)
+    res['sel'] = build_port('sel', data_bits // tree.BYTE_SIZE, dir=inp)
     res['we'] = build_port('we', None, dir=inp)
     res['dati'] = build_port('dat', data_bits, dir=inp)
 
