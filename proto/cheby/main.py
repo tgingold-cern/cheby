@@ -66,11 +66,22 @@ def print_hdl(out, lang, h):
         raise AssertionError('unknown hdl language {}'.format(lang))
 
 
-def open_filename(name):
-    if name == '-':
-        return sys.stdout
-    else:
-        return open(name, 'w')
+class open_filename(object):
+    """Handle '-' as stdout, but wrap the file in a class so that it is not
+     closed at the exit of the 'with' statement."""
+    def __init__(self, name):
+        self.name = name
+    def __enter__(self):
+        if self.name == '-':
+            self.fh = sys.stdout
+        else:
+            self.fh = open(self.name, 'w')
+        return self.fh
+    def __exit__(self, etype, value, traceback):
+        if self.name != '-':
+            self.fh.close()
+    def __getattr__(self, val):
+        return getattr(self.fh, val) # pass on
 
 
 def handle_file(args, filename):
