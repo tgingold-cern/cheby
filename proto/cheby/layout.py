@@ -315,6 +315,11 @@ def layout_array(lo, n):
     n.c_sel_bits = ilog2(n.c_size) - n.c_blk_bits
 
 
+def build_sorted_children(n):
+    """Create c_sorted_children (list of children sorted by address)"""
+    n.c_sorted_children = sorted(n.children, key=(lambda x: x.c_address))
+
+
 @Layout.register(tree.CompositeNode)
 def layout_composite(lo, n):
     layout_named(n)
@@ -358,7 +363,7 @@ def layout_composite(lo, n):
         n.c_blk_bits = ilog2(n.c_size)
         n.c_sel_bits = 0
     # Keep children in order.
-    n.c_sorted_children = sorted(n.children, key=(lambda x: x.c_address))
+    build_sorted_children(n)
     # Check for no-overlap.
     last_addr = 0
     last_node = None

@@ -1,5 +1,6 @@
 import cheby.parser as parser
 import cheby.tree as tree
+import cheby.layout as layout
 import copy
 
 def expand_x_hdl_field(f, n, dct):
@@ -74,18 +75,21 @@ def unroll_array(n):
         c.name = "{}{:x}".format(el.name, i)
         c.c_address = n.c_address + i * n.c_elsize
         res.children.append(c)
+    layout.build_sorted_children(res)
     return res
 
 
 def unroll_arrays(n):
     if isinstance(n, tree.Reg):
+        # Nothing to do.
         return n
-    if isinstance(n, tree.Array):
-        if n.align == False:
-            return unroll_array(n)
+    if isinstance(n, tree.Array) and n.align == False:
+        # Unroll
+        return unroll_array(n)
     if isinstance(n, tree.CompositeNode):
         nl = [unroll_arrays(el) for el in n.children]
         n.children = nl
+        layout.build_sorted_children(n)
         return n
     raise AssertionError
 
