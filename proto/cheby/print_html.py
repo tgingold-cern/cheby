@@ -246,12 +246,12 @@ def phtml_memmap_summary(root, raws):
 <td class="td_code">{address}</td>
 <td>{typ}</td>
 <td><A href="#{cprefix}">{name}</a></td>
-<td class="td_code">{periph_prefix}_{hdlprefix}</td>
+<td class="td_code">{hdlprefix}</td>
 <td class="td_code">{cprefix}</td>
 </tr>\n'''.format(typ=r.typ, odd_even=odd_even[0], address=r.address,
                   cprefix=r.name, name=r.name,
                   periph_prefix=get_hdl_prefix(root),
-                  hdlprefix=get_hdl_prefix(r.node))
+                  hdlprefix=r.node.c_name)
         odd_even = [odd_even[1], odd_even[0]]
     res += '</table>\n'
     return res

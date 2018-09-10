@@ -125,6 +125,7 @@ def handle_file(args, filename):
         with open_filename(args.gen_gena_regctrl) as f:
             h = gen_gena_regctrl.gen_gena_regctrl(t)
             print_vhdl.print_vhdl(f, h)
+    gen_name.gen_name_root(t)
     if args.gen_doc is not None:
         with open_filename(args.gen_doc) as f:
             print_html.pprint(f, t)
@@ -153,7 +154,6 @@ def handle_file(args, filename):
             print_vhdl.style = 'wbgen'
             print_hdl(f, args.hdl, h)
     if args.gen_hdl is not None:
-        gen_name.gen_name_root(t)
         h = gen_hdl.generate_hdl(t)
         with open_filename(args.gen_hdl) as f:
             print_hdl(f, args.hdl, h)
