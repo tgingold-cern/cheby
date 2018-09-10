@@ -47,6 +47,18 @@ The hardware elements supported by Cheby are:
   to the hardware designer.  Submaps make possible to create a hierarchy of
   blocks and to create custom blocks.
 
+A fundamental feature of the Cheby text description is non-ambiguity: the
+memory map is defined by the file and there is only one way to assign addresses
+to hardware elements.
+
+Once the text file is written it is possible to invoke the cheby tool to
+generate:
+* C header
+* Device driver
+* HDL code
+* HTML documentation
+
+
 Quick Guide
 -----------
 
