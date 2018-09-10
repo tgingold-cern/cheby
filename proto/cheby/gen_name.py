@@ -24,7 +24,7 @@ def gen_name_children(children, prefix, ctxt):
     for n in children:
         n.c_name = concat(prefix, n.name)
         if isinstance(n, tree.Reg):
-            nprefix = concat_if(prefix, n.c_name, ctxt.reg_prefix)
+            nprefix = concat_if(prefix, n.name, ctxt.reg_prefix)
             for f in n.children:
                 if isinstance(f, tree.FieldReg):
                     f.c_name = nprefix if nprefix else n.name
