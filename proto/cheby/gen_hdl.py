@@ -461,13 +461,12 @@ def add_reg_decoder(root, stmts, addr, func, els, blk_bits):
         sw.choices.append(ch)
         func(ch.stmts, None, 0)
 
-def gather_children(n, abs_addr):
-    n.h_abs_addr = abs_addr + n.c_address
+def gather_children(n):
     if isinstance(n, tree.Reg):
         return [n]
     elif isinstance(n, tree.Submap):
         if n.interface == 'include':
-            return gather_children(n.c_submap, n.h_abs_addr)
+            return gather_children(n.c_submap)
         else:
             return [n]
     elif isinstance(n, tree.Array):
@@ -475,7 +474,7 @@ def gather_children(n, abs_addr):
     elif isinstance(n, (tree.Root, tree.Block)):
         r = []
         for e in n.children:
-            r.extend(gather_children(e, n.h_abs_addr))
+            r.extend(gather_children(e))
         return r
     else:
         raise AssertionError
@@ -484,7 +483,7 @@ def add_block_decoder(root, stmts, addr, children, hi, func):
     if False:
         print("add_block_decoder: hi={}".format(hi))
         for i in children:
-            print("{}: {:08x}, sz={:x}".format(i.name, i.h_abs_addr, i.c_size))
+            print("{}: {:08x}, sz={:x}".format(i.name, i.c_abs_addr, i.c_size))
         print("----")
     if len(children) == 1:
         el = children[0]
@@ -508,13 +507,13 @@ def add_block_decoder(root, stmts, addr, children, hi, func):
         first = children[0]
         children = children[1:]
         l = [first]
-        base = first.h_abs_addr & mask
+        base = first.c_abs_addr & mask
         if False:
             print("hi={} szl2={} first: {:08x}, base: {:08x}, mask: {:08x}".format(
                 hi, maxszl2, first.c_address, base, mask))
         while len(children) > 0:
             el = children[0]
-            if (el.h_abs_addr & mask) != base:
+            if (el.c_abs_addr & mask) != base:
                 break
             if False:
                 print(" {} c_addr={:08x}".format(el.name, el.c_address))
@@ -532,7 +531,7 @@ def add_decoder(root, stmts, addr, n, func):
     """Call :param func: for each element of :param n:.  :param func: can also
        be called with None when a decoder is generated and could handle an
        address that has no corresponding children."""
-    children = gather_children(root, 0)
+    children = gather_children(root)
     children = sorted(children, key=lambda x: x.c_address)
 
     add_block_decoder(

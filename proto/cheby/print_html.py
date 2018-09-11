@@ -210,19 +210,19 @@ def gen_memmap_summary(root, name_pfx="", addr_pfx=""):
     "Return a list of SummaryRaw"
     raws = []
     for n in root.c_sorted_children:
-        rng = addr_pfx + '0x{:x}-0x{:x}'.format(n.c_address, n.c_address + n.c_size - 1)
+        rng = addr_pfx + '0x{:x}-0x{:x}'.format(n.c_abs_addr, n.c_abs_addr + n.c_size - 1)
         name = name_pfx + n.name
         if isinstance(n, tree.Reg):
-            rng = addr_pfx + '0x{:x}'.format(n.c_address)
+            rng = addr_pfx + '0x{:x}'.format(n.c_abs_addr)
             raws.append(SummaryRaw(rng, 'REG', name, n))
         elif isinstance(n, tree.Block):
             raws.append(SummaryRaw(rng, 'BLOCK', name, n))
-            raws.extend(gen_memmap_summary(n, name + '.', ' +'))
+            raws.extend(gen_memmap_summary(n, name + '.', addr_pfx))
         elif isinstance(n, tree.Submap):
             raws.append(SummaryRaw(rng, 'SUBMAP', name, n))
         elif isinstance(n, tree.Array):
             raws.append(SummaryRaw(rng, 'ARRAY', name, n))
-            raws.extend(gen_memmap_summary(n, name + '.', ' +'))
+            raws.extend(gen_memmap_summary(n, name + '.', addr_pfx + ' +'))
         else:
             assert False, "html: unhandled tree node {}".format(n)
     return raws

@@ -267,7 +267,7 @@ def layout_submap(lo, n):
             raise LayoutException(n,
                 "size given for submap '{}'".format(n.get_path()))
         submap = load_submap(n)
-        layout_cheby(submap)
+        layout_cheby_memmap(submap)
         n.c_submap = submap
         n.c_size = n.c_submap.c_size
         if n.interface is None:
@@ -384,7 +384,7 @@ def layout_root(lo, n):
     layout_composite(lo, n)
 
 
-def layout_cheby(n):
+def layout_cheby_memmap(n):
     flag_align_reg = True
     n.c_buserr = False
     if n.bus is None or n.bus == 'wb-32-be':
@@ -417,3 +417,27 @@ def layout_cheby(n):
     lo = Layout(n.c_word_size)
     lo.align_reg = flag_align_reg
     lo.visit(n)
+
+
+def set_abs_address(n, base_addr):
+    "Set c_abs_addr - absolute address - on every node rooted by n"
+    n.c_abs_addr = base_addr + n.c_address
+    if isinstance(n, tree.Reg):
+        pass
+    elif isinstance(n, tree.Submap):
+        if n.interface == 'include':
+            set_abs_address(n.c_submap, n.c_abs_addr)
+    elif isinstance(n, tree.Array):
+        # Still relative, but need to set c_abs_addr
+        for e in n.children:
+            set_abs_address(e, 0)
+    elif isinstance(n, (tree.Root, tree.Block)):
+        for e in n.children:
+            set_abs_address(e, n.c_abs_addr)
+    else:
+        raise AssertionError
+
+
+def layout_cheby(n):
+    layout_cheby_memmap(n)
+    set_abs_address(n, 0)

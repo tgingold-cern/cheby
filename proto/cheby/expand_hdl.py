@@ -97,3 +97,4 @@ def unroll_arrays(n):
 def expand_hdl(root):
     expand_x_hdl(root)
     unroll_arrays(root)
+    layout.set_abs_address(root, 0)
