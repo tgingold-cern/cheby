@@ -206,7 +206,7 @@ def print_regdescr(periph, raws):
     res += '\n'
     return res
 
-def gen_memmap_summary(root, name_pfx="", addr_pfx=""):
+def gen_memmap_summary_sub(root, name_pfx="", addr_pfx=""):
     "Return a list of SummaryRaw"
     raws = []
     for n in root.c_sorted_children:
@@ -220,6 +220,8 @@ def gen_memmap_summary(root, name_pfx="", addr_pfx=""):
             raws.extend(gen_memmap_summary(n, name + '.', addr_pfx))
         elif isinstance(n, tree.Submap):
             raws.append(SummaryRaw(rng, 'SUBMAP', name, n))
+            if n.filename is not None:
+                raws.extend(gen_memmap_summary(n.c_submap, name + '.', addr_pfx))
         elif isinstance(n, tree.Array):
             raws.append(SummaryRaw(rng, 'ARRAY', name, n))
             raws.extend(gen_memmap_summary(n, name + '.', addr_pfx + ' +'))
@@ -228,10 +230,38 @@ def gen_memmap_summary(root, name_pfx="", addr_pfx=""):
     return raws
 
 
-def phtml_memmap_summary(root, raws):
-    "HTML formatter for memmap_summary"
-    res = '<h3><a name="sect_1_0">1. Memory map summary</a></h3>\n'
-    res += '''<table cellpadding=2 cellspacing=0 border=0>
+class MemmapSummary(object):
+    def __init__(self, root):
+        self.root = root
+        self.ndigits = (layout.ilog2(root.c_size) + 3) // 4
+        self.raws = []
+        self.gen_raws(root, '', '')
+
+    def gen_raws(self, parent, name_pfx, addr_pfx):
+        "Fill raws (list of SummaryRaw)"
+        for n in parent.c_sorted_children:
+            rng = addr_pfx + '0x{:x}-0x{:x}'.format(n.c_abs_addr, n.c_abs_addr + n.c_size - 1)
+            name = name_pfx + n.name
+            if isinstance(n, tree.Reg):
+                rng = addr_pfx + '0x{:x}'.format(n.c_abs_addr)
+                self.raws.append(SummaryRaw(rng, 'REG', name, n))
+            elif isinstance(n, tree.Block):
+                self.raws.append(SummaryRaw(rng, 'BLOCK', name, n))
+                self.gen_raws(n, name + '.', addr_pfx)
+            elif isinstance(n, tree.Submap):
+                self.raws.append(SummaryRaw(rng, 'SUBMAP', name, n))
+                if n.filename is not None:
+                    self.gen_raws(n.c_submap, name + '.', addr_pfx)
+            elif isinstance(n, tree.Array):
+                self.raws.append(SummaryRaw(rng, 'ARRAY', name, n))
+                self.gen_raws(n, name + '.', addr_pfx + ' +')
+            else:
+                assert False, "MemmapSummary: unhandled tree node {}".format(n)
+
+    def print_html(self):
+        "HTML formatter for memmap_summary"
+        res = '<h3><a name="sect_1_0">1. Memory map summary</a></h3>\n'
+        res += '''<table cellpadding=2 cellspacing=0 border=0>
 <tr>
 <th>H/W Address</th>
 <th>Type</th>
@@ -240,21 +270,21 @@ def phtml_memmap_summary(root, raws):
 <th>C prefix</th>
 </tr>
 '''
-    odd_even = ['odd', 'even']
-    for r in raws:
-        res += '''<tr class="tr_{odd_even}">
+        odd_even = ['odd', 'even']
+        for r in self.raws:
+            res += '''<tr class="tr_{odd_even}">
 <td class="td_code">{address}</td>
 <td>{typ}</td>
 <td><A href="#{cprefix}">{name}</a></td>
 <td class="td_code">{hdlprefix}</td>
 <td class="td_code">{cprefix}</td>
 </tr>\n'''.format(typ=r.typ, odd_even=odd_even[0], address=r.address,
-                  cprefix=r.name, name=r.name,
-                  periph_prefix=get_hdl_prefix(root),
-                  hdlprefix=r.node.c_name)
-        odd_even = [odd_even[1], odd_even[0]]
-    res += '</table>\n'
-    return res
+                      cprefix=r.name, name=r.name,
+                      periph_prefix=get_hdl_prefix(self.root),
+                      hdlprefix=r.node.c_name)
+            odd_even = [odd_even[1], odd_even[0]]
+        res += '</table>\n'
+        return res
 
 
 def phtml_header(fd, periph):
@@ -296,15 +326,15 @@ def phtml_header(fd, periph):
 
 def pprint_root(fd, root):
     phtml_header(fd, root)
-    raws = gen_memmap_summary(root)
-    memmap_summary = phtml_memmap_summary(root, raws)
+    summary = MemmapSummary(root)
+    memmap_summary = summary.print_html()
     # Sect1: Memory map summary
     w(fd, memmap_summary)
     if False:
         # Sect2: Symbol
         w(print_symbol(root))
     # Sect2: Registers
-    w(fd, print_regdescr(root, raws))
+    w(fd, print_regdescr(root, summary.raws))
     wln(fd, '\n</BODY>\n</HTML>')
 
 
