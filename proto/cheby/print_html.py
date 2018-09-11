@@ -240,10 +240,12 @@ class MemmapSummary(object):
     def gen_raws(self, parent, name_pfx, addr_pfx):
         "Fill raws (list of SummaryRaw)"
         for n in parent.c_sorted_children:
-            rng = addr_pfx + '0x{:x}-0x{:x}'.format(n.c_abs_addr, n.c_abs_addr + n.c_size - 1)
+            rng = addr_pfx + '0x{:0{w}x}-0x{:0{w}x}'.format(
+                n.c_abs_addr, n.c_abs_addr + n.c_size - 1, w=self.ndigits)
             name = name_pfx + n.name
             if isinstance(n, tree.Reg):
-                rng = addr_pfx + '0x{:x}'.format(n.c_abs_addr)
+                rng = addr_pfx + '0x{:0{w}x}'.format(
+                    n.c_abs_addr, w=self.ndigits)
                 self.raws.append(SummaryRaw(rng, 'REG', name, n))
             elif isinstance(n, tree.Block):
                 self.raws.append(SummaryRaw(rng, 'BLOCK', name, n))
