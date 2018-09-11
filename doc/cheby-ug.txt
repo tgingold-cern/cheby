@@ -67,3 +67,15 @@ Cheby Tools
 
 Cheby File Format
 -----------------
+
+* submap
+
+If the `filename` attribue is not present, then this is a generic
+submap and a bus port is generated in the HDL.  The size of the submap
+is required.
+
+If the `filename` attribute is present, the `size` attribute is not allowed as
+the size of the submap is defined by the memory map given by the file.  If the
+`interface` attribute is present and set to `include`, then the memory map
+described by the file is included directly, otherwise a bus interface is
+generated in the HDL.
