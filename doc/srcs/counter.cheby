@@ -1,0 +1,25 @@
+memory-map:
+  bus: wb-32-be
+  name: counter
+  description: A simple example of a counter
+  children:
+    - reg:
+        name: control
+        description: Counter control
+        width: 32
+        access: rw
+        children:
+          - field:
+              name: enable
+              description: Set to enable the counter
+              range: 0
+    - reg:
+        name: value
+        description: Maximum value of the counter
+        width: 32
+        access: rw
+    - reg:
+        name: counter
+        description: Current value of the counter
+        width: 32
+        access: rw
