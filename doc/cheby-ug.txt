@@ -120,18 +120,25 @@ also used to create HDL or C names in general files.
 
 * `description`: This should be a short text that explain the purpose
 of the node.  The description is copied into the code (as a comment)
-to make it more readable
+to make it more readable.  This attribute is not required but it is recommended
+to always provide it.
 
 * `comment`: This is a longer text that will be copied into the generated
 documentation.
 
 * `children`: For nodes that have children, this is a list of the children.
 
-* `address`:
+* `address`: An optional address relative to the parent.  The address must
+be correctly aligned.  If not provided or it the value is `next`, then the
+address is computed using the previous one and the alignment.  It is possible
+to go backward by providing explicit address (eg: the first child has address 4
+and the second one has address 0), but this is not recommended and be a source
+of errors (in particular with automatic addresses that are always computed
+from the previous node). Overlapping addresses are detected by the tools.
 
-* `align`:
-
-* `x-NAME`:
+* `x-NAME`: Extensions for tool or feature `NAME`. The Cheby file
+format is extensible so that new tools can be easily created without
+backward compatibility issues.
 
 === Header
 
