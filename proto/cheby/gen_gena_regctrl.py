@@ -432,7 +432,7 @@ def gen_hdl_reg_stmts(reg, pfx, root, module, isigs):
 def gen_hdl_wrseldec(root, module, isigs, area, pfx, wrseldec):
     proc = HDLComb()
     proc.name = '{}WrSelDec'.format(pfx)
-    bus_addr = root.h_bus['adri']
+    bus_addr = root.h_bus['adrw']
     proc.sensitivity.append(bus_addr)
     for r in wrseldec:
         for i in reversed(range(r.c_nwords)):
@@ -468,7 +468,7 @@ def gen_hdl_wrseldec(root, module, isigs, area, pfx, wrseldec):
 def gen_hdl_cregrdmux(root, module, isigs, area, pfx, wrseldec):
     proc = HDLComb()
     proc.name = '{}CRegRdMux'.format(pfx)
-    bus_addr = root.h_bus['adro']
+    bus_addr = root.h_bus['adrr']
     proc.sensitivity.append(bus_addr)
     sw = HDLSwitch(HDLSlice(bus_addr,
                             root.c_addr_word_bits,
@@ -541,7 +541,7 @@ def gen_hdl_no_cregrdmux_dff(root, module, isigs):
 def gen_hdl_regrdmux(root, module, isigs, area, pfx, rd_reg):
     proc = HDLComb()
     proc.name = '{}RegRdMux'.format(pfx)
-    bus_addr = root.h_bus['adro']
+    bus_addr = root.h_bus['adrr']
     proc.sensitivity.append(bus_addr)
     proc.sensitivity.append(isigs.CRegRdData)
     proc.sensitivity.append(isigs.CRegRdOK)
@@ -711,7 +711,7 @@ def gen_hdl_reg2locmem_rd(root, module, isigs, stmts):
 def gen_hdl_memrdmux(root, module, isigs, area, pfx, mems):
     proc = HDLComb()
     proc.name = pfx + 'MemRdMux'
-    bus_addr = root.h_bus['adro']
+    bus_addr = root.h_bus['adrr']
     proc.sensitivity.extend([bus_addr, isigs.RegRdData, isigs.RegRdDone])
     if root.c_buserr:
         proc.sensitivity.append(isigs.RegRdError)
@@ -791,7 +791,7 @@ def gen_hdl_reg2locmem_wr(root, module, isigs, stmts):
 def gen_hdl_memwrmux(root, module, isigs, area, pfx, mems):
     proc = HDLComb()
     proc.name = pfx + 'MemWrMux'
-    bus_addr = root.h_bus['adri']
+    bus_addr = root.h_bus['adrw']
     proc.sensitivity.extend([bus_addr, isigs.RegWrDone])
     if root.c_buserr:
         proc.sensitivity.append(isigs.RegWrError)
@@ -872,14 +872,14 @@ def gen_hdl_ext_bus_asgn(n, acc, root, module):
     if acc in READ_ACCESS:
         if root.h_bussplit:
             module.stmts.append(
-                HDLAssign(n.h_rdaddr, HDLSlice(root.h_bus['adro'], adr_lo, adr_sz)))
+                HDLAssign(n.h_rdaddr, HDLSlice(root.h_bus['adrr'], adr_lo, adr_sz)))
             module.stmts.append(HDLAssign(n.h_rdsel, n.h_rdsel_sig))
         module.stmts.append(HDLAssign(n.h_rdmem,
                                       HDLAnd(n.h_rdsel_sig, root.h_bus['rd'])))
     if acc in WRITE_ACCESS:
         if root.h_bussplit:
             module.stmts.append(
-                HDLAssign(n.h_wraddr, HDLSlice(root.h_bus['adri'], adr_lo, adr_sz)))
+                HDLAssign(n.h_wraddr, HDLSlice(root.h_bus['adrw'], adr_lo, adr_sz)))
             module.stmts.append(HDLAssign(n.h_wrsel, n.h_wrsel_sig))
         module.stmts.append(HDLAssign(n.h_wrmem,
                                       HDLAnd(n.h_wrsel_sig, root.h_bus['wr'])))
@@ -916,7 +916,7 @@ def gen_hdl_area_decode(root, module, area, bus_addr):
 def gen_hdl_areardmux(root, module, isigs, area, areas):
     proc = HDLComb()
     proc.name = 'AreaRdMux'
-    bus_addr = root.h_bus['adro']
+    bus_addr = root.h_bus['adrr']
     proc.sensitivity.extend([bus_addr, isigs.MemRdData, isigs.MemRdDone])
 
     first = []
@@ -943,7 +943,7 @@ def gen_hdl_areardmux(root, module, isigs, area, areas):
 def gen_hdl_areawrmux(root, module, isigs, area, areas):
     proc = HDLComb()
     proc.name = 'AreaWrMux'
-    bus_addr = root.h_bus['adri']
+    bus_addr = root.h_bus['adrw']
     proc.sensitivity.extend([bus_addr, isigs.MemWrDone])
 
     first = []

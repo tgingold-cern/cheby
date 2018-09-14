@@ -139,12 +139,56 @@ def expand_wishbone(root, module, isigs):
         gen_wishbone(module, module, 'wb', addr_bits, root.c_word_bits,
                      None, False, busgroup is True))
     root.h_bussplit = False
+    if addr_bits > 0:
+        root.h_bus['adrr'] = root.h_bus['adr']
+        root.h_bus['adrw'] = root.h_bus['adr']
 
     if isigs:
         # Bus access
         module.stmts.append(HDLComment('WB decode signals'))
         add_decode_wb(root, module, isigs)
 
+
+def expand_axi4lite(root, module, isigs):
+    """Create AXI4-Lite interface."""
+    bus = [('clk',   HDLPort("aclk")),
+           ('rst',   HDLPort("areset_n"))]
+    addr_width = root.c_sel_bits + root.c_blk_bits - root.c_addr_word_bits
+    bus.extend(
+        [('awvalid',   HDLPort("awvalid")),
+         ('awready',   HDLPort("awready", dir='OUT')),
+         ('awaddr',    HDLPort("awaddr", addr_width, lo_idx=root.c_addr_word_bits)),
+         ('awprot',    HDLPort("awprot", 3)),
+
+         ('wvalid',    HDLPort("wvalid")),
+         ('wready',    HDLPort("wready", dir='OUT')),
+         ('wdata',     HDLPort("wdata", root.c_word_bits)),
+         ('wstrb',     HDLPort("wstrb", root.c_word_bits // tree.BYTE_SIZE)),
+
+         ('bvalid',    HDLPort("bvalid", dir='OUT')),
+         ('bready',    HDLPort("bready")),
+         ('bresp',     HDLPort("bresp", 2, dir='OUT')),
+
+         ('arvalid',   HDLPort("arvalid")),
+         ('arready',   HDLPort("arready", dir='OUT')),
+         ('araddr',    HDLPort("araddr", addr_width, lo_idx=root.c_addr_word_bits)),
+         ('arprot',    HDLPort("arprot", 3)),
+
+         ('rvalid',    HDLPort("rvalid", dir='OUT')),
+         ('rready',    HDLPort("rready")),
+         ('rdata',     HDLPort("rdata", root.c_word_bits, dir='OUT')),
+         ('rresp',     HDLPort("rresp", dir='OUT'))])
+    add_bus(root, module, bus)
+
+    if isigs:
+        isigs.rd_int = HDLSignal('rd_int')        # Read access
+        isigs.wr_int = HDLSignal('wr_int')        # Write access
+        isigs.rd_ack = HDLSignal('rd_ack_int')    # Ack for read
+        isigs.wr_ack = HDLSignal('wr_ack_int')    # Ack for write
+        root.h_bus['dati'] = HDLSignal('dati', root.c_word_bits)
+        root.h_bus['dato'] = HDLSignal('dato', root.c_word_bits)
+        root.h_bus['adrw'] = HDLSignal('adrw', addr_width)
+        root.h_bus['adrr'] = HDLSignal('adrr', addr_width)
 
 def add_decode_cern_be_vme(root, module, isigs):
     "Generate internal signals used by decoder/processes from CERN-BE-VME bus."
@@ -164,8 +208,8 @@ def expand_cern_be_vme(root, module, isigs, buserr, split):
     addr_width = root.c_sel_bits + root.c_blk_bits - root.c_addr_word_bits
     if split:
         bus.extend(
-            [('adro',   HDLPort("VMERdAddr", addr_width, lo_idx=root.c_addr_word_bits)),
-             ('adri',   HDLPort("VMEWrAddr", addr_width, lo_idx=root.c_addr_word_bits))])
+            [('adrr',   HDLPort("VMERdAddr", addr_width, lo_idx=root.c_addr_word_bits)),
+             ('adrw',   HDLPort("VMEWrAddr", addr_width, lo_idx=root.c_addr_word_bits))])
     else:
         bus.extend(
             [('adr',   HDLPort("VMEAddr", addr_width, lo_idx=root.c_addr_word_bits))])
@@ -183,8 +227,8 @@ def expand_cern_be_vme(root, module, isigs, buserr, split):
 
     root.h_bussplit = split
     if not split:
-        root.h_bus['adro'] = root.h_bus['adr']
-        root.h_bus['adri'] = root.h_bus['adr']
+        root.h_bus['adrr'] = root.h_bus['adr']
+        root.h_bus['adrw'] = root.h_bus['adr']
 
     if isigs:
         add_decode_cern_be_vme(root, module, isigs)
@@ -622,7 +666,7 @@ def add_read_reg_process(root, module, isigs):
                 raise AssertionError
 
     then_stmts = []
-    add_decoder(root, then_stmts, root.h_bus.get('adr', None), root, add_read)
+    add_decoder(root, then_stmts, root.h_bus.get('adrr', None), root, add_read)
     rd_if.then_stmts.extend(then_stmts)
 
 
@@ -630,7 +674,7 @@ def add_read_process(root, module, isigs):
     # Register read
     rd_data = root.h_bus['dato']
     rd_ack = isigs.rd_ack
-    rd_adr = root.h_bus.get('adr', None)
+    rd_adr = root.h_bus.get('adrr', None)
     rdproc = HDLComb()
     if rd_adr is not None:
         rdproc.sensitivity.append(rd_adr)
@@ -758,7 +802,7 @@ def add_write_process(root, module, isigs):
         # addresses)
         s.append(HDLAssign(isigs.wr_ack, bit_1))
     then_stmts = []
-    add_decoder(root, then_stmts, root.h_bus.get('adr', None), root, add_write)
+    add_decoder(root, then_stmts, root.h_bus.get('adrw', None), root, add_write)
     wr_if.then_stmts.extend(then_stmts)
     wrproc.sync_stmts.append(wr_if)
 
@@ -775,6 +819,8 @@ def gen_hdl_header(root, isigs=None):
     # Create the bus
     if root.bus == 'wb-32-be':
         expand_wishbone(root, module, isigs)
+    elif root.bus == 'axi4-lite-32':
+        expand_axi4lite(root, module, isigs)
     elif root.bus.startswith('cern-be-vme-'):
         names = root.bus[12:].split('-')
         err = names[0] == 'err'

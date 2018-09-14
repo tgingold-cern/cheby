@@ -281,6 +281,8 @@ class HDLIndex(HDLExpr):
 class HDLSlice(HDLExpr):
     def __init__(self, prefix, index, size=1):
         super(HDLSlice, self).__init__()
+        assert prefix is not None
+        assert index is not None
         self.prefix = prefix
         self.index = index
         self.size = size

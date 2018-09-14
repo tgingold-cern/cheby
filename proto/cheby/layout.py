@@ -389,6 +389,8 @@ def layout_cheby_memmap(n):
     n.c_buserr = False
     if n.bus is None or n.bus == 'wb-32-be':
         n.c_word_size = 4
+    elif n.bus == 'axi4-lite-32':
+        n.c_word_size = 4
     elif n.bus.startswith('cern-be-vme-'):
         params = n.bus[12:].split('-')
         if params[0] == 'err':
