@@ -177,20 +177,22 @@ def expand_axi4lite(root, module, isigs):
          ('rvalid',    HDLPort("rvalid", dir='OUT')),
          ('rready',    HDLPort("rready")),
          ('rdata',     HDLPort("rdata", root.c_word_bits, dir='OUT')),
-         ('rresp',     HDLPort("rresp", dir='OUT'))])
+         ('rresp',     HDLPort("rresp", 2, dir='OUT'))])
     add_bus(root, module, bus)
 
     if isigs:
-        isigs.rd_int = HDLSignal('rd_int')        # Read access
-        isigs.wr_int = HDLSignal('wr_int')        # Write access
-        isigs.rd_ack = HDLSignal('rd_ack_int')    # Ack for read
-        isigs.wr_ack = HDLSignal('wr_ack_int')    # Ack for write
-        root.h_bus['dati'] = HDLSignal('dati', root.c_word_bits)
-        root.h_bus['dato'] = HDLSignal('dato', root.c_word_bits)
-        root.h_bus['adrw'] = HDLSignal('adrw', addr_width)
-        root.h_bus['adrr'] = HDLSignal('adrr', addr_width)
+        isigs.rd_int = module.new_HDLSignal('rd_int')        # Read access
+        isigs.wr_int = module.new_HDLSignal('wr_int')        # Write access
+        isigs.rd_ack = module.new_HDLSignal('rd_ack_int')    # Ack for read
+        isigs.wr_ack = module.new_HDLSignal('wr_ack_int')    # Ack for write
+        wr_done = module.new_HDLSignal('wr_done_int')
+        rd_done = module.new_HDLSignal('rd_done_int')
+        root.h_bus['dati'] = module.new_HDLSignal('dati', root.c_word_bits)
+        root.h_bus['dato'] = module.new_HDLSignal('dato', root.c_word_bits)
+        root.h_bus['adrw'] = module.new_HDLSignal('adrw', addr_width)
+        root.h_bus['adrr'] = module.new_HDLSignal('adrr', addr_width)
 
-        def gen_aXready(ready_port, ready_reg, addr_port, addr_reg, valid_port):
+        def gen_aXready(ready_port, ready_reg, addr_port, addr_reg, valid_port, done_sig):
             module.stmts.append(HDLAssign(ready_port, ready_reg))
             proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'])
             proc.rst_stmts.append(HDLAssign(ready_reg, bit_1))
@@ -198,18 +200,21 @@ def expand_axi4lite(root, module, isigs):
             proc_if = HDLIfElse(HDLEq(HDLAnd(ready_reg, valid_port), bit_1))
             proc_if.then_stmts.append(HDLAssign(addr_reg, addr_port))
             proc_if.then_stmts.append(HDLAssign(ready_reg, bit_0))
-            proc_if.else_stmts = None
+            proc_if2 = HDLIfElse(HDLEq(done_sig, bit_1))
+            proc_if2.then_stmts.append(HDLAssign(ready_reg, bit_1))
+            proc_if2.else_stmts = None
+            proc_if.else_stmts.append(proc_if2)
             proc.sync_stmts.append(proc_if)
             module.stmts.append(proc)
 
         module.stmts.append(HDLComment("AW channel"))
-        awready_r = HDLSignal('awready_r')
+        awready_r = module.new_HDLSignal('awready_r')
         gen_aXready(root.h_bus['awready'], awready_r,
                     root.h_bus['awaddr'], root.h_bus['adrw'],
-                    root.h_bus['awvalid'])
+                    root.h_bus['awvalid'], wr_done)
 
         module.stmts.append(HDLComment("W channel"))
-        wready_r = HDLSignal('wready_r')
+        wready_r = module.new_HDLSignal('wready_r')
         module.stmts.append(HDLAssign(root.h_bus['wready'], wready_r))
         proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'])
         proc.rst_stmts.append(HDLAssign(wready_r, bit_1))
@@ -219,39 +224,48 @@ def expand_axi4lite(root, module, isigs):
         proc_if.then_stmts.append(HDLAssign(root.h_bus['dati'],
                                             root.h_bus['wdata']))
         proc_if.then_stmts.append(HDLAssign(wready_r, bit_0))
-        proc_if.else_stmts = None
+        proc_if2 = HDLIfElse(HDLEq(wr_done, bit_1))
+        proc_if2.then_stmts.append(HDLAssign(wready_r, bit_1))
+        proc_if2.else_stmts = None
+        proc_if.else_stmts.append(proc_if2)
         proc.sync_stmts.append(proc_if)
         module.stmts.append(proc)
         module.stmts.append(HDLAssign(isigs.wr_int, HDLAnd(HDLNot(awready_r),
                                                            HDLNot(wready_r))))
 
-        def gen_Xvalid(valid_port, ready_port, ack_sig):
+        def gen_Xvalid(valid_port, ready_port, ack_sig, done_sig):
             proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'])
             proc.rst_stmts.append(HDLAssign(valid_port, bit_0))
-            proc_if = HDLIfElse(HDLEq(HDLAnd(ready_port,
-                                             HDLOr(valid_port, ack_sig)),
-                                      bit_1))
+            proc_if = HDLIfElse(HDLEq(done_sig, bit_1))
             proc_if.then_stmts.append(HDLAssign(valid_port, bit_0))
-            proc_if2 = HDLIfElse(isigs.wr_ack)
+            proc_if2 = HDLIfElse(HDLEq(ack_sig, bit_1))
             proc_if2.then_stmts.append(HDLAssign(valid_port, bit_1))
             proc_if2.else_stmts = None
             proc_if.else_stmts.append(proc_if2)
             proc.sync_stmts.append(proc_if)
             module.stmts.append(proc)
+            module.stmts.append(HDLAssign(done_sig, HDLAnd(ready_port, valid_port)))
 
         module.stmts.append(HDLComment("B channel"))
-        gen_Xvalid(root.h_bus['bvalid'], root.h_bus['bready'], isigs.wr_ack)
+        bvalid_r = module.new_HDLSignal('bvalid_r')
+        gen_Xvalid(bvalid_r, root.h_bus['bready'], isigs.wr_ack, wr_done)
+        module.stmts.append(HDLAssign(root.h_bus['bvalid'], bvalid_r))
+        module.stmts.append(HDLAssign(root.h_bus['bresp'], HDLConst(0, 2)))
 
         module.stmts.append(HDLComment("AR channel"))
-        arready_r = HDLSignal('arready_r')
+        arready_r = module.new_HDLSignal('arready_r')
+        rvalid_r = module.new_HDLSignal('rvalid_r')
         gen_aXready(root.h_bus['arready'], arready_r,
                     root.h_bus['araddr'], root.h_bus['adrr'],
-                    root.h_bus['arvalid'])
-        module.stmts.append(HDLAssign(isigs.wr_int, HDLNot(arready_r)))
+                    root.h_bus['arvalid'], rd_done)
+        module.stmts.append(HDLAssign(isigs.rd_int, HDLAnd(HDLNot(arready_r),
+                                                           HDLNot(rvalid_r))))
 
         module.stmts.append(HDLComment("R channel"))
-        gen_Xvalid(root.h_bus['rvalid'], root.h_bus['rready'], isigs.rd_ack)
+        gen_Xvalid(rvalid_r, root.h_bus['rready'], isigs.rd_ack, rd_done)
+        module.stmts.append(HDLAssign(root.h_bus['rvalid'], rvalid_r))
         module.stmts.append(HDLAssign(root.h_bus['rdata'], root.h_bus['dato']))
+        module.stmts.append(HDLAssign(root.h_bus['rresp'], HDLConst(0, 2)))
 
 def add_decode_cern_be_vme(root, module, isigs):
     "Generate internal signals used by decoder/processes from CERN-BE-VME bus."
@@ -441,8 +455,9 @@ def wire_array_reg(root, module, reg):
     inst.params.append(("g_use_bwsel", HDLBool(False)))
     inst.conns.append(("clk_a_i", root.h_bus['clk']))
     inst.conns.append(("clk_b_i", root.h_bus['clk']))
+    # FIXME: handle bus-split.
     inst.conns.append(("addr_a_i",
-                       HDLSlice(root.h_bus['adr'], 0, reg.h_addr_width)))
+                       HDLSlice(root.h_bus['adrr'], 0, reg.h_addr_width)))
     inst.conns.append(("addr_b_i", reg.h_addr))
 
     nbr_bytes = reg.c_rwidth // tree.BYTE_SIZE
@@ -798,6 +813,7 @@ def add_write_process(root, module, isigs):
     module.stmts.append(wrproc)
     if root.h_ram_wr_dly is not None:
         wrproc.rst_stmts.append(HDLAssign(root.h_ram_wr_dly, bit_0))
+    wrproc.rst_stmts.append(HDLAssign(isigs.wr_ack, bit_0))
     wr_if = HDLIfElse(HDLAnd(HDLEq(isigs.wr_int, bit_1),
                              HDLEq(isigs.wr_ack, bit_0)))
     wr_if.else_stmts.append(HDLAssign(isigs.wr_ack, bit_0))

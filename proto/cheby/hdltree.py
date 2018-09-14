@@ -45,6 +45,11 @@ class HDLModule(HDLUnit, HDLPortsBase):
         self.decls = []
         self.stmts = []
 
+    def new_HDLSignal(self, *args, **kwargs):
+        r = HDLSignal(*args, **kwargs)
+        self.decls.append(r)
+        return r
+
 
 class HDLPackage(HDLUnit):
     def __init__(self, name=None):
