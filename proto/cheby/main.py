@@ -6,7 +6,7 @@ import argparse
 import cheby.parser
 import cheby.pprint as pprint
 import cheby.sprint as sprint
-import cheby.cprint as cprint
+import cheby.gen_c as gen_c
 import cheby.gen_laychk as gen_laychk
 import cheby.layout as layout
 import cheby.gen_hdl as gen_hdl
@@ -33,9 +33,9 @@ def decode_args():
                          help='display the expanded input in YAML')
     aparser.add_argument('--print-memmap', nargs='?', const='-',
                          help='display the layout without fields')
-    aparser.add_argument('--print-c', nargs='?', const='-',
-                         help='display the c header file')
-    aparser.add_argument('--print-c-check-layout', nargs='?', const='-',
+    aparser.add_argument('--gen-c', nargs='?', const='-',
+                         help='generate c header file')
+    aparser.add_argument('--gen-c-check-layout', nargs='?', const='-',
                          help='generate c file to check layout of the header')
     aparser.add_argument('--hdl', choices=['vhdl', 'verilog'], default='vhdl',
                          help='select language for hdl generation')
@@ -98,11 +98,11 @@ def handle_file(args, filename):
     if args.print_simple is not None:
         with open_filename(args.print_simple) as f:
             sprint.sprint_cheby(f, t, True)
-    if args.print_c is not None:
-        with open_filename(args.print_c) as f:
-            cprint.cprint_cheby(f, t)
-    if args.print_c_check_layout is not None:
-        with open_filename(args.print_c_check_layout) as f:
+    if args.gen_c is not None:
+        with open_filename(args.gen_c) as f:
+            gen_c.gen_c_cheby(f, t)
+    if args.gen_c_check_layout is not None:
+        with open_filename(args.gen_c_check_layout) as f:
             gen_laychk.gen_chklayout_cheby(f, t)
     if args.gen_encore is not None:
         with open_filename(args.gen_encore) as f:

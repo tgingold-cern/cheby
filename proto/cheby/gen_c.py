@@ -46,7 +46,7 @@ class CPrinter(tree.Visitor):
 @CPrinter.register(tree.Reg)
 def cprint_reg(cp, n):
     cp.cp_txt('/* [0x{:x}]: REG {} */'.format(
-              n.c_address, n.description))
+              n.c_address, n.description or '(no description)'))
     if n.c_type == 'signed':
         typ = cp.stypes[n.c_size]
     elif n.c_type == 'float':
@@ -57,18 +57,18 @@ def cprint_reg(cp, n):
 
 
 @CPrinter.register(tree.Block)
-def sprint_block(cp, n):
+def cprint_block(cp, n):
     cp.cp_txt('/* [0x{:x}]: BLOCK {} */'.format(
-              n.c_address, n.description))
+              n.c_address, n.description or '(no description)'))
     cp.start_struct(n.name)
     cprint_complex(cp, n)
     cp.end_struct(n.name)
 
 
 @CPrinter.register(tree.Array)
-def sprint_array(cp, n):
+def cprint_array(cp, n):
     cp.cp_txt('/* [0x{:x}]: ARRAY {} */'.format(
-              n.c_address, n.description))
+              n.c_address, n.description or '(no description)'))
     cp.start_struct(n.name)
     cprint_complex(cp, n)
     cp.end_struct('{}[{}]'.format(n.name, n.repeat))
@@ -108,6 +108,6 @@ def cprint_root(cp, n):
     cp.end_struct(None)
 
 
-def cprint_cheby(fd, root):
+def gen_c_cheby(fd, root):
     cp = CPrinter(fd)
     cprint_root(cp, root)
