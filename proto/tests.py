@@ -7,7 +7,7 @@ import cheby.parser as parser
 import cheby.layout as layout
 import cheby.pprint as pprint
 import cheby.sprint as sprint
-import cheby.cprint as cprint
+import cheby.gen_c as gen_c
 import cheby.gen_name as gen_name
 import cheby.gen_hdl as gen_hdl
 import cheby.print_vhdl as print_vhdl
@@ -111,7 +111,7 @@ def test_layout():
         hname = t.name + '.h'
         cname = t.name + '.c'
         with open(hname, 'w') as fd:
-            cprint.cprint_cheby(fd, t)
+            gen_c.gen_c_cheby(fd, t)
         with open(cname, 'w') as fd:
             gen_laychk.gen_chklayout_cheby(fd, t)
         subprocess.check_call(['gcc', '-S', cname])
@@ -146,7 +146,7 @@ def test_print():
         layout_ok(t)
         pprint.pprint_cheby(fd, t)
         sprint.sprint_cheby(fd, t)
-        cprint.cprint_cheby(fd, t)
+        gen_c.gen_c_cheby(fd, t)
 
 
 def test_hdl():
