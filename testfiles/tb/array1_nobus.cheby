@@ -1,0 +1,17 @@
+memory-map:
+  bus: wb-32-be
+  name: array1
+  children:
+  - array:
+      name: arr
+      repeat: 8
+      children:
+      - reg:
+          name: areg
+          access: rw
+          width: 32
+  - reg:
+      name: reg1
+      type: unsigned
+      width: 32
+      access: rw
