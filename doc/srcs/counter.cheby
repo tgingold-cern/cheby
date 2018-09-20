@@ -22,4 +22,4 @@ memory-map:
         name: counter
         description: Current value of the counter
         width: 32
-        access: rw
+        access: ro
