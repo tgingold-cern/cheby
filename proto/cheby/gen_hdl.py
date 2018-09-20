@@ -176,6 +176,7 @@ def expand_axi4lite(root, module, isigs):
          ('rdata',     HDLPort("rdata", root.c_word_bits, dir='OUT')),
          ('rresp',     HDLPort("rresp", 2, dir='OUT'))])
     add_bus(root, module, bus)
+    root.h_bussplit = True
 
     if isigs:
         isigs.rd_int = module.new_HDLSignal('rd_int')        # Read access
@@ -300,7 +301,6 @@ def expand_cern_be_vme(root, module, isigs, buserr, split):
                     ('wrerr', HDLPort('VMEWrError', dir='OUT'))])
     add_bus(root, module, bus)
 
-    root.h_bussplit = split
     if not split:
         root.h_bus['adrr'] = root.h_bus['adr']
         root.h_bus['adrw'] = root.h_bus['adr']
@@ -423,6 +423,7 @@ def wire_submap(root, module, n, stmts):
 def add_ports_array_reg(root, module, reg):
     # Compute width
     # Create ports
+    # FIXME: share addresses with all registers of an array ?
     reg.h_addr_width = ilog2(reg._parent.repeat)
     reg.h_addr = add_module_port(
         root, module, reg.name + '_adr', reg.h_addr_width, 'IN')
@@ -453,10 +454,8 @@ def wire_array_reg(root, module, reg):
     inst.params.append(("g_use_bwsel", HDLBool(False)))
     inst.conns.append(("clk_a_i", root.h_bus['clk']))
     inst.conns.append(("clk_b_i", root.h_bus['clk']))
-    # FIXME: handle bus-split.
     inst.conns.append(("addr_a_i",
-                       HDLSlice(root.h_bus['adrr'], 0, reg.h_addr_width)))
-    inst.conns.append(("addr_b_i", reg.h_addr))
+                       HDLSlice(root.h_bus['adr'], 0, reg.h_addr_width)))
 
     nbr_bytes = reg.c_rwidth // tree.BYTE_SIZE
     reg.h_sig_bwsel = HDLSignal(reg.name + '_int_bwsel', nbr_bytes)
@@ -487,6 +486,7 @@ def wire_array_reg(root, module, reg):
         inst.conns.append(("rd_a_i", reg.h_sig_rd))
         inst.conns.append(("wr_a_i", reg.h_sig_wr))
 
+        inst.conns.append(("addr_b_i", reg.h_addr))
         inst.conns.append(("data_b_i", reg.h_dat_ign))
         inst.conns.append(("data_b_o", reg.h_dat))
         inst.conns.append(("rd_b_i", reg.h_rd))
@@ -704,8 +704,6 @@ def add_read_reg_process(root, module, isigs):
     rdproc.rst_stmts.append(HDLAssign(rd_ack, bit_0))
     rdproc.rst_stmts.append(HDLAssign(rd_data,
                                       HDLReplicate(bit_x, root.c_word_bits)))
-    rdproc.sync_stmts.append(HDLAssign(rd_data,
-                                       HDLReplicate(bit_x, root.c_word_bits)))
     rd_if = HDLIfElse(HDLAnd(HDLEq(isigs.rd_int, bit_1),
                              HDLEq(rd_ack, bit_0)))
     rdproc.sync_stmts.append(rd_if)
@@ -867,8 +865,13 @@ def add_write_process(root, module, isigs):
                 wr_if.else_stmts.append(HDLAssign(r.h_sig_wr, bit_0))
                 s2 = HDLIfElse(HDLEq(root.h_ram_wr_dly, bit_0))
                 s.append(s2)
-                s2.then_stmts.append(HDLAssign(r.h_sig_wr, bit_1))
-                s2.then_stmts.append(HDLAssign(root.h_ram_wr_dly, bit_1))
+                # Gives priority to read (in case of bussplit).
+                # This is in agreement with the 'adr' (unified) address signal.
+                s3 = HDLIfElse(HDLEq(r.h_sig_rd, bit_0))
+                s3.then_stmts.append(HDLAssign(r.h_sig_wr, bit_1))
+                s3.then_stmts.append(HDLAssign(root.h_ram_wr_dly, bit_1))
+                s3.else_stmts = None
+                s2.then_stmts.append(s3)
                 s2.else_stmts.append(HDLAssign(root.h_ram_wr_dly, bit_0))
                 s2.else_stmts.append(HDLAssign(isigs.wr_ack, bit_1))
                 return
@@ -950,6 +953,18 @@ def generate_hdl(root):
         root.h_itf = None
         root.h_ports = module
     add_ports(root, module, root)
+
+    if root.h_bussplit:
+        root.h_bus['adr'] = module.new_HDLSignal('adr_int', root.c_addr_bits)
+        module.stmts.append(HDLComment('Assign unified address bus'))
+        proc = HDLComb()
+        proc.sensitivity.extend(
+            [root.h_bus['adrr'], root.h_bus['adrw'], isigs.rd_int])
+        sif = HDLIfElse(HDLEq(isigs.rd_int, bit_1))
+        sif.then_stmts.append(HDLAssign(root.h_bus['adr'], root.h_bus['adrr']))
+        sif.else_stmts.append(HDLAssign(root.h_bus['adr'], root.h_bus['adrw']))
+        proc.stmts.append(sif)
+        module.stmts.append(proc)
 
     module.stmts.append(HDLComment('Assign outputs'))
     root.h_ram = None
