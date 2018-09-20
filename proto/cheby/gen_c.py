@@ -3,8 +3,9 @@ import cheby.tree as tree
 
 
 class CPrinter(tree.Visitor):
-    def __init__(self, fd):
-        self.fd = fd
+    def __init__(self):
+        self.buffer = ''
+        self.submaps = []
         self.indent = 0
         self.utypes = {1: 'uint8_t',
                        2: 'uint16_t',
@@ -17,8 +18,8 @@ class CPrinter(tree.Visitor):
         self.ftypes = {4: 'float',
                        8: 'double'}
 
-    def cp_raw(self, str):
-        self.fd.write(str)
+    def cp_raw(self, s):
+        self.buffer += s
 
     def inc(self):
         self.indent += 1
@@ -73,6 +74,20 @@ def cprint_array(cp, n):
     cprint_complex(cp, n)
     cp.end_struct('{}[{}]'.format(n.name, n.repeat))
 
+@CPrinter.register(tree.Submap)
+def cprint_submap(cp, n):
+    cp.cp_txt('/* [0x{:x}]: SUBMAP {} */'.format(
+              n.c_address, n.description or '(no description)'))
+    if n.filename is None:
+        # Should depend on bus size ?
+        if n.size % 4 == 0:
+            sz = 4
+        else:
+            sz = 1
+        cp.cp_txt('{} {}[{}];'.format(cp.utypes[sz], n.name, n.size // sz))
+    else:
+        cp.cp_txt('struct {} {};'.format(n.c_submap.name, n.name))
+        cp.submaps.append(n.c_submap)
 
 @CPrinter.register(tree.ComplexNode)
 def cprint_complex(cp, n):
@@ -83,7 +98,8 @@ def cprint_complex(cp, n):
 def cprint_composite(cp, n):
     addr = 0
     pad_id = 0
-    for el in n.c_sorted_children:
+    for i in range(len(n.c_sorted_children)):
+        el = n.c_sorted_children[i]
         diff = el.c_address - addr
         assert diff >= 0
         if diff > 0:
@@ -93,10 +109,14 @@ def cprint_composite(cp, n):
                 sz = 4
             else:
                 sz = 1
+            if i != 0:
+                cp.cp_txt('')
             cp.cp_txt('/* padding to: {} words */'.format(el.c_address // sz))
             cp.cp_txt('{} __padding_{}[{}];'.format(
                 cp.utypes[sz], pad_id, diff // sz))
             pad_id += 1
+        if i != 0:
+            cp.cp_txt('')
         cp.visit(el)
         addr = el.c_address + el.c_size
 
@@ -107,7 +127,24 @@ def cprint_root(cp, n):
     cprint_composite(cp, n)
     cp.end_struct(None)
 
+def to_cmacro(name):
+    return "__CHEBY__{}__H__".format(name.upper())
 
 def gen_c_cheby(fd, root):
-    cp = CPrinter(fd)
+    cp = CPrinter()
     cprint_root(cp, root)
+    csym = to_cmacro(root.name)
+    fd.write("#ifndef {}\n".format(csym))
+    fd.write("#define {}\n".format(csym))
+    fd.write('\n')
+
+    submaps = set([n.name for n in cp.submaps])
+    for s in submaps:
+        # Note: we assume the filename is the name of the memmap + h
+        fd.write('#include "{}.h"\n'.format(s))
+    if s:
+        fd.write('\n')
+
+    fd.write(cp.buffer)
+    fd.write('\n')
+    fd.write("#endif /* {} */\n".format(csym))
