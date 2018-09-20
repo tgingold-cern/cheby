@@ -64,6 +64,7 @@ begin
     wait until rising_edge(clk);
 
     end_of_test <= true;
+    report "end of test" severity note;
     wait;
   end process;
 end behav;
