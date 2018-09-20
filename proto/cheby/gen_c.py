@@ -142,7 +142,7 @@ def gen_c_cheby(fd, root):
     for s in submaps:
         # Note: we assume the filename is the name of the memmap + h
         fd.write('#include "{}.h"\n'.format(s))
-    if s:
+    if submaps:
         fd.write('\n')
 
     fd.write(cp.buffer)
