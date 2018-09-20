@@ -133,13 +133,11 @@ def expand_wishbone(root, module, isigs):
 
     busgroup = root.get_extension('x_hdl', 'busgroup')
 
-    addr_bits = root.c_sel_bits + root.c_blk_bits - root.c_addr_word_bits
-
     root.h_bus.update(
-        gen_wishbone(module, module, 'wb', addr_bits, root.c_word_bits,
+        gen_wishbone(module, module, 'wb', root.c_addr_bits, root.c_word_bits,
                      None, False, busgroup is True))
     root.h_bussplit = False
-    if addr_bits > 0:
+    if root.c_addr_bits > 0:
         root.h_bus['adrr'] = root.h_bus['adr']
         root.h_bus['adrw'] = root.h_bus['adr']
 
@@ -153,11 +151,10 @@ def expand_axi4lite(root, module, isigs):
     """Create AXI4-Lite interface."""
     bus = [('clk',   HDLPort("aclk")),
            ('rst',   HDLPort("areset_n"))]
-    addr_width = root.c_sel_bits + root.c_blk_bits - root.c_addr_word_bits
     bus.extend(
         [('awvalid',   HDLPort("awvalid")),
          ('awready',   HDLPort("awready", dir='OUT')),
-         ('awaddr',    HDLPort("awaddr", addr_width, lo_idx=root.c_addr_word_bits)),
+         ('awaddr',    HDLPort("awaddr", root.c_addr_bits, lo_idx=root.c_addr_word_bits)),
          ('awprot',    HDLPort("awprot", 3)),
 
          ('wvalid',    HDLPort("wvalid")),
@@ -171,7 +168,7 @@ def expand_axi4lite(root, module, isigs):
 
          ('arvalid',   HDLPort("arvalid")),
          ('arready',   HDLPort("arready", dir='OUT')),
-         ('araddr',    HDLPort("araddr", addr_width, lo_idx=root.c_addr_word_bits)),
+         ('araddr',    HDLPort("araddr", root.c_addr_bits, lo_idx=root.c_addr_word_bits)),
          ('arprot',    HDLPort("arprot", 3)),
 
          ('rvalid',    HDLPort("rvalid", dir='OUT')),
@@ -189,14 +186,15 @@ def expand_axi4lite(root, module, isigs):
         rd_done = module.new_HDLSignal('rd_done_int')
         root.h_bus['dati'] = module.new_HDLSignal('dati', root.c_word_bits)
         root.h_bus['dato'] = module.new_HDLSignal('dato', root.c_word_bits)
-        root.h_bus['adrw'] = module.new_HDLSignal('adrw', addr_width)
-        root.h_bus['adrr'] = module.new_HDLSignal('adrr', addr_width)
+        root.h_bus['adrw'] = module.new_HDLSignal('adrw', root.c_addr_bits)
+        root.h_bus['adrr'] = module.new_HDLSignal('adrr', root.c_addr_bits)
 
         def gen_aXready(ready_port, ready_reg, addr_port, addr_reg, valid_port, done_sig):
             module.stmts.append(HDLAssign(ready_port, ready_reg))
             proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'])
             proc.rst_stmts.append(HDLAssign(ready_reg, bit_1))
-            proc.rst_stmts.append(HDLAssign(addr_reg, HDLReplicate(bit_0, addr_width)))
+            proc.rst_stmts.append(
+                HDLAssign(addr_reg, HDLReplicate(bit_0, root.c_addr_bits)))
             proc_if = HDLIfElse(HDLEq(HDLAnd(ready_reg, valid_port), bit_1))
             proc_if.then_stmts.append(HDLAssign(addr_reg, addr_port))
             proc_if.then_stmts.append(HDLAssign(ready_reg, bit_0))
@@ -282,14 +280,14 @@ def expand_cern_be_vme(root, module, isigs, buserr, split):
     """Create CERN-BE interface."""
     bus = [('clk',   HDLPort("Clk")),
            ('rst',   HDLPort("Rst"))]
-    addr_width = root.c_sel_bits + root.c_blk_bits - root.c_addr_word_bits
     if split:
         bus.extend(
-            [('adrr',   HDLPort("VMERdAddr", addr_width, lo_idx=root.c_addr_word_bits)),
-             ('adrw',   HDLPort("VMEWrAddr", addr_width, lo_idx=root.c_addr_word_bits))])
+            [('adrr',   HDLPort("VMERdAddr", root.c_addr_bits, lo_idx=root.c_addr_word_bits)),
+             ('adrw',   HDLPort("VMEWrAddr", root.c_addr_bits, lo_idx=root.c_addr_word_bits))])
     else:
         bus.extend(
-            [('adr',   HDLPort("VMEAddr", addr_width, lo_idx=root.c_addr_word_bits))])
+            [('adr',   HDLPort("VMEAddr", root.c_addr_bits, lo_idx=root.c_addr_word_bits))])
+    root.h_bussplit = split
     bus.extend(
         [('dato',  HDLPort("VMERdData", root.c_word_bits, dir='OUT')),
          ('dati',  HDLPort("VMEWrData", root.c_word_bits)),
@@ -894,6 +892,8 @@ def gen_hdl_header(root, isigs=None):
     root.c_addr_word_bits = ilog2(root.c_word_size)
     # Number of bits in a word
     root.c_word_bits = root.c_word_size * tree.BYTE_SIZE
+    # Number of bits for the address ports.
+    root.c_addr_bits = root.c_sel_bits + root.c_blk_bits - root.c_addr_word_bits
 
     # Create the bus
     if root.bus == 'wb-32-be':
