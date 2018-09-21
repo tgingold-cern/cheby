@@ -6,17 +6,37 @@ drivers, documentation... from these files.
 
 The Cheby project is the successor of the Cheburashka and Wbgen tools.
 
-## Version 0.2
+Currently the tools are command-line tools.
 
-This version offers backward compatiblity with wbgen files, and
-provides an setup.py installer.
+## How to install cheby
 
-To install cheby:
+The Cheby tools are written in Python, so you could use the standard
+approach:
 
     $  python setup.py install [--user]
 
 Add `--user` to install in user directory instead of a system wide
 installation.
+
+## Documentation
+
+There is a user guide in the doc/ directory.  It contains an getting started
+part with an example.
+
+## Version XX
+
+Syntax of options has changed. Options that generate contents accept
+the file as an optional argument.  If there is no filename, the
+content is written on the standard output.  The input must be
+specified with the -i/--input argument.  So to generate vhdl code for the
+file example.cheby:
+
+    $ cheby --gen-hdl example.vhdl -i example.cheby
+
+## Version 0.2
+
+This version offers backward compatiblity with wbgen files, and
+provides an setup.py installer.
 
 You can use the `wbgen2cheby` tool to convert from wbgen.
 
