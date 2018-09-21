@@ -129,13 +129,17 @@ of this module, but you can refer directly to the registers.
 
 === General Structure
 
-The Cheby file format is based on YAML, so that there is no new format to
-invent and many text editors have already support for it.  However the file
-extension is usually `.cheby`.
+The Cheby file format represent a hierachy of nodes.  A node contains
+a list of attribute and children.  An attribute is designated by a name and
+has a value (a string, a boolean or an integer).  The children are nodes,
+organized as a list.
 
-The file describes a tree, each node has attributes and some of the nodes also
-have children (a list of nodes).  The nodes are memory map, register, field,
-array, block and submap.
+The Cheby file format described in this manual is based on YAML, so
+that there is no new format to invent and many text editors have
+already support for it.  However the file extension is usually
+`.cheby`.
+
+The nodes are `memory-map`, `reg`, `field`, `array`, `block` and `submap`.
 
 Some attributes are common to all nodes:
 
@@ -165,6 +169,10 @@ format is extensible so that new tools can be easily created without
 backward compatibility issues.
 
 * `x-hdl`: Extensions for hdl generation.
+
+* `x_gena`: Extensions for Gena compatibility.
+
+* `x-wbgen`: Extensions for wbgen compatibility.
 
 === Header
 
