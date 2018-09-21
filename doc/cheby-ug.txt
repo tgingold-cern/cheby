@@ -187,15 +187,74 @@ specify the size (in bytes) of the memory space used by the module.
 
 === Registers
 
+A register uses one (usual case) or two (for 64-bit registers) words address.
+It can be directly read or written by the CPU and each used bit or group of
+bits generates a port.
+
+The access mode is defined from the point of view of the software.  It slightly
+change the generated hardware:
+
+* rw (read/write): This generates flip-flops whose value is directly
+available to the hardware.  The software can write to modify the value or
+read the get the current value.  The hardware cannot change the value.
+
+* wo (write-only): Like `rw`, but the software cannot read the current value.
+
+* ro (read-only): This creates no hardware but just a port.  The software can
+read the current value of the port, and cannot modify it.
+
+The size (in bits) of the register can be specified by the `width` attribute.
+The size cannot be larger than two words.
+
+It is possible to have fields in a register.  A field is a group of
+consecutive bits and has a name.
+
+If there is no field, this is a plain register.
+
 ==== Plain Registers
+
+A plain register has a type, which could be `unsigned` (the default), `signed`
+or `float`.  The type has no impact on the hardware, but changes the
+software view.
+
+It is possible to define the initial (just after a reset) value of a register
+using the `preset` attribute.
 
 ==== Fields
 
+There can be several fields in a register, and all of them have the same
+access right.  Bits used by a field are specified by the `range` attribute.
+The range is a single number if the field is 1 bit, or in the form of `lo-hi`
+where `lo` is the lowest bit and `hi` is the highest bit.  Bits are numbered
+using the little endian convention.
+
+It is possible to define the initial value of a field using the
+`preset` attribute.
+
+=== Blocks
+
+A block is simply a group of elements (registers, rams, submaps or blocks).
+This is used only to create a hierarchy, but also offers the possibility
+to specify an address or an alignment.
+
+It is possible to reserve space at the end of a block with the `size`
+attribute.  It specifies the size (in bytes) of the block.
+
 === RAMs
+
+A RAM is represented by an array of a register.  The number of elements is
+specified by the `repeat` attribute (usually it should be a power of 2).
+
+The `align` attribute must be set to `true`.
 
 === Repetition
 
-=== submap
+It is possible to replicate elements using an `array` with the `align`
+attribute set to `false`.
+
+Be careful that such a repetition can generate a lot of hardware.
+
+=== Submap
 
 If the `filename` attribue is not present, then this is a generic
 submap and a bus port is generated in the HDL.  The size of the submap
