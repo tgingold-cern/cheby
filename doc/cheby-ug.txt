@@ -125,23 +125,6 @@ include::srcs/counter.h[]
 The absolute address of the counter is determined by the instantiation
 of this module, but you can refer directly to the registers.
 
-== Cheby Tools
-
-=== Generating VHDL
-
-=== Generating Verilog
-
-=== Generating EDGE file
-
-=== Generating C header
-
-=== Generating HTML documentation
-
-=== Gena Compatibility
-
-=== wbgen Compatibility
-
-
 == Cheby File Format
 
 === General Structure
@@ -185,7 +168,22 @@ backward compatibility issues.
 
 === Header
 
-bus
+A cheby file is an associative array named `memory-map`.  The only purpose of
+this name is to easily refuse a random YAML file.
+
+The `bus` attribute specifies which bus will be used to interface the CPU with
+the HW module.  It can be:
+
+* wb-32-be: non-pipelined wishbone with 32 bit of data using the big-endian
+convention
+
+* axi4-lite-32: AIX4 lite bus with 32 bit of data
+
+* cern-be-vme-SZ: CERN VME-like bus using `SZ` data bit.  `SZ` can be
+8, 16 or 32.
+
+If you need to reserve area in a module, you can use the `size` attribute to
+specify the size (in bytes) of the memory space used by the module.
 
 === Registers
 
@@ -223,3 +221,23 @@ register.
 * A source is not permitted to wait until READY is asserted before
 asserting VALID.  Likewise, a destination is permitted to wait for
 VALID to be assert before asserting the corresponding READY (A3.2.1).
+
+There are registers for each channel.  The W and AW channels waits until
+both have a request, handle the request and then become ready when the B
+channel becomes ready.
+
+== wbgen Compatibility
+
+== Gena Compatibility
+
+== Cheby Tools
+
+=== Generating VHDL
+
+=== Generating Verilog
+
+=== Generating EDGE file
+
+=== Generating C header
+
+=== Generating HTML documentation
