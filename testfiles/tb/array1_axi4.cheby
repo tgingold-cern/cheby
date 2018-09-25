@@ -18,3 +18,8 @@ memory-map:
           name: ram1
           access: rw
           width: 32
+  - submap:
+      name: sub1_wb
+      size: 0x1000
+      description: A WB bus
+      interface: wb-32-be
