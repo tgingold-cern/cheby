@@ -354,15 +354,16 @@ def add_ports_reg(root, module, n):
         else:
             f.h_reg = None
 
-def gen_bus_slave_wb32(root, module, decls, name, comment, busgroup):
-    return gen_wishbone(module, decls, name, 32, root.c_word_bits, comment,
-                        True, busgroup is True)
+def gen_bus_slave_wb32(root, module, decls, n, busgroup):
+    return gen_wishbone(module, decls, n.name, n.c_addr_bits, root.c_word_bits,
+                        n.description, True, busgroup is True)
 
 def wire_bus_slave_wb32(root, stmts, n):
     stmts.append(HDLComment("Assignments for submap {}".format(n.name)))
     stmts.append(HDLAssign(n.h_bus['cyc'], HDLOr(n.h_wr, n.h_rd)))
     stmts.append(HDLAssign(n.h_bus['stb'], HDLOr(n.h_wr, n.h_rd)))
-    stmts.append(HDLAssign(n.h_bus['adr'], root.h_bus['adr']))
+    stmts.append(HDLAssign(n.h_bus['adr'], HDLSlice(root.h_bus['adr'],
+                                                    0, n.c_addr_bits)))
     stmts.append(HDLAssign(n.h_bus['sel'], HDLReplicate(bit_1, 4)))
     stmts.append(HDLAssign(n.h_bus['we'], n.h_wr))
     stmts.append(HDLAssign(n.h_bus['dati'], root.h_bus['dati']))
@@ -391,8 +392,7 @@ def wire_bus_slave_sram(root, stmts, n):
 
 def gen_bus_slave(root, module, prefix, n, interface, busgroup):
     if interface == 'wb-32-be':
-        n.h_bus = gen_bus_slave_wb32(
-            root, module, module, n.name, n.description, busgroup)
+        n.h_bus = gen_bus_slave_wb32(root, module, module, n, busgroup)
         # Internal signals
         n.h_wr = HDLSignal(prefix + 'wr')
         module.decls.append(n.h_wr)
@@ -783,6 +783,8 @@ def add_read_process(root, module, isigs):
                     rdproc.stmts.append(HDLAssign(n.h_rd, bit_0))
                     s.append(HDLAssign(n.h_rd, isigs.rd_int))
                     s.append(HDLAssign(isigs.rd_ack, n.h_bus['ack']))
+                    rdproc.sensitivity.extend(
+                        [n.h_bus['dato'], isigs.rd_int, n.h_bus['ack']])
                     return
                 elif n.c_interface == 'sram':
                     return

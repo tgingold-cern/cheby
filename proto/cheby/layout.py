@@ -46,14 +46,15 @@ def get_gena_gen(n, name, default=None):
 
 
 class Layout(tree.Visitor):
-    def __init__(self, word_size):
+    def __init__(self, root):
         super(Layout, self).__init__()
+        self.root = root
         self.address = 0
-        self.word_size = word_size
+        self.word_size = root.c_word_size
         self.align_reg = True
 
     def duplicate(self):
-        res = Layout(self.word_size)
+        res = Layout(self.root)
         res.align_reg = self.align_reg
         return res
 
@@ -256,11 +257,10 @@ def layout_submap(lo, n):
         if n.size is None:
             raise LayoutException(n,
                 "no size in submap '{}'".format(n.get_path()))
-        else:
-            n.c_size = n.size
         if n.interface is None:
             raise LayoutException(n,
                 "no interface for generic submap '{}'".format(n.get_path()))
+        n.c_size = n.size
         n.c_interface = n.interface
     else:
         if n.size is not None:
@@ -278,6 +278,7 @@ def layout_submap(lo, n):
             raise LayoutException(n,
                 "interface override is not allowed for submap '{}'".format(
                     n.get_path()))
+    n.c_addr_bits = ilog2(n.c_size) - lo.root.c_addr_word_bits
     align_block(lo, n)
 
 @Layout.register(tree.Block)
@@ -422,7 +423,7 @@ def layout_cheby_memmap(root):
     # Number of bits in a word
     root.c_word_bits = root.c_word_size * tree.BYTE_SIZE
 
-    lo = Layout(root.c_word_size)
+    lo = Layout(root)
     lo.align_reg = flag_align_reg
     lo.visit(root)
 
