@@ -377,48 +377,57 @@ def layout_composite(lo, n):
 
 
 @Layout.register(tree.Root)
-def layout_root(lo, n):
-    if not n.children:
-        raise LayoutException(n, "empty description '{}'".format(n.name))
-    n.c_address = 0
-    layout_composite(lo, n)
+def layout_root(lo, root):
+    if not root.children:
+        raise LayoutException(root, "empty description '{}'".format(root.name))
+    root.c_address = 0
+    layout_composite(lo, root)
 
 
-def layout_cheby_memmap(n):
+def layout_cheby_memmap(root):
     flag_align_reg = True
-    n.c_buserr = False
-    if n.bus is None or n.bus == 'wb-32-be':
-        n.c_word_size = 4
-    elif n.bus == 'axi4-lite-32':
-        n.c_word_size = 4
-    elif n.bus.startswith('cern-be-vme-'):
-        params = n.bus[12:].split('-')
+    root.c_buserr = False
+    if root.bus is None or root.bus == 'wb-32-be':
+        root.c_word_size = 4
+    elif root.bus == 'axi4-lite-32':
+        root.c_word_size = 4
+    elif root.bus.startswith('cern-be-vme-'):
+        params = root.bus[12:].split('-')
         if params[0] == 'err':
-            n.c_buserr = True
+            root.c_buserr = True
             del params[0]
         else:
-            n.c_buserr = False
+            root.c_buserr = False
         if params[0] == 'split':
-            n.c_bussplit = True
+            root.c_bussplit = True
             del params[0]
         else:
-            n.c_bussplit = False
+            root.c_bussplit = False
         if len(params) != 1:
-            raise LayoutException(n, "unknown bus '{}'".format(n.bus))
+            raise LayoutException(root, "unknown bus '{}'".format(root.bus))
         if params[0] == '32':
-            n.c_word_size = 4
+            root.c_word_size = 4
         elif params[0] == '16':
-            n.c_word_size = 2
+            root.c_word_size = 2
         elif params[0] == '8':
-            n.c_word_size = 1
+            root.c_word_size = 1
         else:
-            raise LayoutException(n, "unknown bus size '{}'".format(n.bus))
+            raise LayoutException(root, "unknown bus size '{}'".format(root.bus))
         flag_align_reg = False
     else:
-        raise LayoutException(n, "unknown bus '{}'".format(n.bus))
-    lo = Layout(n.c_word_size)
+        raise LayoutException(root, "unknown bus '{}'".format(root.bus))
+
+    # Number of bits in the address used by a word
+    root.c_addr_word_bits = ilog2(root.c_word_size)
+    # Number of bits in a word
+    root.c_word_bits = root.c_word_size * tree.BYTE_SIZE
+
+    lo = Layout(root.c_word_size)
     lo.align_reg = flag_align_reg
-    lo.visit(n)
+    lo.visit(root)
+
+    # Number of bits for the address ports (exluding sub-word bits)
+    root.c_addr_bits = ilog2(root.c_size) - root.c_addr_word_bits
 
 
 def set_abs_address(n, base_addr):

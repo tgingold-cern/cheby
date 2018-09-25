@@ -74,12 +74,10 @@ def add_decode_wb(root, module, isigs):
     module.stmts.append(HDLAssign(root.h_bus['stall'],
                                   HDLAnd(HDLNot(isigs.ack_int), isigs.wb_en)))
 
-def gen_wishbone_bus(build_port, addr_bits, data_bits, comment=None,
-                     is_master=False):
+def gen_wishbone_bus(build_port, addr_bits, data_bits, is_master=False):
     res = {}
     inp, out = ('IN', 'OUT') if not is_master else ('OUT', 'IN')
     res['cyc'] = build_port('cyc', None, dir=inp)
-    res['cyc'].comment = comment
     res['stb'] = build_port('stb', None, dir=inp)
     if addr_bits > 0:
         res['adr'] = build_port('adr', addr_bits, dir=inp)
@@ -110,10 +108,12 @@ def gen_wishbone(module, ports, name, addr_bits, data_bits, comment,
         res = gen_wishbone_bus(
             lambda n, sz, dir: ports.add_port(
                 '{}_{}_{}'.format(name, n , dirname[dir]), size=sz, dir=dir),
-            addr_bits, data_bits, comment, is_master)
+            addr_bits, data_bits, is_master)
+        res['cyc'].comment = comment
         return res
 
 def gen_wishbone_pkg():
+    """Create the wishbone_pkg package, so that interface can be referenced"""
     global wb_pkg, wb_ports, wb_itf
     if wb_pkg is not None:
         return
@@ -121,12 +121,12 @@ def gen_wishbone_pkg():
     wb_itf = HDLInterface('t_wishbone')
     wb_pkg.decls.append(wb_itf)
     wb_ports = gen_wishbone_bus(
-        lambda n, sz, dir: wb_itf.add_port(n, size=sz, dir=dir), 32, 32, None, True)
+        lambda n, sz, dir: wb_itf.add_port(n, size=sz, dir=dir), 32, 32, True)
     return
 
 
 def expand_wishbone(root, module, isigs):
-    """Create wishbone interface."""
+    """Create wishbone interface for the design."""
     root.h_bus = {}
     root.h_bus['rst'] = module.add_port('rst_n_i')
     root.h_bus['clk'] = module.add_port('clk_i')
@@ -147,38 +147,45 @@ def expand_wishbone(root, module, isigs):
         add_decode_wb(root, module, isigs)
 
 
+def gen_axi4lite_bus(build_port, addr_bits, data_bits, is_master=False):
+    inp, out = ('IN', 'OUT') if not is_master else ('OUT', 'IN')
+    return [
+        build_port("awvalid", None, dir=inp),
+        build_port("awready", None, dir=out),
+        build_port("awaddr", addr_bits, dir=inp),
+        build_port("awprot", 3, dir=inp),
+
+        build_port("wvalid", None, dir=inp),
+        build_port("wready", None, dir=out),
+        build_port("wdata", data_bits, dir=inp),
+        build_port("wstrb", data_bits // tree.BYTE_SIZE, dir=inp),
+
+        build_port("bvalid", None, dir=out),
+        build_port("bready", None, dir=inp),
+        build_port("bresp", 2, dir=out),
+
+        build_port("arvalid", None, dir=inp),
+        build_port("arready", None, dir=out),
+        build_port("araddr", addr_bits, dir=inp),
+        build_port("arprot", 3, inp),
+
+        build_port("rvalid", None, dir=out),
+        build_port("rready", None, dir=inp),
+        build_port("rdata", data_bits, dir=out),
+        build_port("rresp", 2, dir=out)]
+
 def expand_axi4lite(root, module, isigs):
-    """Create AXI4-Lite interface."""
+    """Create AXI4-Lite interface for the design."""
     bus = [('clk',   HDLPort("aclk")),
            ('rst',   HDLPort("areset_n"))]
-    bus.extend(
-        [('awvalid',   HDLPort("awvalid")),
-         ('awready',   HDLPort("awready", dir='OUT')),
-         ('awaddr',    HDLPort("awaddr", root.c_addr_bits, lo_idx=root.c_addr_word_bits)),
-         ('awprot',    HDLPort("awprot", 3)),
-
-         ('wvalid',    HDLPort("wvalid")),
-         ('wready',    HDLPort("wready", dir='OUT')),
-         ('wdata',     HDLPort("wdata", root.c_word_bits)),
-         ('wstrb',     HDLPort("wstrb", root.c_word_bits // tree.BYTE_SIZE)),
-
-         ('bvalid',    HDLPort("bvalid", dir='OUT')),
-         ('bready',    HDLPort("bready")),
-         ('bresp',     HDLPort("bresp", 2, dir='OUT')),
-
-         ('arvalid',   HDLPort("arvalid")),
-         ('arready',   HDLPort("arready", dir='OUT')),
-         ('araddr',    HDLPort("araddr", root.c_addr_bits, lo_idx=root.c_addr_word_bits)),
-         ('arprot',    HDLPort("arprot", 3)),
-
-         ('rvalid',    HDLPort("rvalid", dir='OUT')),
-         ('rready',    HDLPort("rready")),
-         ('rdata',     HDLPort("rdata", root.c_word_bits, dir='OUT')),
-         ('rresp',     HDLPort("rresp", 2, dir='OUT'))])
+    bus.extend(gen_axi4lite_bus(
+        lambda n, sz, dir: (n, HDLPort(n, size=sz, dir=dir)),
+        root.c_addr_bits, root.c_word_bits, False))
     add_bus(root, module, bus)
     root.h_bussplit = True
 
     if isigs:
+        # Internal signals and bus protocol
         isigs.rd_int = module.new_HDLSignal('rd_int')        # Read access
         isigs.wr_int = module.new_HDLSignal('wr_int')        # Write access
         isigs.rd_ack = module.new_HDLSignal('rd_ack_int')    # Ack for read
@@ -890,13 +897,6 @@ def add_write_process(root, module, isigs):
 def gen_hdl_header(root, isigs=None):
     module = HDLModule()
     module.name = root.name
-
-    # Number of bits in the address used by a word
-    root.c_addr_word_bits = ilog2(root.c_word_size)
-    # Number of bits in a word
-    root.c_word_bits = root.c_word_size * tree.BYTE_SIZE
-    # Number of bits for the address ports.
-    root.c_addr_bits = root.c_sel_bits + root.c_blk_bits - root.c_addr_word_bits
 
     # Create the bus
     if root.bus == 'wb-32-be':
