@@ -24,7 +24,7 @@ architecture behav of array1_axi4_tb is
   signal sub2_rd_in   : t_axi4lite_read_slave_in;
   signal sub2_rd_out  : t_axi4lite_read_slave_out;
 
-  signal end_of_test : boolean := false;
+  signal end_of_test : boolean := False;
 begin
   --  Clock and reset
   process
@@ -37,6 +37,14 @@ begin
     if end_of_test then
       wait;
     end if;
+  end process;
+
+  --  Watchdog
+  process
+  begin
+    wait until end_of_test for 2 us;
+    assert end_of_test report "Timeout" severity error;
+    wait;
   end process;
 
   rst_n <= '0' after 0 ns, '1' after 20 ns;
@@ -134,6 +142,15 @@ begin
   b2: block
   begin
     process (clk, rst_n)
+      variable awaddr : std_logic_vector(11 downto 2);
+      variable wdata : std_logic_vector(31 downto 0);
+      variable awaddr_set : boolean;
+      variable wdata_set : boolean;
+
+      --  One line of memory.
+      variable mem : std_logic_vector(31 downto 0);
+
+      variable pattern : std_logic_vector(31 downto 0);
     begin
       if rising_edge(clk) then
         if rst_n = '0' then
@@ -145,6 +162,8 @@ begin
                           rvalid => '0',
                           rdata => (others => 'X'),
                           rresp => "00");
+          awaddr_set := true;
+          wdata_set := true;
         else
           --  Read part
           if sub2_rd_out.arready = '0' then
@@ -157,18 +176,58 @@ begin
           else
             if sub2_rd_in.arvalid = '1' then
               --  Start a new TFR
-              sub2_rd_out.rdata( 7 downto  0) <=
-                not sub2_rd_in.araddr(9 downto 2);
-              sub2_rd_out.rdata(15 downto  8) <=
-                sub2_rd_in.araddr(9 downto 2);
-              sub2_rd_out.rdata(23 downto 16) <=
-                sub2_rd_in.araddr(9 downto 2);
-              sub2_rd_out.rdata(31 downto 24) <=
-                not sub2_rd_in.araddr(9 downto 2);
+              if sub2_rd_in.araddr(11 downto 2) = "0000000000" then
+                sub2_rd_out.rdata <= mem;
+              else
+                pattern( 7 downto  0) := not sub2_rd_in.araddr(9 downto 2);
+                pattern(15 downto  8) := sub2_rd_in.araddr(9 downto 2);
+                pattern(23 downto 16) := sub2_rd_in.araddr(9 downto 2);
+                pattern(31 downto 24) := not sub2_rd_in.araddr(9 downto 2);
+
+                sub2_rd_out.rdata <= pattern;
+              end if;
               sub2_rd_out.rvalid <= '1';
               sub2_rd_out.rresp <= C_AXI4_RESP_OK;
               sub2_rd_out.arready <= '0';
             end if;
+          end if;
+
+          --  Write part
+          if sub2_wr_in.awvalid = '1' then
+            awaddr := sub2_wr_in.awaddr(11 downto 2);
+            awaddr_set := True;
+            sub2_wr_out.awready <= '0';
+          end if;
+
+          if sub2_wr_in.wvalid = '1' then
+            wdata := sub2_wr_in.wdata;
+            wdata_set := true;
+            sub2_wr_out.wready <= '0';
+          end if;
+
+          if wdata_set and awaddr_set then
+            if awaddr = "0000000000" then
+              mem := wdata;
+            else
+              pattern( 7 downto  0) := not awaddr(9 downto 2);
+              pattern(15 downto  8) := awaddr(9 downto 2);
+              pattern(23 downto 16) := awaddr(9 downto 2);
+              pattern(31 downto 24) := not awaddr(9 downto 2);
+
+              assert wdata = pattern report "sub2: write error" severity error;
+            end if;
+
+            sub2_wr_out.bvalid <= '1';
+            sub2_wr_out.bresp <= C_AXI4_RESP_OK;
+
+            wdata_set := False;
+            awaddr_set := False;
+          end if;
+
+          if (sub2_wr_out.bvalid and sub2_wr_in.bready) = '1' then
+            sub2_wr_out.bvalid <= '0';
+            sub2_wr_out.awready <= '1';
+            sub2_wr_out.wready <= '1';
           end if;
         end if;
       end if;
@@ -216,12 +275,22 @@ begin
 
     --  Testing AXI4
     report "Testing AIX4" severity note;
-    --axi4lite_write (clk, wr_out, wr_in, x"0000_1000", x"9876_5432");
-
     axi4lite_read (clk, rd_out, rd_in, x"0000_2004", v);
     assert v = x"fe01_01fe" severity error;
 
+    axi4lite_write (clk, wr_out, wr_in, x"0000_2000", x"5555_aaaa");
+
+    axi4lite_write (clk, wr_out, wr_in, x"0000_2004", x"fe01_01fe");
+
+    axi4lite_read (clk, rd_out, rd_in, x"0000_2008", v);
+    assert v = x"fd02_02fd" severity error;
+
+    axi4lite_read (clk, rd_out, rd_in, x"0000_2000", v);
+    assert v = x"5555_aaaa" severity error;
+
     wait until rising_edge(clk);
+
+    report "end of test" severity note;
 
     end_of_test <= true;
     wait;

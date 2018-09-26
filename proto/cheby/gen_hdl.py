@@ -354,9 +354,13 @@ def add_ports_reg(root, module, n):
         else:
             f.h_reg = None
 
-def gen_bus_slave_wb32(root, module, decls, n, busgroup):
-    return gen_wishbone(module, decls, n.name, n.c_addr_bits, root.c_word_bits,
+def gen_bus_slave_wb32(root, module, prefix, decls, n, busgroup):
+    res = gen_wishbone(module, decls, n.name, n.c_addr_bits, root.c_word_bits,
                         n.description, True, busgroup is True)
+    # Internal signals
+    n.h_wr = module.new_HDLSignal(prefix + 'wr')
+    n.h_rd = module.new_HDLSignal(prefix + 'rd')
+    return res
 
 def wire_bus_slave_wb32(root, stmts, n):
     stmts.append(HDLComment("Assignments for submap {}".format(n.name)))
@@ -368,7 +372,7 @@ def wire_bus_slave_wb32(root, stmts, n):
     stmts.append(HDLAssign(n.h_bus['we'], n.h_wr))
     stmts.append(HDLAssign(n.h_bus['dati'], root.h_bus['dati']))
 
-def gen_bus_slave_axi4(root, module, decls, n, busgroup):
+def gen_bus_slave_axi4(root, module, prefix, decls, n, busgroup):
     ports = gen_axi4lite_bus(
         lambda name, sz, dir: (name, module.add_port(
             '{}_{}_{}'.format(n.name, name , dirname[dir]), size=sz, dir=dir)),
@@ -377,27 +381,35 @@ def gen_bus_slave_axi4(root, module, decls, n, busgroup):
     for name, p in ports:
         res[name]= p
     res['awvalid'].comment = n.description
+    # Internal signals: valid signals.
+    n.h_aw_val = module.new_HDLSignal(prefix + 'aw_val')
+    n.h_w_val = module.new_HDLSignal(prefix + 'wval')
+    n.h_aw_done = module.new_HDLSignal(prefix + 'aw_done')
+    n.h_w_done = module.new_HDLSignal(prefix + 'w_done')
+    n.h_rd = module.new_HDLSignal(prefix + 'rd')
     return res
 
 def wire_bus_slave_axi4(root, stmts, n):
     stmts.append(HDLComment("Assignments for submap {}".format(n.name)))
-    stmts.append(HDLAssign(n.h_bus['awvalid'], n.h_wr))
+    stmts.append(HDLAssign(n.h_bus['awvalid'], n.h_aw_val))
     stmts.append(HDLAssign(n.h_bus['awaddr'],
                            HDLSlice(root.h_bus['adrw'], 0, n.c_addr_bits)))
     stmts.append(HDLAssign(n.h_bus['awprot'], HDLBinConst(0, 3)))
-    stmts.append(HDLAssign(n.h_bus['wvalid'], n.h_wr))
-    stmts.append(HDLAssign(n.h_bus['wdata'], root.h_bus['dato']))
+    stmts.append(HDLAssign(n.h_bus['wvalid'], n.h_w_val))
+    stmts.append(HDLAssign(n.h_bus['wdata'], root.h_bus['dati']))
     stmts.append(HDLAssign(n.h_bus['wstrb'], HDLBinConst(0xf, 4)))
+    # FIXME: bready only available with axi4 root.
+    stmts.append(HDLAssign(n.h_bus['bready'], root.h_bus['bready']))
 
     stmts.append(HDLAssign(n.h_bus['arvalid'], n.h_rd))
     stmts.append(HDLAssign(n.h_bus['araddr'],
                            HDLSlice(root.h_bus['adrr'], 0, n.c_addr_bits)))
     stmts.append(HDLAssign(n.h_bus['arprot'], HDLBinConst(0, 3)))
 
-    # True only for axi4!
+    # FIXME: rready only available with axi4 root.
     stmts.append(HDLAssign(n.h_bus['rready'], root.h_bus['rready']))
 
-def gen_bus_slave_sram(root, prefix, n):
+def gen_bus_slave_sram(root, module, prefix, n):
     name = prefix + n.name + '_addr_o'
     n.h_addr_o = root.h_ports.add_port(
         name, n.c_blk_bits - root.c_addr_word_bits, dir='OUT')
@@ -409,6 +421,10 @@ def gen_bus_slave_sram(root, prefix, n):
     name = prefix + n.name + '_data_o'
     n.h_data_o = root.h_ports.add_port(name, n.c_width, dir='OUT')
 
+    # Internal signals
+    n.h_wr = module.new_HDLSignal(prefix + 'wr')
+    n.h_rd = module.new_HDLSignal(prefix + 'rd')
+
 def wire_bus_slave_sram(root, stmts, n):
     stmts.append(HDLAssign(n.h_data_o, root.h_bus['dato']))
     stmts.append(HDLAssign(n.h_addr_o,
@@ -418,19 +434,14 @@ def wire_bus_slave_sram(root, stmts, n):
 
 def gen_bus_slave(root, module, prefix, n, interface, busgroup):
     if interface == 'wb-32-be':
-        n.h_bus = gen_bus_slave_wb32(root, module, module, n, busgroup)
+        n.h_bus = gen_bus_slave_wb32(root, module, prefix, module, n, busgroup)
     elif interface == 'axi4-lite-32':
-        n.h_bus = gen_bus_slave_axi4(root, module, module, n, busgroup)
+        n.h_bus = gen_bus_slave_axi4(root, module, prefix, module, n, busgroup)
     elif interface == 'sram':
         n.h_bus = {}
-        gen_bus_slave_sram(root, prefix, n)
+        gen_bus_slave_sram(root, module, prefix, n)
     else:
         raise AssertionError(interface)
-    # Internal signals
-    n.h_wr = HDLSignal(prefix + 'wr')
-    module.decls.append(n.h_wr)
-    n.h_rd = HDLSignal(prefix + 'rd')
-    module.decls.append(n.h_rd)
 
 
 def add_ports_submap(root, module, n):
@@ -898,14 +909,27 @@ def add_write_process(root, module, isigs):
                     add_write_reg(s, n, off)
             elif isinstance(n, tree.Submap):
                 s.append(HDLComment("Submap {}".format(n.name)))
-                wrproc.rst_stmts.append(HDLAssign(n.h_wr, bit_0))
-                wrproc.sync_stmts.append(HDLAssign(n.h_wr, bit_0))
-                s.append(HDLAssign(n.h_wr, bit_1))
                 if n.c_interface == 'wb-32-be':
-                    s.append(HDLAssign(isigs.wr_ack, n.h_bus['ack']))
+                    wrproc.rst_stmts.append(HDLAssign(n.h_wr, bit_0))
+                    wrproc.sync_stmts.append(HDLAssign(n.h_wr, bit_0))
+                    s.append(HDLAssign(n.h_wr, bit_1))
+                    s.append(HDLAssign(isigs.wr_ack,
+                                       HDLAnd(n.h_bus['ack'],
+                                              HDLNot(isigs.wr_ack_done))))
                     return
                 elif n.c_interface == 'axi4-lite-32':
-                    # TODO
+                    # Machine state for valid/ready AW and W channels
+                    for xr, x_done, ready in [(n.h_aw_val, n.h_aw_done, n.h_bus['awready']),
+                                              (n.h_w_val, n.h_w_done, n.h_bus['wready'])]:
+                        wrproc.rst_stmts.append(HDLAssign(xr, bit_0))
+                        wrproc.sync_stmts.append(HDLAssign(x_done, bit_0))
+                        wrproc.sync_stmts.append(HDLAssign(xr, bit_0))
+                        s.append(HDLAssign(xr, HDLNot(x_done)))
+                        s.append(HDLAssign(x_done, HDLOr(x_done, ready)))
+                    # FIXME: bready is available only with AXI4 root
+                    s.append(HDLAssign(isigs.wr_ack,
+                                       HDLAnd(n.h_bus['bvalid'],
+                                              root.h_bus['bready'])))
                     return
                 elif n.c_interface == 'sram':
                     return
