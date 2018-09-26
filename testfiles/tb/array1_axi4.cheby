@@ -23,3 +23,8 @@ memory-map:
       size: 0x1000
       description: A WB bus
       interface: wb-32-be
+  - submap:
+      name: sub2_axi4
+      size: 0x1000
+      description: An AXI4-Lite bus
+      interface: axi4-lite-32

@@ -23,7 +23,7 @@ from cheby.hdltree import (HDLModule, HDLPackage,
                            bit_1, bit_0, bit_x,
                            HDLAnd, HDLOr, HDLNot, HDLEq,
                            HDLSlice, HDLReplicate, Slice_or_Index,
-                           HDLConst, HDLNumber, HDLBool)
+                           HDLConst, HDLBinConst, HDLNumber, HDLBool)
 import cheby.tree as tree
 from cheby.layout import ilog2
 
@@ -368,6 +368,35 @@ def wire_bus_slave_wb32(root, stmts, n):
     stmts.append(HDLAssign(n.h_bus['we'], n.h_wr))
     stmts.append(HDLAssign(n.h_bus['dati'], root.h_bus['dati']))
 
+def gen_bus_slave_axi4(root, module, decls, n, busgroup):
+    ports = gen_axi4lite_bus(
+        lambda name, sz, dir: (name, module.add_port(
+            '{}_{}_{}'.format(n.name, name , dirname[dir]), size=sz, dir=dir)),
+        n.c_addr_bits, root.c_word_bits, True)
+    res = {}
+    for name, p in ports:
+        res[name]= p
+    res['awvalid'].comment = n.description
+    return res
+
+def wire_bus_slave_axi4(root, stmts, n):
+    stmts.append(HDLComment("Assignments for submap {}".format(n.name)))
+    stmts.append(HDLAssign(n.h_bus['awvalid'], n.h_wr))
+    stmts.append(HDLAssign(n.h_bus['awaddr'],
+                           HDLSlice(root.h_bus['adrw'], 0, n.c_addr_bits)))
+    stmts.append(HDLAssign(n.h_bus['awprot'], HDLBinConst(0, 3)))
+    stmts.append(HDLAssign(n.h_bus['wvalid'], n.h_wr))
+    stmts.append(HDLAssign(n.h_bus['wdata'], root.h_bus['dato']))
+    stmts.append(HDLAssign(n.h_bus['wstrb'], HDLBinConst(0xf, 4)))
+
+    stmts.append(HDLAssign(n.h_bus['arvalid'], n.h_rd))
+    stmts.append(HDLAssign(n.h_bus['araddr'],
+                           HDLSlice(root.h_bus['adrr'], 0, n.c_addr_bits)))
+    stmts.append(HDLAssign(n.h_bus['arprot'], HDLBinConst(0, 3)))
+
+    # True only for axi4!
+    stmts.append(HDLAssign(n.h_bus['rready'], root.h_bus['rready']))
+
 def gen_bus_slave_sram(root, prefix, n):
     name = prefix + n.name + '_addr_o'
     n.h_addr_o = root.h_ports.add_port(
@@ -380,9 +409,6 @@ def gen_bus_slave_sram(root, prefix, n):
     name = prefix + n.name + '_data_o'
     n.h_data_o = root.h_ports.add_port(name, n.c_width, dir='OUT')
 
-    name = prefix + n.name + '_wr_o'
-    n.h_wr_o = root.h_ports.add_port(name, None, dir='OUT')
-
 def wire_bus_slave_sram(root, stmts, n):
     stmts.append(HDLAssign(n.h_data_o, root.h_bus['dato']))
     stmts.append(HDLAssign(n.h_addr_o,
@@ -393,16 +419,18 @@ def wire_bus_slave_sram(root, stmts, n):
 def gen_bus_slave(root, module, prefix, n, interface, busgroup):
     if interface == 'wb-32-be':
         n.h_bus = gen_bus_slave_wb32(root, module, module, n, busgroup)
-        # Internal signals
-        n.h_wr = HDLSignal(prefix + 'wr')
-        module.decls.append(n.h_wr)
-        n.h_rd = HDLSignal(prefix + 'rd')
-        module.decls.append(n.h_rd)
+    elif interface == 'axi4-lite-32':
+        n.h_bus = gen_bus_slave_axi4(root, module, module, n, busgroup)
     elif interface == 'sram':
         n.h_bus = {}
         gen_bus_slave_sram(root, prefix, n)
     else:
         raise AssertionError(interface)
+    # Internal signals
+    n.h_wr = HDLSignal(prefix + 'wr')
+    module.decls.append(n.h_wr)
+    n.h_rd = HDLSignal(prefix + 'rd')
+    module.decls.append(n.h_rd)
 
 
 def add_ports_submap(root, module, n):
@@ -422,6 +450,8 @@ def add_ports_submap(root, module, n):
 def wire_submap(root, module, n, stmts):
     if n.c_interface == 'wb-32-be':
         wire_bus_slave_wb32(root, stmts, n)
+    elif n.c_interface == 'axi4-lite-32':
+        wire_bus_slave_axi4(root, stmts, n)
     elif n.c_interface == 'sram':
         wire_bus_slave_sram(root, stmts, n)
     else:
@@ -778,13 +808,18 @@ def add_read_process(root, module, isigs):
                 s.append(HDLAssign(rd_ack, root.h_rd_ack1_int))
             elif isinstance(n, tree.Submap):
                 s.append(HDLComment("Submap {}".format(n.name)))
+                rdproc.stmts.append(HDLAssign(n.h_rd, bit_0))
+                s.append(HDLAssign(n.h_rd, isigs.rd_int))
+                rdproc.sensitivity.append(isigs.rd_int)
                 if n.c_interface == 'wb-32-be':
                     s.append(HDLAssign(rd_data, n.h_bus['dato']))
-                    rdproc.stmts.append(HDLAssign(n.h_rd, bit_0))
-                    s.append(HDLAssign(n.h_rd, isigs.rd_int))
                     s.append(HDLAssign(isigs.rd_ack, n.h_bus['ack']))
-                    rdproc.sensitivity.extend(
-                        [n.h_bus['dato'], isigs.rd_int, n.h_bus['ack']])
+                    rdproc.sensitivity.extend([n.h_bus['dato'], n.h_bus['ack']])
+                    return
+                elif n.c_interface == 'axi4-lite-32':
+                    s.append(HDLAssign(rd_data, n.h_bus['rdata']))
+                    s.append(HDLAssign(isigs.rd_ack, n.h_bus['rvalid']))
+                    rdproc.sensitivity.extend([n.h_bus['rdata'], n.h_bus['rvalid']])
                     return
                 elif n.c_interface == 'sram':
                     return
@@ -814,14 +849,21 @@ def add_read_process(root, module, isigs):
 
 def add_write_process(root, module, isigs):
     # Register write
+    module.stmts.append(HDLComment('Process for write requests.'))
     wrproc = HDLSync(root.h_bus['clk'], root.h_bus['rst'])
     module.stmts.append(wrproc)
+    isigs.wr_ack_done = HDLSignal('wr_ack_done_int')
+    module.decls.append(isigs.wr_ack_done)
     if root.h_ram_wr_dly is not None:
         wrproc.rst_stmts.append(HDLAssign(root.h_ram_wr_dly, bit_0))
     wrproc.rst_stmts.append(HDLAssign(isigs.wr_ack, bit_0))
-    wr_if = HDLIfElse(HDLAnd(HDLEq(isigs.wr_int, bit_1),
-                             HDLEq(isigs.wr_ack, bit_0)))
+    wrproc.rst_stmts.append(HDLAssign(isigs.wr_ack_done, bit_0))
+    wr_if = HDLIfElse(HDLEq(isigs.wr_int, bit_1))
+    wr_if.then_stmts.append(HDLComment('Write in progress'))
+    wr_if.then_stmts.append(HDLAssign(isigs.wr_ack_done,
+                                      HDLOr(isigs.wr_ack, isigs.wr_ack_done)))
     wr_if.else_stmts.append(HDLAssign(isigs.wr_ack, bit_0))
+    wr_if.else_stmts.append(HDLAssign(isigs.wr_ack_done, bit_0))
     wr_data = root.h_bus['dati']
 
     def add_write_reg(s, n, off):
@@ -851,23 +893,26 @@ def add_write_process(root, module, isigs):
     def add_write(s, n, off):
         if n is not None:
             if isinstance(n, tree.Reg):
-                s.append(HDLComment(n.name))
+                s.append(HDLComment("Register {}".format(n.name)))
                 if n.access in ['wo', 'rw']:
                     add_write_reg(s, n, off)
             elif isinstance(n, tree.Submap):
                 s.append(HDLComment("Submap {}".format(n.name)))
+                wrproc.rst_stmts.append(HDLAssign(n.h_wr, bit_0))
+                wrproc.sync_stmts.append(HDLAssign(n.h_wr, bit_0))
+                s.append(HDLAssign(n.h_wr, bit_1))
                 if n.c_interface == 'wb-32-be':
-                    wrproc.rst_stmts.append(HDLAssign(n.h_wr, bit_0))
-                    wr_if.then_stmts.append(HDLAssign(n.h_wr, bit_0))
-                    s.append(HDLAssign(n.h_wr, bit_1))
                     s.append(HDLAssign(isigs.wr_ack, n.h_bus['ack']))
                     return
+                elif n.c_interface == 'axi4-lite-32':
+                    # TODO
+                    return
                 elif n.c_interface == 'sram':
-                    s.append(HDLAssign(n.h_wr_o, bit_1))
                     return
                 else:
                     raise AssertionError
             elif isinstance(n, tree.Array):
+                s.append(HDLComment("Memory {}".format(n.name)))
                 # TODO: handle list of registers!
                 r = n.children[0]
                 wrproc.rst_stmts.append(HDLAssign(r.h_sig_wr, bit_0))
@@ -882,14 +927,15 @@ def add_write_process(root, module, isigs):
                 s3.else_stmts = None
                 s2.then_stmts.append(s3)
                 s2.else_stmts.append(HDLAssign(root.h_ram_wr_dly, bit_0))
-                s2.else_stmts.append(HDLAssign(isigs.wr_ack, bit_1))
+                s2.else_stmts.append(HDLAssign(isigs.wr_ack,
+                                               HDLNot(isigs.wr_ack_done)))
                 return
             else:
                 # Including blocks.
                 raise AssertionError
         # All the write are ack'ed (including the write to unassigned
         # addresses)
-        s.append(HDLAssign(isigs.wr_ack, bit_1))
+        s.append(HDLAssign(isigs.wr_ack, HDLNot(isigs.wr_ack_done)))
     then_stmts = []
     add_decoder(root, then_stmts, root.h_bus.get('adrw', None), root, add_write)
     wr_if.then_stmts.extend(then_stmts)
@@ -973,7 +1019,6 @@ def generate_hdl(root):
     root.h_ram_wr_dly = None
     wire_regs(root, module, isigs, root)
 
-    module.stmts.append(HDLComment('Process for write requests.'))
     add_write_process(root, module, isigs)
 
     if root.h_max_delay >= 1:

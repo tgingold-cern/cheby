@@ -11,6 +11,8 @@ package axi4_tb_pkg is
     rready  : std_logic;
   end record;
 
+  subtype t_axi4lite_read_slave_in is t_axi4lite_read_master_out;
+
   type t_axi4lite_read_master_in is record
       -- Read Address channel
       arready : std_logic;
@@ -19,6 +21,8 @@ package axi4_tb_pkg is
       rresp   : std_logic_vector(1 downto 0);
       rvalid  : std_logic;
    end record;
+
+  subtype t_axi4lite_read_slave_out is t_axi4lite_read_master_in;
 
   type t_axi4lite_write_master_out is record
       -- Write address channel
@@ -33,7 +37,9 @@ package axi4_tb_pkg is
       bready  : std_logic;
    end record;
 
-   type t_axi4lite_write_master_in is record
+  subtype t_axi4lite_write_slave_in is t_axi4lite_write_master_out;
+
+  type t_axi4lite_write_master_in is record
       -- Write address channel
       awready : std_logic;
       -- Write data channel
@@ -42,6 +48,8 @@ package axi4_tb_pkg is
       bresp   : std_logic_vector(1 downto 0);
       bvalid  : std_logic;
    end record;
+
+  subtype t_axi4lite_write_slave_out is t_axi4lite_write_master_in;
 
   --  Resp values
   constant C_AXI4_RESP_OK     : std_logic_vector(1 downto 0) := "00";

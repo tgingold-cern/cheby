@@ -19,6 +19,11 @@ architecture behav of array1_axi4_tb is
   signal sub1_wb_in  : t_wishbone_slave_in;
   signal sub1_wb_out : t_wishbone_slave_out;
 
+  signal sub2_wr_in   : t_axi4lite_write_slave_in;
+  signal sub2_wr_out  : t_axi4lite_write_slave_out;
+  signal sub2_rd_in   : t_axi4lite_read_slave_in;
+  signal sub2_rd_out  : t_axi4lite_read_slave_out;
+
   signal end_of_test : boolean := false;
 begin
   --  Clock and reset
@@ -42,7 +47,7 @@ begin
       areset_n   => rst_n,
       awvalid    => wr_out.awvalid,
       awready    => wr_in.awready,
-      awaddr     => wr_out.awaddr(12 downto 2),
+      awaddr     => wr_out.awaddr(13 downto 2),
       awprot     => "010",
       wvalid     => wr_out.wvalid,
       wready     => wr_in.wready,
@@ -53,7 +58,7 @@ begin
       bresp      => wr_in.bresp,
       arvalid    => rd_out.arvalid,
       arready    => rd_in.arready,
-      araddr     => rd_out.araddr(12 downto 2),
+      araddr     => rd_out.araddr(13 downto 2),
       arprot     => "010",
       rvalid     => rd_in.rvalid,
       rready     => rd_out.rready,
@@ -74,8 +79,29 @@ begin
       sub1_wb_err_i => sub1_wb_out.err,
       sub1_wb_rty_i => sub1_wb_out.rty,
       sub1_wb_stall_i => sub1_wb_out.stall,
-      sub1_wb_dat_i => sub1_wb_out.dat);
+      sub1_wb_dat_i => sub1_wb_out.dat,
 
+      sub2_axi4_awvalid_o  => sub2_wr_in.awvalid,
+      sub2_axi4_awready_i  => sub2_wr_out.awready,
+      sub2_axi4_awaddr_o   => sub2_wr_in.awaddr(11 downto 2),
+      sub2_axi4_awprot_o   => sub2_wr_in.awprot,
+      sub2_axi4_wvalid_o   => sub2_wr_in.wvalid,
+      sub2_axi4_wready_i   => sub2_wr_out.wready,
+      sub2_axi4_wdata_o    => sub2_wr_in.wdata,
+      sub2_axi4_wstrb_o    => sub2_wr_in.wstrb,
+      sub2_axi4_bvalid_i   => sub2_wr_out.bvalid,
+      sub2_axi4_bready_o   => sub2_wr_in.bready,
+      sub2_axi4_bresp_i    => sub2_wr_out.bresp,
+      sub2_axi4_arvalid_o  => sub2_rd_in.arvalid,
+      sub2_axi4_arready_i  => sub2_rd_out.arready,
+      sub2_axi4_araddr_o   => sub2_rd_in.araddr(11 downto 2),
+      sub2_axi4_arprot_o   => sub2_rd_in.arprot,
+      sub2_axi4_rvalid_i   => sub2_rd_out.rvalid,
+      sub2_axi4_rready_o   => sub2_rd_in.rready,
+      sub2_axi4_rdata_i    => sub2_rd_out.rdata,
+      sub2_axi4_rresp_i    => sub2_rd_out.rresp);
+
+  --  WB target
   b1: block
   begin
     sub1_wb_out.err <= '0';
@@ -99,6 +125,51 @@ begin
           sub1_wb_out.ack <= '1';
         else
           sub1_wb_out.ack <= '0';
+        end if;
+      end if;
+    end process;
+  end block;
+
+  --  AXI4-lite target
+  b2: block
+  begin
+    process (clk, rst_n)
+    begin
+      if rising_edge(clk) then
+        if rst_n = '0' then
+          sub2_wr_out <= (awready => '1',
+                          wready => '1',
+                          bvalid => '0',
+                          bresp => "00");
+          sub2_rd_out <= (arready => '1',
+                          rvalid => '0',
+                          rdata => (others => 'X'),
+                          rresp => "00");
+        else
+          --  Read part
+          if sub2_rd_out.arready = '0' then
+            --  TFR in progress.
+            assert sub2_rd_out.rvalid = '1' severity error;
+            if sub2_rd_in.rready = '1' then
+              sub2_rd_out.arready <= '1';
+              sub2_rd_out.rvalid <= '0';
+            end if;
+          else
+            if sub2_rd_in.arvalid = '1' then
+              --  Start a new TFR
+              sub2_rd_out.rdata( 7 downto  0) <=
+                not sub2_rd_in.araddr(9 downto 2);
+              sub2_rd_out.rdata(15 downto  8) <=
+                sub2_rd_in.araddr(9 downto 2);
+              sub2_rd_out.rdata(23 downto 16) <=
+                sub2_rd_in.araddr(9 downto 2);
+              sub2_rd_out.rdata(31 downto 24) <=
+                not sub2_rd_in.araddr(9 downto 2);
+              sub2_rd_out.rvalid <= '1';
+              sub2_rd_out.rresp <= C_AXI4_RESP_OK;
+              sub2_rd_out.arready <= '0';
+            end if;
+          end if;
         end if;
       end if;
     end process;
@@ -142,6 +213,13 @@ begin
 
     axi4lite_read (clk, rd_out, rd_in, x"0000_1004", v);
     assert v = x"0000_0000" severity error;
+
+    --  Testing AXI4
+    report "Testing AIX4" severity note;
+    --axi4lite_write (clk, wr_out, wr_in, x"0000_1000", x"9876_5432");
+
+    axi4lite_read (clk, rd_out, rd_in, x"0000_2004", v);
+    assert v = x"fe01_01fe" severity error;
 
     wait until rising_edge(clk);
 
