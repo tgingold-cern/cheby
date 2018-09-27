@@ -3,7 +3,7 @@ use ieee.std_logic_1164.all;
 
 use work.wishbone_pkg.all;
 
-package tb_pkg is
+package wb_tb_pkg is
   procedure wb_init(signal clk     : std_logic;
                     signal wb_in   : inout t_wishbone_slave_in;
                     signal wb_out  : t_wishbone_slave_out);
@@ -19,9 +19,9 @@ package tb_pkg is
                       signal wb_out  : t_wishbone_slave_out;
                       addr : std_logic_vector (31 downto 0);
                       data : out std_logic_vector (31 downto 0));
-end tb_pkg;
+end wb_tb_pkg;
 
-package body tb_pkg is
+package body wb_tb_pkg is
   procedure wb_init(signal clk     : std_logic;
                     signal wb_in   : inout t_wishbone_slave_in;
                     signal wb_out  : t_wishbone_slave_out) is
@@ -74,4 +74,4 @@ package body tb_pkg is
       wb_cycle(clk, wb_in, wb_out, addr);
       data := wb_out.dat;
     end wb_readl;
-end tb_pkg;
+end wb_tb_pkg;

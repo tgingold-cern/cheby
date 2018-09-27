@@ -1,14 +1,14 @@
-entity array1_tb is
-end array1_tb;
+entity array1_wb_tb is
+end array1_wb_tb;
 
 library ieee;
 use ieee.std_logic_1164.all;
 
 use work.wishbone_pkg.all;
-use work.tb_pkg.all;
+use work.wb_tb_pkg.all;
 use work.axi4_tb_pkg.all;
 
-architecture behav of array1_tb is
+architecture behav of array1_wb_tb is
   signal rst_n   : std_logic;
   signal clk     : std_logic;
   signal wb_in   : t_wishbone_slave_in;
