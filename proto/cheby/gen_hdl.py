@@ -399,7 +399,7 @@ def wire_bus_slave_axi4(root, stmts, n):
     stmts.append(HDLAssign(n.h_bus['wdata'], root.h_bus['dati']))
     stmts.append(HDLAssign(n.h_bus['wstrb'], HDLBinConst(0xf, 4)))
     # FIXME: bready only available with axi4 root.
-    stmts.append(HDLAssign(n.h_bus['bready'], root.h_bus['bready']))
+    stmts.append(HDLAssign(n.h_bus['bready'], root.h_bus.get('bready', bit_1)))
 
     stmts.append(HDLAssign(n.h_bus['arvalid'], n.h_rd))
     stmts.append(HDLAssign(n.h_bus['araddr'],
@@ -407,7 +407,7 @@ def wire_bus_slave_axi4(root, stmts, n):
     stmts.append(HDLAssign(n.h_bus['arprot'], HDLBinConst(0, 3)))
 
     # FIXME: rready only available with axi4 root.
-    stmts.append(HDLAssign(n.h_bus['rready'], root.h_bus['rready']))
+    stmts.append(HDLAssign(n.h_bus['rready'], root.h_bus.get('rready', bit_1)))
 
 def gen_bus_slave_sram(root, module, prefix, n):
     name = prefix + n.name + '_addr_o'
@@ -929,7 +929,7 @@ def add_write_process(root, module, isigs):
                     # FIXME: bready is available only with AXI4 root
                     s.append(HDLAssign(isigs.wr_ack,
                                        HDLAnd(n.h_bus['bvalid'],
-                                              root.h_bus['bready'])))
+                                              root.h_bus.get('bready', bit_1))))
                     return
                 elif n.c_interface == 'sram':
                     return
