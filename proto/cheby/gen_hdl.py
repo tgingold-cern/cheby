@@ -14,6 +14,7 @@
    The _i/_o suffixes are also used for ports, so the ports of the bus can
    also have conflicts with user names.
 """
+from abc import ABCMeta, abstractmethod
 from cheby.hdltree import (HDLModule, HDLPackage,
                            HDLInterface, HDLInterfaceSelect, HDLInstance,
                            HDLPort, HDLSignal,
@@ -27,12 +28,10 @@ from cheby.hdltree import (HDLModule, HDLPackage,
 import cheby.tree as tree
 from cheby.layout import ilog2
 
-dirname = {'IN': 'i', 'OUT': 'o'}
+# Python 2 and 3 compatibility...
+ABC = ABCMeta('ABC', (object,), {})
 
-# Package wishbone_pkg that contains the wishbone interface
-wb_pkg = None
-wb_itf = None
-wb_ports = None
+dirname = {'IN': 'i', 'OUT': 'o'}
 
 class HdlError(Exception):
     def __init__(self, msg):
@@ -50,270 +49,403 @@ def add_bus(root, module, bus):
         module.ports.append(h)
         root.h_bus[n] = h
 
+class BusGen(ABC):
+    @abstractmethod
+    def expand_bus(root, module, isigs):
+        """Create bus interface for the design."""
+        pass
 
-def add_decode_wb(root, module, isigs):
-    "Generate internal signals used by decoder/processes from WB bus."
-    isigs.rd_int = HDLSignal('rd_int')        # Read access
-    isigs.wr_int = HDLSignal('wr_int')        # Write access
-    isigs.rd_ack = HDLSignal('rd_ack_int')    # Ack for read
-    isigs.wr_ack = HDLSignal('wr_ack_int')    # Ack for write
-    # Internal signals for wb.
-    isigs.wb_en = HDLSignal('wb_en')
-    isigs.ack_int = HDLSignal('ack_int')      # Ack
-    module.decls.extend([isigs.wb_en, isigs.rd_int, isigs.wr_int,
-                         isigs.ack_int, isigs.rd_ack, isigs.wr_ack])
-    module.stmts.append(
-        HDLAssign(isigs.wb_en, HDLAnd(root.h_bus['cyc'], root.h_bus['stb'])))
-    module.stmts.append(
-        HDLAssign(isigs.rd_int, HDLAnd(isigs.wb_en, HDLNot(root.h_bus['we']))))
-    module.stmts.append(
-        HDLAssign(isigs.wr_int, HDLAnd(isigs.wb_en, root.h_bus['we'])))
-    module.stmts.append(HDLAssign(isigs.ack_int,
-                                  HDLOr(isigs.rd_ack, isigs.wr_ack)))
-    module.stmts.append(HDLAssign(root.h_bus['ack'], isigs.ack_int))
-    module.stmts.append(HDLAssign(root.h_bus['stall'],
-                                  HDLAnd(HDLNot(isigs.ack_int), isigs.wb_en)))
+    @abstractmethod
+    def gen_bus_slave(root, module, prefix, n, busgroup):
+        """Create an interface to a slave (Add declarations)"""
+        pass
 
-def gen_wishbone_bus(build_port, addr_bits, data_bits, is_master=False):
-    res = {}
-    inp, out = ('IN', 'OUT') if not is_master else ('OUT', 'IN')
-    res['cyc'] = build_port('cyc', None, dir=inp)
-    res['stb'] = build_port('stb', None, dir=inp)
-    if addr_bits > 0:
-        res['adr'] = build_port('adr', addr_bits, dir=inp)
-    res['sel'] = build_port('sel', data_bits // tree.BYTE_SIZE, dir=inp)
-    res['we'] = build_port('we', None, dir=inp)
-    res['dati'] = build_port('dat', data_bits, dir=inp)
+    @abstractmethod
+    def wire_bus_slave(root, stmts, n):
+        """Create HDL for the interface (Assignments)"""
+        pass
 
-    res['ack'] = build_port('ack', None, dir=out)
-    res['err'] = build_port('err', None, dir=out)
-    res['rty'] = build_port('rty', None, dir=out)
-    res['stall'] = build_port('stall', None, dir=out)
-    res['dato'] = build_port('dat', data_bits, dir=out)
-    return res
+class WBBus(BusGen):
+    # Package wishbone_pkg that contains the wishbone interface
+    wb_pkg = None
+    wb_itf = None
+    wb_ports = None
 
-def gen_wishbone(module, ports, name, addr_bits, data_bits, comment,
-                 is_master, is_bus):
-    if is_bus:
-        if wb_pkg is None:
-            gen_wishbone_pkg()
-            module.deps.append(('work', 'wishbone_pkg'))
-        port = ports.add_port_group(name, wb_itf, is_master)
-        port.comment = comment
+    def __init__(self, name):
+        assert name == 'wb-32-be'
+
+    def add_decode_wb(self, root, module, isigs):
+        "Generate internal signals used by decoder/processes from WB bus."
+        isigs.rd_int = HDLSignal('rd_int')        # Read access
+        isigs.wr_int = HDLSignal('wr_int')        # Write access
+        isigs.rd_ack = HDLSignal('rd_ack_int')    # Ack for read
+        isigs.wr_ack = HDLSignal('wr_ack_int')    # Ack for write
+        # Internal signals for wb.
+        isigs.wb_en = HDLSignal('wb_en')
+        isigs.ack_int = HDLSignal('ack_int')      # Ack
+        module.decls.extend([isigs.wb_en, isigs.rd_int, isigs.wr_int,
+                             isigs.ack_int, isigs.rd_ack, isigs.wr_ack])
+        module.stmts.append(
+            HDLAssign(isigs.wb_en, HDLAnd(root.h_bus['cyc'], root.h_bus['stb'])))
+        module.stmts.append(
+            HDLAssign(isigs.rd_int, HDLAnd(isigs.wb_en, HDLNot(root.h_bus['we']))))
+        module.stmts.append(
+            HDLAssign(isigs.wr_int, HDLAnd(isigs.wb_en, root.h_bus['we'])))
+        module.stmts.append(HDLAssign(isigs.ack_int,
+                                      HDLOr(isigs.rd_ack, isigs.wr_ack)))
+        module.stmts.append(HDLAssign(root.h_bus['ack'], isigs.ack_int))
+        module.stmts.append(HDLAssign(root.h_bus['stall'],
+                                      HDLAnd(HDLNot(isigs.ack_int), isigs.wb_en)))
+
+    def gen_wishbone_bus(self, build_port, addr_bits, data_bits, is_master=False):
         res = {}
-        for name, sig in wb_ports.items():
-            res[name] = HDLInterfaceSelect(port, sig)
-        return res
-    else:
-        res = gen_wishbone_bus(
-            lambda n, sz, dir: ports.add_port(
-                '{}_{}_{}'.format(name, n , dirname[dir]), size=sz, dir=dir),
-            addr_bits, data_bits, is_master)
-        res['cyc'].comment = comment
+        inp, out = ('IN', 'OUT') if not is_master else ('OUT', 'IN')
+        res['cyc'] = build_port('cyc', None, dir=inp)
+        res['stb'] = build_port('stb', None, dir=inp)
+        if addr_bits > 0:
+            res['adr'] = build_port('adr', addr_bits, dir=inp)
+        res['sel'] = build_port('sel', data_bits // tree.BYTE_SIZE, dir=inp)
+        res['we'] = build_port('we', None, dir=inp)
+        res['dati'] = build_port('dat', data_bits, dir=inp)
+
+        res['ack'] = build_port('ack', None, dir=out)
+        res['err'] = build_port('err', None, dir=out)
+        res['rty'] = build_port('rty', None, dir=out)
+        res['stall'] = build_port('stall', None, dir=out)
+        res['dato'] = build_port('dat', data_bits, dir=out)
         return res
 
-def gen_wishbone_pkg():
-    """Create the wishbone_pkg package, so that interface can be referenced"""
-    global wb_pkg, wb_ports, wb_itf
-    if wb_pkg is not None:
+    def gen_wishbone(self, module, ports, name, addr_bits, data_bits, comment,
+                     is_master, is_bus):
+        if is_bus:
+            if WBBus.wb_pkg is None:
+                self.gen_wishbone_pkg()
+                module.deps.append(('work', 'wishbone_pkg'))
+            port = ports.add_port_group(name, WBBus.wb_itf, is_master)
+            port.comment = comment
+            res = {}
+            for name, sig in WBBus.wb_ports.items():
+                res[name] = HDLInterfaceSelect(port, sig)
+            return res
+        else:
+            res = self.gen_wishbone_bus(
+                lambda n, sz, dir: ports.add_port(
+                    '{}_{}_{}'.format(name, n , dirname[dir]), size=sz, dir=dir),
+                addr_bits, data_bits, is_master)
+            res['cyc'].comment = comment
+            return res
+
+    def gen_wishbone_pkg(self):
+        """Create the wishbone_pkg package, so that interface can be referenced"""
+        if WBBus.wb_pkg is not None:
+            return
+        WBBus.wb_pkg = HDLPackage('wishbone_pkg')
+        WBBus.wb_itf = HDLInterface('t_wishbone')
+        WBBus.wb_pkg.decls.append(WBBus.wb_itf)
+        WBBus.wb_ports = self.gen_wishbone_bus(
+            lambda n, sz, dir: WBBus.wb_itf.add_port(n, size=sz, dir=dir), 32, 32, True)
         return
-    wb_pkg = HDLPackage('wishbone_pkg')
-    wb_itf = HDLInterface('t_wishbone')
-    wb_pkg.decls.append(wb_itf)
-    wb_ports = gen_wishbone_bus(
-        lambda n, sz, dir: wb_itf.add_port(n, size=sz, dir=dir), 32, 32, True)
-    return
 
 
-def expand_wishbone(root, module, isigs):
-    """Create wishbone interface for the design."""
-    root.h_bus = {}
-    root.h_bus['rst'] = module.add_port('rst_n_i')
-    root.h_bus['clk'] = module.add_port('clk_i')
+    def expand_bus(self, root, module, isigs):
+        """Create wishbone interface for the design."""
+        root.h_bus = {}
+        root.h_bus['rst'] = module.add_port('rst_n_i')
+        root.h_bus['clk'] = module.add_port('clk_i')
 
-    busgroup = root.get_extension('x_hdl', 'busgroup')
+        busgroup = root.get_extension('x_hdl', 'busgroup')
 
-    root.h_bus.update(
-        gen_wishbone(module, module, 'wb', root.c_addr_bits, root.c_word_bits,
-                     None, False, busgroup is True))
-    root.h_bussplit = False
-    if root.c_addr_bits > 0:
-        root.h_bus['adrr'] = root.h_bus['adr']
-        root.h_bus['adrw'] = root.h_bus['adr']
+        root.h_bus.update(
+            self.gen_wishbone(module, module, 'wb', root.c_addr_bits, root.c_word_bits,
+                         None, False, busgroup is True))
+        root.h_bussplit = False
+        if root.c_addr_bits > 0:
+            root.h_bus['adrr'] = root.h_bus['adr']
+            root.h_bus['adrw'] = root.h_bus['adr']
 
-    if isigs:
-        # Bus access
-        module.stmts.append(HDLComment('WB decode signals'))
-        add_decode_wb(root, module, isigs)
+        if isigs:
+            # Bus access
+            module.stmts.append(HDLComment('WB decode signals'))
+            self.add_decode_wb(root, module, isigs)
+
+    def gen_bus_slave(self, root, module, prefix, n, busgroup):
+        n.h_bus = self.gen_wishbone(
+            module, module, n.name, n.c_addr_bits, root.c_word_bits,
+            n.description, True, busgroup is True)
+        # Internal signals
+        n.h_wr = module.new_HDLSignal(prefix + 'wr')
+        n.h_rd = module.new_HDLSignal(prefix + 'rd')
+
+    def wire_bus_slave(self, root, stmts, n):
+        stmts.append(HDLComment("Assignments for submap {}".format(n.name)))
+        stmts.append(HDLAssign(n.h_bus['cyc'], HDLOr(n.h_wr, n.h_rd)))
+        stmts.append(HDLAssign(n.h_bus['stb'], HDLOr(n.h_wr, n.h_rd)))
+        stmts.append(HDLAssign(n.h_bus['adr'], HDLSlice(root.h_bus['adr'],
+                                                        0, n.c_addr_bits)))
+        stmts.append(HDLAssign(n.h_bus['sel'], HDLReplicate(bit_1, 4)))
+        stmts.append(HDLAssign(n.h_bus['we'], n.h_wr))
+        stmts.append(HDLAssign(n.h_bus['dati'], root.h_bus['dati']))
 
 
-def gen_axi4lite_bus(build_port, addr_bits, data_bits, is_master=False):
-    inp, out = ('IN', 'OUT') if not is_master else ('OUT', 'IN')
-    return [
-        build_port("awvalid", None, dir=inp),
-        build_port("awready", None, dir=out),
-        build_port("awaddr", addr_bits, dir=inp),
-        build_port("awprot", 3, dir=inp),
+class AXI4LiteBus(BusGen):
+    def __init__(self, name):
+        assert name == 'axi4-lite-32'
 
-        build_port("wvalid", None, dir=inp),
-        build_port("wready", None, dir=out),
-        build_port("wdata", data_bits, dir=inp),
-        build_port("wstrb", data_bits // tree.BYTE_SIZE, dir=inp),
+    def gen_axi4lite_bus(self, build_port, addr_bits, data_bits, is_master=False):
+        inp, out = ('IN', 'OUT') if not is_master else ('OUT', 'IN')
+        return [
+            build_port("awvalid", None, dir=inp),
+            build_port("awready", None, dir=out),
+            build_port("awaddr", addr_bits, dir=inp),
+            build_port("awprot", 3, dir=inp),
 
-        build_port("bvalid", None, dir=out),
-        build_port("bready", None, dir=inp),
-        build_port("bresp", 2, dir=out),
+            build_port("wvalid", None, dir=inp),
+            build_port("wready", None, dir=out),
+            build_port("wdata", data_bits, dir=inp),
+            build_port("wstrb", data_bits // tree.BYTE_SIZE, dir=inp),
 
-        build_port("arvalid", None, dir=inp),
-        build_port("arready", None, dir=out),
-        build_port("araddr", addr_bits, dir=inp),
-        build_port("arprot", 3, inp),
+            build_port("bvalid", None, dir=out),
+            build_port("bready", None, dir=inp),
+            build_port("bresp", 2, dir=out),
 
-        build_port("rvalid", None, dir=out),
-        build_port("rready", None, dir=inp),
-        build_port("rdata", data_bits, dir=out),
-        build_port("rresp", 2, dir=out)]
+            build_port("arvalid", None, dir=inp),
+            build_port("arready", None, dir=out),
+            build_port("araddr", addr_bits, dir=inp),
+            build_port("arprot", 3, inp),
 
-def expand_axi4lite(root, module, isigs):
-    """Create AXI4-Lite interface for the design."""
-    bus = [('clk',   HDLPort("aclk")),
-           ('rst',   HDLPort("areset_n"))]
-    bus.extend(gen_axi4lite_bus(
-        lambda n, sz, dir: (n, HDLPort(n, size=sz, dir=dir)),
-        root.c_addr_bits, root.c_word_bits, False))
-    add_bus(root, module, bus)
-    root.h_bussplit = True
+            build_port("rvalid", None, dir=out),
+            build_port("rready", None, dir=inp),
+            build_port("rdata", data_bits, dir=out),
+            build_port("rresp", 2, dir=out)]
 
-    if isigs:
-        # Internal signals and bus protocol
-        isigs.rd_int = module.new_HDLSignal('rd_int')        # Read access
-        isigs.wr_int = module.new_HDLSignal('wr_int')        # Write access
-        isigs.rd_ack = module.new_HDLSignal('rd_ack_int')    # Ack for read
-        isigs.wr_ack = module.new_HDLSignal('wr_ack_int')    # Ack for write
-        wr_done = module.new_HDLSignal('wr_done_int')
-        rd_done = module.new_HDLSignal('rd_done_int')
-        root.h_bus['dati'] = module.new_HDLSignal('dati', root.c_word_bits)
-        root.h_bus['dato'] = module.new_HDLSignal('dato', root.c_word_bits)
-        root.h_bus['adrw'] = module.new_HDLSignal('adrw', root.c_addr_bits)
-        root.h_bus['adrr'] = module.new_HDLSignal('adrr', root.c_addr_bits)
+    def expand_bus(self, root, module, isigs):
+        """Create AXI4-Lite interface for the design."""
+        bus = [('clk',   HDLPort("aclk")),
+               ('rst',   HDLPort("areset_n"))]
+        bus.extend(self.gen_axi4lite_bus(
+            lambda n, sz, dir: (n, HDLPort(n, size=sz, dir=dir)),
+            root.c_addr_bits, root.c_word_bits, False))
+        add_bus(root, module, bus)
+        root.h_bussplit = True
 
-        def gen_aXready(ready_port, ready_reg, addr_port, addr_reg, valid_port, done_sig):
-            module.stmts.append(HDLAssign(ready_port, ready_reg))
+        if isigs:
+            # Internal signals and bus protocol
+            isigs.rd_int = module.new_HDLSignal('rd_int')        # Read access
+            isigs.wr_int = module.new_HDLSignal('wr_int')        # Write access
+            isigs.rd_ack = module.new_HDLSignal('rd_ack_int')    # Ack for read
+            isigs.wr_ack = module.new_HDLSignal('wr_ack_int')    # Ack for write
+            wr_done = module.new_HDLSignal('wr_done_int')
+            rd_done = module.new_HDLSignal('rd_done_int')
+            root.h_bus['dati'] = module.new_HDLSignal('dati', root.c_word_bits)
+            root.h_bus['dato'] = module.new_HDLSignal('dato', root.c_word_bits)
+            root.h_bus['adrw'] = module.new_HDLSignal('adrw', root.c_addr_bits)
+            root.h_bus['adrr'] = module.new_HDLSignal('adrr', root.c_addr_bits)
+
+            def gen_aXready(ready_port, ready_reg, addr_port, addr_reg, valid_port, done_sig):
+                module.stmts.append(HDLAssign(ready_port, ready_reg))
+                proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'])
+                proc.rst_stmts.append(HDLAssign(ready_reg, bit_1))
+                proc.rst_stmts.append(
+                    HDLAssign(addr_reg, HDLReplicate(bit_0, root.c_addr_bits)))
+                proc_if = HDLIfElse(HDLEq(HDLAnd(ready_reg, valid_port), bit_1))
+                proc_if.then_stmts.append(HDLAssign(addr_reg, addr_port))
+                proc_if.then_stmts.append(HDLAssign(ready_reg, bit_0))
+                proc_if2 = HDLIfElse(HDLEq(done_sig, bit_1))
+                proc_if2.then_stmts.append(HDLAssign(ready_reg, bit_1))
+                proc_if2.else_stmts = None
+                proc_if.else_stmts.append(proc_if2)
+                proc.sync_stmts.append(proc_if)
+                module.stmts.append(proc)
+
+            module.stmts.append(HDLComment("AW channel"))
+            awready_r = module.new_HDLSignal('awready_r')
+            gen_aXready(root.h_bus['awready'], awready_r,
+                        root.h_bus['awaddr'], root.h_bus['adrw'],
+                        root.h_bus['awvalid'], wr_done)
+
+            module.stmts.append(HDLComment("W channel"))
+            wready_r = module.new_HDLSignal('wready_r')
+            module.stmts.append(HDLAssign(root.h_bus['wready'], wready_r))
             proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'])
-            proc.rst_stmts.append(HDLAssign(ready_reg, bit_1))
-            proc.rst_stmts.append(
-                HDLAssign(addr_reg, HDLReplicate(bit_0, root.c_addr_bits)))
-            proc_if = HDLIfElse(HDLEq(HDLAnd(ready_reg, valid_port), bit_1))
-            proc_if.then_stmts.append(HDLAssign(addr_reg, addr_port))
-            proc_if.then_stmts.append(HDLAssign(ready_reg, bit_0))
-            proc_if2 = HDLIfElse(HDLEq(done_sig, bit_1))
-            proc_if2.then_stmts.append(HDLAssign(ready_reg, bit_1))
+            proc.rst_stmts.append(HDLAssign(wready_r, bit_1))
+            proc.rst_stmts.append(HDLAssign(root.h_bus['dati'],
+                                            HDLReplicate(bit_0, root.c_word_bits)))
+            proc_if = HDLIfElse(HDLEq(HDLAnd(wready_r, root.h_bus['wvalid']), bit_1))
+            proc_if.then_stmts.append(HDLAssign(root.h_bus['dati'],
+                                                root.h_bus['wdata']))
+            proc_if.then_stmts.append(HDLAssign(wready_r, bit_0))
+            proc_if2 = HDLIfElse(HDLEq(wr_done, bit_1))
+            proc_if2.then_stmts.append(HDLAssign(wready_r, bit_1))
             proc_if2.else_stmts = None
             proc_if.else_stmts.append(proc_if2)
             proc.sync_stmts.append(proc_if)
             module.stmts.append(proc)
+            module.stmts.append(HDLAssign(isigs.wr_int, HDLAnd(HDLNot(awready_r),
+                                                               HDLNot(wready_r))))
 
-        module.stmts.append(HDLComment("AW channel"))
-        awready_r = module.new_HDLSignal('awready_r')
-        gen_aXready(root.h_bus['awready'], awready_r,
-                    root.h_bus['awaddr'], root.h_bus['adrw'],
-                    root.h_bus['awvalid'], wr_done)
+            def gen_Xvalid(valid_port, ready_port, ack_sig, done_sig):
+                proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'])
+                proc.rst_stmts.append(HDLAssign(valid_port, bit_0))
+                proc_if = HDLIfElse(HDLEq(done_sig, bit_1))
+                proc_if.then_stmts.append(HDLAssign(valid_port, bit_0))
+                proc_if2 = HDLIfElse(HDLEq(ack_sig, bit_1))
+                proc_if2.then_stmts.append(HDLAssign(valid_port, bit_1))
+                proc_if2.else_stmts = None
+                proc_if.else_stmts.append(proc_if2)
+                proc.sync_stmts.append(proc_if)
+                module.stmts.append(proc)
+                module.stmts.append(HDLAssign(done_sig, HDLAnd(ready_port, valid_port)))
 
-        module.stmts.append(HDLComment("W channel"))
-        wready_r = module.new_HDLSignal('wready_r')
-        module.stmts.append(HDLAssign(root.h_bus['wready'], wready_r))
-        proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'])
-        proc.rst_stmts.append(HDLAssign(wready_r, bit_1))
-        proc.rst_stmts.append(HDLAssign(root.h_bus['dati'],
-                                        HDLReplicate(bit_0, root.c_word_bits)))
-        proc_if = HDLIfElse(HDLEq(HDLAnd(wready_r, root.h_bus['wvalid']), bit_1))
-        proc_if.then_stmts.append(HDLAssign(root.h_bus['dati'],
-                                            root.h_bus['wdata']))
-        proc_if.then_stmts.append(HDLAssign(wready_r, bit_0))
-        proc_if2 = HDLIfElse(HDLEq(wr_done, bit_1))
-        proc_if2.then_stmts.append(HDLAssign(wready_r, bit_1))
-        proc_if2.else_stmts = None
-        proc_if.else_stmts.append(proc_if2)
-        proc.sync_stmts.append(proc_if)
-        module.stmts.append(proc)
-        module.stmts.append(HDLAssign(isigs.wr_int, HDLAnd(HDLNot(awready_r),
-                                                           HDLNot(wready_r))))
+            module.stmts.append(HDLComment("B channel"))
+            bvalid_r = module.new_HDLSignal('bvalid_r')
+            gen_Xvalid(bvalid_r, root.h_bus['bready'], isigs.wr_ack, wr_done)
+            module.stmts.append(HDLAssign(root.h_bus['bvalid'], bvalid_r))
+            module.stmts.append(HDLAssign(root.h_bus['bresp'], HDLConst(0, 2)))
 
-        def gen_Xvalid(valid_port, ready_port, ack_sig, done_sig):
-            proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'])
-            proc.rst_stmts.append(HDLAssign(valid_port, bit_0))
-            proc_if = HDLIfElse(HDLEq(done_sig, bit_1))
-            proc_if.then_stmts.append(HDLAssign(valid_port, bit_0))
-            proc_if2 = HDLIfElse(HDLEq(ack_sig, bit_1))
-            proc_if2.then_stmts.append(HDLAssign(valid_port, bit_1))
-            proc_if2.else_stmts = None
-            proc_if.else_stmts.append(proc_if2)
-            proc.sync_stmts.append(proc_if)
-            module.stmts.append(proc)
-            module.stmts.append(HDLAssign(done_sig, HDLAnd(ready_port, valid_port)))
+            module.stmts.append(HDLComment("AR channel"))
+            arready_r = module.new_HDLSignal('arready_r')
+            rvalid_r = module.new_HDLSignal('rvalid_r')
+            gen_aXready(root.h_bus['arready'], arready_r,
+                        root.h_bus['araddr'], root.h_bus['adrr'],
+                        root.h_bus['arvalid'], rd_done)
+            module.stmts.append(HDLAssign(isigs.rd_int, HDLAnd(HDLNot(arready_r),
+                                                               HDLNot(rvalid_r))))
 
-        module.stmts.append(HDLComment("B channel"))
-        bvalid_r = module.new_HDLSignal('bvalid_r')
-        gen_Xvalid(bvalid_r, root.h_bus['bready'], isigs.wr_ack, wr_done)
-        module.stmts.append(HDLAssign(root.h_bus['bvalid'], bvalid_r))
-        module.stmts.append(HDLAssign(root.h_bus['bresp'], HDLConst(0, 2)))
+            module.stmts.append(HDLComment("R channel"))
+            gen_Xvalid(rvalid_r, root.h_bus['rready'], isigs.rd_ack, rd_done)
+            module.stmts.append(HDLAssign(root.h_bus['rvalid'], rvalid_r))
+            module.stmts.append(HDLAssign(root.h_bus['rdata'], root.h_bus['dato']))
+            module.stmts.append(HDLAssign(root.h_bus['rresp'], HDLConst(0, 2)))
 
-        module.stmts.append(HDLComment("AR channel"))
-        arready_r = module.new_HDLSignal('arready_r')
-        rvalid_r = module.new_HDLSignal('rvalid_r')
-        gen_aXready(root.h_bus['arready'], arready_r,
-                    root.h_bus['araddr'], root.h_bus['adrr'],
-                    root.h_bus['arvalid'], rd_done)
-        module.stmts.append(HDLAssign(isigs.rd_int, HDLAnd(HDLNot(arready_r),
-                                                           HDLNot(rvalid_r))))
+    def gen_bus_slave(self, root, module, prefix, n, busgroup):
+        ports = self.gen_axi4lite_bus(
+            lambda name, sz, dir: (name, module.add_port(
+                '{}_{}_{}'.format(n.name, name , dirname[dir]), size=sz, dir=dir)),
+            n.c_addr_bits, root.c_word_bits, True)
+        n.h_bus = {}
+        for name, p in ports:
+            n.h_bus[name]= p
+        n.h_bus['awvalid'].comment = n.description
+        # Internal signals: valid signals.
+        n.h_aw_val = module.new_HDLSignal(prefix + 'aw_val')
+        n.h_w_val = module.new_HDLSignal(prefix + 'wval')
+        n.h_aw_done = module.new_HDLSignal(prefix + 'aw_done')
+        n.h_w_done = module.new_HDLSignal(prefix + 'w_done')
+        n.h_rd = module.new_HDLSignal(prefix + 'rd')
 
-        module.stmts.append(HDLComment("R channel"))
-        gen_Xvalid(rvalid_r, root.h_bus['rready'], isigs.rd_ack, rd_done)
-        module.stmts.append(HDLAssign(root.h_bus['rvalid'], rvalid_r))
-        module.stmts.append(HDLAssign(root.h_bus['rdata'], root.h_bus['dato']))
-        module.stmts.append(HDLAssign(root.h_bus['rresp'], HDLConst(0, 2)))
+    def wire_bus_slave(self, root, stmts, n):
+        stmts.append(HDLComment("Assignments for submap {}".format(n.name)))
+        stmts.append(HDLAssign(n.h_bus['awvalid'], n.h_aw_val))
+        stmts.append(HDLAssign(n.h_bus['awaddr'],
+                               HDLSlice(root.h_bus['adrw'], 0, n.c_addr_bits)))
+        stmts.append(HDLAssign(n.h_bus['awprot'], HDLBinConst(0, 3)))
+        stmts.append(HDLAssign(n.h_bus['wvalid'], n.h_w_val))
+        stmts.append(HDLAssign(n.h_bus['wdata'], root.h_bus['dati']))
+        stmts.append(HDLAssign(n.h_bus['wstrb'], HDLBinConst(0xf, 4)))
+        # FIXME: bready only available with axi4 root.
+        stmts.append(HDLAssign(n.h_bus['bready'], root.h_bus.get('bready', bit_1)))
 
-def add_decode_cern_be_vme(root, module, isigs):
-    "Generate internal signals used by decoder/processes from CERN-BE-VME bus."
-    isigs.rd_int = root.h_bus['rd']
-    isigs.wr_int = root.h_bus['wr']
-    isigs.rd_ack = HDLSignal('rd_ack_int')    # Ack for read
-    isigs.wr_ack = HDLSignal('wr_ack_int')    # Ack for write
-    module.decls.extend([isigs.rd_ack, isigs.wr_ack])
-    module.stmts.append(HDLAssign(root.h_bus['rack'], isigs.rd_ack))
-    module.stmts.append(HDLAssign(root.h_bus['wack'], isigs.wr_ack))
+        stmts.append(HDLAssign(n.h_bus['arvalid'], n.h_rd))
+        stmts.append(HDLAssign(n.h_bus['araddr'],
+                               HDLSlice(root.h_bus['adrr'], 0, n.c_addr_bits)))
+        stmts.append(HDLAssign(n.h_bus['arprot'], HDLBinConst(0, 3)))
+
+        # FIXME: rready only available with axi4 root.
+        stmts.append(HDLAssign(n.h_bus['rready'], root.h_bus.get('rready', bit_1)))
 
 
-def expand_cern_be_vme(root, module, isigs, buserr, split):
-    """Create CERN-BE interface."""
-    bus = [('clk',   HDLPort("Clk")),
-           ('rst',   HDLPort("Rst"))]
-    if split:
+class CERNBEBus(BusGen):
+    def __init__(self, name):
+        names = name[12:].split('-')
+        self.buserr = names[0] == 'err'
+        if self.buserr:
+            del names[0]
+        self.split = names[0] == 'split'
+        if self.split:
+            del names[0]
+        assert len(names) == 1
+
+    def add_decode_cern_be_vme(self, root, module, isigs):
+        "Generate internal signals used by decoder/processes from CERN-BE-VME bus."
+        isigs.rd_int = root.h_bus['rd']
+        isigs.wr_int = root.h_bus['wr']
+        isigs.rd_ack = HDLSignal('rd_ack_int')    # Ack for read
+        isigs.wr_ack = HDLSignal('wr_ack_int')    # Ack for write
+        module.decls.extend([isigs.rd_ack, isigs.wr_ack])
+        module.stmts.append(HDLAssign(root.h_bus['rack'], isigs.rd_ack))
+        module.stmts.append(HDLAssign(root.h_bus['wack'], isigs.wr_ack))
+
+
+    def expand_bus(self, root, module, isigs):
+        """Create CERN-BE interface."""
+        bus = [('clk',   HDLPort("Clk")),
+               ('rst',   HDLPort("Rst"))]
+        if self.split:
+            bus.extend(
+                [('adrr',   HDLPort("VMERdAddr", root.c_addr_bits, lo_idx=root.c_addr_word_bits)),
+                 ('adrw',   HDLPort("VMEWrAddr", root.c_addr_bits, lo_idx=root.c_addr_word_bits))])
+        else:
+            bus.extend(
+                [('adr',   HDLPort("VMEAddr", root.c_addr_bits, lo_idx=root.c_addr_word_bits))])
+        root.h_bussplit = self.split
         bus.extend(
-            [('adrr',   HDLPort("VMERdAddr", root.c_addr_bits, lo_idx=root.c_addr_word_bits)),
-             ('adrw',   HDLPort("VMEWrAddr", root.c_addr_bits, lo_idx=root.c_addr_word_bits))])
-    else:
-        bus.extend(
-            [('adr',   HDLPort("VMEAddr", root.c_addr_bits, lo_idx=root.c_addr_word_bits))])
-    root.h_bussplit = split
-    bus.extend(
-        [('dato',  HDLPort("VMERdData", root.c_word_bits, dir='OUT')),
-         ('dati',  HDLPort("VMEWrData", root.c_word_bits)),
-         ('rd',    HDLPort("VMERdMem")),
-         ('wr',    HDLPort("VMEWrMem")),
-         ('rack',  HDLPort("VMERdDone", dir='OUT')),
-         ('wack',  HDLPort("VMEWrDone", dir='OUT'))])
-    if buserr:
-        bus.extend([('rderr', HDLPort('VMERdError', dir='OUT')),
-                    ('wrerr', HDLPort('VMEWrError', dir='OUT'))])
-    add_bus(root, module, bus)
+            [('dato',  HDLPort("VMERdData", root.c_word_bits, dir='OUT')),
+             ('dati',  HDLPort("VMEWrData", root.c_word_bits)),
+             ('rd',    HDLPort("VMERdMem")),
+             ('wr',    HDLPort("VMEWrMem")),
+             ('rack',  HDLPort("VMERdDone", dir='OUT')),
+             ('wack',  HDLPort("VMEWrDone", dir='OUT'))])
+        if self.buserr:
+            bus.extend([('rderr', HDLPort('VMERdError', dir='OUT')),
+                        ('wrerr', HDLPort('VMEWrError', dir='OUT'))])
+        add_bus(root, module, bus)
 
-    if not split:
-        root.h_bus['adrr'] = root.h_bus['adr']
-        root.h_bus['adrw'] = root.h_bus['adr']
+        if not self.split:
+            root.h_bus['adrr'] = root.h_bus['adr']
+            root.h_bus['adrw'] = root.h_bus['adr']
 
-    if isigs:
-        add_decode_cern_be_vme(root, module, isigs)
+        if isigs:
+            add_decode_cern_be_vme(root, module, isigs)
+
+    def gen_bus_slave(root, module, prefix, n, busgroup):
+        "Not implemented"
+        raise AssertionError
+
+    def wire_bus_slave(root, stmts, n):
+        "Not implemented"
+        raise AssertionError
+
+
+class SRAMBus(BusGen):
+    def __init__(self, name):
+        assert name == 'sram'
+
+    def expand_bus(self, root, module, isigs):
+        raise ImplementationError
+
+    def gen_bus_slave(self, root, module, prefix, n, busgroup):
+        name = prefix + n.name + '_addr_o'
+        n.h_addr_o = root.h_ports.add_port(
+            name, n.c_blk_bits - root.c_addr_word_bits, dir='OUT')
+        n.h_addr_o.comment = n.description
+
+        name = prefix + n.name + '_data_i'
+        n.h_data_i = root.h_ports.add_port(name, n.c_width, dir='IN')
+
+        name = prefix + n.name + '_data_o'
+        n.h_data_o = root.h_ports.add_port(name, n.c_width, dir='OUT')
+
+        # Internal signals
+        n.h_wr = module.new_HDLSignal(prefix + 'wr')
+        n.h_rd = module.new_HDLSignal(prefix + 'rd')
+
+    def wire_bus_slave(self, root, stmts, n):
+        stmts.append(HDLAssign(n.h_data_o, root.h_bus['dato']))
+        stmts.append(HDLAssign(n.h_addr_o,
+                     HDLSlice(root.h_bus['adr'],
+                              root.c_addr_word_bits,
+                              n.c_blk_bits - root.c_addr_word_bits)))
+
 
 def add_module_port(root, module, name, size, dir):
     if root.h_itf is None:
@@ -354,119 +486,22 @@ def add_ports_reg(root, module, n):
         else:
             f.h_reg = None
 
-def gen_bus_slave_wb32(root, module, prefix, decls, n, busgroup):
-    res = gen_wishbone(module, decls, n.name, n.c_addr_bits, root.c_word_bits,
-                        n.description, True, busgroup is True)
-    # Internal signals
-    n.h_wr = module.new_HDLSignal(prefix + 'wr')
-    n.h_rd = module.new_HDLSignal(prefix + 'rd')
-    return res
-
-def wire_bus_slave_wb32(root, stmts, n):
-    stmts.append(HDLComment("Assignments for submap {}".format(n.name)))
-    stmts.append(HDLAssign(n.h_bus['cyc'], HDLOr(n.h_wr, n.h_rd)))
-    stmts.append(HDLAssign(n.h_bus['stb'], HDLOr(n.h_wr, n.h_rd)))
-    stmts.append(HDLAssign(n.h_bus['adr'], HDLSlice(root.h_bus['adr'],
-                                                    0, n.c_addr_bits)))
-    stmts.append(HDLAssign(n.h_bus['sel'], HDLReplicate(bit_1, 4)))
-    stmts.append(HDLAssign(n.h_bus['we'], n.h_wr))
-    stmts.append(HDLAssign(n.h_bus['dati'], root.h_bus['dati']))
-
-def gen_bus_slave_axi4(root, module, prefix, decls, n, busgroup):
-    ports = gen_axi4lite_bus(
-        lambda name, sz, dir: (name, module.add_port(
-            '{}_{}_{}'.format(n.name, name , dirname[dir]), size=sz, dir=dir)),
-        n.c_addr_bits, root.c_word_bits, True)
-    res = {}
-    for name, p in ports:
-        res[name]= p
-    res['awvalid'].comment = n.description
-    # Internal signals: valid signals.
-    n.h_aw_val = module.new_HDLSignal(prefix + 'aw_val')
-    n.h_w_val = module.new_HDLSignal(prefix + 'wval')
-    n.h_aw_done = module.new_HDLSignal(prefix + 'aw_done')
-    n.h_w_done = module.new_HDLSignal(prefix + 'w_done')
-    n.h_rd = module.new_HDLSignal(prefix + 'rd')
-    return res
-
-def wire_bus_slave_axi4(root, stmts, n):
-    stmts.append(HDLComment("Assignments for submap {}".format(n.name)))
-    stmts.append(HDLAssign(n.h_bus['awvalid'], n.h_aw_val))
-    stmts.append(HDLAssign(n.h_bus['awaddr'],
-                           HDLSlice(root.h_bus['adrw'], 0, n.c_addr_bits)))
-    stmts.append(HDLAssign(n.h_bus['awprot'], HDLBinConst(0, 3)))
-    stmts.append(HDLAssign(n.h_bus['wvalid'], n.h_w_val))
-    stmts.append(HDLAssign(n.h_bus['wdata'], root.h_bus['dati']))
-    stmts.append(HDLAssign(n.h_bus['wstrb'], HDLBinConst(0xf, 4)))
-    # FIXME: bready only available with axi4 root.
-    stmts.append(HDLAssign(n.h_bus['bready'], root.h_bus.get('bready', bit_1)))
-
-    stmts.append(HDLAssign(n.h_bus['arvalid'], n.h_rd))
-    stmts.append(HDLAssign(n.h_bus['araddr'],
-                           HDLSlice(root.h_bus['adrr'], 0, n.c_addr_bits)))
-    stmts.append(HDLAssign(n.h_bus['arprot'], HDLBinConst(0, 3)))
-
-    # FIXME: rready only available with axi4 root.
-    stmts.append(HDLAssign(n.h_bus['rready'], root.h_bus.get('rready', bit_1)))
-
-def gen_bus_slave_sram(root, module, prefix, n):
-    name = prefix + n.name + '_addr_o'
-    n.h_addr_o = root.h_ports.add_port(
-        name, n.c_blk_bits - root.c_addr_word_bits, dir='OUT')
-    n.h_addr_o.comment = n.description
-
-    name = prefix + n.name + '_data_i'
-    n.h_data_i = root.h_ports.add_port(name, n.c_width, dir='IN')
-
-    name = prefix + n.name + '_data_o'
-    n.h_data_o = root.h_ports.add_port(name, n.c_width, dir='OUT')
-
-    # Internal signals
-    n.h_wr = module.new_HDLSignal(prefix + 'wr')
-    n.h_rd = module.new_HDLSignal(prefix + 'rd')
-
-def wire_bus_slave_sram(root, stmts, n):
-    stmts.append(HDLAssign(n.h_data_o, root.h_bus['dato']))
-    stmts.append(HDLAssign(n.h_addr_o,
-                 HDLSlice(root.h_bus['adr'],
-                          root.c_addr_word_bits,
-                          n.c_blk_bits - root.c_addr_word_bits)))
-
-def gen_bus_slave(root, module, prefix, n, interface, busgroup):
-    if interface == 'wb-32-be':
-        n.h_bus = gen_bus_slave_wb32(root, module, prefix, module, n, busgroup)
-    elif interface == 'axi4-lite-32':
-        n.h_bus = gen_bus_slave_axi4(root, module, prefix, module, n, busgroup)
-    elif interface == 'sram':
-        n.h_bus = {}
-        gen_bus_slave_sram(root, module, prefix, n)
-    else:
-        raise AssertionError(interface)
-
 
 def add_ports_submap(root, module, n):
     if n.filename is None:
         # Generic submap.
         busgroup = n.get_extension('x_hdl', 'busgroup')
-        gen_bus_slave(root, module, n.c_name + '_', n, n.interface, busgroup)
+        n.h_busgen = name_to_busgen(n.interface)
+        n.h_busgen.gen_bus_slave(root, module, n.c_name + '_', n, busgroup)
     else:
         if n.interface == 'include':
             # Inline
             add_ports(root, module, n.c_submap)
         else:
             busgroup = n.c_submap.get_extension('x_hdl', 'busgroup')
-            gen_bus_slave(root, module, n.c_name + '_', n, n.c_interface, busgroup)
+            n.h_busgen = name_to_busgen(n.c_submap.bus)
+            n.h_busgen.gen_bus_slave(root, module, n.c_name + '_', n, busgroup)
 
-
-def wire_submap(root, module, n, stmts):
-    if n.c_interface == 'wb-32-be':
-        wire_bus_slave_wb32(root, stmts, n)
-    elif n.c_interface == 'axi4-lite-32':
-        wire_bus_slave_axi4(root, stmts, n)
-    elif n.c_interface == 'sram':
-        wire_bus_slave_sram(root, stmts, n)
-    else:
-        raise AssertionError(n.interface)
 
 def add_ports_array_reg(root, module, reg):
     # Compute width
@@ -576,7 +611,7 @@ def wire_regs(root, module, isigs, node):
             if n.interface == 'include':
                 wire_regs(root, module, isigs, n.c_submap)
             else:
-                wire_submap(root, module, n, stmts)
+                n.h_busgen.wire_bus_slave(root, stmts, n)
         elif isinstance(n, tree.Array):
             for c in n.children:
                 if isinstance(c, tree.Reg):
@@ -966,27 +1001,25 @@ def add_write_process(root, module, isigs):
     wrproc.sync_stmts.append(wr_if)
 
 
+def name_to_busgen(name):
+    if name == 'wb-32-be':
+        return WBBus(name)
+    elif name == 'axi4-lite-32':
+        return AXI4LiteBus(name)
+    elif name.startswith('cern-be-vme-'):
+        return CERNBEBus(name)
+    elif name == 'sram':
+        return SRAMBus(name)
+    else:
+        raise HdlError("Unhandled bus '{}'".format(name))
+
 def gen_hdl_header(root, isigs=None):
     module = HDLModule()
     module.name = root.name
 
     # Create the bus
-    if root.bus == 'wb-32-be':
-        expand_wishbone(root, module, isigs)
-    elif root.bus == 'axi4-lite-32':
-        expand_axi4lite(root, module, isigs)
-    elif root.bus.startswith('cern-be-vme-'):
-        names = root.bus[12:].split('-')
-        err = names[0] == 'err'
-        if err:
-            del names[0]
-        split = names[0] == 'split'
-        if split:
-            del names[0]
-        assert len(names) == 1
-        expand_cern_be_vme(root, module, isigs, err, split)
-    else:
-        raise HdlError("Unhandled bus '{}'".format(root.bus))
+    root.h_busgen = name_to_busgen(root.bus)
+    root.h_busgen.expand_bus(root, module, isigs)
 
     return module
 
