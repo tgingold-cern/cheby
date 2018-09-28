@@ -70,6 +70,11 @@ class BusGen(ABC):
         """Set bus slave signals to write"""
         pass
 
+    @abstractmethod
+    def read_bus_slave(self, root, stmts, n, proc, isigs, rd_data):
+        """Set bus slave signals to read"""
+        pass
+
 class WBBus(BusGen):
     # Package wishbone_pkg that contains the wishbone interface
     wb_pkg = None
@@ -198,6 +203,14 @@ class WBBus(BusGen):
         stmts.append(HDLAssign(isigs.wr_ack,
                                HDLAnd(n.h_bus['ack'],
                                       HDLNot(isigs.wr_ack_done))))
+
+    def read_bus_slave(self, root, stmts, n, proc, isigs, rd_data):
+        proc.stmts.append(HDLAssign(n.h_rd, bit_0))
+        stmts.append(HDLAssign(n.h_rd, isigs.rd_int))
+        proc.sensitivity.append(isigs.rd_int)
+        stmts.append(HDLAssign(rd_data, n.h_bus['dato']))
+        stmts.append(HDLAssign(isigs.rd_ack, n.h_bus['ack']))
+        proc.sensitivity.extend([n.h_bus['dato'], n.h_bus['ack']])
 
 class AXI4LiteBus(BusGen):
     def __init__(self, name):
@@ -379,6 +392,14 @@ class AXI4LiteBus(BusGen):
                                HDLAnd(n.h_bus['bvalid'],
                                       root.h_bus.get('bready', bit_1))))
 
+    def read_bus_slave(self, root, stmts, n, proc, isigs, rd_data):
+        proc.stmts.append(HDLAssign(n.h_rd, bit_0))
+        stmts.append(HDLAssign(n.h_rd, isigs.rd_int))
+        proc.sensitivity.append(isigs.rd_int)
+        stmts.append(HDLAssign(rd_data, n.h_bus['rdata']))
+        stmts.append(HDLAssign(isigs.rd_ack, n.h_bus['rvalid']))
+        proc.sensitivity.extend([n.h_bus['rdata'], n.h_bus['rvalid']])
+
 class CERNBEBus(BusGen):
     def __init__(self, name):
         names = name[12:].split('-')
@@ -444,6 +465,10 @@ class CERNBEBus(BusGen):
         "Not implemented"
         raise AssertionError
 
+    def read_bus_slave(self, root, stmts, n, proc, isigs, rd_data):
+        "Not implemented"
+        raise AssertionError
+
 class SRAMBus(BusGen):
     def __init__(self, name):
         assert name == 'sram'
@@ -476,6 +501,10 @@ class SRAMBus(BusGen):
                               n.c_blk_bits - root.c_addr_word_bits)))
 
     def write_bus_slave(self, root, stmts, n, proc, isigs):
+        # FIXME: to do ?
+        pass
+
+    def read_bus_slave(self, root, stmts, n, proc, isigs, rd_data):
         # FIXME: to do ?
         pass
 
@@ -886,23 +915,8 @@ def add_read_process(root, module, isigs):
                 s.append(HDLAssign(rd_ack, root.h_rd_ack1_int))
             elif isinstance(n, tree.Submap):
                 s.append(HDLComment("Submap {}".format(n.name)))
-                rdproc.stmts.append(HDLAssign(n.h_rd, bit_0))
-                s.append(HDLAssign(n.h_rd, isigs.rd_int))
-                rdproc.sensitivity.append(isigs.rd_int)
-                if n.c_interface == 'wb-32-be':
-                    s.append(HDLAssign(rd_data, n.h_bus['dato']))
-                    s.append(HDLAssign(isigs.rd_ack, n.h_bus['ack']))
-                    rdproc.sensitivity.extend([n.h_bus['dato'], n.h_bus['ack']])
-                    return
-                elif n.c_interface == 'axi4-lite-32':
-                    s.append(HDLAssign(rd_data, n.h_bus['rdata']))
-                    s.append(HDLAssign(isigs.rd_ack, n.h_bus['rvalid']))
-                    rdproc.sensitivity.extend([n.h_bus['rdata'], n.h_bus['rvalid']])
-                    return
-                elif n.c_interface == 'sram':
-                    return
-                else:
-                    raise AssertionError
+                n.h_busgen.read_bus_slave(root, s, n, rdproc, isigs, rd_data)
+                return
             elif isinstance(n, tree.Array):
                 s.append(HDLComment("RAM {}".format(n.name)))
                 # TODO: handle list of registers!
@@ -977,6 +991,7 @@ def add_write_process(root, module, isigs):
             elif isinstance(n, tree.Submap):
                 s.append(HDLComment("Submap {}".format(n.name)))
                 n.h_busgen.write_bus_slave(root, s, n, wrproc, isigs)
+                return
             elif isinstance(n, tree.Array):
                 s.append(HDLComment("Memory {}".format(n.name)))
                 # TODO: handle list of registers!
