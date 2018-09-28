@@ -6,10 +6,17 @@ memory-map:
   children:
   - reg:
       name: reg1
+      description: A register
       type: unsigned
       width: 32
       access: rw
       preset: 0x12340000
+  - reg:
+      name: reg2
+      type: unsigned
+      width: 32
+      access: rw
+      preset: 0x12340002
   - array:
       name: arr
       repeat: 8

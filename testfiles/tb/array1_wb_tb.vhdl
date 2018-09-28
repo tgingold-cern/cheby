@@ -14,6 +14,9 @@ architecture behav of array1_wb_tb is
   signal wb_in   : t_wishbone_slave_in;
   signal wb_out  : t_wishbone_slave_out;
 
+  signal reg1    : std_logic_vector(31 downto 0);
+  signal reg2    : std_logic_vector(31 downto 0);
+
   --  For sub1.
   signal sub1_wb_in  : t_wishbone_slave_in;
   signal sub1_wb_out : t_wishbone_slave_out;
@@ -47,6 +50,9 @@ begin
       clk_i      => clk,
       wb_i       => wb_in,
       wb_o       => wb_out,
+
+      reg1_o     => reg1,
+      reg2_o     => reg2,
 
       ram1_adr_i => (others => '0'),
       ram1_rd_i  => '0',
@@ -97,6 +103,11 @@ begin
     wait until rising_edge(clk);
     wb_readl (clk, wb_in, wb_out, x"0000_0000", v);
     assert v = x"1234_0000" severity error;
+    assert reg1 = x"1234_0000" severity error;
+
+    wb_readl (clk, wb_in, wb_out, x"0000_0004", v);
+    assert v = x"1234_0002" severity error;
+    assert reg2 = x"1234_0002" severity error;
 
     wb_writel (clk, wb_in, wb_out, x"0000_0000", x"abcd_0001");
     wait until rising_edge(clk);
@@ -106,10 +117,10 @@ begin
 
     --  Memory
     report "Testing memory" severity note;
-    wb_writel (clk, wb_in, wb_out, x"0000_0009", x"abcd_0203");
+    wb_writel (clk, wb_in, wb_out, x"0000_0024", x"abcd_0203");
     wait until rising_edge(clk);
 
-    wb_readl (clk, wb_in, wb_out, x"0000_0009", v);
+    wb_readl (clk, wb_in, wb_out, x"0000_0024", v);
     assert v = x"abcd_0203" severity error;
 
     wait until rising_edge(clk);

@@ -80,7 +80,7 @@ begin
 
       sub1_wb_cyc_o => sub1_wb_in.cyc,
       sub1_wb_stb_o => sub1_wb_in.stb,
-      sub1_wb_adr_o => sub1_wb_in.adr(9 downto 0),
+      sub1_wb_adr_o => sub1_wb_in.adr(11 downto 2),
       sub1_wb_sel_o => sub1_wb_in.sel,
       sub1_wb_we_o  => sub1_wb_in.we,
       sub1_wb_dat_o => sub1_wb_in.dat,

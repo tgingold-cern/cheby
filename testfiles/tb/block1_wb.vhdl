@@ -3,6 +3,7 @@ use ieee.std_logic_1164.all;
 
 use work.wishbone_pkg.all;
 
+-- A 4KB slave.
 entity block1_wb is
   port (
     clk         : in  std_logic;
@@ -21,12 +22,12 @@ begin
     begin
       if rising_edge(clk) then
         if (sub1_wb_in.cyc and sub1_wb_in.stb) = '1' then
-          if sub1_wb_in.adr(9) = '1' then
+          if sub1_wb_in.adr(11) = '1' then
             --  Discard write, read addr
-            sub1_wb_out.dat( 7 downto  0) <= sub1_wb_in.adr(7 downto 0);
-            sub1_wb_out.dat(15 downto  8) <= not sub1_wb_in.adr(7 downto 0);
-            sub1_wb_out.dat(23 downto 16) <= not sub1_wb_in.adr(7 downto 0);
-            sub1_wb_out.dat(31 downto 24) <= sub1_wb_in.adr(7 downto 0);
+            sub1_wb_out.dat( 7 downto  0) <= sub1_wb_in.adr(9 downto 2);
+            sub1_wb_out.dat(15 downto  8) <= not sub1_wb_in.adr(9 downto 2);
+            sub1_wb_out.dat(23 downto 16) <= not sub1_wb_in.adr(9 downto 2);
+            sub1_wb_out.dat(31 downto 24) <= sub1_wb_in.adr(9 downto 2);
           else
             --  0.
             sub1_wb_out.dat <= (others => '0');
