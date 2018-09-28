@@ -29,10 +29,6 @@ from cheby.layout import ilog2
 
 dirname = {'IN': 'i', 'OUT': 'o'}
 
-class HdlError(Exception):
-    def __init__(self, msg):
-        self.msg = msg
-
 
 class Isigs(object):
     "Internal signals"
@@ -443,7 +439,7 @@ class CERNBEBus(BusGen):
             root.h_bus['adrw'] = root.h_bus['adr']
 
         if isigs:
-            add_decode_cern_be_vme(root, module, isigs)
+            self.add_decode_cern_be_vme(root, module, isigs)
 
 class SRAMBus(BusGen):
     def __init__(self, name):
@@ -1005,7 +1001,7 @@ def name_to_busgen(name):
     elif name == 'sram':
         return SRAMBus(name)
     else:
-        raise HdlError("Unhandled bus '{}'".format(name))
+        raise AssertionError("Unhandled bus '{}'".format(name))
 
 def gen_hdl_header(root, isigs=None):
     module = HDLModule()

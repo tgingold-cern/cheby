@@ -161,6 +161,7 @@ def test_hdl():
               'inter-mt/mt_cpu_xb-extern.cheby',
               'inter-mt/mt_cpu_xb-busgroup.cheby',
               'inter-mt/mt_cpu_xb-busgroup2.cheby',
+              'inter-mt/mt_cpu_lr-busgroup.cheby',
               'demo_all.cheby',
               'tb/array1_axi4.cheby']:
         if verbose:

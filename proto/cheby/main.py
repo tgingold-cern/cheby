@@ -171,9 +171,6 @@ def main():
         sys.stderr.write("{}:layout error: {}\n".format(
             e.node.get_root().c_filename, e.msg))
         sys.exit(2)
-    except gen_hdl.HdlError as e:
-        sys.stderr.write("{}:HDL error: {}\n".format(f, e.msg))
-        sys.exit(2)
 
 
 if __name__ == '__main__':
