@@ -14,7 +14,6 @@
    The _i/_o suffixes are also used for ports, so the ports of the bus can
    also have conflicts with user names.
 """
-from abc import ABCMeta, abstractmethod
 from cheby.hdltree import (HDLModule, HDLPackage,
                            HDLInterface, HDLInterfaceSelect, HDLInstance,
                            HDLPort, HDLSignal,
@@ -27,9 +26,6 @@ from cheby.hdltree import (HDLModule, HDLPackage,
                            HDLConst, HDLBinConst, HDLNumber, HDLBool)
 import cheby.tree as tree
 from cheby.layout import ilog2
-
-# Python 2 and 3 compatibility...
-ABC = ABCMeta('ABC', (object,), {})
 
 dirname = {'IN': 'i', 'OUT': 'o'}
 
@@ -49,31 +45,26 @@ def add_bus(root, module, bus):
         module.ports.append(h)
         root.h_bus[n] = h
 
-class BusGen(ABC):
-    @abstractmethod
+class BusGen(object):
     def expand_bus(root, module, isigs):
         """Create bus interface for the design."""
-        pass
+        raise AssertionError("Not implemented")
 
-    @abstractmethod
     def gen_bus_slave(root, module, prefix, n, busgroup):
         """Create an interface to a slave (Add declarations)"""
-        pass
+        raise AssertionError("Not implemented")
 
-    @abstractmethod
     def wire_bus_slave(root, stmts, n):
         """Create HDL for the interface (Assignments)"""
-        pass
+        raise AssertionError("Not implemented")
 
-    @abstractmethod
     def write_bus_slave(self, root, stmts, n, proc, isigs):
         """Set bus slave signals to write"""
-        pass
+        raise AssertionError("Not implemented")
 
-    @abstractmethod
     def read_bus_slave(self, root, stmts, n, proc, isigs, rd_data):
         """Set bus slave signals to read"""
-        pass
+        raise AssertionError("Not implemented")
 
 class WBBus(BusGen):
     # Package wishbone_pkg that contains the wishbone interface
@@ -211,6 +202,7 @@ class WBBus(BusGen):
         stmts.append(HDLAssign(rd_data, n.h_bus['dato']))
         stmts.append(HDLAssign(isigs.rd_ack, n.h_bus['ack']))
         proc.sensitivity.extend([n.h_bus['dato'], n.h_bus['ack']])
+
 
 class AXI4LiteBus(BusGen):
     def __init__(self, name):
@@ -453,29 +445,9 @@ class CERNBEBus(BusGen):
         if isigs:
             add_decode_cern_be_vme(root, module, isigs)
 
-    def gen_bus_slave(root, module, prefix, n, busgroup):
-        "Not implemented"
-        raise AssertionError
-
-    def wire_bus_slave(root, stmts, n):
-        "Not implemented"
-        raise AssertionError
-
-    def write_bus_slave(self, root, stmts, n, proc, isigs):
-        "Not implemented"
-        raise AssertionError
-
-    def read_bus_slave(self, root, stmts, n, proc, isigs, rd_data):
-        "Not implemented"
-        raise AssertionError
-
 class SRAMBus(BusGen):
     def __init__(self, name):
         assert name == 'sram'
-
-    def expand_bus(self, root, module, isigs):
-        "Not implemented"
-        raise AssertionError
 
     def gen_bus_slave(self, root, module, prefix, n, busgroup):
         name = prefix + n.name + '_addr_o'

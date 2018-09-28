@@ -141,7 +141,7 @@ def test_layout():
 def test_print():
     fd = write_null()
     for f in ['demo.yaml', 'reg_value1.yaml', 'reg_value2.yaml',
-              'reg_value3.yaml']:
+              'reg_value3.yaml', 'demo_all.cheby']:
         t = parse_ok(srcdir + f)
         layout_ok(t)
         pprint.pprint_cheby(fd, t)
@@ -160,7 +160,9 @@ def test_hdl():
               'inter-mt/mt_cpu_xb-include.cheby',
               'inter-mt/mt_cpu_xb-extern.cheby',
               'inter-mt/mt_cpu_xb-busgroup.cheby',
-              'inter-mt/mt_cpu_xb-busgroup2.cheby']:
+              'inter-mt/mt_cpu_xb-busgroup2.cheby',
+              'demo_all.cheby',
+              'tb/array1_axi4.cheby']:
         if verbose:
             print('test hdl: {}'.format(f))
         t = parse_ok(srcdir + f)

@@ -1,0 +1,97 @@
+memory-map:
+  bus: wb-32-be
+  name: demo_all
+  description: an example with all the features
+  children:
+    - reg:
+        name: reg0
+        description: a normal reg with some fields
+        width: 32
+        access: rw
+        children:
+          - field:
+              name: field0
+              description: 1-bit field
+              range: 1
+          - field:
+              name: field1
+              description: multi bit field
+              range: 7-4
+          - field:
+              name: field2
+              description: a field with a preset value
+              range: 10-8
+              preset: 2
+    - reg:
+        name: reg1
+        description: a reg without fields
+        width: 32
+        access: rw
+        type: unsigned
+        preset: 0x123
+    - reg:
+        name: reg2
+        description: a multi-word register (64 bits)
+        width: 64
+        access: rw
+        children:
+          - field:
+              name: field0
+              range: 15-0
+          - field:
+              name: field1
+              range: 55-16
+    - block:
+        name: block1
+        description: A block of registers
+        children:
+        - reg:
+           name: b1reg0
+           access: wo
+           width: 32
+        - reg:
+           name: b1reg1
+           access: rw
+           width: 32
+           children:
+             - field:
+                 name: f0
+                 range: 0
+             - field:
+                 name: f1
+                 range: 31-1
+        - reg:
+           name: b1reg2
+           access: ro
+           width: 32
+    - submap:
+        name: sub1
+        description: A normal submap
+        filename: demo_all_sub.cheby
+    - submap:
+        name: sub2
+        description: An included submap
+        filename: demo_all_sub.cheby
+        interface: include
+    - submap:
+        name: sub3
+        size: 0x1000
+        description: A bus
+        interface: wb-32-be
+    - array:
+        name: arr1
+        repeat: 2
+        align: False
+        children:
+          - reg:
+              name: areg1
+              access: rw
+              width: 32
+    - array:
+        name: ram_ro1
+        repeat: 32
+        children:
+          - reg:
+              name: value
+              access: rw
+              width: 32
