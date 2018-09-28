@@ -65,6 +65,11 @@ class BusGen(ABC):
         """Create HDL for the interface (Assignments)"""
         pass
 
+    @abstractmethod
+    def write_bus_slave(self, root, stmts, n, proc, isigs):
+        """Set bus slave signals to write"""
+        pass
+
 class WBBus(BusGen):
     # Package wishbone_pkg that contains the wishbone interface
     wb_pkg = None
@@ -186,6 +191,13 @@ class WBBus(BusGen):
         stmts.append(HDLAssign(n.h_bus['we'], n.h_wr))
         stmts.append(HDLAssign(n.h_bus['dati'], root.h_bus['dati']))
 
+    def write_bus_slave(self, root, stmts, n, proc, isigs):
+        proc.rst_stmts.append(HDLAssign(n.h_wr, bit_0))
+        proc.sync_stmts.append(HDLAssign(n.h_wr, bit_0))
+        stmts.append(HDLAssign(n.h_wr, bit_1))
+        stmts.append(HDLAssign(isigs.wr_ack,
+                               HDLAnd(n.h_bus['ack'],
+                                      HDLNot(isigs.wr_ack_done))))
 
 class AXI4LiteBus(BusGen):
     def __init__(self, name):
@@ -353,6 +365,19 @@ class AXI4LiteBus(BusGen):
         # FIXME: rready only available with axi4 root.
         stmts.append(HDLAssign(n.h_bus['rready'], root.h_bus.get('rready', bit_1)))
 
+    def write_bus_slave(self, root, stmts, n, proc, isigs):
+        # Machine state for valid/ready AW and W channels
+        for xr, x_done, ready in [(n.h_aw_val, n.h_aw_done, n.h_bus['awready']),
+                                  (n.h_w_val, n.h_w_done, n.h_bus['wready'])]:
+            proc.rst_stmts.append(HDLAssign(xr, bit_0))
+            proc.sync_stmts.append(HDLAssign(x_done, bit_0))
+            proc.sync_stmts.append(HDLAssign(xr, bit_0))
+            stmts.append(HDLAssign(xr, HDLNot(x_done)))
+            stmts.append(HDLAssign(x_done, HDLOr(x_done, ready)))
+        # FIXME: bready is available only with AXI4 root
+        stmts.append(HDLAssign(isigs.wr_ack,
+                               HDLAnd(n.h_bus['bvalid'],
+                                      root.h_bus.get('bready', bit_1))))
 
 class CERNBEBus(BusGen):
     def __init__(self, name):
@@ -415,13 +440,17 @@ class CERNBEBus(BusGen):
         "Not implemented"
         raise AssertionError
 
+    def write_bus_slave(self, root, stmts, n, proc, isigs):
+        "Not implemented"
+        raise AssertionError
 
 class SRAMBus(BusGen):
     def __init__(self, name):
         assert name == 'sram'
 
     def expand_bus(self, root, module, isigs):
-        raise ImplementationError
+        "Not implemented"
+        raise AssertionError
 
     def gen_bus_slave(self, root, module, prefix, n, busgroup):
         name = prefix + n.name + '_addr_o'
@@ -446,6 +475,9 @@ class SRAMBus(BusGen):
                               root.c_addr_word_bits,
                               n.c_blk_bits - root.c_addr_word_bits)))
 
+    def write_bus_slave(self, root, stmts, n, proc, isigs):
+        # FIXME: to do ?
+        pass
 
 def add_module_port(root, module, name, size, dir):
     if root.h_itf is None:
@@ -944,32 +976,7 @@ def add_write_process(root, module, isigs):
                     add_write_reg(s, n, off)
             elif isinstance(n, tree.Submap):
                 s.append(HDLComment("Submap {}".format(n.name)))
-                if n.c_interface == 'wb-32-be':
-                    wrproc.rst_stmts.append(HDLAssign(n.h_wr, bit_0))
-                    wrproc.sync_stmts.append(HDLAssign(n.h_wr, bit_0))
-                    s.append(HDLAssign(n.h_wr, bit_1))
-                    s.append(HDLAssign(isigs.wr_ack,
-                                       HDLAnd(n.h_bus['ack'],
-                                              HDLNot(isigs.wr_ack_done))))
-                    return
-                elif n.c_interface == 'axi4-lite-32':
-                    # Machine state for valid/ready AW and W channels
-                    for xr, x_done, ready in [(n.h_aw_val, n.h_aw_done, n.h_bus['awready']),
-                                              (n.h_w_val, n.h_w_done, n.h_bus['wready'])]:
-                        wrproc.rst_stmts.append(HDLAssign(xr, bit_0))
-                        wrproc.sync_stmts.append(HDLAssign(x_done, bit_0))
-                        wrproc.sync_stmts.append(HDLAssign(xr, bit_0))
-                        s.append(HDLAssign(xr, HDLNot(x_done)))
-                        s.append(HDLAssign(x_done, HDLOr(x_done, ready)))
-                    # FIXME: bready is available only with AXI4 root
-                    s.append(HDLAssign(isigs.wr_ack,
-                                       HDLAnd(n.h_bus['bvalid'],
-                                              root.h_bus.get('bready', bit_1))))
-                    return
-                elif n.c_interface == 'sram':
-                    return
-                else:
-                    raise AssertionError
+                n.h_busgen.write_bus_slave(root, s, n, wrproc, isigs)
             elif isinstance(n, tree.Array):
                 s.append(HDLComment("Memory {}".format(n.name)))
                 # TODO: handle list of registers!
