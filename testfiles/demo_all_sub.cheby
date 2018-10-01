@@ -1,0 +1,42 @@
+memory-map:
+  bus: wb-32-be
+  name: demo_all_sub
+  description: A sub-design of demo_all
+  children:
+    - reg:
+        name: reg0
+        description: a normal reg with some fields
+        width: 32
+        access: rw
+        children:
+          - field:
+              name: field0
+              description: 1-bit field
+              range: 1
+          - field:
+              name: field1
+              description: multi bit field
+              range: 7-4
+          - field:
+              name: field2
+              description: a field with a preset value
+              range: 10-8
+              preset: 2
+    - reg:
+        name: reg1
+        description: a reg without fields
+        width: 32
+        access: rw
+        type: unsigned
+    - reg:
+        name: reg2
+        description: a multi-word register (64 bits)
+        width: 64
+        access: rw
+        children:
+          - field:
+              name: field0
+              range: 15-0
+          - field:
+              name: field1
+              range: 55-16
