@@ -4,8 +4,7 @@ import cheby.tree as tree
 
 class ParseException(Exception):
     """Exception raised in case of parse error"""
-    def __init__(self, msg):
-        self.msg = msg
+    pass
 
 
 def error(msg):
@@ -199,7 +198,7 @@ def parse_yaml(filename):
     try:
         el = yaml.load(open(filename))
     except IOError as e:
-        error("open error: {}".format(e))
+        error("cannot open {}: {}".format(filename, e))
 
     if not isinstance(el, dict):
         error("open error: {}: bad format (not yaml)".format(filename))
