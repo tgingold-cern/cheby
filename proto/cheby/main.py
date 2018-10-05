@@ -12,7 +12,7 @@ import cheby.layout as layout
 import cheby.gen_hdl as gen_hdl
 import cheby.print_vhdl as print_vhdl
 import cheby.print_verilog as print_verilog
-import cheby.print_encore as print_encore
+import cheby.gen_edge as gen_edge
 import cheby.expand_hdl as expand_hdl
 import cheby.gen_name as gen_name
 import cheby.gen_gena_memmap as gen_gena_memmap
@@ -41,8 +41,8 @@ def decode_args():
                          help='select language for hdl generation')
     aparser.add_argument('--gen-hdl', nargs='?', const='-',
                          help='generate hdl file')
-    aparser.add_argument('--gen-encore', nargs='?', const='-',
-                         help='generate encore file')
+    aparser.add_argument('--gen-edge', nargs='?', const='-',
+                         help='generate EDGE file')
     aparser.add_argument('--gen-gena-memmap', nargs='?', const='-',
                          help='generate Gena MemMap file')
     aparser.add_argument('--gen-gena-regctrl', nargs='?', const='-',
@@ -104,14 +104,11 @@ def handle_file(args, filename):
     if args.gen_c_check_layout is not None:
         with open_filename(args.gen_c_check_layout) as f:
             gen_laychk.gen_chklayout_cheby(f, t)
-    if args.gen_encore is not None:
-        with open_filename(args.gen_encore) as f:
-            print_encore.print_encore(f, t)
     if args.gen_gena_memmap is not None:
         with open_filename(args.gen_gena_memmap) as f:
             h = gen_gena_memmap.gen_gena_memmap(t)
             print_vhdl.print_vhdl(f, h)
-    # Decode x-hdl
+    # Decode x-hdl, unroll
     expand_hdl.expand_hdl(t)
     if args.print_simple_expanded is not None:
         with open_filename(args.print_simple_expanded) as f:
@@ -119,6 +116,9 @@ def handle_file(args, filename):
     if args.print_pretty_expanded is not None:
         with open_filename(args.print_pretty_expanded) as f:
             pprint.pprint_cheby(f, t)
+    if args.gen_edge is not None:
+        with open_filename(args.gen_edge) as f:
+            gen_edge.generate_edge(f, t)
     if args.gen_gena_regctrl is not None:
         if not args.gen_gena_memmap:
             gen_gena_memmap.gen_gena_memmap(t)
@@ -165,7 +165,7 @@ def main():
     try:
         handle_file(args, f)
     except cheby.parser.ParseException as e:
-        sys.stderr.write("{}:parse error: {}\n".format(f, e.msg))
+        sys.stderr.write("{}:parse error: {}\n".format(f, e))
         sys.exit(2)
     except layout.LayoutException as e:
         sys.stderr.write("{}:layout error: {}\n".format(
