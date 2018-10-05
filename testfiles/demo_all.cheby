@@ -10,15 +10,15 @@ memory-map:
         access: rw
         children:
           - field:
-              name: field0
+              name: field00
               description: 1-bit field
               range: 1
           - field:
-              name: field1
+              name: field01
               description: multi bit field
               range: 7-4
           - field:
-              name: field2
+              name: field02
               description: a field with a preset value
               range: 10-8
               preset: 2
@@ -36,10 +36,10 @@ memory-map:
         access: rw
         children:
           - field:
-              name: field0
+              name: field10
               range: 15-0
           - field:
-              name: field1
+              name: field11
               range: 55-16
     - block:
         name: block1
