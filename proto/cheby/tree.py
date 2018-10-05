@@ -98,7 +98,7 @@ class Reg(NamedNode):
         super(Reg, self).__init__(parent)
         self.width = None
         self.type = None
-        self.access = None
+        self.access = None    # Mandatory, always defined.
         self.address = None
         self.children = []
         self.preset = None
