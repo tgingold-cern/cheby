@@ -232,6 +232,17 @@ consecutive bits and has a name.
 
 If there is no field, this is a plain register.
 
+The following attributes under `x-hdl` are supported:
+
+`type`:: if set to `wire` no register is created.  This is the default when
+the access type is `ro`.
+
+`write-strobe`:: name of an additional signal that is asserted when the register
+is written by the host.
+
+`read-strobe`:: name of an additional signal that is asserted when the register
+is read by the host.
+
 ==== Plain Registers
 
 A plain register has a type, which could be `unsigned` (the default), `signed`
@@ -398,6 +409,12 @@ Example of an included submap:
 
 ==  Generated HDL
 
+For all buses, only word accesses are supported.  Sub-word (byte or half-word)
+accesses are considered as word accesses (which can lead to error when
+writting).
+
+Addresses are always byte addresses.
+
 ===  AXI4-Lite
 
 There are several restrictions from the AMBA AXI standard:
@@ -415,6 +432,18 @@ both have a request, handle the request and then become ready when the B
 channel becomes ready.
 
 Note that AXI4 addresses are byte addresses as specified in A3.4.1
+
+=== Wishbone
+
+The normal wishbone protocol is used (and not the pipelined one).
+
+The `err` (error) and `rty` (retry) are always ignored (as inputs) and
+never asserted as output.
+
+By default the wishbone interface uses one port per wishbone signal.  It is
+possible to group all signals in one input and one output port by setting the
+`x-hdl.busgroup` attribute to `True`.
+
 
 == Gena Compatibility
 
