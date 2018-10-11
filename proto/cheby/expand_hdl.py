@@ -26,7 +26,7 @@ def expand_x_hdl(n):
     if isinstance(n, tree.Field):
         expand_x_hdl_field(n, n, x_hdl)
     elif isinstance(n, tree.Reg):
-        if len(n.children) == 1 and isinstance(n.children[0], tree.FieldReg):
+        if not n.has_fields():
             expand_x_hdl_field(n.children[0], n, x_hdl)
 
     # Visit children

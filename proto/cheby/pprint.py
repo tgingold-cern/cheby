@@ -120,7 +120,7 @@ def pprint_reg(pp, n):
     pp.pp_str('type', n.type)
     pp.pp_str('access', n.access)
     pprint_address(pp, n)
-    has_one = len(n.children) == 1 and isinstance(n.children[0], tree.FieldReg)
+    has_one = not n.has_fields()
     if has_one:
         pp.pp_hex('preset', n.preset)
     pprint_extensions(pp, n)

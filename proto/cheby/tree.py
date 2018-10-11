@@ -113,6 +113,12 @@ class Reg(NamedNode):
         self.c_align = None   # Alignment
         self.c_type = None    # Type. None if register with fields.
 
+    def has_fields(self):
+        """True if the register has one or more fields defined by the user.
+        False when the whole register is standalone"""
+        return len(self.children) != 1 \
+            or not isinstance(self.children[0], FieldReg)
+
 
 class FieldBase(NamedNode):
     "Base for Field and FieldReg"
