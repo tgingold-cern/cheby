@@ -1,12 +1,9 @@
-import sys
 import cheby.tree as tree
-import cheby.layout as layout
-import cheby.hdltree as hdltree
-from cheby.gen_wbgen_hdl import get_hdl_prefix, get_hdl_entity
 import cheby.gen_doc as gen_doc
 
 #  Generate markdown (asciidoc variant)
 #  Ref: https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/#tables
+
 
 def w(fd, str):
         fd.write(str)
@@ -43,8 +40,10 @@ def print_reg(fd, r):
     if r.has_fields():
         wln(fd)
         for f in r.children:
-            wln(fd, "{}:: {}".format(f.name, f.comment or f.description or '(not documented)'))
+            wln(fd, "{}:: {}".format(
+                f.name, f.comment or f.description or '(not documented)'))
         wln(fd)
+
 
 def print_root(fd, root):
     wln(fd, "== Memory map summary")
