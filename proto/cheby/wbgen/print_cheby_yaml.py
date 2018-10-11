@@ -67,7 +67,8 @@ class Writer_YAML(object):
         """Write attribute (only if not None)."""
         if val is None:
             return
-        if isinstance(val, bool) or val == 'true' or val == 'false' or val == '':
+        if isinstance(val, bool) \
+           or val == 'true' or val == 'false' or val == '':
             self.wattr_yaml(name, '"{}"'.format(val))
         elif ((len(val) > 0 and (val[0] == ' '
                                  or val[-1] == ' '
@@ -150,7 +151,7 @@ class Writer_YAML(object):
         if n.prefix is not None:
             name = n.prefix
         else:
-            name = '' # parent.prefix
+            name = ''  # parent.prefix
         self.wattr_str("name", name)
         if n.bit_len != 1:
             self.wattr_str("range",
@@ -199,9 +200,9 @@ class Writer_YAML(object):
             self.wseq("x-wbgen")
             self.wattr_str("kind", "fifocs")
             self.weseq()
-        if (len (n.fields) == 1
-            and n.fields[0].prefix is None
-            and n.fields[0].size == layout.DATA_WIDTH):
+        if len(n.fields) == 1 \
+           and n.fields[0].prefix is None \
+           and n.fields[0].size == layout.DATA_WIDTH:
             f = n.fields[0]
             if f.desc is not None:
                 if n.desc is None:

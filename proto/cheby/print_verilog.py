@@ -4,6 +4,7 @@ import cheby.hdltree as hdltree
 
 style = None
 
+
 def w(fd, str):
     fd.write(str)
 
@@ -23,6 +24,7 @@ def generate_header(fd, module):
 
 def generate_verilog_kind(p):
     return "reg" if p.p_vlg_reg else "wire"
+
 
 def generate_verilog_type(p):
     if p.size is not None:
@@ -55,14 +57,15 @@ def generate_port(fd, p, indent):
     w(fd, "{dir} {kind} {typ}{name}".format(
         dir=dir, kind=generate_verilog_kind(p), typ=typ, name=p.name))
     if p.default:
-        w(fd,' = {}'.format(generate_expr(p.default)))
+        w(fd, ' = {}'.format(generate_expr(p.default)))
 
 
 def generate_interface_port(fd, itf, dir, indent):
     for p in itf.ports:
         if p.dir == dir:
             windent(fd, indent + 1)
-            wln(fd, "{:<16} : {};".format(p.name, generate_vhdl_type(p)))
+            wln(fd, "{:<16} : {};".format(p.name, generate_verilog_type(p)))
+
 
 def generate_interface(fd, itf, indent):
     generate_decl_comment(fd, itf.comment, indent)
@@ -85,7 +88,7 @@ def generate_interface(fd, itf, indent):
 
 def generate_param(fd, p, indent):
     generate_decl_comment(fd, p.comment, indent)
-    typ = generate_vhdl_type(p)
+    typ = generate_verilog_type(p)
     windent(fd, indent)
     w(fd, "{} : {typ}".format(p.name, typ=typ))
     if p.value:
@@ -247,6 +250,7 @@ def generate_seq_block(fd, stmts, level):
             generate_seq(fd, s, level + 1)
         wln(fd, indent + "end")
 
+
 def generate_seq(fd, s, level):
     indent = '  ' * level
     if isinstance(s, hdltree.HDLAssign):
@@ -386,23 +390,26 @@ def print_inters_list(fd, lst, name, indent):
             generate_param(fd, p, indent + 1)
         elif isinstance(p, hdltree.HDLPortGroup):
             generate_decl_comment(fd, p.comment, indent + 1)
-            group_typename = '{}_{}'.format(p.interface.name,
-                'master' if p.is_master else 'slave')
+            group_typename = '{}_{}'.format(
+                p.interface.name, 'master' if p.is_master else 'slave')
             windent(fd, indent + 1)
             w(fd, "{:<20} : in    {}_in".format(p.name + '_i', group_typename))
             wln(fd, ";")
             windent(fd, indent + 1)
-            w(fd, "{:<20} : out   {}_out".format(p.name + '_o', group_typename))
+            w(fd, "{:<20} : out   {}_out".format(
+                p.name + '_o', group_typename))
         else:
             raise AssertionError
     wln(fd)
     windent(fd, indent)
     wln(fd, ");")
 
+
 def extract_reg_init(decls):
     for d in decls:
         if isinstance(d, hdltree.HDLSignal) or isinstance(d, hdltree.HDLPort):
             d.p_vlg_reg = None
+
 
 def extract_reg_assign(stmt, is_reg):
     targ = stmt.target
@@ -417,6 +424,7 @@ def extract_reg_assign(stmt, is_reg):
     elif targ.p_vlg_reg != is_reg:
         # Mismatch
         raise AssertionError(targ)
+
 
 def extract_reg_seq(stmts):
     if stmts is None:
@@ -435,6 +443,7 @@ def extract_reg_seq(stmts):
         else:
             raise AssertionError(s)
 
+
 def extract_reg_module(module):
     "Detect whether ports/signals are wire or reg."
     extract_reg_init(module.ports)
@@ -447,6 +456,7 @@ def extract_reg_module(module):
             extract_reg_seq(s.sync_stmts)
         elif isinstance(s, hdltree.HDLComb):
             extract_reg_seq(s.stmts)
+
 
 def print_module(fd, module):
     extract_reg_module(module)
@@ -464,6 +474,7 @@ def print_module(fd, module):
         generate_decl(fd, s, 1)
     generate_stmts(fd, module.stmts, 1)
     wln(fd, "endmodule")
+
 
 def print_verilog(fd, n):
     if isinstance(n, hdltree.HDLModule):

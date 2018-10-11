@@ -1,5 +1,4 @@
 import cheby.wbgen.tokens as tokens
-import sys
 
 
 class TokenError(Exception):

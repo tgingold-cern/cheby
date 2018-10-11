@@ -3,6 +3,7 @@ import cheby.tree as tree
 import cheby.layout as layout
 import copy
 
+
 def expand_x_hdl_field(f, n, dct):
     # Default values
     f.hdl_type = 'wire' if f._parent.access == 'ro' else 'reg'
@@ -19,6 +20,7 @@ def expand_x_hdl_field(f, n, dct):
         else:
             parser.error("unhandled '{}' in x-hdl of {}".format(
                   k, n.get_path()))
+
 
 def expand_x_hdl(n):
     "Decode x-hdl extensions"
@@ -44,6 +46,7 @@ def expand_x_hdl(n):
         pass
     else:
         raise AssertionError(n)
+
 
 def tree_copy(n, new_parent):
     if isinstance(n, tree.Reg):
@@ -83,7 +86,7 @@ def unroll_arrays(n):
     if isinstance(n, tree.Reg):
         # Nothing to do.
         return n
-    if isinstance(n, tree.Array) and n.align == False:
+    if isinstance(n, tree.Array) and n.align is False:
         # Unroll
         return unroll_array(n)
     if isinstance(n, tree.CompositeNode):

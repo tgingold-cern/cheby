@@ -43,7 +43,6 @@ class CPrinter(tree.Visitor):
         self.cp_raw('{}{}\n'.format('  ' * self.indent, txt))
 
 
-
 @CPrinter.register(tree.Reg)
 def cprint_reg(cp, n):
     cp.cp_txt('/* [0x{:x}]: REG {} */'.format(
@@ -74,6 +73,7 @@ def cprint_array(cp, n):
     cprint_complex(cp, n)
     cp.end_struct('{}[{}]'.format(n.name, n.repeat))
 
+
 @CPrinter.register(tree.Submap)
 def cprint_submap(cp, n):
     cp.cp_txt('/* [0x{:x}]: SUBMAP {} */'.format(
@@ -88,6 +88,7 @@ def cprint_submap(cp, n):
     else:
         cp.cp_txt('struct {} {};'.format(n.c_submap.name, n.name))
         cp.submaps.append(n.c_submap)
+
 
 @CPrinter.register(tree.ComplexNode)
 def cprint_complex(cp, n):
@@ -127,8 +128,10 @@ def cprint_root(cp, n):
     cprint_composite(cp, n)
     cp.end_struct(None)
 
+
 def to_cmacro(name):
     return "__CHEBY__{}__H__".format(name.upper())
+
 
 def gen_c_cheby(fd, root):
     cp = CPrinter()

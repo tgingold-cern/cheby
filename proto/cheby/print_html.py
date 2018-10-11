@@ -1,6 +1,4 @@
-import sys
 import cheby.tree as tree
-import cheby.layout as layout
 import cheby.hdltree as hdltree
 import cheby.gen_doc as gen_doc
 from cheby.gen_wbgen_hdl import get_hdl_prefix, get_hdl_entity
@@ -193,9 +191,9 @@ def print_summary_html(periph, summary):
 <td class="td_code">{hdlprefix}</td>
 <td class="td_code">{cprefix}</td>
 </tr>\n'''.format(typ=r.typ, odd_even=odd_even[0], address=r.address,
-                      cprefix=r.name, name=r.name,
-                      periph_prefix=get_hdl_prefix(periph),
-                      hdlprefix=r.node.c_name)
+                  cprefix=r.name, name=r.name,
+                  periph_prefix=get_hdl_prefix(periph),
+                  hdlprefix=r.node.c_name)
             odd_even = [odd_even[1], odd_even[0]]
         res += '</table>\n'
         return res
@@ -208,34 +206,51 @@ def phtml_header(fd, periph):
 <TITLE>{entity}</TITLE>'''.format(entity=entity))
     wln(fd, '''<STYLE TYPE="text/css" MEDIA="all">
 
-	<!--
+<!--
   BODY  { background: white; color: black;
-  			  font-family: Arial,Helvetica; font-size:12; }
-	h1 { font-family: Trebuchet MS,Arial,Helvetica; font-size:30; color:#404040; }
-	h2 { font-family: Trebuchet MS,Arial,Helvetica; font-size:22; color:#404040; }
-	h3 { font-family: Trebuchet MS,Arial,Helvetica; font-size:16; color:#404040; }
-	.td_arrow_left { padding:0px; background: #ffffff; text-align: right; font-size:12;}
-	.td_arrow_right { padding:0px; background: #ffffff; text-align: left; font-size:12;}
-	.td_code { font-family:Courier New,Courier; padding: 3px; }
-	.td_desc { padding: 3px; }
-	.td_sym_center { background: #e0e0f0; padding: 3px; }
-	.td_port_name { font-family:Courier New,Courier; background: #e0e0f0; text-align: right; font-weight:bold;padding: 3px; width:200px; }
-	.td_pblock_left { font-family:Courier New,Courier; background: #e0e0f0; padding: 0px; text-align: left; }
-	.td_pblock_right { font-family:Courier New,Courier; background: #e0e0f0; padding: 0px; text-align: right; }
-	.td_bit { background: #ffffff; color:#404040; font-size:10; width: 70px; font-family:Courier New,Courier; padding: 3px; text-align:center; }
-	.td_field { background: #e0e0f0; padding: 3px; text-align:center; border: solid 1px black; }
-	.td_unused { background: #a0a0a0; padding: 3px; text-align:center;  }
-	th { font-weight:bold; color:#ffffff; background: #202080; padding:3px; }
-	.tr_even { background: #f0eff0; }
-	.tr_odd { background: #e0e0f0; }
-	-->
+                  font-family: Arial,Helvetica; font-size:12; }
+        h1 { font-family: Trebuchet MS,Arial,Helvetica; font-size:30;
+         color:#404040; }
+        h2 { font-family: Trebuchet MS,Arial,Helvetica; font-size:22;
+         color:#404040; }
+        h3 { font-family: Trebuchet MS,Arial,Helvetica; font-size:16;
+         color:#404040; }
+        .td_arrow_left { padding:0px; background: #ffffff; text-align: right;
+                     font-size:12;}
+        .td_arrow_right { padding:0px; background: #ffffff; text-align: left;
+                      font-size:12;}
+        .td_code { font-family:Courier New,Courier; padding: 3px; }
+        .td_desc { padding: 3px; }
+        .td_sym_center { background: #e0e0f0; padding: 3px; }
+        .td_port_name { font-family:Courier New,Courier; background: #e0e0f0;
+                    text-align: right; font-weight:bold;
+                    padding: 3px; width:200px; }
+        .td_pblock_left { font-family:Courier New,Courier; background: #e0e0f0;
+                      padding: 0px; text-align: left; }
+        .td_pblock_right { font-family:Courier New,Courier;
+                           background: #e0e0f0;
+                           padding: 0px; text-align: right; }
+        .td_bit { background: #ffffff; color:#404040;
+                  font-size:10; width: 70px;
+                  font-family:Courier New,Courier; padding: 3px;
+                  text-align:center; }
+        .td_field { background: #e0e0f0; padding: 3px; text-align:center;
+                    border: solid 1px black; }
+        .td_unused { background: #a0a0a0; padding: 3px; text-align:center;  }
+        th { font-weight:bold; color:#ffffff; background: #202080;
+             padding:3px; }
+        .tr_even { background: #f0eff0; }
+        .tr_odd { background: #e0e0f0; }
+        -->
 </STYLE>''')
     wln(fd, '''</HEAD>
 <BODY>
 <h1 class="heading">{entity}</h1>
 <h3>{description}</h3>
-<p>{comment}</p>'''.format(entity=entity, description=periph.description,
-                        comment=periph.comment.replace('\n', '<br>') if periph.comment else ''))
+<p>{comment}</p>'''.format(
+        entity=entity, description=periph.description,
+        comment=periph.comment.replace('\n', '<br>')
+            if periph.comment else ''))
 
 
 def pprint_root(fd, root):

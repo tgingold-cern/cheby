@@ -137,7 +137,7 @@ class Field(Node):
         self.hdl_sig = None
         self.access = None  # bus_dev: RO_WO, WO_RO, RW_RW or RW_RO.
         self.kind = None    # for fifo: clear_bus, full, empty, reset, count
-        self.fifo_offset = None # For fifo field: offset in the fifo data port
+        self.fifo_offset = None  # For fifo field: offset in the fifo data port
 
 
 class Ram(AnyReg):
