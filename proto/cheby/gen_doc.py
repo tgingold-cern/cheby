@@ -1,6 +1,7 @@
 import cheby.tree as tree
 import cheby.layout as layout
 
+
 class TableCell(object):
     def __init__(self, content, colspan=1, style=None):
         self.content = content

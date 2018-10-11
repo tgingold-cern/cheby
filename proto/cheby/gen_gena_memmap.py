@@ -3,8 +3,10 @@ import cheby.tree as tree
 from cheby.hdltree import (HDLPackage, HDLComment, HDLConstant,
                            HDLHexConst, HDLBinConst)
 
+
 def get_gena(n, name, default=None):
     return n.get_extension('x_gena', name, default)
+
 
 def gen_header(root, decls):
     if hasattr(root, 'x_gena'):
@@ -21,8 +23,9 @@ def gen_header(root, decls):
             decls.append(HDLComment('Memory Map Version'))
             cst = HDLConstant(cpfx + '_MemMapVersion', 32,
                               value=HDLHexConst(version, 32))
-            cst.eol_comment='{}'.format(version)
+            cst.eol_comment = '{}'.format(version)
             decls.append(cst)
+
 
 def gen_addr_cst(decls, addr, name, addr_width, block_width, word_width):
     val = HDLBinConst(addr, addr_width)
@@ -36,9 +39,10 @@ def gen_addr_cst(decls, addr, name, addr_width, block_width, word_width):
     decls.append(cst)
     return cst
 
+
 def gen_reg_addr(n, root, decls, name, pfx):
     decls.append(HDLComment('Register Addresses : {}'.format(name),
-                             nl=False))
+                            nl=False))
     word_width = ilog2(root.c_word_size)
     addr_width = ilog2(n.c_size) - word_width
 
@@ -49,11 +53,12 @@ def gen_reg_addr(n, root, decls, name, pfx):
             num = reg.c_nwords
             reg.h_gena_regaddr = []
             for i in range(num):
-                cst = gen_addr_cst(decls, addr + i,
-                    'C_Reg_{}_{}{}'.format(
+                cst = gen_addr_cst(
+                    decls, addr + i, 'C_Reg_{}_{}{}'.format(
                         pfx, reg.name, subsuffix(num - i - 1, num)),
                     addr_width, word_width, 1)
                 reg.h_gena_regaddr.insert(0, cst)
+
 
 def compute_acm(reg):
     res = get_gena(reg, 'auto-clear', 0)
@@ -64,6 +69,7 @@ def compute_acm(reg):
             res = (res & ~(mask << f.lo)) | (v << f.lo)
     return res
 
+
 def compute_preset(reg):
     res = get_gena(reg, 'preset', 0)
     for f in reg.children:
@@ -73,12 +79,14 @@ def compute_preset(reg):
             res = (res & ~(mask << f.lo)) | (v << f.lo)
     return res
 
-def subsuffix(n,num):
+
+def subsuffix(n, num):
     if num == 1:
         assert n == 0
         return ''
     else:
         return '_{}'.format(n)
+
 
 def gen_mask(decls, mask, root, reg, pfx):
     def gen_one_mask(acm, name, w, lo_idx):
@@ -92,11 +100,12 @@ def gen_mask(decls, mask, root, reg, pfx):
     rwidth = reg.c_rwidth // num
     for i in reversed(range(num)):
         r = gen_one_mask(mask >> (i * rwidth),
-                        '{}_{}{}'.format(pfx, reg.name, subsuffix(i, num)),
-                        rwidth, i * rwidth)
+                         '{}_{}{}'.format(pfx, reg.name, subsuffix(i, num)),
+                         rwidth, i * rwidth)
         decls.append(r)
         res.insert(0, r)
     return res
+
 
 def gen_reg_acm(n, root, decls, name, pfx):
     decls.append(HDLComment('Register Auto Clear Masks : {}'.format(name)))
@@ -107,6 +116,7 @@ def gen_reg_acm(n, root, decls, name, pfx):
             acm = compute_acm(e)
             e.h_gena_acm = gen_mask(decls, acm, root, e, mpfx)
 
+
 def gen_reg_psm(n, root, decls, name, pfx):
     decls.append(HDLComment('Register Preset Masks : {}'.format(name)))
     mpfx = 'C_PSM_{}'.format(pfx)
@@ -114,6 +124,7 @@ def gen_reg_psm(n, root, decls, name, pfx):
         if isinstance(e, tree.Reg):
             psm = compute_preset(e)
             e.h_gena_psm = gen_mask(decls, psm, root, e, mpfx)
+
 
 def gen_code_fields(n, root, decls):
     decls.append(HDLComment('CODE FIELDS'))
@@ -141,6 +152,7 @@ def gen_code_fields(n, root, decls):
                 gen_one_cf(codes, 'C_Code_{}_{}'.format(root.name, e.name),
                            width, 0)
 
+
 def gen_memory_data(n, root, decls, name, pfx):
     decls.append(HDLComment('Memory Data : {}'.format(name), nl=False))
     word_width = ilog2(root.c_word_size)
@@ -156,6 +168,7 @@ def gen_memory_data(n, root, decls, name, pfx):
                 decls, addr, 'C_Mem_{}_{}_End'.format(pfx, e.name),
                 addr_width, word_width, 1)
 
+
 def gen_submap_addr(n, root, decls, name, pfx):
     decls.append(HDLComment('Submap Addresses : {}'.format(name), nl=False))
     # word_width = ilog2(root.c_word_size)
@@ -164,9 +177,11 @@ def gen_submap_addr(n, root, decls, name, pfx):
             block_width = ilog2(e.c_size)
             addr_width = ilog2(n.c_size) - block_width
             addr = e.c_address >> block_width
-            cst = gen_addr_cst(decls, addr, 'C_Submap_{}_{}'.format(pfx, e.name),
+            cst = gen_addr_cst(
+                decls, addr, 'C_Submap_{}_{}'.format(pfx, e.name),
                 addr_width, block_width, 1)
             e.h_gena_area = cst
+
 
 def gen_block(n, root, decls, name, pfx):
     gen_reg_addr(n, root, decls, name, pfx)
@@ -175,6 +190,7 @@ def gen_block(n, root, decls, name, pfx):
     gen_code_fields(n, root, decls)
     gen_memory_data(n, root, decls, name, pfx)
     gen_submap_addr(n, root, decls, name, pfx)
+
 
 def gen_areas_address(areas, root, decls):
     # decls.append(HDLComment('Memory Areas.'))
@@ -186,9 +202,8 @@ def gen_areas_address(areas, root, decls):
         cst = HDLConstant(cpfx + '_' + e.name, sz, lo_idx=area_width,
                           value=HDLBinConst(e.c_address >> area_width, sz))
         e.h_gena_area = cst
-        #cst.eol_comment = '{} : Word Address : X"{:X}"; Byte Address : 0x{:x}'.format(
-        #    get_note(e), e.c_address // root.c_word_size, e.c_address)
         decls.append(cst)
+
 
 def gen_gena_memmap(root):
     res = HDLPackage()
