@@ -10,12 +10,14 @@ class ParseException(Exception):
 def error(msg):
     raise ParseException(msg)
 
+
 def isstr(s):
     "Test if s is a string (python 2 and 3)"
     try:
         return isinstance(s, basestring)
     except NameError:
         return isinstance(s, str)
+
 
 def read_text(parent, key, val):
     if isstr(val):
@@ -36,11 +38,13 @@ def read_int(parent, key, val):
         return val
     error("expect an integer for {}:{}".format(parent.get_path(), key))
 
+
 def read_address(parent, key, val):
     if val == 'next':
         return 'next'
     else:
         return read_int(parent, key, val)
+
 
 def parse_named(node, key, val):
     if key == 'name':
@@ -93,7 +97,8 @@ def parse_composite(node, key, val):
 
 def parse_field(parent, el):
     if not isinstance(el, dict):
-        error("'children' of {} must be a dictionnary".format(parent.get_path()))
+        error("'children' of {} must be a dictionnary".format(
+            parent.get_path()))
     res = tree.Field(parent)
     for k, v in el.items():
         if parse_named(res, k, v):
@@ -203,7 +208,8 @@ def parse_yaml(filename):
     if not isinstance(el, dict):
         error("open error: {}: bad format (not yaml)".format(filename))
     if 'memory-map' not in el:
-        error("open error: {}: missing 'memory-map' root node".format(filename))
+        error("open error: {}: missing 'memory-map' root node".format(
+            filename))
     if len(el) != 1:
         error("open error: {}: more than one root node".format(filename))
     el = el['memory-map']

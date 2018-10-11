@@ -4,6 +4,7 @@ import cheby.hdltree as hdltree
 
 style = None
 
+
 def w(fd, str):
     fd.write(str)
 
@@ -73,7 +74,7 @@ def generate_port(fd, p, indent):
     windent(fd, indent)
     w(fd, "{:<20} : {dir} {typ}".format(p.name, dir=dir, typ=typ))
     if p.default:
-        w(fd,' := {}'.format(generate_expr(p.default)))
+        w(fd, ' := {}'.format(generate_expr(p.default)))
 
 
 def generate_interface_port(fd, itf, dir, indent):
@@ -81,6 +82,7 @@ def generate_interface_port(fd, itf, dir, indent):
         if p.dir == dir:
             windent(fd, indent + 1)
             wln(fd, "{:<16} : {};".format(p.name, generate_vhdl_type(p)))
+
 
 def generate_interface(fd, itf, indent):
     generate_decl_comment(fd, itf.comment, indent)
@@ -345,7 +347,7 @@ def generate_stmts(fd, stmts, indent):
                     w(fd, ", ")
                 w(fd, generate_expr(e))
             if style == 'wbgen':
-                wln (fd, "  )")
+                wln(fd, "  )")
                 w(fd, sindent)
             else:
                 w(fd, ") ")
@@ -439,18 +441,20 @@ def print_inters_list(fd, lst, name, indent):
             generate_param(fd, p, indent + 1)
         elif isinstance(p, hdltree.HDLPortGroup):
             generate_decl_comment(fd, p.comment, indent + 1)
-            group_typename = '{}_{}'.format(p.interface.name,
-                'master' if p.is_master else 'slave')
+            group_typename = '{}_{}'.format(
+                p.interface.name, 'master' if p.is_master else 'slave')
             windent(fd, indent + 1)
             w(fd, "{:<20} : in    {}_in".format(p.name + '_i', group_typename))
             wln(fd, ";")
             windent(fd, indent + 1)
-            w(fd, "{:<20} : out   {}_out".format(p.name + '_o', group_typename))
+            w(fd, "{:<20} : out   {}_out".format(
+                p.name + '_o', group_typename))
         else:
             raise AssertionError
     wln(fd)
     windent(fd, indent)
     wln(fd, ");")
+
 
 def print_module(fd, module):
     if module.global_decls:
@@ -482,6 +486,7 @@ def print_module(fd, module):
     generate_stmts(fd, module.stmts, 1)
     wln(fd, "end syn;")
 
+
 def print_package(fd, n):
     generate_header(fd, n)
     wln(fd)
@@ -489,6 +494,7 @@ def print_package(fd, n):
     for d in n.decls:
         generate_decl(fd, d, 1)
     wln(fd, "end {};".format(n.name))
+
 
 def print_vhdl(fd, n):
     if isinstance(n, hdltree.HDLModule):

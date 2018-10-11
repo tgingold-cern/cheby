@@ -74,7 +74,8 @@ class HDLComponentSpec(HDLNode):
 class HDLObject(HDLNode):
     def __init__(self, name=None, size=None, lo_idx=0, typ='L'):
         super(HDLObject, self).__init__()
-        assert typ in "LUSINP"  # Logic, Unsigned, Signed, Integer, Natural, Positive
+        # Logic, Unsigned, Signed, Integer, Natural, Positive
+        assert typ in "LUSINP"
         assert size is None or isinstance(size, (int, HDLExpr))
         assert lo_idx is None or isinstance(lo_idx, int)
         self.name = name
@@ -155,6 +156,7 @@ class HDLAssign(HDLStmt):
         assert expr is not None
         self.target = target
         self.expr = expr
+
 
 class HDLInstance(HDLStmt):
     def __init__(self, name, module_name):
@@ -244,12 +246,12 @@ bit_1 = HDLBit(1)
 bit_x = HDLUndef()
 
 
-
 class HDLConstBase(HDLCst):
     def __init__(self, val, size):
         super(HDLConstBase, self).__init__()
         self.val = val
         self.size = size
+
 
 class HDLConst(HDLConstBase):
     "Deprecated - binary constant"
@@ -291,6 +293,7 @@ class HDLSlice(HDLExpr):
         self.prefix = prefix
         self.index = index
         self.size = size
+
 
 def Slice_or_Index(prefix, index, size):
     if size == 1:

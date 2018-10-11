@@ -98,20 +98,20 @@ class Reg(NamedNode):
         super(Reg, self).__init__(parent)
         self.width = None
         self.type = None
-        self.access = None    # Mandatory, always defined.
+        self.access = None      # Mandatory, always defined.
         self.address = None
         self.children = []
         self.preset = None
         # Computed (by layout)
-        self.c_size = None    # Size in bytes
-        self.c_rwidth = None  # Width of the register (can be smaller than
-                              # the width if data are partially generated or
-                              # used, like the rmw)
-        self.c_iowidth = None # Width of I/O wires
-        self.c_mwidth = None  # Width for the memory map (== self.width)
-        self.c_nwords = None  # Number of words for multi-words registers
-        self.c_align = None   # Alignment
-        self.c_type = None    # Type. None if register with fields.
+        self.c_size = None      # Size in bytes
+        self.c_rwidth = None    # Width of the register
+        # (can be smaller than the width if data are partially generated or
+        # used, like the rmw)
+        self.c_iowidth = None   # Width of I/O wires
+        self.c_mwidth = None    # Width for the memory map (== self.width)
+        self.c_nwords = None    # Number of words for multi-words registers
+        self.c_align = None     # Alignment
+        self.c_type = None      # Type. None if register with fields.
 
     def has_fields(self):
         """True if the register has one or more fields defined by the user.
@@ -128,6 +128,7 @@ class FieldBase(NamedNode):
         self.hi = None
         self.lo = None
         self.preset = None
+
 
 class Field(FieldBase):
     "A field within a register."

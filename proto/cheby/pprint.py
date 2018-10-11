@@ -78,11 +78,13 @@ def pprint_extension(pp, name, n):
     else:
         raise AssertionError(n)
 
+
 def pprint_extensions(pp, n):
     if hasattr(n, 'x_gena'):
         pprint_extension(pp, 'x_gena', n.x_gena)
     if hasattr(n, 'x_hdl'):
         pprint_extension(pp, 'x-hdl', n.x_hdl)
+
 
 def pprint_address(pp, n):
     if n.address is None:
@@ -91,6 +93,7 @@ def pprint_address(pp, n):
         pp.pp_str('address', 'next')
     else:
         pp.pp_hex('address', n.address)
+
 
 @PrettyPrinter.register(tree.NamedNode)
 def pprint_named(pp, n):
@@ -173,6 +176,7 @@ def pprint_complex_tail(pp, n):
 def pprint_composite_head(pp, n):
     pprint_named(pp, n)
 
+
 def pprint_composite_tail(pp, n):
     pprint_extensions(pp, n)
     if n.children:
@@ -180,6 +184,7 @@ def pprint_composite_tail(pp, n):
         for el in n.children:
             pp.visit(el)
         pp.pp_endlist()
+
 
 @PrettyPrinter.register(tree.Root)
 def pprint_root(pp, n):
