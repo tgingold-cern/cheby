@@ -2,6 +2,7 @@ import sys
 import cheby.tree as tree
 import cheby.layout as layout
 import cheby.hdltree as hdltree
+import cheby.gen_doc as gen_doc
 from cheby.gen_wbgen_hdl import get_hdl_prefix, get_hdl_entity
 
 
@@ -112,14 +113,6 @@ def print_symbol(periph):
     return res + print_symbol_table(left, right)
 
 
-class SummaryRaw(object):
-    def __init__(self, address, typ, name, node):
-        self.address = address
-        self.typ = typ
-        self.name = name
-        self.node = node
-
-
 def print_regdescr_reg(periph, raw, num):
     r = raw.node
     res = '''<a name="{name}"></a>
@@ -142,44 +135,16 @@ def print_regdescr_reg(periph, raw, num):
 '''.format(desc=r.description.replace('\n', '<br>'))
 
     # Drawing of the register, with bits.
-    for i in range(r.c_size * 8 - 8, -1, -8):
-        # One line per byte
-        res += '<table cellpadding=0 cellspacing=0 border=0>\n'
+    res += '<table cellpadding=0 cellspacing=0 border=0>\n'
+    descr = gen_doc.build_regdescr_table(r)
+    for desc_raw in descr:
         res += '<tr>\n'
-        for j in range(7, -1, -1):
-            res += '<td class="td_bit">\n{}\n</td>\n'.format(i + j)
-        res += '</tr>\n<tr>\n'
-        j = 7
-        totcol = 0
-        while j >= 0:
-            # Find the field corresponding to the bit.
-            field = None
-            for f in r.children:
-                if (f.hi is not None and f.hi >= i + j >= f.lo) \
-                  or (f.hi is None and f.lo == i + j):
-                    field = f
-                    break
-            totcol += 1
-            if field is None:
-                res += '<td class="td_unused">\n-\n</td>\n'
-                j -= 1
-            else:
-                # Range of the field
-                if f.hi is None:
-                    h = 0
-                else:
-                    h = min(f.hi - f.lo, i + j - f.lo)
-                l = max(0, i - f.lo)
-                length = h - l + 1
-                res += '<td style="border: solid 1px black;" colspan={}  class="td_field">\n'.format(length)
-                res += f.name or r.name
-                if f.hi is not None:
-                    res += "[{}:{}]".format(h, l)
-                j -= length
-                res += '\n</td>\n'
-        for k in range(8 - totcol):
-            res += "<td >\n\n</td>\n"
-        res += '</tr>\n</table>\n'
+        for col in desc_raw:
+            res += ' <td class="td_{}" colspan="{}">{}</td>\n'.format(
+                col.style, col.colspan, col.content)
+        res += '</tr>\n'
+    res += '</table>\n'
+
     res += '<ul>\n'
     for f in r.children:
         res += '<li><b>\n'
@@ -206,61 +171,8 @@ def print_regdescr(periph, raws):
     res += '\n'
     return res
 
-def gen_memmap_summary_sub(root, name_pfx="", addr_pfx=""):
-    "Return a list of SummaryRaw"
-    raws = []
-    for n in root.c_sorted_children:
-        rng = addr_pfx + '0x{:x}-0x{:x}'.format(n.c_abs_addr, n.c_abs_addr + n.c_size - 1)
-        name = name_pfx + n.name
-        if isinstance(n, tree.Reg):
-            rng = addr_pfx + '0x{:x}'.format(n.c_abs_addr)
-            raws.append(SummaryRaw(rng, 'REG', name, n))
-        elif isinstance(n, tree.Block):
-            raws.append(SummaryRaw(rng, 'BLOCK', name, n))
-            raws.extend(gen_memmap_summary(n, name + '.', addr_pfx))
-        elif isinstance(n, tree.Submap):
-            raws.append(SummaryRaw(rng, 'SUBMAP', name, n))
-            if n.filename is not None:
-                raws.extend(gen_memmap_summary(n.c_submap, name + '.', addr_pfx))
-        elif isinstance(n, tree.Array):
-            raws.append(SummaryRaw(rng, 'ARRAY', name, n))
-            raws.extend(gen_memmap_summary(n, name + '.', addr_pfx + ' +'))
-        else:
-            assert False, "html: unhandled tree node {}".format(n)
-    return raws
 
-
-class MemmapSummary(object):
-    def __init__(self, root):
-        self.root = root
-        self.ndigits = (layout.ilog2(root.c_size) + 3) // 4
-        self.raws = []
-        self.gen_raws(root, '', '')
-
-    def gen_raws(self, parent, name_pfx, addr_pfx):
-        "Fill raws (list of SummaryRaw)"
-        for n in parent.c_sorted_children:
-            rng = addr_pfx + '0x{:0{w}x}-0x{:0{w}x}'.format(
-                n.c_abs_addr, n.c_abs_addr + n.c_size - 1, w=self.ndigits)
-            name = name_pfx + n.name
-            if isinstance(n, tree.Reg):
-                rng = addr_pfx + '0x{:0{w}x}'.format(
-                    n.c_abs_addr, w=self.ndigits)
-                self.raws.append(SummaryRaw(rng, 'REG', name, n))
-            elif isinstance(n, tree.Block):
-                self.raws.append(SummaryRaw(rng, 'BLOCK', name, n))
-                self.gen_raws(n, name + '.', addr_pfx)
-            elif isinstance(n, tree.Submap):
-                self.raws.append(SummaryRaw(rng, 'SUBMAP', name, n))
-                if n.filename is not None:
-                    self.gen_raws(n.c_submap, name + '.', addr_pfx)
-            elif isinstance(n, tree.Array):
-                self.raws.append(SummaryRaw(rng, 'ARRAY', name, n))
-                self.gen_raws(n, name + '.', addr_pfx + ' +')
-            else:
-                assert False, "MemmapSummary: unhandled tree node {}".format(n)
-
-    def print_html(self):
+def print_summary_html(periph, summary):
         "HTML formatter for memmap_summary"
         res = '<h3><a name="sect_1_0">1. Memory map summary</a></h3>\n'
         res += '''<table cellpadding=2 cellspacing=0 border=0>
@@ -273,7 +185,7 @@ class MemmapSummary(object):
 </tr>
 '''
         odd_even = ['odd', 'even']
-        for r in self.raws:
+        for r in summary.raws:
             res += '''<tr class="tr_{odd_even}">
 <td class="td_code">{address}</td>
 <td>{typ}</td>
@@ -282,7 +194,7 @@ class MemmapSummary(object):
 <td class="td_code">{cprefix}</td>
 </tr>\n'''.format(typ=r.typ, odd_even=odd_even[0], address=r.address,
                       cprefix=r.name, name=r.name,
-                      periph_prefix=get_hdl_prefix(self.root),
+                      periph_prefix=get_hdl_prefix(periph),
                       hdlprefix=r.node.c_name)
             odd_even = [odd_even[1], odd_even[0]]
         res += '</table>\n'
@@ -311,7 +223,7 @@ def phtml_header(fd, periph):
 	.td_pblock_left { font-family:Courier New,Courier; background: #e0e0f0; padding: 0px; text-align: left; }
 	.td_pblock_right { font-family:Courier New,Courier; background: #e0e0f0; padding: 0px; text-align: right; }
 	.td_bit { background: #ffffff; color:#404040; font-size:10; width: 70px; font-family:Courier New,Courier; padding: 3px; text-align:center; }
-	.td_field { background: #e0e0f0; padding: 3px; text-align:center; }
+	.td_field { background: #e0e0f0; padding: 3px; text-align:center; border: solid 1px black; }
 	.td_unused { background: #a0a0a0; padding: 3px; text-align:center;  }
 	th { font-weight:bold; color:#ffffff; background: #202080; padding:3px; }
 	.tr_even { background: #f0eff0; }
@@ -328,8 +240,8 @@ def phtml_header(fd, periph):
 
 def pprint_root(fd, root):
     phtml_header(fd, root)
-    summary = MemmapSummary(root)
-    memmap_summary = summary.print_html()
+    summary = gen_doc.MemmapSummary(root)
+    memmap_summary = print_summary_html(root, summary)
     # Sect1: Memory map summary
     w(fd, memmap_summary)
     if False:

@@ -19,6 +19,7 @@ import cheby.gen_gena_memmap as gen_gena_memmap
 import cheby.gen_gena_regctrl as gen_gena_regctrl
 import cheby.gen_wbgen_hdl as gen_wbgen_hdl
 import cheby.print_html as print_html
+import cheby.print_markdown as print_markdown
 
 
 def decode_args():
@@ -49,8 +50,10 @@ def decode_args():
                          help='generate Gena RegCtrl file')
     aparser.add_argument('--gen-wbgen-hdl', nargs='?', const='-',
                          help='generate wbgen hdl')
+    aparser.add_argument('--doc', choices=['html', 'md'], default='html',
+                         help='select language for doc generation')
     aparser.add_argument('--gen-doc', nargs='?', const='-',
-                         help='generate documentation (html)')
+                         help='generate documentation')
     aparser.add_argument('--input', '-i', required=True,
                          help='input file')
 
@@ -128,7 +131,12 @@ def handle_file(args, filename):
     gen_name.gen_name_root(t)
     if args.gen_doc is not None:
         with open_filename(args.gen_doc) as f:
-            print_html.pprint(f, t)
+            if args.doc == 'html':
+                print_html.pprint(f, t)
+            elif args.doc == 'md':
+                print_markdown.print_markdown(f, t)
+            else:
+                raise AssertionError('unknown doc format {}'.format(args.doc))
     if args.gen_wbgen_hdl is not None:
         h = gen_wbgen_hdl.expand_hdl(t)
         with open_filename(args.gen_wbgen_hdl) as f:
