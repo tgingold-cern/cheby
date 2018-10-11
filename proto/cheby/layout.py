@@ -63,8 +63,8 @@ class Layout(tree.Visitor):
             self.address = align(self.address, n.c_align)
         else:
             if (n.address % n.c_align) != 0:
-                raise LayoutException(n,
-                    "unaligned address for {}".format(n.get_path()))
+                raise LayoutException(
+                    n, "unaligned address for {}".format(n.get_path()))
             self.address = n.address
         n.c_address = self.address
         self.address += n.c_size
@@ -78,16 +78,16 @@ class LayoutException(Exception):
 
 def layout_named(n):
     if n.name is None:
-        raise LayoutException(n,
-            "missing name for {}".format(n.get_path()))
+        raise LayoutException(
+            n, "missing name for {}".format(n.get_path()))
 
 
 def layout_field(f, parent, pos):
     layout_named(f)
     # Check range is present
     if f.lo is None:
-        raise LayoutException(f,
-            "missing range for field {}".format(f.get_path()))
+        raise LayoutException(
+            f, "missing range for field {}".format(f.get_path()))
     # Compute width
     if f.hi is None:
         r = [f.lo]
@@ -95,32 +95,34 @@ def layout_field(f, parent, pos):
         f.c_iowidth = 1
     else:
         if f.hi < f.lo:
-            raise LayoutException(f,
-                "incorrect range for field {}".format(f.get_path()))
+            raise LayoutException(
+                f, "incorrect range for field {}".format(f.get_path()))
         elif f.hi == f.lo:
-            raise LayoutException(f,
-                "one-bit range for field {}".format(f.get_path()))
+            raise LayoutException(
+                f, "one-bit range for field {}".format(f.get_path()))
         r = range(f.lo, f.hi + 1)
         f.c_rwidth = f.hi - f.lo + 1
         f.c_iowidth = f.c_rwidth
     # Check for overlap
     if r[-1] >= parent.width:
-        raise LayoutException(f,
-            "field {} width overflows its register size".format(f.get_path()))
+        raise LayoutException(
+            f, "field {} width overflows its register size".format(
+                f.get_path()))
     elif r[-1] >= parent.c_rwidth:
-        raise LayoutException(f,
-            "field {} extends beyond register storage size".format(f.get_path()))
+        raise LayoutException(
+            f, "field {} extends beyond register storage size".format(
+                f.get_path()))
     for i in r:
         if pos[i] is None:
             pos[i] = f
         else:
-            raise LayoutException(f,
-                "field {} overlaps field {} in bit {}".format(
+            raise LayoutException(
+                f, "field {} overlaps field {} in bit {}".format(
                     f.get_path(), pos[i].get_path(), i))
     # Check preset
     if f.preset is not None and f.preset >= (1 << f.c_rwidth):
-        raise LayoutException(f,
-            "incorrect preset value for field {}".format(f.get_path()))
+        raise LayoutException(
+            f, "incorrect preset value for field {}".format(f.get_path()))
 
 
 @Layout.register(tree.Reg)
@@ -129,19 +131,19 @@ def layout_reg(lo, n):
     # Maybe infer width from fields ?
     # Maybe have a default ?
     if n.width is None:
-        raise LayoutException(n,
-            "missing width for register {}".format(n.get_path()))
+        raise LayoutException(
+            n, "missing width for register {}".format(n.get_path()))
     elif n.width not in [8, 16, 32, 64]:
-        raise LayoutException(n,
-            "incorrect width for register {}".format(n.get_path()))
+        raise LayoutException(
+            n, "incorrect width for register {}".format(n.get_path()))
     layout_named(n)
     # Check access
     if n.access is None:
-        raise LayoutException(n,
-            "missing access for register {}".format(n.get_path()))
+        raise LayoutException(
+            n, "missing access for register {}".format(n.get_path()))
     if n.access is not None and n.access not in ['ro', 'rw', 'wo', 'cst']:
-        raise LayoutException(n,
-            "incorrect access for register {}".format(n.get_path()))
+        raise LayoutException(
+            n, "incorrect access for register {}".format(n.get_path()))
     n.c_size = n.width // tree.BYTE_SIZE
     word_bits = lo.word_size * tree.BYTE_SIZE
     n.c_nwords = (n.width + word_bits - 1) // word_bits
@@ -149,26 +151,26 @@ def layout_reg(lo, n):
     resize = get_gena_gen(n, 'resize')
     if get_gena_gen(n, 'srff'):
         if n.access != 'ro':
-            raise LayoutException(n,
-                "'gen=srff' only for 'access=ro' in register {}".format(
+            raise LayoutException(
+                n, "'gen=srff' only for 'access=ro' in register {}".format(
                     n.get_path()))
         if gena_type is not None:
-            raise LayoutException(n,
-                "'gen=srff' incompatible with 'type=' in register {}".format(
+            raise LayoutException(
+                n, "'gen=srff' incompatible with 'type=' in reg {}".format(
                     n.get_path()))
         if n.width < word_bits:
-            raise LayoutException(n,
-                "width cannot be smaller than word width for srff {}".format(
+            raise LayoutException(
+                n, "width cannot be smaller than a word for srff {}".format(
                     n.get_path()))
     if get_gena_gen(n, 'bus-out'):
         if n.access != 'ro':
-            raise LayoutException(n,
-                "'gen=bus-out' only for 'access=ro' in register {}".format(
+            raise LayoutException(
+                n, "'gen=bus-out' only for 'access=ro' in register {}".format(
                     n.get_path()))
     if gena_type == 'rmw':
         if resize is not None and resize != (n.width // 2):
-            raise LayoutException(n,
-                "gen.resize incompatible with type=rmw for {}".format(
+            raise LayoutException(
+                n, "gen.resize incompatible with type=rmw for {}".format(
                     n.get_path()))
         # RMW registers uses the top half part to mask bits.
         n.c_rwidth = n.width // 2
@@ -182,21 +184,23 @@ def layout_reg(lo, n):
         else:
             n.c_iowidth = resize
     if lo.align_reg:
-        # A register is aligned at least on a word and always naturally aligned.
+        # A register is aligned at least on a word and always naturally
+        # aligned.
         n.c_align = align(n.c_size, lo.word_size)
     else:
         n.c_align = lo.word_size
     names = set()
     if n.children:
         if n.type is not None:
-            raise LayoutException(n,
-                "register {} with both a type and fields".format(n.get_path()))
+            raise LayoutException(
+                n, "register {} with both a type and fields".format(
+                    n.get_path()))
         n.c_type = None
         pos = [None] * n.width
         for f in n.children:
             if f.name in names:
-                raise LayoutException(f,
-                    "field '{}' reuse a name in reg {}".format(
+                raise LayoutException(
+                    f, "field '{}' reuse a name in reg {}".format(
                         f.name, n.get_path()))
             names.add(f.name)
             layout_field(f, n, pos)
@@ -220,12 +224,12 @@ def layout_reg(lo, n):
         elif n.type == 'float':
             n.c_type = n.type
             if n.width not in [32, 64]:
-                raise LayoutException(n,
-                    "incorrect width for float register {}".format(
+                raise LayoutException(
+                    n, "incorrect width for float register {}".format(
                         n.get_path()))
         else:
-            raise LayoutException(n,
-                "incorrect type for register {}".format(n.get_path()))
+            raise LayoutException(
+                n, "incorrect type for register {}".format(n.get_path()))
 
 
 def compute_submap_absolute_filename(sm):
@@ -236,6 +240,7 @@ def compute_submap_absolute_filename(sm):
     if not os.path.isabs(filename):
         filename = os.path.join(os.path.dirname(root.c_filename), filename)
     return filename
+
 
 def load_submap(blk):
     sys.stderr.write('Loading {}...\n'.format(blk.filename))
@@ -251,21 +256,22 @@ def align_block(lo, n):
         n.c_size = round_pow2(n.c_size)
         n.c_align = round_pow2(n.c_size)
 
+
 @Layout.register(tree.Submap)
 def layout_submap(lo, n):
     if n.filename is None:
         if n.size is None:
-            raise LayoutException(n,
-                "no size in submap '{}'".format(n.get_path()))
+            raise LayoutException(
+                n, "no size in submap '{}'".format(n.get_path()))
         if n.interface is None:
-            raise LayoutException(n,
-                "no interface for generic submap '{}'".format(n.get_path()))
+            raise LayoutException(
+                n, "no interface for generic submap '{}'".format(n.get_path()))
         n.c_size = n.size
         n.c_interface = n.interface
     else:
         if n.size is not None:
-            raise LayoutException(n,
-                "size given for submap '{}'".format(n.get_path()))
+            raise LayoutException(
+                n, "size given for submap '{}'".format(n.get_path()))
         submap = load_submap(n)
         layout_cheby_memmap(submap)
         n.c_submap = submap
@@ -275,19 +281,20 @@ def layout_submap(lo, n):
         elif n.interface == 'include':
             pass
         else:
-            raise LayoutException(n,
-                "interface override is not allowed for submap '{}'".format(
+            raise LayoutException(
+                n, "interface override is not allowed for submap '{}'".format(
                     n.get_path()))
     n.c_addr_bits = ilog2(n.c_size) - lo.root.c_addr_word_bits
     align_block(lo, n)
+
 
 @Layout.register(tree.Block)
 def layout_block(lo, n):
     if n.children:
         layout_composite(lo, n)
     elif n.size is None:
-        raise LayoutException(n,
-            "no size in block '{}'".format(n.get_path()))
+        raise LayoutException(
+            n, "no size in block '{}'".format(n.get_path()))
     else:
         n.c_size = n.size
     align_block(lo, n)
@@ -297,11 +304,11 @@ def layout_block(lo, n):
 def layout_array(lo, n):
     # Sanity check
     if len(n.children) != 1:
-        raise LayoutException(n,
-            "array '{}' must have one element".format(n.get_path()))
+        raise LayoutException(
+            n, "array '{}' must have one element".format(n.get_path()))
     if n.repeat is None:
-        raise LayoutException(n,
-            "missing repeat count for {}".format(n.get_path()))
+        raise LayoutException(
+            n, "missing repeat count for {}".format(n.get_path()))
     layout_composite(lo, n)
     n.c_elsize = align(n.c_size, n.c_align)
     if n.align is None or n.align:
@@ -329,8 +336,8 @@ def layout_composite(lo, n):
     names = set()
     for c in n.children:
         if c.name in names:
-            raise LayoutException(c,
-                "child {} reuse name '{}'".format(c.get_path(), c.name))
+            raise LayoutException(
+                c, "child {} reuse name '{}'".format(c.get_path(), c.name))
         names.add(c.name)
 
     # Compute size and alignment of children.
@@ -353,8 +360,8 @@ def layout_composite(lo, n):
             for c in n.children:
                 print('0x{:08x} - 0x{:08x}: {}'.format(
                     c.c_address, c.c_address + c.c_size, c.name))
-            raise LayoutException(n,
-                "size of {} is too small (need {}, get {})".format(
+            raise LayoutException(
+                n, "size of {} is too small (need {}, get {})".format(
                     n.get_path(), n.c_size, n.size))
         n.c_size = n.size
     if has_aligned:
@@ -370,8 +377,8 @@ def layout_composite(lo, n):
     last_node = None
     for c in n.c_sorted_children:
         if c.c_address < last_addr:
-            raise LayoutException(c,
-                "element {} overlap {}".format(
+            raise LayoutException(
+                c, "element {} overlap {}".format(
                     c.get_path(), last_node.get_path()))
         last_addr = c.c_address + c.c_size
         last_node = c
@@ -413,7 +420,8 @@ def layout_cheby_memmap(root):
         elif params[0] == '8':
             root.c_word_size = 1
         else:
-            raise LayoutException(root, "unknown bus size '{}'".format(root.bus))
+            raise LayoutException(
+                root, "unknown bus size '{}'".format(root.bus))
         flag_align_reg = False
     else:
         raise LayoutException(root, "unknown bus '{}'".format(root.bus))

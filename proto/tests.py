@@ -22,6 +22,7 @@ import cheby.gen_wbgen_hdl as gen_wbgen_hdl
 srcdir = '../testfiles/'
 verbose = False
 
+
 class TestError(Exception):
     def __init__(self, msg):
         self.msg = msg
@@ -39,6 +40,7 @@ class write_null(object):
     """A class that could be used as a very simple write-only stream"""
     def write(self, str):
         pass
+
 
 class write_buffer(object):
     """A class that could be used as a very simple write stream"""
@@ -186,12 +188,12 @@ def test_self():
             ok = True
         if not ok:
             error("self-test error for {}".format(func_name))
-    test((lambda : parse_ok(srcdir + 'error1.yaml')), "parse_ok")
-    test((lambda : parse_err(srcdir + 'simple_reg1.yaml')), "parse_err")
+    test((lambda: parse_ok(srcdir + 'error1.yaml')), "parse_ok")
+    test((lambda: parse_err(srcdir + 'simple_reg1.yaml')), "parse_err")
     t = parse_ok(srcdir + 'err_bus_name.yaml')
-    test((lambda : layout_ok(t)), "layout_ok")
+    test((lambda: layout_ok(t)), "layout_ok")
     t = parse_ok(srcdir + 'demo.yaml')
-    test((lambda : layout_err(t)), "layout_err")
+    test((lambda: layout_err(t)), "layout_err")
 
 
 def compare_buffer_and_file(buf, filename):
@@ -215,23 +217,24 @@ def compare_buffer_and_file(buf, filename):
 
 
 def test_gena():
-    files=['CRegs', 'CRegs_Regs', 'CRegs_NoRMW', 'CRegs_Regs_NoRMW',
-           'Regs', 'Regs_Mems', 'Regs_rdstrobe', 'Regs_nodff',
-           'Regs_cross_words', 'Regs_small',
-           'sub_reg_swap', 'sub_reg_one', 'sub_reg_preset', 'sub_reg_preset2',
-           'Mems', 'Mems2', 'Mems_RO', 'Mems_WO',
-           'Mems_nodff', 'Mems_splitaddr',
-           'CRegs_Mems', 'CRegs_Regs_Mems',
-           'Area_CRegs_Regs_Mems', 'Area_CRegs_Regs_Mems_EmptyRoot',
-           'Area_Mems', 'Area_extarea', 'Area_extarea_error',
-           'Area_reserved',
-           'CRegs_wrstrobe', 'CRegs_srff', 'CRegs_resize', 'CRegs_nosplit',
-           'CRegs_busout', 'CRegs_extcreg', 'CRegs_extacm',
-           'CRegs_nodff', 'CRegs_splitaddr', 'CRegs_library',
-           'CRegs_resize_nosplit', 'CRegs_ignore', 'CRegs_Preset',
-           'CRegs_Address', 'CRegs_resize_signed', 'CRegs_d8',
-           'Submap', 'Submap_internal',
-           'Muxed', 'Muxed2']
+    files = ['CRegs', 'CRegs_Regs', 'CRegs_NoRMW', 'CRegs_Regs_NoRMW',
+             'Regs', 'Regs_Mems', 'Regs_rdstrobe', 'Regs_nodff',
+             'Regs_cross_words', 'Regs_small',
+             'sub_reg_swap', 'sub_reg_one', 'sub_reg_preset',
+             'sub_reg_preset2',
+             'Mems', 'Mems2', 'Mems_RO', 'Mems_WO',
+             'Mems_nodff', 'Mems_splitaddr',
+             'CRegs_Mems', 'CRegs_Regs_Mems',
+             'Area_CRegs_Regs_Mems', 'Area_CRegs_Regs_Mems_EmptyRoot',
+             'Area_Mems', 'Area_extarea', 'Area_extarea_error',
+             'Area_reserved',
+             'CRegs_wrstrobe', 'CRegs_srff', 'CRegs_resize', 'CRegs_nosplit',
+             'CRegs_busout', 'CRegs_extcreg', 'CRegs_extacm',
+             'CRegs_nodff', 'CRegs_splitaddr', 'CRegs_library',
+             'CRegs_resize_nosplit', 'CRegs_ignore', 'CRegs_Preset',
+             'CRegs_Address', 'CRegs_resize_signed', 'CRegs_d8',
+             'Submap', 'Submap_internal',
+             'Muxed', 'Muxed2']
     for f in files:
         if verbose:
             print('test gena: {}'.format(f))
@@ -239,7 +242,7 @@ def test_gena():
         xmlfile = srcdir + 'gena/' + f + '.xml'
         chebfile = srcdir + 'gena/' + f + '.cheby'
         t = gena2cheby.convert(xmlfile)
-        buf = write_buffer ()
+        buf = write_buffer()
         pprint.pprint_cheby(buf, t)
         if not compare_buffer_and_file(buf, chebfile):
             error('gena2cheby conversion error for {}'.format(f))
@@ -261,8 +264,9 @@ def test_gena():
         if not compare_buffer_and_file(buf, regctrlfile):
             error('gena regctrl generation error for {}'.format(f))
 
+
 def test_gena_regctrl_err():
-    files=['Muxed_name', 'Muxed_code']
+    files = ['Muxed_name', 'Muxed_code']
     for f in files:
         if verbose:
             print('test gena regctrl err: {}'.format(f))
@@ -270,7 +274,7 @@ def test_gena_regctrl_err():
         xmlfile = srcdir + 'err_gena/' + f + '.xml'
         chebfile = srcdir + 'err_gena/' + f + '.cheby'
         t = gena2cheby.convert(xmlfile)
-        buf = write_buffer ()
+        buf = write_buffer()
         pprint.pprint_cheby(buf, t)
         if not compare_buffer_and_file(buf, chebfile):
             error('gena2cheby conversion error for {}'.format(f))
@@ -286,13 +290,14 @@ def test_gena_regctrl_err():
         except gen_gena_regctrl.GenHDLException as e:
             assert(str(e) != '')
 
+
 def test_gena2cheby():
-    files=['const_value', 'fesa_class_prop', 'root_attr', 'root_gen_include',
-           'submap_desc', 'comment', 'area_attrs', 'memory_gen',
-           'err_memory_width', 'memory_buffer', 'memory_bit_field',
-           'regs_gen',
-           'sub_reg_gen', 'sub_reg_gen_ignore',
-           'bit_field_gen']
+    files = ['const_value', 'fesa_class_prop', 'root_attr', 'root_gen_include',
+             'submap_desc', 'comment', 'area_attrs', 'memory_gen',
+             'err_memory_width', 'memory_buffer', 'memory_bit_field',
+             'regs_gen',
+             'sub_reg_gen', 'sub_reg_gen_ignore',
+             'bit_field_gen']
     for f in files:
         if verbose:
             print('test gena2cheby: {}'.format(f))
@@ -300,20 +305,21 @@ def test_gena2cheby():
         xmlfile = srcdir + 'gena2cheby/' + f + '.xml'
         gena2cheby.convert(xmlfile)
 
+
 def test_gena2cheby_err():
-    files=['err_memmap_acc_mode', 'err_root_attr', 'err_root_gen',
-           'err_root_element', 'err_submap_child', 'err_submap_gen',
-           'err_submap_attr', 'err_submap_include', 'err_comment',
-           'err_area_attrs', 'err_area_gen',
-           'err_memory_gen', 'err_memory_attr', 'err_memory_child',
-           'err_memory_channel_attrs', 'err_memory_channel_child',
-           'err_memory_buffer_child', 'err_memory_buffer_attrs',
-           'err_memory_bit_field_attrs', 'err_memory_bit_field_child',
-           'err_regs_gen', 'err_regs_attrs', 'err_regs_child',
-           'err_regs_bit_encoding',
-           'err_sub_reg_gen', 'err_sub_reg_attrs', 'err_sub_reg_child',
-           'err_bit_field_gen', 'err_bit_field_attrs', 'err_bit_field_child',
-           'err_bit_field_preset']
+    files = ['err_memmap_acc_mode', 'err_root_attr', 'err_root_gen',
+             'err_root_element', 'err_submap_child', 'err_submap_gen',
+             'err_submap_attr', 'err_submap_include', 'err_comment',
+             'err_area_attrs', 'err_area_gen',
+             'err_memory_gen', 'err_memory_attr', 'err_memory_child',
+             'err_memory_channel_attrs', 'err_memory_channel_child',
+             'err_memory_buffer_child', 'err_memory_buffer_attrs',
+             'err_memory_bit_field_attrs', 'err_memory_bit_field_child',
+             'err_regs_gen', 'err_regs_attrs', 'err_regs_child',
+             'err_regs_bit_encoding',
+             'err_sub_reg_gen', 'err_sub_reg_attrs', 'err_sub_reg_child',
+             'err_bit_field_gen', 'err_bit_field_attrs', 'err_bit_field_child',
+             'err_bit_field_preset']
     for f in files:
         if verbose:
             print('test gena2cheby err: {}'.format(f))
@@ -331,24 +337,25 @@ def test_gena2cheby_err():
         except gena2cheby.UnknownTag:
             pass
 
+
 def test_wbgen2cheby():
-    files=['reg1', 'reg_field1', 'reg_in', 'reg_noprefix',
-           'reg_unsigned', 'reg_signed',
-           'reg_loadext', 'reg_ackread',
-           'reg_rwrw_async', 'reg_rowo_async', 'reg_rwro_async',
-           'reg_bit_rowo_async', 'reg_bit_rwro_async', 'reg_bit_rwrw_async',
-           'reg_passthrough', 'reg_passthrough_async',
-           'reg_monostable', 'reg_monostable_async', 'reg_monostable_pad',
-           'reg_constant', 'reg_constant_bit',
-           'fifo1', 'fifo2', 'fifo3', 'fifo_async', 'fifo_optional',
-           'fifo_bclr', 'fifo_bus_count', 'fifo_bus_empty',
-           'fifo_dev_empty', 'fifo_dev_count',
-           'ram1', 'ram2', 'ram3',
-           'ram_reg', 'ram_reg2',
-           'ram_rw', 'ram_rw_bs', 'ram_pad', 'ram_async',
-           'irq1', 'irq_ack', 'irq_mask',
-           'description', 'comment1', 'comment_block',
-           'wb_freq_multi_count_cst']
+    files = ['reg1', 'reg_field1', 'reg_in', 'reg_noprefix',
+             'reg_unsigned', 'reg_signed',
+             'reg_loadext', 'reg_ackread',
+             'reg_rwrw_async', 'reg_rowo_async', 'reg_rwro_async',
+             'reg_bit_rowo_async', 'reg_bit_rwro_async', 'reg_bit_rwrw_async',
+             'reg_passthrough', 'reg_passthrough_async',
+             'reg_monostable', 'reg_monostable_async', 'reg_monostable_pad',
+             'reg_constant', 'reg_constant_bit',
+             'fifo1', 'fifo2', 'fifo3', 'fifo_async', 'fifo_optional',
+             'fifo_bclr', 'fifo_bus_count', 'fifo_bus_empty',
+             'fifo_dev_empty', 'fifo_dev_count',
+             'ram1', 'ram2', 'ram3',
+             'ram_reg', 'ram_reg2',
+             'ram_rw', 'ram_rw_bs', 'ram_pad', 'ram_async',
+             'irq1', 'irq_ack', 'irq_mask',
+             'description', 'comment1', 'comment_block',
+             'wb_freq_multi_count_cst']
     print_vhdl.style = 'wbgen'
     for f in files:
         if verbose:
@@ -356,7 +363,7 @@ def test_wbgen2cheby():
         # Test Gena to Cheby conversion
         wbfile = srcdir + 'wbgen/' + f + '.wb'
         chebfile = srcdir + 'wbgen/' + f + '.cheby'
-        buf = write_buffer ()
+        buf = write_buffer()
         wbgen2cheby.convert(buf, wbfile)
         if not compare_buffer_and_file(buf, chebfile):
             error('wbgen2cheby conversion error for {}'.format(f))
@@ -395,6 +402,7 @@ def main():
     except TestError as e:
         werr(e.msg)
         sys.exit(2)
+
 
 if __name__ == '__main__':
     main()
