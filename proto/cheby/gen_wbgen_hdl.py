@@ -15,30 +15,40 @@ from cheby.layout import ilog2
 
 mode_suffix_map = {'IN': '_i', 'OUT': '_o'}
 
+
 def get_wbgen(n, name, default=None):
     return n.get_extension('x_wbgen', name, default)
+
 
 def get_hdl_entity(root):
     assert isinstance(root, tree.Root)
     return get_wbgen(root, 'hdl_entity', root.name)
 
+
 def get_hdl_prefix(n):
-    return get_wbgen(n, 'hdl_prefix', n.name.lower() if n.name is not None else None)
+    return get_wbgen(
+        n, 'hdl_prefix', n.name.lower() if n.name is not None else None)
+
 
 def is_wbgen_fifo(n):
     return get_wbgen(n, 'kind', None) == 'fifo'
 
+
 def is_wbgen_fifocs(n):
     return isinstance(n, tree.Reg) and get_wbgen(n, 'kind', None) == 'fifocs'
+
 
 def is_wbgen_fiforeg(n):
     return isinstance(n, tree.Reg) and is_wbgen_fifo(n._parent)
 
+
 def is_wbgen_ram(n):
     return get_wbgen(n, 'kind', None) == 'ram'
 
+
 def is_wbgen_irq(n):
     return get_wbgen(n, 'kind', None) == 'irq'
+
 
 def is_wbgen_irqreg(n):
     return isinstance(n, tree.Reg) and is_wbgen_irq(n._parent)
@@ -95,6 +105,7 @@ def gen_async_pulse(clk, rst, out, inp, sync0, sync1, sync2):
     res.sync_stmts.append(HDLAssign(out,
                                     HDLAnd(sync2, HDLParen(HDLNot(sync1)))))
     return res
+
 
 def gen_sync_pulse(clk, rst, out, inp, dly):
     res = hdltree.HDLSync(clk, rst)
@@ -295,7 +306,8 @@ def expand_fiforeg(periph, reg, isig, bus):
 
         targ = Slice_or_Index(fifo.hdl_int, f.h_fifo_offset, f.c_rwidth)
         if direction == 'BUS_TO_CORE':
-            wr_stmts.append(HDLAssign(targ, expand_field_sel(isig['wrdata'], f)))
+            wr_stmts.append(HDLAssign(targ,
+                                      expand_field_sel(isig['wrdata'], f)))
             if f.h_fifo_offset + f.c_rwidth == fifo.hdl_int.size:
                 # FIFO write request at the last address.
                 wr_stmts.append(HDLAssign(fifo.req_int, bit_1))
@@ -342,7 +354,7 @@ def expand_fifocsreg(f, r, name, isig, bus):
 
 
 def expand_monostable(f, reg, name, isig, bus):
-    #assert f.access in ['WO_RO', 'RW_RO']
+    # assert f.access in ['WO_RO', 'RW_RO']
     assert f.c_rwidth == 1
     g = Code()
     hdl_port = HDLPort(name + '_o', dir='OUT')
@@ -789,7 +801,8 @@ def expand_irqs(root, module, bus, isig):
                 Slice_or_Index(rd, 0, nbr_irqs)))
         if int_sig:
             g.asgn_code.append(HDLComment(
-                "extra code for reg/fifo/mem: {}".format(r.description), False))
+                "extra code for reg/fifo/mem: {}".format(r.description),
+                False))
             g.asgn_code.append(HDLAssign(
                 Slice_or_Index(int_sig, 0, nbr_irqs),
                 Slice_or_Index(isig['wrdata'], 0, nbr_irqs)))
@@ -871,7 +884,7 @@ def expand_sel_choice(root, num):
 
 
 def expand_rams(root, module, bus, isig):
-    periph = root # TODO
+    periph = root  # TODO
     g = Code()
     g.sel_choices = []
     g.out_choices = []
@@ -1147,9 +1160,11 @@ def expand_fifo(module, periph, fifo, isig, bus):
             prt = HDLPort(prt_name, size=(wd if wd > 1 else None), dir=mode)
             g.ports.append(prt)
             if direction == 'BUS_TO_CORE':
-                d, s = (prt, Slice_or_Index(out_int, f.h_fifo_offset, f.c_rwidth))
+                d, s = (prt, Slice_or_Index(out_int,
+                                            f.h_fifo_offset, f.c_rwidth))
             else:
-                d, s = (Slice_or_Index(in_int, f.h_fifo_offset, f.c_rwidth), prt)
+                d, s = (Slice_or_Index(in_int,
+                                       f.h_fifo_offset, f.c_rwidth), prt)
             g.inst_code.append(HDLAssign(d, s))
 
     rst_val = bus['rst']
@@ -1202,6 +1217,7 @@ def expand_fifo(module, periph, fifo, isig, bus):
     module.deps = [('work', 'wbgen2_pkg')]
     return g
 
+
 def compute_access(field):
     """Compute the abbreviated access from access_bus and access_dev"""
     bus_acc = get_wbgen(field, 'access_bus')
@@ -1219,6 +1235,7 @@ def compute_access(field):
         dev_acc = abbrev.get(dev_acc)
     field.h_access = '{}_{}'.format(bus_acc, dev_acc)
 
+
 def build_ordered_regs(root):
     """Create ordered list of regs."""
     # Ordered regs: regular regs, interrupt, fifo regs, ram
@@ -1234,6 +1251,7 @@ def build_ordered_regs(root):
     res.extend([r for r in root.children if is_wbgen_ram(r)])
     root.h_ordered_regs = res
 
+
 def layout_wbgen(root):
     build_ordered_regs(root)
 
@@ -1244,10 +1262,11 @@ def layout_wbgen(root):
             reg_len = max(reg_len, r.address + r.c_rwidth // tree.BYTE_SIZE)
         elif is_wbgen_irq(r) or is_wbgen_fifo(r):
             for r1 in r.children:
-                reg_len = max(reg_len, r.c_address + r1.c_address + r1.c_rwidth // tree.BYTE_SIZE)
+                reg_len = max(reg_len, (r.c_address + r1.c_address
+                                        + r1.c_rwidth // tree.BYTE_SIZE))
 
     # The rams
-    max_ram_size = 0 # in bytes
+    max_ram_size = 0  # in bytes
     nbr_rams = 0
     for r in root.children:
         if is_wbgen_ram(r):
@@ -1276,6 +1295,7 @@ def layout_wbgen(root):
             r.h_addr_base = ram_off
             r.h_addr_len = r.h_ram_size
             ram_off += block_size
+
 
 def add_bus(root, module, bus):
     root.h_bus = {}
@@ -1323,7 +1343,6 @@ def expand_hdl(root):
     layout_wbgen(root)
     m = gen_hdl_header(root)
     m.name = get_wbgen(root, 'hdl_entity', root.name)
-    #bus = expand_wishbone(m, periph)
 
     # Patch clk name
     root.h_bus['clk'].name = 'clk_sys_i'
@@ -1334,7 +1353,8 @@ def expand_hdl(root):
     isig['ack'] = HDLSignal("ack_sreg", size=10)
     isig['rddata'] = HDLSignal("rddata_reg", size=root.c_word_bits)
     isig['wrdata'] = HDLSignal("wrdata_reg", size=root.c_word_bits)
-    isig['bwsel'] = HDLSignal("bwsel_reg", size=root.c_word_bits // tree.BYTE_SIZE)
+    isig['bwsel'] = HDLSignal("bwsel_reg",
+                              size=root.c_word_bits // tree.BYTE_SIZE)
     isig['rwaddr'] = HDLSignal("rwaddr_reg", size=addr_width or 1)
     isig['ackprg'] = HDLSignal("ack_in_progress")
     isig['wr'] = HDLSignal("wr_int")
@@ -1412,7 +1432,7 @@ def expand_hdl(root):
         # Insert wb int_o port
         bus_int = irq_code.ports.pop(0)
         m.ports.append(bus_int)
-        #root.bus_ports.append(bus_int)
+        # root.bus_ports.append(bus_int)
     # Add clock ports
     for c in clk_sigs:
         m.ports.append(isig[c])
@@ -1508,7 +1528,8 @@ def expand_hdl(root):
             blk_sw.choices.append(ch)
         elif is_wbgen_irqreg(r):
             for r1, stmts in irq_code.choices:
-                ch = expand_reg_choice(root, r1.c_address + r1._parent.c_address)
+                ch = expand_reg_choice(
+                    root, r1.c_address + r1._parent.c_address)
                 ch.stmts.extend(stmts)
                 blk_sw.choices.append(ch)
             irq_code.choices = []

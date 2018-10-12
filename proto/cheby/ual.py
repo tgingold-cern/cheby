@@ -2,6 +2,7 @@ import cheby.parser
 import cheby.layout
 import cheby.tree as tree
 
+
 class UALValue(object):
     def __init__(self, ual, root, node, offset):
         self._ual = ual
@@ -79,6 +80,7 @@ class UALValue(object):
                             self._offset + key * self._node.c_elsize)
         else:
             raise TypeError
+
 
 def create_ual_access(ual, filename):
     root = cheby.parser.parse_yaml(filename)

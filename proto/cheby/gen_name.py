@@ -8,17 +8,19 @@ class Context(object):
 
 
 def concat(l, r):
-    assert r;
+    assert r
     if l is None:
         return r
     else:
         return l + '_' + r
+
 
 def concat_if(prefix, suffix, cond):
     if cond:
         return concat(prefix, suffix)
     else:
         return prefix
+
 
 def gen_name_children(children, prefix, ctxt):
     for n in children:
@@ -42,7 +44,7 @@ def gen_name_children(children, prefix, ctxt):
             nprefix = concat_if(prefix, n.c_name, ctxt.blk_prefix)
             gen_name_children(n.children, nprefix, ctxt)
         else:
-            raise AssertionFailure(n)
+            raise AssertionError(n)
 
 
 def gen_name_root(root):

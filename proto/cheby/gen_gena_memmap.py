@@ -32,10 +32,11 @@ def gen_addr_cst(decls, addr, name, addr_width, block_width, word_width):
     cst = HDLConstant(name, addr_width, lo_idx=block_width, value=val)
     # FIXME: Gena word address is wrong.
     cst.eol_comment = \
-        ' : Word address : "{:0{}b}" & X"{:0{}x}"; Byte Address : X"{:0{}x}"'.format(
-        addr >> (4 * (addr_width // 4)), (addr_width % 4),
-        addr, addr_width // 4,
-        (addr << word_width) & ((1 << addr_width) - 1), addr_width // 4)
+        ' : Word address : "{:0{}b}" & X"{:0{}x}"; ' \
+        'Byte Address : X"{:0{}x}"'.format(
+            addr >> (4 * (addr_width // 4)), (addr_width % 4),
+            addr, addr_width // 4,
+            (addr << word_width) & ((1 << addr_width) - 1), addr_width // 4)
     decls.append(cst)
     return cst
 

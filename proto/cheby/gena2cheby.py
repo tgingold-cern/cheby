@@ -6,23 +6,28 @@ from xml.etree import ElementTree as ET
 import cheby.tree
 import cheby.pprint
 
+
 class UnknownAttribute(Exception):
     def __init__(self, msg):
         self.msg = msg
+
 
 class UnknownGenAttribute(Exception):
     def __init__(self, msg, n):
         self.msg = msg
         self.node = n
 
+
 class UnknownTag(Exception):
     def __init__(self, msg):
         self.msg = msg
+
 
 class UnknownValue(Exception):
     def __init__(self, name, val):
         self.name = name
         self.val = val
+
 
 def error(str):
     sys.stderr.write(str + '\n')
@@ -39,18 +44,21 @@ def conv_string(s):
         return None
     return s
 
+
 def conv_depth(s):
-    units = {'k': 1<<10, 'M': 1<<20, 'G': 1<<30 }
+    units = {'k': 1 << 10, 'M': 1 << 20, 'G': 1 << 30}
     if s[-1] in units:
         return int(s[:-1]) * units[s[-1]]
     else:
         return int(s)
+
 
 def conv_address(s):
     if s == 'next':
         return s
     else:
         return int(s, 0)
+
 
 def conv_int(s):
     if s is None:
@@ -62,6 +70,7 @@ def conv_int(s):
     else:
         return int(s)
 
+
 def conv_bool(k, s):
     if s.lower() in ('true'):
         return True
@@ -69,6 +78,7 @@ def conv_bool(k, s):
         return False
     else:
         raise UnknownValue(k, s)
+
 
 def conv_common(node, k, v):
     if k == 'description':
@@ -84,10 +94,12 @@ def conv_common(node, k, v):
     else:
         return False
 
+
 def conv_codefield(parent, el):
     cf = parent.x_gena.get('code-field', [])
     cf.append({f: el.attrib[f] for f in ['name', 'code']})
     parent.x_gena['code-field'] = cf
+
 
 def conv_bit_field_data(reg, el):
     res = cheby.tree.Field(reg)
@@ -127,6 +139,7 @@ def conv_bit_field_data(reg, el):
         else:
             raise UnknownTag(child.tag)
     reg.children.append(res)
+
 
 def conv_sub_reg(reg, el):
     res = cheby.tree.Field(reg)
@@ -177,6 +190,7 @@ def conv_sub_reg(reg, el):
             raise UnknownTag(child.tag)
     reg.children.append(res)
 
+
 def conv_register_data(parent, el):
     res = cheby.tree.Reg(parent)
     res.x_gena = {}
@@ -197,7 +211,7 @@ def conv_register_data(parent, el):
                 if e == '':
                     pass
                 elif e in ('write-strobe', 'srff', 'bus-out', 'no-split',
-                         'ext-creg', 'ext-acm', 'ignore', 'read-strobe'):
+                           'ext-creg', 'ext-acm', 'ignore', 'read-strobe'):
                     xg[e] = True
                 elif e.startswith('resize='):
                     kg, vg = e.split('=')
@@ -209,8 +223,8 @@ def conv_register_data(parent, el):
                     raise UnknownGenAttribute(e, res)
             res.x_gena['gen'] = xg
         elif k in ['code-generation-rule',
-                   'persistence', 'max-val', 'min-val',
-                   'unit', 'read-conversion-factor', 'write-conversion-factor']:
+                   'persistence', 'max-val', 'min-val', 'unit',
+                   'read-conversion-factor', 'write-conversion-factor']:
             # Ignored
             pass
         else:
@@ -364,6 +378,7 @@ def conv_memory_data(parent, el):
         res.x_gena['memory-channel'] = memory_channel
     parent.children.append(res)
 
+
 def conv_area(parent, el):
     res = cheby.tree.Block(parent)
     res.x_gena = {}
@@ -402,6 +417,7 @@ def conv_area(parent, el):
     for child in el:
         conv_element(res, child)
     parent.children.append(res)
+
 
 def conv_submap(parent, el):
     res = cheby.tree.Submap(parent)

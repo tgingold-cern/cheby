@@ -72,19 +72,23 @@ def print_hdl(out, lang, h):
 class open_filename(object):
     """Handle '-' as stdout, but wrap the file in a class so that it is not
      closed at the exit of the 'with' statement."""
+
     def __init__(self, name):
         self.name = name
+
     def __enter__(self):
         if self.name == '-':
             self.fh = sys.stdout
         else:
             self.fh = open(self.name, 'w')
         return self.fh
+
     def __exit__(self, etype, value, traceback):
         if self.name != '-':
             self.fh.close()
+
     def __getattr__(self, val):
-        return getattr(self.fh, val) # pass on
+        return getattr(self.fh, val)  # pass on
 
 
 def handle_file(args, filename):
@@ -97,7 +101,7 @@ def handle_file(args, filename):
             pprint.pprint_cheby(f, t)
     if args.print_memmap is not None:
         with open_filename(args.print_memmap) as f:
-            sprint.sprint_cheby (f, t, False)
+            sprint.sprint_cheby(f, t, False)
     if args.print_simple is not None:
         with open_filename(args.print_simple) as f:
             sprint.sprint_cheby(f, t, True)
@@ -144,8 +148,7 @@ def handle_file(args, filename):
             c = {'vhdl': '--', 'verilog': '//'}[args.hdl]
             l = c[0] * 79
             ext = {'vhdl': 'vhdl', 'verilog': 'v'}[args.hdl]
-            f.write(
-"""{l}
+            header = """{l}
 {c} Title          : Wishbone slave core for {name}
 {l}
 {c} File           : {basename}.{ext}
@@ -157,8 +160,10 @@ def handle_file(args, filename):
 {c} DO NOT HAND-EDIT UNLESS IT'S ABSOLUTELY NECESSARY!
 {l}
 
-""".format(name=t.description, basename=basename,
-           date=time.strftime("%a %b %d %X %Y"), c=c, l=l, ext=ext))
+"""
+            f.write(header.format(name=t.description, basename=basename,
+                                  date=time.strftime("%a %b %d %X %Y"),
+                                  c=c, l=l, ext=ext))
             print_vhdl.style = 'wbgen'
             print_hdl(f, args.hdl, h)
     if args.gen_hdl is not None:

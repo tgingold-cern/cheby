@@ -18,11 +18,11 @@ class EdgeReg(object):
             mask = "0x{:08x}".format(self.mask)
         else:
             mask = 10 * ' '
-        fd.write("{bid:>12}, {name:>11}, {rwmode:>6}, 0x{offset:06x},     {dwidth:>2}, {depth:>5}, "
-                 "{mask}, {desc}\n".format(
-            bid=block_id, name=self.name, rwmode=self.rwmode,
-            offset=self.offset, dwidth=self.dwidth,
-            depth=self.depth, mask=mask, desc=self.desc))
+        fd.write("{bid:>12}, {name:>11}, {rwmode:>6}, 0x{offset:06x},"
+                 "     {dwidth:>2}, {depth:>5}, {mask}, {desc}\n".format(
+                     bid=block_id, name=self.name, rwmode=self.rwmode,
+                     offset=self.offset, dwidth=self.dwidth,
+                     depth=self.depth, mask=mask, desc=self.desc))
 
 
 class EncoreBlock(object):
@@ -33,7 +33,8 @@ class EncoreBlock(object):
     def append_reg(self, reg, offset):
         assert isinstance(reg, tree.Reg)
         if not reg.has_fields():
-            self.regs.append(EdgeReg(reg.name, reg, offset, 1, None, reg.description))
+            self.regs.append(EdgeReg(
+                reg.name, reg, offset, 1, None, reg.description))
         else:
             for f in reg.children:
                 if f.hi is None:
@@ -41,13 +42,15 @@ class EncoreBlock(object):
                 else:
                     mask = (2 << (f.hi - f.lo)) - 1
                 mask = mask << f.lo
-                self.regs.append(EdgeReg(f.name, reg, offset, 1, mask, f.description))
+                self.regs.append(EdgeReg(
+                    f.name, reg, offset, 1, mask, f.description))
 
     def write(self, fd):
         fd.write("block_def_id,        name, rwmode,   offset, dwidth,"
                  " depth,       mask, description\n")
         for r in self.regs:
             r.write(fd, self.num)
+
 
 class Encore(object):
     def __init__(self):
@@ -78,11 +81,11 @@ class Encore(object):
             b.write(fd)
         # self.write_instances(fd)
 
+
 def p_vme_header(fd, root):
     fd.write("module,    bus, version, endian, description\n")
     fd.write("{:<10} {}, {:<8} {},     {}\n".format(
-        root.name +',',
-        "VME", "0.1" + ',', "BE", root.description))
+        root.name + ',', "VME", "0.1" + ',', "BE", root.description))
     fd.write("\n")
     fd.write("bar_id, bar_no, addrwidth, dwidth,  size,     "
              "blt_mode, mblt_mode, description\n")
@@ -90,14 +93,15 @@ def p_vme_header(fd, root):
              "0,        0,         BAR\n".format(root.c_size))
     fd.write("\n")
 
+
 def p_body(e, n, offset):
     for el in n.children:
         if isinstance(el, tree.Reg):
             e.cur_block.append_reg(el, offset)
-        elif isinstance(el, tree.Array) \
-            and len(el.children) == 1 \
-            and isinstance(el.children[0], tree.Reg) \
-            and (el.align is None or el.align):
+        elif (isinstance(el, tree.Array)
+              and len(el.children) == 1
+              and isinstance(el.children[0], tree.Reg)
+              and (el.align is None or el.align)):
             # A regular memory
             e.cur_block.append_reg(el.children[0], offset)
         elif isinstance(el, tree.Block):
@@ -109,6 +113,7 @@ def p_body(e, n, offset):
                 pass
         else:
             raise AssertionError("unhandled element {}".format(type(el)))
+
 
 def generate_edge(fd, root):
     e = Encore()
