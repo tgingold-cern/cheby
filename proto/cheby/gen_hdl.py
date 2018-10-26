@@ -400,9 +400,9 @@ class AXI4LiteBus(BusGen):
             proc.rst_stmts.append(HDLAssign(xr, bit_0))
             proc.sync_stmts.append(HDLAssign(x_done, bit_0))
             proc.sync_stmts.append(HDLAssign(xr, bit_0))
-            stmts.append(HDLAssign(xr, HDLNot(x_done)))
+            stmts.append(HDLAssign(xr, HDLNot(HDLOr(x_done, ready))))
             stmts.append(HDLAssign(x_done, HDLOr(x_done, ready)))
-        # FIXME: bready is available only with AXI4 root
+        # Note: bready is available only with AXI4 root
         stmts.append(HDLAssign(isigs.wr_ack,
                                HDLAnd(n.h_bus['bvalid'],
                                       root.h_bus.get('bready', bit_1))))
