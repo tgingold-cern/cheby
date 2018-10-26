@@ -1,0 +1,22 @@
+memory-map:
+  bus: wb-32-be
+  name: gpios
+  x-hdl:
+    busgroup: True
+  children:
+  - reg:
+      name: inputs
+      description: A register
+      type: unsigned
+      width: 32
+      access: ro
+  - reg:
+      name: outputs
+      type: unsigned
+      width: 32
+      access: rw
+  - submap:
+      name: gpios_axi4
+      size: 0x40
+      description: An AXI4-Lite bus
+      interface: axi4-lite-32
