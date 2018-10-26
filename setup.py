@@ -2,7 +2,7 @@ from setuptools import setup
 
 setup(
     name="cheby",
-    version="0.2",
+    version="1.0",
     packages=['cheby', 'cheby.wbgen'],
     package_dir={'': 'proto'},
     entry_points={

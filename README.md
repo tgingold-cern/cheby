@@ -23,7 +23,7 @@ installation.
 There is a user guide in the doc/ directory.  It contains an getting started
 part with an example.
 
-## Version XX
+## Version 1.0
 
 Syntax of options has changed. Options that generate contents accept
 the file as an optional argument.  If there is no filename, the
@@ -32,6 +32,9 @@ specified with the -i/--input argument.  So to generate vhdl code for the
 file example.cheby:
 
     $ cheby --gen-hdl example.vhdl -i example.cheby
+
+The cheby tool is now able to generate HTML or Markdown documentation.
+It also supports interconnect between AXI4 and WB.
 
 ## Version 0.2
 
