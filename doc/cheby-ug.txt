@@ -237,11 +237,13 @@ The following attributes under `x-hdl` are supported:
 `type`:: if set to `wire` no register is created.  This is the default when
 the access type is `ro`.
 
-`write-strobe`:: name of an additional signal that is asserted when the register
-is written by the host.
+`write-strobe`:: True to generate an additional signal that is
+asserted when the register is written by the host.  The name of the
+signal is '_wr_o' appended to the name of the register.
 
-`read-strobe`:: name of an additional signal that is asserted when the register
-is read by the host.
+`read-strobe`:: True to generate an additional signal that is asserted
+when the register is read by the host.  The name of the signal is
+'_rd_o' appended to the name of the register.
 
 ==== Plain Registers
 

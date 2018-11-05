@@ -23,6 +23,13 @@ installation.
 There is a user guide in the doc/ directory.  It contains an getting started
 part with an example.
 
+## Version 1.1
+
+The argument '--version' has been added to the tool.
+
+Attributes 'write-strobe' and 'read-strobe' of 'x-hdl' applies only to
+registers.  Documentation has been clarified.
+
 ## Version 1.0
 
 Syntax of options has changed. Options that generate contents accept

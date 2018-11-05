@@ -535,19 +535,26 @@ def add_ports_reg(root, module, n):
         else:
             f.h_oport = None
 
-        # Write strobe
-        if f.hdl_write_strobe:
-            f.h_wport = add_module_port(
-                root, module, f.c_name + '_wr', None, dir='OUT')
-        else:
-            f.h_wport = None
-
         # Register
         if f.hdl_type == 'reg':
             f.h_reg = HDLSignal(f.c_name + '_reg', w)
             module.decls.append(f.h_reg)
         else:
             f.h_reg = None
+
+    # Write strobe
+    if n.hdl_write_strobe:
+        n.h_wport = add_module_port(
+            root, module, n.c_name + '_wr', None, dir='OUT')
+    else:
+        n.h_wport = None
+
+    # Read strobe
+    if n.hdl_read_strobe:
+        n.h_rport = add_module_port(
+            root, module, n.c_name + '_rd', None, dir='OUT')
+    else:
+        n.h_rport = None
 
 
 def add_ports_submap(root, module, n):
@@ -882,6 +889,10 @@ def add_read_reg_process(root, module, isigs):
                 s.append(HDLComment(n.name))
                 if n.access != 'wo':
                     add_read_reg(s, n, off)
+                if n.h_rport is not None:
+                    s.append(HDLAssign(n.h_rport, bit_1))
+                    rdproc.rst_stmts.append(HDLAssign(n.h_rport, bit_0))
+                    rdproc.sync_stmts.insert(0, HDLAssign(n.h_rport, bit_0))
             elif isinstance(n, tree.Submap):
                 pass
             elif isinstance(n, tree.Array):
@@ -967,6 +978,12 @@ def add_write_process(root, module, isigs):
     wr_data = root.h_bus['dati']
 
     def add_write_reg(s, n, off):
+        # Write strobe
+        if n.h_wport is not None:
+            s.append(HDLAssign(n.h_wport, bit_1))
+            wrproc.rst_stmts.append(HDLAssign(n.h_wport, bit_0))
+            wrproc.sync_stmts.append(HDLAssign(n.h_wport, bit_0))
+
         for f in n.children:
             # Reset code
             if f.h_reg is not None:
@@ -984,10 +1001,6 @@ def add_write_process(root, module, isigs):
             if reg is None:
                 continue
             s.append(HDLAssign(reg, dat))
-            if f.h_wport is not None:
-                s.append(HDLAssign(f.h_wport, bit_1))
-                wrproc.rst_stmts.append(HDLAssign(f.h_wport, bit_0))
-                wrproc.sync_stmts.append(HDLAssign(f.h_wport, bit_0))
 
     def add_write(s, n, off):
         if n is not None:

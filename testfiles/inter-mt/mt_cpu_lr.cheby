@@ -82,7 +82,8 @@ memory-map:
             field_description: Write port for serial console.
           x-hdl:
             type: wire
-            write-strobe: True
+      x-hdl:
+         write-strobe: True
   - reg:
       name: hmq_stat
       address: 0x00000040

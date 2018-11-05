@@ -4,19 +4,66 @@ import cheby.layout as layout
 import copy
 
 
-def expand_x_hdl_field(f, n, dct):
+def expand_x_hdl_reg(n, dct):
     # Default values
-    f.hdl_type = 'wire' if f._parent.access == 'ro' else 'reg'
-    f.hdl_write_strobe = False
-    f.hdl_read_strobe = False
+    n.hdl_write_strobe = False
+    n.hdl_read_strobe = False
+
+    if not n.has_fields():
+        # x-hdl can also be used for the implicit field.
+        init_x_hdl_field(n.children[0])
 
     for k, v in dct.items():
-        if k == 'type':
-            f.hdl_type = parser.read_text(n, k, v)
-        elif k == 'write-strobe':
-            f.hdl_write_strobe = parser.read_bool(n, k, v)
+        if k == 'write-strobe':
+            n.hdl_write_strobe = parser.read_bool(n, k, v)
         elif k == 'read-strobe':
-            f.hdl_read_strobe = parser.read_bool(n, k, v)
+            n.hdl_read_strobe = parser.read_bool(n, k, v)
+        elif not n.has_fields():
+            # x-hdl can also be used for the implicit field.
+            expand_x_hdl_field_kv(n.children[0], n, k, v)
+        else:
+            parser.error("unhandled '{}' in x-hdl of reg {}".format(
+                  k, n.get_path()))
+
+
+def init_x_hdl_field(f):
+    "Set default values for x-hdl attributes of a field"
+    f.hdl_type = 'wire' if f._parent.access == 'ro' else 'reg'
+
+
+def expand_x_hdl_field_kv(f, n, k, v):
+    "Decode one x-hdl attribute for a field"
+
+    if k == 'type':
+        f.hdl_type = parser.read_text(n, k, v)
+    else:
+        parser.error("unhandled '{}' in x-hdl of field {}".format(
+            k, n.get_path()))
+
+
+def expand_x_hdl_field(f, n, dct):
+    "Decode all x-hdl attributes for a field"
+    init_x_hdl_field(f)
+
+    for k, v in dct.items():
+        expand_x_hdl_field_kv(f, n, k, v)
+
+
+def expand_x_hdl_root(n, dct):
+    for k, v in dct.items():
+        if k == 'busgroup':
+            pass
+        elif k == 'iogroup':
+            pass
+        else:
+            parser.error("unhandled '{}' in x-hdl of {}".format(
+                  k, n.get_path()))
+
+
+def expand_x_hdl_submap(n, dct):
+    for k, v in dct.items():
+        if k == 'busgroup':
+            pass
         else:
             parser.error("unhandled '{}' in x-hdl of {}".format(
                   k, n.get_path()))
@@ -28,8 +75,15 @@ def expand_x_hdl(n):
     if isinstance(n, tree.Field):
         expand_x_hdl_field(n, n, x_hdl)
     elif isinstance(n, tree.Reg):
-        if not n.has_fields():
-            expand_x_hdl_field(n.children[0], n, x_hdl)
+        expand_x_hdl_reg(n, x_hdl)
+    elif isinstance(n, tree.Root):
+        expand_x_hdl_root(n, x_hdl)
+    elif isinstance(n, tree.Submap):
+        expand_x_hdl_submap(n, x_hdl)
+    else:
+        if x_hdl:
+            parser.error("no x-hdl attributes allowed for {}".format(
+                n.get_path()))
 
     # Visit children
     if isinstance(n, tree.Submap):
