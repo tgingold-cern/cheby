@@ -1,8 +1,11 @@
 from setuptools import setup
 
+# Import version
+execfile('proto/cheby/__init__.py')
+
 setup(
     name="cheby",
-    version="1.0",
+    version=__version__,
     packages=['cheby', 'cheby.wbgen'],
     package_dir={'': 'proto'},
     entry_points={

@@ -23,7 +23,10 @@ import cheby.print_markdown as print_markdown
 
 
 def decode_args():
-    aparser = argparse.ArgumentParser(description='cheby utility')
+    aparser = argparse.ArgumentParser(description='cheby utility',
+                                      prog='cheby')
+    aparser.add_argument('--version', action='version',
+                         version='%(prog)s ' + cheby.__version__)
     aparser.add_argument('--print-pretty', nargs='?', const='-',
                          help='regenerate in YAML')
     aparser.add_argument('--print-simple', nargs='?', const='-',
