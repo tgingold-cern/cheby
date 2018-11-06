@@ -712,7 +712,7 @@ def add_reg_decoder(root, stmts, addr, func, els, blk_bits):
         for el in els:
             func(stmts, el, 0)
     else:
-        sw = HDLSwitch(HDLSlice(addr, 0, width))
+        sw = HDLSwitch(HDLSlice(addr, root.c_addr_word_bits, width))
         stmts.append(sw)
         for el in els:
             suboff = 0
