@@ -44,6 +44,8 @@ begin
   ack_int <= rd_ack_int or wr_ack_int;
   wb_o.ack <= ack_int;
   wb_o.stall <= not ack_int and wb_en;
+  wb_o.rty <= '0';
+  wb_o.err <= '0';
 
   -- Assign outputs
 

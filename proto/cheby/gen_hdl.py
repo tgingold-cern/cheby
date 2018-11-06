@@ -98,6 +98,9 @@ class WBBus(BusGen):
         module.stmts.append(
             HDLAssign(root.h_bus['stall'],
                       HDLAnd(HDLNot(isigs.ack_int), isigs.wb_en)))
+        # No retry, no errors.
+        module.stmts.append(HDLAssign(root.h_bus['rty'], bit_0))
+        module.stmts.append(HDLAssign(root.h_bus['err'], bit_0))
 
     def gen_wishbone_bus(self, build_port, addr_bits, lo_addr,
                          data_bits, is_master):
