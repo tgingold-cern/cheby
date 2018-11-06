@@ -1,0 +1,32 @@
+memory-map:
+  bus: wb-32-be
+  name: alt_trigin
+  x-hdl:
+    busgroup: True
+  children:
+  - reg:
+     name: ctrl
+     description: Control register
+     access: rw
+     width: 32
+     children:
+       - field:
+          name: enable
+          description: Enable trigger, cleared when triggered
+          range: 1
+          x-hdl:
+            type: wire
+     x-hdl:
+        write-strobe: True
+  - reg:
+     name: seconds
+     description: Time (seconds) to trigger
+     width: 64
+     type: unsigned
+     access: ro
+  - reg:
+     name: cycles
+     description: Time (cycles) to trigger
+     width: 32
+     type: unsigned
+     access: ro

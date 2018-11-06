@@ -151,6 +151,28 @@ def test_print():
         gen_c.gen_c_cheby(fd, t)
 
 
+def compare_buffer_and_file(buf, filename):
+    # Well, there is certainly a python diff module...
+    buf = buf.buffer
+    ref = open(filename, 'r').read()
+    if ref == buf:
+        return True
+
+    buf_lines = buf.splitlines()
+    ref_lines = ref.splitlines()
+    nlines = len(buf_lines)
+    if nlines != len(ref_lines):
+        werr('Number of lines mismatch')
+        return
+    for i in range(nlines):
+        if buf_lines[i] == ref_lines[i]:
+            print('=' + buf_lines[i])
+            continue
+        print('>' + buf_lines[i])
+        print('<' + ref_lines[i])
+    return False
+
+
 def test_hdl():
     fd = write_null()
     for f in ['simple_reg3.yaml', 'simple_reg4_ro.yaml',
@@ -176,6 +198,24 @@ def test_hdl():
         print_vhdl.print_vhdl(fd, h)
 
 
+def test_hdl_ref():
+    # Generate vhdl and compare with a baseline.
+    for f in ['fmc_adc_alt_trigin' ]:
+        if verbose:
+            print('test hdl with ref: {}'.format(f))
+        cheby_file = srcdir + f + '.cheby'
+        vhdl_file = srcdir + f + '.vhdl'
+        t = parse_ok(cheby_file)
+        layout_ok(t)
+        expand_hdl.expand_hdl(t)
+        gen_name.gen_name_root(t)
+        h = gen_hdl.generate_hdl(t)
+        buf = write_buffer()
+        print_vhdl.print_vhdl(buf, h)
+        if not compare_buffer_and_file(buf, vhdl_file):
+            error('vhdl generation error for {}'.format(f))
+
+
 def test_self():
     """Auto-test"""
     def test(func, func_name):
@@ -194,26 +234,6 @@ def test_self():
     test((lambda: layout_ok(t)), "layout_ok")
     t = parse_ok(srcdir + 'demo.yaml')
     test((lambda: layout_err(t)), "layout_err")
-
-
-def compare_buffer_and_file(buf, filename):
-    buf = buf.buffer
-    ref = open(filename, 'r').read()
-    if ref == buf:
-        return True
-
-    buf_lines = buf.splitlines()
-    ref_lines = ref.splitlines()
-    nlines = len(buf_lines)
-    if nlines != len(ref_lines):
-        werr('Number of lines mismatch')
-        return
-    for i in range(nlines):
-        if buf_lines[i] == ref_lines[i]:
-            continue
-        print('>' + buf_lines[i])
-        print('<' + ref_lines[i])
-    return False
 
 
 def test_gena():
@@ -393,6 +413,7 @@ def main():
         test_layout()
         test_print()
         test_hdl()
+        test_hdl_ref()
         test_gena()
         test_gena_regctrl_err()
         test_gena2cheby()

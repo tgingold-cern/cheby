@@ -1087,6 +1087,9 @@ def compute_max_delay(n):
 def generate_hdl(root):
     isigs = Isigs()
 
+    # Force the regeneration of wb package (useful only when testing).
+    WBBus.wb_pkg = None
+
     root.h_max_delay = compute_max_delay(root)
 
     module = gen_hdl_header(root, isigs)
