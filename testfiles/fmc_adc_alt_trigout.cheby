@@ -1,0 +1,98 @@
+memory-map:
+  bus: wb-32-be
+  name: alt_trigout
+  x-hdl:
+    busgroup: True
+    reg_prefix: False
+  children:
+  - reg:
+     name: status
+     description: Status register
+     access: ro
+     width: 32
+     children:
+       - field:
+          name: wr_enable
+          description: Set when WR is enabled
+          range: 0
+       - field:
+          name: wr_link
+          description: WR link status
+          range: 1
+       - field:
+          name: wr_valid
+          description: Set when WR time is valid
+          range: 2
+       - field:
+          name: ts_present
+          description: Set when the timestamp fifo is not empty
+          range: 8
+  - reg:
+     name: ctrl
+     description: Control register
+     access: rw
+     width: 32
+     children:
+       - field:
+          name: ch1_enable
+          description: Enable channel 1 trigger
+          range: 0
+       - field:
+          name: ch2_enable
+          description: Enable channel 2 trigger
+          range: 1
+       - field:
+          name: ch3_enable
+          description: Enable channel 3 trigger
+          range: 2
+       - field:
+          name: ch4_enable
+          description: Enable channel 4 trigger
+          range: 3
+       - field:
+          name: ext_enable
+          description: Enable external trigger
+          range: 8
+  - reg:
+     name: ts_mask_sec
+     description: Time (seconds) of the last event
+     width: 64
+     access: ro
+     children:
+       - field:
+          name: ts_sec
+          description: Seconds part of the timestamp
+          range: 39-0
+       - field:
+          name: ch1_mask
+          description: Set if channel 1 triggered
+          range: 48
+       - field:
+          name: ch2_mask
+          description: Set if channel 2 triggered
+          range: 49
+       - field:
+          name: ch3_mask
+          description: Set if channel 3 triggered
+          range: 50
+       - field:
+          name: ch4_mask
+          description: Set if channel 4 triggered
+          range: 51
+       - field:
+          name: ext_mask
+          description: Set if external trigger
+          range: 56
+  - reg:
+     name: ts_cycles
+     description: Cycles part of timestamp fifo.
+     comment: Reading this register discard the entry
+     width: 32
+     access: ro
+     x-hdl:
+       read-strobe: True
+     children:
+       - field:
+          name: cycles
+          description: Cycles
+          range: 27-0
