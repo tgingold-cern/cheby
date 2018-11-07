@@ -51,9 +51,7 @@ def expand_x_hdl_field(f, n, dct):
 
 def expand_x_hdl_root(n, dct):
     for k, v in dct.items():
-        if k == 'busgroup':
-            pass
-        elif k == 'iogroup':
+        if k in ['busgroup', 'iogroup', 'reg_prefix', 'block_prefix']:
             pass
         else:
             parser.error("unhandled '{}' in x-hdl of {}".format(

@@ -206,6 +206,18 @@ convention
 If you need to reserve area in a module, you can use the `size` attribute to
 specify the size (in bytes) of the memory space used by the module.
 
+The following attributes under `x-hdl` are supported:
+
+`busgroup`:: Use an input and an output record (in vhdl) for the bus.
+
+`iogroup`:: Use an input and and output record (in vhdl) for the I/O. This
+will also generate a package to declare the records.
+
+`reg_prefix`:: If false, discard register prefix and every prefix before
+register.  This creates shorter names.
+
+`block_prefix`:: If false, discard block prefix.
+
 === Registers
 
 A register uses one (usual case) or two (for 64-bit registers) words address.

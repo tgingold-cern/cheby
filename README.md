@@ -23,12 +23,26 @@ installation.
 There is a user guide in the doc/ directory.  It contains an getting started
 part with an example.
 
+## Release
+
+To create a new release:
+
+* document changes and issues in this README.md file
+
+* increase the version in cheby/__init__.py
+
+* generate the pdf documentation
+
 ## Version 1.1
 
 The argument '--version' has been added to the tool.
 
 Attributes 'write-strobe' and 'read-strobe' of 'x-hdl' applies only to
 registers.  Documentation has been clarified.
+
+Fix an incorrect slice bound in HDL generation.
+
+Document root 'x-hdl' extensions.
 
 ## Version 1.0
 
