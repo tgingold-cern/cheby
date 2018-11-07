@@ -42,6 +42,10 @@ registers.  Documentation has been clarified.
 
 Fix an incorrect slice bound in HDL generation.
 
+Fix reading of a rw field of type wire.
+
+Set unused bit to 0 while reading a register.
+
 Document root 'x-hdl' extensions.
 
 Add --gen-consts option to generate a constants file.

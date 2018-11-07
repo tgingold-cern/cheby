@@ -869,13 +869,16 @@ def add_read_reg_process(root, module, isigs):
                              HDLEq(rd_ack, bit_0)))
     rdproc.sync_stmts.append(rd_if)
     rd_if.then_stmts.append(HDLAssign(rd_ack, bit_1))
+    # Be sure all unused bits are read as 0.
+    rd_if.then_stmts.append(HDLAssign(rd_data,
+                                      HDLReplicate(bit_0, root.c_word_bits)))
     rd_if.else_stmts.append(HDLAssign(rd_ack, bit_0))
 
     def add_read_reg(s, n, off):
         for f in n.children:
-            if n.access in ['wo', 'rw']:
+            if f.h_reg is not None and n.access in ['wo', 'rw']:
                 src = f.h_reg
-            elif n.access == 'ro':
+            elif f.h_iport is not None:
                 src = f.h_iport
             elif n.access == 'cst':
                 src = HDLConst(f.preset, f.c_rwidth)

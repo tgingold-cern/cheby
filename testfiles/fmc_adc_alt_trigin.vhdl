@@ -107,11 +107,13 @@ begin
     elsif rising_edge(clk_i) then
       if rd_int = '1' and rd_ack1_int = '0' then
         rd_ack1_int <= '1';
+        reg_rdat_int <= (others => '0');
         case wb_i.adr(4 downto 3) is
         when "00" => 
           case wb_i.adr(2 downto 2) is
           when "0" => 
             -- ctrl
+            reg_rdat_int(1) <= ctrl_enable_i;
           when others =>
           end case;
         when "01" => 
