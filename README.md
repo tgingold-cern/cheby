@@ -44,6 +44,8 @@ Fix an incorrect slice bound in HDL generation.
 
 Document root 'x-hdl' extensions.
 
+Add --gen-consts option to generate a constants file.
+
 ## Version 1.0
 
 Syntax of options has changed. Options that generate contents accept

@@ -576,6 +576,16 @@ format is either `html` or `md`.
   $ cheby --doc=md --gen-doc=OUTPUT.md -i INPUT.cheby
 ----
 
+=== Generating constants file
+
+In order to write testbench, you can generate a verilog include files that
+defines the address of the registers, the offset and a mask for each fields.
+
+[source]
+----
+  $ cheby --gen-consts -i INPUT.cheby
+----
+
 === Generating text files
 
 It is possible to general a compact text file describing the layout of

@@ -20,6 +20,7 @@ import cheby.gen_gena_regctrl as gen_gena_regctrl
 import cheby.gen_wbgen_hdl as gen_wbgen_hdl
 import cheby.print_html as print_html
 import cheby.print_markdown as print_markdown
+import cheby.print_regs as print_regs
 
 
 def decode_args():
@@ -45,6 +46,8 @@ def decode_args():
                          help='select language for hdl generation')
     aparser.add_argument('--gen-hdl', nargs='?', const='-',
                          help='generate hdl file')
+    aparser.add_argument('--gen-consts', nargs='?', const='-',
+                         help='generate constants as hdl file')
     aparser.add_argument('--gen-edge', nargs='?', const='-',
                          help='generate EDGE file')
     aparser.add_argument('--gen-gena-memmap', nargs='?', const='-',
@@ -144,6 +147,9 @@ def handle_file(args, filename):
                 print_markdown.print_markdown(f, t)
             else:
                 raise AssertionError('unknown doc format {}'.format(args.doc))
+    if args.gen_consts is not None:
+        with open_filename(args.gen_consts) as f:
+            print_regs.pregs_cheby(f, t)
     if args.gen_wbgen_hdl is not None:
         h = gen_wbgen_hdl.expand_hdl(t)
         with open_filename(args.gen_wbgen_hdl) as f:
