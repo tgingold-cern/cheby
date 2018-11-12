@@ -1,0 +1,205 @@
+memory-map:
+  name: fidsErrMiss
+  bus: axi4-lite-32
+  size: 128
+  children:
+    - reg:
+        name: fidsCounters
+        description: event FIDS counters, see sub-registers for more info
+        width: 32
+        access: ro
+        address: 0x0
+        children:
+          - field:
+              name: missing
+              range: 7-0
+          - field:
+              name: erratic
+              range: 15-8
+          - field:
+              name: normal
+              range: 31-26
+    - reg:
+        name: pfnMeasOnEvent
+        description: PFN measurement on FIDS event (normal, missing or erratic)
+        width: 32
+        access: ro
+        address: next
+    - reg:
+        name: refCalcPuComp1
+        description: dynamic calculated comparator1 PickUp DAC reference, based on Upfn
+        width: 32
+        access: ro
+        address: next
+    - reg:
+        name: refCalcPuComp2
+        description: dynamic calculated comparator1 PickUp DAC reference, based on Upfn
+        width: 32
+        access: ro
+        address: next
+    - reg:
+        name: pulseLengthTrigger
+        description: lenght of the trigger pulse
+        width: 32
+        access: ro
+        address: next
+    - reg:
+        name: pulseLengthPuComp1
+        description: lenght of the pick-up pulse Comparator1
+        width: 32
+        access: ro
+        address: next
+    - reg:
+        name: pulseLengthPuComp2
+        description: lenght of the pick-up pulse Comparator2
+        width: 32
+        access: ro
+        address: next
+    - reg:
+        name: delayTrigComp1
+        description: assertion delay between trigger and comp1
+        width: 32
+        access: ro
+        address: next
+    - reg:
+        name: delayTrigComp2
+        description: assertion delay between trigger and comp2
+        width: 32
+        access: ro
+        address: next
+    - reg:
+        name: delayComp1Comp2
+        description: assertion delay between comp1 and comp2
+        width: 32
+        access: ro
+        address: next
+    - reg:
+        name: puName
+        description: pick-up ASCII name
+        width: 32
+        access: ro
+        address: next
+    - reg:
+        name: calcParamComp1
+        description: linear paramters for Upfn to ref comp1 conversion y=shift_right(x,s)*a+b
+        width: 32
+        access: rw
+        address: next
+        x_gena:
+          preset: 0xff01
+        children:
+          - field:
+              name: multiplier
+              description: signed integer
+              range: 7-0
+              preset: 0x1
+          - field:
+              name: offset
+              description: signed integer
+              range: 23-8
+              preset: 0xff
+          - field:
+              name: shiftRight
+              description: unsigned
+              range: 31-24
+              preset: 0x0
+    - reg:
+        name: calcParamComp2
+        description: linear paramters for Upfn to ref comp1 conversion y=shift_right(x,s)*a+b
+        width: 32
+        access: rw
+        address: next
+        x_gena:
+          preset: 0xff01
+        children:
+          - field:
+              name: multiplier
+              description: signed integer
+              range: 7-0
+              preset: 0x1
+          - field:
+              name: offset
+              description: signed integer
+              range: 23-8
+              preset: 0xff
+          - field:
+              name: shiftRight
+              description: unsigned
+              range: 31-24
+              preset: 0x0
+    - reg:
+        name: moduleParam
+        description: module bitwise parameters
+        width: 32
+        access: rw
+        address: next
+        x_gena:
+          preset: 0x0
+        children:
+          - field:
+              name: upfnAbs
+              description: on 1, use abs(upfn) for reference calculation
+              range: 0
+              preset: 0x0
+          - field:
+              name: resetCounters
+              description: on rising edge, reset FIDS counters to zero
+              range: 1
+              preset: 0x0
+    - reg:
+        name: windowLengthMissing
+        description: window missing length parameter
+        width: 32
+        access: rw
+        address: next
+        preset: 0x1f4
+        x_gena:
+          preset: 500
+    - reg:
+        name: windowLengthErratic
+        description: window erratic length parameter
+        width: 32
+        access: rw
+        address: next
+        preset: 0xfa
+        x_gena:
+          preset: 250
+    - reg:
+        name: maxCounterMissing
+        description: missing counter max. on which PLC interlock assertion
+        width: 32
+        access: rw
+        address: next
+        preset: 0x9
+        x_gena:
+          preset: 9
+    - reg:
+        name: maxCounterErratic
+        description: erratic counter max. on which PLC interlock assertion
+        width: 32
+        access: rw
+        address: next
+        preset: 0x9
+        x_gena:
+          preset: 9
+    - reg:
+        name: fallingDebounceLength
+        description: pickup falling edge debounce length
+        width: 32
+        access: rw
+        address: next
+        preset: 0x32
+        x_gena:
+          preset: 50
+    - reg:
+        name: refCalcPuComp1OnEvent
+        description: latched on event calculated comparator2 PickUp DAC reference, based on Upfn
+        width: 32
+        access: ro
+        address: next
+    - reg:
+        name: refCalcPuComp2OnEvent
+        description: latched on event calculated comparator2 PickUp DAC reference, based on Upfn
+        width: 32
+        access: ro
+        address: next
