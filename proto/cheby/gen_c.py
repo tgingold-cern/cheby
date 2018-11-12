@@ -45,8 +45,8 @@ class CPrinter(tree.Visitor):
 
 @CPrinter.register(tree.Reg)
 def cprint_reg(cp, n):
-    cp.cp_txt('/* [0x{:x}]: REG {} */'.format(
-              n.c_address, n.description or '(no description)'))
+    cp.cp_txt('/* [0x{:x}]: REG ({}) {} */'.format(
+              n.c_address, n.access, n.description or '(no description)'))
     if n.c_type == 'signed':
         typ = cp.stypes[n.c_size]
     elif n.c_type == 'float':
