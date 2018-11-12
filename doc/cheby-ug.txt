@@ -586,6 +586,17 @@ defines the address of the registers, the offset and a mask for each fields.
   $ cheby --gen-consts -i INPUT.cheby
 ----
 
+=== Generating SILECS file
+
+It is possible to generate SILECS
+(https://wikis.cern.ch/display/SIL/Design+document) XML file from a
+Cheby description.  Not all features of Cheby are supported: only registers.
+
+[source]
+----
+  $ cheby --gen-silecs -i INPUT.cheby
+----
+
 === Generating text files
 
 It is possible to general a compact text file describing the layout of

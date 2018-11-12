@@ -48,6 +48,8 @@ Set unused bit to 0 while reading a register.
 
 Document root 'x-hdl' extensions.
 
+Add --gen-silecs to generate SILECS files.
+
 Add --gen-consts option to generate a constants file.
 
 ## Version 1.0
