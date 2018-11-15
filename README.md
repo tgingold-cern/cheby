@@ -33,6 +33,8 @@ To create a new release:
 
 * generate the pdf documentation
 
+* tag the git tree
+
 ## Version 1.1
 
 The argument '--version' has been added to the tool.
