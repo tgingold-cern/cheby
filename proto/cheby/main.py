@@ -14,6 +14,7 @@ import cheby.print_vhdl as print_vhdl
 import cheby.print_verilog as print_verilog
 import cheby.gen_edge as gen_edge
 import cheby.gen_silecs as gen_silecs
+import cheby.gen_custom as gen_custom
 import cheby.expand_hdl as expand_hdl
 import cheby.gen_name as gen_name
 import cheby.gen_gena_memmap as gen_gena_memmap
@@ -53,6 +54,8 @@ def decode_args():
                          help='generate EDGE file')
     aparser.add_argument('--gen-silecs', nargs='?', const='-',
                          help='generate Silecs file')
+    aparser.add_argument('--gen-custom', nargs='?', const='-',
+                         help='generate a file by running custom user-code')
     aparser.add_argument('--gen-gena-memmap', nargs='?', const='-',
                          help='generate Gena MemMap file')
     aparser.add_argument('--gen-gena-regctrl', nargs='?', const='-',
@@ -127,6 +130,9 @@ def handle_file(args, filename):
     if args.gen_silecs is not None:
         with open_filename(args.gen_silecs) as f:
             gen_silecs.generate_silecs(f, t)
+    if args.gen_custom is not None:
+        with open_filename(args.gen_custom) as f:
+            gen_custom.generate_custom(f, t)
     # Decode x-hdl, unroll
     expand_hdl.expand_hdl(t)
     if args.print_simple_expanded is not None:
