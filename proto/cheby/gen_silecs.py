@@ -28,7 +28,7 @@ def gen_trailer(fd):
 
 
 def generate_silecs(fd, root):
-    gen_header(fd, root.name, "owner", "editor")
+    gen_header(fd, root.name, "owner", "ieplcop")
     block_name = root.name[:7]
     fd.write('\t\t<Block name="{}_ro" area="MEMORY" mode="READ-ONLY">\n'.format(
         block_name))
