@@ -185,6 +185,22 @@ def gen_hdl_reg_decls(reg, pfx, root, module, isigs):
         else:
             reg.h_loc_mux = [reg.h_loc]
 
+    # Create CtrlReg_x signal (only if not using common visual)
+    reg.h_ctrlreg = None
+    if (not root.h_common_visual
+        and not srff
+        and reg.access in WRITE_ACCESS
+        and not get_gena_gen(reg, 'ext-creg')):
+        reg.h_ctrlreg = []
+        for i in range(reg.c_nwords):
+            regs = {}
+            for suff, _ in reg.h_mux.codelist:
+                reg_name = 'CtrlReg_{}{}{}{}'.format(
+                    pfx, reg.name, suff, subsuffix(i, reg.c_nwords))
+                regs[suff] = HDLSignal(reg_name, reg.c_rwidth)
+                module.decls.append(regs[suff])
+            reg.h_ctrlreg.append(regs)
+
     # Create Loc_x_SRFF
     reg.h_loc_SRFF = None
     if srff:
@@ -236,6 +252,35 @@ def gen_hdl_srff(reg, pfx, root, module, isigs):
     module.stmts.append(HDLComment(None))
 
 
+def gen_hdl_rmw_ctrl_reg(reg, root, module, kind,
+                         i, suff, inst_name, sel, acm, loc):
+    "Generate a process for CtrlReg or RMWReg"
+    proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_val=1)
+    proc.name = inst_name
+    ctrlreg = reg.h_ctrlreg[i][suff]
+    proc.rst_stmts.append(HDLAssign(ctrlreg, reg.h_gena_psm[i]))
+    s_if = HDLIfElse(HDLAnd(HDLEq(sel, bit_1), HDLEq(root.h_bus['wr'], bit_1)))
+    if kind == 'CtrlRegN':
+        asgn = HDLSlice(root.h_bus['dati'], 0, reg.c_rwidth)
+    elif kind == 'RMWReg':
+        # Assign: r = (r and not data(hi)) or data(lo)
+        asgn = HDLOr(HDLParen(HDLAnd(ctrlreg,
+                                     HDLNot(HDLSlice(root.h_bus['dati'],
+                                                     reg.c_rwidth,
+                                                     reg.c_rwidth)))),
+                     HDLSlice(root.h_bus['dati'], 0, reg.c_rwidth))
+    else:
+        raise AssertionError
+    s_if.then_stmts.append(HDLAssign(ctrlreg, asgn))
+    # Autoclear
+    s_if.else_stmts.append(HDLAssign(ctrlreg,
+                                     HDLAnd(ctrlreg, HDLNot(acm))))
+    proc.sync_stmts.append(s_if)
+    module.stmts.append(proc)
+    module.stmts.append(HDLAssign(loc, ctrlreg))
+    module.stmts.append(HDLComment(None))
+
+
 def gen_hdl_reg_insts(reg, pfx, root, module, isigs):
     # For SRFF.
     if get_gena_gen(reg, 'srff'):
@@ -269,28 +314,35 @@ def gen_hdl_reg_insts(reg, pfx, root, module, isigs):
         root.h_has_creg = True
     else:
         raise AssertionError
+    iwidth = reg.c_rwidth // reg.c_nwords
     for i in reversed(range(reg.c_nwords)):
         j = 0
         for suff, _ in reg.h_mux.codelist:
-            inst = HDLInstance('Reg_{}{}{}{}'.format(
-                pfx, reg.name, suff, subsuffix(i, reg.c_nwords)), reg_tpl)
-            iwidth = reg.c_rwidth // reg.c_nwords
-            inst.params = [('N', HDLNumber(iwidth))]
+            inst_name = 'Reg_{}{}{}{}'.format(
+                pfx, reg.name, suff, subsuffix(i, reg.c_nwords))
             if reg.h_acm is None:
                 acm = reg.h_gena_acm[i]
             else:
                 acm = HDLSlice(reg.h_acm, i * iwidth, iwidth)
-            inst.conns = [
-                ('VMEWrData', HDLSlice(root.h_bus['dati'], 0,
-                                       reg.c_mwidth // reg.c_nwords)),
-                ('Clk', root.h_bus['clk']),
-                ('Rst', root.h_bus['rst']),
-                ('WriteMem', root.h_bus['wr']),
-                ('CRegSel', reg.h_wrsel_mux[i][j]),
-                ('AutoClrMsk', acm),
-                ('Preset', reg.h_gena_psm[i]),
-                ('CReg', HDLSlice(reg.h_loc_mux[j], i * iwidth, iwidth))]
-            module.stmts.append(inst)
+            loc = HDLSlice(reg.h_loc_mux[j], i * iwidth, iwidth)
+            sel = reg.h_wrsel_mux[i][j]
+            if root.h_common_visual:
+                inst = HDLInstance(inst_name, reg_tpl)
+                inst.params = [('N', HDLNumber(iwidth))]
+                inst.conns = [
+                    ('VMEWrData', HDLSlice(root.h_bus['dati'], 0,
+                                           reg.c_mwidth // reg.c_nwords)),
+                    ('Clk', root.h_bus['clk']),
+                    ('Rst', root.h_bus['rst']),
+                    ('WriteMem', root.h_bus['wr']),
+                    ('CRegSel', sel),
+                    ('AutoClrMsk', acm),
+                    ('Preset', reg.h_gena_psm[i]),
+                    ('CReg', loc)]
+                module.stmts.append(inst)
+            else:
+                gen_hdl_rmw_ctrl_reg(reg, root, module, reg_tpl,
+                                     i, suff, inst_name, sel, acm, loc)
             j += 1
 
 
@@ -1321,9 +1373,5 @@ def gen_gena_regctrl(root, use_common_visual):
 
     if root.h_common_visual:
         gen_hdl_components(root, module)
-    else:
-        assert not root.h_has_rmw
-        assert not root.h_has_creg
-        assert not root.h_has_srff
 
     return module

@@ -51,6 +51,9 @@ Fix padding of structures to their size in --gen-c.
 
 Add '--consts-style' for '--gen-consts', and support VHDL constants generation.
 
+By default, '--gen-gena-regctrl' does not use anymore the CommonVisual
+components.  Use '--gena-common-visual' option to use them (issue#2)
+
 ## Version 1.1
 
 The argument '--version' has been added to the tool.
