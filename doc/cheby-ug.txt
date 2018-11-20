@@ -584,13 +584,17 @@ format is either `html` or `md`.
 
 === Generating constants file
 
-In order to write testbench, you can generate a verilog include files that
+In order to write testbench, you can generate an include files that
 defines the address of the registers, the offset and a mask for each fields.
 
 [source]
 ----
-  $ cheby --gen-consts -i INPUT.cheby
+  $ cheby --consts-style=STYLE --gen-consts -i INPUT.cheby
 ----
+
+The `STYLE` can be either `verilog` or `vhdl`. For vhdl the addresses and the
+offsets are integers, and the mask is not generated (as it would often overflow
+the integer range).
 
 === Generating SILECS file
 

@@ -1,13 +1,30 @@
 import cheby.tree as tree
 
-
-class RegsPrinter(tree.Visitor):
-    def __init__(self, fd, root):
+class RegsPrinter(object):
+    def __init__(self, fd):
+        super(RegsPrinter, self).__init__()
         self.fd = fd
-        self.pfx = root.name.upper()
 
     def pr_raw(self, str):
         self.fd.write(str)
+
+    def pr_header(self):
+        pass
+
+    def pr_address(self, n):
+        pass
+
+    def pr_field(self, f):
+        pass
+
+    def pr_trailer(self):
+        pass
+
+
+class RegsPrinterVerilog(RegsPrinter):
+    def __init__(self, fd, root):
+        super(RegsPrinterVerilog, self).__init__(fd)
+        self.pfx = root.name.upper()
 
     def pr_address(self, n):
         self.pr_raw("`define ADDR_{}_{} 'h{:x}\n".format(
@@ -24,7 +41,45 @@ class RegsPrinter(tree.Visitor):
             self.pfx, f.c_name.upper(), mask << f.lo))
 
 
-@RegsPrinter.register(tree.Reg)
+class RegsPrinterVHDL(RegsPrinter):
+    def __init__(self, fd, root):
+        super(RegsPrinterVHDL, self).__init__(fd)
+        self.name = root.name
+        self.pfx = root.name.upper()
+
+    def pr_header(self):
+        self.pr_raw("package {}_Consts is\n".format(self.name))
+
+    def pr_address(self, n):
+        self.pr_raw("  constant ADDR_{}_{} : Natural := 16#{:x}#;\n".format(
+            self.pfx, n.c_name.upper(), n.c_abs_addr))
+
+    def pr_field(self, f):
+        self.pr_raw("  constant {}_{}_OFFSET : Natural := {};\n".format(
+            self.pfx, f.c_name.upper(), f.lo))
+
+    def pr_trailer(self):
+        self.pr_raw("end package {}_Consts;\n".format(self.name))
+
+
+class RegsVisitor(tree.Visitor):
+    def __init__(self, printer):
+        self.printer = printer
+
+    def pr_header(self):
+        self.printer.pr_header()
+
+    def pr_address(self, n):
+        self.printer.pr_address(n)
+
+    def pr_field(self, f):
+        self.printer.pr_field(f)
+
+    def pr_trailer(self):
+        self.printer.pr_trailer()
+
+
+@RegsVisitor.register(tree.Reg)
 def pregs_reg(pr, n):
     pr.pr_address(n)
     if n.has_fields():
@@ -32,12 +87,12 @@ def pregs_reg(pr, n):
             pr.pr_field(f)
 
 
-@RegsPrinter.register(tree.Block)
+@RegsVisitor.register(tree.Block)
 def pregs_block(pr, n):
     pregs_complex(pr, n)
 
 
-@RegsPrinter.register(tree.Submap)
+@RegsVisitor.register(tree.Submap)
 def pregs_submap(pr, n):
     pr.pr_address(n)
     # Recurse ?
@@ -45,28 +100,32 @@ def pregs_submap(pr, n):
         pregs_complex(pr, n.c_submap)
 
 
-@RegsPrinter.register(tree.Array)
+@RegsVisitor.register(tree.Array)
 def pregs_array(pr, n):
     pregs_complex(pr, n)
 
 
-@RegsPrinter.register(tree.ComplexNode)
+@RegsVisitor.register(tree.ComplexNode)
 def pregs_complex(pr, n):
     pr.pr_address(n)
     pregs_composite(pr, n)
 
 
-@RegsPrinter.register(tree.CompositeNode)
+@RegsVisitor.register(tree.CompositeNode)
 def pregs_composite(pr, n):
     for el in n.children:
         pr.visit(el)
 
 
-@RegsPrinter.register(tree.Root)
+@RegsVisitor.register(tree.Root)
 def pregs_root(pr, n):
     pregs_composite(pr, n)
 
 
-def pregs_cheby(fd, root):
-    pr = RegsPrinter(fd, root)
+def pregs_cheby(fd, root, style):
+    cls = {'verilog': RegsPrinterVerilog,
+           'vhdl': RegsPrinterVHDL}
+    pr = RegsVisitor(cls[style](fd, root))
+    pr.pr_header()
     pr.visit(root)
+    pr.pr_trailer()

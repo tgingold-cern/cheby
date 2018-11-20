@@ -48,6 +48,9 @@ def decode_args():
                          help='select language for hdl generation')
     aparser.add_argument('--gen-hdl', nargs='?', const='-',
                          help='generate hdl file')
+    aparser.add_argument('--consts-style', choices=['vhdl', 'verilog'],
+                         default='verilog',
+                         help='select style for --gen-consts')
     aparser.add_argument('--gen-consts', nargs='?', const='-',
                          help='generate constants as hdl file')
     aparser.add_argument('--gen-edge', nargs='?', const='-',
@@ -161,7 +164,7 @@ def handle_file(args, filename):
                 raise AssertionError('unknown doc format {}'.format(args.doc))
     if args.gen_consts is not None:
         with open_filename(args.gen_consts) as f:
-            print_regs.pregs_cheby(f, t)
+            print_regs.pregs_cheby(f, t, args.consts_style)
     if args.gen_wbgen_hdl is not None:
         h = gen_wbgen_hdl.expand_hdl(t)
         with open_filename(args.gen_wbgen_hdl) as f:
