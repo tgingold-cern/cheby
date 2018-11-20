@@ -176,11 +176,12 @@ class HDLComb(HDLStmt):
 
 
 class HDLSync(HDLStmt):
-    def __init__(self, clk, rst):
+    def __init__(self, clk, rst, rst_val=0):
         super(HDLSync, self).__init__()
         self.name = None
         self.clk = clk
         self.rst = rst
+        self.rst_val = rst_val
         self.rst_stmts = []
         self.sync_stmts = []
 
@@ -303,11 +304,12 @@ def Slice_or_Index(prefix, index, size):
 
 
 class HDLReplicate(HDLExpr):
-    def __init__(self, expr, num):
+    def __init__(self, expr, num, with_others=True):
         super(HDLReplicate, self).__init__()
         self.expr = expr
         assert num is None or isinstance(num, int)
         self.num = num
+        self.with_others = num is None or with_others
 
 
 class HDLExtBase(HDLExpr):

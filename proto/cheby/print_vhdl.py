@@ -195,7 +195,11 @@ def generate_expr(e, prio=-1):
     elif isinstance(e, hdltree.HDLParen):
         return "({})".format(generate_expr(e.expr))
     elif isinstance(e, hdltree.HDLReplicate):
-        return "(others => {})".format(generate_expr(e.expr))
+        if e.with_others:
+            return "(others => {})".format(generate_expr(e.expr))
+        else:
+            return "({} downto 0 => {})".format(e.num - 1,
+                                                generate_expr(e.expr))
     elif isinstance(e, hdltree.HDLZext):
         return "std_logic_vector(resize(unsigned({}), {}))".format(
             generate_expr(e.expr), e.size)
@@ -374,7 +378,7 @@ def generate_stmts(fd, stmts, indent):
                 wln(fd, ") begin")
             # wln(fd, sindent + "begin")
             if s.rst is not None:
-                cond = "{} = '0'".format(generate_expr(s.rst))
+                cond = "{} = '{}'".format(generate_expr(s.rst), s.rst_val)
                 if style == 'wbgen':
                     cond = '(' + cond + ')'
                 wln(fd, sindent + "  if {} then ".format(cond))

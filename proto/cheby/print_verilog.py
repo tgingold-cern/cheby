@@ -329,6 +329,7 @@ def generate_stmts(fd, stmts, indent):
                 w(fd, '{}: '.format(s.name))
             w(fd, "always @(posedge({})".format(generate_expr(s.clk)))
             if s.rst is not None:
+                assert s.rst_val == 0
                 w(fd, "or negedge({})".format(generate_expr(s.rst)))
             wln(fd, ")")
             wln(fd, sindent + "begin")
