@@ -278,7 +278,7 @@ def test_gena():
         if not compare_buffer_and_file(buf, memmapfile):
             error('gena memmap generation error for {}'.format(f))
         # Test regctrl generation
-        hregctrl = gen_gena_regctrl.gen_gena_regctrl(t)
+        hregctrl = gen_gena_regctrl.gen_gena_regctrl(t, True)
         buf = write_buffer()
         print_vhdl.print_vhdl(buf, hregctrl)
         regctrlfile = srcdir + 'gena/HDL/' + 'RegCtrl_' + t.name + '.vhd'
@@ -306,7 +306,7 @@ def test_gena_regctrl_err():
         gen_gena_memmap.gen_gena_memmap(t)
         # Test regctrl generation
         try:
-            gen_gena_regctrl.gen_gena_regctrl(t)
+            gen_gena_regctrl.gen_gena_regctrl(t, True)
             error('gen regctrl error expected for {}'.format(f))
         except gen_gena_regctrl.GenHDLException as e:
             assert(str(e) != '')

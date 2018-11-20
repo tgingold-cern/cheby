@@ -5,9 +5,9 @@ from cheby.hdltree import (HDLComponent, HDLComponentSpec,
                            bit_0, bit_1,
                            HDLSlice, HDLIndex,
                            HDLSub, HDLMul,
-                           HDLAnd, HDLNot,
+                           HDLAnd, HDLOr, HDLNot,
                            HDLGe, HDLLe, HDLEq,
-                           HDLZext, HDLSext, HDLReplicate, HDLConcat,
+                           HDLZext, HDLSext, HDLReplicate, HDLConcat, HDLParen,
                            HDLAssign, HDLIfElse,
                            HDLSwitch, HDLChoiceExpr, HDLChoiceDefault,
                            HDLInstance, HDLComb, HDLSync,
@@ -220,19 +220,38 @@ def gen_hdl_reg_decls(reg, pfx, root, module, isigs):
                 reg.h_wrsel_mux.insert(0, [reg.h_wrsel[0]])
 
 
+def gen_hdl_srff(reg, pfx, root, module, isigs):
+    "Generate a process for SRFF"
+    proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_val=1)
+    proc.name = 'SRFF_{}{}'.format(pfx, reg.name)
+    proc.rst_stmts.append(HDLAssign(reg.h_loc_SRFF,
+                                    HDLReplicate(bit_0, reg.c_rwidth)))
+    proc.sync_stmts.append(HDLAssign(
+        reg.h_loc_SRFF,
+        HDLOr(HDLParen(HDLAnd(reg.h_loc_SRFF,
+                              HDLReplicate(HDLNot(reg.h_ClrSRFF),
+                                                  reg.c_rwidth, False))),
+              reg.h_loc)))
+    module.stmts.append(proc)
+    module.stmts.append(HDLComment(None))
+
+
 def gen_hdl_reg_insts(reg, pfx, root, module, isigs):
     # For SRFF.
     if get_gena_gen(reg, 'srff'):
-        root.h_has_srff = True
-        inst = HDLInstance('SRFF_{}{}'.format(pfx, reg.name), 'SRFFxN')
-        inst.params = [('N', HDLNumber(reg.c_rwidth))]
-        inst.conns = [
-            ('Clk', root.h_bus['clk']),
-            ('Rst', root.h_bus['rst']),
-            ('Set', reg.h_loc),
-            ('Clr', reg.h_ClrSRFF),
-            ('Q', reg.h_loc_SRFF)]
-        module.stmts.append(inst)
+        if root.h_common_visual:
+            root.h_has_srff = True
+            inst = HDLInstance('SRFF_{}{}'.format(pfx, reg.name), 'SRFFxN')
+            inst.params = [('N', HDLNumber(reg.c_rwidth))]
+            inst.conns = [
+                ('Clk', root.h_bus['clk']),
+                ('Rst', root.h_bus['rst']),
+                ('Set', reg.h_loc),
+                ('Clr', reg.h_ClrSRFF),
+                ('Q', reg.h_loc_SRFF)]
+            module.stmts.append(inst)
+        else:
+            gen_hdl_srff(reg, pfx, root, module, isigs)
         return
 
     if reg.access not in WRITE_ACCESS:
@@ -1277,11 +1296,13 @@ def gen_hdl_misc_root(root, module, isigs):
     module.stmts.append(HDLComment(None))
 
 
-def gen_gena_regctrl(root):
+def gen_gena_regctrl(root, use_common_visual):
     module = gen_hdl.gen_hdl_header(root)
     module.name = 'RegCtrl_{}'.format(root.name)
 
-    module.libraries.append('CommonVisual')
+    root.h_common_visual = use_common_visual
+    if root.h_common_visual:
+        module.libraries.append('CommonVisual')
     lib = get_gena_gen(root, 'vhdl-library', 'work')
     module.deps.append((lib, 'MemMap_{}'.format(root.name)))
 
@@ -1298,6 +1319,11 @@ def gen_gena_regctrl(root):
     gen_hdl_strobeseq(root, module, isigs)
     gen_hdl_misc_root(root, module, isigs)
 
-    gen_hdl_components(root, module)
+    if root.h_common_visual:
+        gen_hdl_components(root, module)
+    else:
+        assert not root.h_has_rmw
+        assert not root.h_has_creg
+        assert not root.h_has_srff
 
     return module

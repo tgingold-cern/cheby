@@ -63,6 +63,8 @@ def decode_args():
                          help='generate Gena MemMap file')
     aparser.add_argument('--gen-gena-regctrl', nargs='?', const='-',
                          help='generate Gena RegCtrl file')
+    aparser.add_argument('--gena-common-visual', action='store_true',
+                         help='use CommonVisual library in gena code')
     aparser.add_argument('--gen-wbgen-hdl', nargs='?', const='-',
                          help='generate wbgen hdl')
     aparser.add_argument('--doc', choices=['html', 'md'], default='html',
@@ -151,7 +153,7 @@ def handle_file(args, filename):
         if not args.gen_gena_memmap:
             gen_gena_memmap.gen_gena_memmap(t)
         with open_filename(args.gen_gena_regctrl) as f:
-            h = gen_gena_regctrl.gen_gena_regctrl(t)
+            h = gen_gena_regctrl.gen_gena_regctrl(t, args.gena_common_visual)
             print_vhdl.print_vhdl(f, h)
     gen_name.gen_name_root(t)
     if args.gen_doc is not None:
