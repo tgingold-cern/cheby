@@ -105,7 +105,8 @@ def layout_err(t):
 
 
 def test_layout():
-    for f in ['demo.yaml', 'block1.yaml', 'array1.yaml', 'array2.yaml']:
+    for f in ['demo.yaml', 'block1.yaml', 'array1.yaml', 'array2.yaml',
+              'bug-gen-c/fids-errmiss.cheby']:
         if verbose:
             print('test layout: {}'.format(f))
         t = parse_ok(srcdir + f)

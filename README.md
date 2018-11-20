@@ -47,6 +47,8 @@ Fix SILECS compatibility bugs (merge!3, merge!5)
 
 Explain workflow for '--gen-c' (issue#3)
 
+Fix padding of structures to their size in --gen-c.
+
 ## Version 1.1
 
 The argument '--version' has been added to the tool.

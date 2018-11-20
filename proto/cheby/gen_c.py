@@ -43,6 +43,39 @@ class CPrinter(tree.Visitor):
         self.cp_raw('{}{}\n'.format('  ' * self.indent, txt))
 
 
+def cprint_children(cp, n, size):
+    "Generate declarations for children of :param n:, and pad to :param size:"
+    addr = 0
+    pad_id = [0]  # Modified in the nested maybe_pad function
+
+    def maybe_pad(diff):
+        if diff == 0:
+            return
+        # Pad
+        # Note: the 4 is not related to bus size, but to C types.
+        if addr % 4 == 0 and diff % 4 == 0:
+            sz = 4
+        else:
+            sz = 1
+        cp.cp_txt('')
+        cp.cp_txt('/* padding to: {} words */'.format(el.c_address // sz))
+        cp.cp_txt('{} __padding_{}[{}];'.format(
+            cp.utypes[sz], pad_id[0], diff // sz))
+        pad_id[0] += 1
+
+    for i in range(len(n.c_sorted_children)):
+        el = n.c_sorted_children[i]
+        diff = el.c_address - addr
+        assert diff >= 0
+        maybe_pad(diff)
+        if i != 0:
+            cp.cp_txt('')
+        cp.visit(el)
+        addr = el.c_address + el.c_size
+    # Last pad
+    maybe_pad(size - addr)
+
+
 @CPrinter.register(tree.Reg)
 def cprint_reg(cp, n):
     cp.cp_txt('/* [0x{:x}]: REG ({}) {} */'.format(
@@ -61,7 +94,7 @@ def cprint_block(cp, n):
     cp.cp_txt('/* [0x{:x}]: BLOCK {} */'.format(
               n.c_address, n.description or '(no description)'))
     cp.start_struct(n.name)
-    cprint_complex(cp, n)
+    cprint_children(cp, n, n.c_size)
     cp.end_struct(n.name)
 
 
@@ -70,7 +103,7 @@ def cprint_array(cp, n):
     cp.cp_txt('/* [0x{:x}]: ARRAY {} */'.format(
               n.c_address, n.description or '(no description)'))
     cp.start_struct(n.name)
-    cprint_complex(cp, n)
+    cprint_children(cp, n, n.c_elsize)
     cp.end_struct('{}[{}]'.format(n.name, n.repeat))
 
 
@@ -97,29 +130,7 @@ def cprint_complex(cp, n):
 
 @CPrinter.register(tree.CompositeNode)
 def cprint_composite(cp, n):
-    addr = 0
-    pad_id = 0
-    for i in range(len(n.c_sorted_children)):
-        el = n.c_sorted_children[i]
-        diff = el.c_address - addr
-        assert diff >= 0
-        if diff > 0:
-            # Pad
-            # Note: the 4 is not related to bus size, but to C types.
-            if addr % 4 == 0 and diff % 4 == 0:
-                sz = 4
-            else:
-                sz = 1
-            if i != 0:
-                cp.cp_txt('')
-            cp.cp_txt('/* padding to: {} words */'.format(el.c_address // sz))
-            cp.cp_txt('{} __padding_{}[{}];'.format(
-                cp.utypes[sz], pad_id, diff // sz))
-            pad_id += 1
-        if i != 0:
-            cp.cp_txt('')
-        cp.visit(el)
-        addr = el.c_address + el.c_size
+    cprint_children(cp, n, n.c_size)
 
 
 @CPrinter.register(tree.Root)
