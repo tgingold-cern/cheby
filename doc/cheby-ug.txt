@@ -548,14 +548,20 @@ the files.
 === Generating C header
 
 The definition of a C structure representing the layout of the design is
-generated using the `--gen-c` flag.  This generates a header file and assumes
-that referenced designs (throught the submap feature of Cheby) have been
-generated.
+generated using the `--gen-c` flag.
 
 [source]
 ----
   $ cheby --gen-c -i INPUT.cheby
 ----
+
+Through the submap feature of Cheby, a design can reference another
+design stored in a different file. In the header file generated, the
+structure for the referenced design is not redefined, but imported
+through an `include` directive, using the `DESIGN.h` name (without any
+directory).  So it is expected that either all the headers are stored
+in the same directory or that the include pathes are specified to the
+C compiler (using `-I` for example).
 
 It is also possible to generate a C program that check the layout is the same
 as the layout seen by Cheby.  This can be used as a consistency check.
@@ -596,6 +602,19 @@ Cheby description.  Not all features of Cheby are supported: only registers.
 ----
   $ cheby --gen-silecs -i INPUT.cheby
 ----
+
+=== Custom pass
+
+If you need a very specific feature, you can implement your own pass, and invoke it
+using `--gen-custom`:
+
+[source]
+----
+  $ cheby --gen-custom[=OUTPUT] -i INPUT.cheby
+----
+
+The Cheby tool will read the `gen_custom.py` file in the current directory and call
+the `generate_custom` function.
 
 === Generating text files
 

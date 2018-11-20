@@ -33,7 +33,19 @@ To create a new release:
 
 * generate the pdf documentation
 
-* tag the git tree
+* tag the git tree (and push)
+
+* Announce on the cheby-codegen mailing list
+
+* Update the wiki at https://gitlab.cern.ch/cohtdrivers/cheby/wikis/home
+
+## Version 1.2
+
+Add --gen-custom to support user defined pass (merge!4)
+
+Fix SILECS compatibility bugs (merge!3, merge!5)
+
+Explain workflow for '--gen-c' (issue#3)
 
 ## Version 1.1
 
