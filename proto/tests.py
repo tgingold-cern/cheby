@@ -19,6 +19,7 @@ import cheby.gena2cheby as gena2cheby
 import cheby.wbgen2cheby as wbgen2cheby
 import cheby.gen_wbgen_hdl as gen_wbgen_hdl
 import cheby.print_regs as print_regs
+import cheby.gen_custom as gen_custom
 
 srcdir = '../testfiles/'
 verbose = False
@@ -421,6 +422,22 @@ def test_consts():
             if not compare_buffer_and_file(buf, file):
                 error('consts {} generation error for {}'.format(style, f))
 
+def test_custom():
+    for f in ['custom/fidsErrMiss']:
+        if verbose:
+            print('test custom: {}'.format(f))
+        cheby_file = srcdir + f + '.cheby'
+        c_file = srcdir + f + '.h'
+        t = parse_ok(cheby_file)
+        layout_ok(t)
+        buf = write_buffer()
+        # We need to change working directory
+        cwd = os.getcwd()
+        os.chdir(srcdir + '/custom')
+        gen_custom.generate_custom(buf, t)
+        os.chdir(cwd)
+        if not compare_buffer_and_file(buf, c_file):
+            error('custom generation error for {}'.format(f))
 
 def main():
     global verbose
@@ -442,6 +459,7 @@ def main():
         test_gena2cheby_err()
         test_wbgen2cheby()
         test_consts()
+        test_custom()
         print("Done!")
     except TestError as e:
         werr(e.msg)
