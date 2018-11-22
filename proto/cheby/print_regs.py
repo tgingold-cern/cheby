@@ -11,11 +11,31 @@ class RegsPrinter(object):
     def pr_header(self):
         pass
 
-    def pr_address(self, n):
+    def pr_hex_const(self, name, val):
         pass
 
-    def pr_field(self, f):
+    def pr_dec_const(self, name, val):
         pass
+
+    def pr_address(self, n):
+        self.pr_hex_const("ADDR_{}_{}".format(self.pfx, n.c_name.upper()),
+                          n.c_abs_addr)
+
+    def pr_field_offset(self, f):
+        self.pr_dec_const(
+            "{}_{}_OFFSET".format(self.pfx, f.c_name.upper()), f.lo)
+
+    def pr_field_mask(self, f):
+        if f.hi is None:
+            mask = 1
+        else:
+            mask = (1 << (f.hi - f.lo + 1)) - 1
+        self.pr_hex_const("{}_{}".format(self.pfx, f.c_name.upper()),
+                          mask << f.lo)
+
+    def pr_field(self, f):
+        self.pr_field_offset(f)
+        self.pr_field_mask(f)
 
     def pr_trailer(self):
         pass
@@ -26,19 +46,14 @@ class RegsPrinterVerilog(RegsPrinter):
         super(RegsPrinterVerilog, self).__init__(fd)
         self.pfx = root.name.upper()
 
-    def pr_address(self, n):
-        self.pr_raw("`define ADDR_{}_{} 'h{:x}\n".format(
-            self.pfx, n.c_name.upper(), n.c_abs_addr))
+    def pr_const(self, name, val):
+        self.pr_raw("`define {} {}\n".format(name, val))
 
-    def pr_field(self, f):
-        self.pr_raw("`define {}_{}_OFFSET {}\n".format(
-            self.pfx, f.c_name.upper(), f.lo))
-        if f.hi is None:
-            mask = 1
-        else:
-            mask = (1 << (f.hi - f.lo + 1)) - 1
-        self.pr_raw("`define {}_{} 'h{:x}\n".format(
-            self.pfx, f.c_name.upper(), mask << f.lo))
+    def pr_hex_const(self, name, val):
+        self.pr_const(name, "'h{:x}".format(val))
+
+    def pr_dec_const(self, name, val):
+        self.pr_const(name, "{}".format(val))
 
 
 class RegsPrinterVHDL(RegsPrinter):
@@ -50,13 +65,18 @@ class RegsPrinterVHDL(RegsPrinter):
     def pr_header(self):
         self.pr_raw("package {}_Consts is\n".format(self.name))
 
-    def pr_address(self, n):
-        self.pr_raw("  constant ADDR_{}_{} : Natural := 16#{:x}#;\n".format(
-            self.pfx, n.c_name.upper(), n.c_abs_addr))
+    def pr_const(self, name, val):
+        self.pr_raw("  constant {} : Natural := {};\n".format(name, val))
 
-    def pr_field(self, f):
-        self.pr_raw("  constant {}_{}_OFFSET : Natural := {};\n".format(
-            self.pfx, f.c_name.upper(), f.lo))
+    def pr_hex_const(self, name, val):
+        self.pr_const (name, "16#{:x}#".format(val))
+
+    def pr_dec_const(self, name, val):
+        self.pr_const (name, "{}".format(val))
+
+    def pr_field_mask(self, f):
+        # Not printed as a mask may overflow a natural.
+        pass
 
     def pr_trailer(self):
         self.pr_raw("end package {}_Consts;\n".format(self.name))
