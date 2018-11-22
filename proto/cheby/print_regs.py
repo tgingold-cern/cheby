@@ -21,6 +21,10 @@ class RegsPrinter(object):
         self.pr_hex_const("ADDR_{}_{}".format(self.pfx, n.c_name.upper()),
                           n.c_abs_addr)
 
+    def pr_size(self, n, sz):
+        self.pr_dec_const("{}_{}_SIZE".format(self.pfx, n.c_name.upper()),
+                          sz)
+
     def pr_field_offset(self, f):
         self.pr_dec_const(
             "{}_{}_OFFSET".format(self.pfx, f.c_name.upper()), f.lo)
@@ -92,6 +96,9 @@ class RegsVisitor(tree.Visitor):
     def pr_address(self, n):
         self.printer.pr_address(n)
 
+    def pr_size(self, n, sz):
+        self.printer.pr_size(n, sz)
+
     def pr_field(self, f):
         self.printer.pr_field(f)
 
@@ -110,11 +117,13 @@ def pregs_reg(pr, n):
 @RegsVisitor.register(tree.Block)
 def pregs_block(pr, n):
     pregs_complex(pr, n)
+    pr.pr_size(n, n.c_size)
 
 
 @RegsVisitor.register(tree.Submap)
 def pregs_submap(pr, n):
     pr.pr_address(n)
+    pr.pr_size(n, n.c_size)
     # Recurse ?
     if False and n.filename is not None:
         pregs_complex(pr, n.c_submap)
@@ -123,7 +132,7 @@ def pregs_submap(pr, n):
 @RegsVisitor.register(tree.Array)
 def pregs_array(pr, n):
     pregs_complex(pr, n)
-
+    pr.pr_size(n, n.c_elsize)
 
 @RegsVisitor.register(tree.ComplexNode)
 def pregs_complex(pr, n):
