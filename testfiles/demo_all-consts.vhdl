@@ -1,0 +1,24 @@
+package demo_all_Consts is
+  constant ADDR_DEMO_ALL_REG0 : Natural := 16#0#;
+  constant DEMO_ALL_REG0_FIELD00_OFFSET : Natural := 1;
+  constant DEMO_ALL_REG0_FIELD01_OFFSET : Natural := 4;
+  constant DEMO_ALL_REG0_FIELD02_OFFSET : Natural := 8;
+  constant ADDR_DEMO_ALL_REG1 : Natural := 16#4#;
+  constant ADDR_DEMO_ALL_REG2 : Natural := 16#8#;
+  constant DEMO_ALL_REG2_FIELD10_OFFSET : Natural := 0;
+  constant DEMO_ALL_REG2_FIELD11_OFFSET : Natural := 16;
+  constant ADDR_DEMO_ALL_BLOCK1 : Natural := 16#10#;
+  constant ADDR_DEMO_ALL_BLOCK1_B1REG0 : Natural := 16#10#;
+  constant ADDR_DEMO_ALL_BLOCK1_B1REG1 : Natural := 16#14#;
+  constant DEMO_ALL_BLOCK1_B1REG1_F0_OFFSET : Natural := 0;
+  constant DEMO_ALL_BLOCK1_B1REG1_F1_OFFSET : Natural := 1;
+  constant ADDR_DEMO_ALL_BLOCK1_B1REG2 : Natural := 16#18#;
+  constant ADDR_DEMO_ALL_SUB1 : Natural := 16#20#;
+  constant ADDR_DEMO_ALL_SUB2 : Natural := 16#30#;
+  constant ADDR_DEMO_ALL_SUB3 : Natural := 16#1000#;
+  constant ADDR_DEMO_ALL_ARR1 : Natural := 16#2000#;
+  constant ADDR_DEMO_ALL_ARR1_AREG10 : Natural := 16#2000#;
+  constant ADDR_DEMO_ALL_ARR1_AREG11 : Natural := 16#2004#;
+  constant ADDR_DEMO_ALL_RAM_RO1 : Natural := 16#2080#;
+  constant ADDR_DEMO_ALL_RAM_RO1_VALUE : Natural := 16#0#;
+end package demo_all_Consts;

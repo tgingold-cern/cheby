@@ -18,6 +18,7 @@ import cheby.gen_gena_regctrl as gen_gena_regctrl
 import cheby.gena2cheby as gena2cheby
 import cheby.wbgen2cheby as wbgen2cheby
 import cheby.gen_wbgen_hdl as gen_wbgen_hdl
+import cheby.print_regs as print_regs
 
 srcdir = '../testfiles/'
 verbose = False
@@ -401,6 +402,26 @@ def test_wbgen2cheby():
     print_vhdl.style = None
 
 
+def test_consts():
+    # Generate constants and compare with a baseline.
+    for f in ['demo_all']:
+        if verbose:
+            print('test consts: {}'.format(f))
+        cheby_file = srcdir + f + '.cheby'
+        vhdl_file = srcdir + f + '-consts.vhdl'
+        verilog_file = srcdir + f + '-consts.v'
+        t = parse_ok(cheby_file)
+        layout_ok(t)
+        expand_hdl.expand_hdl(t)
+        gen_name.gen_name_root(t)
+
+        for file, style in [(verilog_file, 'verilog'), (vhdl_file, 'vhdl')]:
+            buf = write_buffer()
+            print_regs.pregs_cheby(buf, t, style)
+            if not compare_buffer_and_file(buf, file):
+                error('consts {} generation error for {}'.format(style, f))
+
+
 def main():
     global verbose
 
@@ -420,6 +441,7 @@ def main():
         test_gena2cheby()
         test_gena2cheby_err()
         test_wbgen2cheby()
+        test_consts()
         print("Done!")
     except TestError as e:
         werr(e.msg)
