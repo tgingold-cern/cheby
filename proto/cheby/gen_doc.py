@@ -62,27 +62,28 @@ class MemmapSummary(object):
         self.root = root
         self.ndigits = (layout.ilog2(root.c_size) + 3) // 4
         self.raws = []
-        self.gen_raws(root, '', '')
+        self.gen_raws(root, '', '', 0)
 
-    def gen_raws(self, parent, name_pfx, addr_pfx):
+    def gen_raws(self, parent, name_pfx, addr_pfx, addr_base):
         "Fill raws (list of SummaryRaw)"
         for n in parent.c_sorted_children:
+            # Need to compute address for external submap.
+            n_addr = addr_base + n.c_address
             rng = addr_pfx + '0x{:0{w}x}-0x{:0{w}x}'.format(
-                n.c_abs_addr, n.c_abs_addr + n.c_size - 1, w=self.ndigits)
+                n_addr, n_addr + n.c_size - 1, w=self.ndigits)
             name = name_pfx + n.name
             if isinstance(n, tree.Reg):
-                rng = addr_pfx + '0x{:0{w}x}'.format(
-                    n.c_abs_addr, w=self.ndigits)
+                rng = addr_pfx + '0x{:0{w}x}'.format(n_addr, w=self.ndigits)
                 self.raws.append(SummaryRaw(rng, 'REG', name, n))
             elif isinstance(n, tree.Block):
                 self.raws.append(SummaryRaw(rng, 'BLOCK', name, n))
-                self.gen_raws(n, name + '.', addr_pfx)
+                self.gen_raws(n, name + '.', addr_pfx, n_addr)
             elif isinstance(n, tree.Submap):
                 self.raws.append(SummaryRaw(rng, 'SUBMAP', name, n))
                 if n.filename is not None:
-                    self.gen_raws(n.c_submap, name + '.', addr_pfx)
+                    self.gen_raws(n.c_submap, name + '.', addr_pfx, n_addr)
             elif isinstance(n, tree.Array):
                 self.raws.append(SummaryRaw(rng, 'ARRAY', name, n))
-                self.gen_raws(n, name + '.', addr_pfx + ' +')
+                self.gen_raws(n, name + '.', addr_pfx + ' +', 0)
             else:
                 assert False, "MemmapSummary: unhandled tree node {}".format(n)
