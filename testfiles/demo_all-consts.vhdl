@@ -1,4 +1,5 @@
 package demo_all_Consts is
+  constant DEMO_ALL_SIZE : Natural := 8448;
   constant ADDR_DEMO_ALL_REG0 : Natural := 16#0#;
   constant DEMO_ALL_REG0_FIELD00_OFFSET : Natural := 1;
   constant DEMO_ALL_REG0_FIELD01_OFFSET : Natural := 4;

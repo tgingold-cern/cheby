@@ -1,9 +1,10 @@
 import cheby.tree as tree
 
 class RegsPrinter(object):
-    def __init__(self, fd):
+    def __init__(self, fd, root):
         super(RegsPrinter, self).__init__()
         self.fd = fd
+        self.pfx = root.name.upper()
 
     def pr_raw(self, str):
         self.fd.write(str)
@@ -47,8 +48,7 @@ class RegsPrinter(object):
 
 class RegsPrinterVerilog(RegsPrinter):
     def __init__(self, fd, root):
-        super(RegsPrinterVerilog, self).__init__(fd)
-        self.pfx = root.name.upper()
+        super(RegsPrinterVerilog, self).__init__(fd, root)
 
     def pr_const(self, name, val):
         self.pr_raw("`define {} {}\n".format(name, val))
@@ -62,9 +62,8 @@ class RegsPrinterVerilog(RegsPrinter):
 
 class RegsPrinterVHDL(RegsPrinter):
     def __init__(self, fd, root):
-        super(RegsPrinterVHDL, self).__init__(fd)
+        super(RegsPrinterVHDL, self).__init__(fd, root)
         self.name = root.name
-        self.pfx = root.name.upper()
 
     def pr_header(self):
         self.pr_raw("package {}_Consts is\n".format(self.name))
@@ -148,6 +147,8 @@ def pregs_composite(pr, n):
 
 @RegsVisitor.register(tree.Root)
 def pregs_root(pr, n):
+    pr.printer.pr_dec_const("{}_SIZE".format(n.name.upper()),
+                            n.c_size)
     pregs_composite(pr, n)
 
 
