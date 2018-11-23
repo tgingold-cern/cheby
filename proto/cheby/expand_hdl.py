@@ -50,7 +50,7 @@ def expand_x_hdl_field(f, n, dct):
 
 
 def expand_x_hdl_root(n, dct):
-    for k, v in dct.items():
+    for k, _ in dct.items():
         if k in ['busgroup', 'iogroup', 'reg_prefix', 'block_prefix']:
             pass
         else:
@@ -59,7 +59,7 @@ def expand_x_hdl_root(n, dct):
 
 
 def expand_x_hdl_submap(n, dct):
-    for k, v in dct.items():
+    for k, _ in dct.items():
         if k == 'busgroup':
             pass
         else:

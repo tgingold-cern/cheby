@@ -82,35 +82,6 @@ def print_symbol_table(left, right):
     return res
 
 
-def print_symbol(periph):
-    res = '''
-<h3><a name="sect_2_0">2. HDL symbol</a></h3>
-'''
-    left = []
-    for p in periph.bus_ports:
-        left.append(p)
-    right = []
-    for r in periph.regs:
-        if isinstance(r, tree.Reg) \
-           or isinstance(r, tree.Fifo) \
-           or isinstance(r, tree.Ram) \
-           or isinstance(r, tree.Irq):
-            if not r.code.ports \
-               and len(r.fields) == 1 \
-               and r.fields[0].access == 'WO_RO':  # FIXME!
-                continue
-            if right:
-                right.append(('&nbsp;', ''))
-            right.append(('', "<b>{}:</b>".format(r.name)))
-            for p in r.code.ports:
-                right.append(('', p))
-    for r in periph.regs:
-        if isinstance(r, tree.FifoReg):
-            right.append(('&nbsp;', ''))
-            right.append(('', "<b>{}:</b>".format(r.name)))
-    return res + print_symbol_table(left, right)
-
-
 def print_regdescr_reg(periph, raw, num):
     r = raw.node
     res = '''<a name="{name}"></a>
@@ -259,9 +230,6 @@ def pprint_root(fd, root):
     memmap_summary = print_summary_html(root, summary)
     # Sect1: Memory map summary
     w(fd, memmap_summary)
-    if False:
-        # Sect2: Symbol
-        w(print_symbol(root))
     # Sect2: Registers
     w(fd, print_regdescr(root, summary.raws))
     wln(fd, '\n</BODY>\n</HTML>')
