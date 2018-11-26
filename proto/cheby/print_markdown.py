@@ -14,9 +14,9 @@ def wln(fd, str=""):
     fd.write('\n')
 
 
-def print_reg(fd, r):
+def print_reg(fd, r, abs_addr):
     wln(fd, "[horizontal]")
-    wln(fd, "address:: 0x{:x}".format(r.c_abs_addr))
+    wln(fd, "address:: 0x{:x}".format(abs_addr))
     wln(fd, "block offset:: 0x{:x}".format(r.c_address))
     wln(fd, "access mode:: {}".format(r.access))
     if r.description:
@@ -66,7 +66,7 @@ def print_root(fd, root):
         r = ra.node
         if isinstance(r, tree.Reg):
             wln(fd, "=== {}".format(ra.name))
-            print_reg(fd, r)
+            print_reg(fd, r, ra.abs_addr)
 
 
 def print_markdown(fd, n):
