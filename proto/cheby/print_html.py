@@ -95,7 +95,7 @@ def print_regdescr_reg(periph, raw, num):
 '''.format(n=num, cprefix=r.name,
            hdlprefix="{}_{}".format(get_hdl_prefix(periph),
                                     get_hdl_prefix(r)),
-           addr=r.c_address, caddr=r.c_address,
+           addr=raw.abs_addr, caddr=raw.abs_addr,
            name=raw.name)
     if r.description is not None:
         res += '''<p>

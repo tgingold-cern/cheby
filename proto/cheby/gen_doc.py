@@ -50,11 +50,12 @@ def build_regdescr_table(reg):
 
 
 class SummaryRaw(object):
-    def __init__(self, address, typ, name, node):
+    def __init__(self, address, typ, name, node, abs_addr):
         self.address = address
         self.typ = typ
         self.name = name
         self.node = node
+        self.abs_addr = abs_addr
 
 
 class MemmapSummary(object):
@@ -74,16 +75,16 @@ class MemmapSummary(object):
             name = name_pfx + n.name
             if isinstance(n, tree.Reg):
                 rng = addr_pfx + '0x{:0{w}x}'.format(n_addr, w=self.ndigits)
-                self.raws.append(SummaryRaw(rng, 'REG', name, n))
+                self.raws.append(SummaryRaw(rng, 'REG', name, n, n_addr))
             elif isinstance(n, tree.Block):
-                self.raws.append(SummaryRaw(rng, 'BLOCK', name, n))
+                self.raws.append(SummaryRaw(rng, 'BLOCK', name, n, n_addr))
                 self.gen_raws(n, name + '.', addr_pfx, n_addr)
             elif isinstance(n, tree.Submap):
-                self.raws.append(SummaryRaw(rng, 'SUBMAP', name, n))
+                self.raws.append(SummaryRaw(rng, 'SUBMAP', name, n, n_addr))
                 if n.filename is not None:
                     self.gen_raws(n.c_submap, name + '.', addr_pfx, n_addr)
             elif isinstance(n, tree.Array):
-                self.raws.append(SummaryRaw(rng, 'ARRAY', name, n))
+                self.raws.append(SummaryRaw(rng, 'ARRAY', name, n, n_addr))
                 self.gen_raws(n, name + '.', addr_pfx + ' +', 0)
             else:
                 assert False, "MemmapSummary: unhandled tree node {}".format(n)
