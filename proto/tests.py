@@ -115,6 +115,7 @@ def test_layout():
         layout_ok(t)
         hname = t.name + '.h'
         cname = t.name + '.c'
+        gen_name.gen_name_root(t)
         with open(hname, 'w') as fd:
             gen_c.gen_c_cheby(fd, t)
         with open(cname, 'w') as fd:
@@ -151,6 +152,7 @@ def test_print():
         layout_ok(t)
         pprint.pprint_cheby(fd, t)
         sprint.sprint_cheby(fd, t)
+        gen_name.gen_name_root(t)
         gen_c.gen_c_cheby(fd, t)
 
 

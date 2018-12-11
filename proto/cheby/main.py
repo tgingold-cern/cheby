@@ -122,9 +122,6 @@ def handle_file(args, filename):
     if args.print_simple is not None:
         with open_filename(args.print_simple) as f:
             sprint.sprint_cheby(f, t, True)
-    if args.gen_c is not None:
-        with open_filename(args.gen_c) as f:
-            gen_c.gen_c_cheby(f, t)
     if args.gen_c_check_layout is not None:
         with open_filename(args.gen_c_check_layout) as f:
             gen_laychk.gen_chklayout_cheby(f, t)
@@ -164,6 +161,9 @@ def handle_file(args, filename):
                 print_markdown.print_markdown(f, t)
             else:
                 raise AssertionError('unknown doc format {}'.format(args.doc))
+    if args.gen_c is not None:
+        with open_filename(args.gen_c) as f:
+            gen_c.gen_c_cheby(f, t)
     if args.gen_consts is not None:
         with open_filename(args.gen_consts) as f:
             print_consts.pconsts_cheby(f, t, args.consts_style)

@@ -1,5 +1,6 @@
 """Print as a C structure."""
 import cheby.tree as tree
+import cheby.print_consts as print_consts
 
 
 class CPrinter(tree.Visitor):
@@ -150,14 +151,16 @@ def gen_c_cheby(fd, root):
     csym = to_cmacro(root.name)
     fd.write("#ifndef {}\n".format(csym))
     fd.write("#define {}\n".format(csym))
-    fd.write('\n')
 
     submaps = set([n.name for n in cp.submaps])
+    if submaps:
+        fd.write('\n')
     for s in submaps:
         # Note: we assume the filename is the name of the memmap + h
         fd.write('#include "{}.h"\n'.format(s))
-    if submaps:
-        fd.write('\n')
+
+    print_consts.pconsts_for_gen_c(fd, root)
+    fd.write('\n')
 
     fd.write(cp.buffer)
     fd.write('\n')

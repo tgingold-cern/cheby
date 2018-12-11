@@ -4,6 +4,7 @@ class ConstsPrinter(object):
     def __init__(self, fd, root):
         super(ConstsPrinter, self).__init__()
         self.fd = fd
+        self.root = root
         self.pfx = root.name.upper()
 
     def pr_raw(self, str):
@@ -19,7 +20,10 @@ class ConstsPrinter(object):
         pass
 
     def pr_name(self, n):
-        return "{}_{}".format(self.pfx, n.c_name.upper())
+        if n == self.root:
+            return self.pfx
+        else:
+            return "{}_{}".format(self.pfx, n.c_name.upper())
 
     def pr_address(self, n):
         self.pr_hex_const("ADDR_" + self.pr_name(n), n.c_abs_addr)
@@ -102,6 +106,27 @@ class ConstsPrinterH(ConstsPrinter):
         self.pr_const(name, "{}".format(val))
 
 
+class ConstsPrinterC(ConstsPrinterH):
+    "Printer used by gen_c"
+    def __init__(self, fd, root):
+        super(ConstsPrinterC, self).__init__(fd, root)
+
+    def pr_size(self, n, sz):
+        pass
+
+    def pr_address(self, n):
+        self.pr_raw('\n')
+        self.pr_raw('/* {} */\n'.format(n.description))
+
+    def pr_field(self, f):
+        if f.hi is None:
+            # A single bit
+            self.pr_hex_const(self.pr_name(f), self.compute_mask(f))
+        else:
+            # A multi-bit field
+            self.pr_hex_const(self.pr_name(f) + '_MASK', self.compute_mask(f))
+            self.pr_dec_const(self.pr_name(f) + "_SHIFT", f.lo)
+
 class ConstsVisitor(tree.Visitor):
     def __init__(self, printer):
         self.printer = printer
@@ -164,11 +189,15 @@ def pconsts_composite(pr, n):
 
 @ConstsVisitor.register(tree.Root)
 def pconsts_root(pr, n):
-    pr.printer.pr_dec_const("{}_SIZE".format(n.name.upper()),
-                            n.c_size)
+    pr.printer.pr_size(n, n.c_size)
     pconsts_composite(pr, n)
 
 
+def pconsts_for_gen_c(fd, root):
+    pr = ConstsVisitor(ConstsPrinterC(fd, root))
+    pr.visit(root)
+
+    
 def pconsts_cheby(fd, root, style):
     cls = {'verilog': ConstsPrinterVerilog,
            'vhdl': ConstsPrinterVHDL,
