@@ -18,7 +18,7 @@ import cheby.gen_gena_regctrl as gen_gena_regctrl
 import cheby.gena2cheby as gena2cheby
 import cheby.wbgen2cheby as wbgen2cheby
 import cheby.gen_wbgen_hdl as gen_wbgen_hdl
-import cheby.print_regs as print_regs
+import cheby.print_consts as print_consts
 import cheby.gen_custom as gen_custom
 
 srcdir = '../testfiles/'
@@ -420,7 +420,7 @@ def test_consts():
 
         for file, style in [(verilog_file, 'verilog'), (vhdl_file, 'vhdl')]:
             buf = write_buffer()
-            print_regs.pregs_cheby(buf, t, style)
+            print_consts.pconsts_cheby(buf, t, style)
             if not compare_buffer_and_file(buf, file):
                 error('consts {} generation error for {}'.format(style, f))
 
