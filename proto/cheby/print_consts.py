@@ -1,8 +1,8 @@
 import cheby.tree as tree
 
-class RegsPrinter(object):
+class ConstsPrinter(object):
     def __init__(self, fd, root):
-        super(RegsPrinter, self).__init__()
+        super(ConstsPrinter, self).__init__()
         self.fd = fd
         self.pfx = root.name.upper()
 
@@ -46,9 +46,9 @@ class RegsPrinter(object):
         pass
 
 
-class RegsPrinterVerilog(RegsPrinter):
+class ConstsPrinterVerilog(ConstsPrinter):
     def __init__(self, fd, root):
-        super(RegsPrinterVerilog, self).__init__(fd, root)
+        super(ConstsPrinterVerilog, self).__init__(fd, root)
 
     def pr_const(self, name, val):
         self.pr_raw("`define {} {}\n".format(name, val))
@@ -60,9 +60,9 @@ class RegsPrinterVerilog(RegsPrinter):
         self.pr_const(name, "{}".format(val))
 
 
-class RegsPrinterVHDL(RegsPrinter):
+class ConstsPrinterVHDL(ConstsPrinter):
     def __init__(self, fd, root):
-        super(RegsPrinterVHDL, self).__init__(fd, root)
+        super(ConstsPrinterVHDL, self).__init__(fd, root)
         self.name = root.name
 
     def pr_header(self):
@@ -85,7 +85,21 @@ class RegsPrinterVHDL(RegsPrinter):
         self.pr_raw("end package {}_Consts;\n".format(self.name))
 
 
-class RegsVisitor(tree.Visitor):
+class ConstsPrinterC(ConstsPrinter):
+    def __init__(self, fd, root):
+        super(ConstsPrinterC, self).__init__(fd, root)
+
+    def pr_const(self, name, val):
+        self.pr_raw("#define {} {}\n".format(name, val))
+
+    def pr_hex_const(self, name, val):
+        self.pr_const(name, "0x{:x}UL{}".format(val, "L" if val >= 2**32 else ""))
+
+    def pr_dec_const(self, name, val):
+        self.pr_const(name, "{}".format(val))
+
+
+class ConstsVisitor(tree.Visitor):
     def __init__(self, printer):
         self.printer = printer
 
@@ -105,57 +119,58 @@ class RegsVisitor(tree.Visitor):
         self.printer.pr_trailer()
 
 
-@RegsVisitor.register(tree.Reg)
-def pregs_reg(pr, n):
+@ConstsVisitor.register(tree.Reg)
+def pconsts_reg(pr, n):
     pr.pr_address(n)
     if n.has_fields():
         for f in n.children:
             pr.pr_field(f)
 
 
-@RegsVisitor.register(tree.Block)
-def pregs_block(pr, n):
-    pregs_complex(pr, n)
+@ConstsVisitor.register(tree.Block)
+def pconsts_block(pr, n):
+    pconsts_complex(pr, n)
     pr.pr_size(n, n.c_size)
 
 
-@RegsVisitor.register(tree.Submap)
-def pregs_submap(pr, n):
+@ConstsVisitor.register(tree.Submap)
+def pconsts_submap(pr, n):
     pr.pr_address(n)
     pr.pr_size(n, n.c_size)
     # Recurse ?
     if False and n.filename is not None:
-        pregs_complex(pr, n.c_submap)
+        pconsts_complex(pr, n.c_submap)
 
 
-@RegsVisitor.register(tree.Array)
-def pregs_array(pr, n):
-    pregs_complex(pr, n)
+@ConstsVisitor.register(tree.Array)
+def pconsts_array(pr, n):
+    pconsts_complex(pr, n)
     pr.pr_size(n, n.c_elsize)
 
-@RegsVisitor.register(tree.ComplexNode)
-def pregs_complex(pr, n):
+@ConstsVisitor.register(tree.ComplexNode)
+def pconsts_complex(pr, n):
     pr.pr_address(n)
-    pregs_composite(pr, n)
+    pconsts_composite(pr, n)
 
 
-@RegsVisitor.register(tree.CompositeNode)
-def pregs_composite(pr, n):
+@ConstsVisitor.register(tree.CompositeNode)
+def pconsts_composite(pr, n):
     for el in n.children:
         pr.visit(el)
 
 
-@RegsVisitor.register(tree.Root)
-def pregs_root(pr, n):
+@ConstsVisitor.register(tree.Root)
+def pconsts_root(pr, n):
     pr.printer.pr_dec_const("{}_SIZE".format(n.name.upper()),
                             n.c_size)
-    pregs_composite(pr, n)
+    pconsts_composite(pr, n)
 
 
-def pregs_cheby(fd, root, style):
-    cls = {'verilog': RegsPrinterVerilog,
-           'vhdl': RegsPrinterVHDL}
-    pr = RegsVisitor(cls[style](fd, root))
+def pconsts_cheby(fd, root, style):
+    cls = {'verilog': ConstsPrinterVerilog,
+           'vhdl': ConstsPrinterVHDL,
+           'h': ConstsPrinterC}
+    pr = ConstsVisitor(cls[style](fd, root))
     pr.pr_header()
     pr.visit(root)
     pr.pr_trailer()
