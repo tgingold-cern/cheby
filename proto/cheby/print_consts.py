@@ -18,25 +18,27 @@ class ConstsPrinter(object):
     def pr_dec_const(self, name, val):
         pass
 
+    def pr_name(self, n):
+        return "{}_{}".format(self.pfx, n.c_name.upper())
+
     def pr_address(self, n):
-        self.pr_hex_const("ADDR_{}_{}".format(self.pfx, n.c_name.upper()),
-                          n.c_abs_addr)
+        self.pr_hex_const("ADDR_" + self.pr_name(n), n.c_abs_addr)
 
     def pr_size(self, n, sz):
-        self.pr_dec_const("{}_{}_SIZE".format(self.pfx, n.c_name.upper()),
-                          sz)
+        self.pr_dec_const(self.pr_name(n) + "_SIZE", sz)
 
     def pr_field_offset(self, f):
-        self.pr_dec_const(
-            "{}_{}_OFFSET".format(self.pfx, f.c_name.upper()), f.lo)
+        self.pr_dec_const(self.pr_name(f) + "_OFFSET", f.lo)
 
-    def pr_field_mask(self, f):
+    def compute_mask(self, f):
         if f.hi is None:
             mask = 1
         else:
             mask = (1 << (f.hi - f.lo + 1)) - 1
-        self.pr_hex_const("{}_{}".format(self.pfx, f.c_name.upper()),
-                          mask << f.lo)
+        return mask << f.lo
+
+    def pr_field_mask(self, f):
+        self.pr_hex_const(self.pr_name(f), self.compute_mask(f))
 
     def pr_field(self, f):
         self.pr_field_offset(f)
@@ -85,9 +87,10 @@ class ConstsPrinterVHDL(ConstsPrinter):
         self.pr_raw("end package {}_Consts;\n".format(self.name))
 
 
-class ConstsPrinterC(ConstsPrinter):
+class ConstsPrinterH(ConstsPrinter):
+    "Printer for the C language"
     def __init__(self, fd, root):
-        super(ConstsPrinterC, self).__init__(fd, root)
+        super(ConstsPrinterH, self).__init__(fd, root)
 
     def pr_const(self, name, val):
         self.pr_raw("#define {} {}\n".format(name, val))
@@ -169,7 +172,7 @@ def pconsts_root(pr, n):
 def pconsts_cheby(fd, root, style):
     cls = {'verilog': ConstsPrinterVerilog,
            'vhdl': ConstsPrinterVHDL,
-           'h': ConstsPrinterC}
+           'h': ConstsPrinterH}
     pr = ConstsVisitor(cls[style](fd, root))
     pr.pr_header()
     pr.visit(root)
