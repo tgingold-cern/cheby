@@ -117,6 +117,7 @@ class ConstsPrinterC(ConstsPrinterH):
     def pr_address(self, n):
         self.pr_raw('\n')
         self.pr_raw('/* {} */\n'.format(n.description))
+        self.pr_hex_const(self.pr_name(n), n.c_abs_addr)
 
     def pr_field(self, f):
         if f.hi is None:
