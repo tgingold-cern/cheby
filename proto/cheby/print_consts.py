@@ -31,6 +31,13 @@ class ConstsPrinter(object):
     def pr_size(self, n, sz):
         self.pr_dec_const(self.pr_name(n) + "_SIZE", sz)
 
+    def pr_reg(self, n):
+        if n.has_fields():
+            return
+        f = n.children[0]
+        if f.preset is not None:
+            self.pr_hex_const(self.pr_name(n) + '_PRESET', f.preset)
+
     def pr_field_offset(self, f):
         self.pr_dec_const(self.pr_name(f) + "_OFFSET", f.lo)
 
@@ -127,7 +134,7 @@ class ConstsPrinterC(ConstsPrinterH):
             # A multi-bit field
             self.pr_hex_const(self.pr_name(f) + '_MASK', self.compute_mask(f))
             self.pr_dec_const(self.pr_name(f) + "_SHIFT", f.lo)
-
+    
 class ConstsVisitor(tree.Visitor):
     def __init__(self, printer):
         self.printer = printer
@@ -141,6 +148,9 @@ class ConstsVisitor(tree.Visitor):
     def pr_size(self, n, sz):
         self.printer.pr_size(n, sz)
 
+    def pr_reg(self, n):
+        self.printer.pr_reg(n)
+
     def pr_field(self, f):
         self.printer.pr_field(f)
 
@@ -151,6 +161,7 @@ class ConstsVisitor(tree.Visitor):
 @ConstsVisitor.register(tree.Reg)
 def pconsts_reg(pr, n):
     pr.pr_address(n)
+    pr.pr_reg(n)
     if n.has_fields():
         for f in n.children:
             pr.pr_field(f)
