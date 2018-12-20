@@ -141,7 +141,7 @@ def layout_reg(lo, n):
     if n.access is None:
         raise LayoutException(
             n, "missing access for register {}".format(n.get_path()))
-    if n.access is not None and n.access not in ['ro', 'rw', 'wo', 'cst']:
+    if n.access is not None and n.access not in ['ro', 'rw', 'wo']:
         raise LayoutException(
             n, "incorrect access for register {}".format(n.get_path()))
     n.c_size = n.width // tree.BYTE_SIZE

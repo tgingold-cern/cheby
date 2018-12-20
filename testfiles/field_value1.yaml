@@ -6,7 +6,7 @@ memory-map:
     - reg:
         name: areg
         width: 32
-        access: cst
+        access: ro
         children:
           - field:
               name: fa_1

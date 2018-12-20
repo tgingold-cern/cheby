@@ -880,7 +880,7 @@ def add_read_reg_process(root, module, isigs):
                 src = f.h_reg
             elif f.h_iport is not None:
                 src = f.h_iport
-            elif n.access == 'cst':
+            elif f.hdl_type == 'const':
                 src = HDLConst(f.preset, f.c_rwidth)
             else:
                 raise AssertionError
