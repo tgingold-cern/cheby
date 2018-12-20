@@ -43,15 +43,15 @@ def add_bus(root, module, bus):
 
 
 class BusGen(object):
-    def expand_bus(root, module, isigs):
+    def expand_bus(self, root, module, isigs):
         """Create bus interface for the design."""
         raise AssertionError("Not implemented")
 
-    def gen_bus_slave(root, module, prefix, n, busgroup):
+    def gen_bus_slave(self,root, module, prefix, n, busgroup):
         """Create an interface to a slave (Add declarations)"""
         raise AssertionError("Not implemented")
 
-    def wire_bus_slave(root, stmts, n):
+    def wire_bus_slave(self, root, stmts, n):
         """Create HDL for the interface (Assignments)"""
         raise AssertionError("Not implemented")
 
