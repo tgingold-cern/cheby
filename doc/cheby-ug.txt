@@ -429,6 +429,10 @@ writting).
 
 Addresses are always byte addresses.
 
+For registers longer than a word on a big-endian bus, the most significant
+word is at the lowest address. There is one bit per word for strobe bits, and
+they follow word order (bit 0 strobes the lowest word).
+
 ===  AXI4-Lite
 
 There are several restrictions from the AMBA AXI standard:

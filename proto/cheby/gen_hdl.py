@@ -22,7 +22,7 @@ from cheby.hdltree import (HDLModule, HDLPackage,
                            HDLIfElse,
                            bit_1, bit_0, bit_x,
                            HDLAnd, HDLOr, HDLNot, HDLEq,
-                           HDLSlice, HDLReplicate, Slice_or_Index,
+                           HDLIndex, HDLSlice, HDLReplicate, Slice_or_Index,
                            HDLConst, HDLBinConst, HDLNumber, HDLBool)
 import cheby.tree as tree
 from cheby.layout import ilog2
@@ -545,17 +545,25 @@ def add_ports_reg(root, module, n):
         else:
             f.h_reg = None
 
+
+    # Strobe size.  There is one strobe signal per word, so create a vector if
+    # the register is longer than a word.
+    if n.c_size <= root.c_word_size:
+        sz = None
+    else:
+        sz = n.c_size // root.c_word_size
+
     # Write strobe
     if n.hdl_write_strobe:
         n.h_wport = add_module_port(
-            root, module, n.c_name + '_wr', None, dir='OUT')
+            root, module, n.c_name + '_wr', size=sz, dir='OUT')
     else:
         n.h_wport = None
 
     # Read strobe
     if n.hdl_read_strobe:
         n.h_rport = add_module_port(
-            root, module, n.c_name + '_rd', None, dir='OUT')
+            root, module, n.c_name + '_rd', size=sz, dir='OUT')
     else:
         n.h_rport = None
 
@@ -856,6 +864,21 @@ def field_decode(root, reg, f, off, val, dat):
     return (val, dat)
 
 
+def strobe_init(root, n):
+    sz = n.c_size // root.c_word_size
+    if sz <= 1:
+        return bit_0
+    else:
+        return HDLReplicate(bit_0, sz)
+
+
+def strobe_index(root, n, off, lhs):
+    if n.c_size <= root.c_word_size:
+        return lhs
+    else:
+        return HDLIndex(lhs, off // root.c_word_bits)
+
+
 def add_read_reg_process(root, module, isigs):
     # Register read
     rd_data = root.h_reg_rdat_int
@@ -896,9 +919,12 @@ def add_read_reg_process(root, module, isigs):
                 if n.access != 'wo':
                     add_read_reg(s, n, off)
                 if n.h_rport is not None:
-                    s.append(HDLAssign(n.h_rport, bit_1))
-                    rdproc.rst_stmts.append(HDLAssign(n.h_rport, bit_0))
-                    rdproc.sync_stmts.insert(0, HDLAssign(n.h_rport, bit_0))
+                    s.append(HDLAssign(strobe_index(root, n, off, n.h_rport),
+                                       bit_1))
+                    if off == 0:
+                        v = strobe_init(root, n)
+                        rdproc.rst_stmts.append(HDLAssign(n.h_rport, v))
+                        rdproc.sync_stmts.insert(0, HDLAssign(n.h_rport, v))
             elif isinstance(n, tree.Submap):
                 pass
             elif isinstance(n, tree.Array):
@@ -986,9 +1012,11 @@ def add_write_process(root, module, isigs):
     def add_write_reg(s, n, off):
         # Write strobe
         if n.h_wport is not None:
-            s.append(HDLAssign(n.h_wport, bit_1))
-            wrproc.rst_stmts.append(HDLAssign(n.h_wport, bit_0))
-            wrproc.sync_stmts.append(HDLAssign(n.h_wport, bit_0))
+            s.append(HDLAssign(strobe_index(root, n, off, n.h_wport), bit_1))
+            if off == 0:
+                v = strobe_init(root, n)
+                wrproc.rst_stmts.append(HDLAssign(n.h_wport, v))
+                wrproc.sync_stmts.append(HDLAssign(n.h_wport, v))
 
         for f in n.children:
             # Reset code
