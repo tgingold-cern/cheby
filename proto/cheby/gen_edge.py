@@ -13,21 +13,21 @@ class EdgeReg(object):
         self.mask = mask
         self.desc = desc or ''
 
-    def write(self, fd, block_id):
+    def write(self, fd, block_name):
         if self.mask is not None:
             mask = "0x{:08x}".format(self.mask)
         else:
             mask = 10 * ' '
-        fd.write("{bid:>12}, {name:>11}, {rwmode:>6}, 0x{offset:06x},"
+        fd.write("{bid:>14}, {name:>11}, {rwmode:>6}, 0x{offset:06x},"
                  "     {dwidth:>2}, {depth:>5}, {mask}, {desc}\n".format(
-                     bid=block_id, name=self.name, rwmode=self.rwmode,
+                     bid=block_name, name=self.name, rwmode=self.rwmode,
                      offset=self.offset, dwidth=self.dwidth,
                      depth=self.depth, mask=mask, desc=self.desc))
 
 
 class EncoreBlock(object):
-    def __init__(self, num):
-        self.num = num
+    def __init__(self, block_name):
+        self.block_name = block_name
         self.regs = []
 
     def append_reg(self, reg, offset):
@@ -46,17 +46,17 @@ class EncoreBlock(object):
                     f.name, reg, offset, 1, mask, f.description))
 
     def write(self, fd):
-        fd.write("block_def_id,        name, rwmode,   offset, dwidth,"
+        fd.write("block_def_name,    reg_name, rwmode,   offset, dwidth,"
                  " depth,       mask, description\n")
         for r in self.regs:
-            r.write(fd, self.num)
+            r.write(fd, self.block_name)
 
 
 class Encore(object):
     def __init__(self):
         self.blocks = []
         self.inst = []
-        self.cur_block = EncoreBlock(0)
+        self.cur_block = EncoreBlock("sys")
         self.next_num = 1
 
     def instantiate(self, blk):
