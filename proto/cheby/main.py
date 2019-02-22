@@ -23,6 +23,7 @@ import cheby.gen_wbgen_hdl as gen_wbgen_hdl
 import cheby.print_html as print_html
 import cheby.print_markdown as print_markdown
 import cheby.print_consts as print_consts
+import cheby.gen_devicetree as gen_devicetree
 
 
 def decode_args():
@@ -57,6 +58,8 @@ def decode_args():
                          help='generate EDGE file')
     aparser.add_argument('--gen-silecs', nargs='?', const='-',
                          help='generate Silecs file')
+    aparser.add_argument('--gen-devicetree', nargs='?', const='-',
+                         help='generate devicetree file')
     aparser.add_argument('--gen-custom', nargs='?', const='-',
                          help='generate a file by running custom user-code')
     aparser.add_argument('--gen-gena-memmap', nargs='?', const='-',
@@ -135,6 +138,9 @@ def handle_file(args, filename):
     if args.gen_custom is not None:
         with open_filename(args.gen_custom) as f:
             gen_custom.generate_custom(f, t)
+    if args.gen_devicetree is not None:
+        with open_filename(args.gen_devicetree) as f:
+            gen_devicetree.generate_devicetree(f, t)
     # Decode x-hdl, unroll
     expand_hdl.expand_hdl(t)
     if args.print_simple_expanded is not None:

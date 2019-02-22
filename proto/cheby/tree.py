@@ -57,10 +57,14 @@ class NamedNode(Node):
         else:
             return self._parent.get_root()
 
-    def get_extension(self, ext, name, default=None):
+    def get_ext_node(self, ext):
+        "Get the object :name ext: or None if it doesn't exist"
         if not hasattr(self, ext):
-            return default
-        x = getattr(self, ext)
+            return None
+        return getattr(self, ext)
+
+    def get_extension(self, ext, name, default=None):
+        x = self.get_ext_node(ext)
         if x is None:
             return default
         return x.get(name, default)

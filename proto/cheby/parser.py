@@ -61,6 +61,8 @@ def parse_named(node, key, val):
         node.x_hdl = val
     elif key == 'x_gena':
         node.x_gena = val
+    elif key == 'x-devicetree':
+        node.x_devicetree = val
     else:
         return False
     return True
