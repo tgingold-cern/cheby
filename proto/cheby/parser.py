@@ -63,6 +63,8 @@ def parse_named(node, key, val):
         node.x_gena = val
     elif key == 'x-devicetree':
         node.x_devicetree = val
+    elif key == 'x-interrupts':
+        node.x_interrupts = val
     else:
         return False
     return True
