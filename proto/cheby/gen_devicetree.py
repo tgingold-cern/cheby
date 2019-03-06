@@ -23,7 +23,7 @@ def get_interrupts(n):
 def gen_common(f, dt, indent):
     for e in dt:
         for typ, v in e.items():
-            if typ == 'label':
+            if typ in ['label', 'include']:
                 continue
             name = v['name']
             value = v.get('value', None)
@@ -89,8 +89,21 @@ def gen_children(f, t, indent):
 
                     nindent = indent + 1
                     gen_common(f, dt, nindent)
-                    f.write('{}reg = <0x{:x} 0x{:x}>;\n'.format(
+                    f.write('{}reg = <0x{:x} 0x{:x}'.format(
                         nindent * ' ', c.c_address, c.c_size - 1))
+                    # Extra regs from include.
+                    for e in dt:
+                        for typ, v in e.items():
+                            if typ == 'include':
+                                dev = [ch for ch in t.children if ch.name == v]
+                                if dev is None:
+                                    error('cannot found include {} in devicetree of {}'.format(
+                                        v, c.get_path()))
+                                else:
+                                    dev = dev[0]
+                                    f.write('\n{}       0x{:x} 0x{:x}'.format(
+                                        nindent * ' ', dev.c_address, dev.c_size - 1))
+                    f.write('>;\n')
 
                     if is_interr_ctrl:
                         f.write('{}interrupt_controller;\n'.format(
