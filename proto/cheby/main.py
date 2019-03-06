@@ -24,6 +24,7 @@ import cheby.print_html as print_html
 import cheby.print_markdown as print_markdown
 import cheby.print_consts as print_consts
 import cheby.gen_devicetree as gen_devicetree
+import cheby.gen_device_script as gen_device_script
 
 
 def decode_args():
@@ -60,6 +61,8 @@ def decode_args():
                          help='generate Silecs file')
     aparser.add_argument('--gen-devicetree', nargs='?', const='-',
                          help='generate devicetree file')
+    aparser.add_argument('--gen-install-script', nargs='?', const='-',
+                         help='generate device install script')
     aparser.add_argument('--gen-custom', nargs='?', const='-',
                          help='generate a file by running custom user-code')
     aparser.add_argument('--gen-gena-memmap', nargs='?', const='-',
@@ -141,6 +144,9 @@ def handle_file(args, filename):
     if args.gen_devicetree is not None:
         with open_filename(args.gen_devicetree) as f:
             gen_devicetree.generate_devicetree(f, t)
+    if args.gen_install_script is not None:
+        with open_filename(args.gen_install_script) as f:
+            gen_device_script.generate_device_script(f, t)
     # Decode x-hdl, unroll
     expand_hdl.expand_hdl(t)
     if args.print_simple_expanded is not None:
