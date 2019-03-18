@@ -205,7 +205,7 @@ def parse_array(parent, el):
 
 def parse_yaml(filename):
     try:
-        el = yaml.load(open(filename))
+        el = yaml.load(open(filename), Loader=yaml.SafeLoader)
     except IOError as e:
         error("cannot open {}: {}".format(filename, e))
 
