@@ -20,8 +20,13 @@ installation.
 
 ## Documentation
 
-There is a user guide in the doc/ directory.  It contains an getting started
+There is a user guide in the [doc/](doc) directory.  It contains a getting started
 part with an example.
+
+To build the documentation, simply run `make` from within the [doc/](doc) directory.
+
+Please note that the documentation build process requires
+[asciidoc](http://asciidoc.org/) and [asciidoctor](https://asciidoctor.org/).
 
 ## Release
 
