@@ -183,13 +183,13 @@ begin
           register1_reg <= dati;
           wr_ack_int <= not wr_ack_done_int;
         when "100" => 
-          -- Register register2
+          -- Register block1_register2
           wr_ack_int <= not wr_ack_done_int;
         when "110" => 
-          -- Register register4
+          -- Register block1_block2_register4
           wr_ack_int <= not wr_ack_done_int;
         when "101" => 
-          -- Register register3
+          -- Register block1_register3
           block1_register3_reg <= dati;
           wr_ack_int <= not wr_ack_done_int;
         when others =>
@@ -214,15 +214,15 @@ begin
         when "000" => 
           -- register1
         when "100" => 
-          -- register2
+          -- block1_register2
           reg_rdat_int(0) <= block1_register2_field1_i;
           reg_rdat_int(3 downto 1) <= block1_register2_field2_i;
         when "110" => 
-          -- register4
+          -- block1_block2_register4
           reg_rdat_int(0) <= block1_block2_register4_field3_i;
           reg_rdat_int(3 downto 1) <= block1_block2_register4_field4_i;
         when "101" => 
-          -- register3
+          -- block1_register3
           reg_rdat_int <= block1_register3_reg;
         when others =>
         end case;
@@ -243,15 +243,15 @@ begin
       dato <= reg_rdat_int;
       rd_ack_int <= rd_ack1_int;
     when "100" => 
-      -- register2
+      -- block1_register2
       dato <= reg_rdat_int;
       rd_ack_int <= rd_ack1_int;
     when "110" => 
-      -- register4
+      -- block1_block2_register4
       dato <= reg_rdat_int;
       rd_ack_int <= rd_ack1_int;
     when "101" => 
-      -- register3
+      -- block1_register3
       dato <= reg_rdat_int;
       rd_ack_int <= rd_ack1_int;
     when others =>

@@ -915,7 +915,7 @@ def add_read_reg_process(root, module, isigs):
     def add_read(s, n, off):
         if n is not None:
             if isinstance(n, tree.Reg):
-                s.append(HDLComment(n.name))
+                s.append(HDLComment(n.c_name))
                 if n.access != 'wo':
                     add_read_reg(s, n, off)
                 if n.h_rport is not None:
@@ -928,7 +928,7 @@ def add_read_reg_process(root, module, isigs):
             elif isinstance(n, tree.Submap):
                 pass
             elif isinstance(n, tree.Array):
-                s.append(HDLComment("RAM {}".format(n.name)))
+                s.append(HDLComment("RAM {}".format(n.c_name)))
             else:
                 # Blocks have been handled.
                 raise AssertionError
@@ -960,15 +960,15 @@ def add_read_process(root, module, isigs):
     def add_read(s, n, off):
         if n is not None:
             if isinstance(n, tree.Reg):
-                s.append(HDLComment(n.name))
+                s.append(HDLComment(n.c_name))
                 s.append(HDLAssign(rd_data, root.h_reg_rdat_int))
                 s.append(HDLAssign(rd_ack, root.h_rd_ack1_int))
             elif isinstance(n, tree.Submap):
-                s.append(HDLComment("Submap {}".format(n.name)))
+                s.append(HDLComment("Submap {}".format(n.c_name)))
                 n.h_busgen.read_bus_slave(root, s, n, rdproc, isigs, rd_data)
                 return
             elif isinstance(n, tree.Array):
-                s.append(HDLComment("RAM {}".format(n.name)))
+                s.append(HDLComment("RAM {}".format(n.c_name)))
                 # TODO: handle list of registers!
                 r = n.children[0]
                 rdproc.sensitivity.append(r.h_sig_dato)
@@ -1039,15 +1039,15 @@ def add_write_process(root, module, isigs):
     def add_write(s, n, off):
         if n is not None:
             if isinstance(n, tree.Reg):
-                s.append(HDLComment("Register {}".format(n.name)))
+                s.append(HDLComment("Register {}".format(n.c_name)))
                 if n.access in ['wo', 'rw']:
                     add_write_reg(s, n, off)
             elif isinstance(n, tree.Submap):
-                s.append(HDLComment("Submap {}".format(n.name)))
+                s.append(HDLComment("Submap {}".format(n.c_name)))
                 n.h_busgen.write_bus_slave(root, s, n, wrproc, isigs)
                 return
             elif isinstance(n, tree.Array):
-                s.append(HDLComment("Memory {}".format(n.name)))
+                s.append(HDLComment("Memory {}".format(n.c_name)))
                 # TODO: handle list of registers!
                 r = n.children[0]
                 wrproc.rst_stmts.append(HDLAssign(r.h_sig_wr, bit_0))
