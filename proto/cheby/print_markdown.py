@@ -16,6 +16,7 @@ def wln(fd, str=""):
 
 def print_reg(fd, r, abs_addr):
     wln(fd, "[horizontal]")
+    wln(fd, "hdl name:: {}".format(r.c_name))
     wln(fd, "address:: 0x{:x}".format(abs_addr))
     wln(fd, "block offset:: 0x{:x}".format(r.c_address))
     wln(fd, "access mode:: {}".format(r.access))
@@ -51,13 +52,14 @@ def print_root(fd, root):
     wln(fd)
 
     wln(fd, "|===")
-    wln(fd, "|HW address | Type | Name")
+    wln(fd, "|HW address | Type | Name | HDL Name")
     summary = gen_doc.MemmapSummary(root)
     for r in summary.raws:
         wln(fd)
         wln(fd, "|{}".format(r.address))
         wln(fd, "|{}".format(r.typ))
         wln(fd, "|{}".format(r.name))
+        wln(fd, "|{}".format(r.node.c_name))
     wln(fd, "|===")
     wln(fd)
 
