@@ -19,6 +19,8 @@ import cheby.gena2cheby as gena2cheby
 import cheby.wbgen2cheby as wbgen2cheby
 import cheby.gen_wbgen_hdl as gen_wbgen_hdl
 import cheby.print_consts as print_consts
+import cheby.print_html as print_html
+import cheby.print_markdown as print_markdown
 import cheby.gen_custom as gen_custom
 
 srcdir = '../testfiles/'
@@ -425,6 +427,29 @@ def test_consts():
             if not compare_buffer_and_file(buf, file):
                 error('consts {} generation error for {}'.format(style, f))
 
+
+def test_doc():
+    # Generate html and md, compare with a baseline.
+    for f in ['issue9/test']:
+        if verbose:
+            print('test doc: {}'.format(f))
+        cheby_file = srcdir + f + '.cheby'
+        html_file = srcdir + f + '.html'
+        md_file = srcdir + f + '.md'
+        t = parse_ok(cheby_file)
+        layout_ok(t)
+        expand_hdl.expand_hdl(t)
+        gen_name.gen_name_root(t)
+
+        for file, pprint, style in [
+                (html_file, print_html.pprint, 'html'),
+                (md_file, print_markdown.print_markdown, 'md')]:
+            buf = write_buffer()
+            pprint(buf, t)
+            if not compare_buffer_and_file(buf, file):
+                error('doc {} generation error for {}'.format(style, f))
+
+
 def test_custom():
     for f in ['custom/fidsErrMiss']:
         if verbose:
@@ -462,6 +487,7 @@ def main():
         test_gena2cheby_err()
         test_wbgen2cheby()
         test_consts()
+        test_doc()
         test_custom()
         print("Done!")
     except TestError as e:
