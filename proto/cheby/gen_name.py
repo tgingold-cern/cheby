@@ -37,11 +37,11 @@ def gen_name_children(children, prefix, ctxt):
                 else:
                     f.c_name = concat(nprefix, f.name)
         elif isinstance(n, tree.Submap):
-            nprefix = concat_if(prefix, n.c_name, ctxt.blk_prefix)
+            nprefix = n.c_name if ctxt.blk_prefix else prefix
             if n.filename is not None:
                 gen_name_children(n.c_submap.children, nprefix, ctxt)
         elif isinstance(n, tree.CompositeNode):
-            nprefix = concat_if(prefix, n.c_name, ctxt.blk_prefix)
+            nprefix = n.c_name if ctxt.blk_prefix else prefix
             gen_name_children(n.children, nprefix, ctxt)
         else:
             raise AssertionError(n)
