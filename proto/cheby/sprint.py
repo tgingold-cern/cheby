@@ -2,11 +2,12 @@ import cheby.tree as tree
 
 
 class SimplePrinter(tree.Visitor):
-    def __init__(self, fd, with_fields):
+    def __init__(self, fd, with_fields, with_info):
         self.fd = fd
         self.indent = 0
         self.base_addr = 0
         self.with_fields = with_fields
+        self.with_info = with_info
 
     def sp_raw(self, str):
         self.fd.write(str)
@@ -38,6 +39,9 @@ class SimplePrinter(tree.Visitor):
 @SimplePrinter.register(tree.Reg)
 def sprint_reg(sp, n):
     sp.sp_name('reg', n)
+    if sp.with_info:
+        sp.sp_info('[sz: {}, addr: {:08x}, abs_addr: {:08x}]'.format(
+            n.c_size, n.c_address, n.c_abs_addr))
     if sp.with_fields:
         for f in n.children:
             sp.sp_field(f)
@@ -47,7 +51,7 @@ def sprint_reg(sp, n):
 def sprint_block(sp, n):
     sp.sp_name('block', n)
     old_base = sp.base_addr
-    sp.base_addr = n.c_address
+    sp.base_addr += n.c_address
     sprint_complex(sp, n)
     sp.base_addr = old_base
 
@@ -56,7 +60,7 @@ def sprint_block(sp, n):
 def sprint_submap(sp, n):
     sp.sp_name('submap', n)
     old_base = sp.base_addr
-    sp.base_addr = n.c_address
+    sp.base_addr += n.c_address
     if n.filename is not None:
         sprint_complex(sp, n.c_submap)
     sp.base_addr = old_base
@@ -92,6 +96,6 @@ def sprint_root(sp, n):
     sprint_composite(sp, n)
 
 
-def sprint_cheby(fd, root, with_fields=True):
-    sp = SimplePrinter(fd, with_fields)
+def sprint_cheby(fd, root, with_fields=True, with_verbose=False):
+    sp = SimplePrinter(fd, with_fields, with_verbose)
     sp.visit(root)

@@ -775,6 +775,7 @@ def add_block_decoder(root, stmts, addr, children, hi, func):
             print("{}: {:08x}, sz={:x}".format(i.name, i.c_abs_addr, i.c_size))
         print("----")
     if len(children) == 1:
+        # If there is only one child, no need to decode anymore.
         el = children[0]
         if isinstance(el, tree.Reg):
             add_reg_decoder(root, stmts, addr, func, children, hi)

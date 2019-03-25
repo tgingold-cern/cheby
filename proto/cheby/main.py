@@ -42,6 +42,8 @@ def decode_args():
                          help='display the expanded input in YAML')
     aparser.add_argument('--print-memmap', nargs='?', const='-',
                          help='display the layout without fields')
+    aparser.add_argument('--print-memmap-verbose', nargs='?', const='-',
+                         help='verbose display of the layout')
     aparser.add_argument('--gen-c', nargs='?', const='-',
                          help='generate c header file')
     aparser.add_argument('--gen-c-check-layout', nargs='?', const='-',
@@ -128,6 +130,9 @@ def handle_file(args, filename):
     if args.print_simple is not None:
         with open_filename(args.print_simple) as f:
             sprint.sprint_cheby(f, t, True)
+    if args.print_memmap_verbose is not None:
+        with open_filename(args.print_memmap_verbose) as f:
+            sprint.sprint_cheby(f, t, False, True)
     if args.gen_c_check_layout is not None:
         with open_filename(args.gen_c_check_layout) as f:
             gen_laychk.gen_chklayout_cheby(f, t)
