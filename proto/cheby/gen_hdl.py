@@ -1021,7 +1021,7 @@ def add_write_process(root, module, isigs):
 
         for f in n.children:
             # Reset code
-            if f.h_reg is not None:
+            if f.h_reg is not None and off == 0:
                 v = 0 if f.preset is None else f.preset
                 cst = HDLConst(v, f.c_iowidth if f.c_iowidth != 1 else None)
                 wrproc.rst_stmts.append(HDLAssign(f.h_reg, cst))
