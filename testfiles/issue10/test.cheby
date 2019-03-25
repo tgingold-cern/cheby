@@ -1,0 +1,51 @@
+memory-map:
+  name: test
+  description: Test AXI4-Lite interface
+  bus: axi4-lite-32
+  children:
+  - reg:
+      name: register1
+      description: Test register 1
+      width: 64
+      access: wo
+  - block:
+      name: block1
+      description: Test block 1
+      children:
+      - reg:
+          name: register2
+          description: Test register 2
+          width: 32
+          access: ro
+          children:
+          - field:
+              name: field1
+              description: Test field 1
+              range: 0
+          - field:
+              name: field2
+              description: Test field 2
+              range: 3-1
+      - reg:
+          name: register3
+          description: Test register 3
+          width: 32
+          access: rw
+      - block:
+          name: block2
+          description: Test block 2
+          children:
+          - reg:
+              name: register4
+              description: Test register 4
+              width: 32
+              access: ro
+              children:
+              - field:
+                  name: field3
+                  description: Test field 3
+                  range: 0
+              - field:
+                  name: field4
+                  description: Test field 4
+                  range: 3-1
