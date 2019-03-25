@@ -40,8 +40,8 @@ class SimplePrinter(tree.Visitor):
 def sprint_reg(sp, n):
     sp.sp_name('reg', n)
     if sp.with_info:
-        sp.sp_info('[sz: {}, addr: {:08x}, abs_addr: {:08x}]'.format(
-            n.c_size, n.c_address, n.c_abs_addr))
+        sp.sp_info('[al: {}, sz: {}, addr: {:08x}, abs_addr: {:08x}]'.format(
+            n.c_align, n.c_size, n.c_address, n.c_abs_addr))
     if sp.with_fields:
         for f in n.children:
             sp.sp_field(f)
