@@ -25,7 +25,7 @@ import cheby.gen_custom as gen_custom
 
 srcdir = '../testfiles/'
 verbose = False
-
+nbr_tests = 0
 
 class TestError(Exception):
     def __init__(self, msg):
@@ -74,11 +74,13 @@ def parse_err(f):
 
 
 def test_parser():
+    global nbr_tests
     for f in ['demo.yaml', 'simple_reg1.yaml', 'simple_reg2.yaml',
               'block1.yaml', 'submap2.yaml', 'submap3.yaml', 'block4.yaml']:
         if verbose:
             print('test parser: {}'.format(f))
         parse_ok(srcdir + f)
+        nbr_tests += 1
     for f in ['no-such-file.yaml', 'error1.yaml',
               'err_name_type1.yaml', 'err_width_type1.yaml',
               'err_align_type1.yaml',
@@ -91,6 +93,7 @@ def test_parser():
         if verbose:
             print('test parser: {}'.format(f))
         parse_err(srcdir + f)
+        nbr_tests += 1
 
 
 def layout_ok(t):
@@ -109,6 +112,7 @@ def layout_err(t):
 
 
 def test_layout():
+    global nbr_tests
     for f in ['demo.yaml', 'block1.yaml', 'array1.yaml', 'array2.yaml',
               'bug-gen-c/fids-errmiss.cheby']:
         if verbose:
@@ -126,6 +130,7 @@ def test_layout():
         os.remove(hname)
         os.remove(cname)
         os.remove(t.name + '.s')
+        nbr_tests += 1
     for f in ['err_bus_name.yaml',
               'err_reg_addr1.yaml', 'err_reg_addr2.yaml',
               'err_reg_width1.yaml',
@@ -144,9 +149,10 @@ def test_layout():
             print('test layout: {}'.format(f))
         t = parse_ok(srcdir + f)
         layout_err(t)
-
+        nbr_tests += 1
 
 def test_print():
+    global nbr_tests
     fd = write_null()
     for f in ['demo.yaml', 'reg_value1.yaml', 'reg_value2.yaml',
               'reg_value3.yaml', 'demo_all.cheby']:
@@ -156,7 +162,7 @@ def test_print():
         sprint.sprint_cheby(fd, t)
         gen_name.gen_name_root(t)
         gen_c.gen_c_cheby(fd, t)
-
+        nbr_tests += 1
 
 def compare_buffer_and_file(buf, filename):
     # Well, there is certainly a python diff module...
@@ -181,6 +187,7 @@ def compare_buffer_and_file(buf, filename):
 
 
 def test_hdl():
+    global nbr_tests
     fd = write_null()
     for f in ['simple_reg3.yaml', 'simple_reg4_ro.yaml',
               'reg_value1.yaml', 'reg_value2.yaml', 'reg_value3.yaml',
@@ -203,10 +210,11 @@ def test_hdl():
         gen_name.gen_name_root(t)
         h = gen_hdl.generate_hdl(t)
         print_vhdl.print_vhdl(fd, h)
-
+        nbr_tests += 1
 
 def test_hdl_ref():
     # Generate vhdl and compare with a baseline.
+    global nbr_tests
     for f in ['fmc_adc_alt_trigin', 'fmc_adc_alt_trigout',
               'issue9/test', 'issue10/test']:
         if verbose:
@@ -222,7 +230,7 @@ def test_hdl_ref():
         print_vhdl.print_vhdl(buf, h)
         if not compare_buffer_and_file(buf, vhdl_file):
             error('vhdl generation error for {}'.format(f))
-
+        nbr_tests += 1
 
 def test_self():
     """Auto-test"""
@@ -245,6 +253,7 @@ def test_self():
 
 
 def test_gena():
+    global nbr_tests
     files = ['CRegs', 'CRegs_Regs', 'CRegs_NoRMW', 'CRegs_Regs_NoRMW',
              'Regs', 'Regs_Mems', 'Regs_rdstrobe', 'Regs_nodff',
              'Regs_cross_words', 'Regs_small',
@@ -291,9 +300,10 @@ def test_gena():
         regctrlfile = srcdir + 'gena/HDL/' + 'RegCtrl_' + t.name + '.vhd'
         if not compare_buffer_and_file(buf, regctrlfile):
             error('gena regctrl generation error for {}'.format(f))
-
+        nbr_tests += 1
 
 def test_gena_regctrl_err():
+    global nbr_tests
     files = ['Muxed_name', 'Muxed_code']
     for f in files:
         if verbose:
@@ -317,9 +327,10 @@ def test_gena_regctrl_err():
             error('gen regctrl error expected for {}'.format(f))
         except gen_gena_regctrl.GenHDLException as e:
             assert(str(e) != '')
-
+        nbr_tests += 1
 
 def test_gena2cheby():
+    global nbr_tests
     files = ['const_value', 'fesa_class_prop', 'root_attr', 'root_gen_include',
              'submap_desc', 'comment', 'area_attrs', 'memory_gen',
              'err_memory_width', 'memory_buffer', 'memory_bit_field',
@@ -332,9 +343,10 @@ def test_gena2cheby():
         # Test Gena to Cheby conversion
         xmlfile = srcdir + 'gena2cheby/' + f + '.xml'
         gena2cheby.convert(xmlfile)
-
+        nbr_tests += 1
 
 def test_gena2cheby_err():
+    global nbr_tests
     files = ['err_memmap_acc_mode', 'err_root_attr', 'err_root_gen',
              'err_root_element', 'err_submap_child', 'err_submap_gen',
              'err_submap_attr', 'err_submap_include', 'err_comment',
@@ -364,9 +376,10 @@ def test_gena2cheby_err():
             pass
         except gena2cheby.UnknownTag:
             pass
-
+        nbr_tests += 1
 
 def test_wbgen2cheby():
+    global nbr_tests
     files = ['reg1', 'reg_field1', 'reg_in', 'reg_noprefix',
              'reg_unsigned', 'reg_signed',
              'reg_loadext', 'reg_ackread',
@@ -405,11 +418,13 @@ def test_wbgen2cheby():
         hdlfile = srcdir + 'wbgen/' + f + '.vhdl'
         if not compare_buffer_and_file(buf, hdlfile):
             error('wbgen vhdl generation error for {}'.format(f))
+        nbr_tests += 1
     print_vhdl.style = None
 
 
 def test_consts():
     # Generate constants and compare with a baseline.
+    global nbr_tests
     for f in ['demo_all']:
         if verbose:
             print('test consts: {}'.format(f))
@@ -426,10 +441,11 @@ def test_consts():
             print_consts.pconsts_cheby(buf, t, style)
             if not compare_buffer_and_file(buf, file):
                 error('consts {} generation error for {}'.format(style, f))
-
+        nbr_tests += 1
 
 def test_doc():
     # Generate html and md, compare with a baseline.
+    global nbr_tests
     for f in ['issue9/test']:
         if verbose:
             print('test doc: {}'.format(f))
@@ -448,9 +464,10 @@ def test_doc():
             pprint(buf, t)
             if not compare_buffer_and_file(buf, file):
                 error('doc {} generation error for {}'.format(style, f))
-
+        nbr_tests += 1
 
 def test_custom():
+    global nbr_tests
     for f in ['custom/fidsErrMiss']:
         if verbose:
             print('test custom: {}'.format(f))
@@ -466,6 +483,8 @@ def test_custom():
         os.chdir(cwd)
         if not compare_buffer_and_file(buf, c_file):
             error('custom generation error for {}'.format(f))
+        nbr_tests += 1
+
 
 def main():
     global verbose
@@ -489,7 +508,7 @@ def main():
         test_consts()
         test_doc()
         test_custom()
-        print("Done!")
+        print("Done ({} tests)!".format(nbr_tests))
     except TestError as e:
         werr(e.msg)
         sys.exit(2)
