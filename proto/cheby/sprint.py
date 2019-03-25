@@ -93,6 +93,9 @@ def sprint_composite(sp, n):
 @SimplePrinter.register(tree.Root)
 def sprint_root(sp, n):
     sp.sp_name('root', n)
+    if sp.with_info:
+        sp.sp_info('[bits: word: {}, addr_word: {}, addr: {}]'.format(
+            n.c_word_bits, n.c_addr_word_bits, n.c_addr_bits))
     sprint_composite(sp, n)
 
 
