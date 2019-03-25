@@ -822,7 +822,7 @@ def add_decoder(root, stmts, addr, n, func):
        be called with None when a decoder is generated and could handle an
        address that has no corresponding children."""
     children = gather_children(root)
-    children = sorted(children, key=lambda x: x.c_address)
+    children = sorted(children, key=lambda x: x.c_abs_addr)
 
     add_block_decoder(
         root, stmts, addr, children, root.c_sel_bits + root.c_blk_bits, func)
