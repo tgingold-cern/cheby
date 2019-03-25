@@ -124,6 +124,7 @@ begin
             ext_enable_reg <= wb_i.dat(8);
             wr_ack_int <= not wr_ack_done_int;
           when others =>
+            wr_ack_int <= not wr_ack_done_int;
           end case;
         when "01" => 
           case wb_i.adr(2 downto 2) is
@@ -145,6 +146,7 @@ begin
             wr_ack_int <= not wr_ack_done_int;
           end case;
         when others =>
+          wr_ack_int <= not wr_ack_done_int;
         end case;
       else
         wr_ack_int <= '0';

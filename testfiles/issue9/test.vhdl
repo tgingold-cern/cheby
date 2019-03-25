@@ -193,6 +193,7 @@ begin
           -- Register block1_block2_register4
           wr_ack_int <= not wr_ack_done_int;
         when others =>
+          wr_ack_int <= not wr_ack_done_int;
         end case;
       else
         wr_ack_int <= '0';

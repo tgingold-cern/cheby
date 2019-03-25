@@ -711,42 +711,83 @@ def wire_regs(root, module, isigs, node):
             raise AssertionError
 
 
-def add_reg_decoder(root, stmts, addr, func, els, blk_bits):
-    """Call :param func: for each element of :param n:.  :param func: can also
-       be called with None when a decoder is generated and could handle an
-       address that has no corresponding children."""
-    # Decode directly all the children
-    width = blk_bits - root.c_addr_word_bits
-    if width == 0:
-        # There is only one register, handle it directly
-        assert len(els) <= 1
-        for el in els:
-            func(stmts, el, 0)
-    else:
-        sw = HDLSwitch(HDLSlice(addr, root.c_addr_word_bits, width))
-        stmts.append(sw)
-        for el in els:
-            suboff = 0
-            while suboff < el.c_size:
-                cstmts = []
+def add_block_decoder(root, stmts, addr, children, hi, func, off):
+    debug = False
+    if debug:
+        print("add_block_decoder: hi={}, off={:08x}".format(hi, off))
+        for i in children:
+            print("{}: {:08x}, sz={:x}, al={:x}".format(
+                i.name, i.c_abs_addr, i.c_size, i.c_align))
+        print("----")
+    if len(children) == 1:
+        # If there is only one child, no need to decode anymore.
+        el = children[0]
+        if isinstance(el, tree.Reg):
+            if hi == root.c_addr_word_bits:
+                foff = off & (el.c_size - 1);
                 if True:
                     # Big endian
-                    foff = el.c_size - root.c_word_size - suboff
+                    foff = el.c_size - root.c_word_size - foff
                 else:
                     # Little endian
-                    foff = suboff
-                func(cstmts, el, foff * tree.BYTE_SIZE)
-                if cstmts:
-                    # Only create the choice is there are statements.
-                    addr = el.c_address + suboff
-                    ch = HDLChoiceExpr(
-                        HDLConst(addr >> root.c_addr_word_bits, width))
-                    sw.choices.append(ch)
-                    ch.stmts = cstmts
-                suboff += root.c_word_size
-        ch = HDLChoiceDefault()
+                    foff = foff
+                func(stmts, el, foff * tree.BYTE_SIZE)
+                return
+            else:
+                # Multi-word register - to be split, so decode more.
+                maxsz = 1 << root.c_addr_word_bits
+        else:
+            func(stmts, el, 0)
+            return
+    else:
+        maxsz = max([e.c_align for e in children])
+
+    maxszl2 = ilog2(maxsz)
+    assert maxsz == 1 << maxszl2
+    mask = ~(maxsz - 1)
+    assert maxszl2 < hi
+
+    # Add a decoder.
+    # Note: addr has a word granularity.
+    sw = HDLSwitch(HDLSlice(addr, maxszl2, hi - maxszl2))
+    stmts.append(sw)
+
+    next_base = off
+    while len(children) > 0:
+        # Extract the first child.
+        first = children.pop(0)
+        l = [first]
+        base = max(next_base, first.c_abs_addr & mask)
+        next_base = base + maxsz
+        if debug:
+            print("hi={} szl2={} first: {:08x}, base: {:08x}, mask: {:08x}".
+                  format(hi, maxszl2, first.c_abs_addr, base, mask))
+
+        # Create a branch.
+        ch = HDLChoiceExpr(HDLConst(base >> maxszl2, hi - maxszl2))
         sw.choices.append(ch)
-        func(ch.stmts, None, 0)
+
+        # Gather other children that are decoded in the same branch (same
+        # base address)
+        last = first
+        while len(children) > 0:
+            el = children[0]
+            if (el.c_abs_addr & mask) != base:
+                break
+            if debug:
+                print(" {} @ {:08x}".format(el.name, el.c_abs_addr))
+            last = el
+            l.append(el)
+            children.pop(0)
+
+        if ((last.c_abs_addr + last.c_size - 1) & mask) != base:
+            children.insert(0, last)
+
+        add_block_decoder(root, ch.stmts, addr, l, maxszl2, func, base)
+
+    ch = HDLChoiceDefault()
+    sw.choices.append(ch)
+    func(ch.stmts, None, 0)
 
 
 def gather_children(n):
@@ -768,55 +809,6 @@ def gather_children(n):
         raise AssertionError
 
 
-def add_block_decoder(root, stmts, addr, children, hi, func):
-    if False:
-        print("add_block_decoder: hi={}".format(hi))
-        for i in children:
-            print("{}: {:08x}, sz={:x}".format(i.name, i.c_abs_addr, i.c_size))
-        print("----")
-    if len(children) == 1:
-        # If there is only one child, no need to decode anymore.
-        el = children[0]
-        if isinstance(el, tree.Reg):
-            add_reg_decoder(root, stmts, addr, func, children, hi)
-        else:
-            func(stmts, el, 0)
-        return
-
-    maxsz = max([e.c_size for e in children])
-    maxszl2 = ilog2(maxsz)
-    assert maxsz == 1 << maxszl2
-    mask = (1 << hi) - maxsz
-    assert maxszl2 < hi
-
-    # Note: addr has a word granularity.
-    sw = HDLSwitch(HDLSlice(addr, maxszl2, hi - maxszl2))
-    stmts.append(sw)
-
-    while len(children) > 0:
-        first = children[0]
-        children = children[1:]
-        l = [first]
-        base = first.c_abs_addr & mask
-        if False:
-            print("hi={} szl2={} first: {:08x}, base: {:08x}, mask: {:08x}".
-                  format(hi, maxszl2, first.c_address, base, mask))
-        while len(children) > 0:
-            el = children[0]
-            if (el.c_abs_addr & mask) != base:
-                break
-            if False:
-                print(" {} c_addr={:08x}".format(el.name, el.c_address))
-            l.append(el)
-            children = children[1:]
-
-        ch = HDLChoiceExpr(HDLConst(base >> maxszl2, hi - maxszl2))
-        sw.choices.append(ch)
-        add_block_decoder(root, ch.stmts, addr, l, maxszl2, func)
-
-    sw.choices.append(HDLChoiceDefault())
-
-
 def add_decoder(root, stmts, addr, n, func):
     """Call :param func: for each element of :param n:.  :param func: can also
        be called with None when a decoder is generated and could handle an
@@ -825,7 +817,7 @@ def add_decoder(root, stmts, addr, n, func):
     children = sorted(children, key=lambda x: x.c_abs_addr)
 
     add_block_decoder(
-        root, stmts, addr, children, root.c_sel_bits + root.c_blk_bits, func)
+        root, stmts, addr, children, root.c_sel_bits + root.c_blk_bits, func, 0)
 
 
 def field_decode(root, reg, f, off, val, dat):
@@ -941,6 +933,7 @@ def add_read_reg_process(root, module, isigs):
 
 def add_read_process(root, module, isigs):
     # Register read
+    module.stmts.append(HDLComment('Process for read requests.'))
     rd_data = root.h_bus['dato']
     rd_ack = isigs.rd_ack
     rd_adr = root.h_bus.get('adrr', None)
@@ -1170,7 +1163,6 @@ def generate_hdl(root):
         module.stmts.append(HDLComment('Process for registers read.'))
         add_read_reg_process(root, module, isigs)
 
-    module.stmts.append(HDLComment('Process for read requests.'))
     add_read_process(root, module, isigs)
 
     return module

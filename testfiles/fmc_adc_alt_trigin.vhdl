@@ -91,6 +91,7 @@ begin
             wr_ack_int <= not wr_ack_done_int;
           end case;
         when others =>
+          wr_ack_int <= not wr_ack_done_int;
         end case;
       else
         wr_ack_int <= '0';
