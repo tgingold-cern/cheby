@@ -1,0 +1,19 @@
+memory-map:
+  name: exemple
+  description: Simple memmap to illustrate parsing problem
+  bus: cern-be-vme-16
+  size: 1048576
+  x_gena:
+    ident-code: 0x1
+    map-version: 20190204
+  children:
+    - reg:
+        name: smallReg
+        width: 16
+        access: ro
+        address: next
+    - reg:
+        name: largeReg
+        width: 64
+        access: ro
+        address: next

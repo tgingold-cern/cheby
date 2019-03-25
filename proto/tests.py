@@ -216,7 +216,8 @@ def test_hdl_ref():
     # Generate vhdl and compare with a baseline.
     global nbr_tests
     for f in ['fmc_adc_alt_trigin', 'fmc_adc_alt_trigout',
-              'issue9/test', 'issue10/test']:
+              'issue9/test', 'issue10/test',
+              'issue8/simpleMap_bug', 'issue8/simpleMap_noBug']:
         if verbose:
             print('test hdl with ref: {}'.format(f))
         cheby_file = srcdir + f + '.cheby'
