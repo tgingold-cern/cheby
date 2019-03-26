@@ -87,15 +87,14 @@ def print_regdescr_reg(periph, raw, num):
     res = '''<a name="{name}"></a>
 <h3><a name="sect_3_{n}">2.{n}. {name}</a></h3>
 <table cellpadding=0 cellspacing=0 border=0>
-<tr><td><b>HW prefix:  </b></td><td class="td_code">{hdlprefix}</td></tr>
-<tr><td><b>HW address: </b></td><td class="td_code">0x{addr:x}</td></tr>
-<tr><td><b>C prefix:   </b></td><td class="td_code">{cprefix}</td></tr>
-<tr><td><b>C offset:   </b></td><td class="td_code">0x{caddr:x}</td></tr>
+<tr><td><b>HW prefix:</b></td><td class="td_code">{hdlprefix}</td></tr>
+<tr><td><b>HW address:</b></td><td class="td_code">0x{addr:x}</td></tr>
+<tr><td><b>C prefix:</b></td><td class="td_code">{cprefix}</td></tr>
+<tr><td><b>C block offset:</b></td><td class="td_code">0x{caddr:x}</td></tr>
 </table>
-'''.format(n=num, cprefix=r.name,
-           hdlprefix="{}_{}".format(get_hdl_prefix(periph),
-                                    get_hdl_prefix(r)),
-           addr=raw.abs_addr, caddr=raw.abs_addr,
+'''.format(n=num, cprefix=raw.name,
+           hdlprefix=r.c_name,
+           addr=raw.abs_addr, caddr=r.c_address,
            name=raw.name)
     if r.description is not None:
         res += '''<p>
@@ -146,7 +145,7 @@ def print_summary_html(periph, summary):
         res = '<h3><a name="sect_1_0">1. Memory map summary</a></h3>\n'
         res += '''<table cellpadding=2 cellspacing=0 border=0>
 <tr>
-<th>H/W Address</th>
+<th>HW address</th>
 <th>Type</th>
 <th>Name</th>
 <th>HDL prefix</th>
@@ -163,7 +162,6 @@ def print_summary_html(periph, summary):
 <td class="td_code">{cprefix}</td>
 </tr>\n'''.format(typ=r.typ, odd_even=odd_even[0], address=r.address,
                   cprefix=r.name, name=r.name,
-                  periph_prefix=get_hdl_prefix(periph),
                   hdlprefix=r.node.c_name)
             odd_even = [odd_even[1], odd_even[0]]
         res += '</table>\n'
@@ -176,43 +174,42 @@ def phtml_header(fd, periph):
 <HEAD>
 <TITLE>{entity}</TITLE>'''.format(entity=entity))
     wln(fd, '''<STYLE TYPE="text/css" MEDIA="all">
-
 <!--
-  BODY  { background: white; color: black;
-                  font-family: Arial,Helvetica; font-size:12; }
-        h1 { font-family: Trebuchet MS,Arial,Helvetica; font-size:30;
-         color:#404040; }
-        h2 { font-family: Trebuchet MS,Arial,Helvetica; font-size:22;
-         color:#404040; }
-        h3 { font-family: Trebuchet MS,Arial,Helvetica; font-size:16;
-         color:#404040; }
-        .td_arrow_left { padding:0px; background: #ffffff; text-align: right;
-                     font-size:12;}
-        .td_arrow_right { padding:0px; background: #ffffff; text-align: left;
-                      font-size:12;}
-        .td_code { font-family:Courier New,Courier; padding: 3px; }
-        .td_desc { padding: 3px; }
-        .td_sym_center { background: #e0e0f0; padding: 3px; }
-        .td_port_name { font-family:Courier New,Courier; background: #e0e0f0;
-                    text-align: right; font-weight:bold;
-                    padding: 3px; width:200px; }
-        .td_pblock_left { font-family:Courier New,Courier; background: #e0e0f0;
-                      padding: 0px; text-align: left; }
-        .td_pblock_right { font-family:Courier New,Courier;
-                           background: #e0e0f0;
-                           padding: 0px; text-align: right; }
-        .td_bit { background: #ffffff; color:#404040;
-                  font-size:10; width: 70px;
-                  font-family:Courier New,Courier; padding: 3px;
-                  text-align:center; }
-        .td_field { background: #e0e0f0; padding: 3px; text-align:center;
-                    border: solid 1px black; }
-        .td_unused { background: #a0a0a0; padding: 3px; text-align:center;  }
-        th { font-weight:bold; color:#ffffff; background: #202080;
-             padding:3px; }
-        .tr_even { background: #f0eff0; }
-        .tr_odd { background: #e0e0f0; }
-        -->
+  BODY { background: white; color: black;
+         font-family: Arial,Helvetica; font-size:12; }
+  h1 { font-family: Trebuchet MS,Arial,Helvetica; font-size:30;
+       color:#404040; }
+  h2 { font-family: Trebuchet MS,Arial,Helvetica; font-size:22;
+       color:#404040; }
+  h3 { font-family: Trebuchet MS,Arial,Helvetica; font-size:16;
+       color:#404040; }
+  .td_arrow_left { padding:0px; background: #ffffff; text-align: right;
+                   font-size:12; }
+  .td_arrow_right { padding:0px; background: #ffffff; text-align: left;
+                    font-size:12; }
+  .td_code { font-family:Courier New,Courier; padding: 3px; }
+  .td_desc { padding: 3px; }
+  .td_sym_center { background: #e0e0f0; padding: 3px; }
+  .td_port_name { font-family:Courier New,Courier; background: #e0e0f0;
+                  text-align: right; font-weight:bold;
+                  padding: 3px; width:200px; }
+  .td_pblock_left { font-family:Courier New,Courier; background: #e0e0f0;
+                    padding: 0px; text-align: left; }
+  .td_pblock_right { font-family:Courier New,Courier;
+                     background: #e0e0f0;
+                     padding: 0px; text-align: right; }
+  .td_bit { background: #ffffff; color:#404040;
+            font-size:10; width: 70px;
+            font-family:Courier New,Courier; padding: 3px;
+            text-align:center; }
+  .td_field { background: #e0e0f0; padding: 3px; text-align:center;
+              border: solid 1px black; }
+  .td_unused { background: #a0a0a0; padding: 3px; text-align:center;  }
+  th { font-weight:bold; color:#ffffff; background: #202080;
+       padding:3px; }
+  .tr_even { background: #f0eff0; }
+  .tr_odd { background: #e0e0f0; }
+-->
 </STYLE>''')
     wln(fd, '''</HEAD>
 <BODY>

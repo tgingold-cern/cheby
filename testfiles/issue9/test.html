@@ -2,43 +2,42 @@
 <HEAD>
 <TITLE>test</TITLE>
 <STYLE TYPE="text/css" MEDIA="all">
-
 <!--
-  BODY  { background: white; color: black;
-                  font-family: Arial,Helvetica; font-size:12; }
-        h1 { font-family: Trebuchet MS,Arial,Helvetica; font-size:30;
-         color:#404040; }
-        h2 { font-family: Trebuchet MS,Arial,Helvetica; font-size:22;
-         color:#404040; }
-        h3 { font-family: Trebuchet MS,Arial,Helvetica; font-size:16;
-         color:#404040; }
-        .td_arrow_left { padding:0px; background: #ffffff; text-align: right;
-                     font-size:12;}
-        .td_arrow_right { padding:0px; background: #ffffff; text-align: left;
-                      font-size:12;}
-        .td_code { font-family:Courier New,Courier; padding: 3px; }
-        .td_desc { padding: 3px; }
-        .td_sym_center { background: #e0e0f0; padding: 3px; }
-        .td_port_name { font-family:Courier New,Courier; background: #e0e0f0;
-                    text-align: right; font-weight:bold;
-                    padding: 3px; width:200px; }
-        .td_pblock_left { font-family:Courier New,Courier; background: #e0e0f0;
-                      padding: 0px; text-align: left; }
-        .td_pblock_right { font-family:Courier New,Courier;
-                           background: #e0e0f0;
-                           padding: 0px; text-align: right; }
-        .td_bit { background: #ffffff; color:#404040;
-                  font-size:10; width: 70px;
-                  font-family:Courier New,Courier; padding: 3px;
-                  text-align:center; }
-        .td_field { background: #e0e0f0; padding: 3px; text-align:center;
-                    border: solid 1px black; }
-        .td_unused { background: #a0a0a0; padding: 3px; text-align:center;  }
-        th { font-weight:bold; color:#ffffff; background: #202080;
-             padding:3px; }
-        .tr_even { background: #f0eff0; }
-        .tr_odd { background: #e0e0f0; }
-        -->
+  BODY { background: white; color: black;
+         font-family: Arial,Helvetica; font-size:12; }
+  h1 { font-family: Trebuchet MS,Arial,Helvetica; font-size:30;
+       color:#404040; }
+  h2 { font-family: Trebuchet MS,Arial,Helvetica; font-size:22;
+       color:#404040; }
+  h3 { font-family: Trebuchet MS,Arial,Helvetica; font-size:16;
+       color:#404040; }
+  .td_arrow_left { padding:0px; background: #ffffff; text-align: right;
+                   font-size:12; }
+  .td_arrow_right { padding:0px; background: #ffffff; text-align: left;
+                    font-size:12; }
+  .td_code { font-family:Courier New,Courier; padding: 3px; }
+  .td_desc { padding: 3px; }
+  .td_sym_center { background: #e0e0f0; padding: 3px; }
+  .td_port_name { font-family:Courier New,Courier; background: #e0e0f0;
+                  text-align: right; font-weight:bold;
+                  padding: 3px; width:200px; }
+  .td_pblock_left { font-family:Courier New,Courier; background: #e0e0f0;
+                    padding: 0px; text-align: left; }
+  .td_pblock_right { font-family:Courier New,Courier;
+                     background: #e0e0f0;
+                     padding: 0px; text-align: right; }
+  .td_bit { background: #ffffff; color:#404040;
+            font-size:10; width: 70px;
+            font-family:Courier New,Courier; padding: 3px;
+            text-align:center; }
+  .td_field { background: #e0e0f0; padding: 3px; text-align:center;
+              border: solid 1px black; }
+  .td_unused { background: #a0a0a0; padding: 3px; text-align:center;  }
+  th { font-weight:bold; color:#ffffff; background: #202080;
+       padding:3px; }
+  .tr_even { background: #f0eff0; }
+  .tr_odd { background: #e0e0f0; }
+-->
 </STYLE>
 </HEAD>
 <BODY>
@@ -48,7 +47,7 @@
 <h3><a name="sect_1_0">1. Memory map summary</a></h3>
 <table cellpadding=2 cellspacing=0 border=0>
 <tr>
-<th>H/W Address</th>
+<th>HW address</th>
 <th>Type</th>
 <th>Name</th>
 <th>HDL prefix</th>
@@ -102,10 +101,10 @@
 <a name="register1"></a>
 <h3><a name="sect_3_1">2.1. register1</a></h3>
 <table cellpadding=0 cellspacing=0 border=0>
-<tr><td><b>HW prefix:  </b></td><td class="td_code">test_register1</td></tr>
-<tr><td><b>HW address: </b></td><td class="td_code">0x0</td></tr>
-<tr><td><b>C prefix:   </b></td><td class="td_code">register1</td></tr>
-<tr><td><b>C offset:   </b></td><td class="td_code">0x0</td></tr>
+<tr><td><b>HW prefix:</b></td><td class="td_code">register1</td></tr>
+<tr><td><b>HW address:</b></td><td class="td_code">0x0</td></tr>
+<tr><td><b>C prefix:</b></td><td class="td_code">register1</td></tr>
+<tr><td><b>C block offset:</b></td><td class="td_code">0x0</td></tr>
 </table>
 <p>
 Test register 1
@@ -172,10 +171,10 @@ register1
 <a name="block1.register2"></a>
 <h3><a name="sect_3_2">2.2. block1.register2</a></h3>
 <table cellpadding=0 cellspacing=0 border=0>
-<tr><td><b>HW prefix:  </b></td><td class="td_code">test_register2</td></tr>
-<tr><td><b>HW address: </b></td><td class="td_code">0x10</td></tr>
-<tr><td><b>C prefix:   </b></td><td class="td_code">register2</td></tr>
-<tr><td><b>C offset:   </b></td><td class="td_code">0x10</td></tr>
+<tr><td><b>HW prefix:</b></td><td class="td_code">block1_register2</td></tr>
+<tr><td><b>HW address:</b></td><td class="td_code">0x10</td></tr>
+<tr><td><b>C prefix:</b></td><td class="td_code">block1.register2</td></tr>
+<tr><td><b>C block offset:</b></td><td class="td_code">0x0</td></tr>
 </table>
 <p>
 Test register 2
@@ -271,10 +270,10 @@ field2
 <a name="block1.register3"></a>
 <h3><a name="sect_3_3">2.3. block1.register3</a></h3>
 <table cellpadding=0 cellspacing=0 border=0>
-<tr><td><b>HW prefix:  </b></td><td class="td_code">test_register3</td></tr>
-<tr><td><b>HW address: </b></td><td class="td_code">0x14</td></tr>
-<tr><td><b>C prefix:   </b></td><td class="td_code">register3</td></tr>
-<tr><td><b>C offset:   </b></td><td class="td_code">0x14</td></tr>
+<tr><td><b>HW prefix:</b></td><td class="td_code">block1_register3</td></tr>
+<tr><td><b>HW address:</b></td><td class="td_code">0x14</td></tr>
+<tr><td><b>C prefix:</b></td><td class="td_code">block1.register3</td></tr>
+<tr><td><b>C block offset:</b></td><td class="td_code">0x4</td></tr>
 </table>
 <p>
 Test register 3
@@ -341,10 +340,10 @@ register3
 <a name="block1.block2.register4"></a>
 <h3><a name="sect_3_4">2.4. block1.block2.register4</a></h3>
 <table cellpadding=0 cellspacing=0 border=0>
-<tr><td><b>HW prefix:  </b></td><td class="td_code">test_register4</td></tr>
-<tr><td><b>HW address: </b></td><td class="td_code">0x18</td></tr>
-<tr><td><b>C prefix:   </b></td><td class="td_code">register4</td></tr>
-<tr><td><b>C offset:   </b></td><td class="td_code">0x18</td></tr>
+<tr><td><b>HW prefix:</b></td><td class="td_code">block1_block2_register4</td></tr>
+<tr><td><b>HW address:</b></td><td class="td_code">0x18</td></tr>
+<tr><td><b>C prefix:</b></td><td class="td_code">block1.block2.register4</td></tr>
+<tr><td><b>C block offset:</b></td><td class="td_code">0x0</td></tr>
 </table>
 <p>
 Test register 4

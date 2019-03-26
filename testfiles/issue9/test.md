@@ -2,7 +2,7 @@
 Test AXI4-Lite interface
 
 |===
-|HW address | Type | Name | HDL Name
+|HW address | Type | Name | HDL name
 
 |0x00
 |REG
@@ -38,7 +38,7 @@ Test AXI4-Lite interface
 == Registers description
 === register1
 [horizontal]
-hdl name:: register1
+HDL name:: register1
 address:: 0x0
 block offset:: 0x0
 access mode:: wo
@@ -94,7 +94,7 @@ Test register 1
 |===
 === block1.register2
 [horizontal]
-hdl name:: block1_register2
+HDL name:: block1_register2
 address:: 0x10
 block offset:: 0x0
 access mode:: ro
@@ -180,7 +180,7 @@ field2:: Test field 2
 
 === block1.register3
 [horizontal]
-hdl name:: block1_register3
+HDL name:: block1_register3
 address:: 0x14
 block offset:: 0x4
 access mode:: rw
@@ -236,7 +236,7 @@ Test register 3
 |===
 === block1.block2.register4
 [horizontal]
-hdl name:: block1_block2_register4
+HDL name:: block1_block2_register4
 address:: 0x18
 block offset:: 0x0
 access mode:: ro
