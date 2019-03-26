@@ -20,6 +20,7 @@ class UnknownGenAttribute(Exception):
 
 class UnknownTag(Exception):
     def __init__(self, msg):
+        super(UnknownTag, self).__init__()
         self.msg = msg
 
 
@@ -549,6 +550,8 @@ def conv_root(root, filename):
     for child in root:
         if child.tag == 'constant-value':
             pass
+        elif child.tag == 'configuration-value':
+            pass
         elif child.tag == 'fesa-class-properties':
             pass
         else:
@@ -572,6 +575,10 @@ def main():
     except UnknownGenAttribute as e:
         error("error: unknown 'gen=' attribute '{}' in {}".format(
             e.msg, e.node.get_path()))
+        sys.exit(1)
+    except UnknownTag as e:
+        error("error: unknown tag '{}'".format(
+            e.msg))
         sys.exit(1)
     cheby.pprint.pprint_cheby(sys.stdout, res)
 
