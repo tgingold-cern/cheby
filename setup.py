@@ -1,7 +1,7 @@
 from setuptools import setup
 
 # Import version
-execfile('proto/cheby/__init__.py')
+exec(open('proto/cheby/__init__.py').read())
 
 setup(
     name="cheby",
