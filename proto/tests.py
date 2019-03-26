@@ -254,6 +254,7 @@ def test_self():
 
 
 def test_gena():
+    # Feature tests
     global nbr_tests
     files = ['CRegs', 'CRegs_Regs', 'CRegs_NoRMW', 'CRegs_Regs_NoRMW',
              'Regs', 'Regs_Mems', 'Regs_rdstrobe', 'Regs_nodff',
@@ -377,6 +378,40 @@ def test_gena2cheby_err():
             pass
         except gena2cheby.UnknownTag:
             pass
+        nbr_tests += 1
+
+def test_gena_regressions():
+    global nbr_tests
+    files = ['issue7/code_fields']
+    for f in files:
+        if verbose:
+            print('test gena regression: {}'.format(f))
+        # Test Gena to Cheby conversion
+        xmlfile = srcdir + f + '.xml'
+        chebfile = srcdir + f + '.cheby'
+        t = gena2cheby.convert(xmlfile)
+        buf = write_buffer()
+        pprint.pprint_cheby(buf, t)
+        if not compare_buffer_and_file(buf, chebfile):
+            error('gena2cheby conversion error for {}'.format(f))
+        # Test parse+layout
+        t = parse_ok(chebfile)
+        layout_ok(t)
+        # Test memmap generation
+        hmemmap = gen_gena_memmap.gen_gena_memmap(t)
+        buf = write_buffer()
+        print_vhdl.print_vhdl(buf, hmemmap)
+        (head, tail) = os.path.split(f)
+        memmapfile = srcdir + head + '/MemMap_' + t.name + '.vhd'
+        if not compare_buffer_and_file(buf, memmapfile):
+            error('gena memmap generation error for {}'.format(f))
+        # Test regctrl generation
+        hregctrl = gen_gena_regctrl.gen_gena_regctrl(t, False)
+        buf = write_buffer()
+        print_vhdl.print_vhdl(buf, hregctrl)
+        regctrlfile = srcdir + head + '/RegCtrl_' + t.name + '.vhd'
+        if not compare_buffer_and_file(buf, regctrlfile):
+            error('gena regctrl generation error for {}'.format(f))
         nbr_tests += 1
 
 def test_wbgen2cheby():
@@ -505,6 +540,7 @@ def main():
         test_gena_regctrl_err()
         test_gena2cheby()
         test_gena2cheby_err()
+        test_gena_regressions()
         test_wbgen2cheby()
         test_consts()
         test_doc()

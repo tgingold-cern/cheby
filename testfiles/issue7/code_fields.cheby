@@ -1,0 +1,42 @@
+memory-map:
+  name: codeFields
+  bus: cern-be-vme-16
+  size: 16384
+  x_gena:
+    ident-code: 0x1
+    map-version: 20190204
+  children:
+    - block:
+        name: area1
+        address: next
+        size: 1024
+        x_gena:
+          reserved: False
+        children:
+          - reg:
+              name: myRegister
+              width: 16
+              access: rw
+              address: next
+              x_gena:
+                code-fields:
+                  - code-field:
+                      code: 0
+                      name: problematicCodeField
+    - block:
+        name: area2
+        address: next
+        size: 1024
+        x_gena:
+          reserved: False
+        children:
+          - reg:
+              name: myRegister
+              width: 16
+              access: rw
+              address: next
+              x_gena:
+                code-fields:
+                  - code-field:
+                      code: 0
+                      name: problematicCodeField
