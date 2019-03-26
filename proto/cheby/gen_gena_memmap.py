@@ -137,21 +137,26 @@ def gen_code_fields(n, root, decls):
                               value=HDLBinConst(cf['code'], sz))
             decls.append(cst)
 
+    def gen_path(e):
+        if isinstance(e, tree.Root):
+            return e.name
+        else:
+            return gen_path(e._parent) + '_' + e.name
+
     for e in reversed(n.children):
         if isinstance(e, tree.Reg):
+            pfx = 'C_Code_' + gen_path(e)
             # code-fields for fields
             for f in e.children:
                 codes = get_gena(f, 'code-fields', None)
                 if codes is not None:
-                    gen_one_cf(codes, 'C_Code_{}_{}_{}'.format(
-                                root.name, e.name, f.name),
+                    gen_one_cf(codes, '{}_{}'.format(pfx, f.name),
                                f.c_rwidth, f.lo)
             # code-fiels for registers
             codes = get_gena(e, 'code-fields', None)
             if codes is not None:
                 width = max([(f.hi or f.lo) + 1 for f in e.children])
-                gen_one_cf(codes, 'C_Code_{}_{}'.format(root.name, e.name),
-                           width, 0)
+                gen_one_cf(codes, pfx, width, 0)
 
 
 def gen_memory_data(n, root, decls, name, pfx):
