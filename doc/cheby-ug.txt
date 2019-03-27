@@ -203,6 +203,13 @@ convention
 * cern-be-vme-SZ: CERN VME-like bus using `SZ` data bit.  `SZ` can be
 8, 16 or 32.
 
+The attribute `word-endian` can be used to specify the word endianness
+(how multi-word registers are laid out in memory).  It is optionnal,
+and the default is set according to the bus: `big` by default for
+`wb-32-be` and `cern-be-vme`, `little` for `axi4-lite-32`.  It is also
+possible to use `none` to disallow any multi-word registers, and thus having
+a portable memory map.
+
 If you need to reserve area in a module, you can use the `size` attribute to
 specify the size (in bytes) of the memory space used by the module.
 
