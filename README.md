@@ -18,6 +18,8 @@ approach:
 Add `--user` to install in user directory instead of a system wide
 installation.
 
+Python version 3 is recommended.
+
 ## Documentation
 
 There is a user guide in the [doc/](doc) directory.  It contains a getting started
@@ -34,7 +36,7 @@ To create a new release:
 
 * document changes and issues in this README.md file
 
-* increase the version in cheby/__init__.py
+* increase the version in cheby/__init__.py and in doc/cheby-ug.txt
 
 * generate the pdf documentation
 

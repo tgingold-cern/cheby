@@ -570,6 +570,12 @@ directory).  So it is expected that either all the headers are stored
 in the same directory or that the include pathes are specified to the
 C compiler (using `-I` for example).
 
+The generated header files use the standard integer types defined in
+`<stdint.h>`, but without including `<stdint.h>`.  This is done on purpose so
+that the file can still be used on systems that don't hane `stdint.h`.  So
+you need to include `stdint.h` before including the generated header files,
+or to include an equivalent header file.
+
 It is also possible to generate a C program that check the layout is the same
 as the layout seen by Cheby.  This can be used as a consistency check.
 
