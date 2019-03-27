@@ -227,6 +227,8 @@ def parse_yaml(filename):
             res.bus = read_text(res, k, v)
         elif k == 'size':
             res.size = read_int(res, k, v)
+        elif k == 'word-endian':
+            res.word_endian = read_text(res, k, v)
         else:
             error("unhandled '{}' in root".format(k))
     return res

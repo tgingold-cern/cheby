@@ -75,6 +75,13 @@ bus: string
   "be-vme-32": CERN-BE specific VME-like interface. 32 bit words, stored in
     big-endian.
   "wb-32-be": Wishbone bus using 32 bit words stored in big-endian.
+  "axi4-lite-32": AXI4 lite bus using 32 bit words.
+word-endian:
+  Define the endianness of register longer than one word.
+  The default value is defined by the bus (big-endian for be-vme and wb-32-be,
+  little-endian for axi4-lite-32'), but can be overriden by this attribute.
+  The value can be: 'little', 'big' or 'none'.  'none' means that no
+  register can be longer than a word.
 name: string
   Identifier that names the memory map.  Names must be uniq at the same level.
 description: string
@@ -194,6 +201,8 @@ submap
 ------
 
 A submap allows to import a memory map from an external file.
+A generic submap doesn't have any external file a just specify a range of
+address that are decoded and handled externally through a bus.
 
 name: string
 description: string
@@ -204,10 +213,12 @@ align: boolean
   alignment. The default value is true.
 filename: string
   Relative cheby filename to be imported.
-interface: boolean
-  If set to true, the block is represented as an external HW module, connected
-  through its parent via a bus.  If set to false, the block is directly
-  implemented. (TODO: default is ???)
+  If not specified, the submap is a generic submap, and both size and
+  interface have to be specified.
+interface: string
+  For a generic submap, this specifies the bus (same values as in the header).
+  Otherwise, it can only be set to 'include' if set.  In that case, the
+  submap will be directly included in the map.
 size: number
   Number of bytes for that submap. Must be large enough to contain all
   the children.  This is optional.

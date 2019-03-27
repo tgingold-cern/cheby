@@ -147,6 +147,9 @@ def layout_reg(lo, n):
     n.c_size = n.width // tree.BYTE_SIZE
     word_bits = lo.word_size * tree.BYTE_SIZE
     n.c_nwords = (n.width + word_bits - 1) // word_bits
+    if n.c_nwords > 1 and lo.root.c_word_endian == 'none':
+        raise LayoutException(
+            n, "cannot use multi-words register when word-endian is 'none'")
     gena_type = get_gena(n, 'type')
     resize = get_gena_gen(n, 'resize')
     if get_gena_gen(n, 'srff'):
@@ -260,6 +263,7 @@ def align_block(lo, n):
 @Layout.register(tree.Submap)
 def layout_submap(lo, n):
     if n.filename is None:
+        # No filename, this is a generic submap.  So size and bus are required.
         if n.size is None:
             raise LayoutException(
                 n, "no size in submap '{}'".format(n.get_path()))
@@ -279,7 +283,17 @@ def layout_submap(lo, n):
         if n.interface is None:
             n.c_interface = submap.bus
         elif n.interface == 'include':
-            pass
+            # Check compatibility of word-endianness.
+            if ((lo.root.c_word_endian == 'big' and submap.c_word_endian == 'little')
+                or (lo.root.c_word_endian == 'little' and submap.c_word_endian == 'big')):
+                # FIXME: check with 3 levels: big <- none <- little
+                raise LayoutException(
+                    n, "cannot include submap '{}' with opposite word endianness".format(
+                        n.get_path()))
+            elif (lo.root.c_word_endian == 'none' and submap.c_word_endian != 'none'):
+                raise LayoutException(
+                    n, "cannot include submap '{}' with word endianness != 'none'".format(
+                        n.get_path()))
         else:
             raise LayoutException(
                 n, "interface override is not allowed for submap '{}'".format(
@@ -397,10 +411,13 @@ def layout_cheby_memmap(root):
     root.c_buserr = False
     if root.bus is None or root.bus == 'wb-32-be':
         root.c_word_size = 4
+        root.c_word_endian = 'big'
     elif root.bus == 'axi4-lite-32':
         root.c_word_size = 4
+        root.c_word_endian = 'little'
     elif root.bus.startswith('cern-be-vme-'):
         params = root.bus[12:].split('-')
+        root.c_word_endian = 'big'
         if params[0] == 'err':
             root.c_buserr = True
             del params[0]
@@ -425,6 +442,13 @@ def layout_cheby_memmap(root):
         flag_align_reg = False
     else:
         raise LayoutException(root, "unknown bus '{}'".format(root.bus))
+
+    # word endianness override.
+    if root.word_endian is not None:
+        if root.word_endian not in ['none', 'little', 'big']:
+            raise LayoutException(root, "incorrect word-endian value '{}'".format(
+                root.word_endian))
+        root.c_word_endian = root.word_endian
 
     # Number of bits in the address used by a word
     root.c_addr_word_bits = ilog2(root.c_word_size)

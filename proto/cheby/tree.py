@@ -90,9 +90,11 @@ class Root(CompositeNode):
         super(Root, self).__init__(None)
         self.bus = None
         self.size = None
+        self.word_endian = None
         # Computed variables
         self.c_word_size = None  # Word size in bytes
         self.c_filename = None   # Filename for the tree.
+        self.c_word_endian = None # word endianness ('any', 'little', 'big')
 
 
 class Reg(NamedNode):

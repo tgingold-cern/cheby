@@ -182,11 +182,11 @@ begin
           case adrw(2 downto 2) is
           when "0" => 
             -- Register register1
-            register1_reg(63 downto 32) <= dati;
+            register1_reg(31 downto 0) <= dati;
             wr_ack_int <= not wr_ack_done_int;
           when "1" => 
             -- Register register1
-            register1_reg(31 downto 0) <= dati;
+            register1_reg(63 downto 32) <= dati;
             wr_ack_int <= not wr_ack_done_int;
           when others =>
             wr_ack_int <= not wr_ack_done_int;
