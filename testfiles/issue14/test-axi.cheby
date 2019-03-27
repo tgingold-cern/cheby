@@ -1,0 +1,10 @@
+memory-map:
+  name: test_axi4
+  description: Test AXI4-Lite interface
+  bus: axi4-lite-32
+  children:
+  - reg:
+      name: register1
+      description: Test register 1
+      width: 64
+      access: wo

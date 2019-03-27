@@ -144,7 +144,8 @@ def test_layout():
               'err_field_preset1.yaml',
               'err_noelements.yaml',
               'err_arr1.yaml', 'err_arr2.yaml',
-              'err_block_size1.yaml']:
+              'err_block_size1.yaml',
+              'issue14/test-err.cheby']:
         if verbose:
             print('test layout: {}'.format(f))
         t = parse_ok(srcdir + f)
@@ -217,7 +218,8 @@ def test_hdl_ref():
     global nbr_tests
     for f in ['fmc_adc_alt_trigin', 'fmc_adc_alt_trigout',
               'issue9/test', 'issue10/test',
-              'issue8/simpleMap_bug', 'issue8/simpleMap_noBug']:
+              'issue8/simpleMap_bug', 'issue8/simpleMap_noBug',
+              'issue14/test-axi', 'issue14/test-be', 'issue14/test-le']:
         if verbose:
             print('test hdl with ref: {}'.format(f))
         cheby_file = srcdir + f + '.cheby'
