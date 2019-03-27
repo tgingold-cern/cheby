@@ -46,6 +46,8 @@ To create a new release:
 
 * Update the wiki at https://gitlab.cern.ch/cohtdrivers/cheby/wikis/home
 
+## Version 1.3
+
 ## Version 1.2
 
 Add --gen-custom to support user defined pass (merge!4)
