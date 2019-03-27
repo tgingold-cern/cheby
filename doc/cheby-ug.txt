@@ -1,6 +1,6 @@
 = Cheby User Guide
 CERN
-v1.0, 2018-09-12
+v1.2, 2019-03-27
 
 == What is Cheby ?
 
