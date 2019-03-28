@@ -225,7 +225,7 @@ def expand_hdl_err(t):
 def test_hdl_err():
     global nbr_tests
     fd = write_null()
-    for f in ['issue11/test_port1_err1']:
+    for f in ['issue11/test_port1_err1', 'issue11/test_port_err2']:
         if verbose:
             print('test hdl error: {}'.format(f))
         t = parse_ok(srcdir + f + '.cheby')

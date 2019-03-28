@@ -1,0 +1,12 @@
+memory-map:
+  bus: wb-32-be
+  name: sreg
+  description: a single register
+  children:
+    - reg:
+        name: i1Thresholds
+        width: 32
+        access: rw
+        type: signed
+        x-hdl:
+          port: invalid
