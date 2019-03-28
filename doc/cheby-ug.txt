@@ -593,6 +593,9 @@ that the file can still be used on systems that don't hane `stdint.h`.  So
 you need to include `stdint.h` before including the generated header files,
 or to include an equivalent header file.
 
+With the option `--c-style=arm`, the header generated follows more closely
+the CMSIS style.
+
 It is also possible to generate a C program that check the layout is the same
 as the layout seen by Cheby.  This can be used as a consistency check.
 
