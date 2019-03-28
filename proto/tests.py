@@ -219,7 +219,10 @@ def test_hdl_ref():
     for f in ['fmc_adc_alt_trigin', 'fmc_adc_alt_trigout',
               'issue9/test', 'issue10/test',
               'issue8/simpleMap_bug', 'issue8/simpleMap_noBug',
-              'issue14/test-axi', 'issue14/test-be', 'issue14/test-le']:
+              'issue14/test-axi', 'issue14/test-be', 'issue14/test-le',
+              'issue11/test_port1_reg', 'issue11/test_port1',
+              'issue11/test_port1_field',
+              'issue11/test_port2_reg', 'issue11/test_port2_wire']:
         if verbose:
             print('test hdl with ref: {}'.format(f))
         cheby_file = srcdir + f + '.cheby'

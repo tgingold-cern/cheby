@@ -1,0 +1,19 @@
+memory-map:
+  bus: wb-32-be
+  name: sreg
+  description: a single register
+  children:
+    - reg:
+        name: i1Thresholds
+        width: 32
+        access: rw
+        x-hdl:
+          port: reg
+        children:
+          - field:
+              name: highThreshold
+              range: 31-16
+          - field:
+              name: lowThreshold
+              range: 15-0
+
