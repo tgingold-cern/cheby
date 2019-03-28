@@ -213,6 +213,28 @@ def test_hdl():
         print_vhdl.print_vhdl(fd, h)
         nbr_tests += 1
 
+
+def expand_hdl_err(t):
+    try:
+        expand_hdl.expand_hdl(t)
+    except parser.ParseException:
+        return
+    error('hdl error expected for {}'.format(t.name))
+
+
+def test_hdl_err():
+    global nbr_tests
+    fd = write_null()
+    for f in ['issue11/test_port1_err1']:
+        if verbose:
+            print('test hdl error: {}'.format(f))
+        t = parse_ok(srcdir + f + '.cheby')
+        layout_ok(t)
+        expand_hdl_err(t)
+        gen_name.gen_name_root(t)
+        nbr_tests += 1
+
+
 def test_hdl_ref():
     # Generate vhdl and compare with a baseline.
     global nbr_tests
@@ -540,6 +562,7 @@ def main():
         test_layout()
         test_print()
         test_hdl()
+        test_hdl_err()
         test_hdl_ref()
         test_gena()
         test_gena_regctrl_err()
