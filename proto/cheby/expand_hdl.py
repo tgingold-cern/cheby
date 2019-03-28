@@ -25,6 +25,9 @@ def expand_x_hdl_reg(n, dct):
             if n.hdl_port not in ['field', 'reg']:
                 parser.error("incorrect value for 'port' in x-hdl of {}".format(
                     n.get_path()))
+            if not n.has_fields():
+                parser.error("'port' in x-hdl of register '{}' without fields is useless".format(
+                    n.get_path()))
         elif not n.has_fields():
             # x-hdl can also be used for the implicit field.
             expand_x_hdl_field_kv(n.children[0], n, k, v)
