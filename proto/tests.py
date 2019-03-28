@@ -123,7 +123,8 @@ def test_layout():
         cname = t.name + '.c'
         gen_name.gen_name_root(t)
         with open(hname, 'w') as fd:
-            gen_c.gen_c_cheby(fd, t)
+            gen_c.gen_c_cheby(fd, t, 'neutral')
+            gen_c.gen_c_cheby(fd, t, 'arm')
         with open(cname, 'w') as fd:
             gen_laychk.gen_chklayout_cheby(fd, t)
         subprocess.check_call(['gcc', '-S', cname])
@@ -162,7 +163,7 @@ def test_print():
         pprint.pprint_cheby(fd, t)
         sprint.sprint_cheby(fd, t)
         gen_name.gen_name_root(t)
-        gen_c.gen_c_cheby(fd, t)
+        gen_c.gen_c_cheby(fd, t, 'neutral')
         nbr_tests += 1
 
 def compare_buffer_and_file(buf, filename):

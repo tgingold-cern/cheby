@@ -46,6 +46,8 @@ def decode_args():
                          help='verbose display of the layout')
     aparser.add_argument('--gen-c', nargs='?', const='-',
                          help='generate c header file')
+    aparser.add_argument('--c-style', choices=['neutral', 'arm'],
+                         default='neutral', help='select style for --gen-c')
     aparser.add_argument('--gen-c-check-layout', nargs='?', const='-',
                          help='generate c file to check layout of the header')
     aparser.add_argument('--hdl', choices=['vhdl', 'verilog'], default='vhdl',
@@ -180,7 +182,7 @@ def handle_file(args, filename):
                 raise AssertionError('unknown doc format {}'.format(args.doc))
     if args.gen_c is not None:
         with open_filename(args.gen_c) as f:
-            gen_c.gen_c_cheby(f, t)
+            gen_c.gen_c_cheby(f, t, args.c_style)
     if args.gen_consts is not None:
         with open_filename(args.gen_consts) as f:
             print_consts.pconsts_cheby(f, t, args.consts_style)

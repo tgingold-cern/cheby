@@ -4,10 +4,12 @@ import cheby.print_consts as print_consts
 
 
 class CPrinter(tree.Visitor):
-    def __init__(self):
+    def __init__(self, style):
         self.buffer = ''
         self.submaps = []
         self.indent = 0
+        assert style in ['neutral', 'arm']
+        self.style = style
         self.utypes = {1: 'uint8_t',
                        2: 'uint16_t',
                        4: 'uint32_t',
@@ -18,6 +20,9 @@ class CPrinter(tree.Visitor):
                        8: 'int64_t'}
         self.ftypes = {4: 'float',
                        8: 'double'}
+        self.access = {'ro': ['__IM',  'volatile const'],
+                       'rw': ['__IOM', 'volatile'],
+                       'wo': ['__OM',  'volatile']}
 
     def cp_raw(self, s):
         self.buffer += s
@@ -87,7 +92,11 @@ def cprint_reg(cp, n):
         typ = cp.ftypes[n.c_size]
     else:
         typ = cp.utypes[n.c_size]
-    cp.cp_txt('{} {};'.format(typ, n.name))
+    if cp.style == 'arm':
+        acc = cp.access[n.access][0]
+        cp.cp_txt('{} {} {};'.format(acc, typ, n.name))
+    else:
+        cp.cp_txt('{} {};'.format(typ, n.name))
 
 
 @CPrinter.register(tree.Block)
@@ -145,8 +154,8 @@ def to_cmacro(name):
     return "__CHEBY__{}__H__".format(name.upper())
 
 
-def gen_c_cheby(fd, root):
-    cp = CPrinter()
+def gen_c_cheby(fd, root, style):
+    cp = CPrinter(style)
     cprint_root(cp, root)
     csym = to_cmacro(root.name)
     fd.write("#ifndef {}\n".format(csym))
@@ -158,6 +167,15 @@ def gen_c_cheby(fd, root):
     for s in submaps:
         # Note: we assume the filename is the name of the memmap + h
         fd.write('#include "{}.h"\n'.format(s))
+
+    if cp.style == 'arm':
+        # Add definition of access macros
+        fd.write('\n')
+        for m in sorted(cp.access):
+            acc = cp.access[m]
+            fd.write("#ifndef {}\n".format(acc[0]))
+            fd.write("  #define {} {}\n".format(acc[0], acc[1]))
+            fd.write("#endif\n")
 
     print_consts.pconsts_for_gen_c(fd, root)
     fd.write('\n')
