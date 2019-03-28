@@ -3,11 +3,13 @@ import cheby.tree as tree
 import cheby.layout as layout
 import copy
 
+# Decoce x-hdl extensions.
 
 def expand_x_hdl_reg(n, dct):
     # Default values
     n.hdl_write_strobe = False
     n.hdl_read_strobe = False
+    n.hdl_port = 'field'
 
     if not n.has_fields():
         # x-hdl can also be used for the implicit field.
@@ -18,6 +20,11 @@ def expand_x_hdl_reg(n, dct):
             n.hdl_write_strobe = parser.read_bool(n, k, v)
         elif k == 'read-strobe':
             n.hdl_read_strobe = parser.read_bool(n, k, v)
+        elif k == 'port':
+            n.hdl_port = parser.read_text(n, k, v)
+            if n.hdl_port not in ['field', 'reg']:
+                parser.error("incorrect value for 'port' in x-hdl of {}".format(
+                    n.get_path()))
         elif not n.has_fields():
             # x-hdl can also be used for the implicit field.
             expand_x_hdl_field_kv(n.children[0], n, k, v)

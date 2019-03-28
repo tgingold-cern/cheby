@@ -521,30 +521,48 @@ def add_module_port(root, module, name, size, dir):
 
 
 def add_ports_reg(root, module, n):
+    iport = None
+    oport = None
+
     for f in n.children:
         w = None if f.c_iowidth == 1 else f.c_iowidth
 
-        # Input
-        if f.hdl_type == 'wire' and n.access in ['ro', 'rw']:
-            f.h_iport = add_module_port(root, module, f.c_name, w, dir='IN')
-            f.h_iport.comment = f.description
-        else:
-            f.h_iport = None
-
-        # Output
-        if n.access in ['wo', 'rw']:
-            f.h_oport = add_module_port(root, module, f.c_name, w, dir='OUT')
-            f.h_oport.comment = f.description
-        else:
-            f.h_oport = None
-
-        # Register
+        # Create the register
         if f.hdl_type == 'reg':
             f.h_reg = HDLSignal(f.c_name + '_reg', w)
             module.decls.append(f.h_reg)
         else:
             f.h_reg = None
+ 
+        # Input
+        if f.hdl_type == 'wire' and n.access in ['ro', 'rw']:
+            if n.hdl_port == 'reg':
+                # One port used for all fields.
+                if iport is None:
+                    iport = add_module_port(root, module, n.c_name, n.width, dir='IN')
+                    iport.comment = n.description
+                f.h_iport = Slice_or_Index(iport, f.lo, w)
+            else:
+                # One port per field.
+                f.h_iport = add_module_port(root, module, f.c_name, w, dir='IN')
+                f.h_iport.comment = f.description
+        else:
+            f.h_iport = None
 
+        # Output
+        if n.access in ['wo', 'rw']:
+            if n.hdl_port == 'reg':
+                # One port used for all fields.
+                if oport is None:
+                    oport = add_module_port(root, module, n.c_name, n.width, dir='OUT')
+                    oport.comment = n.description
+                f.h_oport = Slice_or_Index(oport, f.lo, w)
+            else:
+                # One port per field.
+                f.h_oport = add_module_port(root, module, f.c_name, w, dir='OUT')
+                f.h_oport.comment = f.description
+        else:
+            f.h_oport = None
 
     # Strobe size.  There is one strobe signal per word, so create a vector if
     # the register is longer than a word.

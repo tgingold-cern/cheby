@@ -253,9 +253,6 @@ If there is no field, this is a plain register.
 
 The following attributes under `x-hdl` are supported:
 
-`type`:: if set to `wire` no register is created.  This is the default when
-the access type is `ro`.
-
 `write-strobe`:: True to generate an additional signal that is
 asserted when the register is written by the host.  The name of the
 signal is '_wr_o' appended to the name of the register.
@@ -263,6 +260,11 @@ signal is '_wr_o' appended to the name of the register.
 `read-strobe`:: True to generate an additional signal that is asserted
 when the register is read by the host.  The name of the signal is
 '_rd_o' appended to the name of the register.
+
+`port`:: Defines how ports are created and only when there are fields.
+When set to `reg`, only one port per direction is created using the
+size of the register.  User has to extract the fields from this port.  When
+set to `field` (the default), ports are created for each field.
 
 ==== Plain Registers
 
@@ -272,6 +274,9 @@ software view.
 
 It is possible to define the initial (just after a reset) value of a register
 using the `preset` attribute.
+
+The `type` attribute within `x-hdl` is available and behaves as
+defined below in the section for fields.
 
 Example of a plain register:
 
@@ -296,6 +301,11 @@ using the little endian convention.
 
 It is possible to define the initial value of a field using the
 `preset` attribute.
+
+The `type` attribute within `x-hdl` is available.  It can be set to
+`reg` (the default unless register access type is `ro`) or to `wire`
+(the default when the access type is `ro`). When set to `wire` no
+register is created.
 
 Example of a register with two fields:
 

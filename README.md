@@ -48,6 +48,8 @@ To create a new release:
 
 ## Version 1.3
 
+Add x-hdl:port to specify how ports are generated for registers (issue#11)
+
 ## Version 1.2
 
 Add --gen-custom to support user defined pass (merge!4)
