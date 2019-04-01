@@ -1,0 +1,11 @@
+memory-map:
+  name: mainMap2
+  bus: cern-be-vme-err-32
+  size: 32768
+  children:
+    - submap:
+        name: subMap1
+        filename: subMap.cheby
+    - submap:
+        name: subMap2
+        filename: subMap.cheby

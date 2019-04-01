@@ -1,0 +1,10 @@
+memory-map:
+  name: subMap
+  bus: cern-be-vme-err-32
+  size: 8192
+  children:
+    - reg:
+        name: testReg
+        width: 32
+        access: rw
+        address: next
