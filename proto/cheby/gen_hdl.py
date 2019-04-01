@@ -441,32 +441,43 @@ class CERNBEBus(BusGen):
         module.stmts.append(HDLAssign(root.h_bus['rack'], isigs.rd_ack))
         module.stmts.append(HDLAssign(root.h_bus['wack'], isigs.wr_ack))
 
+    def gen_cern_bus(self, build_port, addr_bits, lo_addr, data_bits,
+                     is_split, is_buserr, is_master):
+        """Create CERN-BE interface."""
+        inp, out = ('IN', 'OUT') if not is_master else ('OUT', 'IN')
+        bus = []
+        if is_split:
+            bus.extend(
+                [('adrr',   build_port("VMERdAddr", addr_bits,
+                                       lo=lo_addr, dir=inp)),
+                 ('adrw',   build_port("VMEWrAddr", addr_bits,
+                                       lo=lo_addr, dir=inp))])
+        else:
+            bus.extend(
+                [('adr',   build_port("VMEAddr", addr_bits,
+                                     lo=lo_addr, dir=inp))])
+        bus.extend(
+            [('dato',  build_port("VMERdData", data_bits, dir=out)),
+             ('dati',  build_port("VMEWrData", data_bits, dir=inp)),
+             ('rd',    build_port("VMERdMem", dir=inp)),
+             ('wr',    build_port("VMEWrMem", dir=inp)),
+             ('rack',  build_port("VMERdDone", dir=out)),
+             ('wack',  build_port("VMEWrDone", dir=out))])
+        if is_buserr:
+            bus.extend([('rderr', build_port('VMERdError', dir=out)),
+                        ('wrerr', build_port('VMEWrError', dir=out))])
+        return bus
+
     def expand_bus(self, root, module, isigs):
         """Create CERN-BE interface."""
         bus = [('clk',   HDLPort("Clk")),
                ('rst',   HDLPort("Rst"))]
-        if self.split:
-            bus.extend(
-                [('adrr',   HDLPort("VMERdAddr", root.c_addr_bits,
-                                    lo_idx=root.c_addr_word_bits)),
-                 ('adrw',   HDLPort("VMEWrAddr", root.c_addr_bits,
-                                    lo_idx=root.c_addr_word_bits))])
-        else:
-            bus.extend(
-                [('adr',   HDLPort("VMEAddr", root.c_addr_bits,
-                                   lo_idx=root.c_addr_word_bits))])
-        root.h_bussplit = self.split
-        bus.extend(
-            [('dato',  HDLPort("VMERdData", root.c_word_bits, dir='OUT')),
-             ('dati',  HDLPort("VMEWrData", root.c_word_bits)),
-             ('rd',    HDLPort("VMERdMem")),
-             ('wr',    HDLPort("VMEWrMem")),
-             ('rack',  HDLPort("VMERdDone", dir='OUT')),
-             ('wack',  HDLPort("VMEWrDone", dir='OUT'))])
-        if self.buserr:
-            bus.extend([('rderr', HDLPort('VMERdError', dir='OUT')),
-                        ('wrerr', HDLPort('VMEWrError', dir='OUT'))])
+        bus.extend(self.gen_cern_bus(
+            lambda n, sz=None, lo=0, dir='IN': HDLPort(n, size=sz, lo_idx=lo, dir=dir),
+            root.c_addr_bits, root.c_addr_word_bits, root.c_word_bits,
+            self.split, self.buserr, False))
         add_bus(root, module, bus)
+        root.h_bussplit = self.split
 
         if not self.split:
             root.h_bus['adrr'] = root.h_bus['adr']
@@ -474,6 +485,42 @@ class CERNBEBus(BusGen):
 
         if isigs:
             self.add_decode_cern_be_vme(root, module, isigs)
+
+    def gen_bus_slave(self, root, module, prefix, n, busgroup):
+        """Create an interface to a slave (Add declarations)"""
+        ports = self.gen_cern_bus(
+            lambda name, sz=None, lo=0, dir='IN': module.add_port(
+                '{}_{}_{}'.format(n.name, name, dirname[dir]),
+                size=sz, lo_idx=lo, dir=dir),
+            n.c_addr_bits, root.c_addr_word_bits, root.c_word_bits,
+            self.split, self.buserr, True)
+        n.h_bus = {}
+        for name, p in ports:
+            n.h_bus[name] = p
+        n.h_bus['adrr' if self.split else 'adr'].comment = n.description
+
+    def wire_bus_slave(self, root, stmts, n):
+        stmts.append(HDLComment("Assignments for submap {}".format(n.name)))
+        stmts.append(HDLAssign(n.h_bus['adr'],
+                               HDLSlice(root.h_bus['adr'],
+                                        root.c_addr_word_bits, n.c_addr_bits)))
+        stmts.append(HDLAssign(n.h_bus['dati'], root.h_bus['dati']))
+
+    def write_bus_slave(self, root, stmts, n, proc, isigs):
+        proc.rst_stmts.append(HDLAssign(n.h_bus['wr'], bit_0))
+        proc.sync_stmts.append(HDLAssign(n.h_bus['wr'], bit_0))
+        stmts.append(HDLAssign(n.h_bus['wr'], bit_1))
+        stmts.append(HDLAssign(isigs.wr_ack,
+                               HDLAnd(n.h_bus['wack'],
+                                      HDLNot(isigs.wr_ack_done))))
+
+    def read_bus_slave(self, root, stmts, n, proc, isigs, rd_data):
+        proc.stmts.append(HDLAssign(n.h_bus['rd'], bit_0))
+        stmts.append(HDLAssign(n.h_bus['rd'], isigs.rd_int))
+        proc.sensitivity.append(isigs.rd_int)
+        stmts.append(HDLAssign(rd_data, n.h_bus['dato']))
+        stmts.append(HDLAssign(isigs.rd_ack, n.h_bus['rack']))
+        proc.sensitivity.extend([n.h_bus['dato'], n.h_bus['rack']])
 
 
 class SRAMBus(BusGen):
