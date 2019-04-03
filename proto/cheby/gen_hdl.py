@@ -43,6 +43,30 @@ def add_bus(root, module, bus):
 
 
 class BusGen(object):
+    """The purpose of BusGen is to abstract the buses.
+    Internally, there is one bus for read acces, and one bus for write access.
+    TODO: the current implementation doesn't use a pulse.
+    
+    For the read access:
+    inputs:
+    * rd_int: a pulse indicating a read access
+    * adrr: address, valid only when rd_int is set.
+    outputs:
+    * rd_ack: a pulse indicating the results are valid, and that the access is ended.
+    * dato: the data, valid only when rd_ack is set.
+
+    For the write access:
+    inputs:
+    * wr_int: a pulse indicating a write access
+    * adrw: the address, valid only when wr_int is set.
+    * dati: the data, valid only when wr_int is set.
+    outputs:
+    * wr_ack: a pulse indicating the access is finished.
+
+    There can be at most one read access on fly and at most one write access on fly.
+    There can be one read access in parallel to a write access.
+    """
+
     def expand_bus(self, root, module, isigs):
         """Create bus interface for the design."""
         raise AssertionError("Not implemented")
@@ -568,6 +592,13 @@ def add_module_port(root, module, name, size, dir):
 
 
 def add_ports_reg(root, module, n):
+    """Add ports and wires for register :param n:
+       :field h_reg: the register.
+       :field h_iport: the input port.
+       :field h_oport: the output port.
+       :field h_wport: the write strobe port.
+       :field h_rport: the read strobe port.
+    """
     iport = None
     oport = None
 
@@ -650,6 +681,12 @@ def add_ports_submap(root, module, n):
 
 
 def add_ports_array_reg(root, module, reg):
+    """Create ports and wire for a ram.
+    :field r_addr: the address port
+    :field r_we: the write enable
+    :field r_rd: the read enable
+    :field r_dat: the data (either input or output)
+    """
     # Compute width
     # Create ports
     # FIXME: share addresses with all registers of an array ?
