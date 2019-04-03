@@ -505,7 +505,7 @@ def conv_root(root, filename):
                 if e == '':
                     pass
                 elif e.startswith('library='):
-                    kg, vg = e.split('=')
+                    _, vg = e.split('=')
                     xg['vhdl-library'] = vg
                 elif e in ('no-creg-mux-dff', 'no-reg-mux-dff',
                            'no-mem-mux-dff', 'dsp'):
