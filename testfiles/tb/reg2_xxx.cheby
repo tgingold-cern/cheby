@@ -1,0 +1,19 @@
+memory-map:
+  bus: BUS
+  name: reg2_NAME
+  description: a single register
+  children:
+    - reg:
+        name: reg1
+        width: 32
+        access: rw
+        type: unsigned
+        preset: 0xabcd1234
+    - reg:
+        name: reg2
+        width: 32
+        access: rw
+        type: unsigned
+        preset: 0xabcd1004
+        x-hdl:
+          write-strobe: True
