@@ -1319,20 +1319,6 @@ def generate_hdl(root):
         root.h_ports = module
     add_ports(root, module, root)
 
-    if root.h_bussplit:
-        # Create a unified bus (needed for RAMs and )
-        root.h_bus['adr'] = module.new_HDLSignal(
-            'adr_int', root.c_addr_bits, lo_idx=root.c_addr_word_bits)
-        module.stmts.append(HDLComment('Assign unified address bus'))
-        proc = HDLComb()
-        proc.sensitivity.extend(
-            [root.h_bus['adrr'], root.h_bus['adrw'], isigs.rd_int])
-        sif = HDLIfElse(HDLEq(isigs.rd_int, bit_1))
-        sif.then_stmts.append(HDLAssign(root.h_bus['adr'], root.h_bus['adrr']))
-        sif.else_stmts.append(HDLAssign(root.h_bus['adr'], root.h_bus['adrw']))
-        proc.stmts.append(sif)
-        module.stmts.append(proc)
-
     module.stmts.append(HDLComment('Assign outputs'))
     root.h_ram = None
     wire_regs(root, module, isigs, root)
