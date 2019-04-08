@@ -18,11 +18,11 @@ memory-map:
       access: rw
       preset: 0x12340002
   - array:
-      name: arr
+      name: ram1
       repeat: 8
       children:
       - reg:
-          name: ram1
+          name: val
           access: rw
           width: 32
   - submap:

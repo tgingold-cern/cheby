@@ -74,9 +74,9 @@ begin
       rdata      => rd_in.rdata,
       rresp      => rd_in.rresp,
 
-      ram1_adr_i => (others => '0'),
-      ram1_rd_i  => '0',
-      ram1_dat_o => open,
+      ram1_adr_i     => (others => '0'),
+      ram1_val_rd_i  => '0',
+      ram1_val_dat_o => open,
 
       sub1_wb_cyc_o => sub1_wb_in.cyc,
       sub1_wb_stb_o => sub1_wb_in.stb,
@@ -145,10 +145,11 @@ begin
     assert v = x"0000_abcd" severity error;
 
     --  Testing memory
-    report "Testing memory" severity note;
+    report "Testing memory (write)" severity note;
     axi4lite_write (clk, wr_out, wr_in, x"0000_0024", x"abcd_0001");
     axi4lite_write (clk, wr_out, wr_in, x"0000_002c", x"abcd_0203");
 
+    report "Testing memory (read)" severity note;
     axi4lite_read (clk, rd_out, rd_in, x"0000_0024", v);
     assert v = x"abcd_0001" severity error;
 
@@ -156,9 +157,10 @@ begin
     assert v = x"abcd_0203" severity error;
 
     --  Testing WB
-    report "Testing wishbone" severity note;
+    report "Testing wishbone (write)" severity note;
     axi4lite_write (clk, wr_out, wr_in, x"0000_1000", x"9876_5432");
 
+    report "Testing wishbone (read)" severity note;
     axi4lite_read (clk, rd_out, rd_in, x"0000_1804", v);
     assert v = x"01fe_fe01" severity error;
 
@@ -166,10 +168,11 @@ begin
     assert v = x"0000_0000" severity error;
 
     --  Testing AXI4
-    report "Testing AIX4" severity note;
+    report "Testing AXI4 (read)" severity note;
     axi4lite_read (clk, rd_out, rd_in, x"0000_2004", v);
     assert v = x"fe01_01fe" severity error;
 
+    report "Testing AXI4 (write)" severity note;
     axi4lite_write (clk, wr_out, wr_in, x"0000_2000", x"5555_aaaa");
 
     axi4lite_write (clk, wr_out, wr_in, x"0000_2004", x"fe01_01fe");
@@ -185,6 +188,14 @@ begin
     report "end of test" severity note;
 
     end_of_test <= true;
+    wait;
+  end process;
+
+  --  Watchdog.
+  process
+  begin
+    wait until end_of_test for 1 us;
+    assert end_of_test report "timeout" severity failure;
     wait;
   end process;
 end behav;

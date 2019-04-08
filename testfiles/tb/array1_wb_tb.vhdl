@@ -54,9 +54,9 @@ begin
       reg1_o     => reg1,
       reg2_o     => reg2,
 
-      ram1_adr_i => (others => '0'),
-      ram1_rd_i  => '0',
-      ram1_dat_o => open,
+      ram1_adr_i     => (others => '0'),
+      ram1_val_rd_i  => '0',
+      ram1_val_dat_o => open,
 
       sub1_wb_cyc_o => sub1_wb_in.cyc,
       sub1_wb_stb_o => sub1_wb_in.stb,
@@ -116,10 +116,10 @@ begin
     wait until rising_edge(clk);
 
     --  Memory
-    report "Testing memory" severity note;
+    report "Testing memory (write)" severity note;
     wb_writel (clk, wb_in, wb_out, x"0000_0024", x"abcd_0203");
     wait until rising_edge(clk);
-
+    report "Testing memory (read)" severity note;
     wb_readl (clk, wb_in, wb_out, x"0000_0024", v);
     assert v = x"abcd_0203" severity error;
 
@@ -127,6 +127,14 @@ begin
 
     end_of_test <= true;
     report "end of test" severity note;
+    wait;
+  end process;
+
+  --  Watchdog.
+  process
+  begin
+    wait until end_of_test for 1 us;
+    assert end_of_test report "timeout" severity failure;
     wait;
   end process;
 end behav;

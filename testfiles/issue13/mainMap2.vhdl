@@ -39,7 +39,8 @@ end mainMap2;
 architecture syn of mainMap2 is
   signal rd_ack_int                     : std_logic;
   signal wr_ack_int                     : std_logic;
-  signal wr_ack_done_int                : std_logic;
+  signal reg_rdat_int                   : std_logic_vector(31 downto 0);
+  signal rd_ack1_int                    : std_logic;
 begin
   VMERdDone <= rd_ack_int;
   VMEWrDone <= wr_ack_int;
@@ -58,39 +59,47 @@ begin
   process (Clk, Rst) begin
     if Rst = '0' then 
       wr_ack_int <= '0';
-      wr_ack_done_int <= '0';
       subMap1_VMEWrMem_o <= '0';
       subMap2_VMEWrMem_o <= '0';
     elsif rising_edge(Clk) then
+      wr_ack_int <= '0';
       subMap1_VMEWrMem_o <= '0';
       subMap2_VMEWrMem_o <= '0';
-      if VMEWrMem = '1' then
-        -- Write in progress
-        wr_ack_done_int <= wr_ack_int or wr_ack_done_int;
-        case VMEAddr(14 downto 13) is
-        when "00" => 
-          -- Submap subMap1
-          subMap1_VMEWrMem_o <= '1';
-          wr_ack_int <= subMap1_VMEWrDone_i and not wr_ack_done_int;
-        when "01" => 
-          -- Submap subMap2
-          subMap2_VMEWrMem_o <= '1';
-          wr_ack_int <= subMap2_VMEWrDone_i and not wr_ack_done_int;
-        when others =>
-          wr_ack_int <= not wr_ack_done_int;
-        end case;
-      else
-        wr_ack_int <= '0';
-        wr_ack_done_int <= '0';
-      end if;
+      case VMEAddr(14 downto 13) is
+      when "00" => 
+        -- Submap subMap1
+        subMap1_VMEWrMem_o <= '1';
+        wr_ack_int <= subMap1_VMEWrDone_i;
+      when "01" => 
+        -- Submap subMap2
+        subMap2_VMEWrMem_o <= '1';
+        wr_ack_int <= subMap2_VMEWrDone_i;
+      when others =>
+        wr_ack_int <= VMEWrMem;
+      end case;
+    end if;
+  end process;
+
+  -- Process for registers read.
+  process (Clk, Rst) begin
+    if Rst = '0' then 
+      rd_ack1_int <= '0';
+      reg_rdat_int <= (others => 'X');
+    elsif rising_edge(Clk) then
+      reg_rdat_int <= (others => '0');
+      case VMEAddr(14 downto 13) is
+      when "00" => 
+      when "01" => 
+      when others =>
+        rd_ack1_int <= VMERdMem;
+      end case;
     end if;
   end process;
 
   -- Process for read requests.
-  process (VMEAddr, VMERdMem, subMap1_VMERdData_i, subMap1_VMERdDone_i, VMERdMem, subMap2_VMERdData_i, subMap2_VMERdDone_i) begin
+  process (VMEAddr, reg_rdat_int, rd_ack1_int, VMERdMem, VMERdMem, subMap1_VMERdData_i, subMap1_VMERdDone_i, VMERdMem, subMap2_VMERdData_i, subMap2_VMERdDone_i) begin
     -- By default ack read requests
     VMERdData <= (others => '0');
-    rd_ack_int <= '1';
     subMap1_VMERdMem_o <= '0';
     subMap2_VMERdMem_o <= '0';
     case VMEAddr(14 downto 13) is
@@ -105,6 +114,7 @@ begin
       VMERdData <= subMap2_VMERdData_i;
       rd_ack_int <= subMap2_VMERdDone_i;
     when others =>
+      rd_ack_int <= VMERdMem;
     end case;
   end process;
 end syn;

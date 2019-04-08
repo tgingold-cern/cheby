@@ -21,7 +21,6 @@ end exemple;
 architecture syn of exemple is
   signal rd_ack_int                     : std_logic;
   signal wr_ack_int                     : std_logic;
-  signal wr_ack_done_int                : std_logic;
   signal reg_rdat_int                   : std_logic_vector(15 downto 0);
   signal rd_ack1_int                    : std_logic;
 begin
@@ -34,34 +33,22 @@ begin
   process (Clk, Rst) begin
     if Rst = '0' then 
       wr_ack_int <= '0';
-      wr_ack_done_int <= '0';
     elsif rising_edge(Clk) then
-      if VMEWrMem = '1' then
-        -- Write in progress
-        wr_ack_done_int <= wr_ack_int or wr_ack_done_int;
-        case VMEAddr(19 downto 1) is
-        when "0000000000000000000" => 
-          -- Register largeReg
-          wr_ack_int <= not wr_ack_done_int;
-        when "0000000000000000001" => 
-          -- Register largeReg
-          wr_ack_int <= not wr_ack_done_int;
-        when "0000000000000000010" => 
-          -- Register largeReg
-          wr_ack_int <= not wr_ack_done_int;
-        when "0000000000000000011" => 
-          -- Register largeReg
-          wr_ack_int <= not wr_ack_done_int;
-        when "0000000000000000100" => 
-          -- Register smallReg
-          wr_ack_int <= not wr_ack_done_int;
-        when others =>
-          wr_ack_int <= not wr_ack_done_int;
-        end case;
-      else
-        wr_ack_int <= '0';
-        wr_ack_done_int <= '0';
-      end if;
+      wr_ack_int <= '0';
+      case VMEAddr(19 downto 1) is
+      when "0000000000000000000" => 
+        -- Register largeReg
+      when "0000000000000000001" => 
+        -- Register largeReg
+      when "0000000000000000010" => 
+        -- Register largeReg
+      when "0000000000000000011" => 
+        -- Register largeReg
+      when "0000000000000000100" => 
+        -- Register smallReg
+      when others =>
+        wr_ack_int <= VMEWrMem;
+      end case;
     end if;
   end process;
 
@@ -71,30 +58,31 @@ begin
       rd_ack1_int <= '0';
       reg_rdat_int <= (others => 'X');
     elsif rising_edge(Clk) then
-      if VMERdMem = '1' and rd_ack1_int = '0' then
-        rd_ack1_int <= '1';
-        reg_rdat_int <= (others => '0');
-        case VMEAddr(19 downto 1) is
-        when "0000000000000000000" => 
-          -- largeReg
-          reg_rdat_int <= largeReg_i(63 downto 48);
-        when "0000000000000000001" => 
-          -- largeReg
-          reg_rdat_int <= largeReg_i(47 downto 32);
-        when "0000000000000000010" => 
-          -- largeReg
-          reg_rdat_int <= largeReg_i(31 downto 16);
-        when "0000000000000000011" => 
-          -- largeReg
-          reg_rdat_int <= largeReg_i(15 downto 0);
-        when "0000000000000000100" => 
-          -- smallReg
-          reg_rdat_int <= smallReg_i;
-        when others =>
-        end case;
-      else
-        rd_ack1_int <= '0';
-      end if;
+      reg_rdat_int <= (others => '0');
+      case VMEAddr(19 downto 1) is
+      when "0000000000000000000" => 
+        -- largeReg
+        reg_rdat_int <= largeReg_i(63 downto 48);
+        rd_ack1_int <= VMERdMem;
+      when "0000000000000000001" => 
+        -- largeReg
+        reg_rdat_int <= largeReg_i(47 downto 32);
+        rd_ack1_int <= VMERdMem;
+      when "0000000000000000010" => 
+        -- largeReg
+        reg_rdat_int <= largeReg_i(31 downto 16);
+        rd_ack1_int <= VMERdMem;
+      when "0000000000000000011" => 
+        -- largeReg
+        reg_rdat_int <= largeReg_i(15 downto 0);
+        rd_ack1_int <= VMERdMem;
+      when "0000000000000000100" => 
+        -- smallReg
+        reg_rdat_int <= smallReg_i;
+        rd_ack1_int <= VMERdMem;
+      when others =>
+        rd_ack1_int <= VMERdMem;
+      end case;
     end if;
   end process;
 
@@ -102,7 +90,6 @@ begin
   process (VMEAddr, reg_rdat_int, rd_ack1_int, VMERdMem) begin
     -- By default ack read requests
     VMERdData <= (others => '0');
-    rd_ack_int <= '1';
     case VMEAddr(19 downto 1) is
     when "0000000000000000000" => 
       -- largeReg
@@ -125,6 +112,7 @@ begin
       VMERdData <= reg_rdat_int;
       rd_ack_int <= rd_ack1_int;
     when others =>
+      rd_ack_int <= VMERdMem;
     end case;
   end process;
 end syn;
