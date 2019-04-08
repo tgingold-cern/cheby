@@ -42,7 +42,6 @@ architecture syn of test_axi4 is
   signal axi_rip                        : std_logic;
   signal axi_rdone                      : std_logic;
   signal register1_reg                  : std_logic_vector(63 downto 0);
-  signal adr_int                        : std_logic_vector(2 downto 2);
   signal reg_rdat_int                   : std_logic_vector(31 downto 0);
   signal rd_ack1_int                    : std_logic;
 begin
@@ -81,15 +80,6 @@ begin
     end if;
   end process;
   rresp <= "00";
-
-  -- Assign unified address bus
-  process (araddr, awaddr, rd_int) begin
-    if rd_int = '1' then
-      adr_int <= araddr;
-    else
-      adr_int <= awaddr;
-    end if;
-  end process;
 
   -- Assign outputs
   register1_o <= register1_reg;
