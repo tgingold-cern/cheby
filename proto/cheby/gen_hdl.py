@@ -280,7 +280,7 @@ class WBBus(BusGen):
         proc.rst_stmts.append(HDLAssign(n.h_wr, bit_0))
         proc.sync_stmts.append(HDLAssign(n.h_wr, bit_0))
         stmts.append(HDLAssign(n.h_wr, isigs.wr_int))
-        stmts.append(HDLAssign(isigs.wr_ack, n.h_bus['ack']))
+        stmts.append(HDLAssign(isigs.wr_ack, HDLAnd(n.h_bus['ack'], n.h_we)))
 
     def read_bus_slave(self, root, stmts, n, proc, isigs, rd_data):
         proc.stmts.append(HDLAssign(n.h_rd, bit_0))
@@ -426,7 +426,7 @@ class AXI4LiteBus(BusGen):
         n.h_bus['awvalid'].comment = n.description
         # Internal signals: valid signals.
         n.h_aw_val = module.new_HDLSignal(prefix + 'aw_val')
-        n.h_w_val = module.new_HDLSignal(prefix + 'wval')
+        n.h_w_val = module.new_HDLSignal(prefix + 'w_val')
         n.h_aw_done = module.new_HDLSignal(prefix + 'aw_done')
         n.h_w_done = module.new_HDLSignal(prefix + 'w_done')
         n.h_rd = module.new_HDLSignal(prefix + 'rd')
@@ -442,8 +442,7 @@ class AXI4LiteBus(BusGen):
         stmts.append(HDLAssign(n.h_bus['wvalid'], n.h_w_val))
         stmts.append(HDLAssign(n.h_bus['wdata'], root.h_bus['dati']))
         stmts.append(HDLAssign(n.h_bus['wstrb'], HDLBinConst(0xf, 4)))
-        stmts.append(HDLAssign(n.h_bus['bready'],
-                               root.h_bus.get('bready', bit_1)))
+        stmts.append(HDLAssign(n.h_bus['bready'], bit_1))
 
         stmts.append(HDLAssign(n.h_bus['arvalid'], n.h_rd))
         stmts.append(HDLAssign(
@@ -458,20 +457,18 @@ class AXI4LiteBus(BusGen):
 
     def write_bus_slave(self, root, stmts, n, proc, isigs):
         # Machine state for valid/ready AW and W channels
-        # Set valid if ready and not done (the submap is selected)
-        # Set done if ready, clear done on resp.
-        for xr, x_done, ready in [
+        # Set valid on request, clear valid on ready.
+        # Set done on ready, clear done on ack.
+        for x_val, x_done, ready in [
                 (n.h_aw_val, n.h_aw_done, n.h_bus['awready']),
                 (n.h_w_val, n.h_w_done, n.h_bus['wready'])]:
-            proc.rst_stmts.append(HDLAssign(xr, bit_0))
+            proc.rst_stmts.append(HDLAssign(x_val, bit_0))
             proc.sync_stmts.append(HDLAssign(x_done, bit_0))
-            proc.sync_stmts.append(HDLAssign(xr, bit_0))
-            stmts.append(HDLAssign(xr, HDLAnd(HDLNot(x_done), ready)))
-            stmts.append(HDLAssign(x_done, HDLOr(x_done, ready)))
-        # Note: bready is available only with AXI4 root
-        stmts.append(HDLAssign(isigs.wr_ack,
-                               HDLAnd(n.h_bus['bvalid'],
-                                      root.h_bus.get('bready', bit_1))))
+            proc.sync_stmts.append(HDLAssign(x_val, bit_0))
+            # VALID is set on WR, cleared by READY.
+            stmts.append(HDLAssign(x_val,
+                HDLOr(isigs.wr_int, HDLParen(HDLAnd(x_val, HDLNot(ready))))))
+        stmts.append(HDLAssign(isigs.wr_ack, n.h_bus['bvalid']))
 
     def read_bus_slave(self, root, stmts, n, proc, isigs, rd_data):
         proc.stmts.append(HDLAssign(n.h_rd, bit_0))
