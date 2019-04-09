@@ -12,6 +12,7 @@ build_infra()
  $GHDL -a $GHDL_FLAGS wbgen2_pkg.vhd
  $GHDL -a $GHDL_FLAGS axi4_tb_pkg.vhdl
  $GHDL -a $GHDL_FLAGS wb_tb_pkg.vhdl
+ $GHDL -a $GHDL_FLAGS cernbe_tb_pkg.vhdl
  $GHDL -a $GHDL_FLAGS dpssram.vhdl
  $GHDL -a $GHDL_FLAGS block1_axi4.vhdl
  $GHDL -a $GHDL_FLAGS block1_wb.vhdl
@@ -55,7 +56,8 @@ build_cernbe()
  sed -e '/bus:/s/xxx/cern-be-vme-32/' -e '/name:/s/NAME/cernbe/' < array1_xxx.cheby > array1_cernbe.cheby
  $CHEBY --gen-hdl=array1_cernbe.vhdl -i array1_cernbe.cheby
  $GHDL -a $GHDL_FLAGS array1_cernbe.vhdl
- # No testbench (yet).
+ $GHDL -a $GHDL_FLAGS array1_cernbe_tb.vhdl
+ $GHDL --elab-run $GHDL_FLAGS array1_cernbe_tb --assert-level=error --wave=array1_cernbe_tb.ghw
 }
 
 build_infra
