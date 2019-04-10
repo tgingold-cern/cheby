@@ -16,6 +16,7 @@ build_infra()
  $GHDL -a $GHDL_FLAGS dpssram.vhdl
  $GHDL -a $GHDL_FLAGS block1_axi4.vhdl
  $GHDL -a $GHDL_FLAGS block1_wb.vhdl
+ $GHDL -a $GHDL_FLAGS block1_cernbe.vhdl
 }
 
 build_axi4()

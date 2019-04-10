@@ -7,6 +7,7 @@ use ieee.std_logic_1164.all;
 use work.wishbone_pkg.all;
 use work.wb_tb_pkg.all;
 use work.axi4_tb_pkg.all;
+use work.cernbe_tb_pkg.all;
 
 architecture behav of all1_wb_tb is
   signal rst_n   : std_logic;
@@ -26,6 +27,10 @@ architecture behav of all1_wb_tb is
   signal sub2_wr_out  : t_axi4lite_write_slave_out;
   signal sub2_rd_in   : t_axi4lite_read_slave_in;
   signal sub2_rd_out  : t_axi4lite_read_slave_out;
+
+  --  For sub3.
+  signal sub3_in      : t_cernbe_slave_in;
+  signal sub3_out     : t_cernbe_slave_out;
 
   signal end_of_test : boolean := false;
 begin
@@ -88,7 +93,16 @@ begin
       sub2_axi4_rvalid_i   => sub2_rd_out.rvalid,
       sub2_axi4_rready_o   => sub2_rd_in.rready,
       sub2_axi4_rdata_i    => sub2_rd_out.rdata,
-      sub2_axi4_rresp_i    => sub2_rd_out.rresp);
+      sub2_axi4_rresp_i    => sub2_rd_out.rresp,
+
+      sub3_cernbe_VMEAddr_o => sub3_in.VMEAddr(11 downto 2),
+      sub3_cernbe_VMERdData_i => sub3_out.VMERdData,
+      sub3_cernbe_VMEWrData_o => sub3_in.VMEWrData,
+      sub3_cernbe_VMERdMem_o  => sub3_in.VMERdMem,
+      sub3_cernbe_VMEWrMem_o  => sub3_in.VMEWrMem,
+      sub3_cernbe_VMERdDone_i => sub3_out.VMERdDone,
+      sub3_cernbe_VMEWrDone_i => sub3_out.VMEWrDone
+      );
 
     --  WB target
   b1: entity work.block1_wb
@@ -105,6 +119,13 @@ begin
               sub2_wr_out => sub2_wr_out,
               sub2_rd_in => sub2_rd_in,
               sub2_rd_out => sub2_rd_out);
+
+  --  CERNBE target
+  b3: entity work.block1_cernbe
+    port map (clk => clk,
+              rst_n => rst_n,
+              bus_in => sub3_in,
+              bus_out => sub3_out);
 
   process
     variable v : std_logic_vector(31 downto 0);
@@ -166,6 +187,18 @@ begin
 
     wb_readl (clk, wb_out, wb_in, x"0000_2000", v);
     assert v = x"5555_aaaa" severity error;
+
+    --  Testing CERNBE
+    report "Testing cernbe (write)" severity note;
+    wb_writel (clk, wb_out, wb_in, x"0000_3000", x"9876_5432");
+
+    report "Testing cernbe (read)" severity note;
+    wb_readl (clk, wb_out, wb_in, x"0000_3804", v);
+    wait until rising_edge(clk);
+    assert v = x"fe01_fe01" severity error;
+
+    wb_readl (clk, wb_out, wb_in, x"0000_3004", v);
+    assert v = x"0000_0000" severity error;
 
     wait until rising_edge(clk);
 

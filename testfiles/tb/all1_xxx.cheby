@@ -35,3 +35,8 @@ memory-map:
       size: 0x1000
       description: An AXI4-Lite bus
       interface: axi4-lite-32
+  - submap:
+      name: sub3_cernbe
+      size: 0x1000
+      description: A CERN-BE bus
+      interface: cern-be-vme-32
