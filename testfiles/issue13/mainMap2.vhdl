@@ -48,12 +48,12 @@ begin
   -- Assign outputs
 
   -- Assignments for submap subMap1
-  subMap1_VMEAddr_o <= VMEAddr(12 downto 2);
   subMap1_VMEWrData_o <= VMEWrData;
+  subMap1_VMEAddr_o <= VMEAddr(12 downto 2);
 
   -- Assignments for submap subMap2
-  subMap2_VMEAddr_o <= VMEAddr(12 downto 2);
   subMap2_VMEWrData_o <= VMEWrData;
+  subMap2_VMEAddr_o <= VMEAddr(12 downto 2);
 
   -- Process for write requests.
   process (Clk, Rst) begin
@@ -68,11 +68,11 @@ begin
       case VMEAddr(14 downto 13) is
       when "00" => 
         -- Submap subMap1
-        subMap1_VMEWrMem_o <= '1';
+        subMap1_VMEWrMem_o <= VMEWrMem;
         wr_ack_int <= subMap1_VMEWrDone_i;
       when "01" => 
         -- Submap subMap2
-        subMap2_VMEWrMem_o <= '1';
+        subMap2_VMEWrMem_o <= VMEWrMem;
         wr_ack_int <= subMap2_VMEWrDone_i;
       when others =>
         wr_ack_int <= VMEWrMem;
