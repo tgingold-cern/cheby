@@ -287,7 +287,7 @@ class WBBus(BusGen):
         stmts.append(HDLAssign(n.h_rd, isigs.rd_int))
         proc.sensitivity.append(isigs.rd_int)
         stmts.append(HDLAssign(rd_data, n.h_bus['dato']))
-        stmts.append(HDLAssign(isigs.rd_ack, n.h_bus['ack']))
+        stmts.append(HDLAssign(isigs.rd_ack, HDLAnd(n.h_bus['ack'], HDLNot(n.h_we))))
         proc.sensitivity.extend([n.h_bus['dato'], n.h_bus['ack']])
 
 
