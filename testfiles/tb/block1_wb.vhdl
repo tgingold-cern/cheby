@@ -21,7 +21,7 @@ begin
 
     process(clk)
       --  One line of memory.
-      variable mem : std_logic_vector(31 downto 0);
+      variable mem : std_logic_vector(31 downto 0) := x"0000_1000";
 
       variable pattern : std_logic_vector(31 downto 0);
     begin

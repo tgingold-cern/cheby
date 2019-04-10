@@ -22,7 +22,7 @@ begin
       variable wdata_set : boolean;
 
       --  One line of memory.
-      variable mem : std_logic_vector(31 downto 0);
+      variable mem : std_logic_vector(31 downto 0) := x"0000_2000";
 
       variable pattern : std_logic_vector(31 downto 0);
     begin

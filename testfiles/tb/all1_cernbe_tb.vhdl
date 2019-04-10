@@ -138,15 +138,22 @@ begin
     is
       variable v : std_logic_vector(31 downto 0);
     begin
+      --  The initial value of the memory line depends on the bus.
+      --  This is just to test the right model is connected.
+      report "Testing " & name & " (read id)" severity note;
+      cernbe_read  (clk, bus_out, bus_in, addr or x"0000_0000", v);
+      assert v = addr severity error;
+
       report "Testing " & name & " (write)" severity note;
-      cernbe_write (clk, bus_out, bus_in, addr or x"0000_0000", x"9876_5432");
+      cernbe_write (clk, bus_out, bus_in, addr or x"0000_0000",
+                    addr or x"9876_0432");
 
       report "Testing " & name & " (read)" severity note;
       cernbe_read  (clk, bus_out, bus_in, addr or x"0000_0004", v);
       assert v = x"01fe_fe01" severity error;
 
-      cernbe_read (clk, bus_out, bus_in, x"0000_1000", v);
-      assert v = x"9876_5432" severity error;
+      cernbe_read (clk, bus_out, bus_in, addr or x"0000_0000", v);
+      assert v = (addr or x"9876_0432") severity error;
     end test_bus;
 
     variable v : std_logic_vector(31 downto 0);
@@ -199,15 +206,7 @@ begin
     assert v = x"5555_aaaa" severity error;
 
     --  Testing cernbe
-    report "Testing cernbe (write)" severity note;
-    cernbe_write (clk, bus_out, bus_in, x"0000_3000", x"9876_5432");
-
-    report "Testing cernbe (read)" severity note;
-    cernbe_read (clk, bus_out, bus_in, x"0000_3004", v);
-    assert v = x"01fe_fe01" severity error;
-
-    cernbe_read (clk, bus_out, bus_in, x"0000_3000", v);
-    assert v = x"9876_5432" severity error;
+    test_bus("cernbe", x"0000_3000");
 
     wait until rising_edge(clk);
 
