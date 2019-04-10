@@ -1,5 +1,5 @@
-entity array1_axi4_tb is
-end array1_axi4_tb;
+entity all1_axi4_tb is
+end all1_axi4_tb;
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -7,7 +7,7 @@ use ieee.std_logic_1164.all;
 use work.wishbone_pkg.all;
 use work.axi4_tb_pkg.all;
 
-architecture behav of array1_axi4_tb is
+architecture behav of all1_axi4_tb is
   signal rst_n   : std_logic;
   signal clk     : std_logic;
   signal wr_in   : t_axi4lite_write_master_in;
@@ -50,7 +50,7 @@ begin
 
   rst_n <= '0' after 0 ns, '1' after 20 ns;
 
-  dut : entity work.array1_axi4
+  dut : entity work.all1_axi4
     port map (
       aclk       => clk,
       areset_n   => rst_n,

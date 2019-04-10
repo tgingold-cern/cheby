@@ -1,6 +1,6 @@
 memory-map:
   bus: xxx
-  name: array1_NAME
+  name: all1_NAME
   x-hdl:
     busgroup: True
   children:

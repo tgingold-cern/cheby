@@ -1,5 +1,5 @@
-entity array1_wb_tb is
-end array1_wb_tb;
+entity all1_wb_tb is
+end all1_wb_tb;
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -8,7 +8,7 @@ use work.wishbone_pkg.all;
 use work.wb_tb_pkg.all;
 use work.axi4_tb_pkg.all;
 
-architecture behav of array1_wb_tb is
+architecture behav of all1_wb_tb is
   signal rst_n   : std_logic;
   signal clk     : std_logic;
   signal wb_in   : t_wishbone_slave_in;
@@ -44,7 +44,7 @@ begin
 
   rst_n <= '0' after 0 ns, '1' after 20 ns;
 
-  dut : entity work.array1_wb
+  dut : entity work.all1_wb
     port map (
       rst_n_i    => rst_n,
       clk_i      => clk,

@@ -1,5 +1,5 @@
-entity array1_cernbe_tb is
-end array1_cernbe_tb;
+entity all1_cernbe_tb is
+end all1_cernbe_tb;
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -8,7 +8,7 @@ use work.wishbone_pkg.all;
 use work.axi4_tb_pkg.all;
 use work.cernbe_tb_pkg.all;
 
-architecture behav of array1_cernbe_tb is
+architecture behav of all1_cernbe_tb is
   signal rst_n   : std_logic;
   signal clk     : std_logic;
   signal bus_in   : t_cernbe_master_in;
@@ -49,7 +49,7 @@ begin
 
   rst_n <= '0' after 0 ns, '1' after 20 ns;
 
-  dut : entity work.array1_cernbe
+  dut : entity work.all1_cernbe
     port map (
       Clk       => clk,
       Rst       => rst_n,
