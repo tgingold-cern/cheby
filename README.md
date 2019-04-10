@@ -52,6 +52,8 @@ Add x-hdl:port to specify how ports are generated for registers (issue#11)
 
 Add --c-style=arm to follow the CMSIS style (merge!10)
 
+Support all submap cases, rework generated logic.
+
 ## Version 1.2
 
 Add --gen-custom to support user defined pass (merge!4)
