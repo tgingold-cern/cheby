@@ -555,27 +555,91 @@ class CERNBEBus(BusGen):
         for name, p in ports:
             n.h_bus[name] = p
         n.h_bus['adrr' if self.split else 'adr'].comment = n.description
+        if root.h_bussplit:
+            # Request signals
+            n.h_wr = module.new_HDLSignal(prefix + 'wr')
+            n.h_rr = module.new_HDLSignal(prefix + 'rr')
+            # Start transactions
+            n.h_ws = module.new_HDLSignal(prefix + 'ws')
+            n.h_rs = module.new_HDLSignal(prefix + 'rs')
+            # Read enable (set by decoding logic)
+            n.h_re = module.new_HDLSignal(prefix + 're')
+            # Transaction in progress
+            n.h_wt = module.new_HDLSignal(prefix + 'wt')
+            n.h_rt = module.new_HDLSignal(prefix + 'rt')
 
     def wire_bus_slave(self, root, stmts, n):
         stmts.append(HDLComment("Assignments for submap {}".format(n.name)))
-        stmts.append(HDLAssign(n.h_bus['adr'],
-                               HDLSlice(root.h_bus['adr'],
-                                        root.c_addr_word_bits, n.c_addr_bits)))
         stmts.append(HDLAssign(n.h_bus['dati'], root.h_bus['dati']))
+
+        if root.h_bussplit:
+            # Mux for addresses.
+            proc = HDLComb()
+            proc.sensitivity.extend([root.h_bus['adrr'], root.h_bus['adrw'], n.h_wt])
+            if_stmt = HDLIfElse(HDLEq(n.h_wt, bit_1))
+            if_stmt.then_stmts.append(HDLAssign(n.h_bus['adr'],
+                               HDLSlice(root.h_bus['adrw'],
+                                        root.c_addr_word_bits, n.c_addr_bits)))
+            if_stmt.else_stmts.append(HDLAssign(n.h_bus['adr'],
+                               HDLSlice(root.h_bus['adrr'],
+                                        root.c_addr_word_bits, n.c_addr_bits)))
+            proc.stmts.append(if_stmt)
+            stmts.append(proc)
+            # Handle read requests.
+            proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'])
+            # Read requests set on RD, clear by RdDone
+            proc.sync_stmts.append(HDLAssign(n.h_rr,
+                HDLAnd(HDLOr(n.h_re, n.h_rr), HDLNot(n.h_bus['rack']))))
+            proc.rst_stmts.append(HDLAssign(n.h_rr, bit_0))
+            # Read transaction set start R transaction, clear by RdDone
+            proc.sync_stmts.append(HDLAssign(n.h_rt,
+                HDLAnd(HDLOr(n.h_rt, n.h_rs), HDLNot(n.h_bus['rack']))))
+            proc.rst_stmts.append(HDLAssign(n.h_rt, bit_0))
+            # Write transaction set start W transaction, clear by WrDone
+            proc.sync_stmts.append(HDLAssign(n.h_wt,
+                HDLAnd(HDLOr(n.h_wt, n.h_ws), HDLNot(n.h_bus['wack']))))
+            proc.rst_stmts.append(HDLAssign(n.h_wt, bit_0))
+            stmts.append(proc)
+            # Start a read transaction if a read request is pending and no transactions in
+            # progress, and no write request (priority to write).
+            stmts.append(HDLAssign(n.h_rs,
+                HDLAnd(n.h_rr, HDLNot(HDLOr(n.h_wr, HDLOr(n.h_rt, n.h_wt))))))
+            # Start write transaction if pending write request and no read transaction XXX.
+            stmts.append(HDLAssign(n.h_ws,
+                HDLAnd(n.h_wr, HDLNot(HDLOr(n.h_rt, n.h_wt)))))
+        else:
+            stmts.append(HDLAssign(n.h_bus['adr'],
+                                   HDLSlice(root.h_bus['adr'],
+                                            root.c_addr_word_bits, n.c_addr_bits)))
 
     def write_bus_slave(self, root, stmts, n, proc, isigs):
         proc.rst_stmts.append(HDLAssign(n.h_bus['wr'], bit_0))
         proc.sync_stmts.append(HDLAssign(n.h_bus['wr'], bit_0))
-        stmts.append(HDLAssign(n.h_bus['wr'], bit_1))
+        if root.h_bussplit:
+            # Write request set on WR, clear by WrDone
+            stmts.append(HDLAssign(n.h_wr,
+                HDLAnd(HDLOr(isigs.wr_int, n.h_wr), HDLNot(n.h_bus['wack']))))
+            proc.rst_stmts.append(HDLAssign(n.h_wr, bit_0))
+            proc.sync_stmts.append(HDLAssign(n.h_wr, bit_0))
+            # WR set on WS
+            stmts.append(HDLAssign(n.h_bus['wr'], n.h_ws))
+        else:
+            stmts.append(HDLAssign(n.h_bus['wr'], isigs.wr_int))
         stmts.append(HDLAssign(isigs.wr_ack, n.h_bus['wack']))
 
     def read_bus_slave(self, root, stmts, n, proc, isigs, rd_data):
         proc.stmts.append(HDLAssign(n.h_bus['rd'], bit_0))
-        stmts.append(HDLAssign(n.h_bus['rd'], isigs.rd_int))
-        proc.sensitivity.append(isigs.rd_int)
+        if root.h_bussplit:
+            # Start read transaction if RR is set and neither read nor write transaction
+            proc.stmts.append(HDLAssign(n.h_re, bit_0))
+            stmts.append(HDLAssign(n.h_re, isigs.rd_int))
+            stmts.append(HDLAssign(n.h_bus['rd'], n.h_rs))
+            proc.sensitivity.extend([n.h_rs])
+        else:
+            stmts.append(HDLAssign(n.h_bus['rd'], isigs.rd_int))
         stmts.append(HDLAssign(rd_data, n.h_bus['dato']))
         stmts.append(HDLAssign(isigs.rd_ack, n.h_bus['rack']))
-        proc.sensitivity.extend([n.h_bus['dato'], n.h_bus['rack']])
+        proc.sensitivity.extend([isigs.rd_int, n.h_bus['dato'], n.h_bus['rack']])
 
 
 class SRAMBus(BusGen):
