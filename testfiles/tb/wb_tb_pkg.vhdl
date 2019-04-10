@@ -5,26 +5,26 @@ use work.wishbone_pkg.all;
 
 package wb_tb_pkg is
   procedure wb_init(signal clk     : std_logic;
-                    signal wb_in   : inout t_wishbone_slave_in;
-                    signal wb_out  : t_wishbone_slave_out);
+                    signal wb_out  : t_wishbone_slave_out;
+                    signal wb_in   : inout t_wishbone_slave_in);
 
   procedure wb_writel (signal clk     : std_logic;
-                       signal wb_in   : inout t_wishbone_slave_in;
                        signal wb_out  : t_wishbone_slave_out;
+                       signal wb_in   : inout t_wishbone_slave_in;
                        addr : std_logic_vector (31 downto 0);
                        data : std_logic_vector (31 downto 0));
 
   procedure wb_readl (signal clk     : std_logic;
-                      signal wb_in   : inout t_wishbone_slave_in;
                       signal wb_out  : t_wishbone_slave_out;
+                      signal wb_in   : inout t_wishbone_slave_in;
                       addr : std_logic_vector (31 downto 0);
                       data : out std_logic_vector (31 downto 0));
 end wb_tb_pkg;
 
 package body wb_tb_pkg is
   procedure wb_init(signal clk     : std_logic;
-                    signal wb_in   : inout t_wishbone_slave_in;
-                    signal wb_out  : t_wishbone_slave_out) is
+                    signal wb_out  : t_wishbone_slave_out;
+                    signal wb_in   : inout t_wishbone_slave_in) is
     begin
       wb_in.stb <= '0';
       wb_in.cyc <= '0';
@@ -48,11 +48,14 @@ package body wb_tb_pkg is
 
       wb_in.cyc <= '0';
       wb_in.stb <= '0';
+
+      wait until rising_edge(clk);
+      assert wb_out.ack = '0' severity error;
     end wb_cycle;
 
     procedure wb_writel (signal clk     : std_logic;
-                         signal wb_in   : inout t_wishbone_slave_in;
                          signal wb_out  : t_wishbone_slave_out;
+                         signal wb_in   : inout t_wishbone_slave_in;
                          addr : std_logic_vector (31 downto 0);
                          data : std_logic_vector (31 downto 0)) is
     begin
@@ -64,8 +67,8 @@ package body wb_tb_pkg is
     end wb_writel;
 
     procedure wb_readl (signal clk     : std_logic;
-                        signal wb_in   : inout t_wishbone_slave_in;
                         signal wb_out  : t_wishbone_slave_out;
+                        signal wb_in   : inout t_wishbone_slave_in;
                         addr : std_logic_vector (31 downto 0);
                         data : out std_logic_vector (31 downto 0)) is
     begin

@@ -71,7 +71,7 @@ begin
   process
     variable v : std_logic_vector(31 downto 0);
   begin
-    wb_init(clk, wb_in, wb_out);
+    wb_init(clk, wb_out, wb_in);
 
     --  Wait after reset.
     wait until rising_edge(clk) and rst_n = '1';
@@ -79,22 +79,22 @@ begin
     --  Register
     report "Testing register" severity note;
     wait until rising_edge(clk);
-    wb_readl (clk, wb_in, wb_out, x"0000_0000", v);
+    wb_readl (clk, wb_out, wb_in, x"0000_0000", v);
     assert v = x"abcd_1234" severity error;
     assert reg1 = x"abcd_1234" severity error;
 
-    wb_readl (clk, wb_in, wb_out, x"0000_0004", v);
+    wb_readl (clk, wb_out, wb_in, x"0000_0004", v);
     assert v = x"abcd_1004" severity error;
     assert reg2 = x"abcd_1004" severity error;
 
-    wb_writel (clk, wb_in, wb_out, x"0000_0000", x"abcd_0001");
+    wb_writel (clk, wb_out, wb_in, x"0000_0000", x"abcd_0001");
     wait until rising_edge(clk);
-    wb_readl (clk, wb_in, wb_out, x"0000_0000", v);
+    wb_readl (clk, wb_out, wb_in, x"0000_0000", v);
     assert v = x"abcd_0001" severity error;
     wait until rising_edge(clk);
 
     assert reg2_wr_count = 0 severity error;
-    wb_writel (clk, wb_in, wb_out, x"0000_0004", x"abcd_0003");
+    wb_writel (clk, wb_out, wb_in, x"0000_0004", x"abcd_0003");
     wait until rising_edge(clk);
     assert reg2_wr_count = 1 severity error;
 

@@ -60,7 +60,7 @@ begin
 
       sub1_wb_cyc_o => sub1_wb_in.cyc,
       sub1_wb_stb_o => sub1_wb_in.stb,
-      sub1_wb_adr_o => sub1_wb_in.adr(9 downto 0),
+      sub1_wb_adr_o => sub1_wb_in.adr(11 downto 2),
       sub1_wb_sel_o => sub1_wb_in.sel,
       sub1_wb_we_o  => sub1_wb_in.we,
       sub1_wb_dat_o => sub1_wb_in.dat,
@@ -90,10 +90,26 @@ begin
       sub2_axi4_rdata_i    => sub2_rd_out.rdata,
       sub2_axi4_rresp_i    => sub2_rd_out.rresp);
 
+    --  WB target
+  b1: entity work.block1_wb
+    port map (clk => clk,
+              rst_n => rst_n,
+              sub1_wb_in => sub1_wb_in,
+              sub1_wb_out => sub1_wb_out);
+
+  --  AXI4-lite target
+  b2: entity work.block1_axi4
+    port map (clk => clk,
+              rst_n => rst_n,
+              sub2_wr_in => sub2_wr_in,
+              sub2_wr_out => sub2_wr_out,
+              sub2_rd_in => sub2_rd_in,
+              sub2_rd_out => sub2_rd_out);
+
   process
     variable v : std_logic_vector(31 downto 0);
   begin
-    wb_init(clk, wb_in, wb_out);
+    wb_init(clk, wb_out, wb_in);
 
     --  Wait after reset.
     wait until rising_edge(clk) and rst_n = '1';
@@ -101,27 +117,40 @@ begin
     --  Register
     report "Testing register" severity note;
     wait until rising_edge(clk);
-    wb_readl (clk, wb_in, wb_out, x"0000_0000", v);
+    wb_readl (clk, wb_out, wb_in, x"0000_0000", v);
     assert v = x"1234_0000" severity error;
     assert reg1 = x"1234_0000" severity error;
 
-    wb_readl (clk, wb_in, wb_out, x"0000_0004", v);
+    wb_readl (clk, wb_out, wb_in, x"0000_0004", v);
     assert v = x"1234_0002" severity error;
     assert reg2 = x"1234_0002" severity error;
 
-    wb_writel (clk, wb_in, wb_out, x"0000_0000", x"abcd_0001");
+    wb_writel (clk, wb_out, wb_in, x"0000_0000", x"abcd_0001");
     wait until rising_edge(clk);
-    wb_readl (clk, wb_in, wb_out, x"0000_0000", v);
+    wb_readl (clk, wb_out, wb_in, x"0000_0000", v);
     assert v = x"abcd_0001" severity error;
     wait until rising_edge(clk);
 
     --  Memory
     report "Testing memory (write)" severity note;
-    wb_writel (clk, wb_in, wb_out, x"0000_0024", x"abcd_0203");
+    wb_writel (clk, wb_out, wb_in, x"0000_0024", x"abcd_0203");
     wait until rising_edge(clk);
     report "Testing memory (read)" severity note;
-    wb_readl (clk, wb_in, wb_out, x"0000_0024", v);
+    wb_readl (clk, wb_out, wb_in, x"0000_0024", v);
     assert v = x"abcd_0203" severity error;
+
+    --  Testing WB
+    report "Testing wishbone (write)" severity note;
+    wb_writel (clk, wb_out, wb_in, x"0000_1000", x"9876_5432");
+
+    report "Testing wishbone (read)" severity note;
+    wb_readl (clk, wb_out, wb_in, x"0000_1804", v);
+    wait until rising_edge(clk);
+    assert v = x"01fe_fe01" severity error;
+
+    wb_readl (clk, wb_out, wb_in, x"0000_1004", v);
+    assert v = x"0000_0000" severity error;
+
 
     wait until rising_edge(clk);
 

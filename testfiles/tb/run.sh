@@ -46,7 +46,7 @@ build_wb()
  $CHEBY --gen-hdl=array1_wb.vhdl -i array1_wb.cheby
  $GHDL -a $GHDL_FLAGS array1_wb.vhdl
  $GHDL -a $GHDL_FLAGS array1_wb_tb.vhdl
- $GHDL --elab-run $GHDL_FLAGS array1_wb_tb --assert-level=error --vcd=array1_wb_tb.vcd
+ $GHDL --elab-run $GHDL_FLAGS array1_wb_tb --assert-level=error --wave=array1_wb_tb.ghw
 }
 
 build_cernbe()
