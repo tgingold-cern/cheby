@@ -427,8 +427,6 @@ class AXI4LiteBus(BusGen):
         # Internal signals: valid signals.
         n.h_aw_val = module.new_HDLSignal(prefix + 'aw_val')
         n.h_w_val = module.new_HDLSignal(prefix + 'w_val')
-        n.h_aw_done = module.new_HDLSignal(prefix + 'aw_done')
-        n.h_w_done = module.new_HDLSignal(prefix + 'w_done')
         n.h_rd = module.new_HDLSignal(prefix + 'rd')
 
     def wire_bus_slave(self, root, stmts, n):
@@ -459,11 +457,10 @@ class AXI4LiteBus(BusGen):
         # Machine state for valid/ready AW and W channels
         # Set valid on request, clear valid on ready.
         # Set done on ready, clear done on ack.
-        for x_val, x_done, ready in [
-                (n.h_aw_val, n.h_aw_done, n.h_bus['awready']),
-                (n.h_w_val, n.h_w_done, n.h_bus['wready'])]:
+        for x_val, ready in [
+                (n.h_aw_val, n.h_bus['awready']),
+                (n.h_w_val, n.h_bus['wready'])]:
             proc.rst_stmts.append(HDLAssign(x_val, bit_0))
-            proc.sync_stmts.append(HDLAssign(x_done, bit_0))
             proc.sync_stmts.append(HDLAssign(x_val, bit_0))
             # VALID is set on WR, cleared by READY.
             stmts.append(HDLAssign(x_val,
