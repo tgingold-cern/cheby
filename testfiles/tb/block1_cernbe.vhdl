@@ -17,6 +17,10 @@ architecture behav of block1_cernbe is
   signal state : t_state;
 begin
     process(clk)
+      --  One line of memory.
+      variable mem : std_logic_vector(31 downto 0);
+
+      variable pattern : std_logic_vector(31 downto 0);
     begin
       if rising_edge(clk) then
         if rst_n = '0' then
@@ -27,25 +31,32 @@ begin
           case state is
             when IDLE =>
               if bus_in.VMERdMem = '1' then
-                if bus_in.VMEAddr(11) = '1' then
-                  --  Discard write, read addr
-                  bus_out.VMERdData( 7 downto  0) <=
-                    bus_in.VMEAddr(9 downto 2);
-                  bus_out.VMERdData(15 downto  8) <=
-                    not bus_in.VMEAddr(9 downto 2);
-                  bus_out.VMERdData(23 downto 16) <=
-                    bus_in.VMEAddr(9 downto 2);
-                  bus_out.VMERdData(31 downto 24) <=
-                    not bus_in.VMEAddr(9 downto 2);
+                --  It's a read.
+                if bus_in.VMEAddr(11 downto 2) = (11 downto 2 => '0') then
+                  bus_out.VMERdData <= mem;
                 else
-                  --  0.
-                  bus_out.VMERdData <= (others => '0');
+                  pattern( 7 downto  0) := bus_in.VMEAddr(9 downto 2);
+                  pattern(15 downto  8) := not bus_in.VMEAddr(9 downto 2);
+                  pattern(23 downto 16) := not bus_in.VMEAddr(9 downto 2);
+                  pattern(31 downto 24) := bus_in.VMEAddr(9 downto 2);
+                  bus_out.VMERdData <= pattern;
                 end if;
 
                 bus_out.VMERdDone <= '1';
                 state <= RD;
               end if;
               if bus_in.VMEWrMem = '1' then
+                --  It's a write.
+                if bus_in.VMEAddr(11 downto 2) = (11 downto 2 => '0') then
+                  mem := bus_in.VMEWrData;
+                else
+                  pattern( 7 downto  0) := bus_in.VMEAddr(9 downto 2);
+                  pattern(15 downto  8) := not bus_in.VMEAddr(9 downto 2);
+                  pattern(23 downto 16) := not bus_in.VMEAddr(9 downto 2);
+                  pattern(31 downto 24) := bus_in.VMEAddr(9 downto 2);
+                  assert bus_in.VMEWrData = pattern
+                    report "block1_cernbe: write error" severity error;
+                end if;
                 bus_out.VMEWrDone <= '1';
                 state <= WR;
               end if;

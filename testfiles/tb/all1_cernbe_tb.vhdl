@@ -134,6 +134,21 @@ begin
               bus_out => sub3_out);
 
   process
+    procedure test_bus(name : string; addr : std_logic_vector(31 downto 0))
+    is
+      variable v : std_logic_vector(31 downto 0);
+    begin
+      report "Testing " & name & " (write)" severity note;
+      cernbe_write (clk, bus_out, bus_in, addr or x"0000_0000", x"9876_5432");
+
+      report "Testing " & name & " (read)" severity note;
+      cernbe_read  (clk, bus_out, bus_in, addr or x"0000_0004", v);
+      assert v = x"01fe_fe01" severity error;
+
+      cernbe_read (clk, bus_out, bus_in, x"0000_1000", v);
+      assert v = x"9876_5432" severity error;
+    end test_bus;
+
     variable v : std_logic_vector(31 downto 0);
   begin
     cernbe_init(bus_out);
@@ -162,21 +177,15 @@ begin
     cernbe_read (clk, bus_out, bus_in, x"0000_002c", v);
     assert v = x"abcd_0203" severity error;
 
-    --  Testing WB
-    report "Testing wishbone (write)" severity note;
-    cernbe_write (clk, bus_out, bus_in, x"0000_1000", x"9876_5432");
-
-    report "Testing wishbone (read)" severity note;
-    cernbe_read (clk, bus_out, bus_in, x"0000_1804", v);
-    assert v = x"01fe_fe01" severity error;
-
-    cernbe_read (clk, bus_out, bus_in, x"0000_1004", v);
-    assert v = x"0000_0000" severity error;
+    --  Testing wishbone
+    test_bus("wishbone", x"0000_1000");
 
     --  Testing AXI4
+    test_bus("AXI4", x"0000_2000");
+
     report "Testing AXI4 (read)" severity note;
     cernbe_read (clk, bus_out, bus_in, x"0000_2004", v);
-    assert v = x"fe01_01fe" severity error;
+    assert v = x"01fe_fe01" severity error;
 
     report "Testing AXI4 (write)" severity note;
     cernbe_write (clk, bus_out, bus_in, x"0000_2000", x"5555_aaaa");
@@ -184,7 +193,7 @@ begin
     cernbe_write (clk, bus_out, bus_in, x"0000_2004", x"fe01_01fe");
 
     cernbe_read (clk, bus_out, bus_in, x"0000_2008", v);
-    assert v = x"fd02_02fd" severity error;
+    assert v = x"02fd_fd02" severity error;
 
     cernbe_read (clk, bus_out, bus_in, x"0000_2000", v);
     assert v = x"5555_aaaa" severity error;
@@ -194,11 +203,11 @@ begin
     cernbe_write (clk, bus_out, bus_in, x"0000_3000", x"9876_5432");
 
     report "Testing cernbe (read)" severity note;
-    cernbe_read (clk, bus_out, bus_in, x"0000_3804", v);
-    assert v = x"fe01_fe01" severity error;
-
     cernbe_read (clk, bus_out, bus_in, x"0000_3004", v);
-    assert v = x"0000_0000" severity error;
+    assert v = x"01fe_fe01" severity error;
+
+    cernbe_read (clk, bus_out, bus_in, x"0000_3000", v);
+    assert v = x"9876_5432" severity error;
 
     wait until rising_edge(clk);
 

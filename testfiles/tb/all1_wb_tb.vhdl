@@ -165,17 +165,17 @@ begin
     wb_writel (clk, wb_out, wb_in, x"0000_1000", x"9876_5432");
 
     report "Testing wishbone (read)" severity note;
-    wb_readl (clk, wb_out, wb_in, x"0000_1804", v);
+    wb_readl (clk, wb_out, wb_in, x"0000_1004", v);
     wait until rising_edge(clk);
     assert v = x"01fe_fe01" severity error;
 
-    wb_readl (clk, wb_out, wb_in, x"0000_1004", v);
-    assert v = x"0000_0000" severity error;
+    wb_readl (clk, wb_out, wb_in, x"0000_1000", v);
+    assert v = x"9876_5432" severity error;
 
     --  Testing AXI4
     report "Testing AXI4 (read)" severity note;
     wb_readl (clk, wb_out, wb_in, x"0000_2004", v);
-    assert v = x"fe01_01fe" severity error;
+    assert v = x"01fe_fe01" severity error;
 
     report "Testing AXI4 (write)" severity note;
     wb_writel (clk, wb_out, wb_in, x"0000_2000", x"5555_aaaa");
@@ -183,7 +183,7 @@ begin
     wb_writel (clk, wb_out, wb_in, x"0000_2004", x"fe01_01fe");
 
     wb_readl (clk, wb_out, wb_in, x"0000_2008", v);
-    assert v = x"fd02_02fd" severity error;
+    assert v = x"02fd_fd02" severity error;
 
     wb_readl (clk, wb_out, wb_in, x"0000_2000", v);
     assert v = x"5555_aaaa" severity error;
@@ -193,12 +193,12 @@ begin
     wb_writel (clk, wb_out, wb_in, x"0000_3000", x"9876_5432");
 
     report "Testing cernbe (read)" severity note;
-    wb_readl (clk, wb_out, wb_in, x"0000_3804", v);
-    wait until rising_edge(clk);
-    assert v = x"fe01_fe01" severity error;
-
     wb_readl (clk, wb_out, wb_in, x"0000_3004", v);
-    assert v = x"0000_0000" severity error;
+    wait until rising_edge(clk);
+    assert v = x"01fe_fe01" severity error;
+
+    wb_readl (clk, wb_out, wb_in, x"0000_3000", v);
+    assert v = x"9876_5432" severity error;
 
     wait until rising_edge(clk);
 

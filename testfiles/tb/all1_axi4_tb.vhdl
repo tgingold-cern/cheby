@@ -182,16 +182,16 @@ begin
     axi4lite_write (clk, wr_out, wr_in, x"0000_1000", x"9876_5432");
 
     report "Testing wishbone (read)" severity note;
-    axi4lite_read (clk, rd_out, rd_in, x"0000_1804", v);
+    axi4lite_read (clk, rd_out, rd_in, x"0000_1004", v);
     assert v = x"01fe_fe01" severity error;
 
-    axi4lite_read (clk, rd_out, rd_in, x"0000_1004", v);
-    assert v = x"0000_0000" severity error;
+    axi4lite_read (clk, rd_out, rd_in, x"0000_1000", v);
+    assert v = x"9876_5432" severity error;
 
     --  Testing AXI4
     report "Testing AXI4 (read)" severity note;
     axi4lite_read (clk, rd_out, rd_in, x"0000_2004", v);
-    assert v = x"fe01_01fe" severity error;
+    assert v = x"01fe_fe01" severity error;
 
     report "Testing AXI4 (write)" severity note;
     axi4lite_write (clk, wr_out, wr_in, x"0000_2000", x"5555_aaaa");
@@ -199,21 +199,21 @@ begin
     axi4lite_write (clk, wr_out, wr_in, x"0000_2004", x"fe01_01fe");
 
     axi4lite_read (clk, rd_out, rd_in, x"0000_2008", v);
-    assert v = x"fd02_02fd" severity error;
+    assert v = x"02fd_fd02" severity error;
 
     axi4lite_read (clk, rd_out, rd_in, x"0000_2000", v);
     assert v = x"5555_aaaa" severity error;
 
-    --  Testing WB
+    --  Testing CERNBE
     report "Testing cernbe (write)" severity note;
     axi4lite_write (clk, wr_out, wr_in, x"0000_3000", x"9876_5432");
 
     report "Testing cernbe (read)" severity note;
-    axi4lite_read (clk, rd_out, rd_in, x"0000_3804", v);
-    assert v = x"fe01_fe01" severity error;
-
     axi4lite_read (clk, rd_out, rd_in, x"0000_3004", v);
-    assert v = x"0000_0000" severity error;
+    assert v = x"01fe_fe01" severity error;
+
+    axi4lite_read (clk, rd_out, rd_in, x"0000_3000", v);
+    assert v = x"9876_5432" severity error;
 
     wait until rising_edge(clk);
 

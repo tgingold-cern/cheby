@@ -53,10 +53,10 @@ begin
               if sub2_rd_in.araddr(11 downto 2) = "0000000000" then
                 sub2_rd_out.rdata <= mem;
               else
-                pattern( 7 downto  0) := not sub2_rd_in.araddr(9 downto 2);
-                pattern(15 downto  8) := sub2_rd_in.araddr(9 downto 2);
-                pattern(23 downto 16) := sub2_rd_in.araddr(9 downto 2);
-                pattern(31 downto 24) := not sub2_rd_in.araddr(9 downto 2);
+                pattern( 7 downto  0) := sub2_rd_in.araddr(9 downto 2);
+                pattern(15 downto  8) := not sub2_rd_in.araddr(9 downto 2);
+                pattern(23 downto 16) := not sub2_rd_in.araddr(9 downto 2);
+                pattern(31 downto 24) := sub2_rd_in.araddr(9 downto 2);
 
                 sub2_rd_out.rdata <= pattern;
               end if;
