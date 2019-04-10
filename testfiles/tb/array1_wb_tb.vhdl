@@ -151,6 +151,21 @@ begin
     wb_readl (clk, wb_out, wb_in, x"0000_1004", v);
     assert v = x"0000_0000" severity error;
 
+    --  Testing AXI4
+    report "Testing AXI4 (read)" severity note;
+    wb_readl (clk, wb_out, wb_in, x"0000_2004", v);
+    assert v = x"fe01_01fe" severity error;
+
+    report "Testing AXI4 (write)" severity note;
+    wb_writel (clk, wb_out, wb_in, x"0000_2000", x"5555_aaaa");
+
+    wb_writel (clk, wb_out, wb_in, x"0000_2004", x"fe01_01fe");
+
+    wb_readl (clk, wb_out, wb_in, x"0000_2008", v);
+    assert v = x"fd02_02fd" severity error;
+
+    wb_readl (clk, wb_out, wb_in, x"0000_2000", v);
+    assert v = x"5555_aaaa" severity error;
 
     wait until rising_edge(clk);
 
