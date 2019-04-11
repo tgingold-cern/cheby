@@ -162,6 +162,8 @@ begin
       axi4lite_write (clk, wr_out, wr_in, addr or x"0000_0000",
                     addr or x"9876_0432");
 
+      axi4lite_write (clk, wr_out, wr_in, addr or x"0000_0008", x"fd02_02fd");
+
       report "Testing " & name & " (read)" severity note;
       axi4lite_read (clk, rd_out, rd_in, addr or x"0000_0004", v);
       assert v = x"01fe_fe01" severity error;
@@ -203,21 +205,6 @@ begin
 
     --  Testing AXI4
     test_bus ("AXI4", x"0000_2000");
-
-    report "Testing AXI4 (read)" severity note;
-    axi4lite_read (clk, rd_out, rd_in, x"0000_2004", v);
-    assert v = x"01fe_fe01" severity error;
-
-    report "Testing AXI4 (write)" severity note;
-    axi4lite_write (clk, wr_out, wr_in, x"0000_2000", x"5555_aaaa");
-
-    axi4lite_write (clk, wr_out, wr_in, x"0000_2004", x"fe01_01fe");
-
-    axi4lite_read (clk, rd_out, rd_in, x"0000_2008", v);
-    assert v = x"02fd_fd02" severity error;
-
-    axi4lite_read (clk, rd_out, rd_in, x"0000_2000", v);
-    assert v = x"5555_aaaa" severity error;
 
     --  Testing CERNBE
     test_bus ("cernbe", x"0000_3000");

@@ -50,10 +50,10 @@ begin
                 if bus_in.VMEAddr(11 downto 2) = (11 downto 2 => '0') then
                   mem := bus_in.VMEWrData;
                 else
-                  pattern( 7 downto  0) := bus_in.VMEAddr(9 downto 2);
-                  pattern(15 downto  8) := not bus_in.VMEAddr(9 downto 2);
-                  pattern(23 downto 16) := not bus_in.VMEAddr(9 downto 2);
-                  pattern(31 downto 24) := bus_in.VMEAddr(9 downto 2);
+                  pattern( 7 downto  0) := not bus_in.VMEAddr(9 downto 2);
+                  pattern(15 downto  8) := bus_in.VMEAddr(9 downto 2);
+                  pattern(23 downto 16) := bus_in.VMEAddr(9 downto 2);
+                  pattern(31 downto 24) := not bus_in.VMEAddr(9 downto 2);
                   assert bus_in.VMEWrData = pattern
                     report "block1_cernbe: write error" severity error;
                 end if;

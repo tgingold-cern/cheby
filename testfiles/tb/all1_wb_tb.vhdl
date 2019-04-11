@@ -142,6 +142,8 @@ begin
       wb_writel (clk, wb_out, wb_in, addr or x"0000_0000",
                  addr or x"9876_0432");
 
+      wb_writel (clk, wb_out, wb_in, addr or x"0000_0008", x"fd02_02fd");
+
       report "Testing " & name & " (read)" severity note;
       wb_readl (clk, wb_out, wb_in, addr or x"0000_0004", v);
       wait until rising_edge(clk);
@@ -188,20 +190,6 @@ begin
 
     --  Testing AXI4
     test_bus ("AXI4", x"0000_2000");
-    report "Testing AXI4 (read)" severity note;
-    wb_readl (clk, wb_out, wb_in, x"0000_2004", v);
-    assert v = x"01fe_fe01" severity error;
-
-    report "Testing AXI4 (write)" severity note;
-    wb_writel (clk, wb_out, wb_in, x"0000_2000", x"5555_aaaa");
-
-    wb_writel (clk, wb_out, wb_in, x"0000_2004", x"fe01_01fe");
-
-    wb_readl (clk, wb_out, wb_in, x"0000_2008", v);
-    assert v = x"02fd_fd02" severity error;
-
-    wb_readl (clk, wb_out, wb_in, x"0000_2000", v);
-    assert v = x"5555_aaaa" severity error;
 
     --  Testing CERNBE
     test_bus ("cernbe", x"0000_3000");

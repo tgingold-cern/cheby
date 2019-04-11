@@ -34,10 +34,10 @@ begin
             if sub1_wb_in.adr(11 downto 2) = (11 downto 2 => '0') then
               mem := sub1_wb_in.dat;
             else
-              pattern( 7 downto  0) := sub1_wb_in.adr(9 downto 2);
-              pattern(15 downto  8) := not sub1_wb_in.adr(9 downto 2);
-              pattern(23 downto 16) := not sub1_wb_in.adr(9 downto 2);
-              pattern(31 downto 24) := sub1_wb_in.adr(9 downto 2);
+              pattern( 7 downto  0) := not sub1_wb_in.adr(9 downto 2);
+              pattern(15 downto  8) := sub1_wb_in.adr(9 downto 2);
+              pattern(23 downto 16) := sub1_wb_in.adr(9 downto 2);
+              pattern(31 downto 24) := not sub1_wb_in.adr(9 downto 2);
 
               assert sub1_wb_in.dat = pattern
                 report "block1_wb: write error" severity error;
