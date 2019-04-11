@@ -287,8 +287,10 @@ class WBBus(BusGen):
         stmts.append(HDLAssign(n.h_rd, isigs.rd_int))
         proc.sensitivity.append(isigs.rd_int)
         stmts.append(HDLAssign(rd_data, n.h_bus['dato']))
-        stmts.append(HDLAssign(isigs.rd_ack, HDLAnd(n.h_bus['ack'], HDLNot(n.h_we))))
-        proc.sensitivity.extend([n.h_bus['dato'], n.h_bus['ack']])
+        # Propagate ack provided it is a write transaction and only for one cycle.
+        stmts.append(HDLAssign(isigs.rd_ack,
+            HDLAnd(n.h_bus['ack'], HDLAnd(n.h_st, HDLNot(n.h_we)))))
+        proc.sensitivity.extend([n.h_bus['dato'], n.h_bus['ack'], n.h_we, n.h_st])
 
 
 class AXI4LiteBus(BusGen):
