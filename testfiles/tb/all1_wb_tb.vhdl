@@ -128,6 +128,29 @@ begin
               bus_out => sub3_out);
 
   process
+    procedure test_bus(name : string; addr : std_logic_vector(31 downto 0))
+    is
+      variable v : std_logic_vector(31 downto 0);
+    begin
+      --  The initial value of the memory line depends on the bus.
+      --  This is just to test the right model is connected.
+      report "Testing " & name & " (read id)" severity note;
+      wb_readl (clk, wb_out, wb_in, addr or x"0000_0000", v);
+      assert v = addr severity error;
+
+      report "Testing " & name & " (write)" severity note;
+      wb_writel (clk, wb_out, wb_in, addr or x"0000_0000",
+                 addr or x"9876_0432");
+
+      report "Testing " & name & " (read)" severity note;
+      wb_readl (clk, wb_out, wb_in, addr or x"0000_0004", v);
+      wait until rising_edge(clk);
+      assert v = x"01fe_fe01" severity error;
+
+      wb_readl (clk, wb_out, wb_in, addr or x"0000_0000", v);
+      assert v = (addr or x"9876_0432") severity error;
+    end test_bus;
+
     variable v : std_logic_vector(31 downto 0);
   begin
     wb_init(clk, wb_out, wb_in);
@@ -161,18 +184,10 @@ begin
     assert v = x"abcd_0203" severity error;
 
     --  Testing WB
-    report "Testing wishbone (write)" severity note;
-    wb_writel (clk, wb_out, wb_in, x"0000_1000", x"9876_5432");
-
-    report "Testing wishbone (read)" severity note;
-    wb_readl (clk, wb_out, wb_in, x"0000_1004", v);
-    wait until rising_edge(clk);
-    assert v = x"01fe_fe01" severity error;
-
-    wb_readl (clk, wb_out, wb_in, x"0000_1000", v);
-    assert v = x"9876_5432" severity error;
+    test_bus ("wishbone", x"0000_1000");
 
     --  Testing AXI4
+    test_bus ("AXI4", x"0000_2000");
     report "Testing AXI4 (read)" severity note;
     wb_readl (clk, wb_out, wb_in, x"0000_2004", v);
     assert v = x"01fe_fe01" severity error;
@@ -189,16 +204,7 @@ begin
     assert v = x"5555_aaaa" severity error;
 
     --  Testing CERNBE
-    report "Testing cernbe (write)" severity note;
-    wb_writel (clk, wb_out, wb_in, x"0000_3000", x"9876_5432");
-
-    report "Testing cernbe (read)" severity note;
-    wb_readl (clk, wb_out, wb_in, x"0000_3004", v);
-    wait until rising_edge(clk);
-    assert v = x"01fe_fe01" severity error;
-
-    wb_readl (clk, wb_out, wb_in, x"0000_3000", v);
-    assert v = x"9876_5432" severity error;
+    test_bus ("cernbe", x"0000_3000");
 
     wait until rising_edge(clk);
 
