@@ -144,18 +144,25 @@ begin
 
       --  Test with various ws.
       wb_writel (clk, wb_out, wb_in, addr or x"0000_0008", x"fd02_02fd");
-
       wb_writel (clk, wb_out, wb_in, addr or x"0000_000c", x"fc03_03fc");
-
       wb_writel (clk, wb_out, wb_in, addr or x"0000_0010", x"fb04_04fb");
 
       report "Testing " & name & " (read)" severity note;
       wb_readl (clk, wb_out, wb_in, addr or x"0000_0004", v);
-      wait until rising_edge(clk);
       assert v = x"01fe_fe01" severity error;
 
       wb_readl (clk, wb_out, wb_in, addr or x"0000_0000", v);
       assert v = (addr or x"9876_0432") severity error;
+
+      --  Various ws.
+      wb_readl (clk, wb_out, wb_in, addr or x"0000_0008", v);
+      assert v = x"02fd_fd02" severity error;
+
+      wb_readl (clk, wb_out, wb_in, addr or x"0000_000c", v);
+      assert v = x"03fc_fc03" severity error;
+
+      wb_readl (clk, wb_out, wb_in, addr or x"0000_0010", v);
+      assert v = x"04fb_fb04" severity error;
     end test_bus;
 
     variable v : std_logic_vector(31 downto 0);

@@ -69,6 +69,8 @@ begin
             end if;
             --  Ack.
             sub1_wb_out.ack <= '1';
+            --  Ensure ack is cleared for one cycle before accepting new
+            --  transactions.
             ws := -1;
             cur_ws := (cur_ws + 1) mod max_ws;
           end if;

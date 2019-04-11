@@ -148,7 +148,10 @@ begin
       cernbe_write (clk, bus_out, bus_in, addr or x"0000_0000",
                     addr or x"9876_0432");
 
+      --  Test with various ws.
       cernbe_write (clk, bus_out, bus_in, addr or x"0000_0008", x"fd02_02fd");
+      cernbe_write (clk, bus_out, bus_in, addr or x"0000_000c", x"fc03_03fc");
+      cernbe_write (clk, bus_out, bus_in, addr or x"0000_0010", x"fb04_04fb");
 
       report "Testing " & name & " (read)" severity note;
       cernbe_read  (clk, bus_out, bus_in, addr or x"0000_0004", v);
@@ -156,6 +159,16 @@ begin
 
       cernbe_read (clk, bus_out, bus_in, addr or x"0000_0000", v);
       assert v = (addr or x"9876_0432") severity error;
+
+      --  Various ws.
+      cernbe_read  (clk, bus_out, bus_in, addr or x"0000_0008", v);
+      assert v = x"02fd_fd02" severity error;
+
+      cernbe_read  (clk, bus_out, bus_in, addr or x"0000_000c", v);
+      assert v = x"03fc_fc03" severity error;
+
+      cernbe_read  (clk, bus_out, bus_in, addr or x"0000_0010", v);
+      assert v = x"04fb_fb04" severity error;
     end test_bus;
 
     variable v : std_logic_vector(31 downto 0);
