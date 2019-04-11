@@ -142,7 +142,12 @@ begin
       wb_writel (clk, wb_out, wb_in, addr or x"0000_0000",
                  addr or x"9876_0432");
 
+      --  Test with various ws.
       wb_writel (clk, wb_out, wb_in, addr or x"0000_0008", x"fd02_02fd");
+
+      wb_writel (clk, wb_out, wb_in, addr or x"0000_000c", x"fc03_03fc");
+
+      wb_writel (clk, wb_out, wb_in, addr or x"0000_0010", x"fb04_04fb");
 
       report "Testing " & name & " (read)" severity note;
       wb_readl (clk, wb_out, wb_in, addr or x"0000_0004", v);
@@ -204,7 +209,7 @@ begin
   --  Watchdog.
   process
   begin
-    wait until end_of_test for 1 us;
+    wait until end_of_test for 2 us;
     assert end_of_test report "timeout" severity failure;
     wait;
   end process;

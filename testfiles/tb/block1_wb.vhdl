@@ -24,42 +24,56 @@ begin
       variable mem : std_logic_vector(31 downto 0) := x"0000_1000";
 
       variable pattern : std_logic_vector(31 downto 0);
+
+      constant max_ws : natural := 3;
+      variable cur_ws : natural := 1;
+      variable ws : integer := 0;
     begin
       if rising_edge(clk) then
-        if rst_n = '0' then
-          done <= '0';
-        elsif (sub1_wb_in.cyc and sub1_wb_in.stb) = '1' and done = '0' then
-          if sub1_wb_in.we = '1' then
-            --  That's a write.
-            if sub1_wb_in.adr(11 downto 2) = (11 downto 2 => '0') then
-              mem := sub1_wb_in.dat;
-            else
-              pattern( 7 downto  0) := not sub1_wb_in.adr(9 downto 2);
-              pattern(15 downto  8) := sub1_wb_in.adr(9 downto 2);
-              pattern(23 downto 16) := sub1_wb_in.adr(9 downto 2);
-              pattern(31 downto 24) := not sub1_wb_in.adr(9 downto 2);
-
-              assert sub1_wb_in.dat = pattern
-                report "block1_wb: write error" severity error;
-            end if;
+        if (sub1_wb_in.cyc and sub1_wb_in.stb) = '1' then
+          --  Transaction in progress.
+          if ws < cur_ws then
+            --  Wait.
+            ws := ws + 1;
+            sub1_wb_out.ack <= '0';
           else
-            --  That's a read.
-            if sub1_wb_in.adr(11 downto 2) = (11 downto 2 => '0') then
-              sub1_wb_out.dat <= mem;
-            else
-              pattern( 7 downto  0) := sub1_wb_in.adr(9 downto 2);
-              pattern(15 downto  8) := not sub1_wb_in.adr(9 downto 2);
-              pattern(23 downto 16) := not sub1_wb_in.adr(9 downto 2);
-              pattern(31 downto 24) := sub1_wb_in.adr(9 downto 2);
+            --  Handle the transaction.
+            if sub1_wb_in.we = '1' then
+              --  That's a write.
+              if sub1_wb_in.adr(11 downto 2) = (11 downto 2 => '0') then
+                --  Write mem.
+                mem := sub1_wb_in.dat;
+              else
+                --  Check pattern
+                pattern( 7 downto  0) := not sub1_wb_in.adr(9 downto 2);
+                pattern(15 downto  8) := sub1_wb_in.adr(9 downto 2);
+                pattern(23 downto 16) := sub1_wb_in.adr(9 downto 2);
+                pattern(31 downto 24) := not sub1_wb_in.adr(9 downto 2);
 
-              sub1_wb_out.dat <= pattern;
+                assert sub1_wb_in.dat = pattern
+                  report "block1_wb: write error" severity error;
+              end if;
+            else
+              --  That's a read.
+              if sub1_wb_in.adr(11 downto 2) = (11 downto 2 => '0') then
+                --  Read mem
+                sub1_wb_out.dat <= mem;
+              else
+                pattern( 7 downto  0) := sub1_wb_in.adr(9 downto 2);
+                pattern(15 downto  8) := not sub1_wb_in.adr(9 downto 2);
+                pattern(23 downto 16) := not sub1_wb_in.adr(9 downto 2);
+                pattern(31 downto 24) := sub1_wb_in.adr(9 downto 2);
+
+                sub1_wb_out.dat <= pattern;
+              end if;
             end if;
+            --  Ack.
+            sub1_wb_out.ack <= '1';
+            ws := -1;
+            cur_ws := (cur_ws + 1) mod max_ws;
           end if;
-          sub1_wb_out.ack <= '1';
-          done <= '1';
         else
           sub1_wb_out.ack <= '0';
-          done <= '0';
         end if;
       end if;
     end process;
