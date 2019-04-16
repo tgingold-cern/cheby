@@ -693,8 +693,10 @@ def add_ports_reg(root, module, n):
        :field h_reg: the register.
        :field h_iport: the input port.
        :field h_oport: the output port.
-       :field h_wport: the write strobe port.
-       :field h_rport: the read strobe port.
+       :field h_wstrobe: the write strobe port.
+       :field h_rstrobe: the read strobe port.
+       :field h_rack_port: the read ack port.
+       :field h_wack_port: the write ack port.
     """
     iport = None
     oport = None
@@ -748,17 +750,31 @@ def add_ports_reg(root, module, n):
 
     # Write strobe
     if n.hdl_write_strobe:
-        n.h_wport = add_module_port(
+        n.h_wstrobe = add_module_port(
             root, module, n.c_name + '_wr', size=sz, dir='OUT')
     else:
-        n.h_wport = None
+        n.h_wstrobe = None
 
     # Read strobe
     if n.hdl_read_strobe:
-        n.h_rport = add_module_port(
+        n.h_rstrobe = add_module_port(
             root, module, n.c_name + '_rd', size=sz, dir='OUT')
     else:
-        n.h_rport = None
+        n.h_rstrobe = None
+
+    # Write ack
+    if n.hdl_write_ack:
+        n.h_wack_port = add_module_port(
+            root, module, n.c_name + '_wack', size=sz, dir='IN')
+    else:
+        n.h_wack_port = None
+
+    # Read ack
+    if n.hdl_read_ack:
+        n.h_rack_port = add_module_port(
+            root, module, n.c_name + '_rack', size=sz, dir='IN')
+    else:
+        n.h_rack_port = None
 
 
 def add_ports_submap(root, module, n):
@@ -1137,15 +1153,19 @@ def add_read_reg_process(root, module, isigs):
                 s.append(HDLComment(n.c_name))
                 if n.access != 'wo':
                     add_read_reg(s, n, off)
-                if n.h_rport is not None:
-                    s.append(HDLAssign(strobe_index(root, n, off, n.h_rport),
+                if n.h_rstrobe is not None:
+                    s.append(HDLAssign(strobe_index(root, n, off, n.h_rstrobe),
                                        bit_1))
                     if off == 0:
                         # Default values for the strobe.
                         v = strobe_init(root, n)
-                        rdproc.rst_stmts.append(HDLAssign(n.h_rport, v))
-                        rdproc.sync_stmts.insert(0, HDLAssign(n.h_rport, v))
-                s.append(HDLAssign(rd_ack, isigs.rd_int))
+                        rdproc.rst_stmts.append(HDLAssign(n.h_rstrobe, v))
+                        rdproc.sync_stmts.insert(0, HDLAssign(n.h_rstrobe, v))
+                if n.h_rack_port is not None:
+                    rack = strobe_index(root, n, off, n.h_rack_port)
+                else:
+                    rack = isigs.rd_int
+                s.append(HDLAssign(rd_ack, rack))
             elif isinstance(n, tree.Submap):
                 pass
             elif isinstance(n, tree.Array):
@@ -1245,13 +1265,13 @@ def add_write_process(root, module, isigs):
 
     def add_write_reg(s, n, off):
         # Write strobe
-        if n.h_wport is not None:
-            s.append(HDLAssign(strobe_index(root, n, off, n.h_wport), isigs.wr_int))
+        if n.h_wstrobe is not None:
+            s.append(HDLAssign(strobe_index(root, n, off, n.h_wstrobe), isigs.wr_int))
             if off == 0:
                 # Default values for the strobe
                 v = strobe_init(root, n)
-                wrproc.rst_stmts.append(HDLAssign(n.h_wport, v))
-                wrproc.sync_stmts.append(HDLAssign(n.h_wport, v))
+                wrproc.rst_stmts.append(HDLAssign(n.h_wstrobe, v))
+                wrproc.sync_stmts.append(HDLAssign(n.h_wstrobe, v))
 
         wr_if = HDLIfElse(HDLEq(isigs.wr_int, bit_1))
         wr_if.else_stmts = None
@@ -1273,7 +1293,11 @@ def add_write_process(root, module, isigs):
                 continue
             wr_if.then_stmts.append(HDLAssign(reg, dat))
         s.append(wr_if)
-        s.append(HDLAssign(isigs.wr_ack, isigs.wr_int))
+        if n.h_wack_port is not None:
+            wack = strobe_index(root, n, off, n.h_wack_port)
+        else:
+            wack = isigs.wr_int
+        s.append(HDLAssign(isigs.wr_ack, wack))
 
     def add_write(s, n, off):
         if n is not None:

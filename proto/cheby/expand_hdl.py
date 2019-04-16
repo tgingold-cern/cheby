@@ -9,6 +9,8 @@ def expand_x_hdl_reg(n, dct):
     # Default values
     n.hdl_write_strobe = False
     n.hdl_read_strobe = False
+    n.hdl_write_ack = False
+    n.hdl_read_ack = False
     n.hdl_port = 'field'
 
     if not n.has_fields():
@@ -20,6 +22,10 @@ def expand_x_hdl_reg(n, dct):
             n.hdl_write_strobe = parser.read_bool(n, k, v)
         elif k == 'read-strobe':
             n.hdl_read_strobe = parser.read_bool(n, k, v)
+        elif k == 'write-ack':
+            n.hdl_write_ack = parser.read_bool(n, k, v)
+        elif k == 'read-ack':
+            n.hdl_read_ack = parser.read_bool(n, k, v)
         elif k == 'port':
             n.hdl_port = parser.read_text(n, k, v)
             if n.hdl_port not in ['field', 'reg']:
