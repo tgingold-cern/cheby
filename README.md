@@ -54,6 +54,8 @@ Add --c-style=arm to follow the CMSIS style (merge!10)
 
 Support all submap cases, rework generated logic.
 
+Add x-hdl:read-ack and x-hdl:write-ack attributes.
+
 ## Version 1.2
 
 Add --gen-custom to support user defined pass (merge!4)
