@@ -169,7 +169,7 @@ begin
       wait until rising_edge(clk);
       assert v = (addr or x"9876_0432") severity error;
 
-      --  Various vs.
+      --  Various ws.
       axi4lite_read (clk, rd_out, rd_in, addr or x"0000_0008", v);
       assert v = x"02fd_fd02" severity error;
 
@@ -177,6 +177,23 @@ begin
       assert v = x"03fc_fc03" severity error;
 
       axi4lite_read (clk, rd_out, rd_in, addr or x"0000_0010", v);
+      assert v = x"04fb_fb04" severity error;
+
+      --  Simultaneous R&W
+      report "Testing " & name & " (read+write)" severity note;
+      axi4lite_rw(clk, rd_out, rd_in, wr_out, wr_in,
+                  addr or x"0000_0008", v,
+                  addr, addr or x"8765_cdef");
+      assert v = x"02fd_fd02" severity error;
+
+      axi4lite_rw(clk, rd_out, rd_in, wr_out, wr_in,
+                  addr or x"0000_0000", v,
+                  addr or x"0000_000c",  x"fc03_03fc");
+      assert v = (addr or x"8765_cdef");
+
+      axi4lite_rw(clk, rd_out, rd_in, wr_out, wr_in,
+                  addr or x"0000_0010", v,
+                  addr or x"0000_0014",  x"fa05_05fa");
       assert v = x"04fb_fb04" severity error;
     end test_bus;
     variable v : std_logic_vector(31 downto 0);
@@ -228,7 +245,7 @@ begin
   --  Watchdog.
   process
   begin
-    wait until end_of_test for 3 us;
+    wait until end_of_test for 4 us;
     assert end_of_test report "timeout" severity failure;
     wait;
   end process;

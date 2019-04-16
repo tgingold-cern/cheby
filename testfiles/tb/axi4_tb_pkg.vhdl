@@ -71,6 +71,18 @@ package axi4_tb_pkg is
       addr         : in  std_logic_vector(31 downto 0);
       data         : out std_logic_vector(31 downto 0));
 
+  --  Simultaneous read and write (for testing purposes).
+  procedure axi4lite_rw (
+      signal clk_i : in  std_logic;
+      signal rbus_o : out t_axi4lite_read_master_out;
+      signal rbus_i : in  t_axi4lite_read_master_in;
+      signal wbus_o : out t_axi4lite_write_master_out;
+      signal wbus_i : in  t_axi4lite_write_master_in;
+      raddr         : in  std_logic_vector(31 downto 0);
+      rdata         : out std_logic_vector(31 downto 0);
+      waddr         : in  std_logic_vector(31 downto 0);
+      wdata         : in  std_logic_vector(31 downto 0));
+
   procedure axi4lite_wr_init (signal bus_o : out t_axi4lite_write_master_out);
   procedure axi4lite_rd_init (signal bus_o : out t_axi4lite_read_master_out);
 end axi4_tb_pkg;
@@ -177,4 +189,76 @@ package body axi4_tb_pkg is
         data := bus_i.rdata;
       end if;
    end axi4lite_read;
+
+    procedure axi4lite_rw (
+      signal clk_i : in  std_logic;
+      signal rbus_o : out t_axi4lite_read_master_out;
+      signal rbus_i : in  t_axi4lite_read_master_in;
+      signal wbus_o : out t_axi4lite_write_master_out;
+      signal wbus_i : in  t_axi4lite_write_master_in;
+      raddr         : in  std_logic_vector(31 downto 0);
+      rdata         : out std_logic_vector(31 downto 0);
+      waddr         : in  std_logic_vector(31 downto 0);
+      wdata         : in  std_logic_vector(31 downto 0))
+    is
+      variable rdone : boolean;
+      variable wdone : boolean;
+    begin
+      wait until rising_edge(clk_i);
+
+      -- Read request.
+      rbus_o <= (araddr  => raddr,
+                 arprot  => (others => '0'),
+                 arvalid => '1',
+                 rready  => '1');
+
+      --  Write request
+      wbus_o <= (awaddr  => waddr,
+                 wdata   => wdata,
+                 awprot  => (others => '0'),
+                 wstrb   => (others => '1'),
+                 awvalid => '1',
+                 wvalid  => '1',
+                 bready  => '1');
+
+      rdone := False;
+      wdone := False;
+
+      --  Wait for replies.
+      while rdone nand wdone loop
+        wait until rising_edge(clk_i);
+
+        -- Clear valid signals when acked.
+        if wbus_i.awready = '1' then
+          wbus_o.awvalid <= '0';
+        end if;
+        if wbus_i.wready = '1' then
+          wbus_o.wvalid <= '0';
+        end if;
+        if rbus_i.arready = '1' then
+          rbus_o.arvalid <= '0';
+        end if;
+
+        if not wdone and wbus_i.bvalid = '1' then
+          wdone := True;
+          wbus_o.bready <= '0';
+
+          --  Check response.
+          assert wbus_i.bresp = C_AXI4_RESP_OK
+            report "got error reply" severity warning;
+        end if;
+
+        if not rdone and rbus_i.rvalid = '1' then
+          rdone := True;
+          rbus_o.rready <= '0';
+
+          -- Done. Check for errors
+          if rbus_i.rresp /= C_AXI4_RESP_OK then
+            report "got error reply" severity warning;
+          else
+            rdata := rbus_i.rdata;
+          end if;
+        end if;
+      end loop;
+    end axi4lite_rw;
 end axi4_tb_pkg;
