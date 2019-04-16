@@ -1,0 +1,32 @@
+memory-map:
+  bus: wb-32-be
+  name: wires1
+  description: a single register
+  children:
+    - reg:
+        name: strobe
+        width: 32
+        access: rw
+        type: unsigned
+        x-hdl:
+          read-strobe: yes
+          write-strobe: yes
+    - reg:
+        name: wires
+        width: 32
+        access: rw
+        type: unsigned
+        x-hdl:
+          type: wire
+          read-strobe: yes
+    - reg:
+        name: acks
+        width: 32
+        access: rw
+        type: unsigned
+        x-hdl:
+          type: wire
+          read-strobe: yes
+          write-strobe: yes
+          read-ack: yes
+          write-ack: yes

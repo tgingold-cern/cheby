@@ -245,7 +245,8 @@ def test_hdl_ref():
               'issue11/test_port1_reg', 'issue11/test_port1',
               'issue11/test_port1_field',
               'issue11/test_port2_reg', 'issue11/test_port2_wire',
-              'issue13/mainMap2']:
+              'issue13/mainMap2',
+              'wires1']:
         if verbose:
             print('test hdl with ref: {}'.format(f))
         cheby_file = srcdir + f + '.cheby'
