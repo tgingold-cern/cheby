@@ -233,33 +233,52 @@ class WBBus(BusGen):
             n.c_addr_bits, root.c_addr_word_bits, root.c_word_bits,
             n.description, True, busgroup is True)
         # Internal signals
-        # wr and rd are the strobe signals (set for one cycle in case of access
-        # to the bus)
-        n.h_wr = module.new_HDLSignal(prefix + 'wr')
-        n.h_rd = module.new_HDLSignal(prefix + 'rd')
-        n.h_st = module.new_HDLSignal(prefix + 'st')
-        n.h_we = module.new_HDLSignal(prefix + 'we')
+        # Read enable (set by decoding logic)
+        n.h_re = module.new_HDLSignal(prefix + 're')
+        # Transaction in progress (write, read, any)
+        n.h_wt = module.new_HDLSignal(prefix + 'wt')
+        n.h_rt = module.new_HDLSignal(prefix + 'rt')
+        n.h_tr = module.new_HDLSignal(prefix + 'tr')
+        # Ack
+        n.h_wack = module.new_HDLSignal(prefix + 'wack')
+        n.h_rack = module.new_HDLSignal(prefix + 'rack')
+        if root.h_bussplit:
+            # Request signals
+            n.h_wr = module.new_HDLSignal(prefix + 'wr')
+            n.h_rr = module.new_HDLSignal(prefix + 'rr')
 
     def wire_bus_slave(self, root, stmts, n):
         stmts.append(HDLComment("Assignments for submap {}".format(n.name)))
+        stmts.append(HDLAssign(n.h_tr, HDLOr(n.h_wt, n.h_rt)))
         proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'])
-        proc.rst_stmts.append(HDLAssign(n.h_st, bit_0))
-        proc.rst_stmts.append(HDLAssign(n.h_we, bit_0))
-        # ST is set by RD or WR, and cleared by ACK.
-        proc.sync_stmts.append(HDLAssign(
-                n.h_st, HDLAnd(HDLOr(n.h_st, HDLOr(n.h_rd, n.h_wr)),
-                               HDLNot(n.h_bus['ack']))))
-        # WE is set by WR, cleared by ACK.
-        # Note: WR has priority over RD.
-        proc.sync_stmts.append(HDLAssign(
-                n.h_we, HDLAnd(HDLOr(n.h_we, n.h_wr), HDLNot(n.h_bus['ack']))))
+        proc.rst_stmts.append(HDLAssign(n.h_rt, bit_0))
+        if root.h_bussplit:
+            proc.rst_stmts.append(HDLAssign(n.h_wt, bit_0))
+            proc.rst_stmts.append(HDLAssign(n.h_rr, bit_0))
+            proc.rst_stmts.append(HDLAssign(n.h_rt, bit_0))
+            proc.sync_stmts.append(HDLAssign(n.h_wt,
+                HDLAnd(HDLOr(n.h_wt, HDLParen(HDLAnd(n.h_wr, HDLNot(n.h_tr)))),
+                    HDLNot(n.h_wack))))
+            # RR is set by RD and cleared by ACK.
+            proc.sync_stmts.append(HDLAssign(n.h_rr,
+                HDLAnd(HDLOr(n.h_rr, n.h_re), HDLNot(n.h_rack))))
+            # RT is set by RR and cleared by ACK
+            proc.sync_stmts.append(HDLAssign(n.h_rt,
+                HDLAnd(HDLOr(n.h_rt, HDLParen(HDLAnd(n.h_rr, HDLNot(HDLOr(n.h_wr, n.h_tr))))),
+                    HDLNot(n.h_rack))))
+        else:
+            # RT is set by RD and cleared by ACK.
+            proc.sync_stmts.append(HDLAssign(n.h_rt,
+                HDLAnd(HDLOr(n.h_rt, n.h_re), HDLNot(n.h_rack))))
         stmts.append(proc)
-        stmts.append(HDLAssign(n.h_bus['cyc'], n.h_st))
-        stmts.append(HDLAssign(n.h_bus['stb'], n.h_st))
+        stmts.append(HDLAssign(n.h_bus['cyc'], n.h_tr))
+        stmts.append(HDLAssign(n.h_bus['stb'], n.h_tr))
+        stmts.append(HDLAssign(n.h_wack, HDLAnd(n.h_bus['ack'], n.h_wt)))
+        stmts.append(HDLAssign(n.h_rack, HDLAnd(n.h_bus['ack'], n.h_rt)))
         if root.h_bussplit:
             proc = HDLComb()
-            proc.sensitivity.extend([root.h_bus['adrr'], root.h_bus['adrw'], n.h_we])
-            if_stmt = HDLIfElse(HDLEq(n.h_we, bit_1))
+            proc.sensitivity.extend([root.h_bus['adrr'], root.h_bus['adrw'], n.h_wt])
+            if_stmt = HDLIfElse(HDLEq(n.h_wt, bit_1))
             if_stmt.then_stmts.append(HDLAssign(n.h_bus['adr'],
                                HDLSlice(root.h_bus['adrw'],
                                         root.c_addr_word_bits, n.c_addr_bits)))
@@ -273,24 +292,32 @@ class WBBus(BusGen):
                                    HDLSlice(root.h_bus['adr'],
                                             root.c_addr_word_bits, n.c_addr_bits)))
         stmts.append(HDLAssign(n.h_bus['sel'], HDLReplicate(bit_1, 4)))
-        stmts.append(HDLAssign(n.h_bus['we'], n.h_we))
+        stmts.append(HDLAssign(n.h_bus['we'], n.h_wt))
         stmts.append(HDLAssign(n.h_bus['dati'], root.h_bus['dati']))
 
     def write_bus_slave(self, root, stmts, n, proc, isigs):
-        proc.rst_stmts.append(HDLAssign(n.h_wr, bit_0))
-        proc.sync_stmts.append(HDLAssign(n.h_wr, bit_0))
-        stmts.append(HDLAssign(n.h_wr, isigs.wr_int))
-        stmts.append(HDLAssign(isigs.wr_ack, HDLAnd(n.h_bus['ack'], n.h_we)))
+        if root.h_bussplit:
+            proc.rst_stmts.append(HDLAssign(n.h_wr, bit_0))
+            proc.sync_stmts.append(HDLAssign(n.h_wr, bit_0))
+            # Set on WR, cleared by ACK.
+            stmts.append(HDLAssign(n.h_wr,
+                HDLAnd(HDLOr(n.h_wr, isigs.wr_int), HDLNot(n.h_wack))))
+        else:
+            # WT is set by WR and cleared by ACK.
+            proc.rst_stmts.append(HDLAssign(n.h_wt, bit_0))
+            proc.sync_stmts.append(HDLAssign(n.h_wt, bit_0))
+            stmts.append(HDLAssign(n.h_wt,
+                HDLAnd(HDLOr(n.h_wt, isigs.wr_int), HDLNot(n.h_wack))))
+        stmts.append(HDLAssign(isigs.wr_ack, n.h_wack))
 
     def read_bus_slave(self, root, stmts, n, proc, isigs, rd_data):
-        proc.stmts.append(HDLAssign(n.h_rd, bit_0))
-        stmts.append(HDLAssign(n.h_rd, isigs.rd_int))
+        proc.stmts.append(HDLAssign(n.h_re, bit_0))
+        stmts.append(HDLAssign(n.h_re, isigs.rd_int))
         proc.sensitivity.append(isigs.rd_int)
         stmts.append(HDLAssign(rd_data, n.h_bus['dato']))
         # Propagate ack provided it is a write transaction and only for one cycle.
-        stmts.append(HDLAssign(isigs.rd_ack,
-            HDLAnd(n.h_bus['ack'], HDLAnd(n.h_st, HDLNot(n.h_we)))))
-        proc.sensitivity.extend([n.h_bus['dato'], n.h_bus['ack'], n.h_we, n.h_st])
+        stmts.append(HDLAssign(isigs.rd_ack, n.h_rack))
+        proc.sensitivity.extend([n.h_bus['dato'], n.h_rack, n.h_rt])
 
 
 class AXI4LiteBus(BusGen):
