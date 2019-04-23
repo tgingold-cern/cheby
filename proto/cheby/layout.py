@@ -400,8 +400,8 @@ def layout_composite(lo, n):
 
 @Layout.register(tree.Root)
 def layout_root(lo, root):
-    if not root.children:
-        raise LayoutException(root, "empty description '{}'".format(root.name))
+    if not root.children and root.size is None:
+        raise LayoutException(root, "empty description '{}' must have a size".format(root.name))
     root.c_address = 0
     layout_composite(lo, root)
 
