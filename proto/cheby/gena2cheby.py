@@ -205,6 +205,7 @@ def conv_sub_reg(reg, el):
 def conv_register_data(parent, el):
     res = cheby.tree.Reg(parent)
     res.x_gena = {}
+    res.x_fesa = {}
     attrs = el.attrib
     res.name = attrs['name']
     for k, v in attrs.items():
@@ -233,8 +234,10 @@ def conv_register_data(parent, el):
                 else:
                     raise UnknownGenAttribute(e, res)
             res.x_gena['gen'] = xg
+        elif k in ('persistence', ):
+            res.x_fesa[k] = v
         elif k in ['code-generation-rule',
-                   'persistence', 'max-val', 'min-val', 'unit',
+                   'max-val', 'min-val', 'unit',
                    'read-conversion-factor', 'write-conversion-factor']:
             ignore_attr(k, el)
         else:

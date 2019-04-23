@@ -20,11 +20,15 @@ memory-map:
                 code: 1
                 name: World
           type: rmw
+        x-fesa:
+          persistence: Fesa
     - reg:
         name: test2
         width: 32
         access: rw
         address: next
+        x-fesa:
+          persistence: Fesa
         children:
           - field:
               name: msBit
@@ -75,6 +79,8 @@ memory-map:
         width: 16
         access: rw
         address: next
+        x-fesa:
+          persistence: Fesa
     - reg:
         name: test4
         width: 32
@@ -83,6 +89,8 @@ memory-map:
         x_gena:
           auto-clear: 0xffff
           preset: 0xffff
+        x-fesa:
+          persistence: Fesa
         children:
           - field:
               name: msBit
@@ -133,6 +141,8 @@ memory-map:
         width: 16
         access: wo
         address: next
+        x-fesa:
+          persistence: Fesa
     - reg:
         name: test6
         width: 32
@@ -141,6 +151,8 @@ memory-map:
         x_gena:
           auto-clear: 0x0
           preset: 0x0
+        x-fesa:
+          persistence: Fesa
         children:
           - field:
               name: msBit
@@ -191,6 +203,8 @@ memory-map:
         width: 16
         access: ro
         address: next
+        x-fesa:
+          persistence: Fesa
     - reg:
         name: test8
         width: 32
@@ -199,6 +213,8 @@ memory-map:
         x_gena:
           auto-clear: 0xffffffff
           preset: 0xffffffff
+        x-fesa:
+          persistence: Fesa
         children:
           - field:
               name: msBit

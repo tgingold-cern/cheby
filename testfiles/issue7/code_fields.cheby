@@ -23,6 +23,8 @@ memory-map:
                   - code-field:
                       code: 0
                       name: problematicCodeField
+              x-fesa:
+                persistence: Fesa
     - block:
         name: area2
         address: next
@@ -40,3 +42,5 @@ memory-map:
                   - code-field:
                       code: 0
                       name: problematicCodeField
+              x-fesa:
+                persistence: Fesa

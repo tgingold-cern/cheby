@@ -14,6 +14,8 @@ memory-map:
         x_gena:
           gen:
             srff: True
+        x-fesa:
+          persistence: Fesa
     - reg:
         name: test5
         width: 64
@@ -22,3 +24,5 @@ memory-map:
         x_gena:
           gen:
             srff: True
+        x-fesa:
+          persistence: Fesa

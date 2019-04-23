@@ -13,8 +13,12 @@ memory-map:
         width: 16
         access: ro
         address: 0x0
+        x-fesa:
+          persistence: Fesa
     - reg:
         name: test2
         width: 32
         access: ro
         address: next
+        x-fesa:
+          persistence: Fesa

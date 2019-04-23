@@ -15,6 +15,8 @@ memory-map:
           gen:
             no-split: True
             resize: 17
+        x-fesa:
+          persistence: Fesa
     - reg:
         name: test3
         width: 32
@@ -24,6 +26,8 @@ memory-map:
           gen:
             no-split: True
             resize: 17
+        x-fesa:
+          persistence: Fesa
     - reg:
         name: test5
         width: 32
@@ -33,3 +37,5 @@ memory-map:
           gen:
             no-split: True
             resize: 17
+        x-fesa:
+          persistence: Fesa

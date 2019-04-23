@@ -13,6 +13,8 @@ memory-map:
         address: 0x0
         x_gena:
           preset: 0xe0
+        x-fesa:
+          persistence: Fesa
         children:
           - field:
               name: b15

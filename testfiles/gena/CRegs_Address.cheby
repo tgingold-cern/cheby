@@ -11,6 +11,8 @@ memory-map:
         width: 32
         access: ro
         address: 0x0
+        x-fesa:
+          persistence: Fesa
         children:
           - field:
               name: b15
@@ -21,6 +23,8 @@ memory-map:
         width: 64
         access: ro
         address: 0x10
+        x-fesa:
+          persistence: Fesa
         children:
           - field:
               name: b31
@@ -31,6 +35,8 @@ memory-map:
         width: 32
         access: rw
         address: 0x8
+        x-fesa:
+          persistence: Fesa
         children:
           - field:
               name: b31
@@ -41,6 +47,8 @@ memory-map:
         width: 32
         access: ro
         address: 0x4
+        x-fesa:
+          persistence: Fesa
         children:
           - field:
               name: b31

@@ -11,6 +11,8 @@ memory-map:
         width: 32
         access: rw
         address: 0x0
+        x-fesa:
+          persistence: Fesa
     - block:
         name: area
         address: next
@@ -25,3 +27,5 @@ memory-map:
               address: 0x0
               x_gena:
                 type: rmw
+              x-fesa:
+                persistence: Fesa

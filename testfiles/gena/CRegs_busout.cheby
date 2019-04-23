@@ -14,6 +14,8 @@ memory-map:
         x_gena:
           gen:
             bus-out: True
+        x-fesa:
+          persistence: Fesa
         children:
           - field:
               name: b15
@@ -27,6 +29,8 @@ memory-map:
         x_gena:
           gen:
             bus-out: True
+        x-fesa:
+          persistence: Fesa
         children:
           - field:
               name: b31
@@ -40,6 +44,8 @@ memory-map:
         x_gena:
           gen:
             bus-out: True
+        x-fesa:
+          persistence: Fesa
         children:
           - field:
               name: b31
@@ -53,6 +59,8 @@ memory-map:
         x_gena:
           gen:
             bus-out: True
+        x-fesa:
+          persistence: Fesa
         children:
           - field:
               name: b31

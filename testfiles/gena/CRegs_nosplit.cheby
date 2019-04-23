@@ -15,6 +15,8 @@ memory-map:
           gen:
             no-split: True
           type: rmw
+        x-fesa:
+          persistence: Fesa
         children:
           - field:
               name: b15
@@ -28,6 +30,8 @@ memory-map:
         x_gena:
           gen:
             no-split: True
+        x-fesa:
+          persistence: Fesa
         children:
           - field:
               name: b31
@@ -41,6 +45,8 @@ memory-map:
         x_gena:
           gen:
             no-split: True
+        x-fesa:
+          persistence: Fesa
         children:
           - field:
               name: b31
@@ -54,6 +60,8 @@ memory-map:
         x_gena:
           gen:
             no-split: True
+        x-fesa:
+          persistence: Fesa
         children:
           - field:
               name: b31

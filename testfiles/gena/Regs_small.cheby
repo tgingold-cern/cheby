@@ -11,11 +11,15 @@ memory-map:
         width: 16
         access: ro
         address: next
+        x-fesa:
+          persistence: Fesa
     - reg:
         name: test3
         width: 8
         access: ro
         address: next
+        x-fesa:
+          persistence: Fesa
         children:
           - field:
               name: hi

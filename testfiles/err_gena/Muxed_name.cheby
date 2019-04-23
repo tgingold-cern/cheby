@@ -16,6 +16,8 @@ memory-map:
         x_gena:
           gen:
             mux: regSelX.channelSelect
+        x-fesa:
+          persistence: PPM
     - reg:
         name: muxedRegRW
         description: muxed-reg-rw
@@ -25,12 +27,16 @@ memory-map:
         x_gena:
           gen:
             mux: regSel.channelSelect
+        x-fesa:
+          persistence: PPM
     - reg:
         name: regSel
         description: Acquisition buffer selection
         width: 16
         access: rw
         address: next
+        x-fesa:
+          persistence: PPM
         children:
           - field:
               name: channelSelect

@@ -14,8 +14,12 @@ memory-map:
         x_gena:
           gen:
             ignore: True
+        x-fesa:
+          persistence: Fesa
     - reg:
         name: test2
         width: 64
         access: ro
         address: next
+        x-fesa:
+          persistence: Fesa

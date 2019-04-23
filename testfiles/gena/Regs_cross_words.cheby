@@ -13,6 +13,8 @@ memory-map:
         address: next
         x_gena:
           preset: 0xabcd1234
+        x-fesa:
+          persistence: Fesa
         children:
           - field:
               name: hi
@@ -29,6 +31,8 @@ memory-map:
         address: next
         x_gena:
           preset: 0xabcd1234
+        x-fesa:
+          persistence: Fesa
         children:
           - field:
               name: hi

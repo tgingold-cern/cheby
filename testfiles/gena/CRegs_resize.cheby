@@ -14,6 +14,8 @@ memory-map:
         x_gena:
           gen:
             resize: 17
+        x-fesa:
+          persistence: Fesa
     - reg:
         name: test2
         width: 64
@@ -22,6 +24,8 @@ memory-map:
         x_gena:
           gen:
             resize: 20
+        x-fesa:
+          persistence: Fesa
     - reg:
         name: test3
         width: 32
@@ -30,6 +34,8 @@ memory-map:
         x_gena:
           gen:
             resize: 17
+        x-fesa:
+          persistence: Fesa
     - reg:
         name: test4
         width: 64
@@ -38,6 +44,8 @@ memory-map:
         x_gena:
           gen:
             resize: 20
+        x-fesa:
+          persistence: Fesa
     - reg:
         name: test5
         width: 32
@@ -46,6 +54,8 @@ memory-map:
         x_gena:
           gen:
             resize: 17
+        x-fesa:
+          persistence: Fesa
     - reg:
         name: test6
         width: 64
@@ -54,3 +64,5 @@ memory-map:
         x_gena:
           gen:
             resize: 20
+        x-fesa:
+          persistence: Fesa
