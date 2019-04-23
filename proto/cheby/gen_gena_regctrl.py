@@ -364,7 +364,7 @@ def gen_hdl_reg_rdmux(reg, pfx, root, module, isigs):
     sw = HDLSwitch(sel_val)
     proc.stmts.append(sw)
     m = 0
-    for suff, val in reg.h_mux.codelist:
+    for _, val in reg.h_mux.codelist:
         ch = HDLChoiceExpr(HDLBinConst(val, sel_width))
         ch.stmts.append(HDLAssign(reg.h_loc, reg.h_loc_mux[m]))
         proc.sensitivity.append(reg.h_loc_mux[m])
@@ -990,16 +990,18 @@ def gen_hdl_mem_asgn(root, module, isigs, area, mems):
         gen_hdl_ext_bus_asgn(m, data.access, root, module)
 
 
-def gen_hdl_mem2top_rd(root, module, isigs, stmts):
+def gen_hdl_mem2top_rd(root, module, proc, isigs, stmts):
     stmts.append(HDLAssign(isigs.RdData, isigs.MemRdData))
     stmts.append(HDLAssign(isigs.RdDone, isigs.MemRdDone))
     if root.c_buserr:
+        proc.sensitivity.append(isigs.MemRdError)
         stmts.append(HDLAssign(isigs.RdError, isigs.MemRdError))
 
 
-def gen_hdl_mem2top_wr(root, module, isigs, stmts):
+def gen_hdl_mem2top_wr(root, module, proc, isigs, stmts):
     stmts.append(HDLAssign(isigs.WrDone, isigs.MemWrDone))
     if root.c_buserr:
+        proc.sensitivity.append(isigs.MemWrError)
         stmts.append(HDLAssign(isigs.WrError, isigs.MemWrError))
 
 
@@ -1032,7 +1034,7 @@ def gen_hdl_areardmux(root, module, isigs, area, areas):
             stmt.then_stmts.append(HDLAssign(a.h_rdsel_sig, bit_1))
         last.append(stmt)
         last = stmt.else_stmts
-    gen_hdl_mem2top_rd(root, module, isigs, last)
+    gen_hdl_mem2top_rd(root, module, proc, isigs, last)
     proc.stmts.extend(first)
     module.stmts.append(proc)
     module.stmts.append(HDLComment(None))
@@ -1055,7 +1057,7 @@ def gen_hdl_areawrmux(root, module, isigs, area, areas):
             stmt.then_stmts.append(HDLAssign(isigs.WrError, a.h_isigs.WrError))
         last.append(stmt)
         last = stmt.else_stmts
-    gen_hdl_mem2top_wr(root, module, isigs, last)
+    gen_hdl_mem2top_wr(root, module, proc, isigs, last)
     proc.stmts.extend(first)
     module.stmts.append(proc)
     module.stmts.append(HDLComment(None))

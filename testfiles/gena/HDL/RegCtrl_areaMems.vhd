@@ -143,7 +143,7 @@ begin
   MemWrDone <= Loc_MemWrDone;
   MemWrError <= Loc_MemWrError;
 
-  AreaRdMux: process (VMEAddr, MemRdData, MemRdDone, area_RdData, area_RdDone, area_RdError) begin
+  AreaRdMux: process (VMEAddr, MemRdData, MemRdDone, area_RdData, area_RdDone, area_RdError, MemRdError) begin
     if VMEAddr(19 downto 19) = C_Area_areaMems_area then
       RdData <= area_RdData;
       RdDone <= area_RdDone;
@@ -155,7 +155,7 @@ begin
     end if;
   end process AreaRdMux;
 
-  AreaWrMux: process (VMEAddr, MemWrDone, area_WrDone, area_WrError) begin
+  AreaWrMux: process (VMEAddr, MemWrDone, area_WrDone, area_WrError, MemWrError) begin
     if VMEAddr(19 downto 19) = C_Area_areaMems_area then
       WrDone <= area_WrDone;
       WrError <= area_WrError;

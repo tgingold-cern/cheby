@@ -177,7 +177,7 @@ begin
   MemWrDone <= Loc_MemWrDone;
   MemWrError <= Loc_MemWrError;
 
-  AreaRdMux: process (VMEAddr, MemRdData, MemRdDone, submap1_RdData, submap1_RdDone, submap1_RdError) begin
+  AreaRdMux: process (VMEAddr, MemRdData, MemRdDone, submap1_RdData, submap1_RdDone, submap1_RdError, MemRdError) begin
     if VMEAddr(19 downto 10) = C_Submap_submap_internal_submap1 then
       RdData <= submap1_RdData;
       RdDone <= submap1_RdDone;
@@ -189,7 +189,7 @@ begin
     end if;
   end process AreaRdMux;
 
-  AreaWrMux: process (VMEAddr, MemWrDone, submap1_WrDone, submap1_WrError) begin
+  AreaWrMux: process (VMEAddr, MemWrDone, submap1_WrDone, submap1_WrError, MemWrError) begin
     if VMEAddr(19 downto 10) = C_Submap_submap_internal_submap1 then
       WrDone <= submap1_WrDone;
       WrError <= submap1_WrError;

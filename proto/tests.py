@@ -293,6 +293,7 @@ def test_gena():
              'Mems', 'Mems2', 'Mems_RO', 'Mems_WO',
              'Mems_nodff', 'Mems_splitaddr',
              'CRegs_Mems', 'CRegs_Regs_Mems',
+             'Area_CRegs',
              'Area_CRegs_Regs_Mems', 'Area_CRegs_Regs_Mems_EmptyRoot',
              'Area_Mems', 'Area_extarea', 'Area_extarea_error',
              'Area_reserved',
