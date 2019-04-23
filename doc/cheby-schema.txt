@@ -84,10 +84,13 @@ word-endian:
   register can be longer than a word.
 name: string
   Identifier that names the memory map.  Names must be uniq at the same level.
-description: string
-  Short string (should fit on one line) that describes the map.
 comment: string
+  Short string (should fit on one line) that describes the map.  This is
+  inserted in generated code as a comment.
+description: string
   Longer text that explains the purpose of the map.
+note: string
+  Additional text note.
 children: { reg | block | array }
   Content of a memory map.
 
@@ -107,6 +110,7 @@ directly. Contrary to fields, a register is addressable.
 name: string
 comment: string
 description: string
+note: string
   Like for the root node but applied on a register.
 width: number
   Number of bits for this register; the default value being word_size.
@@ -157,6 +161,7 @@ A field represent the smallest described data. It is a sequence of bits.
 name: string
 description: string
 comment: string
+note: string
   Like for the root node but applied on a field.
 range: string
   Bits used by the field in the register.  Either a number for a 1 bit field,
@@ -184,6 +189,7 @@ A block regroups declarations.
 name: string
 description: string
 comment: string
+note: string
   If several blocks have the same name, they are considered as the same logical
   block; and only the first one can have a desription and a comment [TO BE
   REFINED]
@@ -207,6 +213,7 @@ address that are decoded and handled externally through a bus.
 name: string
 description: string
 comment: string
+note: string
 address: address
 align: boolean
   If set to false, then doesn't enfore any restriction on size and
@@ -246,7 +253,8 @@ enough to deserve a specific name (and not an attribute of a block).
 name: string
 description: string
 comment: string
-  Like for the root node but applied on a field.
+note: string
+  Like for the root node but applied on an array.
 address: address
 align: boolean
   If set to false, then doesn't enfore any restriction on size and

@@ -96,16 +96,16 @@ def conv_bool(k, s):
 def conv_common(node, k, v):
     if k == 'description':
         node.description = v
-        return True
     elif k == 'comment':
         node.comment = conv_string(v)
-        return True
     elif k == 'comment-encoding':
-        if v == 'PlainText':
-            return True
-        raise UnknownValue(k, v)
+        if v != 'PlainText':
+            raise UnknownValue(k, v)
+    elif k == 'note':
+        node.note = v
     else:
         return False
+    return True
 
 
 def conv_codefield(parent, el):

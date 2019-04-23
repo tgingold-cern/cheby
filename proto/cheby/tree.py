@@ -34,7 +34,8 @@ class NamedNode(Node):
         super(NamedNode, self).__init__(parent)
         self.name = None
         self.description = None
-        self.comment = None
+        self.comment = None		# One-line comment for generated code
+        self.note = None
         # Computed values
         self.c_address = None
         self.c_size = None
