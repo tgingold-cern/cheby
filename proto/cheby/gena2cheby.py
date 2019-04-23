@@ -6,6 +6,8 @@ from xml.etree import ElementTree as ET
 import cheby.tree
 import cheby.pprint
 
+# If True, display ignored constructs.
+flag_ignore=False
 
 class UnknownAttribute(Exception):
     def __init__(self, msg):
@@ -33,6 +35,16 @@ class UnknownValue(Exception):
 def error(str):
     sys.stderr.write(str + '\n')
 
+
+def ignore_attr(attr, el):
+    if flag_ignore:
+        sys.stderr.write("note: ignored attribute '{}' in tag '{}'\n".format(
+            attr, el.tag))
+
+def ignore_tag(tag, el):
+    if flag_ignore:
+        sys.stderr.write("note: ignored child tag '{}' in tag '{}'\n".format(
+            tag, el.tag))
 
 def conv_access(acc):
     # TODO: incorrect for rmw
@@ -129,8 +141,7 @@ def conv_bit_field_data(reg, el):
                     raise UnknownGenAttribute(e, res)
             res.x_gena['gen'] = xg
         elif k in ['alarm-level']:
-            # Ignored
-            pass
+            ignore_attr(k, el)
         else:
             raise UnknownAttribute(k)
     res.lo = int(attrs['bit'])
@@ -172,8 +183,7 @@ def conv_sub_reg(reg, el):
             res.x_gena['gen'] = xg
         elif k in ['unit', 'read-conversion-factor', 'write-conversion-factor',
                    'constant-value']:
-            # Ignored
-            pass
+            ignore_tag(k, el)
         else:
             raise UnknownAttribute(k)
     rng = attrs['range'].split('-')
@@ -226,8 +236,7 @@ def conv_register_data(parent, el):
         elif k in ['code-generation-rule',
                    'persistence', 'max-val', 'min-val', 'unit',
                    'read-conversion-factor', 'write-conversion-factor']:
-            # Ignored
-            pass
+            ignore_attr(k, el)
         else:
             raise UnknownAttribute(k)
     res.address = conv_address(attrs['address'])
@@ -349,8 +358,7 @@ def conv_memory_data(parent, el):
                     raise UnknownGenAttribute(e, res)
             res.x_gena['gen'] = xg
         elif k in ['persistence', 'note']:
-            # Ignored
-            pass
+            ignore_attr(k, el)
         else:
             raise UnknownAttribute(k)
     res.address = conv_address(attrs['address'])
@@ -407,8 +415,7 @@ def conv_area(parent, el):
                     raise UnknownGenAttribute(e, res)
             res.x_gena['gen'] = xg
         elif k in ('persistence',):
-            # Ignored
-            pass
+            ignore_attr(k, el)
         else:
             raise UnknownAttribute(k)
     res.name = attrs['name']
@@ -451,8 +458,7 @@ def conv_submap(parent, el):
                     raise UnknownGenAttribute(e, res)
             res.x_gena['gen'] = xg
         elif k in ['ro2wo', 'access-mode-flip']:
-            # Ignored
-            pass
+            ignore_attr(k, el)
         else:
             raise UnknownAttribute(k)
     res.name = attrs['name']
@@ -524,8 +530,7 @@ def conv_root(root, filename):
                    'equipment-code', 'note', 'module-type',
                    'semantic-mem-map-version',
                    'vme-base-addr', 'vme-base-address']:
-            # Ignored
-            pass
+            ignore_attr(k, root)
         elif k == '{http://www.w3.org/2001/XMLSchema-instance}schemaLocation':
             pass
         else:
@@ -549,11 +554,11 @@ def conv_root(root, filename):
 
     for child in root:
         if child.tag == 'constant-value':
-            pass
+            ignore_tag(child.tag, root)
         elif child.tag == 'configuration-value':
-            pass
+            ignore_tag(child.tag, root)
         elif child.tag == 'fesa-class-properties':
-            pass
+            ignore_tag(child.tag, root)
         else:
             conv_element(res, child)
     return res
@@ -566,10 +571,16 @@ def convert(filename):
 
 
 def main():
+    global flag_ignore
     aparser = argparse.ArgumentParser(description='Gena to Cheby converter')
     aparser.add_argument('FILE')
+    aparser.add_argument('-i', '--ignore', action='store_true',
+                         help='display ignored attributes')
+    aparser.add_argument('-q', '--quiet', action='store_true',
+                         help='do not display the result')
 
     args = aparser.parse_args()
+    flag_ignore = args.ignore
     try:
         res = convert(args.FILE)
     except UnknownGenAttribute as e:
@@ -580,7 +591,8 @@ def main():
         error("error: unknown tag '{}'".format(
             e.msg))
         sys.exit(1)
-    cheby.pprint.pprint_cheby(sys.stdout, res)
+    if not args.quiet:
+        cheby.pprint.pprint_cheby(sys.stdout, res)
 
 
 if __name__ == '__main__':

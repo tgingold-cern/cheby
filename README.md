@@ -56,6 +56,10 @@ Support all submap cases, rework generated logic.
 
 Add x-hdl:read-ack and x-hdl:write-ack attributes.
 
+Add option '-i' to gena2cheby (to display ignored constructs).
+
+Add option '-q' to gena2cheby (to not generate output).
+
 ## Version 1.2
 
 Add --gen-custom to support user defined pass (merge!4)
