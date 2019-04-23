@@ -9,16 +9,16 @@ def get_gena(n, name, default=None):
 
 
 def gen_header(root, decls):
-    if hasattr(root, 'x_gena'):
+    if hasattr(root, 'x_cern_info'):
         cpfx = 'C_{}'.format(root.name)
-        ident_code = root.x_gena.get('ident-code')
+        ident_code = root.x_cern_info.get('ident-code')
         if ident_code is not None:
             width = root.c_word_size * tree.BYTE_SIZE
             decls.append(HDLComment('Ident Code'))
             decls.append(HDLConstant(cpfx + '_IdentCode', width,
                          value=HDLHexConst(ident_code, width)))
 
-        version = root.x_gena.get('map-version')
+        version = root.x_cern_info.get('map-version')
         if version:
             decls.append(HDLComment('Memory Map Version'))
             cst = HDLConstant(cpfx + '_MemMapVersion', 32,

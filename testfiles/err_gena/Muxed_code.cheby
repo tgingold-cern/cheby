@@ -3,7 +3,7 @@ memory-map:
   description: Muxed registers
   bus: cern-be-vme-16
   size: 1048576
-  x_gena:
+  x-cern-info:
     ident-code: 0x00
     map-version: 20180513
   children:
@@ -66,6 +66,8 @@ memory-map:
                 channel-select-code: 1
                 description: chan 1
                 name: channel1
+        x-fesa:
+          persistence: PPM
         children:
           - reg:
               name: Mem

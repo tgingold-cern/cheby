@@ -82,12 +82,14 @@ def pprint_extension(pp, name, n):
 
 
 def pprint_extensions(pp, n):
-    if hasattr(n, 'x_gena'):
-        pprint_extension(pp, 'x_gena', n.x_gena)
-    if hasattr(n, 'x_hdl'):
-        pprint_extension(pp, 'x-hdl', n.x_hdl)
-    if hasattr(n, 'x_fesa'):
-        pprint_extension(pp, 'x-fesa', n.x_fesa)
+    for attr, name in [('x_gena', 'x_gena'),
+                       ('x_hdl', 'x-hdl'),
+                       ('x_fesa', 'x-fesa'),
+                       ('x_driver_edge', 'x-driver-edge'),
+                       ('x_conversions', 'x-conversions'),
+                       ('x_cern_info', 'x-cern-info')]:
+        if hasattr(n, attr):
+            pprint_extension(pp, name, getattr(n, attr))
 
 
 def pprint_address(pp, n):

@@ -5,6 +5,7 @@ memory-map:
   x_gena:
     gen:
       no-mem-mux-dff: True
+  x-cern-info:
     ident-code: 0xff
     map-version: 20161101
   children:
@@ -12,6 +13,8 @@ memory-map:
         name: mem1
         address: next
         repeat: 512
+        x-fesa:
+          persistence: Fesa
         children:
           - reg:
               name: mem1
@@ -21,6 +24,8 @@ memory-map:
         name: mem2
         address: next
         repeat: 512
+        x-fesa:
+          persistence: Fesa
         children:
           - reg:
               name: mem2
@@ -30,6 +35,8 @@ memory-map:
         name: mem3
         address: next
         repeat: 512
+        x-fesa:
+          persistence: Fesa
         children:
           - reg:
               name: mem3

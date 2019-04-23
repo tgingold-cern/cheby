@@ -117,6 +117,7 @@ def conv_codefield(parent, el):
 def conv_bit_field_data(reg, el):
     res = cheby.tree.Field(reg)
     res.x_gena = {}
+    res.x_fesa = {}
     attrs = el.attrib
     res.name = attrs['name']
     for k, v in attrs.items():
@@ -140,8 +141,8 @@ def conv_bit_field_data(reg, el):
                 else:
                     raise UnknownGenAttribute(e, res)
             res.x_gena['gen'] = xg
-        elif k in ['alarm-level']:
-            ignore_attr(k, el)
+        elif k in ('alarm-level',):
+            res.x_fesa[k] = v
         else:
             raise UnknownAttribute(k)
     res.lo = int(attrs['bit'])
@@ -183,7 +184,7 @@ def conv_sub_reg(reg, el):
             res.x_gena['gen'] = xg
         elif k in ['unit', 'read-conversion-factor', 'write-conversion-factor',
                    'constant-value']:
-            ignore_tag(k, el)
+            ignore_attr(k, el)
         else:
             raise UnknownAttribute(k)
     rng = attrs['range'].split('-')
@@ -206,6 +207,8 @@ def conv_register_data(parent, el):
     res = cheby.tree.Reg(parent)
     res.x_gena = {}
     res.x_fesa = {}
+    res.x_conversions = {}
+    res.x_driver_edge = {}
     attrs = el.attrib
     res.name = attrs['name']
     for k, v in attrs.items():
@@ -215,7 +218,7 @@ def conv_register_data(parent, el):
                    'bit-encoding']:
             # Handled
             pass
-        elif k in ['note', 'auto-clear', 'preset']:
+        elif k in ['auto-clear', 'preset']:
             res.x_gena[k] = v
         elif k == 'gen':
             xg = {}
@@ -236,9 +239,20 @@ def conv_register_data(parent, el):
             res.x_gena['gen'] = xg
         elif k in ('persistence', ):
             res.x_fesa[k] = v
-        elif k in ['code-generation-rule',
-                   'max-val', 'min-val', 'unit',
-                   'read-conversion-factor', 'write-conversion-factor']:
+        elif k == 'code-generation-rule':
+            if v not in ('Fesa', 'HW', 'HW,Fesa'):
+                raise UnknownValue('code-generation-rule', v)
+            # The default is True, and is very common.  So only set when
+            # being False.
+            if v == 'Fesa':
+                res.x_driver_edge['generate'] = False
+            if v == 'HW':
+                res.x_fesa['generate'] = False
+        elif k == 'read-conversion-factor':
+            res.x_conversions['read'] = v
+        elif k == 'write-conversion-factor':
+            res.x_conversions['write'] = v
+        elif k in ['max-val', 'min-val', 'unit']:
             ignore_attr(k, el)
         else:
             raise UnknownAttribute(k)
@@ -343,6 +357,7 @@ def conv_memory_channel(el):
 def conv_memory_data(parent, el):
     res = cheby.tree.Array(parent)
     res.x_gena = {}
+    res.x_fesa = {}
     attrs = el.attrib
     res.name = attrs['name']
     for k, v in attrs.items():
@@ -360,8 +375,8 @@ def conv_memory_data(parent, el):
                 else:
                     raise UnknownGenAttribute(e, res)
             res.x_gena['gen'] = xg
-        elif k in ['persistence', 'note']:
-            ignore_attr(k, el)
+        elif k in ('persistence', ):
+            res.x_fesa[k] = v
         else:
             raise UnknownAttribute(k)
     res.address = conv_address(attrs['address'])
@@ -403,8 +418,6 @@ def conv_area(parent, el):
             pass
         elif k == 'is-reserved':
             res.x_gena['reserved'] = conv_bool(k, v)
-        elif k in ('note',):
-            res.x_gena[k] = v
         elif k == 'gen':
             xg = {}
             for e in [g.strip() for g in v.split(',')]:
@@ -490,6 +503,8 @@ def conv_root(root, filename):
     res = cheby.tree.Root()
 
     res.x_gena = {}
+    res.x_driver_edge = {}
+    res.x_cern_info = {}
     acc_mode = None
     size = None
     split_suffix = ''
@@ -505,9 +520,8 @@ def conv_root(root, filename):
             acc_mode = v
         elif k == 'area-depth':
             size = conv_depth(v)
-        elif k in ['map-version', 'ident-code']:
-            # x-gena extension
-            res.x_gena[k] = v
+        elif k in ('map-version', 'ident-code', 'semantic-mem-map-version'):
+            res.x_cern_info[k] = v
         elif k == 'gen':
             xg = {}
             for e in [g.strip() for g in v.split(',')]:
@@ -529,10 +543,10 @@ def conv_root(root, filename):
                 else:
                     raise UnknownGenAttribute(e, res)
             res.x_gena['gen'] = xg
-        elif k in ['driver-name',
-                   'equipment-code', 'note', 'module-type',
-                   'semantic-mem-map-version',
-                   'vme-base-addr', 'vme-base-address']:
+        elif k in ('driver-name', 'equipment-code', 'module-type',
+                   'vme-base-addr'):
+            res.x_driver_edge[k] = v
+        elif k in ['vme-base-address']:
             ignore_attr(k, root)
         elif k == '{http://www.w3.org/2001/XMLSchema-instance}schemaLocation':
             pass

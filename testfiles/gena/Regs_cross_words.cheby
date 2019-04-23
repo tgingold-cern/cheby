@@ -2,7 +2,7 @@ memory-map:
   name: regs_cross_words
   bus: cern-be-vme-16
   size: 1048576
-  x_gena:
+  x-cern-info:
     ident-code: 0xff
     map-version: 20161101
   children:

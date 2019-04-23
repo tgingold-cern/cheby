@@ -5,6 +5,7 @@ memory-map:
   x_gena:
     gen:
       vhdl-library: mylib
+  x-cern-info:
     ident-code: 0xff
     map-version: 20161031
   children:

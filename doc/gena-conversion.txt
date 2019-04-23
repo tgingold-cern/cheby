@@ -7,8 +7,8 @@ memory-map (root node) -> memory-map
 - name -> name
 - mem-map-access-mode: allows A24/D8, A24/D16, A32/D32
 - area-depth -> size
-- map-version -> x_gena.map-version
-- ident-code -> x_gena.ident_code
+- map-version -> x-cern-info.map-version
+- ident-code -> x-cern-info.ident_code
 - gen:
   - library -> x_gena.gen.vhdl-library
   - no-creg-mux-dff: ignored
@@ -18,12 +18,12 @@ memory-map (root node) -> memory-map
   - split-address: modifies the bus name
   - error=on: modified the bus name
   - include: ignored
-- driver-name: ignored
-- equipment-code: ignored
-- note: ignored
-- module-type: ignored
-- semantic-mem-map-version: ignored
-- vme-base-addr: ignored
+- driver-name -> x-driver-edge.driver_name
+- equipment-code -> x-driver-edge.equipment-code
+- note -> note
+- module-type -> x-driver-edge.module-type
+- semantic-mem-map-version -> x-cern-info.semantic-mem-map-version
+- vme-base-addr -> x-driver-edge.vme-base-addr
 - vme-base-address: ignored
 
 memory-map.constant-value:
@@ -41,7 +41,7 @@ memory-map.register-data -> reg
 - address -> address
 - element-width -> width
 - bit-encoding -> type (unsigned, signed or float)
-- note -> x_gena.note
+- note -> note
 - auto-clear -> x_gena.auto-clear
 - preset -> x_gena.preset
 - gen:
@@ -55,13 +55,13 @@ memory-map.register-data -> reg
   - read-strobe -> x_gena.gen.read-strobe
   - resize -> x_gena.gen.resize
   - mux -> x_gena.gen.mux
-- code-generation-rule: ignored
-- persistence: ignored
+- code-generation-rule -> Fesa -> x-fesa.generate=True, HW -> x-driver.generate=True (the default being True).
+- persistence -> x-fesa.persistence
 - max-val: ignored
 - min-val: ignored
 - unit: ignored
-- read-conversion-factor: ignored
-- write-conversion-factor: ignored
+- read-conversion-factor -> x-conversions.read
+- write-conversion-factor -> x-conversions.write
 
 memory-map.register-data.code-field -> x_gena.code-field
 memory-map.register-data.sub-reg.code-field -> x_gena.code-field
@@ -79,7 +79,7 @@ memory-map.register-data.bit-field-data -> field
 - autoclear -> x_gena.auto-clear
 - gen:
   - ext-codes: x_gena.gen.ext-codes
-- alarm-level: ignored
+- alarm-level -> x-fesa.alarm-level
 
 memory-map.register-data.sub-reg -> field
 - description -> description
@@ -107,7 +107,7 @@ memory-map.memory-data -> array
 - element-width -> repeat ( / reg.width)
 - element-depth -> reg.width
 - persistence: ignored
-- note: ignored
+- note -> note
 
 memory-map.memory-data.memory-channel -> x_gena.memory-channel
 - name
@@ -149,7 +149,7 @@ memory-map.area -> block
 - address -> address
 - element-depth -> size
 - is-reserved -> x_gena.reserved
-- note -> x_gena.note
+- note -> note
 - gen:
   - ext-area -> x_gena.gen.ext-area
   - no-creg-mux-dff: ignored
