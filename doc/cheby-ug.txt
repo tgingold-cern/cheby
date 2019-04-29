@@ -169,7 +169,7 @@ documentation.
 
 * `children`: For nodes that have children, this is a list of the children.
 
-* `address`: An optional address relative to the parent.  The address must
+* `address`: An optional byte address relative to the parent.  The address must
 be correctly aligned.  If not provided or it the value is `next`, then the
 address is computed using the previous one and the alignment.  It is possible
 to go backward by providing explicit address (eg: the first child has address 4
