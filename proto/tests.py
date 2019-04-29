@@ -89,7 +89,8 @@ def test_parser():
               'parse_err_field1.yaml', 'parse_err_field2.yaml',
               'parse_err_field3.yaml',
               'parse_err_array1.yaml', 'parse_err_array2.yaml',
-              'parse_err_block1.yaml']:
+              'parse_err_block1.yaml',
+              'err_cnt.cheby', 'err_cnt2.cheby']:
         if verbose:
             print('test parser: {}'.format(f))
         parse_err(srcdir + f)

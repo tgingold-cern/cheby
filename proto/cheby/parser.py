@@ -85,6 +85,9 @@ def parse_children(node, val):
         error("'children' of {} must be a list".format(node.get_path()))
     for el in val:
         for k, v in el.items():
+            if v is None:
+                error("child {} of {} is empty".format(
+                    k, node.get_path()))
             if k == 'reg':
                 ch = parse_reg(node, v)
             elif k == 'block':
