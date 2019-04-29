@@ -65,6 +65,8 @@ Add 'note' as a common attribute.
 For '--gen-gena-regctrl', add missing Rd/WrError signals in Area mux
 sensitivity lists.
 
+Handle large addresses (up to 32 bits).
+
 ## Version 1.2
 
 Add --gen-custom to support user defined pass (merge!4)
