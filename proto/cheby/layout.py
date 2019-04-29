@@ -17,7 +17,7 @@ def ilog2(val):
     "Return n such as 2**n >= val and 2**(n-1) < val"
     assert val > 0
     v = 1
-    for n in range(32):
+    for n in range(33):
         if v >= val:
             return n
         v *= 2
