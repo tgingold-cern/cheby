@@ -67,6 +67,8 @@ sensitivity lists.
 
 Handle large addresses (up to 32 bits).
 
+'x_gena' has been renamed to 'x-gena' for uniformity.
+
 ## Version 1.2
 
 Add --gen-custom to support user defined pass (merge!4)
