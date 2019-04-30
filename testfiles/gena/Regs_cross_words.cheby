@@ -11,7 +11,7 @@ memory-map:
         width: 32
         access: ro
         address: next
-        x_gena:
+        x-gena:
           preset: 0xabcd1234
         x-fesa:
           persistence: Fesa
@@ -29,7 +29,7 @@ memory-map:
         width: 32
         access: ro
         address: next
-        x_gena:
+        x-gena:
           preset: 0xabcd1234
         x-fesa:
           persistence: Fesa

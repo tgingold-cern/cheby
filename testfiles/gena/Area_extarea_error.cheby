@@ -2,7 +2,7 @@ memory-map:
   name: area_extarea_error
   bus: cern-be-vme-err-16
   size: 1048576
-  x_gena:
+  x-gena:
   x-cern-info:
     ident-code: 0xff
     map-version: 20161031
@@ -12,7 +12,7 @@ memory-map:
         width: 32
         access: rw
         address: 0x0
-        x_gena:
+        x-gena:
           type: rmw
         x-fesa:
           persistence: Fesa
@@ -20,7 +20,7 @@ memory-map:
         name: area
         address: next
         size: 524288
-        x_gena:
+        x-gena:
           gen:
             ext-area: True
           reserved: False
@@ -30,7 +30,7 @@ memory-map:
               width: 32
               access: rw
               address: 0x0
-              x_gena:
+              x-gena:
                 type: rmw
               x-fesa:
                 persistence: Fesa

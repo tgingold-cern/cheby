@@ -11,7 +11,7 @@ memory-map:
         width: 16
         access: rw
         address: 0x0
-        x_gena:
+        x-gena:
           type: rmw
         x-fesa:
           persistence: Fesa

@@ -63,7 +63,7 @@ def parse_named(node, key, val):
         node.x_hdl = val
     elif key == 'x-conversions':
         node.x_conversions = val
-    elif key == 'x_gena':
+    elif key == 'x_gena' or key == 'x-gena':
         node.x_gena = val
     elif key == 'x-fesa':
         node.x_fesa = val

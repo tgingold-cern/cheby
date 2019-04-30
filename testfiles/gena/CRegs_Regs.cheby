@@ -11,7 +11,7 @@ memory-map:
         width: 16
         access: rw
         address: 0x0
-        x_gena:
+        x-gena:
           code-fields:
             - code-field:
                 code: 0
@@ -34,7 +34,7 @@ memory-map:
               name: msBit
               range: 31
               preset: 0x1
-              x_gena:
+              x-gena:
                 auto-clear: 1
                 code-fields:
                   - code-field:
@@ -47,7 +47,7 @@ memory-map:
               name: msReg
               range: 25-22
               preset: 0xf
-              x_gena:
+              x-gena:
                 auto-clear: 0xf
                 code-fields:
                   - code-field:
@@ -60,19 +60,19 @@ memory-map:
               name: boundryReg
               range: 17-14
               preset: 0xf
-              x_gena:
+              x-gena:
                 auto-clear: 0xf
           - field:
               name: isReg
               range: 9-6
               preset: 0xf
-              x_gena:
+              x-gena:
                 auto-clear: 0xf
           - field:
               name: lsBit
               range: 0
               preset: 0x1
-              x_gena:
+              x-gena:
                 auto-clear: 1
     - reg:
         name: test3
@@ -86,7 +86,7 @@ memory-map:
         width: 32
         access: rw
         address: next
-        x_gena:
+        x-gena:
           auto-clear: 0xffff
           preset: 0xffff
         x-fesa:
@@ -96,7 +96,7 @@ memory-map:
               name: msBit
               range: 31
               preset: 0x0
-              x_gena:
+              x-gena:
                 auto-clear: 0
                 code-fields:
                   - code-field:
@@ -109,7 +109,7 @@ memory-map:
               name: msReg
               range: 25-22
               preset: 0x0
-              x_gena:
+              x-gena:
                 auto-clear: 0x0
                 code-fields:
                   - code-field:
@@ -122,19 +122,19 @@ memory-map:
               name: boundryReg
               range: 17-14
               preset: 0x0
-              x_gena:
+              x-gena:
                 auto-clear: 0x0
           - field:
               name: isReg
               range: 9-6
               preset: 0x0
-              x_gena:
+              x-gena:
                 auto-clear: 0x0
           - field:
               name: lsBit
               range: 0
               preset: 0x0
-              x_gena:
+              x-gena:
                 auto-clear: 0
     - reg:
         name: test5
@@ -148,7 +148,7 @@ memory-map:
         width: 32
         access: wo
         address: next
-        x_gena:
+        x-gena:
           auto-clear: 0x0
           preset: 0x0
         x-fesa:
@@ -158,7 +158,7 @@ memory-map:
               name: msBit
               range: 31
               preset: 0x1
-              x_gena:
+              x-gena:
                 auto-clear: 1
                 code-fields:
                   - code-field:
@@ -171,7 +171,7 @@ memory-map:
               name: msReg
               range: 25-22
               preset: 0xf
-              x_gena:
+              x-gena:
                 auto-clear: 0xf
                 code-fields:
                   - code-field:
@@ -184,19 +184,19 @@ memory-map:
               name: boundryReg
               range: 17-14
               preset: 0xf
-              x_gena:
+              x-gena:
                 auto-clear: 0xf
           - field:
               name: isReg
               range: 9-6
               preset: 0xf
-              x_gena:
+              x-gena:
                 auto-clear: 0xf
           - field:
               name: lsBit
               range: 0
               preset: 0x1
-              x_gena:
+              x-gena:
                 auto-clear: 1
     - reg:
         name: test7
@@ -210,7 +210,7 @@ memory-map:
         width: 32
         access: ro
         address: next
-        x_gena:
+        x-gena:
           auto-clear: 0xffffffff
           preset: 0xffffffff
         x-fesa:
@@ -220,7 +220,7 @@ memory-map:
               name: msBit
               range: 31
               preset: 0x0
-              x_gena:
+              x-gena:
                 auto-clear: 0
                 code-fields:
                   - code-field:
@@ -233,7 +233,7 @@ memory-map:
               name: msReg
               range: 25-22
               preset: 0x0
-              x_gena:
+              x-gena:
                 auto-clear: 0x0
                 code-fields:
                   - code-field:
@@ -246,17 +246,17 @@ memory-map:
               name: boundryReg
               range: 17-14
               preset: 0x0
-              x_gena:
+              x-gena:
                 auto-clear: 0x0
           - field:
               name: isReg
               range: 9-6
               preset: 0x0
-              x_gena:
+              x-gena:
                 auto-clear: 0x0
           - field:
               name: lsBit
               range: 0
               preset: 0x0
-              x_gena:
+              x-gena:
                 auto-clear: 0

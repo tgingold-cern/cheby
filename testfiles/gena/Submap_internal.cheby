@@ -10,6 +10,6 @@ memory-map:
         name: submap1
         address: next
         filename: Inc_CRegs.cheby
-        x_gena:
+        x-gena:
           gen:
             include: internal

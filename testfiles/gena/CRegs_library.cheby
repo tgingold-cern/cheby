@@ -2,7 +2,7 @@ memory-map:
   name: cregs_library
   bus: cern-be-vme-err-32
   size: 1048576
-  x_gena:
+  x-gena:
     gen:
       vhdl-library: mylib
   x-cern-info:

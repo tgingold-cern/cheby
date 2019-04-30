@@ -82,12 +82,13 @@ def pprint_extension(pp, name, n):
 
 
 def pprint_extensions(pp, n):
-    for attr, name in [('x_gena', 'x_gena'),
-                       ('x_hdl', 'x-hdl'),
-                       ('x_fesa', 'x-fesa'),
-                       ('x_driver_edge', 'x-driver-edge'),
-                       ('x_conversions', 'x-conversions'),
-                       ('x_cern_info', 'x-cern-info')]:
+    for name in ['x-gena',
+                 'x-hdl',
+                 'x-fesa',
+                 'x-driver-edge',
+                 'x-conversions',
+                 'x-cern-info']:
+        attr = name.replace('-', '_')
         if hasattr(n, attr):
             pprint_extension(pp, name, getattr(n, attr))
 

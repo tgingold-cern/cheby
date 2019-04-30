@@ -13,7 +13,7 @@ memory-map:
         width: 32
         access: ro
         address: next
-        x_gena:
+        x-gena:
           gen:
             mux: regSel.channelSelect
         x-fesa:
@@ -24,7 +24,7 @@ memory-map:
         width: 32
         access: rw
         address: next
-        x_gena:
+        x-gena:
           gen:
             mux: regSel.channelSelect
         x-fesa:
@@ -42,7 +42,7 @@ memory-map:
               name: channelSelect
               description: Channel selection
               range: 15
-              x_gena:
+              x-gena:
                 gen:
                   ext-codes: Mem.memory-channel
           - field:
@@ -54,7 +54,7 @@ memory-map:
         description: Memory
         address: next
         repeat: 262144
-        x_gena:
+        x-gena:
           memory-channels:
             - memory-channel:
                 acq-width: 16

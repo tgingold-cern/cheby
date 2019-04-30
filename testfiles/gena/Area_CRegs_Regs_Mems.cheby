@@ -11,7 +11,7 @@ memory-map:
         width: 32
         access: rw
         address: 0x0
-        x_gena:
+        x-gena:
           type: rmw
         x-fesa:
           persistence: Fesa
@@ -20,7 +20,7 @@ memory-map:
         width: 64
         access: rw
         address: next
-        x_gena:
+        x-gena:
           type: rmw
         x-fesa:
           persistence: Fesa
@@ -92,7 +92,7 @@ memory-map:
         name: area
         address: next
         size: 524288
-        x_gena:
+        x-gena:
           reserved: False
         children:
           - reg:
@@ -100,7 +100,7 @@ memory-map:
               width: 32
               access: rw
               address: 0x0
-              x_gena:
+              x-gena:
                 type: rmw
               x-fesa:
                 persistence: Fesa
@@ -109,7 +109,7 @@ memory-map:
               width: 64
               access: rw
               address: next
-              x_gena:
+              x-gena:
                 type: rmw
               x-fesa:
                 persistence: Fesa

@@ -2,7 +2,7 @@ memory-map:
   name: mems_nodff
   bus: cern-be-vme-16
   size: 1048576
-  x_gena:
+  x-gena:
     gen:
       no-mem-mux-dff: True
   x-cern-info:

@@ -11,7 +11,7 @@ memory-map:
         width: 32
         access: ro
         address: next
-        x_gena:
+        x-gena:
           gen:
             resize: 17
         x-fesa:
@@ -21,7 +21,7 @@ memory-map:
         width: 64
         access: ro
         address: next
-        x_gena:
+        x-gena:
           gen:
             resize: 20
         x-fesa:
@@ -31,7 +31,7 @@ memory-map:
         width: 32
         access: rw
         address: next
-        x_gena:
+        x-gena:
           gen:
             resize: 17
         x-fesa:
@@ -41,7 +41,7 @@ memory-map:
         width: 64
         access: rw
         address: next
-        x_gena:
+        x-gena:
           gen:
             resize: 20
         x-fesa:
@@ -51,7 +51,7 @@ memory-map:
         width: 32
         access: wo
         address: next
-        x_gena:
+        x-gena:
           gen:
             resize: 17
         x-fesa:
@@ -61,7 +61,7 @@ memory-map:
         width: 64
         access: wo
         address: next
-        x_gena:
+        x-gena:
           gen:
             resize: 20
         x-fesa:

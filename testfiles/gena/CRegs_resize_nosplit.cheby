@@ -11,7 +11,7 @@ memory-map:
         width: 32
         access: ro
         address: next
-        x_gena:
+        x-gena:
           gen:
             no-split: True
             resize: 17
@@ -22,7 +22,7 @@ memory-map:
         width: 32
         access: rw
         address: next
-        x_gena:
+        x-gena:
           gen:
             no-split: True
             resize: 17
@@ -33,7 +33,7 @@ memory-map:
         width: 32
         access: wo
         address: next
-        x_gena:
+        x-gena:
           gen:
             no-split: True
             resize: 17

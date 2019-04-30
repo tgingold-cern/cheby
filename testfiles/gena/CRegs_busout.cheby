@@ -11,7 +11,7 @@ memory-map:
         width: 32
         access: ro
         address: 0x0
-        x_gena:
+        x-gena:
           gen:
             bus-out: True
         x-fesa:
@@ -26,7 +26,7 @@ memory-map:
         width: 64
         access: ro
         address: next
-        x_gena:
+        x-gena:
           gen:
             bus-out: True
         x-fesa:
@@ -41,7 +41,7 @@ memory-map:
         width: 32
         access: ro
         address: next
-        x_gena:
+        x-gena:
           gen:
             bus-out: True
         x-fesa:
@@ -56,7 +56,7 @@ memory-map:
         width: 32
         access: ro
         address: next
-        x_gena:
+        x-gena:
           gen:
             bus-out: True
         x-fesa:

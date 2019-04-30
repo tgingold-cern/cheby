@@ -11,7 +11,7 @@ memory-map:
         width: 32
         access: ro
         address: next
-        x_gena:
+        x-gena:
           gen:
             ignore: True
         x-fesa:

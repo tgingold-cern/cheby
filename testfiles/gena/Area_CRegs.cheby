@@ -2,7 +2,7 @@ memory-map:
   name: areaCRegs
   bus: cern-be-vme-err-16
   size: 1048576
-  x_gena:
+  x-gena:
   x-cern-info:
     ident-code: 0xff
     map-version: 20161031
@@ -25,7 +25,7 @@ memory-map:
         name: area1
         address: next
         size: 1024
-        x_gena:
+        x-gena:
           reserved: False
         children:
           - reg:
@@ -46,7 +46,7 @@ memory-map:
         name: area2
         address: next
         size: 1024
-        x_gena:
+        x-gena:
           reserved: False
         children:
           - reg:

@@ -10,7 +10,7 @@ memory-map:
         name: area
         address: next
         size: 524288
-        x_gena:
+        x-gena:
           reserved: False
         children:
           - array:

@@ -11,7 +11,7 @@ memory-map:
         width: 32
         access: rw
         address: 0x0
-        x_gena:
+        x-gena:
           gen:
             write-strobe: True
           type: rmw
@@ -22,7 +22,7 @@ memory-map:
         width: 32
         access: rw
         address: next
-        x_gena:
+        x-gena:
           gen:
             write-strobe: True
         x-fesa:
@@ -32,7 +32,7 @@ memory-map:
         width: 64
         access: wo
         address: next
-        x_gena:
+        x-gena:
           gen:
             write-strobe: True
         x-fesa:
