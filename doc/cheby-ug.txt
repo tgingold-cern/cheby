@@ -183,7 +183,7 @@ backward compatibility issues.
 
 * `x-hdl`: Extensions for hdl generation.
 
-* `x_gena`: Extensions for Gena compatibility.
+* `x-gena`: Extensions for Gena compatibility.
 
 * `x-wbgen`: Extensions for wbgen compatibility.
 
@@ -501,7 +501,7 @@ convert a regular Cheburashka XML file to the cheby format using `gena2cheby`:
 ----
 
 This tool writes on the standard output a cheby file.  Note that this file
-contains several extensions (under `x_gena` arrays) so that all the feature
+contains several extensions (under `x-gena` arrays) so that all the feature
 of the XML file are kept.
 
 It is possible to generate a VHDL file (that is very similar to the VHDL
