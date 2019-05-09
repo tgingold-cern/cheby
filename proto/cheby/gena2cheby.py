@@ -589,7 +589,12 @@ def convert(filename):
 
 def main():
     global flag_ignore
-    aparser = argparse.ArgumentParser(description='Gena to Cheby converter')
+    aparser = argparse.ArgumentParser(description='Gena to Cheby converter',
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog="Convert the XML input file to cheby YAML file\n"
+             "The result is printed on the standard output\n"
+             "You can then use cheby to generate vhdl:\n"
+             " cheby --gen-gena-ctrl=OUTPUT.vhdl -i INPUT.cheby")
     aparser.add_argument('FILE')
     aparser.add_argument('-i', '--ignore', action='store_true',
                          help='display ignored attributes')
