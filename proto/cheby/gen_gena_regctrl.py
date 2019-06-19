@@ -305,15 +305,14 @@ def gen_hdl_reg_insts(reg, pfx, root, module, isigs):
         return
 
     # Create Register
-    gena_type = reg.get_extension('x_gena', 'type')
-    if gena_type == 'rmw':
+    gena_rmw = reg.get_extension('x_gena', 'rmw', False)
+    if gena_rmw:
         reg_tpl = 'RMWReg'
         root.h_has_rmw = True
-    elif gena_type is None:
+    else:
         reg_tpl = 'CtrlRegN'
         root.h_has_creg = True
-    else:
-        raise AssertionError
+
     iwidth = reg.c_rwidth // reg.c_nwords
     for i in reversed(range(reg.c_nwords)):
         j = 0

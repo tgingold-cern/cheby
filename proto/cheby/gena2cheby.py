@@ -67,7 +67,7 @@ def conv_depth(s):
 
 
 def conv_address(s):
-    if s == 'next':
+    if s == 'next' or s == 'virtual':
         return s
     else:
         return int(s, 0)
@@ -110,8 +110,20 @@ def conv_common(node, k, v):
 
 def conv_codefield(parent, el):
     cf = parent.x_gena.get('code-field', [])
-    cf.append({f: el.attrib[f] for f in ['name', 'code']})
+    cf.append({f: el.attrib[f] for f in ['name', 'code', 'description', 'comment', 'note'] if f in el.attrib})
     parent.x_gena['code-field'] = cf
+
+
+def conv_constant(parent, el):
+    cv = parent.x_driver_edge.get('constant-value', [])
+    cv.append({f: el.attrib[f] for f in ['name', 'value', 'description', 'comment'] if f in el.attrib})
+    parent.x_driver_edge['constant-value'] = cv
+
+
+def conv_configuration_val(parent, el):
+    cv = parent.x_fesa.get('configuration-value', [])
+    cv.append({f: el.attrib[f] for f in ['name', 'value', 'description', 'comment'] if f in el.attrib})
+    parent.x_fesa['configuration-value'] = cv
 
 
 def conv_bit_field_data(reg, el):
@@ -135,6 +147,15 @@ def conv_bit_field_data(reg, el):
             for e in [g.strip() for g in v.split(',')]:
                 if e == '':
                     pass
+                elif e in ('ignore', 'handshake', 'ext-acm'):
+                    xg[e] = True
+                elif e.startswith('gen='):
+                    # gen=ignore
+                    kg, vg = e.split('=')
+                    if kg == 'ignore':
+                        xg[kg] = True
+                    else:
+                        UnknownGenAttribute(e, res)
                 elif e.startswith('ext-codes='):
                     kg, vg = e.split('=')
                     xg[kg] = vg
@@ -142,7 +163,13 @@ def conv_bit_field_data(reg, el):
                     raise UnknownGenAttribute(e, res)
             res.x_gena['gen'] = xg
         elif k in ('alarm-level',):
-            res.x_fesa[k] = v
+            alarm_mapping = {
+                'high': 'CRITICAL',
+                'medium': 'ERROR',
+                'low': 'WARNING'
+            }
+            if v != "none":
+                res.x_fesa[k] = alarm_mapping[str.lower(v)]
         else:
             raise UnknownAttribute(k)
     res.lo = int(attrs['bit'])
@@ -157,6 +184,8 @@ def conv_bit_field_data(reg, el):
 def conv_sub_reg(reg, el):
     res = cheby.tree.Field(reg)
     res.x_gena = {}
+    res.x_fesa = {}
+    res.x_conversions = {}
     attrs = el.attrib
     res.name = attrs['name']
     for k, v in attrs.items():
@@ -174,17 +203,36 @@ def conv_sub_reg(reg, el):
             for e in [g.strip() for g in v.split(',')]:
                 if e == '':
                     pass
+                elif e in ['write-strobe', 'ext-acm']:
+                    xg[e] = True
                 elif e.startswith('ext-codes='):
                     kg, vg = e.split('=')
                     xg[kg] = vg
-                elif e in ('ignore', ):
+                elif e in ('ignore',):
                     xg[e] = True
+                elif e.startswith('gen='):
+                    # gen=ignore
+                    kg, vg = e.split('=')
+                    if kg == 'ignore':
+                        xg[kg] = True
+                    elif kg == 'internal':
+                        xg['include'] = 'internal'
+                    else:
+                        UnknownGenAttribute(e, res)
+                elif e.startswith('const='):
+                    kg, vg = e.split('=')
+                    xg[kg] = vg
                 else:
                     raise UnknownGenAttribute(e, res)
             res.x_gena['gen'] = xg
-        elif k in ['unit', 'read-conversion-factor', 'write-conversion-factor',
-                   'constant-value']:
-            ignore_attr(k, el)
+        elif k == 'read-conversion-factor':
+            res.x_conversions['read'] = v
+        elif k == 'write-conversion-factor':
+            res.x_conversions['write'] = v
+        elif k in ['unit']:
+            res.x_fesa[k] = v
+        elif k in ['constant-value']:
+            res.x_gena[k] = v
         else:
             raise UnknownAttribute(k)
     rng = attrs['range'].split('-')
@@ -222,18 +270,30 @@ def conv_register_data(parent, el):
             res.x_gena[k] = v
         elif k == 'gen':
             xg = {}
+            v = v.replace(' ', '')
             for e in [g.strip() for g in v.split(',')]:
                 if e == '':
                     pass
                 elif e in ('write-strobe', 'srff', 'bus-out', 'no-split',
                            'ext-creg', 'ext-acm', 'ignore', 'read-strobe'):
                     xg[e] = True
+                elif e == 'internal':
+                    xg['include'] = 'internal'
                 elif e.startswith('resize='):
                     kg, vg = e.split('=')
                     xg[kg] = vg
                 elif e.startswith('mux='):
                     kg, vg = e.split('=')
                     xg[kg] = vg.replace('_', '.')
+                elif e.startswith('const='):
+                    kg, vg = e.split('=')
+                    xg[kg] = vg
+                elif e.startswith('gen='):
+                    kg, vg = e.split('=')
+                    if kg == 'ignore':
+                        xg[kg] = True
+                    else:
+                        UnknownGenAttribute(e, res)
                 else:
                     raise UnknownGenAttribute(e, res)
             res.x_gena['gen'] = xg
@@ -253,13 +313,13 @@ def conv_register_data(parent, el):
         elif k == 'write-conversion-factor':
             res.x_conversions['write'] = v
         elif k in ['max-val', 'min-val', 'unit']:
-            ignore_attr(k, el)
+            res.x_fesa[k] = v
         else:
             raise UnknownAttribute(k)
     res.address = conv_address(attrs['address'])
     res.width = int(attrs['element-width'], 0)
     if attrs['access-mode'] == 'rmw':
-        res.x_gena['type'] = 'rmw'
+        res.x_gena['rmw'] = True
     res.access = conv_access(attrs['access-mode'])
     for child in el:
         if child.tag == 'code-field':
@@ -292,15 +352,25 @@ def conv_register_data(parent, el):
                     else:
                         w = f.hi - f.lo + 1
                     f.preset = (preset >> f.lo) & ((1 << w) - 1)
-    parent.children.append(res)
+    if res.address == 'virtual':
+        return
+        # if not hasattr(parent, 'x_fesa'):
+        #     parent.x_fesa = {}
+        # virtuals = parent.x_fesa.get('fesa-field', [])
+        # virtuals.append(res)
+        # parent.x_fesa['fesa-field'] = virtuals
+    else:
+        parent.children.append(res)
 
 
 def conv_memory_bit_field_data(el):
     res = {}
     attrs = el.attrib
     for k, v in attrs.items():
-        if k in ('bit', 'name', 'description', 'comment', 'comment-encoding'):
+        if k in ('bit', 'name', 'description', 'comment'):
             res[k] = v
+        elif k in ('comment-encoding',):
+            pass
         else:
             raise UnknownAttribute(k)
 
@@ -315,8 +385,10 @@ def conv_memory_buffer(el):
     for k, v in attrs.items():
         if k in ('description', 'buffer-type', 'buffer-select-code', 'name',
                  'read-conversion-factor', 'write-conversion-factor', 'unit',
-                 'bit-encoding', 'note', 'comment', 'comment-encoding'):
+                 'bit-encoding', 'note', 'comment'):
             res[k] = v
+        elif k in ('comment-encoding', ):
+            pass
         else:
             raise UnknownAttribute(k)
 
@@ -337,9 +409,10 @@ def conv_memory_channel(el):
     for k, v in attrs.items():
         if k in ('description', 'acq-base-freq', 'acq-width',
                  'buffer-alignment', 'channel-select-code',
-                 'ors-definition',
-                 'note', 'name', 'comment', 'comment-encoding'):
+                 'ors-definition', 'note', 'name', 'comment'):
             res[k] = v
+        elif k in ['comment-encoding']:
+            pass
         else:
             raise UnknownAttribute(k)
 
@@ -372,6 +445,17 @@ def conv_memory_data(parent, el):
             for e in [g.strip() for g in v.split(',')]:
                 if e == '':
                     pass
+                elif e in ['ignore', 'no-split']:
+                    xg[e] = True
+                elif e.startswith('gen='):
+                    # gen=ignore
+                    kg, vg = e.split('=')
+                    if kg == 'ignore':
+                        xg[kg] = True
+                    elif kg == 'internal':
+                        xg['include'] = 'internal'
+                    else:
+                        UnknownGenAttribute(e, res)
                 else:
                     raise UnknownGenAttribute(e, res)
             res.x_gena['gen'] = xg
@@ -464,6 +548,8 @@ def conv_submap(parent, el):
                     xg['include'] = 'internal'
                 elif e.startswith('include'):
                     raise UnknownGenAttribute(e, res)
+                elif e == 'no-hdl':
+                    xg['ignore'] = True
                 elif e in ('no-creg-mux-dff', 'no-reg-mux-dff',
                            'no-mem-mux-dff'):
                     # Discard ?
@@ -474,7 +560,7 @@ def conv_submap(parent, el):
                     raise UnknownGenAttribute(e, res)
             res.x_gena['gen'] = xg
         elif k in ['ro2wo', 'access-mode-flip']:
-            ignore_attr(k, el)
+            res.x_gena[k] = v
         else:
             raise UnknownAttribute(k)
     res.name = attrs['name']
@@ -530,6 +616,9 @@ def conv_root(root, filename):
                 elif e.startswith('library='):
                     _, vg = e.split('=')
                     xg['vhdl-library'] = vg
+                elif e.startswith('package='):
+                    _, vg = e.split('=')
+                    xg['package'] = vg
                 elif e in ('no-creg-mux-dff', 'no-reg-mux-dff',
                            'no-mem-mux-dff', 'dsp'):
                     xg[e] = True
@@ -537,17 +626,21 @@ def conv_root(root, filename):
                     split_suffix = '-split'
                 elif e == 'error=on':
                     err_suffix = '-err'
+                elif e == 'no-hdl':
+                    xg['ignore'] = True
                 elif e.startswith('include'):
                     # Bogus use, discard.
                     pass
                 else:
                     raise UnknownGenAttribute(e, res)
             res.x_gena['gen'] = xg
-        elif k in ('driver-name', 'equipment-code', 'module-type',
+        elif k in ('equipment-code', 'module-type',
                    'vme-base-addr'):
             res.x_driver_edge[k] = v
+        elif k in ['driver-name']:
+            res.x_driver_edge['name'] = v
         elif k in ['vme-base-address']:
-            ignore_attr(k, root)
+            res.x_driver_edge['vme-base-addr'] = v
         elif k == '{http://www.w3.org/2001/XMLSchema-instance}schemaLocation':
             pass
         else:
@@ -571,9 +664,9 @@ def conv_root(root, filename):
 
     for child in root:
         if child.tag == 'constant-value':
-            ignore_tag(child.tag, root)
+            conv_constant(res, child)
         elif child.tag == 'configuration-value':
-            ignore_tag(child.tag, root)
+            conv_configuration_val(res, child)
         elif child.tag == 'fesa-class-properties':
             ignore_tag(child.tag, root)
         else:
@@ -595,26 +688,34 @@ def main():
              "The result is printed on the standard output\n"
              "You can then use cheby to generate vhdl:\n"
              " cheby --gen-gena-ctrl=OUTPUT.vhdl -i INPUT.cheby")
-    aparser.add_argument('FILE')
+    aparser.add_argument('FILE', nargs='+')
     aparser.add_argument('-i', '--ignore', action='store_true',
                          help='display ignored attributes')
     aparser.add_argument('-q', '--quiet', action='store_true',
                          help='do not display the result')
+    aparser.add_argument('-f', '--out_file', action='store_true',
+                         help="Output to file with changed extension")
 
     args = aparser.parse_args()
     flag_ignore = args.ignore
-    try:
-        res = convert(args.FILE)
-    except UnknownGenAttribute as e:
-        error("error: unknown 'gen=' attribute '{}' in {}".format(
-            e.msg, e.node.get_path()))
-        sys.exit(1)
-    except UnknownTag as e:
-        error("error: unknown tag '{}'".format(
-            e.msg))
-        sys.exit(1)
-    if not args.quiet:
-        cheby.pprint.pprint_cheby(sys.stdout, res)
+    for file in args.FILE:
+        try:
+            res = convert(file)
+        except UnknownGenAttribute as e:
+            error("error: unknown 'gen=' attribute '{}' in {}".format(
+                e.msg, e.node.get_path()))
+            sys.exit(1)
+        except UnknownTag as e:
+            error("error: unknown tag '{}'".format(
+                e.msg))
+            sys.exit(1)
+        if not args.quiet:
+            if args.out_file:
+                new_filename = os.path.splitext(file)[0] + '.cheby'
+                with open(new_filename, 'w') as f:
+                    cheby.pprint.pprint_cheby(f, res)
+            else:
+                cheby.pprint.pprint_cheby(sys.stdout, res)
 
 
 if __name__ == '__main__':

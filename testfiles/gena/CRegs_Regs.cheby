@@ -19,7 +19,7 @@ memory-map:
             - code-field:
                 code: 1
                 name: World
-          type: rmw
+          rmw: True
         x-fesa:
           persistence: Fesa
     - reg:

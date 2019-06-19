@@ -61,6 +61,8 @@ def pprint_extension(pp, name, n):
         if len(n) == 0:
             # Discard empty dict.
             return
+        if all([isinstance(el, dict) and not el for el in n.values()]):
+            return
         pp.pp_obj(name)
         for k in sorted(n):
             v = n[k]

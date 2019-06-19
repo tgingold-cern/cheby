@@ -26,6 +26,6 @@ memory-map:
               access: rw
               address: 0x0
               x-gena:
-                type: rmw
+                rmw: True
               x-fesa:
                 persistence: Fesa

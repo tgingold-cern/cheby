@@ -150,16 +150,16 @@ def layout_reg(lo, n):
     if n.c_nwords > 1 and lo.root.c_word_endian == 'none':
         raise LayoutException(
             n, "cannot use multi-words register when word-endian is 'none'")
-    gena_type = get_gena(n, 'type')
+    gena_rmw = get_gena(n, 'rmw', False)
     resize = get_gena_gen(n, 'resize')
     if get_gena_gen(n, 'srff'):
         if n.access != 'ro':
             raise LayoutException(
                 n, "'gen=srff' only for 'access=ro' in register {}".format(
                     n.get_path()))
-        if gena_type is not None:
+        if gena_rmw:
             raise LayoutException(
-                n, "'gen=srff' incompatible with 'type=' in reg {}".format(
+                n, "'gen=srff' incompatible with 'rmw=True' in reg {}".format(
                     n.get_path()))
         if n.width < word_bits:
             raise LayoutException(
@@ -170,10 +170,10 @@ def layout_reg(lo, n):
             raise LayoutException(
                 n, "'gen=bus-out' only for 'access=ro' in register {}".format(
                     n.get_path()))
-    if gena_type == 'rmw':
+    if gena_rmw:
         if resize is not None and resize != (n.width // 2):
             raise LayoutException(
-                n, "gen.resize incompatible with type=rmw for {}".format(
+                n, "gen.resize incompatible with rmw=True for {}".format(
                     n.get_path()))
         # RMW registers uses the top half part to mask bits.
         n.c_rwidth = n.width // 2
