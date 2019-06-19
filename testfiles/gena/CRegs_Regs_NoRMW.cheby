@@ -37,6 +37,8 @@ memory-map:
         access: rw
         address: next
         x-fesa:
+          max-val: 4294967295
+          min-val: 4294967295
           persistence: Fesa
     - reg:
         name: test5
@@ -53,6 +55,8 @@ memory-map:
         access: wo
         address: next
         x-fesa:
+          max-val: 0
+          min-val: 0
           persistence: Fesa
     - reg:
         name: test7
@@ -61,6 +65,7 @@ memory-map:
         access: rw
         address: next
         x-fesa:
+          max-val: 65535
           persistence: Fesa
     - reg:
         name: test8
@@ -69,4 +74,6 @@ memory-map:
         access: rw
         address: next
         x-fesa:
+          max-val: 4294967295
+          min-val: 4294967295
           persistence: Fesa

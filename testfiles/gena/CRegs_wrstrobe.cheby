@@ -14,7 +14,7 @@ memory-map:
         x-gena:
           gen:
             write-strobe: True
-          type: rmw
+          rmw: True
         x-fesa:
           persistence: Fesa
     - reg:
