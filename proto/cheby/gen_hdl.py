@@ -21,7 +21,7 @@ from cheby.hdltree import (HDLModule, HDLPackage,
                            HDLSwitch, HDLChoiceExpr, HDLChoiceDefault,
                            HDLIfElse,
                            bit_1, bit_0, bit_x,
-                           HDLAnd, HDLOr, HDLNot, HDLEq,
+                           HDLAnd, HDLOr, HDLNot, HDLEq, HDLConcat,
                            HDLIndex, HDLSlice, HDLReplicate, Slice_or_Index,
                            HDLConst, HDLBinConst, HDLNumber, HDLBool, HDLParen)
 import cheby.tree as tree
@@ -228,6 +228,7 @@ class WBBus(BusGen):
             self.add_decode_wb(root, module, isigs)
 
     def gen_bus_slave(self, root, module, prefix, n, busgroup):
+        n.h_busgroup = busgroup
         n.h_bus = self.gen_wishbone(
             module, module, n.name,
             n.c_addr_bits, root.c_addr_word_bits, root.c_word_bits,
@@ -246,6 +247,19 @@ class WBBus(BusGen):
             # Request signals
             n.h_wr = module.new_HDLSignal(prefix + 'wr')
             n.h_rr = module.new_HDLSignal(prefix + 'rr')
+
+    def slice_addr(self, addr, root, n):
+        """Slice the input :param addr: (from the root bus) so that is can be
+        assigned to the slave.  Take care of various sizes."""
+        res = HDLSlice(addr, root.c_addr_word_bits, n.c_addr_bits)
+        if not n.h_busgroup:
+            return res
+        if n.c_addr_bits < 32:
+            res = HDLConcat(HDLReplicate(
+                bit_0, 32 - root.c_addr_word_bits - n.c_addr_bits, False), res)
+        if root.c_addr_word_bits > 0:
+            res = HDLConcat(res, HDLReplicate(bit_0, root.c_addr_word_bits, False))
+        return res
 
     def wire_bus_slave(self, root, stmts, n):
         stmts.append(HDLComment("Assignments for submap {}".format(n.name)))
@@ -280,17 +294,14 @@ class WBBus(BusGen):
             proc.sensitivity.extend([root.h_bus['adrr'], root.h_bus['adrw'], n.h_wt])
             if_stmt = HDLIfElse(HDLEq(n.h_wt, bit_1))
             if_stmt.then_stmts.append(HDLAssign(n.h_bus['adr'],
-                               HDLSlice(root.h_bus['adrw'],
-                                        root.c_addr_word_bits, n.c_addr_bits)))
+                                      self.slice_addr(root.h_bus['adrw'], root, n)))
             if_stmt.else_stmts.append(HDLAssign(n.h_bus['adr'],
-                               HDLSlice(root.h_bus['adrr'],
-                                        root.c_addr_word_bits, n.c_addr_bits)))
+                                      self.slice_addr(root.h_bus['adrr'], root, n)))
             proc.stmts.append(if_stmt)
             stmts.append(proc)
         else:
             stmts.append(HDLAssign(n.h_bus['adr'],
-                                   HDLSlice(root.h_bus['adr'],
-                                            root.c_addr_word_bits, n.c_addr_bits)))
+                                      self.slice_addr(root.h_bus['adr'], root, n)))
         stmts.append(HDLAssign(n.h_bus['sel'], HDLReplicate(bit_1, 4)))
         stmts.append(HDLAssign(n.h_bus['we'], n.h_wt))
         stmts.append(HDLAssign(n.h_bus['dati'], root.h_bus['dati']))
@@ -676,35 +687,43 @@ class SRAMBus(BusGen):
         assert name == 'sram'
 
     def gen_bus_slave(self, root, module, prefix, n, busgroup):
-        name = prefix + n.name + '_addr_o'
-        n.h_addr_o = root.h_ports.add_port(
-            name, n.c_blk_bits - root.c_addr_word_bits, dir='OUT')
-        n.h_addr_o.comment = n.description
+        n.h_bus = {}
+        n.h_bus['adr'] = root.h_ports.add_port(
+            prefix + 'addr_o', n.c_addr_bits,
+            lo_idx=root.c_addr_word_bits, dir='OUT')
+        n.h_bus['adr'].comment = n.description
 
-        name = prefix + n.name + '_data_i'
-        n.h_data_i = root.h_ports.add_port(name, n.c_width, dir='IN')
+        n.h_bus['dati'] = root.h_ports.add_port(
+            prefix + 'data_i', n.c_width, dir='IN')
 
-        name = prefix + n.name + '_data_o'
-        n.h_data_o = root.h_ports.add_port(name, n.c_width, dir='OUT')
+        n.h_bus['dato'] = root.h_ports.add_port(
+            prefix + 'data_o', n.c_width, dir='OUT')
 
         # Internal signals
-        n.h_wr = module.new_HDLSignal(prefix + 'wr')
-        n.h_rd = module.new_HDLSignal(prefix + 'rd')
+        n.h_bus['rack'] = module.new_HDLSignal(prefix + 'rack')
+        n.h_bus['re'] = module.new_HDLSignal(prefix + 're')
 
     def wire_bus_slave(self, root, stmts, n):
-        stmts.append(HDLAssign(n.h_data_o, root.h_bus['dato']))
-        stmts.append(HDLAssign(n.h_addr_o,
+        proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'])
+        proc.rst_stmts.append(HDLAssign(n.h_bus['rack'], bit_0))
+        proc.sync_stmts.append(HDLAssign(n.h_bus['rack'],
+                HDLAnd(n.h_bus['re'], HDLNot(n.h_bus['rack']))))
+        stmts.append(proc)
+        stmts.append(HDLAssign(n.h_bus['dato'], root.h_bus['dati']))
+        stmts.append(HDLAssign(n.h_bus['adr'],
                      HDLSlice(root.h_bus['adr'],
-                              root.c_addr_word_bits,
-                              n.c_blk_bits - root.c_addr_word_bits)))
+                              root.c_addr_word_bits, n.c_addr_bits)))
 
     def write_bus_slave(self, root, stmts, n, proc, isigs):
         # FIXME: to do ?
         pass
 
     def read_bus_slave(self, root, stmts, n, proc, isigs, rd_data):
-        # FIXME: to do ?
-        pass
+        stmts.append(HDLAssign(rd_data, n.h_bus['dati']))
+        stmts.append(HDLAssign(isigs.rd_ack, n.h_bus['rack']))
+        proc.stmts.append(HDLAssign(n.h_bus['re'], bit_0))
+        stmts.append(HDLAssign(n.h_bus['re'], isigs.rd_int))
+        proc.sensitivity.extend([isigs.rd_int, n.h_bus['dati'], n.h_bus['rack']])
 
 
 def add_module_port(root, module, name, size, dir):
