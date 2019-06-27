@@ -238,7 +238,7 @@ def gen_hdl_reg_decls(reg, pfx, root, module, isigs):
 
 def gen_hdl_srff(reg, pfx, root, module, isigs):
     "Generate a process for SRFF"
-    proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_val=1)
+    proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_val=1, rst_sync=True)
     proc.name = 'SRFF_{}{}'.format(pfx, reg.name)
     proc.rst_stmts.append(HDLAssign(reg.h_loc_SRFF,
                                     HDLReplicate(bit_0, reg.c_rwidth)))
@@ -255,7 +255,7 @@ def gen_hdl_srff(reg, pfx, root, module, isigs):
 def gen_hdl_rmw_ctrl_reg(reg, root, module, kind,
                          i, suff, inst_name, sel, acm, loc):
     "Generate a process for CtrlReg or RMWReg"
-    proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_val=1)
+    proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_val=1, rst_sync=True)
     proc.name = inst_name
     ctrlreg = reg.h_ctrlreg[i][suff]
     proc.rst_stmts.append(HDLAssign(ctrlreg, reg.h_gena_psm[i]))
