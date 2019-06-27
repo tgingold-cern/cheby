@@ -25,6 +25,7 @@ import cheby.gen_custom as gen_custom
 
 srcdir = '../testfiles/'
 verbose = False
+flag_regen = False
 nbr_tests = 0
 
 class TestError(Exception):
@@ -173,7 +174,10 @@ def compare_buffer_and_file(buf, filename):
     ref = open(filename, 'r').read()
     if ref == buf:
         return True
-
+    if flag_regen:
+        open(filename, 'w').write(buf)
+        werr('Regenerate {}'.format(filename))
+        return True
     buf_lines = buf.splitlines()
     ref_lines = ref.splitlines()
     nlines = len(buf_lines)
@@ -554,11 +558,13 @@ def test_custom():
 
 
 def main():
-    global verbose
+    global verbose, flag_regen
 
     # Crude
     if '-v' in sys.argv[1:]:
         verbose = True
+    if '--regen' in sys.argv[1:]:
+        flag_regen = True
 
     try:
         test_self()
