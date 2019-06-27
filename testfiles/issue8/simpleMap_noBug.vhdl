@@ -31,7 +31,7 @@ begin
 
   -- Process for write requests.
   process (Clk, Rst) begin
-    if Rst = '0' then 
+    if Rst = '0' then
       wr_ack_int <= '0';
     elsif rising_edge(Clk) then
       wr_ack_int <= '0';
@@ -54,7 +54,7 @@ begin
 
   -- Process for registers read.
   process (Clk, Rst) begin
-    if Rst = '0' then 
+    if Rst = '0' then
       rd_ack1_int <= '0';
       reg_rdat_int <= (others => 'X');
     elsif rising_edge(Clk) then

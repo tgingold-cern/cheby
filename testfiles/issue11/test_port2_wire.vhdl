@@ -39,7 +39,7 @@ begin
   wb_en <= wb_cyc_i and wb_stb_i;
 
   process (clk_i, rst_n_i) begin
-    if rst_n_i = '0' then 
+    if rst_n_i = '0' then
       wb_rip <= '0';
     elsif rising_edge(clk_i) then
       wb_rip <= (wb_rip or (wb_en and not wb_we_i)) and not rd_ack_int;
@@ -48,7 +48,7 @@ begin
   rd_int <= (wb_en and not wb_we_i) and not wb_rip;
 
   process (clk_i, rst_n_i) begin
-    if rst_n_i = '0' then 
+    if rst_n_i = '0' then
       wb_wip <= '0';
     elsif rising_edge(clk_i) then
       wb_wip <= (wb_wip or (wb_en and wb_we_i)) and not wr_ack_int;
@@ -67,7 +67,7 @@ begin
 
   -- Process for write requests.
   process (clk_i, rst_n_i) begin
-    if rst_n_i = '0' then 
+    if rst_n_i = '0' then
       wr_ack_int <= '0';
       i1Thresholds_lowThreshold_reg <= "0000000000000000";
     elsif rising_edge(clk_i) then
@@ -83,7 +83,7 @@ begin
 
   -- Process for registers read.
   process (clk_i, rst_n_i) begin
-    if rst_n_i = '0' then 
+    if rst_n_i = '0' then
       rd_ack1_int <= '0';
       reg_rdat_int <= (others => 'X');
     elsif rising_edge(clk_i) then

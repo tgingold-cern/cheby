@@ -68,7 +68,7 @@ begin
   wready <= axi_wip and wr_ack_int;
   bvalid <= axi_wdone;
   process (aclk, areset_n) begin
-    if areset_n = '0' then 
+    if areset_n = '0' then
       axi_wip <= '0';
       axi_wdone <= '0';
     elsif rising_edge(aclk) then
@@ -83,7 +83,7 @@ begin
   arready <= axi_rip and rd_ack_int;
   rvalid <= axi_rdone;
   process (aclk, areset_n) begin
-    if areset_n = '0' then 
+    if areset_n = '0' then
       axi_rip <= '0';
       axi_rdone <= '0';
       rdata <= (others => '0');
@@ -103,7 +103,7 @@ begin
 
   -- Process for write requests.
   process (aclk, areset_n) begin
-    if areset_n = '0' then 
+    if areset_n = '0' then
       wr_ack_int <= '0';
       register1_reg <= "00000000000000000000000000000000";
       block1_register3_reg <= "00000000000000000000000000000000";
@@ -134,7 +134,7 @@ begin
 
   -- Process for registers read.
   process (aclk, areset_n) begin
-    if areset_n = '0' then 
+    if areset_n = '0' then
       rd_ack1_int <= '0';
       reg_rdat_int <= (others => 'X');
     elsif rising_edge(aclk) then

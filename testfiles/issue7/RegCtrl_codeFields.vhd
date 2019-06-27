@@ -143,7 +143,7 @@ begin
   end process AreaWrMux;
 
   Reg_area2_myRegister: process (Clk, Rst) begin
-    if Rst = '1' then 
+    if Rst = '1' then
       CtrlReg_area2_myRegister <= C_PSM_codeFields_area2_myRegister;
     elsif rising_edge(Clk) then
       if WrSel_area2_myRegister = '1' and VMEWrMem = '1' then
@@ -220,7 +220,7 @@ begin
   area2_WrDone <= area2_MemWrDone;
 
   Reg_area1_myRegister: process (Clk, Rst) begin
-    if Rst = '1' then 
+    if Rst = '1' then
       CtrlReg_area1_myRegister <= C_PSM_codeFields_area1_myRegister;
     elsif rising_edge(Clk) then
       if WrSel_area1_myRegister = '1' and VMEWrMem = '1' then

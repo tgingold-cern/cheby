@@ -81,7 +81,7 @@ architecture syn of RegCtrl_cregs is
   signal Loc_test8                      : std_logic_vector(31 downto 0);
 begin
   Reg_test1: process (Clk, Rst) begin
-    if Rst = '1' then 
+    if Rst = '1' then
       CtrlReg_test1 <= C_PSM_cregs_test1;
     elsif rising_edge(Clk) then
       if WrSel_test1 = '1' and VMEWrMem = '1' then
@@ -94,7 +94,7 @@ begin
   Loc_test1(15 downto 0) <= CtrlReg_test1;
 
   Reg_test2: process (Clk, Rst) begin
-    if Rst = '1' then 
+    if Rst = '1' then
       CtrlReg_test2 <= C_PSM_cregs_test2;
     elsif rising_edge(Clk) then
       if WrSel_test2 = '1' and VMEWrMem = '1' then
@@ -107,7 +107,7 @@ begin
   Loc_test2(15 downto 0) <= CtrlReg_test2;
 
   Reg_test3: process (Clk, Rst) begin
-    if Rst = '1' then 
+    if Rst = '1' then
       CtrlReg_test3 <= C_PSM_cregs_test3;
     elsif rising_edge(Clk) then
       if WrSel_test3 = '1' and VMEWrMem = '1' then
@@ -120,7 +120,7 @@ begin
   Loc_test3(31 downto 0) <= CtrlReg_test3;
 
   Reg_test4: process (Clk, Rst) begin
-    if Rst = '1' then 
+    if Rst = '1' then
       CtrlReg_test4 <= C_PSM_cregs_test4;
     elsif rising_edge(Clk) then
       if WrSel_test4 = '1' and VMEWrMem = '1' then
@@ -133,7 +133,7 @@ begin
   Loc_test4(31 downto 0) <= CtrlReg_test4;
 
   Reg_test5: process (Clk, Rst) begin
-    if Rst = '1' then 
+    if Rst = '1' then
       CtrlReg_test5 <= C_PSM_cregs_test5;
     elsif rising_edge(Clk) then
       if WrSel_test5 = '1' and VMEWrMem = '1' then
@@ -146,7 +146,7 @@ begin
   Loc_test5(31 downto 0) <= CtrlReg_test5;
 
   Reg_test6: process (Clk, Rst) begin
-    if Rst = '1' then 
+    if Rst = '1' then
       CtrlReg_test6 <= C_PSM_cregs_test6;
     elsif rising_edge(Clk) then
       if WrSel_test6 = '1' and VMEWrMem = '1' then

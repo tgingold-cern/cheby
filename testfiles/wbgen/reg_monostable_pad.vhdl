@@ -46,7 +46,7 @@ begin
   -- Main register bank access process.
   process (clk_sys_i, rst_n_i)
   begin
-    if (rst_n_i = '0') then 
+    if (rst_n_i = '0') then
       ack_sreg <= "0000000000";
       ack_in_progress <= '0';
       rddata_reg <= "00000000000000000000000000000000";
@@ -112,7 +112,7 @@ begin
   -- Reset bit
   process (clk_sys_i, rst_n_i)
   begin
-    if (rst_n_i = '0') then 
+    if (rst_n_i = '0') then
       pt_r1_reset_dly0 <= '0';
       pt_r1_reset_o <= '0';
     elsif rising_edge(clk_sys_i) then

@@ -56,7 +56,7 @@ begin
   -- Main register bank access process.
   process (clk_sys_i, rst_n_i)
   begin
-    if (rst_n_i = '0') then 
+    if (rst_n_i = '0') then
       ack_sreg <= "0000000000";
       ack_in_progress <= '0';
       rddata_reg <= "00000000000000000000000000000000";
@@ -141,7 +141,7 @@ begin
   -- asynchronous BIT register : Reset bit (type RW/WO, clk1 <-> clk_sys_i)
   process (clk1, rst_n_i)
   begin
-    if (rst_n_i = '0') then 
+    if (rst_n_i = '0') then
       reg1_r1_reset_lw_s0 <= '0';
       reg1_r1_reset_lw_s1 <= '0';
       reg1_r1_reset_lw_s2 <= '0';
