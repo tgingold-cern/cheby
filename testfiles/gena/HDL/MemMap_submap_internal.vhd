@@ -18,5 +18,5 @@ package MemMap_submap_internal is
   -- CODE FIELDS
   -- Memory Data : Memory Map
   -- Submap Addresses : Memory Map
-  constant C_Submap_submap_internal_submap1 : std_logic_vector(19 downto 10) := "0000000000";-- : Word address : "00" & X"00"; Byte Address : X"00"
+  constant C_Submap_submap_internal_submap1 : std_logic_vector(19 downto 10) := "0000000000";-- : Word address : 0x000; Byte Address : 0x000
 end MemMap_submap_internal;

@@ -10,7 +10,7 @@ package MemMap_sub_reg_preset is
   -- Memory Map Version
   constant C_sub_reg_preset_MemMapVersion : std_logic_vector(31 downto 0) := X"0133A207";--20161031
   -- Register Addresses : Memory Map
-  constant C_Reg_sub_reg_preset_test1 : std_logic_vector(19 downto 2) := "000000000000000000";-- : Word address : "00" & X"0000"; Byte Address : X"0000"
+  constant C_Reg_sub_reg_preset_test1 : std_logic_vector(19 downto 2) := "000000000000000000";-- : Word address : 0x00000; Byte Address : 0x00000
 
   -- Register Auto Clear Masks : Memory Map
   constant C_ACM_sub_reg_preset_test1 : std_logic_vector(31 downto 0) := "00000000000000000000000000000000";-- : Value : X"00000000"

@@ -10,9 +10,9 @@ package MemMap_regs_rdstrobe is
   -- Memory Map Version
   constant C_regs_rdstrobe_MemMapVersion : std_logic_vector(31 downto 0) := X"0133A24D";--20161101
   -- Register Addresses : Memory Map
-  constant C_Reg_regs_rdstrobe_test1 : std_logic_vector(19 downto 1) := "0000000000000000000";-- : Word address : "000" & X"0000"; Byte Address : X"0000"
-  constant C_Reg_regs_rdstrobe_test2_1 : std_logic_vector(19 downto 1) := "0000000000000000001";-- : Word address : "000" & X"0001"; Byte Address : X"0002"
-  constant C_Reg_regs_rdstrobe_test2_0 : std_logic_vector(19 downto 1) := "0000000000000000010";-- : Word address : "000" & X"0002"; Byte Address : X"0004"
+  constant C_Reg_regs_rdstrobe_test1 : std_logic_vector(19 downto 1) := "0000000000000000000";-- : Word address : 0x00000; Byte Address : 0x00000
+  constant C_Reg_regs_rdstrobe_test2_1 : std_logic_vector(19 downto 1) := "0000000000000000001";-- : Word address : 0x00001; Byte Address : 0x00002
+  constant C_Reg_regs_rdstrobe_test2_0 : std_logic_vector(19 downto 1) := "0000000000000000010";-- : Word address : 0x00002; Byte Address : 0x00004
 
   -- Register Auto Clear Masks : Memory Map
   constant C_ACM_regs_rdstrobe_test1 : std_logic_vector(15 downto 0) := "0000000000000000";-- : Value : X"0000"

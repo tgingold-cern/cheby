@@ -17,7 +17,7 @@ package MemMap_mems_ro is
 
   -- CODE FIELDS
   -- Memory Data : Memory Map
-  constant C_Mem_mems_ro_mem1_Sta : std_logic_vector(19 downto 1) := "0000000000000000000";-- : Word address : "000" & X"0000"; Byte Address : X"0000"
-  constant C_Mem_mems_ro_mem1_End : std_logic_vector(19 downto 1) := "0000000000111111111";-- : Word address : "000" & X"01ff"; Byte Address : X"03fe"
+  constant C_Mem_mems_ro_mem1_Sta : std_logic_vector(19 downto 1) := "0000000000000000000";-- : Word address : 0x00000; Byte Address : 0x00000
+  constant C_Mem_mems_ro_mem1_End : std_logic_vector(19 downto 1) := "0000000000111111111";-- : Word address : 0x001ff; Byte Address : 0x003fe
   -- Submap Addresses : Memory Map
 end MemMap_mems_ro;

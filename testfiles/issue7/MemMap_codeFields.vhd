@@ -12,7 +12,7 @@ package MemMap_codeFields is
   constant C_Area_codeFields_area1 : std_logic_vector(13 downto 10) := "0000";
   constant C_Area_codeFields_area2 : std_logic_vector(13 downto 10) := "0001";
   -- Register Addresses : Area area1
-  constant C_Reg_codeFields_area1_myRegister : std_logic_vector(9 downto 1) := "000000000";-- : Word address : "0" & X"00"; Byte Address : X"00"
+  constant C_Reg_codeFields_area1_myRegister : std_logic_vector(9 downto 1) := "000000000";-- : Word address : 0x000; Byte Address : 0x000
 
   -- Register Auto Clear Masks : Area area1
   constant C_ACM_codeFields_area1_myRegister : std_logic_vector(15 downto 0) := "0000000000000000";-- : Value : X"0000"
@@ -25,7 +25,7 @@ package MemMap_codeFields is
   -- Memory Data : Area area1
   -- Submap Addresses : Area area1
   -- Register Addresses : Area area2
-  constant C_Reg_codeFields_area2_myRegister : std_logic_vector(9 downto 1) := "000000000";-- : Word address : "0" & X"00"; Byte Address : X"00"
+  constant C_Reg_codeFields_area2_myRegister : std_logic_vector(9 downto 1) := "000000000";-- : Word address : 0x000; Byte Address : 0x000
 
   -- Register Auto Clear Masks : Area area2
   constant C_ACM_codeFields_area2_myRegister : std_logic_vector(15 downto 0) := "0000000000000000";-- : Value : X"0000"

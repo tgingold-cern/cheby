@@ -10,18 +10,18 @@ package MemMap_regsMems is
   -- Memory Map Version
   constant C_regsMems_MemMapVersion : std_logic_vector(31 downto 0) := X"0133A24D";--20161101
   -- Register Addresses : Memory Map
-  constant C_Reg_regsMems_test1 : std_logic_vector(19 downto 1) := "0000000000000000000";-- : Word address : "000" & X"0000"; Byte Address : X"0000"
-  constant C_Reg_regsMems_test2_1 : std_logic_vector(19 downto 1) := "0000000000000000001";-- : Word address : "000" & X"0001"; Byte Address : X"0002"
-  constant C_Reg_regsMems_test2_0 : std_logic_vector(19 downto 1) := "0000000000000000010";-- : Word address : "000" & X"0002"; Byte Address : X"0004"
-  constant C_Reg_regsMems_test3 : std_logic_vector(19 downto 1) := "0000000000000000011";-- : Word address : "000" & X"0003"; Byte Address : X"0006"
-  constant C_Reg_regsMems_test4_1 : std_logic_vector(19 downto 1) := "0000000000000000100";-- : Word address : "000" & X"0004"; Byte Address : X"0008"
-  constant C_Reg_regsMems_test4_0 : std_logic_vector(19 downto 1) := "0000000000000000101";-- : Word address : "000" & X"0005"; Byte Address : X"000a"
-  constant C_Reg_regsMems_test5 : std_logic_vector(19 downto 1) := "0000000000000000110";-- : Word address : "000" & X"0006"; Byte Address : X"000c"
-  constant C_Reg_regsMems_test6_1 : std_logic_vector(19 downto 1) := "0000000000000000111";-- : Word address : "000" & X"0007"; Byte Address : X"000e"
-  constant C_Reg_regsMems_test6_0 : std_logic_vector(19 downto 1) := "0000000000000001000";-- : Word address : "000" & X"0008"; Byte Address : X"0010"
-  constant C_Reg_regsMems_test7 : std_logic_vector(19 downto 1) := "0000000000000001001";-- : Word address : "000" & X"0009"; Byte Address : X"0012"
-  constant C_Reg_regsMems_test8_1 : std_logic_vector(19 downto 1) := "0000000000000001010";-- : Word address : "000" & X"000a"; Byte Address : X"0014"
-  constant C_Reg_regsMems_test8_0 : std_logic_vector(19 downto 1) := "0000000000000001011";-- : Word address : "000" & X"000b"; Byte Address : X"0016"
+  constant C_Reg_regsMems_test1 : std_logic_vector(19 downto 1) := "0000000000000000000";-- : Word address : 0x00000; Byte Address : 0x00000
+  constant C_Reg_regsMems_test2_1 : std_logic_vector(19 downto 1) := "0000000000000000001";-- : Word address : 0x00001; Byte Address : 0x00002
+  constant C_Reg_regsMems_test2_0 : std_logic_vector(19 downto 1) := "0000000000000000010";-- : Word address : 0x00002; Byte Address : 0x00004
+  constant C_Reg_regsMems_test3 : std_logic_vector(19 downto 1) := "0000000000000000011";-- : Word address : 0x00003; Byte Address : 0x00006
+  constant C_Reg_regsMems_test4_1 : std_logic_vector(19 downto 1) := "0000000000000000100";-- : Word address : 0x00004; Byte Address : 0x00008
+  constant C_Reg_regsMems_test4_0 : std_logic_vector(19 downto 1) := "0000000000000000101";-- : Word address : 0x00005; Byte Address : 0x0000a
+  constant C_Reg_regsMems_test5 : std_logic_vector(19 downto 1) := "0000000000000000110";-- : Word address : 0x00006; Byte Address : 0x0000c
+  constant C_Reg_regsMems_test6_1 : std_logic_vector(19 downto 1) := "0000000000000000111";-- : Word address : 0x00007; Byte Address : 0x0000e
+  constant C_Reg_regsMems_test6_0 : std_logic_vector(19 downto 1) := "0000000000000001000";-- : Word address : 0x00008; Byte Address : 0x00010
+  constant C_Reg_regsMems_test7 : std_logic_vector(19 downto 1) := "0000000000000001001";-- : Word address : 0x00009; Byte Address : 0x00012
+  constant C_Reg_regsMems_test8_1 : std_logic_vector(19 downto 1) := "0000000000000001010";-- : Word address : 0x0000a; Byte Address : 0x00014
+  constant C_Reg_regsMems_test8_0 : std_logic_vector(19 downto 1) := "0000000000000001011";-- : Word address : 0x0000b; Byte Address : 0x00016
 
   -- Register Auto Clear Masks : Memory Map
   constant C_ACM_regsMems_test1 : std_logic_vector(7 downto 0) := "00000000";-- : Value : X"00"
@@ -53,9 +53,9 @@ package MemMap_regsMems is
 
   -- CODE FIELDS
   -- Memory Data : Memory Map
-  constant C_Mem_regsMems_mem1_Sta : std_logic_vector(19 downto 1) := "0000000001000000000";-- : Word address : "000" & X"0200"; Byte Address : X"0400"
-  constant C_Mem_regsMems_mem1_End : std_logic_vector(19 downto 1) := "0000000001111111111";-- : Word address : "000" & X"03ff"; Byte Address : X"07fe"
-  constant C_Mem_regsMems_mem2_Sta : std_logic_vector(19 downto 1) := "0000000010000000000";-- : Word address : "000" & X"0400"; Byte Address : X"0800"
-  constant C_Mem_regsMems_mem2_End : std_logic_vector(19 downto 1) := "0000000010111111111";-- : Word address : "000" & X"05ff"; Byte Address : X"0bfe"
+  constant C_Mem_regsMems_mem1_Sta : std_logic_vector(19 downto 1) := "0000000001000000000";-- : Word address : 0x00200; Byte Address : 0x00400
+  constant C_Mem_regsMems_mem1_End : std_logic_vector(19 downto 1) := "0000000001111111111";-- : Word address : 0x003ff; Byte Address : 0x007fe
+  constant C_Mem_regsMems_mem2_Sta : std_logic_vector(19 downto 1) := "0000000010000000000";-- : Word address : 0x00400; Byte Address : 0x00800
+  constant C_Mem_regsMems_mem2_End : std_logic_vector(19 downto 1) := "0000000010111111111";-- : Word address : 0x005ff; Byte Address : 0x00bfe
   -- Submap Addresses : Memory Map
 end MemMap_regsMems;

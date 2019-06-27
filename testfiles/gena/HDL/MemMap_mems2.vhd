@@ -17,11 +17,11 @@ package MemMap_mems2 is
 
   -- CODE FIELDS
   -- Memory Data : Memory Map
-  constant C_Mem_mems2_mem1_Sta : std_logic_vector(19 downto 1) := "0000000000000000000";-- : Word address : "000" & X"0000"; Byte Address : X"0000"
-  constant C_Mem_mems2_mem1_End : std_logic_vector(19 downto 1) := "0000000000111111111";-- : Word address : "000" & X"01ff"; Byte Address : X"03fe"
-  constant C_Mem_mems2_mem2_Sta : std_logic_vector(19 downto 1) := "0000000001000000000";-- : Word address : "000" & X"0200"; Byte Address : X"0400"
-  constant C_Mem_mems2_mem2_End : std_logic_vector(19 downto 1) := "0000000001111111111";-- : Word address : "000" & X"03ff"; Byte Address : X"07fe"
-  constant C_Mem_mems2_mem3_Sta : std_logic_vector(19 downto 1) := "0000000010000000000";-- : Word address : "000" & X"0400"; Byte Address : X"0800"
-  constant C_Mem_mems2_mem3_End : std_logic_vector(19 downto 1) := "0000000010111111111";-- : Word address : "000" & X"05ff"; Byte Address : X"0bfe"
+  constant C_Mem_mems2_mem1_Sta : std_logic_vector(19 downto 1) := "0000000000000000000";-- : Word address : 0x00000; Byte Address : 0x00000
+  constant C_Mem_mems2_mem1_End : std_logic_vector(19 downto 1) := "0000000000111111111";-- : Word address : 0x001ff; Byte Address : 0x003fe
+  constant C_Mem_mems2_mem2_Sta : std_logic_vector(19 downto 1) := "0000000001000000000";-- : Word address : 0x00200; Byte Address : 0x00400
+  constant C_Mem_mems2_mem2_End : std_logic_vector(19 downto 1) := "0000000001111111111";-- : Word address : 0x003ff; Byte Address : 0x007fe
+  constant C_Mem_mems2_mem3_Sta : std_logic_vector(19 downto 1) := "0000000010000000000";-- : Word address : 0x00400; Byte Address : 0x00800
+  constant C_Mem_mems2_mem3_End : std_logic_vector(19 downto 1) := "0000000010111111111";-- : Word address : 0x005ff; Byte Address : 0x00bfe
   -- Submap Addresses : Memory Map
 end MemMap_mems2;

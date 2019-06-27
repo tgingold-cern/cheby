@@ -18,12 +18,12 @@ package MemMap_areaMems is
 
   -- CODE FIELDS
   -- Memory Data : Area area
-  constant C_Mem_areaMems_area_mem1_Sta : std_logic_vector(18 downto 2) := "00000000000000000";-- : Word address : "0" & X"0000"; Byte Address : X"0000"
-  constant C_Mem_areaMems_area_mem1_End : std_logic_vector(18 downto 2) := "00000000011111111";-- : Word address : "0" & X"00ff"; Byte Address : X"01fe"
-  constant C_Mem_areaMems_area_mem2_Sta : std_logic_vector(18 downto 2) := "00000000100000000";-- : Word address : "0" & X"0100"; Byte Address : X"0200"
-  constant C_Mem_areaMems_area_mem2_End : std_logic_vector(18 downto 2) := "00000000111111111";-- : Word address : "0" & X"01ff"; Byte Address : X"03fe"
-  constant C_Mem_areaMems_area_mem3_Sta : std_logic_vector(18 downto 2) := "00000001000000000";-- : Word address : "0" & X"0200"; Byte Address : X"0400"
-  constant C_Mem_areaMems_area_mem3_End : std_logic_vector(18 downto 2) := "00000001011111111";-- : Word address : "0" & X"02ff"; Byte Address : X"05fe"
+  constant C_Mem_areaMems_area_mem1_Sta : std_logic_vector(18 downto 2) := "00000000000000000";-- : Word address : 0x00000; Byte Address : 0x00000
+  constant C_Mem_areaMems_area_mem1_End : std_logic_vector(18 downto 2) := "00000000011111111";-- : Word address : 0x000ff; Byte Address : 0x003fc
+  constant C_Mem_areaMems_area_mem2_Sta : std_logic_vector(18 downto 2) := "00000000100000000";-- : Word address : 0x00100; Byte Address : 0x00400
+  constant C_Mem_areaMems_area_mem2_End : std_logic_vector(18 downto 2) := "00000000111111111";-- : Word address : 0x001ff; Byte Address : 0x007fc
+  constant C_Mem_areaMems_area_mem3_Sta : std_logic_vector(18 downto 2) := "00000001000000000";-- : Word address : 0x00200; Byte Address : 0x00800
+  constant C_Mem_areaMems_area_mem3_End : std_logic_vector(18 downto 2) := "00000001011111111";-- : Word address : 0x002ff; Byte Address : 0x00bfc
   -- Submap Addresses : Area area
   -- Register Addresses : Memory Map
 
