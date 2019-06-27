@@ -229,7 +229,6 @@ def expand_hdl_err(t):
 
 def test_hdl_err():
     global nbr_tests
-    fd = write_null()
     for f in ['issue11/test_port1_err1', 'issue11/test_port_err2']:
         if verbose:
             print('test hdl error: {}'.format(f))
@@ -437,7 +436,7 @@ def test_gena_regressions():
         hmemmap = gen_gena_memmap.gen_gena_memmap(t)
         buf = write_buffer()
         print_vhdl.print_vhdl(buf, hmemmap)
-        (head, tail) = os.path.split(f)
+        (head, _) = os.path.split(f)
         memmapfile = srcdir + head + '/MemMap_' + t.name + '.vhd'
         if not compare_buffer_and_file(buf, memmapfile):
             error('gena memmap generation error for {}'.format(f))
