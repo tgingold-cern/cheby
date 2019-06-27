@@ -176,12 +176,13 @@ class HDLComb(HDLStmt):
 
 
 class HDLSync(HDLStmt):
-    def __init__(self, clk, rst, rst_val=0):
+    def __init__(self, clk, rst, rst_val=0, rst_sync=False):
         super(HDLSync, self).__init__()
         self.name = None
         self.clk = clk
         self.rst = rst
         self.rst_val = rst_val
+        self.rst_sync = rst_sync
         self.rst_stmts = []
         self.sync_stmts = []
 

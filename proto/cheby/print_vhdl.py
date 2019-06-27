@@ -329,6 +329,58 @@ def generate_comment(fd, n, indent):
         wln(fd, "-- {}".format(n.comment))
 
 
+def generate_sync(fd, s, indent):
+    sindent = "  " * indent
+    w(fd, sindent)
+    if s.name is not None:
+        w(fd, '{}: '.format(s.name))
+    # Head + sensitivity list
+    w(fd, "process ({}".format(generate_expr(s.clk)))
+    if s.rst is not None and not s.rst_sync:
+        w(fd, ", {}".format(generate_expr(s.rst)))
+    if style == 'wbgen':
+        wln(fd, ')')
+        w(fd, sindent)
+        wln(fd, 'begin')
+    else:
+        wln(fd, ") begin")
+    # body
+    if s.rst is not None:
+        rst_cond = "{} = '{}'".format(generate_expr(s.rst), s.rst_val)
+        if style == 'wbgen':
+            rst_cond = '(' + rst_cond + ')'
+
+        if s.rst_sync:
+            wln(fd, sindent + "  if rising_edge({}) then".format(
+                generate_expr(s.clk)))
+            wln(fd, sindent + "    if {} then".format(rst_cond))
+            for s1 in s.rst_stmts:
+                generate_seq(fd, s1, indent + 3)
+            wln(fd, sindent + "    else")
+            for s1 in s.sync_stmts:
+                generate_seq(fd, s1, indent + 3)
+            wln(fd, sindent + "    end if;")
+            wln(fd, sindent + "  end if;")
+        else:
+            wln(fd, sindent + "  if {} then".format(rst_cond))
+            for s1 in s.rst_stmts:
+                generate_seq(fd, s1, indent + 2)
+            wln(fd, sindent + "  elsif rising_edge({}) then".format(
+                generate_expr(s.clk)))
+            for s1 in s.sync_stmts:
+                generate_seq(fd, s1, indent + 2)
+            wln(fd, sindent + "  end if;")
+    else:
+        wln(fd, sindent + "  if rising_edge({}) then".format(
+            generate_expr(s.clk)))
+        for s1 in s.sync_stmts:
+            generate_seq(fd, s1, indent + 2)
+        wln(fd, sindent + "  end if;")
+    w(fd, sindent + "end process")
+    if s.name is not None:
+        w(fd, ' {}'.format(s.name))
+    wln(fd, ";")
+
 def generate_stmts(fd, stmts, indent):
     sindent = "  " * indent
     gen_num = 0
@@ -364,38 +416,7 @@ def generate_stmts(fd, stmts, indent):
                 w(fd, ' {}'.format(s.name))
             wln(fd, ";")
         elif isinstance(s, hdltree.HDLSync):
-            w(fd, sindent)
-            if s.name is not None:
-                w(fd, '{}: '.format(s.name))
-            w(fd, "process ({}".format(generate_expr(s.clk)))
-            if s.rst is not None:
-                w(fd, ", {}".format(generate_expr(s.rst)))
-            if style == 'wbgen':
-                wln(fd, ')')
-                w(fd, sindent)
-                wln(fd, 'begin')
-            else:
-                wln(fd, ") begin")
-            # wln(fd, sindent + "begin")
-            if s.rst is not None:
-                cond = "{} = '{}'".format(generate_expr(s.rst), s.rst_val)
-                if style == 'wbgen':
-                    cond = '(' + cond + ')'
-                wln(fd, sindent + "  if {} then ".format(cond))
-                for s1 in s.rst_stmts:
-                    generate_seq(fd, s1, indent + 2)
-                w(fd, sindent + "  elsif ")
-            else:
-                w(fd, sindent + "  if ")
-            wln(fd, "rising_edge({}) then".format(
-                generate_expr(s.clk)))
-            for s1 in s.sync_stmts:
-                generate_seq(fd, s1, indent + 2)
-            wln(fd, sindent + "  end if;")
-            w(fd, sindent + "end process")
-            if s.name is not None:
-                w(fd, ' {}'.format(s.name))
-            wln(fd, ";")
+            generate_sync(fd, s, indent)
         elif isinstance(s, hdltree.HDLInstance):
             wln(fd, sindent + "{}: {}".format(s.name, s.module_name))
 
