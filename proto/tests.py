@@ -413,7 +413,7 @@ def test_gena2cheby_err():
 
 def test_gena_regressions():
     global nbr_tests
-    files = ['issue7/code_fields']
+    files = ['issue7/code_fields', 'issue_rmw/CRegs']
     for f in files:
         if verbose:
             print('test gena regression: {}'.format(f))
