@@ -263,12 +263,11 @@ def gen_hdl_rmw_ctrl_reg(reg, root, module, kind,
     if kind == 'CtrlRegN':
         asgn = HDLSlice(root.h_bus['dati'], 0, reg.c_rwidth)
     elif kind == 'RMWReg':
-        # Assign: r = (r and not data(hi)) or data(lo)
-        asgn = HDLOr(HDLParen(HDLAnd(ctrlreg,
-                                     HDLNot(HDLSlice(root.h_bus['dati'],
-                                                     reg.c_rwidth,
-                                                     reg.c_rwidth)))),
-                     HDLSlice(root.h_bus['dati'], 0, reg.c_rwidth))
+        # Assign: r = (r and not data(hi)) or (data(lo) and data(hi))
+        hi = HDLSlice(root.h_bus['dati'], reg.c_rwidth, reg.c_rwidth)
+        lo = HDLSlice(root.h_bus['dati'], 0, reg.c_rwidth)
+        asgn = HDLOr(HDLParen(HDLAnd(ctrlreg, HDLNot(hi))),
+                     HDLParen(HDLAnd(lo, hi)))
     else:
         raise AssertionError
     s_if.then_stmts.append(HDLAssign(ctrlreg, asgn))
