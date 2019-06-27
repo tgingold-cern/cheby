@@ -73,6 +73,10 @@ Full translation of Cheburashka map by gena2cheby.
 
 Add a 'do not edit' header to hdl generated files.
 
+Fix byte and word address in comments for gena memmap file.
+
+Use synchronous reset for expanded RMW and SRFF in generated regctrl code.
+
 ## Version 1.2
 
 Add --gen-custom to support user defined pass (merge!4)
