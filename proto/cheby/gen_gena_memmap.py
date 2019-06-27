@@ -30,13 +30,10 @@ def gen_header(root, decls):
 def gen_addr_cst(decls, addr, name, addr_width, block_width, word_width):
     val = HDLBinConst(addr, addr_width)
     cst = HDLConstant(name, addr_width, lo_idx=block_width, value=val)
-    # FIXME: Gena word address is wrong.
     cst.eol_comment = \
-        ' : Word address : "{:0{}b}" & X"{:0{}x}"; ' \
-        'Byte Address : X"{:0{}x}"'.format(
-            addr >> (4 * (addr_width // 4)), (addr_width % 4),
-            addr, addr_width // 4,
-            (addr << word_width) & ((1 << addr_width) - 1), addr_width // 4)
+        ' : Word address : 0x{:0{}x}; Byte Address : 0x{:0{}x}'.format(
+            addr, (addr_width + 3) // 4,
+            addr << word_width, (addr_width + word_width + 3) // 4)
     decls.append(cst)
     return cst
 
@@ -57,7 +54,7 @@ def gen_reg_addr(n, root, decls, name, pfx):
                 cst = gen_addr_cst(
                     decls, addr + i, 'C_Reg_{}_{}{}'.format(
                         pfx, reg.name, subsuffix(num - i - 1, num)),
-                    addr_width, word_width, 1)
+                    addr_width, word_width, word_width)
                 reg.h_gena_regaddr.insert(0, cst)
 
 
@@ -168,16 +165,16 @@ def gen_memory_data(n, root, decls, name, pfx):
             addr = e.c_address >> word_width
             e.h_gena_sta = gen_addr_cst(
                 decls, addr, 'C_Mem_{}_{}_Sta'.format(pfx, e.name),
-                addr_width, word_width, 1)
+                addr_width, word_width, word_width)
             addr = (e.c_address + e.c_size - 1) >> word_width
             e.h_gena_end = gen_addr_cst(
                 decls, addr, 'C_Mem_{}_{}_End'.format(pfx, e.name),
-                addr_width, word_width, 1)
+                addr_width, word_width, word_width)
 
 
 def gen_submap_addr(n, root, decls, name, pfx):
     decls.append(HDLComment('Submap Addresses : {}'.format(name), nl=False))
-    # word_width = ilog2(root.c_word_size)
+    word_width = ilog2(root.c_word_size)
     for e in n.children:
         if isinstance(e, tree.Submap):
             block_width = ilog2(e.c_size)
@@ -185,7 +182,7 @@ def gen_submap_addr(n, root, decls, name, pfx):
             addr = e.c_address >> block_width
             cst = gen_addr_cst(
                 decls, addr, 'C_Submap_{}_{}'.format(pfx, e.name),
-                addr_width, block_width, 1)
+                addr_width, block_width, word_width)
             e.h_gena_area = cst
 
 
