@@ -3,6 +3,7 @@ import sys
 import os.path
 import time
 import argparse
+import getpass
 import cheby.parser
 import cheby.pprint as pprint
 import cheby.sprint as sprint
@@ -119,6 +120,14 @@ class open_filename(object):
     def __getattr__(self, val):
         return getattr(self.fh, val)  # pass on
 
+def gen_comment_header(f, args):
+    c = {'vhdl': '--', 'verilog': '//'}[args.hdl]
+    f.write("{} Do not edit.  Generated on {date} by {user}\n".format(
+            c, date=time.strftime("%a %b %d %X %Y"), user=getpass.getuser()))
+    f.write("{} With Cheby {} and these options:\n".format(
+            c, cheby.__version__))
+    f.write("{}  {}\n".format(c, " ".join(sys.argv[1:])))
+    f.write("\n")
 
 def handle_file(args, filename):
     t = cheby.parser.parse_yaml(filename)
@@ -143,6 +152,8 @@ def handle_file(args, filename):
     if args.gen_gena_memmap is not None:
         with open_filename(args.gen_gena_memmap) as f:
             h = gen_gena_memmap.gen_gena_memmap(t)
+            if not args.no_header:
+                gen_comment_header(f, args)
             print_vhdl.print_vhdl(f, h)
     if args.gen_silecs is not None:
         with open_filename(args.gen_silecs) as f:
@@ -172,6 +183,8 @@ def handle_file(args, filename):
             gen_gena_memmap.gen_gena_memmap(t)
         with open_filename(args.gen_gena_regctrl) as f:
             h = gen_gena_regctrl.gen_gena_regctrl(t, args.gena_common_visual)
+            if not args.no_header:
+                gen_comment_header(f, args)
             print_vhdl.print_vhdl(f, h)
     gen_name.gen_name_root(t)
     if args.gen_doc is not None:
