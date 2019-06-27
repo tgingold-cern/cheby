@@ -80,79 +80,91 @@ architecture syn of RegCtrl_cregs is
   signal Loc_test7                      : std_logic_vector(31 downto 0);
   signal Loc_test8                      : std_logic_vector(31 downto 0);
 begin
-  Reg_test1: process (Clk, Rst) begin
-    if Rst = '1' then
-      CtrlReg_test1 <= C_PSM_cregs_test1;
-    elsif rising_edge(Clk) then
-      if WrSel_test1 = '1' and VMEWrMem = '1' then
-        CtrlReg_test1 <= (CtrlReg_test1 and not VMEWrData(31 downto 16)) or (VMEWrData(15 downto 0) and VMEWrData(31 downto 16));
+  Reg_test1: process (Clk) begin
+    if rising_edge(Clk) then
+      if Rst = '1' then
+        CtrlReg_test1 <= C_PSM_cregs_test1;
       else
-        CtrlReg_test1 <= CtrlReg_test1 and not C_ACM_cregs_test1;
+        if WrSel_test1 = '1' and VMEWrMem = '1' then
+          CtrlReg_test1 <= (CtrlReg_test1 and not VMEWrData(31 downto 16)) or (VMEWrData(15 downto 0) and VMEWrData(31 downto 16));
+        else
+          CtrlReg_test1 <= CtrlReg_test1 and not C_ACM_cregs_test1;
+        end if;
       end if;
     end if;
   end process Reg_test1;
   Loc_test1(15 downto 0) <= CtrlReg_test1;
 
-  Reg_test2: process (Clk, Rst) begin
-    if Rst = '1' then
-      CtrlReg_test2 <= C_PSM_cregs_test2;
-    elsif rising_edge(Clk) then
-      if WrSel_test2 = '1' and VMEWrMem = '1' then
-        CtrlReg_test2 <= (CtrlReg_test2 and not VMEWrData(31 downto 16)) or (VMEWrData(15 downto 0) and VMEWrData(31 downto 16));
+  Reg_test2: process (Clk) begin
+    if rising_edge(Clk) then
+      if Rst = '1' then
+        CtrlReg_test2 <= C_PSM_cregs_test2;
       else
-        CtrlReg_test2 <= CtrlReg_test2 and not C_ACM_cregs_test2;
+        if WrSel_test2 = '1' and VMEWrMem = '1' then
+          CtrlReg_test2 <= (CtrlReg_test2 and not VMEWrData(31 downto 16)) or (VMEWrData(15 downto 0) and VMEWrData(31 downto 16));
+        else
+          CtrlReg_test2 <= CtrlReg_test2 and not C_ACM_cregs_test2;
+        end if;
       end if;
     end if;
   end process Reg_test2;
   Loc_test2(15 downto 0) <= CtrlReg_test2;
 
-  Reg_test3: process (Clk, Rst) begin
-    if Rst = '1' then
-      CtrlReg_test3 <= C_PSM_cregs_test3;
-    elsif rising_edge(Clk) then
-      if WrSel_test3 = '1' and VMEWrMem = '1' then
-        CtrlReg_test3 <= VMEWrData(31 downto 0);
+  Reg_test3: process (Clk) begin
+    if rising_edge(Clk) then
+      if Rst = '1' then
+        CtrlReg_test3 <= C_PSM_cregs_test3;
       else
-        CtrlReg_test3 <= CtrlReg_test3 and not C_ACM_cregs_test3;
+        if WrSel_test3 = '1' and VMEWrMem = '1' then
+          CtrlReg_test3 <= VMEWrData(31 downto 0);
+        else
+          CtrlReg_test3 <= CtrlReg_test3 and not C_ACM_cregs_test3;
+        end if;
       end if;
     end if;
   end process Reg_test3;
   Loc_test3(31 downto 0) <= CtrlReg_test3;
 
-  Reg_test4: process (Clk, Rst) begin
-    if Rst = '1' then
-      CtrlReg_test4 <= C_PSM_cregs_test4;
-    elsif rising_edge(Clk) then
-      if WrSel_test4 = '1' and VMEWrMem = '1' then
-        CtrlReg_test4 <= VMEWrData(31 downto 0);
+  Reg_test4: process (Clk) begin
+    if rising_edge(Clk) then
+      if Rst = '1' then
+        CtrlReg_test4 <= C_PSM_cregs_test4;
       else
-        CtrlReg_test4 <= CtrlReg_test4 and not C_ACM_cregs_test4;
+        if WrSel_test4 = '1' and VMEWrMem = '1' then
+          CtrlReg_test4 <= VMEWrData(31 downto 0);
+        else
+          CtrlReg_test4 <= CtrlReg_test4 and not C_ACM_cregs_test4;
+        end if;
       end if;
     end if;
   end process Reg_test4;
   Loc_test4(31 downto 0) <= CtrlReg_test4;
 
-  Reg_test5: process (Clk, Rst) begin
-    if Rst = '1' then
-      CtrlReg_test5 <= C_PSM_cregs_test5;
-    elsif rising_edge(Clk) then
-      if WrSel_test5 = '1' and VMEWrMem = '1' then
-        CtrlReg_test5 <= VMEWrData(31 downto 0);
+  Reg_test5: process (Clk) begin
+    if rising_edge(Clk) then
+      if Rst = '1' then
+        CtrlReg_test5 <= C_PSM_cregs_test5;
       else
-        CtrlReg_test5 <= CtrlReg_test5 and not C_ACM_cregs_test5;
+        if WrSel_test5 = '1' and VMEWrMem = '1' then
+          CtrlReg_test5 <= VMEWrData(31 downto 0);
+        else
+          CtrlReg_test5 <= CtrlReg_test5 and not C_ACM_cregs_test5;
+        end if;
       end if;
     end if;
   end process Reg_test5;
   Loc_test5(31 downto 0) <= CtrlReg_test5;
 
-  Reg_test6: process (Clk, Rst) begin
-    if Rst = '1' then
-      CtrlReg_test6 <= C_PSM_cregs_test6;
-    elsif rising_edge(Clk) then
-      if WrSel_test6 = '1' and VMEWrMem = '1' then
-        CtrlReg_test6 <= VMEWrData(31 downto 0);
+  Reg_test6: process (Clk) begin
+    if rising_edge(Clk) then
+      if Rst = '1' then
+        CtrlReg_test6 <= C_PSM_cregs_test6;
       else
-        CtrlReg_test6 <= CtrlReg_test6 and not C_ACM_cregs_test6;
+        if WrSel_test6 = '1' and VMEWrMem = '1' then
+          CtrlReg_test6 <= VMEWrData(31 downto 0);
+        else
+          CtrlReg_test6 <= CtrlReg_test6 and not C_ACM_cregs_test6;
+        end if;
       end if;
     end if;
   end process Reg_test6;

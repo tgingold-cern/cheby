@@ -1,0 +1,28 @@
+memory-map:
+  name: cregs_srff
+  bus: cern-be-vme-err-32
+  size: 1048576
+  x-cern-info:
+    ident-code: 0xff
+    map-version: 20161031
+  children:
+    - reg:
+        name: test3
+        width: 32
+        access: ro
+        address: next
+        x-gena:
+          gen:
+            srff: True
+        x-fesa:
+          persistence: Fesa
+    - reg:
+        name: test5
+        width: 64
+        access: ro
+        address: next
+        x-gena:
+          gen:
+            srff: True
+        x-fesa:
+          persistence: Fesa

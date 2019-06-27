@@ -142,14 +142,16 @@ begin
     end if;
   end process AreaWrMux;
 
-  Reg_area2_myRegister: process (Clk, Rst) begin
-    if Rst = '1' then
-      CtrlReg_area2_myRegister <= C_PSM_codeFields_area2_myRegister;
-    elsif rising_edge(Clk) then
-      if WrSel_area2_myRegister = '1' and VMEWrMem = '1' then
-        CtrlReg_area2_myRegister <= VMEWrData(15 downto 0);
+  Reg_area2_myRegister: process (Clk) begin
+    if rising_edge(Clk) then
+      if Rst = '1' then
+        CtrlReg_area2_myRegister <= C_PSM_codeFields_area2_myRegister;
       else
-        CtrlReg_area2_myRegister <= CtrlReg_area2_myRegister and not C_ACM_codeFields_area2_myRegister;
+        if WrSel_area2_myRegister = '1' and VMEWrMem = '1' then
+          CtrlReg_area2_myRegister <= VMEWrData(15 downto 0);
+        else
+          CtrlReg_area2_myRegister <= CtrlReg_area2_myRegister and not C_ACM_codeFields_area2_myRegister;
+        end if;
       end if;
     end if;
   end process Reg_area2_myRegister;
@@ -219,14 +221,16 @@ begin
   area2_RdDone <= area2_MemRdDone;
   area2_WrDone <= area2_MemWrDone;
 
-  Reg_area1_myRegister: process (Clk, Rst) begin
-    if Rst = '1' then
-      CtrlReg_area1_myRegister <= C_PSM_codeFields_area1_myRegister;
-    elsif rising_edge(Clk) then
-      if WrSel_area1_myRegister = '1' and VMEWrMem = '1' then
-        CtrlReg_area1_myRegister <= VMEWrData(15 downto 0);
+  Reg_area1_myRegister: process (Clk) begin
+    if rising_edge(Clk) then
+      if Rst = '1' then
+        CtrlReg_area1_myRegister <= C_PSM_codeFields_area1_myRegister;
       else
-        CtrlReg_area1_myRegister <= CtrlReg_area1_myRegister and not C_ACM_codeFields_area1_myRegister;
+        if WrSel_area1_myRegister = '1' and VMEWrMem = '1' then
+          CtrlReg_area1_myRegister <= VMEWrData(15 downto 0);
+        else
+          CtrlReg_area1_myRegister <= CtrlReg_area1_myRegister and not C_ACM_codeFields_area1_myRegister;
+        end if;
       end if;
     end if;
   end process Reg_area1_myRegister;
