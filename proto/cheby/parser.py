@@ -27,6 +27,18 @@ def read_text(parent, key, val):
     error("expect a string for {}:{}".format(parent.get_path(), key))
 
 
+def read_size(parent, key, val):
+    if isinstance(val, int):
+        return str(val), val
+    elif isstr(val):
+        units = {'k': 1 << 10, 'M': 1 << 20, 'G': 1 << 30}
+        if val[-1] in units:
+            return val, int(val[:-1]) * units[val[-1]]
+        else:
+            return val, int(val)
+    else:
+        error("expect a string for {}:{}".format(parent.get_path(), key))
+
 def read_bool(parent, key, val):
     if isinstance(val, bool):
         return val
@@ -172,7 +184,7 @@ def parse_complex(node, k, v):
     elif k == 'align':
         node.align = read_bool(node, k, v)
     elif k == 'size':
-        node.size = read_int(node, k, v)
+        node.size_str, node.size_val = read_size(node, k, v)
     else:
         return False
     return True
@@ -237,7 +249,7 @@ def parse_yaml(filename):
         elif k == 'bus':
             res.bus = read_text(res, k, v)
         elif k == 'size':
-            res.size = read_int(res, k, v)
+            res.size_str, res.size_val = read_size(res, k, v)
         elif k == 'word-endian':
             res.word_endian = read_text(res, k, v)
         else:

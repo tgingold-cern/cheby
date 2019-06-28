@@ -123,11 +123,11 @@ def cprint_submap(cp, n):
               n.c_address, n.description or '(no description)'))
     if n.filename is None:
         # Should depend on bus size ?
-        if n.size % 4 == 0:
+        if n.c_size % 4 == 0:
             sz = 4
         else:
             sz = 1
-        cp.cp_txt('{} {}[{}];'.format(cp.utypes[sz], n.name, n.size // sz))
+        cp.cp_txt('{} {}[{}];'.format(cp.utypes[sz], n.name, n.c_size // sz))
     else:
         cp.cp_txt('struct {} {};'.format(n.c_submap.name, n.name))
         cp.submaps.append(n.c_submap)

@@ -520,7 +520,8 @@ def conv_area(parent, el):
             raise UnknownAttribute(k)
     res.name = attrs['name']
     res.address = conv_address(attrs['address'])
-    res.size = conv_depth(attrs['element-depth'])
+    res.size_str = attrs['element-depth']
+    res.size_val = conv_depth(res.size_str)
 
     for child in el:
         conv_element(res, child)
@@ -592,7 +593,8 @@ def conv_root(root, filename):
     res.x_driver_edge = {}
     res.x_cern_info = {}
     acc_mode = None
-    size = None
+    size_val = None
+    size_str = None
     split_suffix = ''
     err_suffix = ''
     attrs = root.attrib
@@ -605,7 +607,8 @@ def conv_root(root, filename):
         elif k == 'mem-map-access-mode':
             acc_mode = v
         elif k == 'area-depth':
-            size = conv_depth(v)
+            size_str = v
+            size_val = conv_depth(v)
         elif k in ('map-version', 'ident-code', 'semantic-mem-map-version'):
             res.x_cern_info[k] = v
         elif k == 'gen':
@@ -660,7 +663,8 @@ def conv_root(root, filename):
     else:
         raise UnknownValue('mem-map-access-mode', acc_mode)
 
-    res.size = size or bus_size
+    res.size_val = size_val or bus_size
+    res.size_str = size_str or str(res.size_val)
 
     for child in root:
         if child.tag == 'constant-value':

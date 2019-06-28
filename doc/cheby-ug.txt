@@ -211,7 +211,8 @@ possible to use `none` to disallow any multi-word registers, and thus having
 a portable memory map.
 
 If you need to reserve area in a module, you can use the `size` attribute to
-specify the size (in bytes) of the memory space used by the module.
+specify the size (in bytes) of the memory space used by the module.  The suffixes
+k, M and G are allowed.
 
 The following attributes under `x-hdl` are supported:
 
@@ -345,7 +346,8 @@ This is used only to create a hierarchy, but also offers the possibility
 to specify an address or an alignment.
 
 It is possible to reserve space at the end of a block with the `size`
-attribute.  It specifies the size (in bytes) of the block.
+attribute.  It specifies the size (in bytes) of the block. The suffixes k, M
+and G are allowed.
 
 Example of a block:
 

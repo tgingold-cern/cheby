@@ -264,16 +264,16 @@ def align_block(lo, n):
 def layout_submap(lo, n):
     if n.filename is None:
         # No filename, this is a generic submap.  So size and bus are required.
-        if n.size is None:
+        if n.size_val is None:
             raise LayoutException(
                 n, "no size in submap '{}'".format(n.get_path()))
         if n.interface is None:
             raise LayoutException(
                 n, "no interface for generic submap '{}'".format(n.get_path()))
-        n.c_size = n.size
+        n.c_size = n.size_val
         n.c_interface = n.interface
     else:
-        if n.size is not None:
+        if n.size_val is not None:
             raise LayoutException(
                 n, "size given for submap '{}'".format(n.get_path()))
         submap = load_submap(n)
@@ -306,11 +306,11 @@ def layout_submap(lo, n):
 def layout_block(lo, n):
     if n.children:
         layout_composite(lo, n)
-    elif n.size is None:
+    elif n.size_val is None:
         raise LayoutException(
             n, "no size in block '{}'".format(n.get_path()))
     else:
-        n.c_size = n.size
+        n.c_size = n.size_val
     align_block(lo, n)
 
 
@@ -369,15 +369,15 @@ def layout_composite(lo, n):
         lo1.compute_address(c)
         n.c_size = max(n.c_size, c.c_address + c.c_size)
     n.c_align = max_align
-    if n.size is not None:
-        if n.size < n.c_size:
+    if n.size_val is not None:
+        if n.size_val < n.c_size:
             for c in n.children:
                 print('0x{:08x} - 0x{:08x}: {}'.format(
                     c.c_address, c.c_address + c.c_size, c.name))
             raise LayoutException(
                 n, "size of {} is too small (need {}, get {})".format(
-                    n.get_path(), n.c_size, n.size))
-        n.c_size = n.size
+                    n.get_path(), n.c_size, n.size_str))
+        n.c_size = n.size_val
     if has_aligned:
         n.c_blk_bits = ilog2(n.c_align)
         n.c_sel_bits = ilog2(n.c_size) - n.c_blk_bits
@@ -400,8 +400,9 @@ def layout_composite(lo, n):
 
 @Layout.register(tree.Root)
 def layout_root(lo, root):
-    if not root.children and root.size is None:
-        raise LayoutException(root, "empty description '{}' must have a size".format(root.name))
+    if not root.children and root.size_val is None:
+        raise LayoutException(
+            root, "empty description '{}' must have a size".format(root.name))
     root.c_address = 0
     layout_composite(lo, root)
 

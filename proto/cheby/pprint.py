@@ -176,7 +176,7 @@ def pprint_complex_head(pp, n):
     pprint_composite_head(pp, n)
     pprint_address(pp, n)
     pp.pp_bool('align', n.align)
-    pp.pp_int('size', n.size)
+    pp.pp_str('size', n.size_str)
 
 
 def pprint_complex_tail(pp, n):
@@ -201,7 +201,7 @@ def pprint_root(pp, n):
     pp.pp_obj('memory-map')
     pprint_composite_head(pp, n)
     pp.pp_str('bus', n.bus)
-    pp.pp_int('size', n.size)
+    pp.pp_str('size', n.size_str)
     pprint_composite_tail(pp, n)
     pp.pp_endobj()
 

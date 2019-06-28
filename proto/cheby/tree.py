@@ -80,11 +80,13 @@ class CompositeNode(NamedNode):
         super(CompositeNode, self).__init__(parent)
         self.address = None
         self.align = None
-        self.size = None
+        self.size_str = None     # Size (possibly with units)
+        self.size_val = None     # Value of size_str.
         self.children = []
         # Computed variables
         self.c_blk_bits = None   # Number of bits for sub-blocks
         self.c_sel_bits = None   # Number of bits to select sub-blocks
+        self.c_size = None       # Compute by layout (aligned)
 
 
 class Root(CompositeNode):

@@ -77,6 +77,8 @@ Fix byte and word address in comments for gena memmap file.
 
 Use synchronous reset for expanded RMW and SRFF in generated regctrl code.
 
+Size attributes are now a string with k/M/G suffixes allowed.
+
 ## Version 1.2
 
 Add --gen-custom to support user defined pass (merge!4)
