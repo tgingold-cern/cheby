@@ -216,7 +216,7 @@ def conv_sub_reg(reg, el):
                     if kg == 'ignore':
                         xg[kg] = True
                     elif kg == 'internal':
-                        xg['include'] = 'internal'
+                        xg['suppress-port'] = True
                     else:
                         UnknownGenAttribute(e, res)
                 elif e.startswith('const='):
@@ -278,7 +278,7 @@ def conv_register_data(parent, el):
                            'ext-creg', 'ext-acm', 'ignore', 'read-strobe'):
                     xg[e] = True
                 elif e == 'internal':
-                    xg['include'] = 'internal'
+                    xg['suppress-port'] = True
                 elif e.startswith('resize='):
                     kg, vg = e.split('=')
                     xg[kg] = vg
@@ -453,7 +453,7 @@ def conv_memory_data(parent, el):
                     if kg == 'ignore':
                         xg[kg] = True
                     elif kg == 'internal':
-                        xg['include'] = 'internal'
+                        xg['suppress-port'] = True
                     else:
                         UnknownGenAttribute(e, res)
                 else:
