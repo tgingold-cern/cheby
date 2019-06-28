@@ -53,7 +53,7 @@ memory-map:
         name: Mem
         description: Memory
         address: next
-        repeat: 262144
+        repeat: 256k
         x-gena:
           memory-channels:
             - memory-channel:
