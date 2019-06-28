@@ -169,7 +169,7 @@ def pconsts_reg(pr, n):
 
 @ConstsVisitor.register(tree.Block)
 def pconsts_block(pr, n):
-    pconsts_complex(pr, n)
+    pconsts_composite(pr, n)
     pr.pr_size(n, n.c_size)
 
 
@@ -179,22 +179,17 @@ def pconsts_submap(pr, n):
     pr.pr_size(n, n.c_size)
     # Recurse ?
     if False and n.filename is not None:
-        pconsts_complex(pr, n.c_submap)
+        pconsts_composite(pr, n.c_submap)
 
 
 @ConstsVisitor.register(tree.Array)
 def pconsts_array(pr, n):
-    pconsts_complex(pr, n)
-    pr.pr_size(n, n.c_elsize)
-
-@ConstsVisitor.register(tree.ComplexNode)
-def pconsts_complex(pr, n):
-    pr.pr_address(n)
     pconsts_composite(pr, n)
-
+    pr.pr_size(n, n.c_elsize)
 
 @ConstsVisitor.register(tree.CompositeNode)
 def pconsts_composite(pr, n):
+    pr.pr_address(n)
     for el in n.children:
         pr.visit(el)
 
@@ -202,7 +197,8 @@ def pconsts_composite(pr, n):
 @ConstsVisitor.register(tree.Root)
 def pconsts_root(pr, n):
     pr.printer.pr_size(n, n.c_size)
-    pconsts_composite(pr, n)
+    for el in n.children:
+        pr.visit(el)
 
 
 def pconsts_for_gen_c(fd, root):

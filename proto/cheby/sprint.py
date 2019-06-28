@@ -52,7 +52,7 @@ def sprint_block(sp, n):
     sp.sp_name('block', n)
     old_base = sp.base_addr
     sp.base_addr += n.c_address
-    sprint_complex(sp, n)
+    sprint_composite(sp, n)
     sp.base_addr = old_base
 
 
@@ -62,7 +62,7 @@ def sprint_submap(sp, n):
     old_base = sp.base_addr
     sp.base_addr += n.c_address
     if n.filename is not None:
-        sprint_complex(sp, n.c_submap)
+        sprint_composite(sp, n.c_submap)
     sp.base_addr = old_base
 
 
@@ -71,13 +71,8 @@ def sprint_array(sp, n):
     sp.sp_name('array[{}] of {}'.format(n.repeat, n.c_elsize), n)
     old_base = sp.base_addr
     sp.base_addr = 0
-    sprint_complex(sp, n)
-    sp.base_addr = old_base
-
-
-@SimplePrinter.register(tree.ComplexNode)
-def sprint_complex(sp, n):
     sprint_composite(sp, n)
+    sp.base_addr = old_base
 
 
 @SimplePrinter.register(tree.CompositeNode)

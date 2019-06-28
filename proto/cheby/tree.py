@@ -78,6 +78,9 @@ class CompositeNode(NamedNode):
 
     def __init__(self, parent):
         super(CompositeNode, self).__init__(parent)
+        self.address = None
+        self.align = None
+        self.size = None
         self.children = []
         # Computed variables
         self.c_blk_bits = None   # Number of bits for sub-blocks
@@ -90,12 +93,35 @@ class Root(CompositeNode):
     def __init__(self):
         super(Root, self).__init__(None)
         self.bus = None
-        self.size = None
         self.word_endian = None
         # Computed variables
         self.c_word_size = None  # Word size in bytes
         self.c_filename = None   # Filename for the tree.
         self.c_word_endian = None # word endianness ('any', 'little', 'big')
+
+
+class Block(CompositeNode):
+    _dispatcher = {}
+
+    def __init__(self, parent):
+        super(Block, self).__init__(parent)
+
+
+class Submap(CompositeNode):
+    _dispatcher = {}
+
+    def __init__(self, parent):
+        super(Submap, self).__init__(parent)
+        self.filename = None
+        self.interface = None
+
+
+class Array(CompositeNode):
+    _dispatcher = {}
+
+    def __init__(self, parent):
+        super(Array, self).__init__(parent)
+        self.repeat = None
 
 
 class Reg(NamedNode):
@@ -145,40 +171,6 @@ class Field(FieldBase):
 class FieldReg(FieldBase):
     "A pseudo field for a register without fields."
     pass
-
-
-class ComplexNode(CompositeNode):
-    _dispatcher = {}
-
-    def __init__(self, parent):
-        super(ComplexNode, self).__init__(parent)
-        self.address = None
-        self.align = None
-        self.size = None
-
-
-class Block(ComplexNode):
-    _dispatcher = {}
-
-    def __init__(self, parent):
-        super(Block, self).__init__(parent)
-
-
-class Submap(ComplexNode):
-    _dispatcher = {}
-
-    def __init__(self, parent):
-        super(Submap, self).__init__(parent)
-        self.filename = None
-        self.interface = None
-
-
-class Array(ComplexNode):
-    _dispatcher = {}
-
-    def __init__(self, parent):
-        super(Array, self).__init__(parent)
-        self.repeat = None
 
 
 class Visitor(object):

@@ -362,7 +362,7 @@ def layout_composite(lo, n):
         max_align = max(max_align, c.c_align)
     has_aligned = False
     for c in n.children:
-        if isinstance(c, tree.ComplexNode) and (c.align is None or c.align):
+        if isinstance(c, tree.CompositeNode) and (c.align is None or c.align):
             has_aligned = True
     n.c_size = 0
     for c in n.children:

@@ -28,17 +28,12 @@ def chklayout_reg(cg, n):
 @ChkGen.register(tree.Block)
 def sprint_block(cg, n):
     cg.cg_size(n.name, n.c_size)
-    chklayout_complex(cg, n)
+    chklayout_composite(cg, n)
 
 
 @ChkGen.register(tree.Array)
 def sprint_array(cg, n):
     cg.cg_size(n.name, n.c_elsize)
-    chklayout_complex(cg, n)
-
-
-@ChkGen.register(tree.ComplexNode)
-def chklayout_complex(cg, n):
     chklayout_composite(cg, n)
 
 

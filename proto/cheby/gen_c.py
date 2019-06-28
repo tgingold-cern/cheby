@@ -133,11 +133,6 @@ def cprint_submap(cp, n):
         cp.submaps.append(n.c_submap)
 
 
-@CPrinter.register(tree.ComplexNode)
-def cprint_complex(cp, n):
-    cprint_composite(cp, n)
-
-
 @CPrinter.register(tree.CompositeNode)
 def cprint_composite(cp, n):
     cprint_children(cp, n, n.c_size)
