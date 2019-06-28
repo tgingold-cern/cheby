@@ -2,7 +2,7 @@ memory-map:
   name: muxed2
   description: Muxed registers
   bus: cern-be-vme-16
-  size: 1048576
+  size: 1M
   x-cern-info:
     ident-code: 0x00
     map-version: 20180513

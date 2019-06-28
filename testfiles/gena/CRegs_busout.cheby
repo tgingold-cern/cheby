@@ -1,7 +1,7 @@
 memory-map:
   name: cregs_busout
   bus: cern-be-vme-err-32
-  size: 1048576
+  size: 1024k
   x-cern-info:
     ident-code: 0xff
     map-version: 20161031

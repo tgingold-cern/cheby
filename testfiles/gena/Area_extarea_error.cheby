@@ -1,7 +1,7 @@
 memory-map:
   name: area_extarea_error
   bus: cern-be-vme-err-16
-  size: 1048576
+  size: 1024k
   x-cern-info:
     ident-code: 0xff
     map-version: 20161031
@@ -18,7 +18,7 @@ memory-map:
     - block:
         name: area
         address: next
-        size: 524288
+        size: 512k
         x-gena:
           gen:
             ext-area: True

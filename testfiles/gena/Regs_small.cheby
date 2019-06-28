@@ -1,7 +1,7 @@
 memory-map:
   name: regs_small
   bus: cern-be-vme-16
-  size: 1048576
+  size: 1024k
   x-cern-info:
     ident-code: 0xff
     map-version: 20161101

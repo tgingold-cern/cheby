@@ -1,7 +1,7 @@
 memory-map:
   name: regs_nodff
   bus: cern-be-vme-16
-  size: 1048576
+  size: 1024k
   x-gena:
     gen:
       no-reg-mux-dff: True

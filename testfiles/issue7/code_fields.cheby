@@ -1,7 +1,7 @@
 memory-map:
   name: codeFields
   bus: cern-be-vme-16
-  size: 16384
+  size: 16k
   x-driver-edge:
     equipment-code: PX-ALCOB
   x-cern-info:
@@ -12,7 +12,7 @@ memory-map:
     - block:
         name: area1
         address: next
-        size: 1024
+        size: 1k
         x-gena:
           reserved: False
         children:
@@ -31,7 +31,7 @@ memory-map:
     - block:
         name: area2
         address: next
-        size: 1024
+        size: 1k
         x-gena:
           reserved: False
         children:

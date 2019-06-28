@@ -1,7 +1,7 @@
 memory-map:
   name: cregs_nodff
   bus: cern-be-vme-err-32
-  size: 1048576
+  size: 1024k
   x-gena:
     gen:
       no-creg-mux-dff: True
