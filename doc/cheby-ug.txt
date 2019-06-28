@@ -366,7 +366,8 @@ Example of a block:
 === RAMs
 
 A RAM is represented by an array of a register.  The number of elements is
-specified by the `repeat` attribute (usually it should be a power of 2).
+specified by the `repeat` attribute (usually it should be a power of 2) and
+allows k, M or G suffixes.
 
 The `align` attribute must be set to `true`.
 

@@ -222,7 +222,7 @@ def parse_array(parent, el):
         if parse_complex(res, k, v):
             pass
         elif k == 'repeat':
-            res.repeat = read_int(res, k, v)
+            res.repeat_str, res.repeat_val = read_size(res, k, v)
         else:
             error("unhandled '{}' in array {}".format(k, parent.get_path()))
     return res

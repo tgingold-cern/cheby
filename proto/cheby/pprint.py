@@ -167,7 +167,7 @@ def pprint_submap(pp, n):
 def pprint_array(pp, n):
     pp.pp_obj('array')
     pprint_complex_head(pp, n)
-    pp.pp_int('repeat', n.repeat)
+    pp.pp_str('repeat', n.repeat_str)
     pprint_complex_tail(pp, n)
     pp.pp_endobj()
 

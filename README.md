@@ -77,7 +77,7 @@ Fix byte and word address in comments for gena memmap file.
 
 Use synchronous reset for expanded RMW and SRFF in generated regctrl code.
 
-Size attributes are now a string with k/M/G suffixes allowed.
+Size and repeat attributes are now a string with k/M/G suffixes allowed.
 
 ## Version 1.2
 

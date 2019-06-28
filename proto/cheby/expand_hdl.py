@@ -147,7 +147,7 @@ def unroll_array(n):
     res.c_size = n.c_size
     assert len(n.children) == 1
     el = n.children[0]
-    for i in range(n.repeat):
+    for i in range(n.repeat_val):
         c = tree_copy(el, res)
         c.name = "{}{:x}".format(el.name, i)
         c.c_address = i * n.c_elsize

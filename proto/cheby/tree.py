@@ -123,7 +123,8 @@ class Array(CompositeNode):
 
     def __init__(self, parent):
         super(Array, self).__init__(parent)
-        self.repeat = None
+        self.repeat_str = None      # As a string, with k/M/G suffixes
+        self.repeat_val = None
 
 
 class Reg(NamedNode):

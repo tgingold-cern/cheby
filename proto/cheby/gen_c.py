@@ -114,7 +114,7 @@ def cprint_array(cp, n):
               n.c_address, n.description or '(no description)'))
     cp.start_struct(n.name)
     cprint_children(cp, n, n.c_elsize)
-    cp.end_struct('{}[{}]'.format(n.name, n.repeat))
+    cp.end_struct('{}[{}]'.format(n.name, n.repeat_val))
 
 
 @CPrinter.register(tree.Submap)

@@ -320,7 +320,7 @@ def layout_array(lo, n):
     if len(n.children) != 1:
         raise LayoutException(
             n, "array '{}' must have one element".format(n.get_path()))
-    if n.repeat is None:
+    if n.repeat_val is None:
         raise LayoutException(
             n, "missing repeat count for {}".format(n.get_path()))
     layout_composite(lo, n)
@@ -328,10 +328,10 @@ def layout_array(lo, n):
     if n.align is None or n.align:
         # Align to power of 2.
         n.c_elsize = round_pow2(n.c_elsize)
-        n.c_size = n.c_elsize * n.repeat
-        n.c_align = n.c_elsize * round_pow2(n.repeat)
+        n.c_size = n.c_elsize * n.repeat_val
+        n.c_align = n.c_elsize * round_pow2(n.repeat_val)
     else:
-        n.c_size = n.c_elsize * n.repeat
+        n.c_size = n.c_elsize * n.repeat_val
     # FIXME: only significant when aligned ?
     n.c_blk_bits = ilog2(n.c_elsize)
     n.c_sel_bits = ilog2(n.c_size) - n.c_blk_bits

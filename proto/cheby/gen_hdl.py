@@ -844,7 +844,7 @@ def add_ports_array(root, module, arr):
     :attr h_addr: the address port
     """
     # Compute width, and create address port.
-    arr.h_addr_width = ilog2(arr.repeat)
+    arr.h_addr_width = ilog2(arr.repeat_val)
     arr.h_addr = add_module_port(
         root, module, arr.c_name + '_adr', arr.h_addr_width, 'IN')
     arr.h_addr.comment = "RAM port for {}".format(arr.c_name)
