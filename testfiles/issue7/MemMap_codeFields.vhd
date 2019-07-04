@@ -9,6 +9,9 @@ package MemMap_codeFields is
 
   -- Memory Map Version
   constant C_codeFields_MemMapVersion : std_logic_vector(31 downto 0) := X"013413FC";--20190204
+
+  -- Semantic Memory Map Version
+  constant C_codeFields_SemanticMemMapVersion : std_logic_vector(31 downto 0) := X"00100000";--1.0.0
   constant C_Area_codeFields_area1 : std_logic_vector(13 downto 10) := "0000";
   constant C_Area_codeFields_area2 : std_logic_vector(13 downto 10) := "0001";
   -- Register Addresses : Area area1

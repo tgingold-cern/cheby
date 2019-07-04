@@ -307,7 +307,7 @@ def test_gena():
              'CRegs_resize_nosplit', 'CRegs_ignore', 'CRegs_Preset',
              'CRegs_Address', 'CRegs_resize_signed', 'CRegs_d8',
              'Submap', 'Submap_internal',
-             'Muxed', 'Muxed2']
+             'Muxed', 'Muxed2', 'Semver']
     for f in files:
         if verbose:
             print('test gena: {}'.format(f))
