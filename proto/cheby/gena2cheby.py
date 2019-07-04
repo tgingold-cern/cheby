@@ -449,7 +449,7 @@ def conv_memory_data(parent, el):
                     xg[e] = True
                 elif e.startswith('gen='):
                     # gen=ignore
-                    kg, vg = e.split('=')
+                    kg, _ = e.split('=')
                     if kg == 'ignore':
                         xg[kg] = True
                     elif kg == 'internal':

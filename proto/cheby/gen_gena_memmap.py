@@ -26,6 +26,17 @@ def gen_header(root, decls):
             cst.eol_comment = '{}'.format(version)
             decls.append(cst)
 
+        sem_version = root.x_cern_info.get('semantic-mem-map-version')
+        if sem_version:
+            # TODO: check format ?
+            vers = [int(x) for x in sem_version.split('.')]
+            ver32 = (vers[0] << 20) | (vers[1] << 10) | vers[2]
+            decls.append(HDLComment('Semantic Memory Map Version'))
+            cst = HDLConstant(cpfx + '_SemanticMemMapVersion', 32,
+                              value=HDLHexConst(ver32, 32))
+            cst.eol_comment = '{}'.format(sem_version)
+            decls.append(cst)
+
 
 def gen_addr_cst(decls, addr, name, addr_width, block_width, word_width):
     val = HDLBinConst(addr, addr_width)
