@@ -278,6 +278,14 @@ class HDLBool(HDLCstValue):
     pass
 
 
+class HDLExternalName(HDLExpr):
+    """A reference to an external name.  Used only for gena"""
+    def __init__(self, name):
+        super(HDLExternalName, self).__init__()
+        assert name is not None
+        self.name = name
+
+
 class HDLIndex(HDLExpr):
     def __init__(self, prefix, index):
         super(HDLIndex, self).__init__()

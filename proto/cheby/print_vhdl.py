@@ -247,6 +247,8 @@ def generate_expr(e, prio=-1):
         # is_master means the direction is not reversed.
         sfx = 'i' if (e.subport.dir == 'IN') == (e.prefix.is_master) else 'o'
         return "{}_{}.{}".format(e.prefix.name, sfx, e.subport.name)
+    elif isinstance(e, hdltree.HDLExternalName):
+        return e.name
     else:
         assert False, "unhandled hdl expr {}".format(e)
 

@@ -12,7 +12,7 @@ from cheby.hdltree import (HDLComponent, HDLComponentSpec,
                            HDLSwitch, HDLChoiceExpr, HDLChoiceDefault,
                            HDLInstance, HDLComb, HDLSync,
                            HDLComment,
-                           HDLNumber, HDLBinConst)
+                           HDLNumber, HDLBinConst, HDLExternalName)
 from cheby.gen_gena_memmap import subsuffix
 import cheby.gen_hdl as gen_hdl
 
@@ -84,7 +84,7 @@ def extract_mux(root, mux, reg):
 
 
 def gen_hdl_reg_decls(reg, pfx, root, module, isigs):
-    # Generate ports
+    # Generate ports for registers
     mode = 'OUT' if reg.access in WRITE_ACCESS else 'IN'
     mux = get_gena_gen(reg, 'mux', None)
     # FIXME: should it be an error ?
@@ -119,11 +119,16 @@ def gen_hdl_reg_decls(reg, pfx, root, module, isigs):
             sz, lo = (None, None) if f.hi is None else (f.c_iowidth, f.lo)
             fname = ('_' + f.name) if f.name is not None else ''
             f.h_port = []
-            for suff, _ in reg.h_mux.codelist:
-                port = HDLPort(pfx + reg.name + suff + fname,
-                               size=sz, lo_idx=lo, dir=mode)
-                module.ports.append(port)
-                f.h_port.append(port)
+            # Handle gen.const
+            cst = get_gena_gen(reg if isinstance(f, tree.FieldReg) else f, 'const', None)
+            if cst is not None:
+                f.h_port.append(HDLExternalName(cst))
+            else:
+                for suff, _ in reg.h_mux.codelist:
+                    port = HDLPort(pfx + reg.name + suff + fname,
+                                size=sz, lo_idx=lo, dir=mode)
+                    module.ports.append(port)
+                    f.h_port.append(port)
 
     reg.h_busout = None
     if get_gena_gen(reg, 'bus-out'):
@@ -1352,9 +1357,17 @@ def gen_gena_regctrl(root, use_common_visual):
     module = gen_hdl.gen_hdl_header(root)
     module.name = 'RegCtrl_{}'.format(root.name)
 
+    # Depends on CommonVisual
     root.h_common_visual = use_common_visual
     if root.h_common_visual:
         module.libraries.append('CommonVisual')
+
+    # Extra on x-gen.packages
+    pkgs = get_gena_gen(root, 'packages', [])
+    for name in pkgs:
+        module.deps.append(name['package'].split('.'))
+
+    # Depends on MemMap.
     lib = get_gena_gen(root, 'vhdl-library', 'work')
     module.deps.append((lib, 'MemMap_{}'.format(root.name)))
 

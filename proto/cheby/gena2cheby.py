@@ -633,7 +633,7 @@ def conv_root(root, filename):
                     xg['vhdl-library'] = vg
                 elif e.startswith('package='):
                     _, vg = e.split('=')
-                    xg['package'] = vg
+                    xg['package'] = [n for n in vg.split(';')]
                 elif e in ('no-creg-mux-dff', 'no-reg-mux-dff',
                            'no-mem-mux-dff', 'dsp'):
                     xg[e] = True
