@@ -81,6 +81,8 @@ Size and repeat attributes are now a string with k/M/G suffixes allowed.
 
 The attribute semantic-mem-map-version now generates a constant in Gena memmap file.
 
+Handle x-gena.packages and gen.const attributes.
+
 ## Version 1.2
 
 Add --gen-custom to support user defined pass (merge!4)
