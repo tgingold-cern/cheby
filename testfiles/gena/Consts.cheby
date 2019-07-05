@@ -1,0 +1,70 @@
+memory-map:
+  name: const
+  description: Test of gen=const
+  note: EDA-02281
+  bus: cern-be-vme-err-32
+  size: 256k
+  x-gena:
+    gen:
+      packages:
+        - package: my_lib.my_pkg
+  x-driver-edge:
+    equipment-code: PX-ALGCA
+    module-type: RF_VXS_MAIN
+    name: RFVXSMAIN
+    vme-base-addr: 0xb0000000
+  x-cern-info:
+    ident-code: 0x00300010
+    map-version: 20190607
+    semantic-mem-map-version: 1.1.0
+  children:
+    - reg:
+        name: firmwareVersion
+        description: Firmware Version code
+        note: dec2hex(20111031)
+        width: 32
+        type: unsigned
+        access: ro
+        address: next
+        x-gena:
+          gen:
+            const: C_MainFirmwareVersion
+        x-fesa:
+          persistence: None
+    - reg:
+        name: memMapVersion
+        description: Memory Map Version
+        note: dec2hex(20121120)
+        width: 32
+        type: unsigned
+        access: ro
+        address: next
+        x-gena:
+          gen:
+            const: C_MainFPGA_MemMapVersion
+        x-fesa:
+          persistence: None
+    - reg:
+        name: designerID
+        description: Firmware Designer ID
+        note: Packed Baudot Hardware (MS) + Firmware (LS) Designer name
+        width: 32
+        access: ro
+        address: next
+        x-fesa:
+          persistence: None
+        children:
+          - field:
+              name: hwDesigner
+              description: Hardware designer ID
+              range: 31-16
+              x-gena:
+                gen:
+                  const: John
+          - field:
+              name: fwDesigner
+              description: Firmware designer ID
+              range: 15-0
+              x-gena:
+                gen:
+                  const: John

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type="text/xsl" href="http://abwww.cern.ch/ap/deployments/applications/cern/accsoft/rf/accsoft-rf-cheburashka/PRO/source/src/java/cern/accsoft/rf/cheburashka/xml/schema/MemMapStyleSheet.xsl"?>
+<memory-map xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" area-depth="256k" description="Test of gen=const" driver-name="RFVXSMAIN" equipment-code="PX-ALGCA" gen="package=my_lib.my_pkg" ident-code="0x00300010" map-version="20190607" mem-map-access-mode="A32/D32" module-type="RF_VXS_MAIN" name="const" note="EDA-02281" semantic-mem-map-version="1.1.0" vme-base-addr="0xb0000000" xsi:schemaLocation="http://abwww.cern.ch/ap/deployments/applications/cern/accsoft/rf/accsoft-rf-cheburashka/PRO/source/src/java/cern/accsoft/rf/cheburashka/xml/schema/TemplateMemMap.xsd">
+  <register-data access-mode="r" address="next" bit-encoding="unsigned" code-generation-rule="HW,Fesa" description="Firmware Version code" element-width="32" gen="const=C_MainFirmwareVersion" name="firmwareVersion" note="dec2hex(20111031)" persistence="None"/>
+  <register-data access-mode="r" address="next" bit-encoding="unsigned" code-generation-rule="HW,Fesa" description="Memory Map Version" element-width="32" gen="const=C_MainFPGA_MemMapVersion" name="memMapVersion" note="dec2hex(20121120)" persistence="None"/>
+  <register-data access-mode="r" address="next" bit-encoding="unsigned" code-generation-rule="HW,Fesa" description="Firmware Designer ID" element-width="32" name="designerID" note="Packed Baudot Hardware (MS) + Firmware (LS) Designer name" persistence="None">
+    <sub-reg description="Hardware designer ID" gen="const=John" name="hwDesigner" range="31-16"/>
+    <sub-reg description="Firmware designer ID" gen="const=John" name="fwDesigner" range="15-0"/>
+  </register-data>
+</memory-map>
