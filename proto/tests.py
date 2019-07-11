@@ -290,6 +290,7 @@ def test_gena():
     # Feature tests
     global nbr_tests
     files = ['CRegs', 'CRegs_Regs', 'CRegs_NoRMW', 'CRegs_Regs_NoRMW',
+             'CRegs_internal',
              'Regs', 'Regs_Mems', 'Regs_rdstrobe', 'Regs_nodff',
              'Regs_cross_words', 'Regs_small',
              'sub_reg_swap', 'sub_reg_one', 'sub_reg_preset',
