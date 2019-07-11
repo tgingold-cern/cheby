@@ -83,6 +83,8 @@ The attribute semantic-mem-map-version now generates a constant in Gena memmap f
 
 Handle x-gena.packages and gen.const attributes.
 
+Handle x-gena.suppress-port attribute.
+
 ## Version 1.2
 
 Add --gen-custom to support user defined pass (merge!4)
