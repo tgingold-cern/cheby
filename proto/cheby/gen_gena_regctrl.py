@@ -114,6 +114,8 @@ def gen_hdl_reg_decls(reg, pfx, root, module, isigs):
                     pfx, reg.name, subsuffix(i, reg.c_nwords)), dir='OUT')
                 reg.h_portsel.insert(0, sig)
                 module.ports.append(sig)
+    elif get_gena_gen(reg, 'suppress-port') and reg.access in WRITE_ACCESS:
+        pass
     else:
         for f in reg.children:
             sz, lo = (None, None) if f.hi is None else (f.c_iowidth, f.lo)
@@ -485,6 +487,8 @@ def gen_hdl_reg_stmts(reg, pfx, root, module, isigs):
                     src = f.h_port[m]
                     src = gen_reg_resize(reg, src, f.c_iowidth, f.c_rwidth)
                     module.stmts.append(HDLAssign(tgt, src))
+    elif get_gena_gen(reg, 'suppress-port') and reg.access in WRITE_ACCESS:
+        pass
     else:
         for m in range(len(reg.h_loc_mux)):
             for f in reg.children:
