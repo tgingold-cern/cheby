@@ -698,6 +698,8 @@ class SRAMBus(BusGen):
 
         n.h_bus['dato'] = root.h_ports.add_port(
             prefix + 'data_o', n.c_width, dir='OUT')
+        n.h_bus['wr'] = root.h_ports.add_port(
+            prefix + 'wr_o', dir='OUT')
 
         # Internal signals
         n.h_bus['rack'] = module.new_HDLSignal(prefix + 'rack')
@@ -715,8 +717,10 @@ class SRAMBus(BusGen):
                               root.c_addr_word_bits, n.c_addr_bits)))
 
     def write_bus_slave(self, root, stmts, n, proc, isigs):
-        # FIXME: to do ?
-        pass
+        proc.rst_stmts.append(HDLAssign(n.h_bus['wr'], bit_0))
+        proc.sync_stmts.append(HDLAssign(n.h_bus['wr'], bit_0))
+        stmts.append(HDLAssign(n.h_bus['wr'], isigs.wr_int))
+        stmts.append(HDLAssign(isigs.wr_ack, isigs.wr_int))
 
     def read_bus_slave(self, root, stmts, n, proc, isigs, rd_data):
         stmts.append(HDLAssign(rd_data, n.h_bus['dati']))
