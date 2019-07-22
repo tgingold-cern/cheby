@@ -12,8 +12,6 @@ entity alt_trigin is
 
     -- Enable trigger, cleared when triggered
     ctrl_enable_i        : in    std_logic;
-
-    -- Enable trigger, cleared when triggered
     ctrl_enable_o        : out   std_logic;
     ctrl_wr_o            : out   std_logic;
 
