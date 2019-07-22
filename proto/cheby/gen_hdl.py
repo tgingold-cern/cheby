@@ -782,12 +782,16 @@ def add_ports_reg(root, module, n):
                 # One port used for all fields.
                 if oport is None:
                     oport = add_module_port(root, module, n.c_name, n.width, dir='OUT')
-                    oport.comment = n.description
+                    if f.h_iport is None:
+                        # Add comment but not twice.
+                        oport.comment = n.description
                 f.h_oport = Slice_or_Index(oport, f.lo, w)
             else:
                 # One port per field.
                 f.h_oport = add_module_port(root, module, f.c_name, w, dir='OUT')
-                f.h_oport.comment = f.description
+                if f.h_iport is None:
+                   # Add comment but not twice.
+                   f.h_oport.comment = f.description
         else:
             f.h_oport = None
 
