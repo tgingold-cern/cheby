@@ -1209,7 +1209,7 @@ def add_read_reg_process(root, module, isigs):
                     add_read_reg(s, n, off)
                 if n.h_rstrobe is not None:
                     s.append(HDLAssign(strobe_index(root, n, off, n.h_rstrobe),
-                                       bit_1))
+                                       isigs.rd_int))
                     if off == 0:
                         # Default values for the strobe.
                         v = strobe_init(root, n)
