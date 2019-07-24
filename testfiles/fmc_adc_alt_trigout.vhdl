@@ -217,7 +217,7 @@ begin
         when "0" => 
           -- ts_cycles
           reg_rdat_int(27 downto 0) <= cycles_i;
-          ts_cycles_rd_o <= '1';
+          ts_cycles_rd_o <= rd_int;
           rd_ack1_int <= rd_int;
         when others =>
           rd_ack1_int <= rd_int;

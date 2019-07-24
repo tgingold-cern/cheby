@@ -131,17 +131,17 @@ begin
       when "00" => 
         -- strobe
         reg_rdat_int <= strobe_reg;
-        strobe_rd_o <= '1';
+        strobe_rd_o <= rd_int;
         rd_ack1_int <= rd_int;
       when "01" => 
         -- wires
         reg_rdat_int <= wires_i;
-        wires_rd_o <= '1';
+        wires_rd_o <= rd_int;
         rd_ack1_int <= rd_int;
       when "10" => 
         -- acks
         reg_rdat_int <= acks_i;
-        acks_rd_o <= '1';
+        acks_rd_o <= rd_int;
         rd_ack1_int <= acks_rack_i;
       when others =>
         rd_ack1_int <= rd_int;
