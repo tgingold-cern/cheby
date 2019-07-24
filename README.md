@@ -85,6 +85,9 @@ Handle x-gena.packages and gen.const attributes.
 
 Handle x-gena.suppress-port attribute.
 
+A pulse is now generated for strobe-write (it was already the case for
+strobe-read).
+
 ## Version 1.2
 
 Add --gen-custom to support user defined pass (merge!4)
