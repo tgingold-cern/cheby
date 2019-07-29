@@ -1,0 +1,740 @@
+#  -*- Mode: LUA; tab-width: 2 -*-
+memory-map:
+  bus: wb-32-be
+  name: sysc
+  description: WR Core System Controller
+  comment: |
+    
+  x-wbgen:
+    hdl_entity: wrc_syscon_wb
+  children:
+  - reg:
+      name: RSTR
+      address: 0x00000000
+      width: 32
+      access: rw
+      description: Syscon reset register
+      children:
+      - field:
+          name: TRIG
+          range: 27-0
+          description: Reset trigger
+          comment: |
+            Write 0xdeadbee latch the state of RSTR.RST to the reset line of the LM32 CPU.
+          x-wbgen:
+            type: PASS_THROUGH
+          x-hdl:
+            type: wire
+      - field:
+          name: RST
+          range: 28
+          description: Reset line state value
+          comment: |
+            State of the reset line
+          x-wbgen:
+            type: BIT
+            access_bus: READ_WRITE
+            access_dev: READ_ONLY
+      x-hdl:
+        write-strobe: True
+  - reg:
+      name: GPSR
+      address: 0x00000004
+      width: 32
+      access: rw
+      description: GPIO Set/Readback Register
+      children:
+      - field:
+          name: led_stat
+          range: 0
+          description: Status LED
+          comment: |
+            Write 1: turn on the Status LED
+          x-wbgen:
+            type: MONOSTABLE
+      - field:
+          name: led_link
+          range: 1
+          description: Link LED
+          comment: |
+            Write 1: turn on the Link LED
+          x-wbgen:
+            type: MONOSTABLE
+      - field:
+          name: fmc_scl
+          range: 2
+          description: FMC I2C bitbanged SCL
+          comment: |
+            write 1: Set FMC SCL line to 1 (pullup)
+            read : returns the current status of the SCL line.
+          x-wbgen:
+            type: BIT
+            access_bus: READ_WRITE
+            access_dev: READ_WRITE
+            load: LOAD_EXT
+      - field:
+          name: fmc_sda
+          range: 3
+          description: FMC I2C bitbanged SDA
+          comment: |
+            write 1: Set FMC SDA line to 1 (pullup)
+            read : returns the current status of the SCL line.
+          x-wbgen:
+            type: BIT
+            access_bus: READ_WRITE
+            access_dev: READ_WRITE
+            load: LOAD_EXT
+      - field:
+          name: Net_RST
+          range: 4
+          description: Network AP reset
+          comment: |
+            write 1: resets the networking subsystem
+          x-wbgen:
+            type: MONOSTABLE
+      - field:
+          name: Btn1
+          range: 5
+          description: SPEC Pushbutton 1 state
+          comment: |
+            read : returns the state of the Button 1 on the SPEC board
+          x-wbgen:
+            type: BIT
+            access_bus: READ_ONLY
+            access_dev: WRITE_ONLY
+      - field:
+          name: Btn2
+          range: 6
+          description: SPEC Pushbutton 2 state
+          comment: |
+            read : returns the state of the Button 2 on the SPEC board
+          x-wbgen:
+            type: BIT
+            access_bus: READ_ONLY
+            access_dev: WRITE_ONLY
+      - field:
+          name: sfp_det
+          range: 7
+          description: SFP detect (MOD_DEF0 signal)
+          comment: |
+            read : returns the state of the SFP's MOD_DEF0 line
+          x-wbgen:
+            type: BIT
+            access_bus: READ_ONLY
+            access_dev: WRITE_ONLY
+      - field:
+          name: sfp_scl
+          range: 8
+          description: SFP I2C bitbanged SCL
+          comment: |
+            write 1: Set SFP SCL line to 1 (pullup)
+            read : returns the current status of the SCL line.
+          x-wbgen:
+            type: BIT
+            access_bus: READ_WRITE
+            access_dev: READ_WRITE
+            load: LOAD_EXT
+      - field:
+          name: sfp_sda
+          range: 9
+          description: SFP I2C bitbanged SDA
+          comment: |
+            write 1: Set SFP SDA line to 1 (pullup)
+            read : returns the current status of the SCL line.
+          x-wbgen:
+            type: BIT
+            access_bus: READ_WRITE
+            access_dev: READ_WRITE
+            load: LOAD_EXT
+      - field:
+          name: spi_sclk
+          range: 10
+          description: SPI bitbanged SCLK
+          comment: |
+            write 1: drive SPI CLK to 1
+            read: always 0
+          x-wbgen:
+            type: BIT
+            access_bus: READ_WRITE
+            access_dev: READ_WRITE
+            load: LOAD_EXT
+      - field:
+          name: spi_ncs
+          range: 11
+          description: SPI bitbanged NCS
+          comment: |
+            write 1: drive SPI NCS to 1
+            read: always 0
+          x-wbgen:
+            type: BIT
+            access_bus: READ_WRITE
+            access_dev: READ_WRITE
+            load: LOAD_EXT
+      - field:
+          name: spi_mosi
+          range: 12
+          description: SPI bitbanged MOSI
+          comment: |
+            write 1: drive SPI MOSI line to 1
+            read: always 0
+          x-wbgen:
+            type: BIT
+            access_bus: READ_WRITE
+            access_dev: READ_WRITE
+            load: LOAD_EXT
+      - field:
+          name: spi_miso
+          range: 13
+          description: SPI bitbanged MISO
+          comment: |
+            read: current state of SPI MISO line
+          x-wbgen:
+            type: BIT
+            access_bus: READ_ONLY
+            access_dev: WRITE_ONLY
+            load: LOAD_EXT
+      x-hdl:
+        write-strobe: True
+  - reg:
+      name: GPCR
+      address: 0x00000008
+      width: 32
+      access: wo
+      description: GPIO Clear Register
+      children:
+      - field:
+          name: led_stat
+          range: 0
+          description: Status LED
+          comment: |
+            Write 1: turn on the Status LED
+          x-wbgen:
+            type: MONOSTABLE
+      - field:
+          name: led_link
+          range: 1
+          description: Link LED
+          comment: |
+            Write 1: turn on the Link LED
+          x-wbgen:
+            type: MONOSTABLE
+      - field:
+          name: fmc_scl
+          range: 2
+          description: FMC I2C bitbanged SCL
+          comment: |
+            write 1: Set FMC SCL line to 1 (pullup)
+            read : returns the current status of the SCL line.
+          x-wbgen:
+            type: MONOSTABLE
+      - field:
+          name: fmc_sda
+          range: 3
+          description: FMC I2C bitbanged SDA
+          comment: |
+            write 1: Set FMC SDA line to 1 (pullup)
+            read : returns the current status of the SCL line.
+          x-wbgen:
+            type: MONOSTABLE
+      - field:
+          name: sfp_scl
+          range: 8
+          description: SFP I2C bitbanged SCL
+          comment: |
+            write 1: Set SFP SCL line to 0.
+          x-wbgen:
+            type: MONOSTABLE
+      - field:
+          name: sfp_sda
+          range: 9
+          description: FMC I2C bitbanged SDA
+          comment: |
+            write 1: Set SFP SDA line to 0.
+          x-wbgen:
+            type: MONOSTABLE
+      - field:
+          name: spi_sclk
+          range: 10
+          description: SPI bitbanged SCLK
+          comment: |
+            write 1: Set SPI CLK line to 0.
+          x-wbgen:
+            type: MONOSTABLE
+      - field:
+          name: spi_cs
+          range: 11
+          description: SPI bitbanged CS
+          comment: |
+            write 1: Set SPI CS line to 0
+          x-wbgen:
+            type: MONOSTABLE
+      - field:
+          name: spi_mosi
+          range: 12
+          description: SPI bitbanged MOSI
+          comment: |
+            write 1: Set SPI MOSI line to 0.
+          x-wbgen:
+            type: MONOSTABLE
+  - reg:
+      name: HWFR
+      address: 0x0000000c
+      width: 32
+      access: ro
+      description: Hardware Feature Register
+      children:
+      - field:
+          name: MEMSIZE
+          range: 3-0
+          description: Memory size
+          comment: |
+            Size of installed memory: 0 = 64 kB ... 0xf = 1024 kB
+          x-wbgen:
+            type: SLV
+            access_bus: READ_ONLY
+            access_dev: WRITE_ONLY
+  - reg:
+      name: HWIR
+      address: 0x00000010
+      width: 32
+      access: ro
+      description: Hardware Info Register
+      children:
+      - field:
+          name: NAME
+          range: 31-0
+          description: Board name
+          comment: |
+            4-letter name of the board
+          x-wbgen:
+            type: SLV
+            access_bus: READ_ONLY
+            access_dev: WRITE_ONLY
+  - reg:
+      name: TCR
+      address: 0x00000014
+      width: 32
+      access: rw
+      description: Timer Control Register
+      children:
+      - field:
+          name: TDIV
+          range: 11-0
+          description: Timer Divider
+          comment: |
+            Division for obtain 1 millisecond ticks from the system clock:
+            <b>f_tick = f_clk_sys / (TDIV * 256)</b>
+          x-wbgen:
+            type: SLV
+            access_bus: READ_ONLY
+            access_dev: WRITE_ONLY
+      - field:
+          name: ENABLE
+          range: 31
+          description: Timer Enable
+          comment: |
+            write 1: enable timer
+            write 0: disable timer
+          x-wbgen:
+            type: BIT
+            access_bus: READ_WRITE
+            access_dev: READ_ONLY
+  - reg:
+      name: TVR
+      address: 0x00000018
+      width: 32
+      access: ro
+      description: Timer Counter Value Register
+      x-wbgen:
+        type: SLV
+        access_bus: READ_ONLY
+        access_dev: WRITE_ONLY
+        field_description: Timer Counter Value
+  - reg:
+      name: DIAG_INFO
+      address: 0x0000001c
+      width: 32
+      access: ro
+      description: "User Diag: version register"
+      children:
+      - field:
+          name: VER
+          range: 15-0
+          description: Ver
+          x-wbgen:
+            type: SLV
+            access_bus: READ_ONLY
+            access_dev: WRITE_ONLY
+      - field:
+          name: ID
+          range: 31-16
+          description: Id
+          x-wbgen:
+            type: SLV
+            access_bus: READ_ONLY
+            access_dev: WRITE_ONLY
+  - reg:
+      name: DIAG_NW
+      address: 0x00000020
+      width: 32
+      access: ro
+      description: "User Diag: number of words"
+      children:
+      - field:
+          name: RW
+          range: 15-0
+          description: Read/write words
+          x-wbgen:
+            type: SLV
+            access_bus: READ_ONLY
+            access_dev: WRITE_ONLY
+      - field:
+          name: RO
+          range: 31-16
+          description: Read-only words
+          x-wbgen:
+            type: SLV
+            access_bus: READ_ONLY
+            access_dev: WRITE_ONLY
+  - reg:
+      name: DIAG_CR
+      address: 0x00000024
+      width: 32
+      access: rw
+      description: "User Diag: Control Register"
+      children:
+      - field:
+          name: ADR
+          range: 15-0
+          description: Address
+          x-wbgen:
+            type: SLV
+            access_bus: READ_WRITE
+            access_dev: READ_WRITE
+            load: LOAD_EXT
+      - field:
+          name: RW
+          range: 31
+          description: R/W
+          x-wbgen:
+            type: BIT
+            access_bus: READ_WRITE
+            access_dev: READ_ONLY
+            size: 1
+      x-hdl:
+        write-strobe: True
+  - reg:
+      name: DIAG_DAT
+      address: 0x00000028
+      width: 32
+      access: rw
+      description: "User Diag: data to read/write"
+      x-wbgen:
+        type: SLV
+        access_bus: READ_WRITE
+        access_dev: READ_WRITE
+        load: LOAD_EXT
+        field_description: Data
+      x-hdl:
+        write-strobe: True
+  - reg:
+      name: WDIAG_CTRL
+      address: 0x0000002c
+      width: 32
+      access: rw
+      description: "WRPC Diag: ctrl"
+      children:
+      - field:
+          name: DATA_VALID
+          range: 0
+          description: WR DIAG data valid
+          comment: |
+            0: valid
+            1: transcient
+          x-wbgen:
+            type: BIT
+            access_bus: READ_WRITE
+            access_dev: READ_ONLY
+      - field:
+          name: DATA_SNAPSHOT
+          range: 8
+          description: WR DIAG data snapshot
+          comment: |
+            1: snapshot data (data in registers will not change aveter VALID becomes true)
+          x-wbgen:
+            type: BIT
+            access_bus: READ_ONLY
+            access_dev: WRITE_ONLY
+  - reg:
+      name: WDIAG_SSTAT
+      address: 0x00000030
+      width: 32
+      access: rw
+      description: "WRPC Diag: servo status"
+      children:
+      - field:
+          name: wr_mode
+          range: 0
+          description: WR valid
+          comment: |
+            0: not valid\1:valid
+          x-wbgen:
+            type: BIT
+            access_bus: READ_WRITE
+            access_dev: READ_ONLY
+      - field:
+          name: servostate
+          range: 11-8
+          description: Servo State
+          comment: |
+            0: Uninitialized
+            1: SYNC_NSEC
+            2: SYNC_TAI
+            3: SYNC_PHASE
+            4: TRACK_PHASE
+            5: WAIT_OFFSET_STABLE
+          x-wbgen:
+            type: SLV
+            access_bus: READ_WRITE
+            access_dev: READ_ONLY
+  - reg:
+      name: WDIAG_PSTAT
+      address: 0x00000034
+      width: 32
+      access: rw
+      description: "WRPC Diag: Port status"
+      children:
+      - field:
+          name: link
+          range: 0
+          description: Link Status
+          comment: |
+            0: link down
+            1: link up
+          x-wbgen:
+            type: BIT
+            access_bus: READ_WRITE
+            access_dev: READ_ONLY
+      - field:
+          name: locked
+          range: 1
+          description: PLL Locked
+          comment: |
+            0: not locked
+            1: locked
+          x-wbgen:
+            type: BIT
+            access_bus: READ_WRITE
+            access_dev: READ_ONLY
+  - reg:
+      name: WDIAG_PTPSTAT
+      address: 0x00000038
+      width: 32
+      access: rw
+      description: "WRPC Diag: PTP state"
+      children:
+      - field:
+          name: ptpstate
+          range: 7-0
+          description: PTP State
+          comment: |
+            0: NONE
+            1: PPS_INITIALIZING
+            2: PPS_FAULTY
+            3: disabled
+            4: PPS_LISTENING
+            5: PPS_PRE_MASTER
+            6: PPS_MASTER
+            7: PPS_PASSIVE
+            8: PPS_UNCALIBRATED
+            9: PPS_SLAVE
+            100-116: WR STATES
+            see: ppsi/proto-ext-whiterabbit/wr-constants.h
+            ppsi/include/ppsi/ieee1588_types.h
+          x-wbgen:
+            type: SLV
+            access_bus: READ_WRITE
+            access_dev: READ_ONLY
+  - reg:
+      name: WDIAG_ASTAT
+      address: 0x0000003c
+      width: 32
+      access: rw
+      description: "WRPC Diag: AUX state"
+      children:
+      - field:
+          name: aux
+          range: 7-0
+          description: AUX channel
+          comment: |
+            A vector of bits, one bit per channel
+            0: not valid
+            1:valid
+          x-wbgen:
+            type: SLV
+            access_bus: READ_WRITE
+            access_dev: READ_ONLY
+  - reg:
+      name: WDIAG_TXFCNT
+      address: 0x00000040
+      width: 32
+      access: rw
+      description: "WRPC Diag: Tx PTP Frame cnts"
+      comment: |
+        Number of transmitted PTP Frames
+      x-wbgen:
+        type: SLV
+        access_bus: READ_WRITE
+        access_dev: READ_ONLY
+        field_description: Data
+  - reg:
+      name: WDIAG_RXFCNT
+      address: 0x00000044
+      width: 32
+      access: rw
+      description: "WRPC Diag: Rx PTP Frame cnts"
+      comment: |
+        Number of received PTP Frames
+      x-wbgen:
+        type: SLV
+        access_bus: READ_WRITE
+        access_dev: READ_ONLY
+        field_description: Data
+  - reg:
+      name: WDIAG_SEC_MSB
+      address: 0x00000048
+      width: 32
+      access: rw
+      description: "WRPC Diag:local time [msb of s]"
+      comment: |
+        Local Time expressed in seconds since epoch (TAI)
+      x-wbgen:
+        type: SLV
+        access_bus: READ_WRITE
+        access_dev: READ_ONLY
+        field_description: Data
+  - reg:
+      name: WDIAG_SEC_LSB
+      address: 0x0000004c
+      width: 32
+      access: rw
+      description: "WRPC Diag: local time [lsb of s]"
+      comment: |
+        Local Time expressed in seconds since epoch (TAI)
+      x-wbgen:
+        type: SLV
+        access_bus: READ_WRITE
+        access_dev: READ_ONLY
+        field_description: Data
+  - reg:
+      name: WDIAG_NS
+      address: 0x00000050
+      width: 32
+      access: rw
+      description: "WRPC Diag: local time [ns]"
+      comment: |
+        Nanoseconds part of the Local Time expressed in seconds since epoch (TAI)
+      x-wbgen:
+        type: SLV
+        access_bus: READ_WRITE
+        access_dev: READ_ONLY
+        field_description: Data
+  - reg:
+      name: WDIAG_MU_MSB
+      address: 0x00000054
+      width: 32
+      access: rw
+      description: "WRPC Diag: Round trip (mu) [msb of ps]"
+      x-wbgen:
+        type: SLV
+        access_bus: READ_WRITE
+        access_dev: READ_ONLY
+        field_description: Data
+  - reg:
+      name: WDIAG_MU_LSB
+      address: 0x00000058
+      width: 32
+      access: rw
+      description: "WRPC Diag: Round trip (mu) [lsb of ps]"
+      x-wbgen:
+        type: SLV
+        access_bus: READ_WRITE
+        access_dev: READ_ONLY
+        field_description: Data
+  - reg:
+      name: WDIAG_DMS_MSB
+      address: 0x0000005c
+      width: 32
+      access: rw
+      description: "WRPC Diag: Master-slave delay (dms) [msb of ps]"
+      x-wbgen:
+        type: SLV
+        access_bus: READ_WRITE
+        access_dev: READ_ONLY
+        field_description: Data
+  - reg:
+      name: WDIAG_DMS_LSB
+      address: 0x00000060
+      width: 32
+      access: rw
+      description: "WRPC Diag: Master-slave delay (dms) [lsb of ps]"
+      x-wbgen:
+        type: SLV
+        access_bus: READ_WRITE
+        access_dev: READ_ONLY
+        field_description: Data
+  - reg:
+      name: WDIAG_ASYM
+      address: 0x00000064
+      width: 32
+      access: rw
+      description: "WRPC Diag: Total link asymmetry [ps]"
+      x-wbgen:
+        type: SLV
+        access_bus: READ_WRITE
+        access_dev: READ_ONLY
+        field_description: Data
+  - reg:
+      name: WDIAG_CKO
+      address: 0x00000068
+      width: 32
+      access: rw
+      description: "WRPC Diag: Clock offset (cko) [ps]"
+      x-wbgen:
+        type: SLV
+        access_bus: READ_WRITE
+        access_dev: READ_ONLY
+        field_description: Data
+  - reg:
+      name: WDIAG_SETP
+      address: 0x0000006c
+      width: 32
+      access: rw
+      description: "WRPC Diag: Phase setpoint (setp) [ps]"
+      x-wbgen:
+        type: SLV
+        access_bus: READ_WRITE
+        access_dev: READ_ONLY
+        field_description: Data
+  - reg:
+      name: WDIAG_UCNT
+      address: 0x00000070
+      width: 32
+      access: rw
+      description: "WRPC Diag: Update counter (ucnt)"
+      x-wbgen:
+        type: SLV
+        access_bus: READ_WRITE
+        access_dev: READ_ONLY
+        field_description: Data
+  - reg:
+      name: WDIAG_TEMP
+      address: 0x00000074
+      width: 32
+      access: rw
+      description: "WRPC Diag: Board temperature [C degree]"
+      x-wbgen:
+        type: SLV
+        access_bus: READ_WRITE
+        access_dev: READ_ONLY
+        field_description: Data

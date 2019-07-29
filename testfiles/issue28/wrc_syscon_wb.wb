@@ -1,0 +1,682 @@
+-- -*- Mode: LUA; tab-width: 2 -*-
+
+peripheral {
+   name = "WR Core System Controller";
+   description = "";
+   prefix = "sysc";
+   hdl_entity = "wrc_syscon_wb";
+
+   reg {
+      name = "Syscon reset register";
+      prefix = "RSTR";
+      
+      field {
+         name = "Reset trigger";
+         prefix = "TRIG";
+         description = "Write 0xdeadbee latch the state of RSTR.RST to the reset line of the LM32 CPU.";
+         type = PASS_THROUGH;
+         size = 28;
+      };
+      
+      field {
+      	name = "Reset line state value";
+      	prefix = "RST";
+      	description = "State of the reset line";
+      	type = BIT;
+      	access_bus = READ_WRITE;
+      	access_dev = READ_ONLY;      
+      };
+   };
+
+   reg {
+      name = "GPIO Set/Readback Register";
+      prefix = "GPSR";
+
+
+      field {
+         name = "Status LED";
+         description = "Write 1: turn on the Status LED";
+         prefix = "led_stat";
+         type = MONOSTABLE;
+      };
+
+      field {
+         name = "Link LED";
+         description = "Write 1: turn on the Link LED";
+         prefix = "led_link";
+         type = MONOSTABLE;
+      };
+
+      field {
+         name = "FMC I2C bitbanged SCL";
+         prefix = "fmc_scl";
+         description = "write 1: Set FMC SCL line to 1 (pullup)\
+                        read : returns the current status of the SCL line.";
+         type = BIT;
+         access_bus = READ_WRITE;
+         access_dev = READ_WRITE;
+         load = LOAD_EXT;
+      };
+
+      field {
+         name = "FMC I2C bitbanged SDA";
+         prefix = "fmc_sda";
+         description = "write 1: Set FMC SDA line to 1 (pullup)\
+                        read : returns the current status of the SCL line.";
+         type = BIT;
+         access_bus = READ_WRITE;
+         access_dev = READ_WRITE;
+         load = LOAD_EXT;
+      };
+
+
+      field {
+         name = "Network AP reset";
+         description = "write 1: resets the networking subsystem";
+         prefix = "Net_RST";
+         type = MONOSTABLE;
+      };
+
+      field {
+         name = "SPEC Pushbutton 1 state";
+         prefix = "Btn1";
+         description = "read : returns the state of the Button 1 on the SPEC board";
+         type = BIT;
+         access_bus = READ_ONLY;
+         access_dev = WRITE_ONLY;
+      };
+
+      field {
+         name = "SPEC Pushbutton 2 state";
+         prefix = "Btn2";
+         description = "read : returns the state of the Button 2 on the SPEC board";
+         type = BIT;
+         access_bus = READ_ONLY;
+         access_dev = WRITE_ONLY;
+      };
+
+      field {
+         name = "SFP detect (MOD_DEF0 signal)";
+         prefix = "sfp_det";
+         description = "read : returns the state of the SFP's MOD_DEF0 line";
+         type = BIT;
+         access_bus = READ_ONLY;
+         access_dev = WRITE_ONLY;
+      };
+
+      field {
+         name = "SFP I2C bitbanged SCL";
+         prefix = "sfp_scl";
+         description = "write 1: Set SFP SCL line to 1 (pullup)\
+                        read : returns the current status of the SCL line.";
+         type = BIT;
+         access_bus = READ_WRITE;
+         access_dev = READ_WRITE;
+         load = LOAD_EXT;
+         align = 8;
+      };
+      
+      field {
+         name = "SFP I2C bitbanged SDA";
+         prefix = "sfp_sda";
+         description = "write 1: Set SFP SDA line to 1 (pullup)\
+                        read : returns the current status of the SCL line.";
+         type = BIT;
+         access_bus = READ_WRITE;
+         access_dev = READ_WRITE;
+         load = LOAD_EXT;
+         align = 9;
+      };
+  
+      field {
+        name = "SPI bitbanged SCLK";
+        prefix = "spi_sclk";
+        description = "write 1: drive SPI CLK to 1\
+                       read: always 0";
+        type = BIT;
+        access_bus = READ_WRITE;
+        access_dev = READ_WRITE;
+        load = LOAD_EXT;
+        align = 10;
+      };
+
+      field {
+        name = "SPI bitbanged NCS";
+        prefix = "spi_ncs";
+        description = "write 1: drive SPI NCS to 1\
+                       read: always 0";
+        type = BIT;
+        access_bus = READ_WRITE;
+        access_dev = READ_WRITE;
+        load = LOAD_EXT;
+        align = 11;
+      };
+
+      field {
+        name = "SPI bitbanged MOSI";
+        prefix = "spi_mosi";
+        description = "write 1: drive SPI MOSI line to 1\
+                       read: always 0";
+        type = BIT;
+        access_bus = READ_WRITE;
+        access_dev = READ_WRITE;
+        load = LOAD_EXT;
+        align = 12;
+      };
+
+      field {
+        name = "SPI bitbanged MISO";
+        prefix = "spi_miso";
+        description = "read: current state of SPI MISO line";
+        type = BIT;
+        access_bus = READ_ONLY;
+        access_dev = WRITE_ONLY;
+        load = LOAD_EXT;
+        align = 13;
+      };
+
+   };
+
+   reg {
+      name = "GPIO Clear Register";
+      prefix = "GPCR";
+
+    field {
+         name = "Status LED";
+         description = "Write 1: turn on the Status LED";
+         prefix = "led_stat";
+         type = MONOSTABLE;
+      };
+
+      field {
+         name = "Link LED";
+         description = "Write 1: turn on the Link LED";
+         prefix = "led_link";
+         type = MONOSTABLE;
+      };
+
+      field {
+         name = "FMC I2C bitbanged SCL";
+         prefix = "fmc_scl";
+         description = "write 1: Set FMC SCL line to 1 (pullup)\
+                        read : returns the current status of the SCL line.";
+         type = MONOSTABLE;
+      };
+
+      field {
+         name = "FMC I2C bitbanged SDA";
+         prefix = "fmc_sda";
+         description = "write 1: Set FMC SDA line to 1 (pullup)\
+                        read : returns the current status of the SCL line.";
+         type = MONOSTABLE;
+      };
+
+      field {
+         name = "SFP I2C bitbanged SCL";
+         prefix = "sfp_scl";
+         description = "write 1: Set SFP SCL line to 0.";
+         type = MONOSTABLE;
+         align = 8;
+      };
+
+      field {
+         name = "FMC I2C bitbanged SDA";
+         prefix = "sfp_sda";
+         description = "write 1: Set SFP SDA line to 0.";
+         type = MONOSTABLE;
+         align = 9;
+      };
+
+      field {
+        name = "SPI bitbanged SCLK";
+        prefix = "spi_sclk";
+        description = "write 1: Set SPI CLK line to 0.";
+        type = MONOSTABLE;
+        align = 10;
+      };
+
+      field {
+        name = "SPI bitbanged CS";
+        prefix = "spi_cs";
+        description = "write 1: Set SPI CS line to 0";
+        type = MONOSTABLE;
+        align = 11;
+      };
+
+      field {
+        name = "SPI bitbanged MOSI";
+        prefix = "spi_mosi";
+        description = "write 1: Set SPI MOSI line to 0.";
+        type = MONOSTABLE;
+        align = 12;
+      };
+
+   };
+
+   reg {
+      name = "Hardware Feature Register";
+      prefix = "HWFR";
+
+      field {
+         name = "Memory size";
+         prefix = "MEMSIZE";
+         size = 4;
+         description = "Size of installed memory: 0 = 64 kB ... 0xf = 1024 kB";
+         type = SLV;
+         access_bus = READ_ONLY;
+         access_dev = WRITE_ONLY;
+      };
+
+   };
+
+   reg {
+      name = "Hardware Info Register";
+      prefix = "HWIR";
+      field {
+        name = "Board name";
+        prefix = "NAME";
+        size = 32;
+        description = "4-letter name of the board";
+        type = SLV;
+        access_bus = READ_ONLY;
+        access_dev = WRITE_ONLY;
+      };
+   };
+
+   reg {
+      name = "Timer Control Register";
+      prefix = "TCR";
+
+      field {
+         name = "Timer Divider";
+         description = "Division for obtain 1 millisecond ticks from the system clock: \
+                        <b>f_tick = f_clk_sys / (TDIV * 256)</b>";
+         prefix = "TDIV";
+         size = 12;
+         type = SLV;
+         access_bus = READ_ONLY;
+         access_dev = WRITE_ONLY;
+      };
+
+      field {
+         name = "Timer Enable";
+         description = "write 1: enable timer\
+                        write 0: disable timer";
+
+         prefix = "ENABLE";
+         type = BIT;
+         access_bus = READ_WRITE;
+         access_dev = READ_ONLY;
+         align = 31;
+      };
+   };
+
+   reg {
+      name = "Timer Counter Value Register";
+      prefix = "TVR";
+
+      field {
+         name = "Timer Counter Value";
+         size = 32;
+         type =SLV;
+         access_bus = READ_ONLY;
+         access_dev = WRITE_ONLY;
+      };
+   };
+
+
+  reg {
+    name = "User Diag: version register";
+    prefix = "DIAG_INFO";
+
+    field {
+      name = "Ver";
+      prefix = "VER";
+      size = 16;
+      type = SLV;
+      access_bus = READ_ONLY;
+      access_dev = WRITE_ONLY;
+    };
+
+    field {
+      name = "Id";
+      prefix = "ID";
+      size = 16;
+      type = SLV;
+      access_bus = READ_ONLY;
+      access_dev = WRITE_ONLY;
+    };
+  };
+
+  reg {
+    name = "User Diag: number of words";
+    prefix = "DIAG_NW";
+
+    field {
+      name = "Read/write words";
+      prefix = "RW";
+      size = 16;
+      type = SLV;
+      access_bus = READ_ONLY;
+      access_dev = WRITE_ONLY;
+    };
+    field {
+      name = "Read-only words";
+      prefix = "RO";
+      size = 16;
+      type = SLV;
+      access_bus = READ_ONLY;
+      access_dev = WRITE_ONLY;
+    };
+  };
+
+  reg {
+    name = "User Diag: Control Register";
+    prefix = "DIAG_CR";
+
+    field {
+      name = "Address";
+      prefix = "ADR";
+      size = 16;
+      type = SLV;
+      access_bus = READ_WRITE;
+      access_dev = READ_WRITE;
+      load = LOAD_EXT;
+    };
+
+    field {
+      name = "R/W";
+      prefix = "RW";
+      size = 1;
+      type = BIT;
+      align = 31;
+      access_bus = READ_WRITE;
+      access_dev = READ_ONLY;
+    };
+  };
+
+  reg {
+    name = "User Diag: data to read/write";
+    prefix = "DIAG_DAT";
+    field {
+      name = "Data";
+      size = 32;
+      type = SLV;
+      access_bus = READ_WRITE;
+      access_dev = READ_WRITE;
+      load = LOAD_EXT;
+    };
+  };
+  reg {
+    name = "WRPC Diag: ctrl";
+    prefix = "WDIAG_CTRL";
+    field {
+      name        = "WR DIAG data valid";
+      prefix      = "DATA_VALID";
+      description = "0: valid\
+                     1: transcient";
+      type        = BIT;
+      access_bus  = READ_WRITE;
+      access_dev  = READ_ONLY;
+    };
+    field {
+      name        = "WR DIAG data snapshot";
+      prefix      = "DATA_SNAPSHOT";
+      description = "1: snapshot data (data in registers will not change aveter VALID becomes true)";
+      type        = BIT;
+      access_bus  = READ_ONLY;
+      access_dev  = WRITE_ONLY;
+      align       = 8;
+    };
+  };
+  reg {
+    name = "WRPC Diag: servo status";
+    prefix = "WDIAG_SSTAT";
+    field {
+      name        = "WR valid";
+      prefix      = "wr_mode";
+      description = "0: not valid\1:valid";
+      type        = BIT;
+      access_bus  = READ_WRITE;
+      access_dev  = READ_ONLY;
+    };
+    field {
+      name        = "Servo State";
+      prefix      = "servostate";
+      description = "0: Uninitialized\
+                     1: SYNC_NSEC\
+                     2: SYNC_TAI\
+                     3: SYNC_PHASE\
+                     4: TRACK_PHASE\
+                     5: WAIT_OFFSET_STABLE";
+      type        = SLV;
+      size        = 4;
+      align       = 8;
+      access_bus  = READ_WRITE;
+      access_dev  = READ_ONLY;
+    };
+  };
+  reg {
+    name = "WRPC Diag: Port status";
+    prefix = "WDIAG_PSTAT";
+    field {
+      name        = "Link Status";
+      prefix      = "link";
+      description = "0: link down\
+                     1: link up";
+      type        = BIT;
+      access_bus  = READ_WRITE;
+      access_dev  = READ_ONLY;
+    };
+    field {
+      name        = "PLL Locked";
+      prefix      = "locked";
+      description = "0: not locked\
+                     1: locked";
+      type        = BIT;
+      access_bus  = READ_WRITE;
+      access_dev  = READ_ONLY;
+    };
+  };
+  reg {
+    name = "WRPC Diag: PTP state";
+    prefix = "WDIAG_PTPSTAT";
+
+    field {
+      name        = "PTP State";
+      prefix      = "ptpstate";
+      description = "0: NONE\
+                     1: PPS_INITIALIZING\
+                     2: PPS_FAULTY\
+                     3: disabled\
+                     4: PPS_LISTENING\
+                     5: PPS_PRE_MASTER\
+                     6: PPS_MASTER\
+                     7: PPS_PASSIVE\
+                     8: PPS_UNCALIBRATED\
+                     9: PPS_SLAVE\
+                     100-116: WR STATES\
+                     see: ppsi/proto-ext-whiterabbit/wr-constants.h\
+                          ppsi/include/ppsi/ieee1588_types.h";
+      type        = SLV;
+      size        = 8;
+      access_bus  = READ_WRITE;
+      access_dev  = READ_ONLY;
+    };
+  };
+  reg {
+    name = "WRPC Diag: AUX state";
+    prefix = "WDIAG_ASTAT";
+
+    field {
+      name        = "AUX channel";
+      prefix      = "aux";
+      description = "A vector of bits, one bit per channel\
+                     0: not valid\
+                     1:valid";
+      type        = SLV;
+      size        = 8;
+      access_bus  = READ_WRITE;
+      access_dev  = READ_ONLY;
+    };
+  };
+  reg {
+    name = "WRPC Diag: Tx PTP Frame cnts";
+    prefix = "WDIAG_TXFCNT";
+    description = "Number of transmitted PTP Frames";
+    field {
+      name = "Data";
+      size = 32;
+      type = SLV;
+      access_bus  = READ_WRITE;
+      access_dev  = READ_ONLY;
+    };
+  };
+  reg {
+    name = "WRPC Diag: Rx PTP Frame cnts";
+    description = "Number of received PTP Frames";
+    prefix = "WDIAG_RXFCNT";
+    field {
+      name = "Data";
+      size = 32;
+      type = SLV;
+      access_bus  = READ_WRITE;
+      access_dev  = READ_ONLY;
+    };
+  };
+  reg {
+    name = "WRPC Diag:local time [msb of s]";
+    prefix = "WDIAG_SEC_MSB";
+    description = "Local Time expressed in seconds since epoch (TAI)";
+    field {
+      name = "Data";
+      size = 32;
+      type = SLV;
+      access_bus  = READ_WRITE;
+      access_dev  = READ_ONLY;
+    };
+  };
+  reg {
+    name = "WRPC Diag: local time [lsb of s]";
+    description = "Local Time expressed in seconds since epoch (TAI)";
+    prefix = "WDIAG_SEC_LSB";
+    field {
+      name = "Data";
+      size = 32;
+      type = SLV;
+      access_bus  = READ_WRITE;
+      access_dev  = READ_ONLY;
+    };
+  };
+  reg {
+    name = "WRPC Diag: local time [ns]";
+    description = "Nanoseconds part of the Local Time expressed in seconds since epoch (TAI)";
+    prefix = "WDIAG_NS";
+    field {
+      name = "Data";
+      size = 32;
+      type = SLV;
+      access_bus  = READ_WRITE;
+      access_dev  = READ_ONLY;
+    };
+  };
+  reg {
+    name = "WRPC Diag: Round trip (mu) [msb of ps]";
+    prefix = "WDIAG_MU_MSB";
+    field {
+      name = "Data";
+      size = 32;
+      type = SLV;
+      access_bus  = READ_WRITE;
+      access_dev  = READ_ONLY;
+    };
+  };
+  reg {
+    name = "WRPC Diag: Round trip (mu) [lsb of ps]";
+    prefix = "WDIAG_MU_LSB";
+    field {
+      name = "Data";
+      size = 32;
+      type = SLV;
+      access_bus  = READ_WRITE;
+      access_dev  = READ_ONLY;
+    };
+  };
+  reg {
+    name = "WRPC Diag: Master-slave delay (dms) [msb of ps]";
+    prefix = "WDIAG_DMS_MSB";
+    field {
+      name = "Data";
+      size = 32;
+      type = SLV;
+      access_bus  = READ_WRITE;
+      access_dev  = READ_ONLY;
+    };
+  };
+  reg {
+    name = "WRPC Diag: Master-slave delay (dms) [lsb of ps]";
+    prefix = "WDIAG_DMS_LSB";
+    field {
+      name = "Data";
+      size = 32;
+      type = SLV;
+      access_bus  = READ_WRITE;
+      access_dev  = READ_ONLY;
+    };
+  };
+  reg {
+    name = "WRPC Diag: Total link asymmetry [ps]";
+    prefix = "WDIAG_ASYM";
+    field {
+      name = "Data";
+      size = 32;
+      type = SLV;
+      access_bus  = READ_WRITE;
+      access_dev  = READ_ONLY;
+    };
+  };
+  reg {
+    name = "WRPC Diag: Clock offset (cko) [ps]";
+    prefix = "WDIAG_CKO";
+    field {
+      name = "Data";
+      size = 32;
+      type = SLV;
+      access_bus  = READ_WRITE;
+      access_dev  = READ_ONLY;
+    };
+  };
+  reg {
+    name = "WRPC Diag: Phase setpoint (setp) [ps]";
+    prefix = "WDIAG_SETP";
+    field {
+      name = "Data";
+      size = 32;
+      type = SLV;
+      access_bus  = READ_WRITE;
+      access_dev  = READ_ONLY;
+    };
+  };
+  reg {
+    name = "WRPC Diag: Update counter (ucnt)";
+    prefix = "WDIAG_UCNT";
+    field {
+      name = "Data";
+      size = 32;
+      type = SLV;
+      access_bus  = READ_WRITE;
+      access_dev  = READ_ONLY;
+    };
+  };
+  reg {
+    name = "WRPC Diag: Board temperature [C degree]";
+    prefix = "WDIAG_TEMP";
+    field {
+      name = "Data";
+      size = 32;
+      type = SLV;
+      access_bus  = READ_WRITE;
+      access_dev  = READ_ONLY;
+    };
+  };
+};
