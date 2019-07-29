@@ -142,7 +142,6 @@ class Writer_YAML(object):
         if n.typ == 'PASS_THROUGH':
             self.wseq("x-hdl")
             self.wattr_str("type", "wire")
-            self.wattr_str("write-strobe", "True")
             self.weseq()
 
     def write_field(self, n, parent):
@@ -213,7 +212,7 @@ class Writer_YAML(object):
             for f in n.fields:
                 self.write_field(f, n)
             self.welist()
-        wr_strobe = any([f.load == 'LOAD_EXT' for f in n.fields])
+        wr_strobe = any([f.load == 'LOAD_EXT' or f.typ == 'PASS_THROUGH' for f in n.fields])
         rd_strobe = any([f.ack_read for f in n.fields])
         if wr_strobe or rd_strobe:
             self.wseq("x-hdl")

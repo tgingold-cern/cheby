@@ -29,7 +29,8 @@ memory-map:
             size: 1
           x-hdl:
             type: wire
-            write-strobe: True
+      x-hdl:
+        write-strobe: True
   - reg:
       name: R2
       address: 0x00000004
@@ -52,4 +53,5 @@ memory-map:
             size: 1
           x-hdl:
             type: wire
-            write-strobe: True
+      x-hdl:
+        write-strobe: True

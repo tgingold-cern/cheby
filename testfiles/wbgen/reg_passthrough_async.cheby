@@ -30,4 +30,5 @@ memory-map:
             size: 1
           x-hdl:
             type: wire
-            write-strobe: True
+      x-hdl:
+        write-strobe: True
