@@ -216,10 +216,12 @@ k, M and G are allowed.
 
 The following attributes under `x-hdl` are supported:
 
-`busgroup`:: Use an input and an output record (in vhdl) for the bus.
+`busgroup`:: Use an input and an output record (in vhdl) for the bus.  The
+value is a boolean.
 
 `iogroup`:: Use an input and and output record (in vhdl) for the I/O. This
-will also generate a package to declare the records.
+will also generate a package to declare the records.  The value of this
+attribute is the name of the port.
 
 `reg_prefix`:: If false, discard register prefix and every prefix before
 register.  This creates shorter names.
