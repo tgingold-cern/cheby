@@ -25,4 +25,4 @@ if [ -f last ]; then
     old=$(cat last)
     rm -rf ./cheby-$old
 fi
-echo $suffix last
+echo $suffix > last
