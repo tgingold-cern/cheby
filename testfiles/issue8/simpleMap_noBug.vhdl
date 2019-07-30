@@ -59,7 +59,6 @@ begin
     if rising_edge(Clk) then
       if Rst = '0' then
         rd_ack1_int <= '0';
-        reg_rdat_int <= (others => 'X');
       else
         reg_rdat_int <= (others => '0');
         case VMEAddr(19 downto 1) is
@@ -84,6 +83,7 @@ begin
           reg_rdat_int <= smallReg_i;
           rd_ack1_int <= VMERdMem;
         when others =>
+          reg_rdat_int <= (others => 'X');
           rd_ack1_int <= VMERdMem;
         end case;
       end if;

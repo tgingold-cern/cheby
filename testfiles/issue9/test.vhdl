@@ -143,7 +143,6 @@ begin
     if rising_edge(aclk) then
       if areset_n = '0' then
         rd_ack1_int <= '0';
-        reg_rdat_int <= (others => 'X');
       else
         reg_rdat_int <= (others => '0');
         case araddr(4 downto 2) is
@@ -165,6 +164,7 @@ begin
           reg_rdat_int(3 downto 1) <= block1_block2_register4_field4_i;
           rd_ack1_int <= rd_int;
         when others =>
+          reg_rdat_int <= (others => 'X');
           rd_ack1_int <= rd_int;
         end case;
       end if;

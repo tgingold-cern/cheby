@@ -119,7 +119,6 @@ begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         rd_ack1_int <= '0';
-        reg_rdat_int <= (others => 'X');
       else
         reg_rdat_int <= (others => '0');
         case wb_i.adr(4 downto 3) is
@@ -130,6 +129,7 @@ begin
             reg_rdat_int(1) <= ctrl_enable_i;
             rd_ack1_int <= rd_int;
           when others =>
+            reg_rdat_int <= (others => 'X');
             rd_ack1_int <= rd_int;
           end case;
         when "01" => 
@@ -143,6 +143,7 @@ begin
             reg_rdat_int <= seconds_i(31 downto 0);
             rd_ack1_int <= rd_int;
           when others =>
+            reg_rdat_int <= (others => 'X');
             rd_ack1_int <= rd_int;
           end case;
         when "10" => 
@@ -152,9 +153,11 @@ begin
             reg_rdat_int <= cycles_i;
             rd_ack1_int <= rd_int;
           when others =>
+            reg_rdat_int <= (others => 'X');
             rd_ack1_int <= rd_int;
           end case;
         when others =>
+          reg_rdat_int <= (others => 'X');
           rd_ack1_int <= rd_int;
         end case;
       end if;

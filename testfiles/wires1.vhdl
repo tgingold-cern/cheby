@@ -125,7 +125,6 @@ begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         rd_ack1_int <= '0';
-        reg_rdat_int <= (others => 'X');
         strobe_rd_o <= '0';
         wires_rd_o <= '0';
         acks_rd_o <= '0';
@@ -151,6 +150,7 @@ begin
           acks_rd_o <= rd_int;
           rd_ack1_int <= acks_rack_i;
         when others =>
+          reg_rdat_int <= (others => 'X');
           rd_ack1_int <= rd_int;
         end case;
       end if;

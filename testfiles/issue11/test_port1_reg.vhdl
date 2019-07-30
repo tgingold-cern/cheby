@@ -94,7 +94,6 @@ begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         rd_ack1_int <= '0';
-        reg_rdat_int <= (others => 'X');
       else
         reg_rdat_int <= (others => '0');
         -- i1Thresholds

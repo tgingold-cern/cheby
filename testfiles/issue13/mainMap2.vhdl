@@ -87,13 +87,13 @@ begin
     if rising_edge(Clk) then
       if Rst = '0' then
         rd_ack1_int <= '0';
-        reg_rdat_int <= (others => 'X');
       else
         reg_rdat_int <= (others => '0');
         case VMEAddr(14 downto 13) is
         when "00" => 
         when "01" => 
         when others =>
+          reg_rdat_int <= (others => 'X');
           rd_ack1_int <= VMERdMem;
         end case;
       end if;
