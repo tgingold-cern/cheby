@@ -1181,8 +1181,6 @@ def add_read_reg_process(root, module, isigs):
     rdproc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_sync=rst_sync)
     module.stmts.append(rdproc)
     rdproc.rst_stmts.append(HDLAssign(rd_ack, bit_0))
-    rdproc.rst_stmts.append(HDLAssign(rd_data,
-                                      HDLReplicate(bit_x, root.c_word_bits)))
     # Be sure all unused bits are read as 0.
     rdproc.sync_stmts.append(HDLAssign(rd_data,
                                        HDLReplicate(bit_0, root.c_word_bits)))
@@ -1239,6 +1237,7 @@ def add_read_reg_process(root, module, isigs):
                 # Blocks have been handled.
                 raise AssertionError
         else:
+            s.append(HDLAssign(rd_data, HDLReplicate(bit_x, root.c_word_bits)))
             s.append(HDLAssign(rd_ack, isigs.rd_int))
 
     stmts = []
