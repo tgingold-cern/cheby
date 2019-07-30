@@ -82,20 +82,24 @@ begin
   -- WB decode signals
   wb_en <= wb_i.cyc and wb_i.stb;
 
-  process (clk_i, rst_n_i) begin
-    if rst_n_i = '0' then
-      wb_rip <= '0';
-    elsif rising_edge(clk_i) then
-      wb_rip <= (wb_rip or (wb_en and not wb_i.we)) and not rd_ack_int;
+  process (clk_i) begin
+    if rising_edge(clk_i) then
+      if rst_n_i = '0' then
+        wb_rip <= '0';
+      else
+        wb_rip <= (wb_rip or (wb_en and not wb_i.we)) and not rd_ack_int;
+      end if;
     end if;
   end process;
   rd_int <= (wb_en and not wb_i.we) and not wb_rip;
 
-  process (clk_i, rst_n_i) begin
-    if rst_n_i = '0' then
-      wb_wip <= '0';
-    elsif rising_edge(clk_i) then
-      wb_wip <= (wb_wip or (wb_en and wb_i.we)) and not wr_ack_int;
+  process (clk_i) begin
+    if rising_edge(clk_i) then
+      if rst_n_i = '0' then
+        wb_wip <= '0';
+      else
+        wb_wip <= (wb_wip or (wb_en and wb_i.we)) and not wr_ack_int;
+      end if;
     end if;
   end process;
   wr_int <= (wb_en and wb_i.we) and not wb_wip;
@@ -114,117 +118,121 @@ begin
   ext_enable_o <= ext_enable_reg;
 
   -- Process for write requests.
-  process (clk_i, rst_n_i) begin
-    if rst_n_i = '0' then
-      wr_ack_int <= '0';
-      ch1_enable_reg <= '0';
-      ch2_enable_reg <= '0';
-      ch3_enable_reg <= '0';
-      ch4_enable_reg <= '0';
-      ext_enable_reg <= '0';
-    elsif rising_edge(clk_i) then
-      wr_ack_int <= '0';
-      case wb_i.adr(4 downto 3) is
-      when "00" => 
-        case wb_i.adr(2 downto 2) is
-        when "0" => 
-          -- Register status
-        when "1" => 
-          -- Register ctrl
-          if wr_int = '1' then
-            ch1_enable_reg <= wb_i.dat(0);
-            ch2_enable_reg <= wb_i.dat(1);
-            ch3_enable_reg <= wb_i.dat(2);
-            ch4_enable_reg <= wb_i.dat(3);
-            ext_enable_reg <= wb_i.dat(8);
-          end if;
-          wr_ack_int <= wr_int;
+  process (clk_i) begin
+    if rising_edge(clk_i) then
+      if rst_n_i = '0' then
+        wr_ack_int <= '0';
+        ch1_enable_reg <= '0';
+        ch2_enable_reg <= '0';
+        ch3_enable_reg <= '0';
+        ch4_enable_reg <= '0';
+        ext_enable_reg <= '0';
+      else
+        wr_ack_int <= '0';
+        case wb_i.adr(4 downto 3) is
+        when "00" => 
+          case wb_i.adr(2 downto 2) is
+          when "0" => 
+            -- Register status
+          when "1" => 
+            -- Register ctrl
+            if wr_int = '1' then
+              ch1_enable_reg <= wb_i.dat(0);
+              ch2_enable_reg <= wb_i.dat(1);
+              ch3_enable_reg <= wb_i.dat(2);
+              ch4_enable_reg <= wb_i.dat(3);
+              ext_enable_reg <= wb_i.dat(8);
+            end if;
+            wr_ack_int <= wr_int;
+          when others =>
+            wr_ack_int <= wr_int;
+          end case;
+        when "01" => 
+          case wb_i.adr(2 downto 2) is
+          when "0" => 
+            -- Register ts_mask_sec
+          when "1" => 
+            -- Register ts_mask_sec
+          when others =>
+            wr_ack_int <= wr_int;
+          end case;
+        when "10" => 
+          case wb_i.adr(2 downto 2) is
+          when "0" => 
+            -- Register ts_cycles
+          when others =>
+            wr_ack_int <= wr_int;
+          end case;
         when others =>
           wr_ack_int <= wr_int;
         end case;
-      when "01" => 
-        case wb_i.adr(2 downto 2) is
-        when "0" => 
-          -- Register ts_mask_sec
-        when "1" => 
-          -- Register ts_mask_sec
-        when others =>
-          wr_ack_int <= wr_int;
-        end case;
-      when "10" => 
-        case wb_i.adr(2 downto 2) is
-        when "0" => 
-          -- Register ts_cycles
-        when others =>
-          wr_ack_int <= wr_int;
-        end case;
-      when others =>
-        wr_ack_int <= wr_int;
-      end case;
+      end if;
     end if;
   end process;
 
   -- Process for registers read.
-  process (clk_i, rst_n_i) begin
-    if rst_n_i = '0' then
-      rd_ack1_int <= '0';
-      reg_rdat_int <= (others => 'X');
-      ts_cycles_rd_o <= '0';
-    elsif rising_edge(clk_i) then
-      ts_cycles_rd_o <= '0';
-      reg_rdat_int <= (others => '0');
-      case wb_i.adr(4 downto 3) is
-      when "00" => 
-        case wb_i.adr(2 downto 2) is
-        when "0" => 
-          -- status
-          reg_rdat_int(0) <= wr_enable_i;
-          reg_rdat_int(1) <= wr_link_i;
-          reg_rdat_int(2) <= wr_valid_i;
-          reg_rdat_int(8) <= ts_present_i;
-          rd_ack1_int <= rd_int;
-        when "1" => 
-          -- ctrl
-          reg_rdat_int(0) <= ch1_enable_reg;
-          reg_rdat_int(1) <= ch2_enable_reg;
-          reg_rdat_int(2) <= ch3_enable_reg;
-          reg_rdat_int(3) <= ch4_enable_reg;
-          reg_rdat_int(8) <= ext_enable_reg;
-          rd_ack1_int <= rd_int;
+  process (clk_i) begin
+    if rising_edge(clk_i) then
+      if rst_n_i = '0' then
+        rd_ack1_int <= '0';
+        reg_rdat_int <= (others => 'X');
+        ts_cycles_rd_o <= '0';
+      else
+        ts_cycles_rd_o <= '0';
+        reg_rdat_int <= (others => '0');
+        case wb_i.adr(4 downto 3) is
+        when "00" => 
+          case wb_i.adr(2 downto 2) is
+          when "0" => 
+            -- status
+            reg_rdat_int(0) <= wr_enable_i;
+            reg_rdat_int(1) <= wr_link_i;
+            reg_rdat_int(2) <= wr_valid_i;
+            reg_rdat_int(8) <= ts_present_i;
+            rd_ack1_int <= rd_int;
+          when "1" => 
+            -- ctrl
+            reg_rdat_int(0) <= ch1_enable_reg;
+            reg_rdat_int(1) <= ch2_enable_reg;
+            reg_rdat_int(2) <= ch3_enable_reg;
+            reg_rdat_int(3) <= ch4_enable_reg;
+            reg_rdat_int(8) <= ext_enable_reg;
+            rd_ack1_int <= rd_int;
+          when others =>
+            rd_ack1_int <= rd_int;
+          end case;
+        when "01" => 
+          case wb_i.adr(2 downto 2) is
+          when "0" => 
+            -- ts_mask_sec
+            reg_rdat_int(7 downto 0) <= ts_sec_i(39 downto 32);
+            reg_rdat_int(16) <= ch1_mask_i;
+            reg_rdat_int(17) <= ch2_mask_i;
+            reg_rdat_int(18) <= ch3_mask_i;
+            reg_rdat_int(19) <= ch4_mask_i;
+            reg_rdat_int(24) <= ext_mask_i;
+            rd_ack1_int <= rd_int;
+          when "1" => 
+            -- ts_mask_sec
+            reg_rdat_int <= ts_sec_i(31 downto 0);
+            rd_ack1_int <= rd_int;
+          when others =>
+            rd_ack1_int <= rd_int;
+          end case;
+        when "10" => 
+          case wb_i.adr(2 downto 2) is
+          when "0" => 
+            -- ts_cycles
+            reg_rdat_int(27 downto 0) <= cycles_i;
+            ts_cycles_rd_o <= rd_int;
+            rd_ack1_int <= rd_int;
+          when others =>
+            rd_ack1_int <= rd_int;
+          end case;
         when others =>
           rd_ack1_int <= rd_int;
         end case;
-      when "01" => 
-        case wb_i.adr(2 downto 2) is
-        when "0" => 
-          -- ts_mask_sec
-          reg_rdat_int(7 downto 0) <= ts_sec_i(39 downto 32);
-          reg_rdat_int(16) <= ch1_mask_i;
-          reg_rdat_int(17) <= ch2_mask_i;
-          reg_rdat_int(18) <= ch3_mask_i;
-          reg_rdat_int(19) <= ch4_mask_i;
-          reg_rdat_int(24) <= ext_mask_i;
-          rd_ack1_int <= rd_int;
-        when "1" => 
-          -- ts_mask_sec
-          reg_rdat_int <= ts_sec_i(31 downto 0);
-          rd_ack1_int <= rd_int;
-        when others =>
-          rd_ack1_int <= rd_int;
-        end case;
-      when "10" => 
-        case wb_i.adr(2 downto 2) is
-        when "0" => 
-          -- ts_cycles
-          reg_rdat_int(27 downto 0) <= cycles_i;
-          ts_cycles_rd_o <= rd_int;
-          rd_ack1_int <= rd_int;
-        when others =>
-          rd_ack1_int <= rd_int;
-        end case;
-      when others =>
-        rd_ack1_int <= rd_int;
-      end case;
+      end if;
     end if;
   end process;
 

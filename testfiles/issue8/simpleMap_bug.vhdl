@@ -30,59 +30,63 @@ begin
   -- Assign outputs
 
   -- Process for write requests.
-  process (Clk, Rst) begin
-    if Rst = '0' then
-      wr_ack_int <= '0';
-    elsif rising_edge(Clk) then
-      wr_ack_int <= '0';
-      case VMEAddr(19 downto 1) is
-      when "0000000000000000000" => 
-        -- Register smallReg
-      when "0000000000000000001" => 
-        -- Register largeReg
-      when "0000000000000000010" => 
-        -- Register largeReg
-      when "0000000000000000011" => 
-        -- Register largeReg
-      when "0000000000000000100" => 
-        -- Register largeReg
-      when others =>
-        wr_ack_int <= VMEWrMem;
-      end case;
+  process (Clk) begin
+    if rising_edge(Clk) then
+      if Rst = '0' then
+        wr_ack_int <= '0';
+      else
+        wr_ack_int <= '0';
+        case VMEAddr(19 downto 1) is
+        when "0000000000000000000" => 
+          -- Register smallReg
+        when "0000000000000000001" => 
+          -- Register largeReg
+        when "0000000000000000010" => 
+          -- Register largeReg
+        when "0000000000000000011" => 
+          -- Register largeReg
+        when "0000000000000000100" => 
+          -- Register largeReg
+        when others =>
+          wr_ack_int <= VMEWrMem;
+        end case;
+      end if;
     end if;
   end process;
 
   -- Process for registers read.
-  process (Clk, Rst) begin
-    if Rst = '0' then
-      rd_ack1_int <= '0';
-      reg_rdat_int <= (others => 'X');
-    elsif rising_edge(Clk) then
-      reg_rdat_int <= (others => '0');
-      case VMEAddr(19 downto 1) is
-      when "0000000000000000000" => 
-        -- smallReg
-        reg_rdat_int <= smallReg_i;
-        rd_ack1_int <= VMERdMem;
-      when "0000000000000000001" => 
-        -- largeReg
-        reg_rdat_int <= largeReg_i(47 downto 32);
-        rd_ack1_int <= VMERdMem;
-      when "0000000000000000010" => 
-        -- largeReg
-        reg_rdat_int <= largeReg_i(31 downto 16);
-        rd_ack1_int <= VMERdMem;
-      when "0000000000000000011" => 
-        -- largeReg
-        reg_rdat_int <= largeReg_i(15 downto 0);
-        rd_ack1_int <= VMERdMem;
-      when "0000000000000000100" => 
-        -- largeReg
-        reg_rdat_int <= largeReg_i(63 downto 48);
-        rd_ack1_int <= VMERdMem;
-      when others =>
-        rd_ack1_int <= VMERdMem;
-      end case;
+  process (Clk) begin
+    if rising_edge(Clk) then
+      if Rst = '0' then
+        rd_ack1_int <= '0';
+        reg_rdat_int <= (others => 'X');
+      else
+        reg_rdat_int <= (others => '0');
+        case VMEAddr(19 downto 1) is
+        when "0000000000000000000" => 
+          -- smallReg
+          reg_rdat_int <= smallReg_i;
+          rd_ack1_int <= VMERdMem;
+        when "0000000000000000001" => 
+          -- largeReg
+          reg_rdat_int <= largeReg_i(47 downto 32);
+          rd_ack1_int <= VMERdMem;
+        when "0000000000000000010" => 
+          -- largeReg
+          reg_rdat_int <= largeReg_i(31 downto 16);
+          rd_ack1_int <= VMERdMem;
+        when "0000000000000000011" => 
+          -- largeReg
+          reg_rdat_int <= largeReg_i(15 downto 0);
+          rd_ack1_int <= VMERdMem;
+        when "0000000000000000100" => 
+          -- largeReg
+          reg_rdat_int <= largeReg_i(63 downto 48);
+          rd_ack1_int <= VMERdMem;
+        when others =>
+          rd_ack1_int <= VMERdMem;
+        end case;
+      end if;
     end if;
   end process;
 

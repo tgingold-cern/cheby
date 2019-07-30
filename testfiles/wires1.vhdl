@@ -49,20 +49,24 @@ begin
   -- WB decode signals
   wb_en <= wb_cyc_i and wb_stb_i;
 
-  process (clk_i, rst_n_i) begin
-    if rst_n_i = '0' then
-      wb_rip <= '0';
-    elsif rising_edge(clk_i) then
-      wb_rip <= (wb_rip or (wb_en and not wb_we_i)) and not rd_ack_int;
+  process (clk_i) begin
+    if rising_edge(clk_i) then
+      if rst_n_i = '0' then
+        wb_rip <= '0';
+      else
+        wb_rip <= (wb_rip or (wb_en and not wb_we_i)) and not rd_ack_int;
+      end if;
     end if;
   end process;
   rd_int <= (wb_en and not wb_we_i) and not wb_rip;
 
-  process (clk_i, rst_n_i) begin
-    if rst_n_i = '0' then
-      wb_wip <= '0';
-    elsif rising_edge(clk_i) then
-      wb_wip <= (wb_wip or (wb_en and wb_we_i)) and not wr_ack_int;
+  process (clk_i) begin
+    if rising_edge(clk_i) then
+      if rst_n_i = '0' then
+        wb_wip <= '0';
+      else
+        wb_wip <= (wb_wip or (wb_en and wb_we_i)) and not wr_ack_int;
+      end if;
     end if;
   end process;
   wr_int <= (wb_en and wb_we_i) and not wb_wip;
@@ -77,75 +81,79 @@ begin
   strobe_o <= strobe_reg;
 
   -- Process for write requests.
-  process (clk_i, rst_n_i) begin
-    if rst_n_i = '0' then
-      wr_ack_int <= '0';
-      strobe_wr_o <= '0';
-      strobe_reg <= "00000000000000000000000000000000";
-      acks_wr_o <= '0';
-    elsif rising_edge(clk_i) then
-      wr_ack_int <= '0';
-      strobe_wr_o <= '0';
-      acks_wr_o <= '0';
-      case wb_adr_i(3 downto 2) is
-      when "00" => 
-        -- Register strobe
-        strobe_wr_o <= wr_int;
-        if wr_int = '1' then
-          strobe_reg <= wb_dat_i;
-        end if;
-        wr_ack_int <= wr_int;
-      when "01" => 
-        -- Register wires
-        if wr_int = '1' then
-          wires_o <= wb_dat_i;
-        end if;
-        wr_ack_int <= wr_int;
-      when "10" => 
-        -- Register acks
-        acks_wr_o <= wr_int;
-        if wr_int = '1' then
-          acks_o <= wb_dat_i;
-        end if;
-        wr_ack_int <= acks_wack_i;
-      when others =>
-        wr_ack_int <= wr_int;
-      end case;
+  process (clk_i) begin
+    if rising_edge(clk_i) then
+      if rst_n_i = '0' then
+        wr_ack_int <= '0';
+        strobe_wr_o <= '0';
+        strobe_reg <= "00000000000000000000000000000000";
+        acks_wr_o <= '0';
+      else
+        wr_ack_int <= '0';
+        strobe_wr_o <= '0';
+        acks_wr_o <= '0';
+        case wb_adr_i(3 downto 2) is
+        when "00" => 
+          -- Register strobe
+          strobe_wr_o <= wr_int;
+          if wr_int = '1' then
+            strobe_reg <= wb_dat_i;
+          end if;
+          wr_ack_int <= wr_int;
+        when "01" => 
+          -- Register wires
+          if wr_int = '1' then
+            wires_o <= wb_dat_i;
+          end if;
+          wr_ack_int <= wr_int;
+        when "10" => 
+          -- Register acks
+          acks_wr_o <= wr_int;
+          if wr_int = '1' then
+            acks_o <= wb_dat_i;
+          end if;
+          wr_ack_int <= acks_wack_i;
+        when others =>
+          wr_ack_int <= wr_int;
+        end case;
+      end if;
     end if;
   end process;
 
   -- Process for registers read.
-  process (clk_i, rst_n_i) begin
-    if rst_n_i = '0' then
-      rd_ack1_int <= '0';
-      reg_rdat_int <= (others => 'X');
-      strobe_rd_o <= '0';
-      wires_rd_o <= '0';
-      acks_rd_o <= '0';
-    elsif rising_edge(clk_i) then
-      acks_rd_o <= '0';
-      wires_rd_o <= '0';
-      strobe_rd_o <= '0';
-      reg_rdat_int <= (others => '0');
-      case wb_adr_i(3 downto 2) is
-      when "00" => 
-        -- strobe
-        reg_rdat_int <= strobe_reg;
-        strobe_rd_o <= rd_int;
-        rd_ack1_int <= rd_int;
-      when "01" => 
-        -- wires
-        reg_rdat_int <= wires_i;
-        wires_rd_o <= rd_int;
-        rd_ack1_int <= rd_int;
-      when "10" => 
-        -- acks
-        reg_rdat_int <= acks_i;
-        acks_rd_o <= rd_int;
-        rd_ack1_int <= acks_rack_i;
-      when others =>
-        rd_ack1_int <= rd_int;
-      end case;
+  process (clk_i) begin
+    if rising_edge(clk_i) then
+      if rst_n_i = '0' then
+        rd_ack1_int <= '0';
+        reg_rdat_int <= (others => 'X');
+        strobe_rd_o <= '0';
+        wires_rd_o <= '0';
+        acks_rd_o <= '0';
+      else
+        acks_rd_o <= '0';
+        wires_rd_o <= '0';
+        strobe_rd_o <= '0';
+        reg_rdat_int <= (others => '0');
+        case wb_adr_i(3 downto 2) is
+        when "00" => 
+          -- strobe
+          reg_rdat_int <= strobe_reg;
+          strobe_rd_o <= rd_int;
+          rd_ack1_int <= rd_int;
+        when "01" => 
+          -- wires
+          reg_rdat_int <= wires_i;
+          wires_rd_o <= rd_int;
+          rd_ack1_int <= rd_int;
+        when "10" => 
+          -- acks
+          reg_rdat_int <= acks_i;
+          acks_rd_o <= rd_int;
+          rd_ack1_int <= acks_rack_i;
+        when others =>
+          rd_ack1_int <= rd_int;
+        end case;
+      end if;
     end if;
   end process;
 

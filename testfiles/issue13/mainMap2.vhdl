@@ -56,43 +56,47 @@ begin
   subMap2_VMEAddr_o <= VMEAddr(12 downto 2);
 
   -- Process for write requests.
-  process (Clk, Rst) begin
-    if Rst = '0' then
-      wr_ack_int <= '0';
-      subMap1_VMEWrMem_o <= '0';
-      subMap2_VMEWrMem_o <= '0';
-    elsif rising_edge(Clk) then
-      wr_ack_int <= '0';
-      subMap1_VMEWrMem_o <= '0';
-      subMap2_VMEWrMem_o <= '0';
-      case VMEAddr(14 downto 13) is
-      when "00" => 
-        -- Submap subMap1
-        subMap1_VMEWrMem_o <= VMEWrMem;
-        wr_ack_int <= subMap1_VMEWrDone_i;
-      when "01" => 
-        -- Submap subMap2
-        subMap2_VMEWrMem_o <= VMEWrMem;
-        wr_ack_int <= subMap2_VMEWrDone_i;
-      when others =>
-        wr_ack_int <= VMEWrMem;
-      end case;
+  process (Clk) begin
+    if rising_edge(Clk) then
+      if Rst = '0' then
+        wr_ack_int <= '0';
+        subMap1_VMEWrMem_o <= '0';
+        subMap2_VMEWrMem_o <= '0';
+      else
+        wr_ack_int <= '0';
+        subMap1_VMEWrMem_o <= '0';
+        subMap2_VMEWrMem_o <= '0';
+        case VMEAddr(14 downto 13) is
+        when "00" => 
+          -- Submap subMap1
+          subMap1_VMEWrMem_o <= VMEWrMem;
+          wr_ack_int <= subMap1_VMEWrDone_i;
+        when "01" => 
+          -- Submap subMap2
+          subMap2_VMEWrMem_o <= VMEWrMem;
+          wr_ack_int <= subMap2_VMEWrDone_i;
+        when others =>
+          wr_ack_int <= VMEWrMem;
+        end case;
+      end if;
     end if;
   end process;
 
   -- Process for registers read.
-  process (Clk, Rst) begin
-    if Rst = '0' then
-      rd_ack1_int <= '0';
-      reg_rdat_int <= (others => 'X');
-    elsif rising_edge(Clk) then
-      reg_rdat_int <= (others => '0');
-      case VMEAddr(14 downto 13) is
-      when "00" => 
-      when "01" => 
-      when others =>
-        rd_ack1_int <= VMERdMem;
-      end case;
+  process (Clk) begin
+    if rising_edge(Clk) then
+      if Rst = '0' then
+        rd_ack1_int <= '0';
+        reg_rdat_int <= (others => 'X');
+      else
+        reg_rdat_int <= (others => '0');
+        case VMEAddr(14 downto 13) is
+        when "00" => 
+        when "01" => 
+        when others =>
+          rd_ack1_int <= VMERdMem;
+        end case;
+      end if;
     end if;
   end process;
 

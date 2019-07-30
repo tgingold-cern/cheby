@@ -29,6 +29,7 @@ from cheby.layout import ilog2
 
 dirname = {'IN': 'i', 'OUT': 'o'}
 
+rst_sync = True
 
 class Isigs(object):
     "Internal signals"
@@ -104,7 +105,7 @@ class WBBus(BusGen):
             # Add an in progress 'wb_Xip' signal that is set on a strobe
             # and cleared on the ack.
             wb_xip = module.new_HDLSignal('wb_{}ip'.format(pfx))
-            proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'])
+            proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_sync=rst_sync)
             proc.rst_stmts.append(HDLAssign(wb_xip, bit_0))
             proc.sync_stmts.append(HDLAssign(
                 wb_xip, HDLAnd(HDLOr(wb_xip, HDLParen(stb)), HDLNot(ack))))
@@ -264,7 +265,7 @@ class WBBus(BusGen):
     def wire_bus_slave(self, root, stmts, n):
         stmts.append(HDLComment("Assignments for submap {}".format(n.name)))
         stmts.append(HDLAssign(n.h_tr, HDLOr(n.h_wt, n.h_rt)))
-        proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'])
+        proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_sync=rst_sync)
         proc.rst_stmts.append(HDLAssign(n.h_rt, bit_0))
         if root.h_bussplit:
             proc.rst_stmts.append(HDLAssign(n.h_wt, bit_0))
@@ -411,7 +412,7 @@ class AXI4LiteBus(BusGen):
             module.stmts.append(HDLAssign(root.h_bus['wready'],
                     HDLAnd(axi_wip, isigs.wr_ack)))
             module.stmts.append(HDLAssign(root.h_bus['bvalid'], axi_wdone))
-            proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'])
+            proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_sync=rst_sync)
             proc.rst_stmts.append(HDLAssign(axi_wip, bit_0))
             proc.rst_stmts.append(HDLAssign(axi_wdone, bit_0))
             proc.sync_stmts.append(HDLAssign(axi_wip,
@@ -436,7 +437,7 @@ class AXI4LiteBus(BusGen):
             module.stmts.append(HDLAssign(root.h_bus['arready'],
                     HDLAnd(axi_rip, isigs.rd_ack)))
             module.stmts.append(HDLAssign(root.h_bus['rvalid'], axi_rdone))
-            proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'])
+            proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_sync=rst_sync)
             proc.rst_stmts.append(HDLAssign(axi_rip, bit_0))
             proc.rst_stmts.append(HDLAssign(axi_rdone, bit_0))
             proc.rst_stmts.append(HDLAssign(root.h_bus['rdata'],
@@ -626,7 +627,7 @@ class CERNBEBus(BusGen):
             proc.stmts.append(if_stmt)
             stmts.append(proc)
             # Handle read requests.
-            proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'])
+            proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_sync=rst_sync)
             # Read requests set on RD, clear by RdDone
             proc.sync_stmts.append(HDLAssign(n.h_rr,
                 HDLAnd(HDLOr(n.h_re, n.h_rr), HDLNot(n.h_bus['rack']))))
@@ -706,7 +707,7 @@ class SRAMBus(BusGen):
         n.h_bus['re'] = module.new_HDLSignal(prefix + 're')
 
     def wire_bus_slave(self, root, stmts, n):
-        proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'])
+        proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_sync=rst_sync)
         proc.rst_stmts.append(HDLAssign(n.h_bus['rack'], bit_0))
         proc.sync_stmts.append(HDLAssign(n.h_bus['rack'],
                 HDLAnd(n.h_bus['re'], HDLNot(n.h_bus['rack']))))
@@ -1177,7 +1178,7 @@ def add_read_reg_process(root, module, isigs):
     # Register read
     rd_data = root.h_reg_rdat_int
     rd_ack = root.h_rd_ack1_int
-    rdproc = HDLSync(root.h_bus['clk'], root.h_bus['rst'])
+    rdproc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_sync=rst_sync)
     module.stmts.append(rdproc)
     rdproc.rst_stmts.append(HDLAssign(rd_ack, bit_0))
     rdproc.rst_stmts.append(HDLAssign(rd_data,
@@ -1311,7 +1312,7 @@ def add_read_process(root, module, isigs):
 def add_write_process(root, module, isigs):
     # Register write
     module.stmts.append(HDLComment('Process for write requests.'))
-    wrproc = HDLSync(root.h_bus['clk'], root.h_bus['rst'])
+    wrproc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_sync=rst_sync)
     module.stmts.append(wrproc)
     wrproc.rst_stmts.append(HDLAssign(isigs.wr_ack, bit_0))
     wrproc.sync_stmts.append(HDLAssign(isigs.wr_ack, bit_0))
