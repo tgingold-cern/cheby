@@ -88,6 +88,8 @@ Handle x-gena.suppress-port attribute.
 A pulse is now generated for strobe-write (it was already the case for
 strobe-read).
 
+wbgen2cheby now correctly place the write-strobe attribute (issue #28).
+
 ## Version 1.2
 
 Add --gen-custom to support user defined pass (merge!4)
