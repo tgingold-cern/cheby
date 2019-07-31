@@ -42,7 +42,7 @@ tar cvf $tarfile cheby-$suffix
 smbclient -k //cerndfs.cern.ch/dfs/Applications/Cheby -Tx $tarfile
 
 # Remove old version
-#smbclient -k //cerndfs.cern.ch/dfs/Applications/Cheby -c "deltree cheby-old"
+smbclient -k //cerndfs.cern.ch/dfs/Applications/Cheby -c "rename cheby-latest cheby-old; rename cheby-$suffix cheby-latest; deltree cheby-old"
 
 rm -f $tarfile
 
