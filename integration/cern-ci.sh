@@ -18,6 +18,7 @@ mkdir -p $prefix
 export PYTHONPATH=$PYTHONPATH:$prefix
 python3 ./setup.py install --prefix $destdir
 
+# Update cheby-latest link
 cd $base_destdir
 ln -sfn cheby-$suffix cheby-latest
 
@@ -26,3 +27,15 @@ if [ -f last ]; then
     rm -rf ./cheby-$old
 fi
 echo $suffix > last
+
+#############
+# DFS update
+echo "$DFS_PASSWORD" | kinit cheby@CERN.CH 2>&1 > /dev/null
+
+# Create an archive
+tar cvf $HOME/cheby-${suffix}.tar cheby-$suffix
+
+# Deploy it
+smbclient -k //cerndfs.cern.ch/dfs/Applications/Cheby --tar x $HOME/cheby-${suffix}.tar
+
+kdestroy
