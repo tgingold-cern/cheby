@@ -23,6 +23,7 @@ import cheby.gen_gena_regctrl as gen_gena_regctrl
 import cheby.gen_wbgen_hdl as gen_wbgen_hdl
 import cheby.print_html as print_html
 import cheby.print_markdown as print_markdown
+import cheby.print_rest as print_rest
 import cheby.print_consts as print_consts
 import cheby.gen_devicetree as gen_devicetree
 import cheby.gen_device_script as gen_device_script
@@ -80,7 +81,7 @@ def decode_args():
                          help='generate wbgen hdl')
     aparser.add_argument('--no-header', action='store_true',
                          help='do not generate comment header')
-    aparser.add_argument('--doc', choices=['html', 'md'], default='html',
+    aparser.add_argument('--doc', choices=['html', 'md', 'rest'], default='html',
                          help='select language for doc generation')
     aparser.add_argument('--gen-doc', nargs='?', const='-',
                          help='generate documentation')
@@ -193,6 +194,8 @@ def handle_file(args, filename):
                 print_html.pprint(f, t)
             elif args.doc == 'md':
                 print_markdown.print_markdown(f, t)
+            elif args.doc == 'rest':
+                print_rest.print_rest(f, t)
             else:
                 raise AssertionError('unknown doc format {}'.format(args.doc))
     if args.gen_c is not None:
