@@ -9,6 +9,8 @@ python -V
 
 [ x"$CI_COMMIT_SHORT_SHA" != x ] || exit 1
 
+localdir=/home/cheby-runner
+
 base_destdir=/acc/local/share/ht_tools/noarch/cheby
 suffix=$CI_COMMIT_SHORT_SHA
 destdir=$base_destdir/cheby-$suffix
@@ -33,9 +35,15 @@ echo $suffix > last
 echo "$DFS_PASSWORD" | kinit cheby@CERN.CH 2>&1 > /dev/null
 
 # Create an archive
-tar cvf $HOME/cheby-${suffix}.tar cheby-$suffix
+tarfile="$localdir/cheby-${suffix}.tar"
+tar cvf $tarfile cheby-$suffix
 
 # Deploy it
-smbclient -k //cerndfs.cern.ch/dfs/Applications/Cheby --tar x $HOME/cheby-${suffix}.tar
+smbclient -k //cerndfs.cern.ch/dfs/Applications/Cheby -Tx $tarfile
+
+# Remove old version
+#smbclient -k //cerndfs.cern.ch/dfs/Applications/Cheby -c "deltree cheby-old"
+
+rm -f $tarfile
 
 kdestroy
