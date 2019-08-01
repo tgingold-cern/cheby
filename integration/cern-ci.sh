@@ -9,7 +9,7 @@ python -V
 
 [ x"$CI_COMMIT_SHORT_SHA" != x ] || exit 1
 
-localdir=/home/cheby-runner
+localdir=/opt/home/cheby
 
 base_destdir=/acc/local/share/ht_tools/noarch/cheby
 suffix=$CI_COMMIT_SHORT_SHA
