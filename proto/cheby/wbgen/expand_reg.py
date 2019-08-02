@@ -161,6 +161,25 @@ def build_ordered_regs(n):
     n.ordered_regs = res
 
 
+def expand_version_reg(periph):
+    # Create an additional register if there is a version.
+    if periph.version is not None:
+        r = tree.Reg()
+        r.name = "Version register"
+        r.prefix = "VER"
+        r.pre_comment = None
+        f = tree.Field()
+        f.name = "Version identifier"
+        f.prefix = "ID"
+        f.description = "Version identifier for the peripheral"
+        f.typ = "SLV"
+        f.size = 32
+        f.access_bus = "READ_WRITE"
+        f.access_dev = "READ_ONLY"
+        f.reset_value = periph.version
+        r.fields = [f]
+        periph.regs.insert(0, r)
+
 def expand(periph):
     """Create regs for irq and fifo."""
     # First gather irqs and create the controller.

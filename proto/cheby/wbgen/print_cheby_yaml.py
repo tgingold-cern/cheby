@@ -329,6 +329,7 @@ class Writer_YAML(object):
         self.wattr_str("hdl_entity", n.hdl_entity)
         self.wattr_str("hdl_prefix", n.hdl_prefix)
         self.wattr_str("c_prefix", n.c_prefix)
+        self.wattr_num("version", n.version)
         self.weseq()
         self.wlist("children")
         # Gather irqs

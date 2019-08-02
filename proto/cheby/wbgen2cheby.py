@@ -14,6 +14,7 @@ def convert(stream, filename):
     lt = cheby.wbgen.parser.parse(filename, open(filename).readline)
 
     t = cheby.wbgen.ltree2tree.convert(lt)
+    cheby.wbgen.expand_reg.expand_version_reg(t)
     cheby.wbgen.field_layout.field_layout(t)
 
     cheby.wbgen.expand_reg.expand(t)
