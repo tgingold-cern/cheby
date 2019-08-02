@@ -469,6 +469,7 @@ def test_wbgen2cheby():
              'irq1', 'irq_ack', 'irq_mask',
              'description', 'comment1', 'comment_block',
              'wb_freq_multi_count_cst',
+             'version',
              '../issue28/wrc_syscon_wb']
     print_vhdl.style = 'wbgen'
     for f in files:
