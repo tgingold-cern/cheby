@@ -6,7 +6,7 @@ import cheby.gen_doc as gen_doc
 
 
 def w(fd, str):
-        fd.write(str)
+    fd.write(str)
 
 
 def wln(fd, str=""):

@@ -121,6 +121,7 @@ class open_filename(object):
     def __getattr__(self, val):
         return getattr(self.fh, val)  # pass on
 
+
 def gen_comment_header(f, args):
     c = {'vhdl': '--', 'verilog': '//'}[args.hdl]
     f.write("{} Do not edit.  Generated on {date} by {user}\n".format(
@@ -129,6 +130,7 @@ def gen_comment_header(f, args):
             c, cheby.__version__))
     f.write("{}  {}\n".format(c, " ".join(sys.argv[1:])))
     f.write("\n")
+
 
 def handle_file(args, filename):
     t = cheby.parser.parse_yaml(filename)

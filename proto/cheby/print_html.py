@@ -5,7 +5,7 @@ from cheby.gen_wbgen_hdl import get_hdl_prefix, get_hdl_entity
 
 
 def w(fd, str):
-        fd.write(str)
+    fd.write(str)
 
 
 def wln(fd, str=""):
@@ -141,9 +141,9 @@ def print_regdescr(periph, raws):
 
 
 def print_summary_html(periph, summary):
-        "HTML formatter for memmap_summary"
-        res = '<h3><a name="sect_1_0">1. Memory map summary</a></h3>\n'
-        res += '''<table cellpadding=2 cellspacing=0 border=0>
+    "HTML formatter for memmap_summary"
+    res = '<h3><a name="sect_1_0">1. Memory map summary</a></h3>\n'
+    res += '''<table cellpadding=2 cellspacing=0 border=0>
 <tr>
 <th>HW address</th>
 <th>Type</th>
@@ -152,9 +152,9 @@ def print_summary_html(periph, summary):
 <th>C prefix</th>
 </tr>
 '''
-        odd_even = ['odd', 'even']
-        for r in summary.raws:
-            res += '''<tr class="tr_{odd_even}">
+    odd_even = ['odd', 'even']
+    for r in summary.raws:
+        res += '''<tr class="tr_{odd_even}">
 <td class="td_code">{address}</td>
 <td>{typ}</td>
 <td><A href="#{cprefix}">{name}</a></td>
@@ -163,9 +163,9 @@ def print_summary_html(periph, summary):
 </tr>\n'''.format(typ=r.typ, odd_even=odd_even[0], address=r.address,
                   cprefix=r.name, name=r.name,
                   hdlprefix=r.node.c_name)
-            odd_even = [odd_even[1], odd_even[0]]
-        res += '</table>\n'
-        return res
+        odd_even = [odd_even[1], odd_even[0]]
+    res += '</table>\n'
+    return res
 
 
 def phtml_header(fd, periph):

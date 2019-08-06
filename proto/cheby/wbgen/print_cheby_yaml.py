@@ -212,7 +212,8 @@ class Writer_YAML(object):
             for f in n.fields:
                 self.write_field(f, n)
             self.welist()
-        wr_strobe = any([f.load == 'LOAD_EXT' or f.typ == 'PASS_THROUGH' for f in n.fields])
+        wr_strobe = any([f.load == 'LOAD_EXT' or
+                         f.typ == 'PASS_THROUGH' for f in n.fields])
         rd_strobe = any([f.ack_read for f in n.fields])
         if wr_strobe or rd_strobe:
             self.wseq("x-hdl")

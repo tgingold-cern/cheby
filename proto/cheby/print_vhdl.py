@@ -383,6 +383,7 @@ def generate_sync(fd, s, indent):
         w(fd, ' {}'.format(s.name))
     wln(fd, ";")
 
+
 def generate_stmts(fd, stmts, indent):
     sindent = "  " * indent
     gen_num = 0

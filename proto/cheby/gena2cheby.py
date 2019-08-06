@@ -9,7 +9,8 @@ import cheby.tree
 import cheby.pprint
 
 # If True, display ignored constructs.
-flag_ignore=False
+flag_ignore = False
+
 
 class UnknownAttribute(Exception):
     def __init__(self, msg):
@@ -104,10 +105,12 @@ def ignore_attr(attr, el):
         sys.stderr.write("note: ignored attribute '{}' in tag '{}'\n".format(
             attr, el.tag))
 
+
 def ignore_tag(tag, el):
     if flag_ignore:
         sys.stderr.write("note: ignored child tag '{}' in tag '{}'\n".format(
             tag, el.tag))
+
 
 def conv_access(acc):
     # TODO: incorrect for rmw
@@ -544,7 +547,7 @@ def conv_memory_data(parent, el):
     bus_width = parent.get_root().c_word_size * cheby.tree.BYTE_SIZE
     if reg.width < bus_width:
         error('memory data of {} is widened from {} to {}.'.format(
-                res.name, reg.width, bus_width))
+              res.name, reg.width, bus_width))
         reg.width = bus_width
     # Convert repeat from bytes to words.
     ws = reg.width // cheby.tree.BYTE_SIZE

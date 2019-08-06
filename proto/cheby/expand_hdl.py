@@ -5,6 +5,7 @@ import copy
 
 # Decoce x-hdl extensions.
 
+
 def expand_x_hdl_reg(n, dct):
     # Default values
     n.hdl_write_strobe = False
@@ -39,7 +40,7 @@ def expand_x_hdl_reg(n, dct):
             expand_x_hdl_field_kv(n.children[0], n, k, v)
         else:
             parser.error("unhandled '{}' in x-hdl of reg {}".format(
-                  k, n.get_path()))
+                         k, n.get_path()))
 
 
 def init_x_hdl_field(f):
@@ -77,7 +78,7 @@ def expand_x_hdl_root(n, dct):
             pass
         else:
             parser.error("unhandled '{}' in x-hdl of {}".format(
-                  k, n.get_path()))
+                         k, n.get_path()))
 
 
 def expand_x_hdl_submap(n, dct):
@@ -86,7 +87,7 @@ def expand_x_hdl_submap(n, dct):
             pass
         else:
             parser.error("unhandled '{}' in x-hdl of {}".format(
-                  k, n.get_path()))
+                         k, n.get_path()))
 
 
 def expand_x_hdl(n):

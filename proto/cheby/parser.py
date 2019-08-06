@@ -39,6 +39,7 @@ def read_size(parent, key, val):
     else:
         error("expect a string for {}:{}".format(parent.get_path(), key))
 
+
 def read_bool(parent, key, val):
     if isinstance(val, bool):
         return val

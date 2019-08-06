@@ -14,6 +14,7 @@ def get_devicetree(n):
     "Get the value from a devicetree extension"
     return n.get_ext_node('x_devicetree')
 
+
 def gen_children(f, t, pfx):
     for c in t.children:
         if isinstance(c, tree.Submap):
@@ -30,6 +31,7 @@ def gen_children(f, t, pfx):
                 gen_children(f, c.c_submap, name)
         else:
             error('devicetree: unhandled child type {}'.format(c))
+
 
 def generate_device_script(f, t):
     dt = get_devicetree(t)

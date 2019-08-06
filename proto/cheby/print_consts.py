@@ -1,5 +1,6 @@
 import cheby.tree as tree
 
+
 class ConstsPrinter(object):
     def __init__(self, fd, root):
         super(ConstsPrinter, self).__init__()
@@ -85,10 +86,10 @@ class ConstsPrinterVHDL(ConstsPrinter):
         self.pr_raw("  constant {} : Natural := {};\n".format(name, val))
 
     def pr_hex_const(self, name, val):
-        self.pr_const (name, "16#{:x}#".format(val))
+        self.pr_const(name, "16#{:x}#".format(val))
 
     def pr_dec_const(self, name, val):
-        self.pr_const (name, "{}".format(val))
+        self.pr_const(name, "{}".format(val))
 
     def pr_field_mask(self, f):
         # Not printed as a mask may overflow a natural.
@@ -107,7 +108,8 @@ class ConstsPrinterH(ConstsPrinter):
         self.pr_raw("#define {} {}\n".format(name, val))
 
     def pr_hex_const(self, name, val):
-        self.pr_const(name, "0x{:x}UL{}".format(val, "L" if val >= 2**32 else ""))
+        self.pr_const(name,
+                      "0x{:x}UL{}".format(val, "L" if val >= 2**32 else ""))
 
     def pr_dec_const(self, name, val):
         self.pr_const(name, "{}".format(val))
@@ -134,7 +136,8 @@ class ConstsPrinterC(ConstsPrinterH):
             # A multi-bit field
             self.pr_hex_const(self.pr_name(f) + '_MASK', self.compute_mask(f))
             self.pr_dec_const(self.pr_name(f) + "_SHIFT", f.lo)
-    
+
+
 class ConstsVisitor(tree.Visitor):
     def __init__(self, printer):
         self.printer = printer
@@ -189,6 +192,7 @@ def pconsts_array(pr, n):
     pr.pr_size(n, n.c_elsize)
     pconsts_composite(pr, n)
 
+
 @ConstsVisitor.register(tree.CompositeNode)
 def pconsts_composite(pr, n):
     for el in n.children:
@@ -206,7 +210,7 @@ def pconsts_for_gen_c(fd, root):
     pr = ConstsVisitor(ConstsPrinterC(fd, root))
     pr.visit(root)
 
-    
+
 def pconsts_cheby(fd, root, style):
     cls = {'verilog': ConstsPrinterVerilog,
            'vhdl': ConstsPrinterVHDL,

@@ -29,6 +29,7 @@ verbose = False
 flag_regen = False
 nbr_tests = 0
 
+
 class TestError(Exception):
     def __init__(self, msg):
         self.msg = msg
@@ -156,6 +157,7 @@ def test_layout():
         layout_err(t)
         nbr_tests += 1
 
+
 def test_print():
     global nbr_tests
     fd = write_null()
@@ -168,6 +170,7 @@ def test_print():
         gen_name.gen_name_root(t)
         gen_c.gen_c_cheby(fd, t, 'neutral')
         nbr_tests += 1
+
 
 def compare_buffer_and_file(buf, filename):
     # Well, there is certainly a python diff module...
@@ -267,6 +270,7 @@ def test_hdl_ref():
             error('vhdl generation error for {}'.format(f))
         nbr_tests += 1
 
+
 def test_self():
     """Auto-test"""
     def test(func, func_name):
@@ -340,6 +344,7 @@ def test_gena():
             error('gena regctrl generation error for {}'.format(f))
         nbr_tests += 1
 
+
 def test_gena_regctrl_err():
     global nbr_tests
     files = ['Muxed_name', 'Muxed_code']
@@ -367,6 +372,7 @@ def test_gena_regctrl_err():
             assert(str(e) != '')
         nbr_tests += 1
 
+
 def test_gena2cheby():
     global nbr_tests
     files = ['const_value', 'fesa_class_prop', 'root_attr', 'root_gen_include',
@@ -382,6 +388,7 @@ def test_gena2cheby():
         xmlfile = srcdir + 'gena2cheby/' + f + '.xml'
         gena2cheby.convert(xmlfile)
         nbr_tests += 1
+
 
 def test_gena2cheby_err():
     global nbr_tests
@@ -415,6 +422,7 @@ def test_gena2cheby_err():
         except gena2cheby.UnknownTag:
             pass
         nbr_tests += 1
+
 
 def test_gena_regressions():
     global nbr_tests
@@ -450,6 +458,7 @@ def test_gena_regressions():
         if not compare_buffer_and_file(buf, regctrlfile):
             error('gena regctrl generation error for {}'.format(f))
         nbr_tests += 1
+
 
 def test_wbgen2cheby():
     global nbr_tests
@@ -518,6 +527,7 @@ def test_consts():
                 error('consts {} generation error for {}'.format(style, f))
         nbr_tests += 1
 
+
 def test_doc():
     # Generate html and md, compare with a baseline.
     global nbr_tests
@@ -540,6 +550,7 @@ def test_doc():
             if not compare_buffer_and_file(buf, file):
                 error('doc {} generation error for {}'.format(style, f))
         nbr_tests += 1
+
 
 def test_custom():
     global nbr_tests

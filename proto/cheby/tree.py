@@ -98,8 +98,8 @@ class Root(CompositeNode):
         self.word_endian = None
         # Computed variables
         self.c_word_size = None  # Word size in bytes
-        self.c_filename = None   # Filename for the tree.
-        self.c_word_endian = None # word endianness ('any', 'little', 'big')
+        self.c_filename = None  # Filename for the tree.
+        self.c_word_endian = None  # word endianness ('any', 'little', 'big')
 
 
 class Block(CompositeNode):

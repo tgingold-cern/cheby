@@ -6,15 +6,16 @@ import cheby.gen_doc as gen_doc
 
 
 def w(fd, str):
-        fd.write(str)
+    fd.write(str)
 
 
 def wln(fd, str=""):
     fd.write(str)
     fd.write('\n')
 
+
 def wtable(fd, table):
-    lens=[len(x) for x in table[0]]
+    lens = [len(x) for x in table[0]]
     for j in range(1, len(table)):
         for i in range(len(lens)):
             lens[i] = max(lens[i], len(table[j][i]))
@@ -28,6 +29,7 @@ def wtable(fd, table):
                 cnt += '| ' + l[i].ljust(lens[i]) + ' '
         wln(fd, cnt + '|')
         wln(fd, '+' + ''.join('-' * (l + 2) + '+' for l in lens))
+
 
 def print_reg(fd, r, abs_addr):
     wln(fd)
@@ -62,7 +64,9 @@ def print_reg(fd, r, abs_addr):
         t = []
         for f in r.children:
             wln(fd, f.name)
-            wln(fd, "  {}".format(f.comment or f.description or '(not documented)'))
+            wln(fd, "  {}".format(f.comment or
+                                  f.description or
+                                  '(not documented)'))
         wln(fd)
 
 

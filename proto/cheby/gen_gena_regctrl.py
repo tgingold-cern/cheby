@@ -128,7 +128,7 @@ def gen_hdl_reg_decls(reg, pfx, root, module, isigs):
             else:
                 for suff, _ in reg.h_mux.codelist:
                     port = HDLPort(pfx + reg.name + suff + fname,
-                                size=sz, lo_idx=lo, dir=mode)
+                                   size=sz, lo_idx=lo, dir=mode)
                     module.ports.append(port)
                     f.h_port.append(port)
 
@@ -253,7 +253,7 @@ def gen_hdl_srff(reg, pfx, root, module, isigs):
         reg.h_loc_SRFF,
         HDLOr(HDLParen(HDLAnd(reg.h_loc_SRFF,
                               HDLReplicate(HDLNot(reg.h_ClrSRFF),
-                                                  reg.c_rwidth, False))),
+                                           reg.c_rwidth, False))),
               reg.h_loc)))
     module.stmts.append(proc)
     module.stmts.append(HDLComment(None))

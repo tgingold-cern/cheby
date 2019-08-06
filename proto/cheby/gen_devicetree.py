@@ -46,7 +46,9 @@ def find_label(dt):
             return l
     return None
 
+
 unique_id = 0
+
 
 def create_label(n):
     """Create a label for the devicetree of :name n:"""
@@ -56,7 +58,8 @@ def create_label(n):
     unique_id += 1
     n.x_devicetree.append({'label': label})
     return label
-    
+
+
 def get_int_ctrl_label(n):
     """Return the label of the interrupt controller for interrupt input n"""
     res = find_label(get_devicetree(n.parent))
@@ -115,7 +118,7 @@ def gen_children(f, t, indent):
                             f.write('{}interrupts-extended ={};\n'.format(
                                 nindent * ' ',
                                 ','.join((' <&{} {}>'.format(get_int_ctrl_label(n.dest), n.dest.index) for n in l))))
-                        
+
                     f.write('{}}};\n'.format(indent * ' '))
                     f.write("\n")
                 else:
@@ -168,12 +171,13 @@ def build_interrupts_base(base):
             inp.src = res
             if res.dest is not None:
                 error('interrupt output {} assigned to both {} and {}'.format
-                    (res.path_name, res.dest.name, inp.name))
+                      (res.path_name, res.dest.name, inp.name))
             else:
                 res.dest = inp
     # List of exported interrupts
     exported_interr = [o for interr in all_interr for o in interr.outputs if o.dest is None]
     return exported_interr
+
 
 def build_interrupts(n, base, path, all_interr):
     """For :name n: and its children, build the interrupt objects"""
@@ -215,7 +219,7 @@ def build_interrupts(n, base, path, all_interr):
                     obj.path_name = '/'.join(path + [obj.name])
                 else:
                     error('unknown x-interrupts item "{}" in {}'.format
-                        (k, n.get_path()))
+                          (k, n.get_path()))
     # Handle children
     if isinstance(n, tree.Submap) and n.filename is not None:
         exported_interr = build_interrupts_base(n.c_submap)

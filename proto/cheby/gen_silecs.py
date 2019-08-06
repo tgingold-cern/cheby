@@ -1,6 +1,7 @@
 import cheby.tree as tree
 from datetime import datetime
 
+
 def gen_header(fd, name, owner, editor):
     fd.write(('<?xml version="1.0" encoding="UTF-8"?>\n'
     '<SILECS-Design silecs-version="SILECS-1.m.p" created="{date}" updated="{date}"\n'
@@ -18,7 +19,7 @@ def gen_block(fd, root, acc, synchro):
     for r in root.children:
         if isinstance(r, tree.Reg):
             if r.access == acc:
-                fd.write (
+                fd.write(
                     '\t\t\t<Register name="{}" format="uint{}" synchro="{}">'
                     '</Register>\n'.format(r.name, r.width, synchro))
 

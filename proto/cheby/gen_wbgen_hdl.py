@@ -1307,19 +1307,18 @@ def add_bus(root, module, bus):
 def expand_wishbone(root, module):
     """Create wishbone interface."""
     addr_width = root.c_sel_bits + root.c_blk_bits - root.c_addr_word_bits
-    bus = [('rst',   HDLPort("rst_n_i")),
-           ('clk',   HDLPort("clk_i"))]
+    bus = [('rst', HDLPort("rst_n_i")),
+           ('clk', HDLPort("clk_i"))]
     if addr_width > 0:
-        bus.append(('adr',   HDLPort("wb_adr_i", addr_width)))
-    bus.extend([
-           ('dati',  HDLPort("wb_dat_i", root.c_word_bits)),
-           ('dato',  HDLPort("wb_dat_o", root.c_word_bits, dir='OUT')),
-           ('cyc',   HDLPort("wb_cyc_i")),
-           ('sel',   HDLPort("wb_sel_i", root.c_word_size)),
-           ('stb',   HDLPort("wb_stb_i")),
-           ('we',    HDLPort("wb_we_i")),
-           ('ack',   HDLPort("wb_ack_o", dir='OUT')),
-           ('stall', HDLPort("wb_stall_o", dir='OUT'))])
+        bus.append(('adr', HDLPort("wb_adr_i", addr_width)))
+    bus.extend([('dati', HDLPort("wb_dat_i", root.c_word_bits)),
+                ('dato', HDLPort("wb_dat_o", root.c_word_bits, dir='OUT')),
+                ('cyc', HDLPort("wb_cyc_i")),
+                ('sel', HDLPort("wb_sel_i", root.c_word_size)),
+                ('stb', HDLPort("wb_stb_i")),
+                ('we', HDLPort("wb_we_i")),
+                ('ack', HDLPort("wb_ack_o", dir='OUT')),
+                ('stall', HDLPort("wb_stall_o", dir='OUT'))])
     add_bus(root, module, bus)
 
 

@@ -180,6 +180,7 @@ def expand_version_reg(periph):
         r.fields = [f]
         periph.regs.insert(0, r)
 
+
 def expand(periph):
     """Create regs for irq and fifo."""
     # First gather irqs and create the controller.

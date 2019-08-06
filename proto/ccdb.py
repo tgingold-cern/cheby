@@ -244,7 +244,7 @@ def show_file_include(cmd_name, *args):
     for filename, de in deps.items():
         print("{}: ({})".format(filename, de.filename))
         for f in de.includes:
-            print ("  {}".format(f))
+            print("  {}".format(f))
 
 
 def upload_files(cmd_name, *args):
