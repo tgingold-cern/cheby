@@ -46,7 +46,9 @@ class CPrinter(tree.Visitor):
             self.cp_txt('}} {};'.format(name))
 
     def cp_txt(self, txt):
-        self.cp_raw('{}{}\n'.format('  ' * self.indent, txt))
+        if len(txt):
+            self.cp_raw('{}{}'.format('  ' * self.indent, txt))
+        self.cp_raw('\n')
 
 
 def cprint_children(cp, n, size):

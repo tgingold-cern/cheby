@@ -119,7 +119,7 @@ class ConstsPrinterC(ConstsPrinterH):
         super(ConstsPrinterC, self).__init__(fd, root)
 
     def pr_size(self, n, sz):
-        pass
+        self.pr_dec_const(self.pr_name(n) + "_SIZE", sz)
 
     def pr_address(self, n):
         self.pr_raw('\n')
@@ -169,8 +169,9 @@ def pconsts_reg(pr, n):
 
 @ConstsVisitor.register(tree.Block)
 def pconsts_block(pr, n):
-    pconsts_composite(pr, n)
+    pr.pr_address(n)
     pr.pr_size(n, n.c_size)
+    pconsts_composite(pr, n)
 
 
 @ConstsVisitor.register(tree.Submap)
@@ -184,12 +185,12 @@ def pconsts_submap(pr, n):
 
 @ConstsVisitor.register(tree.Array)
 def pconsts_array(pr, n):
-    pconsts_composite(pr, n)
+    pr.pr_address(n)
     pr.pr_size(n, n.c_elsize)
+    pconsts_composite(pr, n)
 
 @ConstsVisitor.register(tree.CompositeNode)
 def pconsts_composite(pr, n):
-    pr.pr_address(n)
     for el in n.children:
         pr.visit(el)
 
