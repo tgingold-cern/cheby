@@ -23,7 +23,8 @@ import cheby.print_html as print_html
 import cheby.print_markdown as print_markdown
 import cheby.gen_custom as gen_custom
 
-srcdir = '../testfiles/'
+srcdir = os.path.join(os.path.dirname(os.path.realpath(__file__)),
+                      '../testfiles/')
 verbose = False
 flag_regen = False
 nbr_tests = 0
