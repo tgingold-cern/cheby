@@ -1,5 +1,7 @@
 #! /usr/bin/env python3
 import sys
+import ast
+import re
 import os.path
 import argparse
 from xml.etree import ElementTree as ET
@@ -30,6 +32,67 @@ class UnknownValue(Exception):
     def __init__(self, name, val):
         self.name = name
         self.val = val
+
+
+NODE_SEPARATOR = '/'
+
+CONST_VAR_PREFIXES = ["CST_", "CFG_"]
+
+
+class SyntaxValidator(ast.NodeVisitor):
+
+    def __init__(self, convFactorInput):
+        self.convFactorInput = convFactorInput
+
+    def visit_Module(self, node):
+        self.names = set()
+        self.calls = set()
+        self.generic_visit(node)
+
+    def visit_Name(self, node):
+        self.names.add(node.id)
+
+    def visit_Call(self, node):
+        self.calls.add(node.func.id)
+        self.generic_visit(node)
+
+    def convertVariablesSyntax(self):
+        regexPattern = "([a-zA-Z0-9]+\_+[a-zA-Z0-9]+\w+)(?<!_)"
+
+        rawVariables = self.names - self.calls
+        allVars = re.findall(regexPattern, ",".join(rawVariables))
+
+        # Warnings
+        for var in rawVariables:
+            if var.find("_") in [0, len(var) - 1]:
+                raise Exception("WARNING: variable \"{}\" shoud not contain \"_\" on the begging or end of name!".format(var))
+
+        for var in allVars:
+            if var.find("__") != -1:
+                raise Exception("ERROR: variable \"{}\" shoud not contain multiple \"_\" in name! - conversion failed.".format(var))
+
+        # removing constans
+        allVars = [var for var in allVars if all(prefix not in var for prefix in CONST_VAR_PREFIXES)]
+        convertedVars = [(var, var.replace("_", ".")) for var in allVars]
+
+        newConvFactorText = self.convFactorInput
+        for var, newVar in convertedVars:
+            newConvFactorText = newConvFactorText.replace(var, newVar)
+
+        return newConvFactorText
+
+
+def convFactorSyntaxModifier(convFactorInput):
+    if not isinstance(convFactorInput, str):
+        return
+
+    validator = SyntaxValidator(convFactorInput)
+
+    try:
+        validator.visit(ast.parse(convFactorInput))
+        return validator.convertVariablesSyntax()
+    except Exception as errMsg:
+        raise UnknownValue("Failed to parse conversion factor: {}: {}".format(convFactorInput, errMsg))
 
 
 def error(str):
@@ -203,7 +266,9 @@ def conv_sub_reg(reg, el):
             for e in [g.strip() for g in v.split(',')]:
                 if e == '':
                     pass
-                elif e in ['write-strobe', 'ext-acm']:
+                elif e in ['write-strobe']:
+                    pass
+                elif e in ['ext-acm']:
                     xg[e] = True
                 elif e.startswith('ext-codes='):
                     kg, vg = e.split('=')
@@ -226,9 +291,9 @@ def conv_sub_reg(reg, el):
                     raise UnknownGenAttribute(e, res)
             res.x_gena['gen'] = xg
         elif k == 'read-conversion-factor':
-            res.x_conversions['read'] = v
+            res.x_conversions['read'] = convFactorSyntaxModifier(v)
         elif k == 'write-conversion-factor':
-            res.x_conversions['write'] = v
+            res.x_conversions['write'] = convFactorSyntaxModifier(v)
         elif k in ['unit']:
             res.x_fesa[k] = v
         elif k in ['constant-value']:
@@ -309,9 +374,9 @@ def conv_register_data(parent, el):
             if v == 'HW':
                 res.x_fesa['generate'] = False
         elif k == 'read-conversion-factor':
-            res.x_conversions['read'] = v
+            res.x_conversions['read'] = convFactorSyntaxModifier(v)
         elif k == 'write-conversion-factor':
-            res.x_conversions['write'] = v
+            res.x_conversions['write'] = convFactorSyntaxModifier(v)
         elif k in ['max-val', 'min-val', 'unit']:
             res.x_fesa[k] = v
         else:
@@ -384,9 +449,10 @@ def conv_memory_buffer(el):
     attrs = el.attrib
     for k, v in attrs.items():
         if k in ('description', 'buffer-type', 'buffer-select-code', 'name',
-                 'read-conversion-factor', 'write-conversion-factor', 'unit',
-                 'bit-encoding', 'note', 'comment'):
+                 'unit', 'bit-encoding', 'note', 'comment'):
             res[k] = v
+        elif k in ('read-conversion-factor', 'write-conversion-factor'):
+            res[k] = convFactorSyntaxModifier(v)
         elif k in ('comment-encoding', ):
             pass
         else:
@@ -445,15 +511,17 @@ def conv_memory_data(parent, el):
             for e in [g.strip() for g in v.split(',')]:
                 if e == '':
                     pass
-                elif e in ['ignore', 'no-split']:
+                elif e in ['ignore']:
                     xg[e] = True
+                elif e in ['no-split']:
+                    pass
                 elif e.startswith('gen='):
                     # gen=ignore
                     kg, _ = e.split('=')
                     if kg == 'ignore':
                         xg[kg] = True
                     elif kg == 'internal':
-                        xg['suppress-port'] = True
+                        pass
                     else:
                         UnknownGenAttribute(e, res)
                 else:
@@ -520,7 +588,9 @@ def conv_area(parent, el):
                 if e in ('ext-area',):
                     xg[e] = True
                 elif e in ('no-creg-mux-dff', 'no-reg-mux-dff',
-                           'no-mem-mux-dff', 'ext-creg'):
+                           'no-mem-mux-dff'):
+                    xg[e] = True
+                elif e in ['ext-creg']:
                     # Discard ?
                     pass
                 else:
@@ -565,8 +635,7 @@ def conv_submap(parent, el):
                     xg['ignore'] = True
                 elif e in ('no-creg-mux-dff', 'no-reg-mux-dff',
                            'no-mem-mux-dff'):
-                    # Discard ?
-                    pass
+                    xg[e] = True
                 elif e in ('generate',):
                     xg[e] = True
                 else:
@@ -602,6 +671,7 @@ def conv_root(root, filename):
     res = cheby.tree.Root()
 
     res.x_gena = {}
+    res.x_fesa = {}
     res.x_driver_edge = {}
     res.x_cern_info = {}
     acc_mode = None
@@ -645,6 +715,8 @@ def conv_root(root, filename):
                     xg['ignore'] = True
                 elif e.startswith('include'):
                     # Bogus use, discard.
+                    pass
+                elif e == "generate":
                     pass
                 else:
                     raise UnknownGenAttribute(e, res)
