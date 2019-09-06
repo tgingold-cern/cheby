@@ -125,36 +125,35 @@ class WBBus(BusGen):
         isigs.rd_ack = module.new_HDLSignal('rd_ack_int')    # Ack for read
         isigs.wr_ack = module.new_HDLSignal('wr_ack_int')    # Ack for write
         # Internal signals for wb.
-        isigs.wb_en = module.new_HDLSignal('wb_en')
-        isigs.ack_int = module.new_HDLSignal('ack_int')      # Ack
+        wb_en = module.new_HDLSignal('wb_en')
+        ack_int = module.new_HDLSignal('ack_int')      # Ack
         module.stmts.append(
-            HDLAssign(isigs.wb_en,
-                      HDLAnd(root.h_bus['cyc'], root.h_bus['stb'])))
+            HDLAssign(wb_en, HDLAnd(root.h_bus['cyc'], root.h_bus['stb'])))
         module.stmts.append(HDLComment(None))
 
         # Read access
-        rd_req = HDLAnd(isigs.wb_en, HDLNot(root.h_bus['we']))
+        rd_req = HDLAnd(wb_en, HDLNot(root.h_bus['we']))
         rd_req = self.add_in_progress_reg(root, module, rd_req,
                                           isigs.rd_ack, 'r')
         module.stmts.append(HDLAssign(isigs.rd_req, rd_req))
         module.stmts.append(HDLComment(None))
 
         # Write access
-        wr_req = HDLAnd(isigs.wb_en, root.h_bus['we'])
+        wr_req = HDLAnd(wb_en, root.h_bus['we'])
         wr_req = self.add_in_progress_reg(root, module, wr_req,
                                           isigs.wr_ack, 'w')
         module.stmts.append(HDLAssign(isigs.wr_req, wr_req))
         module.stmts.append(HDLComment(None))
 
         # Ack
-        module.stmts.append(HDLAssign(isigs.ack_int,
+        module.stmts.append(HDLAssign(ack_int,
                                       HDLOr(isigs.rd_ack, isigs.wr_ack)))
-        module.stmts.append(HDLAssign(root.h_bus['ack'], isigs.ack_int))
+        module.stmts.append(HDLAssign(root.h_bus['ack'], ack_int))
 
         # Stall
         module.stmts.append(
             HDLAssign(root.h_bus['stall'],
-                      HDLAnd(HDLNot(isigs.ack_int), isigs.wb_en)))
+                      HDLAnd(HDLNot(ack_int), wb_en)))
         # No retry, no errors.
         module.stmts.append(HDLAssign(root.h_bus['rty'], bit_0))
         module.stmts.append(HDLAssign(root.h_bus['err'], bit_0))
