@@ -46,6 +46,8 @@ To create a new release:
 
 * Update the wiki at https://gitlab.cern.ch/cohtdrivers/cheby/wikis/home
 
+## Version 1.4
+
 ## Version 1.3
 
 Add x-hdl:port to specify how ports are generated for registers (issue#11)
