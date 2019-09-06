@@ -51,7 +51,7 @@ class BusGen(object):
 
     For the read access:
     inputs:
-    * rd_int: a pulse indicating a read access
+    * rd_req: a pulse indicating a read access
     * adrr: address, valid and stable during the access.
     outputs:
     * rd_ack: a pulse indicating the results are valid,
@@ -60,7 +60,7 @@ class BusGen(object):
 
     For the write access:
     inputs:
-    * wr_int: a pulse indicating a write access
+    * wr_req: a pulse indicating a write access
     * adrw: the address, valid and stable during the access.
     * dati: the data, valid and stable during the access.
     outputs:
@@ -120,8 +120,8 @@ class WBBus(BusGen):
 
     def add_decode_wb(self, root, module, isigs):
         "Generate internal signals used by decoder/processes from WB bus."
-        isigs.rd_int = module.new_HDLSignal('rd_int')        # Read access
-        isigs.wr_int = module.new_HDLSignal('wr_int')        # Write access
+        isigs.rd_req = module.new_HDLSignal('rd_req_int')    # Read access
+        isigs.wr_req = module.new_HDLSignal('wr_req_int')    # Write access
         isigs.rd_ack = module.new_HDLSignal('rd_ack_int')    # Ack for read
         isigs.wr_ack = module.new_HDLSignal('wr_ack_int')    # Ack for write
         # Internal signals for wb.
@@ -133,17 +133,17 @@ class WBBus(BusGen):
         module.stmts.append(HDLComment(None))
 
         # Read access
-        rd_int = HDLAnd(isigs.wb_en, HDLNot(root.h_bus['we']))
-        rd_int = self.add_in_progress_reg(root, module, rd_int,
+        rd_req = HDLAnd(isigs.wb_en, HDLNot(root.h_bus['we']))
+        rd_req = self.add_in_progress_reg(root, module, rd_req,
                                           isigs.rd_ack, 'r')
-        module.stmts.append(HDLAssign(isigs.rd_int, rd_int))
+        module.stmts.append(HDLAssign(isigs.rd_req, rd_req))
         module.stmts.append(HDLComment(None))
 
         # Write access
-        wr_int = HDLAnd(isigs.wb_en, root.h_bus['we'])
-        wr_int = self.add_in_progress_reg(root, module, wr_int,
+        wr_req = HDLAnd(isigs.wb_en, root.h_bus['we'])
+        wr_req = self.add_in_progress_reg(root, module, wr_req,
                                           isigs.wr_ack, 'w')
-        module.stmts.append(HDLAssign(isigs.wr_int, wr_int))
+        module.stmts.append(HDLAssign(isigs.wr_req, wr_req))
         module.stmts.append(HDLComment(None))
 
         # Ack
@@ -320,19 +320,19 @@ class WBBus(BusGen):
             proc.sync_stmts.append(HDLAssign(n.h_wr, bit_0))
             # Set on WR, cleared by ACK.
             stmts.append(HDLAssign(n.h_wr,
-                         HDLAnd(HDLOr(n.h_wr, isigs.wr_int), HDLNot(n.h_wack))))
+                         HDLAnd(HDLOr(n.h_wr, isigs.wr_req), HDLNot(n.h_wack))))
         else:
             # WT is set by WR and cleared by ACK.
             proc.rst_stmts.append(HDLAssign(n.h_wt, bit_0))
             proc.sync_stmts.append(HDLAssign(n.h_wt, bit_0))
             stmts.append(HDLAssign(n.h_wt,
-                HDLAnd(HDLOr(n.h_wt, isigs.wr_int), HDLNot(n.h_wack))))
+                HDLAnd(HDLOr(n.h_wt, isigs.wr_req), HDLNot(n.h_wack))))
         stmts.append(HDLAssign(isigs.wr_ack, n.h_wack))
 
     def read_bus_slave(self, root, stmts, n, proc, isigs, rd_data):
         proc.stmts.append(HDLAssign(n.h_re, bit_0))
-        stmts.append(HDLAssign(n.h_re, isigs.rd_int))
-        proc.sensitivity.append(isigs.rd_int)
+        stmts.append(HDLAssign(n.h_re, isigs.rd_req))
+        proc.sensitivity.append(isigs.rd_req)
         stmts.append(HDLAssign(rd_data, n.h_bus['dato']))
         # Propagate ack provided it is a write transaction and only for one cycle.
         stmts.append(HDLAssign(isigs.rd_ack, n.h_rack))
@@ -394,8 +394,8 @@ class AXI4LiteBus(BusGen):
             # acknowledged.  This concerns RVALID, RDATA, BVALID.
 
             # Internal signals and bus protocol
-            isigs.rd_int = module.new_HDLSignal('rd_int')       # Read access
-            isigs.wr_int = module.new_HDLSignal('wr_int')       # Write access
+            isigs.rd_req = module.new_HDLSignal('rd_req')       # Read access
+            isigs.wr_req = module.new_HDLSignal('wr_req')       # Write access
             isigs.rd_ack = module.new_HDLSignal('rd_ack_int')   # Ack for read
             isigs.wr_ack = module.new_HDLSignal('wr_ack_int')   # Ack for write
             root.h_bus['dati'] = root.h_bus['wdata']
@@ -412,7 +412,7 @@ class AXI4LiteBus(BusGen):
             axi_wip = module.new_HDLSignal('axi_wip')
             axi_wdone = module.new_HDLSignal('axi_wdone')
             w_start = HDLAnd(root.h_bus['awvalid'], root.h_bus['wvalid'])
-            module.stmts.append(HDLAssign(isigs.wr_int,
+            module.stmts.append(HDLAssign(isigs.wr_req,
                     HDLAnd(w_start, HDLNot(axi_wip))))
             module.stmts.append(HDLAssign(root.h_bus['awready'],
                     HDLAnd(axi_wip, isigs.wr_ack)))
@@ -439,7 +439,7 @@ class AXI4LiteBus(BusGen):
             axi_rip = module.new_HDLSignal('axi_rip')
             axi_rdone = module.new_HDLSignal('axi_rdone')
             r_start = root.h_bus['arvalid']
-            module.stmts.append(HDLAssign(isigs.rd_int,
+            module.stmts.append(HDLAssign(isigs.rd_req,
                     HDLAnd(r_start, HDLNot(axi_rip))))
             module.stmts.append(HDLAssign(root.h_bus['arready'],
                     HDLAnd(axi_rip, isigs.rd_ack)))
@@ -512,13 +512,13 @@ class AXI4LiteBus(BusGen):
             proc.sync_stmts.append(HDLAssign(x_val, bit_0))
             # VALID is set on WR, cleared by READY.
             stmts.append(HDLAssign(x_val,
-                HDLOr(isigs.wr_int, HDLParen(HDLAnd(x_val, HDLNot(ready))))))
+                HDLOr(isigs.wr_req, HDLParen(HDLAnd(x_val, HDLNot(ready))))))
         stmts.append(HDLAssign(isigs.wr_ack, n.h_bus['bvalid']))
 
     def read_bus_slave(self, root, stmts, n, proc, isigs, rd_data):
         proc.stmts.append(HDLAssign(n.h_rd, bit_0))
-        stmts.append(HDLAssign(n.h_rd, isigs.rd_int))
-        proc.sensitivity.append(isigs.rd_int)
+        stmts.append(HDLAssign(n.h_rd, isigs.rd_req))
+        proc.sensitivity.append(isigs.rd_req)
         stmts.append(HDLAssign(rd_data, n.h_bus['rdata']))
         stmts.append(HDLAssign(isigs.rd_ack, n.h_bus['rvalid']))
         proc.sensitivity.extend([n.h_bus['rdata'], n.h_bus['rvalid']])
@@ -538,8 +538,8 @@ class CERNBEBus(BusGen):
     def add_decode_cern_be_vme(self, root, module, isigs):
         """Generate internal signals used by decoder/processes from
         CERN-BE-VME bus."""
-        isigs.rd_int = root.h_bus['rd']
-        isigs.wr_int = root.h_bus['wr']
+        isigs.rd_req = root.h_bus['rd']
+        isigs.wr_req = root.h_bus['wr']
         isigs.rd_ack = HDLSignal('rd_ack_int')    # Ack for read
         isigs.wr_ack = HDLSignal('wr_ack_int')    # Ack for write
         module.decls.extend([isigs.rd_ack, isigs.wr_ack])
@@ -668,13 +668,13 @@ class CERNBEBus(BusGen):
         if root.h_bussplit:
             # Write request set on WR, clear by WrDone
             stmts.append(HDLAssign(n.h_wr,
-                HDLAnd(HDLOr(isigs.wr_int, n.h_wr), HDLNot(n.h_bus['wack']))))
+                HDLAnd(HDLOr(isigs.wr_req, n.h_wr), HDLNot(n.h_bus['wack']))))
             proc.rst_stmts.append(HDLAssign(n.h_wr, bit_0))
             proc.sync_stmts.append(HDLAssign(n.h_wr, bit_0))
             # WR set on WS
             stmts.append(HDLAssign(n.h_bus['wr'], n.h_ws))
         else:
-            stmts.append(HDLAssign(n.h_bus['wr'], isigs.wr_int))
+            stmts.append(HDLAssign(n.h_bus['wr'], isigs.wr_req))
         stmts.append(HDLAssign(isigs.wr_ack, n.h_bus['wack']))
 
     def read_bus_slave(self, root, stmts, n, proc, isigs, rd_data):
@@ -682,14 +682,14 @@ class CERNBEBus(BusGen):
         if root.h_bussplit:
             # Start read transaction if RR is set and neither read nor write transaction
             proc.stmts.append(HDLAssign(n.h_re, bit_0))
-            stmts.append(HDLAssign(n.h_re, isigs.rd_int))
+            stmts.append(HDLAssign(n.h_re, isigs.rd_req))
             stmts.append(HDLAssign(n.h_bus['rd'], n.h_rs))
             proc.sensitivity.extend([n.h_rs])
         else:
-            stmts.append(HDLAssign(n.h_bus['rd'], isigs.rd_int))
+            stmts.append(HDLAssign(n.h_bus['rd'], isigs.rd_req))
         stmts.append(HDLAssign(rd_data, n.h_bus['dato']))
         stmts.append(HDLAssign(isigs.rd_ack, n.h_bus['rack']))
-        proc.sensitivity.extend([isigs.rd_int, n.h_bus['dato'], n.h_bus['rack']])
+        proc.sensitivity.extend([isigs.rd_req, n.h_bus['dato'], n.h_bus['rack']])
 
 
 class SRAMBus(BusGen):
@@ -729,15 +729,15 @@ class SRAMBus(BusGen):
     def write_bus_slave(self, root, stmts, n, proc, isigs):
         proc.rst_stmts.append(HDLAssign(n.h_bus['wr'], bit_0))
         proc.sync_stmts.append(HDLAssign(n.h_bus['wr'], bit_0))
-        stmts.append(HDLAssign(n.h_bus['wr'], isigs.wr_int))
-        stmts.append(HDLAssign(isigs.wr_ack, isigs.wr_int))
+        stmts.append(HDLAssign(n.h_bus['wr'], isigs.wr_req))
+        stmts.append(HDLAssign(isigs.wr_ack, isigs.wr_req))
 
     def read_bus_slave(self, root, stmts, n, proc, isigs, rd_data):
         stmts.append(HDLAssign(rd_data, n.h_bus['dati']))
         stmts.append(HDLAssign(isigs.rd_ack, n.h_bus['rack']))
         proc.stmts.append(HDLAssign(n.h_bus['re'], bit_0))
-        stmts.append(HDLAssign(n.h_bus['re'], isigs.rd_int))
-        proc.sensitivity.extend([isigs.rd_int, n.h_bus['dati'], n.h_bus['rack']])
+        stmts.append(HDLAssign(n.h_bus['re'], isigs.rd_req))
+        proc.sensitivity.extend([isigs.rd_req, n.h_bus['dati'], n.h_bus['rack']])
 
 
 def add_module_port(root, module, name, size, dir):
@@ -901,7 +901,7 @@ def wire_array(root, module, isigs, arr):
         # Create a mux for the ram address
         proc = HDLComb()
         proc.sensitivity.extend([root.h_bus['adrr'], root.h_bus['adrw'],
-                                 isigs.wr_int])
+                                 isigs.wr_req])
         if_stmt = HDLIfElse(HDLEq(arr.h_wr, bit_1))
         if_stmt.then_stmts.append(HDLAssign(arr.h_adr_int,
             HDLSlice(root.h_bus['adrw'],
@@ -1218,7 +1218,7 @@ def add_read_reg_process(root, module, isigs):
                     add_read_reg(s, n, off)
                 if n.h_rstrobe is not None:
                     s.append(HDLAssign(strobe_index(root, n, off, n.h_rstrobe),
-                                       isigs.rd_int))
+                                       isigs.rd_req))
                     if off == 0:
                         # Default values for the strobe.
                         v = strobe_init(root, n)
@@ -1227,7 +1227,7 @@ def add_read_reg_process(root, module, isigs):
                 if n.h_rack_port is not None:
                     rack = strobe_index(root, n, off, n.h_rack_port)
                 else:
-                    rack = isigs.rd_int
+                    rack = isigs.rd_req
                 s.append(HDLAssign(rd_ack, rack))
             elif isinstance(n, tree.Submap):
                 pass
@@ -1237,18 +1237,18 @@ def add_read_reg_process(root, module, isigs):
                     rdproc.rst_stmts.append(HDLAssign(n.h_rr, bit_0))
                     rdproc.sync_stmts.append(HDLAssign(n.h_rr, bit_0))
                     s.append(HDLAssign(n.h_rr,
-                        HDLAnd(HDLOr(n.h_rr, isigs.rd_int), isigs.wr_int)))
+                        HDLAnd(HDLOr(n.h_rr, isigs.rd_req), isigs.wr_req)))
                     s.append(HDLAssign(rd_ack,
-                        HDLAnd(HDLOr(isigs.rd_int, isigs.rd_int),
-                               HDLNot(isigs.wr_int))))
+                        HDLAnd(HDLOr(isigs.rd_req, isigs.rd_req),
+                               HDLNot(isigs.wr_req))))
                 else:
-                    s.append(HDLAssign(rd_ack, isigs.rd_int))
+                    s.append(HDLAssign(rd_ack, isigs.rd_req))
             else:
                 # Blocks have been handled.
                 raise AssertionError
         else:
             s.append(HDLAssign(rd_data, HDLReplicate(bit_x, root.c_word_bits)))
-            s.append(HDLAssign(rd_ack, isigs.rd_int))
+            s.append(HDLAssign(rd_ack, isigs.rd_req))
 
     stmts = []
     add_decoder(root, stmts, root.h_bus.get('adrr', None), root, add_read)
@@ -1269,7 +1269,7 @@ def add_read_process(root, module, isigs):
         rdproc.sensitivity.append(rd_adr)
     if root.h_pipeline:
         rdproc.sensitivity.extend([root.h_reg_rdat_int, root.h_rd_ack1_int,
-                                   isigs.rd_int])
+                                   isigs.rd_req])
     module.stmts.append(rdproc)
 
     # All the read are ack'ed (including the read to unassigned addresses).
@@ -1297,10 +1297,10 @@ def add_read_process(root, module, isigs):
                 # Set rd signal to ram: read when there is not WR request,
                 # and either a read request or a pending read request.
                 if root.h_bussplit:
-                    rd_sig = HDLAnd(HDLOr(isigs.rd_int, n.h_rr),
+                    rd_sig = HDLAnd(HDLOr(isigs.rd_req, n.h_rr),
                                     HDLNot(n.h_wr))
                 else:
-                    rd_sig = isigs.rd_int
+                    rd_sig = isigs.rd_req
                 s.append(HDLAssign(r.h_sig_rd, rd_sig))
                 # But set it to 0 when the ram is not selected.
                 rdproc.stmts.append(HDLAssign(r.h_sig_rd, bit_0))
@@ -1311,7 +1311,7 @@ def add_read_process(root, module, isigs):
                 # Blocks have been handled.
                 raise AssertionError
         else:
-            s.append(HDLAssign(rd_ack, isigs.rd_int))
+            s.append(HDLAssign(rd_ack, isigs.rd_req))
 
     stmts = []
     add_decoder(root, stmts, rd_adr, root, add_read)
@@ -1330,14 +1330,14 @@ def add_write_process(root, module, isigs):
     def add_write_reg(s, n, off):
         # Write strobe
         if n.h_wstrobe is not None:
-            s.append(HDLAssign(strobe_index(root, n, off, n.h_wstrobe), isigs.wr_int))
+            s.append(HDLAssign(strobe_index(root, n, off, n.h_wstrobe), isigs.wr_req))
             if off == 0:
                 # Default values for the strobe
                 v = strobe_init(root, n)
                 wrproc.rst_stmts.append(HDLAssign(n.h_wstrobe, v))
                 wrproc.sync_stmts.append(HDLAssign(n.h_wstrobe, v))
 
-        wr_if = HDLIfElse(HDLEq(isigs.wr_int, bit_1))
+        wr_if = HDLIfElse(HDLEq(isigs.wr_req, bit_1))
         wr_if.else_stmts = None
         for f in n.children:
             # Reset code
@@ -1360,7 +1360,7 @@ def add_write_process(root, module, isigs):
         if n.h_wack_port is not None:
             wack = strobe_index(root, n, off, n.h_wack_port)
         else:
-            wack = isigs.wr_int
+            wack = isigs.wr_req
         s.append(HDLAssign(isigs.wr_ack, wack))
 
     def add_write(s, n, off):
@@ -1382,11 +1382,11 @@ def add_write_process(root, module, isigs):
                 if root.h_bussplit:
                     wrproc.rst_stmts.append(HDLAssign(n.h_wr, bit_0))
                     wrproc.sync_stmts.append(HDLAssign(n.h_wr, bit_0))
-                    s.append(HDLAssign(n.h_wr, isigs.wr_int))
+                    s.append(HDLAssign(n.h_wr, isigs.wr_req))
                     s.append(HDLAssign(isigs.wr_ack, n.h_wr))
                 else:
-                    s.append(HDLAssign(isigs.wr_ack, isigs.wr_int))
-                s.append(HDLAssign(r.h_sig_wr, isigs.wr_int))
+                    s.append(HDLAssign(isigs.wr_ack, isigs.wr_req))
+                s.append(HDLAssign(r.h_sig_wr, isigs.wr_req))
                 return
             else:
                 # Including blocks.
@@ -1394,7 +1394,7 @@ def add_write_process(root, module, isigs):
         else:
             # All the write are ack'ed (including the write to unassigned
             # addresses)
-            s.append(HDLAssign(isigs.wr_ack, isigs.wr_int))
+            s.append(HDLAssign(isigs.wr_ack, isigs.wr_req))
     then_stmts = []
     add_decoder(
         root, then_stmts, root.h_bus.get('adrw', None), root, add_write)
