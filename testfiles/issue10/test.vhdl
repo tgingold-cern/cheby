@@ -47,8 +47,8 @@ entity test is
 end test;
 
 architecture syn of test is
-  signal rd_int                         : std_logic;
-  signal wr_int                         : std_logic;
+  signal rd_req                         : std_logic;
+  signal wr_req                         : std_logic;
   signal rd_ack_int                     : std_logic;
   signal wr_ack_int                     : std_logic;
   signal dato                           : std_logic_vector(31 downto 0);
@@ -63,7 +63,7 @@ architecture syn of test is
 begin
 
   -- AW, W and B channels
-  wr_int <= (awvalid and wvalid) and not axi_wip;
+  wr_req <= (awvalid and wvalid) and not axi_wip;
   awready <= axi_wip and wr_ack_int;
   wready <= axi_wip and wr_ack_int;
   bvalid <= axi_wdone;
@@ -81,7 +81,7 @@ begin
   bresp <= "00";
 
   -- AR and R channels
-  rd_int <= arvalid and not axi_rip;
+  rd_req <= arvalid and not axi_rip;
   arready <= axi_rip and rd_ack_int;
   rvalid <= axi_rdone;
   process (aclk) begin
@@ -119,18 +119,18 @@ begin
           case awaddr(2 downto 2) is
           when "0" => 
             -- Register register1
-            if wr_int = '1' then
+            if wr_req = '1' then
               register1_reg(31 downto 0) <= wdata;
             end if;
-            wr_ack_int <= wr_int;
+            wr_ack_int <= wr_req;
           when "1" => 
             -- Register register1
-            if wr_int = '1' then
+            if wr_req = '1' then
               register1_reg(63 downto 32) <= wdata;
             end if;
-            wr_ack_int <= wr_int;
+            wr_ack_int <= wr_req;
           when others =>
-            wr_ack_int <= wr_int;
+            wr_ack_int <= wr_req;
           end case;
         when "10" => 
           case awaddr(2 downto 2) is
@@ -138,22 +138,22 @@ begin
             -- Register block1_register2
           when "1" => 
             -- Register block1_register3
-            if wr_int = '1' then
+            if wr_req = '1' then
               block1_register3_reg <= wdata;
             end if;
-            wr_ack_int <= wr_int;
+            wr_ack_int <= wr_req;
           when others =>
-            wr_ack_int <= wr_int;
+            wr_ack_int <= wr_req;
           end case;
         when "11" => 
           case awaddr(2 downto 2) is
           when "0" => 
             -- Register block1_block2_register4
           when others =>
-            wr_ack_int <= wr_int;
+            wr_ack_int <= wr_req;
           end case;
         when others =>
-          wr_ack_int <= wr_int;
+          wr_ack_int <= wr_req;
         end case;
       end if;
     end if;
@@ -171,13 +171,13 @@ begin
           case araddr(2 downto 2) is
           when "0" => 
             -- register1
-            rd_ack1_int <= rd_int;
+            rd_ack1_int <= rd_req;
           when "1" => 
             -- register1
-            rd_ack1_int <= rd_int;
+            rd_ack1_int <= rd_req;
           when others =>
             reg_rdat_int <= (others => 'X');
-            rd_ack1_int <= rd_int;
+            rd_ack1_int <= rd_req;
           end case;
         when "10" => 
           case araddr(2 downto 2) is
@@ -185,14 +185,14 @@ begin
             -- block1_register2
             reg_rdat_int(0) <= block1_register2_field1_i;
             reg_rdat_int(3 downto 1) <= block1_register2_field2_i;
-            rd_ack1_int <= rd_int;
+            rd_ack1_int <= rd_req;
           when "1" => 
             -- block1_register3
             reg_rdat_int <= block1_register3_reg;
-            rd_ack1_int <= rd_int;
+            rd_ack1_int <= rd_req;
           when others =>
             reg_rdat_int <= (others => 'X');
-            rd_ack1_int <= rd_int;
+            rd_ack1_int <= rd_req;
           end case;
         when "11" => 
           case araddr(2 downto 2) is
@@ -200,21 +200,21 @@ begin
             -- block1_block2_register4
             reg_rdat_int(0) <= block1_block2_register4_field3_i;
             reg_rdat_int(3 downto 1) <= block1_block2_register4_field4_i;
-            rd_ack1_int <= rd_int;
+            rd_ack1_int <= rd_req;
           when others =>
             reg_rdat_int <= (others => 'X');
-            rd_ack1_int <= rd_int;
+            rd_ack1_int <= rd_req;
           end case;
         when others =>
           reg_rdat_int <= (others => 'X');
-          rd_ack1_int <= rd_int;
+          rd_ack1_int <= rd_req;
         end case;
       end if;
     end if;
   end process;
 
   -- Process for read requests.
-  process (araddr, reg_rdat_int, rd_ack1_int, rd_int) begin
+  process (araddr, reg_rdat_int, rd_ack1_int, rd_req) begin
     -- By default ack read requests
     dato <= (others => '0');
     case araddr(4 downto 3) is
@@ -229,7 +229,7 @@ begin
         dato <= reg_rdat_int;
         rd_ack_int <= rd_ack1_int;
       when others =>
-        rd_ack_int <= rd_int;
+        rd_ack_int <= rd_req;
       end case;
     when "10" => 
       case araddr(2 downto 2) is
@@ -242,7 +242,7 @@ begin
         dato <= reg_rdat_int;
         rd_ack_int <= rd_ack1_int;
       when others =>
-        rd_ack_int <= rd_int;
+        rd_ack_int <= rd_req;
       end case;
     when "11" => 
       case araddr(2 downto 2) is
@@ -251,10 +251,10 @@ begin
         dato <= reg_rdat_int;
         rd_ack_int <= rd_ack1_int;
       when others =>
-        rd_ack_int <= rd_int;
+        rd_ack_int <= rd_req;
       end case;
     when others =>
-      rd_ack_int <= rd_int;
+      rd_ack_int <= rd_req;
     end case;
   end process;
 end syn;

@@ -24,8 +24,8 @@ entity alt_trigin is
 end alt_trigin;
 
 architecture syn of alt_trigin is
-  signal rd_int                         : std_logic;
-  signal wr_int                         : std_logic;
+  signal rd_req_int                     : std_logic;
+  signal wr_req_int                     : std_logic;
   signal rd_ack_int                     : std_logic;
   signal wr_ack_int                     : std_logic;
   signal wb_en                          : std_logic;
@@ -48,7 +48,7 @@ begin
       end if;
     end if;
   end process;
-  rd_int <= (wb_en and not wb_i.we) and not wb_rip;
+  rd_req_int <= (wb_en and not wb_i.we) and not wb_rip;
 
   process (clk_i) begin
     if rising_edge(clk_i) then
@@ -59,7 +59,7 @@ begin
       end if;
     end if;
   end process;
-  wr_int <= (wb_en and wb_i.we) and not wb_wip;
+  wr_req_int <= (wb_en and wb_i.we) and not wb_wip;
 
   ack_int <= rd_ack_int or wr_ack_int;
   wb_o.ack <= ack_int;
@@ -83,13 +83,13 @@ begin
           case wb_i.adr(2 downto 2) is
           when "0" => 
             -- Register ctrl
-            ctrl_wr_o <= wr_int;
-            if wr_int = '1' then
+            ctrl_wr_o <= wr_req_int;
+            if wr_req_int = '1' then
               ctrl_enable_o <= wb_i.dat(1);
             end if;
-            wr_ack_int <= wr_int;
+            wr_ack_int <= wr_req_int;
           when others =>
-            wr_ack_int <= wr_int;
+            wr_ack_int <= wr_req_int;
           end case;
         when "01" => 
           case wb_i.adr(2 downto 2) is
@@ -98,17 +98,17 @@ begin
           when "1" => 
             -- Register seconds
           when others =>
-            wr_ack_int <= wr_int;
+            wr_ack_int <= wr_req_int;
           end case;
         when "10" => 
           case wb_i.adr(2 downto 2) is
           when "0" => 
             -- Register cycles
           when others =>
-            wr_ack_int <= wr_int;
+            wr_ack_int <= wr_req_int;
           end case;
         when others =>
-          wr_ack_int <= wr_int;
+          wr_ack_int <= wr_req_int;
         end case;
       end if;
     end if;
@@ -127,45 +127,45 @@ begin
           when "0" => 
             -- ctrl
             reg_rdat_int(1) <= ctrl_enable_i;
-            rd_ack1_int <= rd_int;
+            rd_ack1_int <= rd_req_int;
           when others =>
             reg_rdat_int <= (others => 'X');
-            rd_ack1_int <= rd_int;
+            rd_ack1_int <= rd_req_int;
           end case;
         when "01" => 
           case wb_i.adr(2 downto 2) is
           when "0" => 
             -- seconds
             reg_rdat_int <= seconds_i(63 downto 32);
-            rd_ack1_int <= rd_int;
+            rd_ack1_int <= rd_req_int;
           when "1" => 
             -- seconds
             reg_rdat_int <= seconds_i(31 downto 0);
-            rd_ack1_int <= rd_int;
+            rd_ack1_int <= rd_req_int;
           when others =>
             reg_rdat_int <= (others => 'X');
-            rd_ack1_int <= rd_int;
+            rd_ack1_int <= rd_req_int;
           end case;
         when "10" => 
           case wb_i.adr(2 downto 2) is
           when "0" => 
             -- cycles
             reg_rdat_int <= cycles_i;
-            rd_ack1_int <= rd_int;
+            rd_ack1_int <= rd_req_int;
           when others =>
             reg_rdat_int <= (others => 'X');
-            rd_ack1_int <= rd_int;
+            rd_ack1_int <= rd_req_int;
           end case;
         when others =>
           reg_rdat_int <= (others => 'X');
-          rd_ack1_int <= rd_int;
+          rd_ack1_int <= rd_req_int;
         end case;
       end if;
     end if;
   end process;
 
   -- Process for read requests.
-  process (wb_i.adr, reg_rdat_int, rd_ack1_int, rd_int) begin
+  process (wb_i.adr, reg_rdat_int, rd_ack1_int, rd_req_int) begin
     -- By default ack read requests
     wb_o.dat <= (others => '0');
     case wb_i.adr(4 downto 3) is
@@ -176,7 +176,7 @@ begin
         wb_o.dat <= reg_rdat_int;
         rd_ack_int <= rd_ack1_int;
       when others =>
-        rd_ack_int <= rd_int;
+        rd_ack_int <= rd_req_int;
       end case;
     when "01" => 
       case wb_i.adr(2 downto 2) is
@@ -189,7 +189,7 @@ begin
         wb_o.dat <= reg_rdat_int;
         rd_ack_int <= rd_ack1_int;
       when others =>
-        rd_ack_int <= rd_int;
+        rd_ack_int <= rd_req_int;
       end case;
     when "10" => 
       case wb_i.adr(2 downto 2) is
@@ -198,10 +198,10 @@ begin
         wb_o.dat <= reg_rdat_int;
         rd_ack_int <= rd_ack1_int;
       when others =>
-        rd_ack_int <= rd_int;
+        rd_ack_int <= rd_req_int;
       end case;
     when others =>
-      rd_ack_int <= rd_int;
+      rd_ack_int <= rd_req_int;
     end case;
   end process;
 end syn;

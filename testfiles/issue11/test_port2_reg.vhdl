@@ -21,8 +21,8 @@ entity sreg is
 end sreg;
 
 architecture syn of sreg is
-  signal rd_int                         : std_logic;
-  signal wr_int                         : std_logic;
+  signal rd_req_int                     : std_logic;
+  signal wr_req_int                     : std_logic;
   signal rd_ack_int                     : std_logic;
   signal wr_ack_int                     : std_logic;
   signal wb_en                          : std_logic;
@@ -45,7 +45,7 @@ begin
       end if;
     end if;
   end process;
-  rd_int <= (wb_en and not wb_we_i) and not wb_rip;
+  rd_req_int <= (wb_en and not wb_we_i) and not wb_rip;
 
   process (clk_i) begin
     if rising_edge(clk_i) then
@@ -56,7 +56,7 @@ begin
       end if;
     end if;
   end process;
-  wr_int <= (wb_en and wb_we_i) and not wb_wip;
+  wr_req_int <= (wb_en and wb_we_i) and not wb_wip;
 
   ack_int <= rd_ack_int or wr_ack_int;
   wb_ack_o <= ack_int;
@@ -88,13 +88,13 @@ begin
         -- i1Thresholds
         reg_rdat_int(31 downto 16) <= i1Thresholds_i(31 downto 16);
         reg_rdat_int(15 downto 0) <= i1Thresholds_i(15 downto 0);
-        rd_ack1_int <= rd_int;
+        rd_ack1_int <= rd_req_int;
       end if;
     end if;
   end process;
 
   -- Process for read requests.
-  process (reg_rdat_int, rd_ack1_int, rd_int) begin
+  process (reg_rdat_int, rd_ack1_int, rd_req_int) begin
     -- By default ack read requests
     wb_dat_o <= (others => '0');
     -- i1Thresholds
