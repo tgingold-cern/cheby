@@ -752,8 +752,8 @@ def add_ports_reg(root, module, n):
        :field h_reg: the register.
        :field h_iport: the input port.
        :field h_oport: the output port.
-       :field h_wstrobe: the write strobe port.
-       :field h_rstrobe: the read strobe port.
+       :field h_wreq_port: the write strobe port.
+       :field h_rreq_port: the read strobe port.
        :field h_rack_port: the read ack port.
        :field h_wack_port: the write ack port.
     """
@@ -763,7 +763,7 @@ def add_ports_reg(root, module, n):
     for f in n.children:
         w = None if f.c_iowidth == 1 else f.c_iowidth
 
-        # Create the register
+        # Create the register (only for registers)
         if f.hdl_type == 'reg':
             f.h_reg = HDLSignal(f.c_name + '_reg', w)
             module.decls.append(f.h_reg)
@@ -813,17 +813,17 @@ def add_ports_reg(root, module, n):
 
     # Write strobe
     if n.hdl_write_strobe:
-        n.h_wstrobe = add_module_port(
+        n.h_wreq_port = add_module_port(
             root, module, n.c_name + '_wr', size=sz, dir='OUT')
     else:
-        n.h_wstrobe = None
+        n.h_wreq_port = None
 
     # Read strobe
     if n.hdl_read_strobe:
-        n.h_rstrobe = add_module_port(
+        n.h_rreq_port = add_module_port(
             root, module, n.c_name + '_rd', size=sz, dir='OUT')
     else:
-        n.h_rstrobe = None
+        n.h_rreq_port = None
 
     # Write ack
     if n.hdl_write_ack:
@@ -1215,14 +1215,14 @@ def add_read_reg_process(root, module, isigs):
                 s.append(HDLComment(n.c_name))
                 if n.access != 'wo':
                     add_read_reg(s, n, off)
-                if n.h_rstrobe is not None:
-                    s.append(HDLAssign(strobe_index(root, n, off, n.h_rstrobe),
+                if n.h_rreq_port is not None:
+                    s.append(HDLAssign(strobe_index(root, n, off, n.h_rreq_port),
                                        isigs.rd_req))
                     if off == 0:
                         # Default values for the strobe.
                         v = strobe_init(root, n)
-                        rdproc.rst_stmts.append(HDLAssign(n.h_rstrobe, v))
-                        rdproc.sync_stmts.insert(0, HDLAssign(n.h_rstrobe, v))
+                        rdproc.rst_stmts.append(HDLAssign(n.h_rreq_port, v))
+                        rdproc.sync_stmts.insert(0, HDLAssign(n.h_rreq_port, v))
                 if n.h_rack_port is not None:
                     rack = strobe_index(root, n, off, n.h_rack_port)
                 else:
@@ -1328,13 +1328,13 @@ def add_write_process(root, module, isigs):
 
     def add_write_reg(s, n, off):
         # Write strobe
-        if n.h_wstrobe is not None:
-            s.append(HDLAssign(strobe_index(root, n, off, n.h_wstrobe), isigs.wr_req))
+        if n.h_wreq_port is not None:
+            s.append(HDLAssign(strobe_index(root, n, off, n.h_wreq_port), isigs.wr_req))
             if off == 0:
                 # Default values for the strobe
                 v = strobe_init(root, n)
-                wrproc.rst_stmts.append(HDLAssign(n.h_wstrobe, v))
-                wrproc.sync_stmts.append(HDLAssign(n.h_wstrobe, v))
+                wrproc.rst_stmts.append(HDLAssign(n.h_wreq_port, v))
+                wrproc.sync_stmts.append(HDLAssign(n.h_wreq_port, v))
 
         wr_if = HDLIfElse(HDLEq(isigs.wr_req, bit_1))
         wr_if.else_stmts = None
