@@ -17,3 +17,35 @@ memory-map:
         preset: 0xabcd1004
         x-hdl:
           write-strobe: True
+    - reg:
+        name: rwo
+        access: wo
+        width: 32
+    - reg:
+        name: rwo_st
+        access: wo
+        width: 32
+        x-hdl:
+          write-strobe: True
+    - reg:
+        name: rwo_sa
+        access: wo
+        width: 32
+        x-hdl:
+          write-strobe: True
+          write-ack: True
+    - reg:
+        name: wwo_st
+        access: wo
+        width: 32
+        x-hdl:
+          type: wire
+          write-strobe: True
+    - reg:
+        name: wwo_sa
+        access: wo
+        width: 32
+        x-hdl:
+          type: wire
+          write-strobe: True
+          write-ack: True
