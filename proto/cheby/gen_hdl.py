@@ -1329,6 +1329,13 @@ def add_read_mux_process(root, module, isigs):
         if n is not None:
             if isinstance(n, tree.Reg):
                 s.append(HDLComment(n.c_name))
+                # Strobe
+                if n.h_rreq_port is not None:
+                    s.append(HDLAssign(strobe_index(root, n, off, n.h_rreq_port), isigs.rd_req))
+                    if off == 0:
+                        # Default values for the strobe
+                        v = strobe_init(root, n)
+                        rdproc.stmts.append(HDLAssign(n.h_rreq_port, v))
                 # Ack
                 if n.h_rack_port is not None:
                     rack = strobe_index(root, n, off, n.h_rack_port)
