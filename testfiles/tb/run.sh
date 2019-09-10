@@ -59,11 +59,18 @@ build_wb_reg()
  # Simple test.
  # TODO: check strobe
  #       check wire + strobe read
-  sed -e '/bus:/s/BUS/wb-32-be/' -e '/name:/s/NAME/wb/' < reg2_xxx.cheby > reg2_wb.cheby
+ sed -e '/bus:/s/BUS/wb-32-be/' -e '/name:/s/NAME/wb/' < reg2_xxx.cheby > reg2_wb.cheby
  $CHEBY --gen-hdl=reg2_wb.vhdl -i reg2_wb.cheby
  $GHDL -a $GHDL_FLAGS reg2_wb.vhdl
  $GHDL -a $GHDL_FLAGS reg2_wb_tb.vhdl
  $GHDL --elab-run $GHDL_FLAGS --std=08 reg2_wb_tb --assert-level=error --wave=reg2_wb.ghw
+
+ # WO
+ sed -e '/bus:/s/BUS/wb-32-be/' -e '/name:/s/NAME/wb/' < reg2wo_xxx.cheby > reg2wo_wb.cheby
+ $CHEBY --gen-hdl=reg2wo_wb.vhdl -i reg2wo_wb.cheby
+ $GHDL -a $GHDL_FLAGS reg2wo_wb.vhdl
+ $GHDL -a $GHDL_FLAGS reg2wo_wb_tb.vhdl
+ $GHDL --elab-run $GHDL_FLAGS reg2wo_wb_tb --assert-level=error --wave=reg2wo_wb.ghw
 
  # RO
  sed -e '/bus:/s/BUS/wb-32-be/' -e '/name:/s/NAME/wb/' < reg2ro_xxx.cheby > reg2ro_wb.cheby

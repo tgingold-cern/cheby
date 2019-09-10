@@ -1,0 +1,37 @@
+memory-map:
+  bus: BUS
+  name: reg2wo_NAME
+  description: a single register
+  children:
+    - reg:
+        name: rwo
+        access: wo
+        width: 32
+    - reg:
+        name: rwo_st
+        access: wo
+        width: 32
+        x-hdl:
+          write-strobe: True
+    - reg:
+        name: rwo_sa
+        access: wo
+        width: 32
+        x-hdl:
+          write-strobe: True
+          write-ack: True
+    - reg:
+        name: wwo_st
+        access: wo
+        width: 32
+        x-hdl:
+          type: wire
+          write-strobe: True
+    - reg:
+        name: wwo_sa
+        access: wo
+        width: 32
+        x-hdl:
+          type: wire
+          write-strobe: True
+          write-ack: True
