@@ -33,7 +33,8 @@ package body wb_tb_pkg is
     procedure wb_cycle(signal clk     : std_logic;
                        signal wb_in   : inout t_wishbone_slave_in;
                        signal wb_out  : t_wishbone_slave_out;
-                       addr : std_logic_vector (31 downto 0)) is
+                       addr : std_logic_vector (31 downto 0);
+                       rdata : out std_logic_vector (31 downto 0)) is
     begin
       wb_in.cyc <= '1';
       wb_in.stb <= '1';
@@ -46,6 +47,8 @@ package body wb_tb_pkg is
         wait until rising_edge(clk);
       end loop;
 
+      rdata := wb_out.dat;
+
       wb_in.cyc <= '0';
       wb_in.stb <= '0';
 
@@ -57,13 +60,15 @@ package body wb_tb_pkg is
                          signal wb_out  : t_wishbone_slave_out;
                          signal wb_in   : inout t_wishbone_slave_in;
                          addr : std_logic_vector (31 downto 0);
-                         data : std_logic_vector (31 downto 0)) is
+                         data : std_logic_vector (31 downto 0))
+    is
+      variable rdata : std_logic_vector (31 downto 0);
     begin
       --  W transfer
       wb_in.we <= '1';
       wb_in.dat <= data;
 
-      wb_cycle(clk, wb_in, wb_out, addr);
+      wb_cycle(clk, wb_in, wb_out, addr, rdata);
     end wb_writel;
 
     procedure wb_readl (signal clk     : std_logic;
@@ -74,7 +79,6 @@ package body wb_tb_pkg is
     begin
       --  R transfer
       wb_in.we <= '0';
-      wb_cycle(clk, wb_in, wb_out, addr);
-      data := wb_out.dat;
+      wb_cycle(clk, wb_in, wb_out, addr, data);
     end wb_readl;
 end wb_tb_pkg;

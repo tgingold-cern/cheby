@@ -34,15 +34,6 @@ build_wb()
 {
  echo "## Testing WB"
 
- # Simple test.
- # TODO: check strobe
- #       check wire + strobe read
-  sed -e '/bus:/s/BUS/wb-32-be/' -e '/name:/s/NAME/wb/' < reg2_xxx.cheby > reg2_wb.cheby
- $CHEBY --gen-hdl=reg2_wb.vhdl -i reg2_wb.cheby
- $GHDL -a $GHDL_FLAGS reg2_wb.vhdl
- $GHDL -a $GHDL_FLAGS reg2_wb_tb.vhdl
- $GHDL --elab-run $GHDL_FLAGS --std=08 reg2_wb_tb --assert-level=error --wave=reg2_wb.ghw
-
   sed -e '/bus:/s/xxx/wb-32-be/' -e '/name:/s/NAME/wb/' < all1_xxx.cheby > all1_wb.cheby
  $CHEBY --gen-hdl=all1_wb.vhdl -i all1_wb.cheby
  $GHDL -a $GHDL_FLAGS all1_wb.vhdl
@@ -61,7 +52,29 @@ build_cernbe()
  $GHDL --elab-run $GHDL_FLAGS all1_cernbe_tb --assert-level=error --wave=all1_cernbe_tb.ghw
 }
 
+build_wb_reg()
+{
+ echo "## Testing regs (WB)"
+
+ # Simple test.
+ # TODO: check strobe
+ #       check wire + strobe read
+  sed -e '/bus:/s/BUS/wb-32-be/' -e '/name:/s/NAME/wb/' < reg2_xxx.cheby > reg2_wb.cheby
+ $CHEBY --gen-hdl=reg2_wb.vhdl -i reg2_wb.cheby
+ $GHDL -a $GHDL_FLAGS reg2_wb.vhdl
+ $GHDL -a $GHDL_FLAGS reg2_wb_tb.vhdl
+ $GHDL --elab-run $GHDL_FLAGS --std=08 reg2_wb_tb --assert-level=error --wave=reg2_wb.ghw
+
+ # RO
+ sed -e '/bus:/s/BUS/wb-32-be/' -e '/name:/s/NAME/wb/' < reg2ro_xxx.cheby > reg2ro_wb.cheby
+ $CHEBY --gen-hdl=reg2ro_wb.vhdl -i reg2ro_wb.cheby
+ $GHDL -a $GHDL_FLAGS reg2ro_wb.vhdl
+ $GHDL -a $GHDL_FLAGS reg2ro_wb_tb.vhdl
+ $GHDL --elab-run $GHDL_FLAGS reg2ro_wb_tb --assert-level=error --wave=reg2ro_wb.ghw
+}
+
 build_infra
+build_wb_reg
 build_wb
 build_axi4
 build_cernbe

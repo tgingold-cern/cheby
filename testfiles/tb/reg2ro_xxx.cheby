@@ -1,0 +1,29 @@
+memory-map:
+  bus: BUS
+  name: reg2ro_NAME
+  description: a single register
+  children:
+    - reg:
+        name: wro
+        access: ro
+        width: 32
+    - reg:
+        name: wro_st
+        access: ro
+        width: 32
+        x-hdl:
+          read-strobe: True
+    - reg:
+        name: wro_sa
+        access: ro
+        width: 32
+        x-hdl:
+          read-strobe: True
+          read-ack: True
+    - reg:
+        name: wro_sa2
+        access: ro
+        width: 32
+        x-hdl:
+          read-strobe: True
+          read-ack: True
