@@ -1056,32 +1056,42 @@ def add_processes_regs(root, module, isigs, n):
 
     if n.access in ['rw', 'wo']:
         if n.h_wreq_port is not None:
+            # FIXME: in case of regs, the strobe appear one cycle too early.
+            # What about a mix of wires and regs ?
             module.stmts.append(HDLAssign(n.h_wreq_port, n.h_wreq))
 
-        wrproc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_sync=rst_sync)
-        module.stmts.append(wrproc)
+        # Handle wire fields.
         for off in range(0, n.c_size, root.c_word_size):
             off *= tree.BYTE_SIZE
-            wr_if = HDLIfElse(HDLEq(strobe_index(root, n, off, n.h_wreq), bit_1))
-            wr_if.else_stmts = None
             for f in n.children:
-                # Reset code
-                if f.h_reg is not None and off == 0:
-                    v = 0 if f.preset is None else f.preset
-                    cst = HDLConst(v, f.c_iowidth if f.c_iowidth != 1 else None)
-                    wrproc.rst_stmts.append(HDLAssign(f.h_reg, cst))
-                # Assign code
-                if f.hdl_type == 'reg':
-                    r = f.h_reg
-                elif f.hdl_type == 'wire':
-                    r = f.h_oport
-                else:
-                    raise AssertionError
-                reg, dat = field_decode(root, n, f, off, r, root.h_bus['dati'])
-                if reg is None:
+                if f.hdl_type != 'wire':
                     continue
-                wr_if.then_stmts.append(HDLAssign(reg, dat))
-            wrproc.sync_stmts.append(wr_if)
+                reg, dat = field_decode(root, n, f, off, f.h_oport, root.h_bus['dati'])
+                if reg is not None:
+                    module.stmts.append(HDLAssign(reg, dat))
+
+        has_reg = any([f.hdl_type == 'reg' for f in n.children])
+        if has_reg:
+            wrproc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_sync=rst_sync)
+            module.stmts.append(wrproc)
+            for off in range(0, n.c_size, root.c_word_size):
+                off *= tree.BYTE_SIZE
+                wr_if = HDLIfElse(HDLEq(strobe_index(root, n, off, n.h_wreq), bit_1))
+                wr_if.else_stmts = None
+                for f in n.children:
+                    if f.hdl_type != 'reg':
+                        continue
+                    # Reset code
+                    if f.h_reg is not None and off == 0:
+                        v = 0 if f.preset is None else f.preset
+                        cst = HDLConst(v, f.c_iowidth if f.c_iowidth != 1 else None)
+                        wrproc.rst_stmts.append(HDLAssign(f.h_reg, cst))
+                    # Assign code
+                    reg, dat = field_decode(root, n, f, off, f.h_reg, root.h_bus['dati'])
+                    if reg is not None:
+                        wr_if.then_stmts.append(HDLAssign(reg, dat))
+                wrproc.sync_stmts.append(wr_if)
+
     if n.access in ['ro', 'rw'] and n.h_rint is not None:
         nxt = 0
         def pad(first):
@@ -1319,6 +1329,7 @@ def add_read_mux_process(root, module, isigs):
         if n is not None:
             if isinstance(n, tree.Reg):
                 s.append(HDLComment(n.c_name))
+                # Ack
                 if n.h_rack_port is not None:
                     rack = strobe_index(root, n, off, n.h_rack_port)
                     if off == 0:
@@ -1326,6 +1337,9 @@ def add_read_mux_process(root, module, isigs):
                 else:
                     rack = isigs.rd_req
                 s.append(HDLAssign(rd_ack, rack))
+                if n.access == 'wo':
+                    return
+                # Data
                 if n.h_rint is not None:
                     src = n.h_rint
                 else:
@@ -1338,7 +1352,6 @@ def add_read_mux_process(root, module, isigs):
             elif isinstance(n, tree.Submap):
                 s.append(HDLComment("Submap {}".format(n.c_name)))
                 n.h_busgen.read_bus_slave(root, s, n, rdproc, isigs, rd_data)
-                return
             elif isinstance(n, tree.Array):
                 s.append(HDLComment("RAM {}".format(n.c_name)))
                 # TODO: handle list of registers!
@@ -1359,7 +1372,6 @@ def add_read_mux_process(root, module, isigs):
                 # Use delayed ack as ack.
                 s.append(HDLAssign(rd_ack, r.h_rack))
                 rdproc.sensitivity.append(r.h_rack)
-                return
             else:
                 # Blocks have been handled.
                 raise AssertionError
