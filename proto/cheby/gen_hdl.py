@@ -103,21 +103,18 @@ class WBBus(BusGen):
         assert name == 'wb-32-be'
 
     def add_in_progress_reg(self, root, module, stb, ack, pfx):
-        if root.h_pipeline:
-            # The ack is not combinational, thus the strobe may stay longer
-            # than one cycle.
-            # Add an in progress 'wb_Xip' signal that is set on a strobe
-            # and cleared on the ack.
-            wb_xip = module.new_HDLSignal('wb_{}ip'.format(pfx))
-            proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'],
-                           rst_sync=rst_sync)
-            proc.rst_stmts.append(HDLAssign(wb_xip, bit_0))
-            proc.sync_stmts.append(HDLAssign(
-                wb_xip, HDLAnd(HDLOr(wb_xip, HDLParen(stb)), HDLNot(ack))))
-            module.stmts.append(proc)
-            return HDLAnd(stb, HDLNot(wb_xip))
-        else:
-            return stb
+        # The ack is not combinational, thus the strobe may stay longer
+        # than one cycle.
+        # Add an in progress 'wb_Xip' signal that is set on a strobe
+        # and cleared on the ack.
+        wb_xip = module.new_HDLSignal('wb_{}ip'.format(pfx))
+        proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'],
+                       rst_sync=rst_sync)
+        proc.rst_stmts.append(HDLAssign(wb_xip, bit_0))
+        proc.sync_stmts.append(HDLAssign(
+            wb_xip, HDLAnd(HDLOr(wb_xip, HDLParen(stb)), HDLNot(ack))))
+        module.stmts.append(proc)
+        return HDLAnd(stb, HDLNot(wb_xip))
 
     def add_decode_wb(self, root, module, isigs):
         "Generate internal signals used by decoder/processes from WB bus."
@@ -1298,77 +1295,6 @@ def strobe_index(root, n, off, lhs):
         return HDLIndex(lhs, off // root.c_word_bits)
 
 
-def add_read_reg_process(root, module, isigs):
-    # Register read
-    rd_data = root.h_reg_rdat_int
-    rd_ack = root.h_rd_ack1_int
-    rdproc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_sync=rst_sync)
-    module.stmts.append(rdproc)
-    rdproc.rst_stmts.append(HDLAssign(rd_ack, bit_0))
-    # Be sure all unused bits are read as 0.
-    rdproc.sync_stmts.append(HDLAssign(rd_data,
-                                       HDLReplicate(bit_0, root.c_word_bits)))
-
-    def add_read_reg(s, n, off):
-        for f in n.children:
-            if f.h_reg is not None and n.access in ['wo', 'rw']:
-                src = f.h_reg
-            elif f.h_iport is not None:
-                src = f.h_iport
-            elif f.hdl_type == 'const':
-                src = HDLConst(f.preset, f.c_rwidth)
-            else:
-                raise AssertionError
-            reg, dat = field_decode(root, n, f, off, src, rd_data)
-            if reg is None:
-                continue
-            s.append(HDLAssign(dat, reg))
-
-    def add_read(s, n, off):
-        if n is not None:
-            if isinstance(n, tree.Reg):
-                s.append(HDLComment(n.c_name))
-                if n.access != 'wo':
-                    add_read_reg(s, n, off)
-                if n.h_rreq_port is not None:
-                    s.append(HDLAssign(strobe_index(root, n, off, n.h_rreq_port),
-                                       isigs.rd_req))
-                    if off == 0:
-                        # Default values for the strobe.
-                        v = strobe_init(root, n)
-                        rdproc.rst_stmts.append(HDLAssign(n.h_rreq_port, v))
-                        rdproc.sync_stmts.insert(0, HDLAssign(n.h_rreq_port, v))
-                if n.h_rack_port is not None:
-                    rack = strobe_index(root, n, off, n.h_rack_port)
-                else:
-                    rack = isigs.rd_req
-                s.append(HDLAssign(rd_ack, rack))
-            elif isinstance(n, tree.Submap):
-                pass
-            elif isinstance(n, tree.Array):
-                s.append(HDLComment("RAM {}".format(n.c_name)))
-                if root.h_bussplit:
-                    rdproc.rst_stmts.append(HDLAssign(n.h_rr, bit_0))
-                    rdproc.sync_stmts.append(HDLAssign(n.h_rr, bit_0))
-                    s.append(HDLAssign(n.h_rr,
-                        HDLAnd(HDLOr(n.h_rr, isigs.rd_req), isigs.wr_req)))
-                    s.append(HDLAssign(rd_ack,
-                        HDLAnd(HDLOr(isigs.rd_req, isigs.rd_req),
-                               HDLNot(isigs.wr_req))))
-                else:
-                    s.append(HDLAssign(rd_ack, isigs.rd_req))
-            else:
-                # Blocks have been handled.
-                raise AssertionError
-        else:
-            s.append(HDLAssign(rd_data, HDLReplicate(bit_x, root.c_word_bits)))
-            s.append(HDLAssign(rd_ack, isigs.rd_req))
-
-    stmts = []
-    add_decoder(root, stmts, root.h_bus.get('adrr', None), root, add_read)
-    rdproc.sync_stmts.extend(stmts)
-
-
 def add_read_mux_process(root, module, isigs):
     # Generate the read decoder.  This is a large combinational process
     # that mux the data and ack.
@@ -1381,8 +1307,7 @@ def add_read_mux_process(root, module, isigs):
     rdproc = HDLComb()
     if rd_adr is not None:
         rdproc.sensitivity.append(rd_adr)
-    if root.h_pipeline:
-        rdproc.sensitivity.extend([isigs.rd_req])
+    rdproc.sensitivity.extend([isigs.rd_req])
     module.stmts.append(rdproc)
 
     # All the read are ack'ed (including the read to unassigned addresses).
@@ -1500,88 +1425,6 @@ def add_write_mux_process(root, module, isigs):
     add_decoder(root, stmts, wr_adr, root, add_write)
     wrproc.stmts.extend(stmts)
 
-def add_write_process(root, module, isigs):
-    # Register write
-    module.stmts.append(HDLComment('Process for write requests.'))
-    wrproc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_sync=rst_sync)
-    module.stmts.append(wrproc)
-    wrproc.rst_stmts.append(HDLAssign(isigs.wr_ack, bit_0))
-    wrproc.sync_stmts.append(HDLAssign(isigs.wr_ack, bit_0))
-    wr_data = root.h_bus['dati']
-
-    def add_write_reg(s, n, off):
-        # Write strobe
-        if n.h_wreq_port is not None:
-            s.append(HDLAssign(strobe_index(root, n, off, n.h_wreq_port), isigs.wr_req))
-            if off == 0:
-                # Default values for the strobe
-                v = strobe_init(root, n)
-                wrproc.rst_stmts.append(HDLAssign(n.h_wreq_port, v))
-                wrproc.sync_stmts.append(HDLAssign(n.h_wreq_port, v))
-
-        wr_if = HDLIfElse(HDLEq(isigs.wr_req, bit_1))
-        wr_if.else_stmts = None
-        for f in n.children:
-            # Reset code
-            if f.h_reg is not None and off == 0:
-                v = 0 if f.preset is None else f.preset
-                cst = HDLConst(v, f.c_iowidth if f.c_iowidth != 1 else None)
-                wrproc.rst_stmts.append(HDLAssign(f.h_reg, cst))
-            # Assign code
-            if f.hdl_type == 'reg':
-                r = f.h_reg
-            elif f.hdl_type == 'wire':
-                r = f.h_oport
-            else:
-                raise AssertionError
-            reg, dat = field_decode(root, n, f, off, r, wr_data)
-            if reg is None:
-                continue
-            wr_if.then_stmts.append(HDLAssign(reg, dat))
-        s.append(wr_if)
-        if n.h_wack_port is not None:
-            wack = strobe_index(root, n, off, n.h_wack_port)
-        else:
-            wack = isigs.wr_req
-        s.append(HDLAssign(isigs.wr_ack, wack))
-
-    def add_write(s, n, off):
-        if n is not None:
-            if isinstance(n, tree.Reg):
-                s.append(HDLComment("Register {}".format(n.c_name)))
-                if n.access in ['wo', 'rw']:
-                    add_write_reg(s, n, off)
-            elif isinstance(n, tree.Submap):
-                s.append(HDLComment("Submap {}".format(n.c_name)))
-                n.h_busgen.write_bus_slave(root, s, n, wrproc, isigs)
-                return
-            elif isinstance(n, tree.Array):
-                s.append(HDLComment("Memory {}".format(n.c_name)))
-                # TODO: handle list of registers!
-                r = n.children[0]
-                wrproc.rst_stmts.append(HDLAssign(r.h_sig_wr, bit_0))
-                wrproc.sync_stmts.append(HDLAssign(r.h_sig_wr, bit_0))
-                if root.h_bussplit:
-                    wrproc.rst_stmts.append(HDLAssign(n.h_wr, bit_0))
-                    wrproc.sync_stmts.append(HDLAssign(n.h_wr, bit_0))
-                    s.append(HDLAssign(n.h_wr, isigs.wr_req))
-                    s.append(HDLAssign(isigs.wr_ack, n.h_wr))
-                else:
-                    s.append(HDLAssign(isigs.wr_ack, isigs.wr_req))
-                s.append(HDLAssign(r.h_sig_wr, isigs.wr_req))
-                return
-            else:
-                # Including blocks.
-                raise AssertionError
-        else:
-            # All the write are ack'ed (including the write to unassigned
-            # addresses)
-            s.append(HDLAssign(isigs.wr_ack, isigs.wr_req))
-    then_stmts = []
-    add_decoder(
-        root, then_stmts, root.h_bus.get('adrw', None), root, add_write)
-    wrproc.sync_stmts.extend(then_stmts)
-
 
 def name_to_busgen(name):
     if name == 'wb-32-be':
@@ -1607,31 +1450,11 @@ def gen_hdl_header(root, isigs=None):
     return module
 
 
-def has_pipeline(n):
-    """True if the decoder may include a pipeline register"""
-    if isinstance(n, tree.Reg):
-        return False
-    elif isinstance(n, tree.Submap):
-        if n.interface == 'include':
-            return has_pipeline(n.c_submap)
-        else:
-            # Always allow pipeline
-            return True
-    elif isinstance(n, tree.Array):
-        return True
-    elif isinstance(n, tree.Block) or isinstance(n, tree.Root):
-        return any([has_pipeline(c) for c in n.children])
-    else:
-        raise AssertionError(n)
-
-
 def generate_hdl(root):
     isigs = Isigs()
 
     # Force the regeneration of wb package (useful only when testing).
     WBBus.wb_pkg = None
-
-    root.h_pipeline = has_pipeline(root) or True
 
     module = gen_hdl_header(root, isigs)
 
@@ -1651,17 +1474,6 @@ def generate_hdl(root):
     # Add internal processes + wires
     root.h_ram = None
     add_processes(root, module, isigs, root)
-
-    if False:
-        add_write_process(root, module, isigs)
-
-    if False and root.h_pipeline:
-        root.h_reg_rdat_int = HDLSignal('reg_rdat_int', root.c_word_bits)
-        module.decls.append(root.h_reg_rdat_int)
-        root.h_rd_ack1_int = HDLSignal('rd_ack1_int')
-        module.decls.append(root.h_rd_ack1_int)
-        module.stmts.append(HDLComment('Process for registers read.'))
-        add_read_reg_process(root, module, isigs)
 
     # Address decoders and muxes.
     add_write_mux_process(root, module, isigs)
