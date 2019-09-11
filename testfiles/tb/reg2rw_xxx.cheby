@@ -1,0 +1,86 @@
+memory-map:
+  bus: BUS
+  name: reg2rw_NAME
+  description: a single register
+  children:
+    - reg:
+        name: rrw
+        access: rw
+        width: 32
+    - reg:
+        name: rrw_rs
+        access: rw
+        width: 32
+        x-hdl:
+          read-strobe: True
+    - reg:
+        name: rrw_ws
+        access: rw
+        width: 32
+        x-hdl:
+          write-strobe: True
+    - reg:
+        name: rrw_rws
+        access: rw
+        width: 32
+        x-hdl:
+          read-strobe: True
+          write-strobe: True
+    - reg:
+        name: rrw_ws_wa
+        access: rw
+        width: 32
+        x-hdl:
+          write-strobe: True
+          write-ack: True
+    - reg:
+        name: wrw_ws
+        access: rw
+        width: 32
+        x-hdl:
+          type: wire
+          write-strobe: True
+    - reg:
+        name: wrw_rws
+        access: rw
+        width: 32
+        x-hdl:
+          type: wire
+          write-strobe: True
+          read-strobe: True
+    - reg:
+        name: wrw_ws_wa
+        access: rw
+        width: 32
+        x-hdl:
+          type: wire
+          write-strobe: True
+          write-ack: True
+    - reg:
+        name: wrw_rws_wa
+        access: rw
+        width: 32
+        x-hdl:
+          type: wire
+          write-strobe: True
+          write-ack: True
+          read-strobe: True
+    - reg:
+        name: wrw_rws_ra
+        access: rw
+        width: 32
+        x-hdl:
+          type: wire
+          write-strobe: True
+          read-strobe: True
+          read-ack: True
+    - reg:
+        name: wrw_rws_rwa
+        access: rw
+        width: 32
+        x-hdl:
+          type: wire
+          write-strobe: True
+          read-strobe: True
+          write-ack: True
+          read-ack: True

@@ -65,19 +65,13 @@ build_wb_reg()
  $GHDL -a $GHDL_FLAGS reg2_wb_tb.vhdl
  $GHDL --elab-run $GHDL_FLAGS --std=08 reg2_wb_tb --assert-level=error --wave=reg2_wb.ghw
 
- # WO
- sed -e '/bus:/s/BUS/wb-32-be/' -e '/name:/s/NAME/wb/' < reg2wo_xxx.cheby > reg2wo_wb.cheby
- $CHEBY --gen-hdl=reg2wo_wb.vhdl -i reg2wo_wb.cheby
- $GHDL -a $GHDL_FLAGS reg2wo_wb.vhdl
- $GHDL -a $GHDL_FLAGS reg2wo_wb_tb.vhdl
- $GHDL --elab-run $GHDL_FLAGS reg2wo_wb_tb --assert-level=error --wave=reg2wo_wb.ghw
-
- # RO
- sed -e '/bus:/s/BUS/wb-32-be/' -e '/name:/s/NAME/wb/' < reg2ro_xxx.cheby > reg2ro_wb.cheby
- $CHEBY --gen-hdl=reg2ro_wb.vhdl -i reg2ro_wb.cheby
- $GHDL -a $GHDL_FLAGS reg2ro_wb.vhdl
- $GHDL -a $GHDL_FLAGS reg2ro_wb_tb.vhdl
- $GHDL --elab-run $GHDL_FLAGS reg2ro_wb_tb --assert-level=error --wave=reg2ro_wb.ghw
+ for f in reg2wo reg2ro reg2rw; do
+     sed -e '/bus:/s/BUS/wb-32-be/' -e '/name:/s/NAME/wb/' < ${f}_xxx.cheby > ${f}_wb.cheby
+     $CHEBY --gen-hdl=${f}_wb.vhdl -i ${f}_wb.cheby
+     $GHDL -a $GHDL_FLAGS ${f}_wb.vhdl
+     $GHDL -a $GHDL_FLAGS ${f}_wb_tb.vhdl
+     $GHDL --elab-run $GHDL_FLAGS ${f}_wb_tb --assert-level=error --wave=${f}_wb.ghw
+ done
 }
 
 build_infra
