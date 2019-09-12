@@ -169,7 +169,7 @@ begin
     wait until rising_edge(clk);
     assert rwo_sa_wr_count = 1 severity error;
     assert rwo_sa = x"1234_0008" severity error;
-    assert rwo_sa_val = x"1234_0008" severity warning; --  FIXME
+    assert rwo_sa_val = x"1234_0008" severity error;
 
     --  Test wwo_st register
     assert wwo_st_wr_count = 0 severity error;
