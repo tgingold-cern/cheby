@@ -769,6 +769,8 @@ def add_ports_reg(root, module, n):
     iport = None
     oport = None
 
+    n.h_has_regs = False
+
     for f in n.children:
         w = None if f.c_iowidth == 1 else f.c_iowidth
 
@@ -776,6 +778,7 @@ def add_ports_reg(root, module, n):
         if f.hdl_type == 'reg':
             f.h_reg = HDLSignal(f.c_name + '_reg', w)
             module.decls.append(f.h_reg)
+            n.h_has_regs = True
         else:
             f.h_reg = None
 
@@ -821,9 +824,12 @@ def add_ports_reg(root, module, n):
         sz = n.c_nwords
 
     # Internal write request signal.
+    n.h_wack = None
     if n.access in ['wo', 'rw']:
-        n.h_wreq = HDLSignal(n.c_name + '_wreq', sz)
-        module.decls.append(n.h_wreq)
+        n.h_wreq = module.new_HDLSignal(n.c_name + '_wreq', sz)
+        if n.h_has_regs:
+            # Need an intermediate wire for delayed ack
+            n.h_wack = module.new_HDLSignal(n.c_name + '_wack', sz)
     else:
         n.h_wreq = None
 
@@ -1055,11 +1061,6 @@ def add_processes_regs(root, module, isigs, n):
             module.stmts.append(HDLAssign(f.h_oport, f.h_reg))
 
     if n.access in ['rw', 'wo']:
-        if n.h_wreq_port is not None:
-            # FIXME: in case of regs, the strobe appear one cycle too early.
-            # What about a mix of wires and regs ?
-            module.stmts.append(HDLAssign(n.h_wreq_port, n.h_wreq))
-
         # Handle wire fields.
         for off in range(0, n.c_size, root.c_word_size):
             off *= tree.BYTE_SIZE
@@ -1091,6 +1092,14 @@ def add_processes_regs(root, module, isigs, n):
                     if reg is not None:
                         wr_if.then_stmts.append(HDLAssign(reg, dat))
                 wrproc.sync_stmts.append(wr_if)
+
+            # In case of regs, the strobe is delayed so that it appears at the same time as
+            # the value.
+            wrproc.sync_stmts.append(HDLAssign(n.h_wack, n.h_wreq))
+            wrproc.rst_stmts.append(HDLAssign(n.h_wack, strobe_init(root, n)))
+
+        if n.h_wreq_port is not None:
+            module.stmts.append(HDLAssign(n.h_wreq_port, n.h_wack or n.h_wreq))
 
     if n.access in ['ro', 'rw'] and n.h_rint is not None:
         nxt = 0
@@ -1414,11 +1423,12 @@ def add_write_mux_process(root, module, isigs):
                         v = strobe_init(root, n)
                         wrproc.stmts.append(HDLAssign(n.h_wreq, v))
                 # Ack
-                if n.h_wack_port is not None:
-                    wack = strobe_index(root, n, off, n.h_wack_port)
+                wack = n.h_wack_port or n.h_wack
+                if wack is not None:
                     if off == 0:
-                        wrproc.sensitivity.append(n.h_wack_port)
-                else:
+                        wrproc.sensitivity.append(wack)
+                    wack = strobe_index(root, n, off, wack)
+                else:                    
                     wack = isigs.wr_req
                 s.append(HDLAssign(isigs.wr_ack, wack))
             elif isinstance(n, tree.Submap):
