@@ -1,0 +1,21 @@
+memory-map:
+  bus: BUS
+  name: reg5rwbe_NAME
+  word-endian: big
+  description: multi-words rw registers
+  children:
+  - reg:
+      name: frrw
+      access: rw
+      width: 64
+      children:
+      - field:
+         name: f1
+         range: 11-0
+      - field:
+         name: f2
+         range: 39-24
+         preset: 0x1234
+      - field:
+         name: f3
+         range: 63-40

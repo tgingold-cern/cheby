@@ -65,7 +65,7 @@ build_wb_reg()
  $GHDL -a $GHDL_FLAGS reg2_wb_tb.vhdl
  $GHDL --elab-run $GHDL_FLAGS --std=08 reg2_wb_tb --assert-level=error --wave=reg2_wb.ghw
 
- for f in reg2wo reg2ro reg2rw reg3rw reg3wrw reg4wrw; do
+ for f in reg2wo reg2ro reg2rw reg3rw reg3wrw reg4wrw reg5rwbe reg5rwle; do
      sed -e '/bus:/s/BUS/wb-32-be/' -e '/name:/s/NAME/wb/' < ${f}_xxx.cheby > ${f}_wb.cheby
      $CHEBY --gen-hdl=${f}_wb.vhdl -i ${f}_wb.cheby
      $GHDL -a $GHDL_FLAGS ${f}_wb.vhdl
