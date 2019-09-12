@@ -1,0 +1,85 @@
+memory-map:
+  bus: BUS
+  name: reg3wrw_NAME
+  description: multi-words rw registers
+  children:
+  - reg:
+      name: wrw
+      access: rw
+      width: 64
+      x-hdl:
+        type: wire
+        write-strobe: True
+        write-ack: True
+        read-strobe: True
+        read-ack: True
+  - reg:
+      name: fwrw_ws
+      access: rw
+      width: 64
+      children:
+      - field:
+         name: f1
+         range: 11-0
+         x-hdl:
+           type: wire
+      - field:
+         name: f2
+         range: 39-24
+         x-hdl:
+           type: wire
+      - field:
+         name: f3
+         range: 63-40
+         x-hdl:
+           type: wire
+      x-hdl:
+        write-strobe: True
+  - reg:
+      name: fwrw_rws
+      access: rw
+      width: 64
+      children:
+      - field:
+         name: f1
+         range: 11-0
+         x-hdl:
+           type: wire
+      - field:
+         name: f2
+         range: 39-24
+         x-hdl:
+           type: wire
+      - field:
+         name: f3
+         range: 63-40
+         x-hdl:
+           type: wire
+      x-hdl:
+        write-strobe: True
+        read-strobe: True
+  - reg:
+      name: fwrw_rws_rwa
+      access: rw
+      width: 64
+      children:
+      - field:
+         name: f1
+         range: 11-0
+         x-hdl:
+           type: wire
+      - field:
+         name: f2
+         range: 39-24
+         x-hdl:
+           type: wire
+      - field:
+         name: f3
+         range: 63-40
+         x-hdl:
+           type: wire
+      x-hdl:
+        write-strobe: True
+        read-strobe: True
+        write-ack: True
+        read-ack: True
