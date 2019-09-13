@@ -31,8 +31,13 @@ architecture syn of sreg is
   signal wb_wip                         : std_logic;
   signal i1Thresholds_highThreshold_reg : std_logic_vector(15 downto 0);
   signal i1Thresholds_lowThreshold_reg  : std_logic_vector(15 downto 0);
-  signal reg_rdat_int                   : std_logic_vector(31 downto 0);
-  signal rd_ack1_int                    : std_logic;
+  signal i1Thresholds_wreq              : std_logic;
+  signal i1Thresholds_wack              : std_logic;
+  signal i1Thresholds_rint              : std_logic_vector(31 downto 0);
+  signal rd_ack_d0                      : std_logic;
+  signal rd_dat_d0                      : std_logic_vector(31 downto 0);
+  signal wr_req_d0                      : std_logic;
+  signal wr_dat_d0                      : std_logic_vector(31 downto 0);
 begin
 
   -- WB decode signals
@@ -66,50 +71,58 @@ begin
   wb_rty_o <= '0';
   wb_err_o <= '0';
 
-  -- Assign outputs
-  i1Thresholds_o(31 downto 16) <= i1Thresholds_highThreshold_reg;
-  i1Thresholds_o(15 downto 0) <= i1Thresholds_lowThreshold_reg;
-
-  -- Process for write requests.
+  -- pipelining for wr-in+rd-out
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
-        wr_ack_int <= '0';
-        i1Thresholds_highThreshold_reg <= "0000000000000000";
-        i1Thresholds_lowThreshold_reg <= "0000000000000000";
+        rd_ack_int <= '0';
+        wr_req_d0 <= '0';
       else
-        wr_ack_int <= '0';
-        -- Register i1Thresholds
-        if wr_req_int = '1' then
-          i1Thresholds_highThreshold_reg <= wb_dat_i(31 downto 16);
-          i1Thresholds_lowThreshold_reg <= wb_dat_i(15 downto 0);
-        end if;
-        wr_ack_int <= wr_req_int;
+        rd_ack_int <= rd_ack_d0;
+        wb_dat_o <= rd_dat_d0;
+        wr_req_d0 <= wr_req_int;
+        wr_dat_d0 <= wb_dat_i;
       end if;
     end if;
   end process;
 
-  -- Process for registers read.
+  -- Register i1Thresholds
+  i1Thresholds_o(31 downto 16) <= i1Thresholds_highThreshold_reg;
+  i1Thresholds_o(15 downto 0) <= i1Thresholds_lowThreshold_reg;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
-        rd_ack1_int <= '0';
+        i1Thresholds_highThreshold_reg <= "0000000000000000";
+        i1Thresholds_lowThreshold_reg <= "0000000000000000";
+        i1Thresholds_wack <= '0';
       else
-        reg_rdat_int <= (others => '0');
-        -- i1Thresholds
-        reg_rdat_int(31 downto 16) <= i1Thresholds_highThreshold_reg;
-        reg_rdat_int(15 downto 0) <= i1Thresholds_lowThreshold_reg;
-        rd_ack1_int <= rd_req_int;
+        if i1Thresholds_wreq = '1' then
+          i1Thresholds_highThreshold_reg <= wr_dat_d0(31 downto 16);
+          i1Thresholds_lowThreshold_reg <= wr_dat_d0(15 downto 0);
+        end if;
+        i1Thresholds_wack <= i1Thresholds_wreq;
       end if;
     end if;
+  end process;
+  i1Thresholds_rint(15 downto 0) <= (others => '0');
+  i1Thresholds_rint(31 downto 16) <= i1Thresholds_highThreshold_reg;
+  i1Thresholds_rint(15 downto 0) <= i1Thresholds_lowThreshold_reg;
+  i1Thresholds_rint(31 downto 16) <= (others => '0');
+
+  -- Process for write requests.
+  process (wr_req_d0, i1Thresholds_wack) begin
+    i1Thresholds_wreq <= '0';
+    -- i1Thresholds
+    i1Thresholds_wreq <= wr_req_d0;
+    wr_ack_int <= i1Thresholds_wack;
   end process;
 
   -- Process for read requests.
-  process (reg_rdat_int, rd_ack1_int, rd_req_int) begin
+  process (rd_req_int, i1Thresholds_rint) begin
     -- By default ack read requests
-    wb_dat_o <= (others => '0');
+    rd_dat_d0 <= (others => 'X');
     -- i1Thresholds
-    wb_dat_o <= reg_rdat_int;
-    rd_ack_int <= rd_ack1_int;
+    rd_ack_d0 <= rd_req_int;
+    rd_dat_d0 <= i1Thresholds_rint;
   end process;
 end syn;

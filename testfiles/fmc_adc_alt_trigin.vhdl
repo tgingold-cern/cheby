@@ -32,8 +32,13 @@ architecture syn of alt_trigin is
   signal ack_int                        : std_logic;
   signal wb_rip                         : std_logic;
   signal wb_wip                         : std_logic;
-  signal reg_rdat_int                   : std_logic_vector(31 downto 0);
-  signal rd_ack1_int                    : std_logic;
+  signal ctrl_wreq                      : std_logic;
+  signal ctrl_rint                      : std_logic_vector(31 downto 0);
+  signal rd_ack_d0                      : std_logic;
+  signal rd_dat_d0                      : std_logic_vector(31 downto 0);
+  signal wr_req_d0                      : std_logic;
+  signal wr_adr_d0                      : std_logic_vector(4 downto 2);
+  signal wr_dat_d0                      : std_logic_vector(31 downto 0);
 begin
 
   -- WB decode signals
@@ -67,141 +72,108 @@ begin
   wb_o.rty <= '0';
   wb_o.err <= '0';
 
-  -- Assign outputs
-
-  -- Process for write requests.
+  -- pipelining for wr-in+rd-out
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
-        wr_ack_int <= '0';
-        ctrl_wr_o <= '0';
+        rd_ack_int <= '0';
+        wr_req_d0 <= '0';
       else
-        wr_ack_int <= '0';
-        ctrl_wr_o <= '0';
-        case wb_i.adr(4 downto 3) is
-        when "00" => 
-          case wb_i.adr(2 downto 2) is
-          when "0" => 
-            -- Register ctrl
-            ctrl_wr_o <= wr_req_int;
-            if wr_req_int = '1' then
-              ctrl_enable_o <= wb_i.dat(1);
-            end if;
-            wr_ack_int <= wr_req_int;
-          when others =>
-            wr_ack_int <= wr_req_int;
-          end case;
-        when "01" => 
-          case wb_i.adr(2 downto 2) is
-          when "0" => 
-            -- Register seconds
-          when "1" => 
-            -- Register seconds
-          when others =>
-            wr_ack_int <= wr_req_int;
-          end case;
-        when "10" => 
-          case wb_i.adr(2 downto 2) is
-          when "0" => 
-            -- Register cycles
-          when others =>
-            wr_ack_int <= wr_req_int;
-          end case;
-        when others =>
-          wr_ack_int <= wr_req_int;
-        end case;
+        rd_ack_int <= rd_ack_d0;
+        wb_o.dat <= rd_dat_d0;
+        wr_req_d0 <= wr_req_int;
+        wr_adr_d0 <= wb_i.adr(4 downto 2);
+        wr_dat_d0 <= wb_i.dat;
       end if;
     end if;
   end process;
 
-  -- Process for registers read.
-  process (clk_i) begin
-    if rising_edge(clk_i) then
-      if rst_n_i = '0' then
-        rd_ack1_int <= '0';
-      else
-        reg_rdat_int <= (others => '0');
-        case wb_i.adr(4 downto 3) is
-        when "00" => 
-          case wb_i.adr(2 downto 2) is
-          when "0" => 
-            -- ctrl
-            reg_rdat_int(1) <= ctrl_enable_i;
-            rd_ack1_int <= rd_req_int;
-          when others =>
-            reg_rdat_int <= (others => 'X');
-            rd_ack1_int <= rd_req_int;
-          end case;
-        when "01" => 
-          case wb_i.adr(2 downto 2) is
-          when "0" => 
-            -- seconds
-            reg_rdat_int <= seconds_i(63 downto 32);
-            rd_ack1_int <= rd_req_int;
-          when "1" => 
-            -- seconds
-            reg_rdat_int <= seconds_i(31 downto 0);
-            rd_ack1_int <= rd_req_int;
-          when others =>
-            reg_rdat_int <= (others => 'X');
-            rd_ack1_int <= rd_req_int;
-          end case;
-        when "10" => 
-          case wb_i.adr(2 downto 2) is
-          when "0" => 
-            -- cycles
-            reg_rdat_int <= cycles_i;
-            rd_ack1_int <= rd_req_int;
-          when others =>
-            reg_rdat_int <= (others => 'X');
-            rd_ack1_int <= rd_req_int;
-          end case;
-        when others =>
-          reg_rdat_int <= (others => 'X');
-          rd_ack1_int <= rd_req_int;
-        end case;
-      end if;
-    end if;
+  -- Register ctrl
+  ctrl_enable_o <= wr_dat_d0(1);
+  ctrl_wr_o <= ctrl_wreq;
+  ctrl_rint(0) <= '0';
+  ctrl_rint(1) <= ctrl_enable_i;
+  ctrl_rint(31 downto 2) <= (others => '0');
+
+  -- Register seconds
+
+  -- Register cycles
+
+  -- Process for write requests.
+  process (wr_adr_d0, wr_req_d0) begin
+    ctrl_wreq <= '0';
+    case wr_adr_d0(4 downto 3) is
+    when "00" => 
+      case wr_adr_d0(2 downto 2) is
+      when "0" => 
+        -- ctrl
+        ctrl_wreq <= wr_req_d0;
+        wr_ack_int <= wr_req_d0;
+      when others =>
+        wr_ack_int <= wr_req_d0;
+      end case;
+    when "01" => 
+      case wr_adr_d0(2 downto 2) is
+      when "0" => 
+        -- seconds
+        wr_ack_int <= wr_req_d0;
+      when "1" => 
+        -- seconds
+        wr_ack_int <= wr_req_d0;
+      when others =>
+        wr_ack_int <= wr_req_d0;
+      end case;
+    when "10" => 
+      case wr_adr_d0(2 downto 2) is
+      when "0" => 
+        -- cycles
+        wr_ack_int <= wr_req_d0;
+      when others =>
+        wr_ack_int <= wr_req_d0;
+      end case;
+    when others =>
+      wr_ack_int <= wr_req_d0;
+    end case;
   end process;
 
   -- Process for read requests.
-  process (wb_i.adr, reg_rdat_int, rd_ack1_int, rd_req_int) begin
+  process (wb_i.adr(4 downto 2), rd_req_int, ctrl_rint, seconds_i, cycles_i) begin
     -- By default ack read requests
-    wb_o.dat <= (others => '0');
-    case wb_i.adr(4 downto 3) is
+    rd_dat_d0 <= (others => 'X');
+    case wb_i.adr(4 downto 2)(4 downto 3) is
     when "00" => 
-      case wb_i.adr(2 downto 2) is
+      case wb_i.adr(4 downto 2)(2 downto 2) is
       when "0" => 
         -- ctrl
-        wb_o.dat <= reg_rdat_int;
-        rd_ack_int <= rd_ack1_int;
+        rd_ack_d0 <= rd_req_int;
+        rd_dat_d0 <= ctrl_rint;
       when others =>
-        rd_ack_int <= rd_req_int;
+        rd_ack_d0 <= rd_req_int;
       end case;
     when "01" => 
-      case wb_i.adr(2 downto 2) is
+      case wb_i.adr(4 downto 2)(2 downto 2) is
       when "0" => 
         -- seconds
-        wb_o.dat <= reg_rdat_int;
-        rd_ack_int <= rd_ack1_int;
+        rd_ack_d0 <= rd_req_int;
+        rd_dat_d0 <= seconds_i(63 downto 32);
       when "1" => 
         -- seconds
-        wb_o.dat <= reg_rdat_int;
-        rd_ack_int <= rd_ack1_int;
+        rd_ack_d0 <= rd_req_int;
+        rd_dat_d0 <= seconds_i(31 downto 0);
       when others =>
-        rd_ack_int <= rd_req_int;
+        rd_ack_d0 <= rd_req_int;
       end case;
     when "10" => 
-      case wb_i.adr(2 downto 2) is
+      case wb_i.adr(4 downto 2)(2 downto 2) is
       when "0" => 
         -- cycles
-        wb_o.dat <= reg_rdat_int;
-        rd_ack_int <= rd_ack1_int;
+        rd_ack_d0 <= rd_req_int;
+        rd_dat_d0 <= cycles_i;
       when others =>
-        rd_ack_int <= rd_req_int;
+        rd_ack_d0 <= rd_req_int;
       end case;
     when others =>
-      rd_ack_int <= rd_req_int;
+      rd_ack_d0 <= rd_req_int;
     end case;
   end process;
 end syn;

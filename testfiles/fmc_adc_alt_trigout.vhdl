@@ -70,13 +70,22 @@ architecture syn of alt_trigout is
   signal ack_int                        : std_logic;
   signal wb_rip                         : std_logic;
   signal wb_wip                         : std_logic;
+  signal status_rint                    : std_logic_vector(31 downto 0);
   signal ch1_enable_reg                 : std_logic;
   signal ch2_enable_reg                 : std_logic;
   signal ch3_enable_reg                 : std_logic;
   signal ch4_enable_reg                 : std_logic;
   signal ext_enable_reg                 : std_logic;
-  signal reg_rdat_int                   : std_logic_vector(31 downto 0);
-  signal rd_ack1_int                    : std_logic;
+  signal ctrl_wreq                      : std_logic;
+  signal ctrl_wack                      : std_logic;
+  signal ctrl_rint                      : std_logic_vector(31 downto 0);
+  signal ts_mask_sec_rint               : std_logic_vector(63 downto 0);
+  signal ts_cycles_rint                 : std_logic_vector(31 downto 0);
+  signal rd_ack_d0                      : std_logic;
+  signal rd_dat_d0                      : std_logic_vector(31 downto 0);
+  signal wr_req_d0                      : std_logic;
+  signal wr_adr_d0                      : std_logic_vector(4 downto 2);
+  signal wr_dat_d0                      : std_logic_vector(31 downto 0);
 begin
 
   -- WB decode signals
@@ -110,177 +119,164 @@ begin
   wb_o.rty <= '0';
   wb_o.err <= '0';
 
-  -- Assign outputs
+  -- pipelining for wr-in+rd-out
+  process (clk_i) begin
+    if rising_edge(clk_i) then
+      if rst_n_i = '0' then
+        rd_ack_int <= '0';
+        wr_req_d0 <= '0';
+      else
+        rd_ack_int <= rd_ack_d0;
+        wb_o.dat <= rd_dat_d0;
+        wr_req_d0 <= wr_req_int;
+        wr_adr_d0 <= wb_i.adr(4 downto 2);
+        wr_dat_d0 <= wb_i.dat;
+      end if;
+    end if;
+  end process;
+
+  -- Register status
+  status_rint(0) <= wr_enable_i;
+  status_rint(1) <= wr_link_i;
+  status_rint(2) <= wr_valid_i;
+  status_rint(7 downto 3) <= (others => '0');
+  status_rint(8) <= ts_present_i;
+  status_rint(31 downto 9) <= (others => '0');
+
+  -- Register ctrl
   ch1_enable_o <= ch1_enable_reg;
   ch2_enable_o <= ch2_enable_reg;
   ch3_enable_o <= ch3_enable_reg;
   ch4_enable_o <= ch4_enable_reg;
   ext_enable_o <= ext_enable_reg;
-
-  -- Process for write requests.
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
-        wr_ack_int <= '0';
         ch1_enable_reg <= '0';
         ch2_enable_reg <= '0';
         ch3_enable_reg <= '0';
         ch4_enable_reg <= '0';
         ext_enable_reg <= '0';
+        ctrl_wack <= '0';
       else
-        wr_ack_int <= '0';
-        case wb_i.adr(4 downto 3) is
-        when "00" => 
-          case wb_i.adr(2 downto 2) is
-          when "0" => 
-            -- Register status
-          when "1" => 
-            -- Register ctrl
-            if wr_req_int = '1' then
-              ch1_enable_reg <= wb_i.dat(0);
-              ch2_enable_reg <= wb_i.dat(1);
-              ch3_enable_reg <= wb_i.dat(2);
-              ch4_enable_reg <= wb_i.dat(3);
-              ext_enable_reg <= wb_i.dat(8);
-            end if;
-            wr_ack_int <= wr_req_int;
-          when others =>
-            wr_ack_int <= wr_req_int;
-          end case;
-        when "01" => 
-          case wb_i.adr(2 downto 2) is
-          when "0" => 
-            -- Register ts_mask_sec
-          when "1" => 
-            -- Register ts_mask_sec
-          when others =>
-            wr_ack_int <= wr_req_int;
-          end case;
-        when "10" => 
-          case wb_i.adr(2 downto 2) is
-          when "0" => 
-            -- Register ts_cycles
-          when others =>
-            wr_ack_int <= wr_req_int;
-          end case;
-        when others =>
-          wr_ack_int <= wr_req_int;
-        end case;
+        if ctrl_wreq = '1' then
+          ch1_enable_reg <= wr_dat_d0(0);
+          ch2_enable_reg <= wr_dat_d0(1);
+          ch3_enable_reg <= wr_dat_d0(2);
+          ch4_enable_reg <= wr_dat_d0(3);
+          ext_enable_reg <= wr_dat_d0(8);
+        end if;
+        ctrl_wack <= ctrl_wreq;
       end if;
     end if;
   end process;
+  ctrl_rint(0) <= ch1_enable_reg;
+  ctrl_rint(1) <= ch2_enable_reg;
+  ctrl_rint(2) <= ch3_enable_reg;
+  ctrl_rint(3) <= ch4_enable_reg;
+  ctrl_rint(7 downto 4) <= (others => '0');
+  ctrl_rint(8) <= ext_enable_reg;
+  ctrl_rint(31 downto 9) <= (others => '0');
 
-  -- Process for registers read.
-  process (clk_i) begin
-    if rising_edge(clk_i) then
-      if rst_n_i = '0' then
-        rd_ack1_int <= '0';
-        ts_cycles_rd_o <= '0';
-      else
-        ts_cycles_rd_o <= '0';
-        reg_rdat_int <= (others => '0');
-        case wb_i.adr(4 downto 3) is
-        when "00" => 
-          case wb_i.adr(2 downto 2) is
-          when "0" => 
-            -- status
-            reg_rdat_int(0) <= wr_enable_i;
-            reg_rdat_int(1) <= wr_link_i;
-            reg_rdat_int(2) <= wr_valid_i;
-            reg_rdat_int(8) <= ts_present_i;
-            rd_ack1_int <= rd_req_int;
-          when "1" => 
-            -- ctrl
-            reg_rdat_int(0) <= ch1_enable_reg;
-            reg_rdat_int(1) <= ch2_enable_reg;
-            reg_rdat_int(2) <= ch3_enable_reg;
-            reg_rdat_int(3) <= ch4_enable_reg;
-            reg_rdat_int(8) <= ext_enable_reg;
-            rd_ack1_int <= rd_req_int;
-          when others =>
-            reg_rdat_int <= (others => 'X');
-            rd_ack1_int <= rd_req_int;
-          end case;
-        when "01" => 
-          case wb_i.adr(2 downto 2) is
-          when "0" => 
-            -- ts_mask_sec
-            reg_rdat_int(7 downto 0) <= ts_sec_i(39 downto 32);
-            reg_rdat_int(16) <= ch1_mask_i;
-            reg_rdat_int(17) <= ch2_mask_i;
-            reg_rdat_int(18) <= ch3_mask_i;
-            reg_rdat_int(19) <= ch4_mask_i;
-            reg_rdat_int(24) <= ext_mask_i;
-            rd_ack1_int <= rd_req_int;
-          when "1" => 
-            -- ts_mask_sec
-            reg_rdat_int <= ts_sec_i(31 downto 0);
-            rd_ack1_int <= rd_req_int;
-          when others =>
-            reg_rdat_int <= (others => 'X');
-            rd_ack1_int <= rd_req_int;
-          end case;
-        when "10" => 
-          case wb_i.adr(2 downto 2) is
-          when "0" => 
-            -- ts_cycles
-            reg_rdat_int(27 downto 0) <= cycles_i;
-            ts_cycles_rd_o <= rd_req_int;
-            rd_ack1_int <= rd_req_int;
-          when others =>
-            reg_rdat_int <= (others => 'X');
-            rd_ack1_int <= rd_req_int;
-          end case;
-        when others =>
-          reg_rdat_int <= (others => 'X');
-          rd_ack1_int <= rd_req_int;
-        end case;
-      end if;
-    end if;
+  -- Register ts_mask_sec
+  ts_mask_sec_rint(39 downto 0) <= ts_sec_i;
+  ts_mask_sec_rint(47 downto 40) <= (others => '0');
+  ts_mask_sec_rint(48) <= ch1_mask_i;
+  ts_mask_sec_rint(49) <= ch2_mask_i;
+  ts_mask_sec_rint(50) <= ch3_mask_i;
+  ts_mask_sec_rint(51) <= ch4_mask_i;
+  ts_mask_sec_rint(55 downto 52) <= (others => '0');
+  ts_mask_sec_rint(56) <= ext_mask_i;
+  ts_mask_sec_rint(63 downto 57) <= (others => '0');
+
+  -- Register ts_cycles
+  ts_cycles_rint(27 downto 0) <= cycles_i;
+  ts_cycles_rint(31 downto 28) <= (others => '0');
+
+  -- Process for write requests.
+  process (wr_adr_d0, wr_req_d0, ctrl_wack) begin
+    ctrl_wreq <= '0';
+    case wr_adr_d0(4 downto 3) is
+    when "00" => 
+      case wr_adr_d0(2 downto 2) is
+      when "0" => 
+        -- status
+        wr_ack_int <= wr_req_d0;
+      when "1" => 
+        -- ctrl
+        ctrl_wreq <= wr_req_d0;
+        wr_ack_int <= ctrl_wack;
+      when others =>
+        wr_ack_int <= wr_req_d0;
+      end case;
+    when "01" => 
+      case wr_adr_d0(2 downto 2) is
+      when "0" => 
+        -- ts_mask_sec
+        wr_ack_int <= wr_req_d0;
+      when "1" => 
+        -- ts_mask_sec
+        wr_ack_int <= wr_req_d0;
+      when others =>
+        wr_ack_int <= wr_req_d0;
+      end case;
+    when "10" => 
+      case wr_adr_d0(2 downto 2) is
+      when "0" => 
+        -- ts_cycles
+        wr_ack_int <= wr_req_d0;
+      when others =>
+        wr_ack_int <= wr_req_d0;
+      end case;
+    when others =>
+      wr_ack_int <= wr_req_d0;
+    end case;
   end process;
 
   -- Process for read requests.
-  process (wb_i.adr, reg_rdat_int, rd_ack1_int, rd_req_int) begin
+  process (wb_i.adr(4 downto 2), rd_req_int, status_rint, ctrl_rint, ts_mask_sec_rint, ts_cycles_rint) begin
     -- By default ack read requests
-    wb_o.dat <= (others => '0');
-    case wb_i.adr(4 downto 3) is
+    rd_dat_d0 <= (others => 'X');
+    ts_cycles_rd_o <= '0';
+    case wb_i.adr(4 downto 2)(4 downto 3) is
     when "00" => 
-      case wb_i.adr(2 downto 2) is
+      case wb_i.adr(4 downto 2)(2 downto 2) is
       when "0" => 
         -- status
-        wb_o.dat <= reg_rdat_int;
-        rd_ack_int <= rd_ack1_int;
+        rd_ack_d0 <= rd_req_int;
+        rd_dat_d0 <= status_rint;
       when "1" => 
         -- ctrl
-        wb_o.dat <= reg_rdat_int;
-        rd_ack_int <= rd_ack1_int;
+        rd_ack_d0 <= rd_req_int;
+        rd_dat_d0 <= ctrl_rint;
       when others =>
-        rd_ack_int <= rd_req_int;
+        rd_ack_d0 <= rd_req_int;
       end case;
     when "01" => 
-      case wb_i.adr(2 downto 2) is
+      case wb_i.adr(4 downto 2)(2 downto 2) is
       when "0" => 
         -- ts_mask_sec
-        wb_o.dat <= reg_rdat_int;
-        rd_ack_int <= rd_ack1_int;
+        rd_ack_d0 <= rd_req_int;
+        rd_dat_d0 <= ts_mask_sec_rint(63 downto 32);
       when "1" => 
         -- ts_mask_sec
-        wb_o.dat <= reg_rdat_int;
-        rd_ack_int <= rd_ack1_int;
+        rd_ack_d0 <= rd_req_int;
+        rd_dat_d0 <= ts_mask_sec_rint(31 downto 0);
       when others =>
-        rd_ack_int <= rd_req_int;
+        rd_ack_d0 <= rd_req_int;
       end case;
     when "10" => 
-      case wb_i.adr(2 downto 2) is
+      case wb_i.adr(4 downto 2)(2 downto 2) is
       when "0" => 
         -- ts_cycles
-        wb_o.dat <= reg_rdat_int;
-        rd_ack_int <= rd_ack1_int;
+        ts_cycles_rd_o <= rd_req_int;
+        rd_ack_d0 <= rd_req_int;
+        rd_dat_d0 <= ts_cycles_rint;
       when others =>
-        rd_ack_int <= rd_req_int;
+        rd_ack_d0 <= rd_req_int;
       end case;
     when others =>
-      rd_ack_int <= rd_req_int;
+      rd_ack_d0 <= rd_req_int;
     end case;
   end process;
 end syn;

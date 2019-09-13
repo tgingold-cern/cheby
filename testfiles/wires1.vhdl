@@ -42,8 +42,15 @@ architecture syn of wires1 is
   signal wb_rip                         : std_logic;
   signal wb_wip                         : std_logic;
   signal strobe_reg                     : std_logic_vector(31 downto 0);
-  signal reg_rdat_int                   : std_logic_vector(31 downto 0);
-  signal rd_ack1_int                    : std_logic;
+  signal strobe_wreq                    : std_logic;
+  signal strobe_wack                    : std_logic;
+  signal wires_wreq                     : std_logic;
+  signal acks_wreq                      : std_logic;
+  signal rd_ack_d0                      : std_logic;
+  signal rd_dat_d0                      : std_logic_vector(31 downto 0);
+  signal wr_req_d0                      : std_logic;
+  signal wr_adr_d0                      : std_logic_vector(3 downto 2);
+  signal wr_dat_d0                      : std_logic_vector(31 downto 0);
 begin
 
   -- WB decode signals
@@ -77,105 +84,94 @@ begin
   wb_rty_o <= '0';
   wb_err_o <= '0';
 
-  -- Assign outputs
-  strobe_o <= strobe_reg;
-
-  -- Process for write requests.
+  -- pipelining for wr-in+rd-out
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
-        wr_ack_int <= '0';
-        strobe_wr_o <= '0';
-        strobe_reg <= "00000000000000000000000000000000";
-        acks_wr_o <= '0';
+        rd_ack_int <= '0';
+        wr_req_d0 <= '0';
       else
-        wr_ack_int <= '0';
-        strobe_wr_o <= '0';
-        acks_wr_o <= '0';
-        case wb_adr_i(3 downto 2) is
-        when "00" => 
-          -- Register strobe
-          strobe_wr_o <= wr_req_int;
-          if wr_req_int = '1' then
-            strobe_reg <= wb_dat_i;
-          end if;
-          wr_ack_int <= wr_req_int;
-        when "01" => 
-          -- Register wires
-          if wr_req_int = '1' then
-            wires_o <= wb_dat_i;
-          end if;
-          wr_ack_int <= wr_req_int;
-        when "10" => 
-          -- Register acks
-          acks_wr_o <= wr_req_int;
-          if wr_req_int = '1' then
-            acks_o <= wb_dat_i;
-          end if;
-          wr_ack_int <= acks_wack_i;
-        when others =>
-          wr_ack_int <= wr_req_int;
-        end case;
+        rd_ack_int <= rd_ack_d0;
+        wb_dat_o <= rd_dat_d0;
+        wr_req_d0 <= wr_req_int;
+        wr_adr_d0 <= wb_adr_i;
+        wr_dat_d0 <= wb_dat_i;
       end if;
     end if;
   end process;
 
-  -- Process for registers read.
+  -- Register strobe
+  strobe_o <= strobe_reg;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
-        rd_ack1_int <= '0';
-        strobe_rd_o <= '0';
-        wires_rd_o <= '0';
-        acks_rd_o <= '0';
+        strobe_reg <= "00000000000000000000000000000000";
+        strobe_wack <= '0';
       else
-        acks_rd_o <= '0';
-        wires_rd_o <= '0';
-        strobe_rd_o <= '0';
-        reg_rdat_int <= (others => '0');
-        case wb_adr_i(3 downto 2) is
-        when "00" => 
-          -- strobe
-          reg_rdat_int <= strobe_reg;
-          strobe_rd_o <= rd_req_int;
-          rd_ack1_int <= rd_req_int;
-        when "01" => 
-          -- wires
-          reg_rdat_int <= wires_i;
-          wires_rd_o <= rd_req_int;
-          rd_ack1_int <= rd_req_int;
-        when "10" => 
-          -- acks
-          reg_rdat_int <= acks_i;
-          acks_rd_o <= rd_req_int;
-          rd_ack1_int <= acks_rack_i;
-        when others =>
-          reg_rdat_int <= (others => 'X');
-          rd_ack1_int <= rd_req_int;
-        end case;
+        if strobe_wreq = '1' then
+          strobe_reg <= wr_dat_d0;
+        end if;
+        strobe_wack <= strobe_wreq;
       end if;
     end if;
+  end process;
+  strobe_wr_o <= strobe_wack;
+
+  -- Register wires
+  wires_o <= wr_dat_d0;
+
+  -- Register acks
+  acks_o <= wr_dat_d0;
+  acks_wr_o <= acks_wreq;
+
+  -- Process for write requests.
+  process (wr_adr_d0, wr_req_d0, strobe_wack, acks_wack_i) begin
+    strobe_wreq <= '0';
+    wires_wreq <= '0';
+    acks_wreq <= '0';
+    case wr_adr_d0(3 downto 2) is
+    when "00" => 
+      -- strobe
+      strobe_wreq <= wr_req_d0;
+      wr_ack_int <= strobe_wack;
+    when "01" => 
+      -- wires
+      wires_wreq <= wr_req_d0;
+      wr_ack_int <= wr_req_d0;
+    when "10" => 
+      -- acks
+      acks_wreq <= wr_req_d0;
+      wr_ack_int <= acks_wack_i;
+    when others =>
+      wr_ack_int <= wr_req_d0;
+    end case;
   end process;
 
   -- Process for read requests.
-  process (wb_adr_i, reg_rdat_int, rd_ack1_int, rd_req_int) begin
+  process (wb_adr_i, rd_req_int, strobe_reg, wires_i, acks_rack_i, acks_i) begin
     -- By default ack read requests
-    wb_dat_o <= (others => '0');
+    rd_dat_d0 <= (others => 'X');
+    strobe_rd_o <= '0';
+    wires_rd_o <= '0';
+    acks_rd_o <= '0';
     case wb_adr_i(3 downto 2) is
     when "00" => 
       -- strobe
-      wb_dat_o <= reg_rdat_int;
-      rd_ack_int <= rd_ack1_int;
+      strobe_rd_o <= rd_req_int;
+      rd_ack_d0 <= rd_req_int;
+      rd_dat_d0 <= strobe_reg;
     when "01" => 
       -- wires
-      wb_dat_o <= reg_rdat_int;
-      rd_ack_int <= rd_ack1_int;
+      wires_rd_o <= rd_req_int;
+      rd_ack_d0 <= rd_req_int;
+      rd_dat_d0 <= wires_i;
     when "10" => 
       -- acks
-      wb_dat_o <= reg_rdat_int;
-      rd_ack_int <= rd_ack1_int;
+      acks_rd_o <= rd_req_int;
+      rd_ack_d0 <= acks_rack_i;
+      rd_dat_d0 <= acks_i;
     when others =>
-      rd_ack_int <= rd_req_int;
+      rd_ack_d0 <= rd_req_int;
     end case;
   end process;
 end syn;

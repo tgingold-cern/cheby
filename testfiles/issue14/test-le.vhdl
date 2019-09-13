@@ -42,13 +42,18 @@ architecture syn of test_axi4 is
   signal axi_rip                        : std_logic;
   signal axi_rdone                      : std_logic;
   signal register1_reg                  : std_logic_vector(63 downto 0);
-  signal reg_rdat_int                   : std_logic_vector(31 downto 0);
-  signal rd_ack1_int                    : std_logic;
+  signal register1_wreq                 : std_logic_vector(1 downto 0);
+  signal register1_wack                 : std_logic_vector(1 downto 0);
+  signal rd_ack_d0                      : std_logic;
+  signal rd_dat_d0                      : std_logic_vector(31 downto 0);
+  signal wr_req_d0                      : std_logic;
+  signal wr_adr_d0                      : std_logic_vector(2 downto 2);
+  signal wr_dat_d0                      : std_logic_vector(31 downto 0);
 begin
 
   -- AW, W and B channels
   wr_req <= (awvalid and wvalid) and not axi_wip;
-  awready <= axi_wip and wr_ack_int;
+  awready <= axi_wdone;
   wready <= axi_wip and wr_ack_int;
   bvalid <= axi_wdone;
   process (aclk) begin
@@ -66,7 +71,7 @@ begin
 
   -- AR and R channels
   rd_req <= arvalid and not axi_rip;
-  arready <= axi_rip and rd_ack_int;
+  arready <= axi_rdone;
   rvalid <= axi_rdone;
   process (aclk) begin
     if rising_edge(aclk) then
@@ -85,74 +90,71 @@ begin
   end process;
   rresp <= "00";
 
-  -- Assign outputs
-  register1_o <= register1_reg;
-
-  -- Process for write requests.
+  -- pipelining for wr-in+rd-out
   process (aclk) begin
     if rising_edge(aclk) then
       if areset_n = '0' then
-        wr_ack_int <= '0';
-        register1_reg <= "0000000000000000000000000000000000000000000000000000000000000000";
+        rd_ack_int <= '0';
+        wr_req_d0 <= '0';
       else
-        wr_ack_int <= '0';
-        case awaddr(2 downto 2) is
-        when "0" => 
-          -- Register register1
-          if wr_req = '1' then
-            register1_reg(31 downto 0) <= wdata;
-          end if;
-          wr_ack_int <= wr_req;
-        when "1" => 
-          -- Register register1
-          if wr_req = '1' then
-            register1_reg(63 downto 32) <= wdata;
-          end if;
-          wr_ack_int <= wr_req;
-        when others =>
-          wr_ack_int <= wr_req;
-        end case;
+        rd_ack_int <= rd_ack_d0;
+        dato <= rd_dat_d0;
+        wr_req_d0 <= wr_req;
+        wr_adr_d0 <= awaddr;
+        wr_dat_d0 <= wdata;
       end if;
     end if;
   end process;
 
-  -- Process for registers read.
+  -- Register register1
+  register1_o <= register1_reg;
   process (aclk) begin
     if rising_edge(aclk) then
       if areset_n = '0' then
-        rd_ack1_int <= '0';
+        register1_reg <= "0000000000000000000000000000000000000000000000000000000000000000";
+        register1_wack <= (others => '0');
       else
-        reg_rdat_int <= (others => '0');
-        case araddr(2 downto 2) is
-        when "0" => 
-          -- register1
-          rd_ack1_int <= rd_req;
-        when "1" => 
-          -- register1
-          rd_ack1_int <= rd_req;
-        when others =>
-          reg_rdat_int <= (others => 'X');
-          rd_ack1_int <= rd_req;
-        end case;
+        if register1_wreq(0) = '1' then
+          register1_reg(31 downto 0) <= wr_dat_d0;
+        end if;
+        if register1_wreq(1) = '1' then
+          register1_reg(63 downto 32) <= wr_dat_d0;
+        end if;
+        register1_wack <= register1_wreq;
       end if;
     end if;
+  end process;
+
+  -- Process for write requests.
+  process (wr_adr_d0, wr_req_d0, register1_wack) begin
+    register1_wreq <= (others => '0');
+    case wr_adr_d0(2 downto 2) is
+    when "0" => 
+      -- register1
+      register1_wreq(0) <= wr_req_d0;
+      wr_ack_int <= register1_wack(0);
+    when "1" => 
+      -- register1
+      register1_wreq(1) <= wr_req_d0;
+      wr_ack_int <= register1_wack(1);
+    when others =>
+      wr_ack_int <= wr_req_d0;
+    end case;
   end process;
 
   -- Process for read requests.
-  process (araddr, reg_rdat_int, rd_ack1_int, rd_req) begin
+  process (araddr, rd_req) begin
     -- By default ack read requests
-    dato <= (others => '0');
+    rd_dat_d0 <= (others => 'X');
     case araddr(2 downto 2) is
     when "0" => 
       -- register1
-      dato <= reg_rdat_int;
-      rd_ack_int <= rd_ack1_int;
+      rd_ack_d0 <= rd_req;
     when "1" => 
       -- register1
-      dato <= reg_rdat_int;
-      rd_ack_int <= rd_ack1_int;
+      rd_ack_d0 <= rd_req;
     when others =>
-      rd_ack_int <= rd_req;
+      rd_ack_d0 <= rd_req;
     end case;
   end process;
 end syn;

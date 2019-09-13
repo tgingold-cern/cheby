@@ -63,7 +63,7 @@ begin
   --  Watchdog
   process
   begin
-    wait until end_of_test for 1 us;
+    wait until end_of_test for 2 us;
     assert end_of_test report "TIMEOUT" severity failure;
     wait;
   end process;

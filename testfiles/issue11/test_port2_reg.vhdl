@@ -29,8 +29,11 @@ architecture syn of sreg is
   signal ack_int                        : std_logic;
   signal wb_rip                         : std_logic;
   signal wb_wip                         : std_logic;
-  signal reg_rdat_int                   : std_logic_vector(31 downto 0);
-  signal rd_ack1_int                    : std_logic;
+  signal i1Thresholds_rint              : std_logic_vector(31 downto 0);
+  signal rd_ack_d0                      : std_logic;
+  signal rd_dat_d0                      : std_logic_vector(31 downto 0);
+  signal wr_req_d0                      : std_logic;
+  signal wr_dat_d0                      : std_logic_vector(31 downto 0);
 begin
 
   -- WB decode signals
@@ -64,41 +67,39 @@ begin
   wb_rty_o <= '0';
   wb_err_o <= '0';
 
-  -- Assign outputs
-
-  -- Process for write requests.
+  -- pipelining for wr-in+rd-out
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
-        wr_ack_int <= '0';
+        rd_ack_int <= '0';
+        wr_req_d0 <= '0';
       else
-        wr_ack_int <= '0';
-        -- Register i1Thresholds
+        rd_ack_int <= rd_ack_d0;
+        wb_dat_o <= rd_dat_d0;
+        wr_req_d0 <= wr_req_int;
+        wr_dat_d0 <= wb_dat_i;
       end if;
     end if;
   end process;
 
-  -- Process for registers read.
-  process (clk_i) begin
-    if rising_edge(clk_i) then
-      if rst_n_i = '0' then
-        rd_ack1_int <= '0';
-      else
-        reg_rdat_int <= (others => '0');
-        -- i1Thresholds
-        reg_rdat_int(31 downto 16) <= i1Thresholds_i(31 downto 16);
-        reg_rdat_int(15 downto 0) <= i1Thresholds_i(15 downto 0);
-        rd_ack1_int <= rd_req_int;
-      end if;
-    end if;
+  -- Register i1Thresholds
+  i1Thresholds_rint(15 downto 0) <= (others => '0');
+  i1Thresholds_rint(31 downto 16) <= i1Thresholds_i(31 downto 16);
+  i1Thresholds_rint(15 downto 0) <= i1Thresholds_i(15 downto 0);
+  i1Thresholds_rint(31 downto 16) <= (others => '0');
+
+  -- Process for write requests.
+  process (wr_req_d0) begin
+    -- i1Thresholds
+    wr_ack_int <= wr_req_d0;
   end process;
 
   -- Process for read requests.
-  process (reg_rdat_int, rd_ack1_int, rd_req_int) begin
+  process (rd_req_int, i1Thresholds_rint) begin
     -- By default ack read requests
-    wb_dat_o <= (others => '0');
+    rd_dat_d0 <= (others => 'X');
     -- i1Thresholds
-    wb_dat_o <= reg_rdat_int;
-    rd_ack_int <= rd_ack1_int;
+    rd_ack_d0 <= rd_req_int;
+    rd_dat_d0 <= i1Thresholds_rint;
   end process;
 end syn;

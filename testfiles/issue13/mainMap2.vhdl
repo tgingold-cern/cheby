@@ -39,86 +39,76 @@ end mainMap2;
 architecture syn of mainMap2 is
   signal rd_ack_int                     : std_logic;
   signal wr_ack_int                     : std_logic;
-  signal reg_rdat_int                   : std_logic_vector(31 downto 0);
-  signal rd_ack1_int                    : std_logic;
+  signal rd_ack_d0                      : std_logic;
+  signal rd_dat_d0                      : std_logic_vector(31 downto 0);
+  signal wr_req_d0                      : std_logic;
+  signal wr_adr_d0                      : std_logic_vector(14 downto 2);
+  signal wr_dat_d0                      : std_logic_vector(31 downto 0);
 begin
   VMERdDone <= rd_ack_int;
   VMEWrDone <= wr_ack_int;
 
-  -- Assign outputs
+  -- pipelining for wr-in+rd-out
+  process (Clk) begin
+    if rising_edge(Clk) then
+      if Rst = '0' then
+        rd_ack_int <= '0';
+        wr_req_d0 <= '0';
+      else
+        rd_ack_int <= rd_ack_d0;
+        VMERdData <= rd_dat_d0;
+        wr_req_d0 <= VMEWrMem;
+        wr_adr_d0 <= VMEAddr;
+        wr_dat_d0 <= VMEWrData;
+      end if;
+    end if;
+  end process;
 
   -- Assignments for submap subMap1
-  subMap1_VMEWrData_o <= VMEWrData;
+  subMap1_VMEWrData_o <= wr_dat_d0;
   subMap1_VMEAddr_o <= VMEAddr(12 downto 2);
 
   -- Assignments for submap subMap2
-  subMap2_VMEWrData_o <= VMEWrData;
+  subMap2_VMEWrData_o <= wr_dat_d0;
   subMap2_VMEAddr_o <= VMEAddr(12 downto 2);
 
   -- Process for write requests.
-  process (Clk) begin
-    if rising_edge(Clk) then
-      if Rst = '0' then
-        wr_ack_int <= '0';
-        subMap1_VMEWrMem_o <= '0';
-        subMap2_VMEWrMem_o <= '0';
-      else
-        wr_ack_int <= '0';
-        subMap1_VMEWrMem_o <= '0';
-        subMap2_VMEWrMem_o <= '0';
-        case VMEAddr(14 downto 13) is
-        when "00" => 
-          -- Submap subMap1
-          subMap1_VMEWrMem_o <= VMEWrMem;
-          wr_ack_int <= subMap1_VMEWrDone_i;
-        when "01" => 
-          -- Submap subMap2
-          subMap2_VMEWrMem_o <= VMEWrMem;
-          wr_ack_int <= subMap2_VMEWrDone_i;
-        when others =>
-          wr_ack_int <= VMEWrMem;
-        end case;
-      end if;
-    end if;
-  end process;
-
-  -- Process for registers read.
-  process (Clk) begin
-    if rising_edge(Clk) then
-      if Rst = '0' then
-        rd_ack1_int <= '0';
-      else
-        reg_rdat_int <= (others => '0');
-        case VMEAddr(14 downto 13) is
-        when "00" => 
-        when "01" => 
-        when others =>
-          reg_rdat_int <= (others => 'X');
-          rd_ack1_int <= VMERdMem;
-        end case;
-      end if;
-    end if;
+  process (wr_adr_d0, wr_req_d0, subMap1_VMEWrDone_i, subMap2_VMEWrDone_i) begin
+    subMap1_VMEWrMem_o <= '0';
+    subMap2_VMEWrMem_o <= '0';
+    case wr_adr_d0(14 downto 13) is
+    when "00" => 
+      -- Submap subMap1
+      subMap1_VMEWrMem_o <= wr_req_d0;
+      wr_ack_int <= subMap1_VMEWrDone_i;
+    when "01" => 
+      -- Submap subMap2
+      subMap2_VMEWrMem_o <= wr_req_d0;
+      wr_ack_int <= subMap2_VMEWrDone_i;
+    when others =>
+      wr_ack_int <= wr_req_d0;
+    end case;
   end process;
 
   -- Process for read requests.
-  process (VMEAddr, reg_rdat_int, rd_ack1_int, VMERdMem, VMERdMem, subMap1_VMERdData_i, subMap1_VMERdDone_i, VMERdMem, subMap2_VMERdData_i, subMap2_VMERdDone_i) begin
+  process (VMEAddr, VMERdMem, subMap1_VMERdData_i, subMap1_VMERdDone_i, subMap2_VMERdData_i, subMap2_VMERdDone_i) begin
     -- By default ack read requests
-    VMERdData <= (others => '0');
+    rd_dat_d0 <= (others => 'X');
     subMap1_VMERdMem_o <= '0';
     subMap2_VMERdMem_o <= '0';
     case VMEAddr(14 downto 13) is
     when "00" => 
       -- Submap subMap1
       subMap1_VMERdMem_o <= VMERdMem;
-      VMERdData <= subMap1_VMERdData_i;
-      rd_ack_int <= subMap1_VMERdDone_i;
+      rd_dat_d0 <= subMap1_VMERdData_i;
+      rd_ack_d0 <= subMap1_VMERdDone_i;
     when "01" => 
       -- Submap subMap2
       subMap2_VMERdMem_o <= VMERdMem;
-      VMERdData <= subMap2_VMERdData_i;
-      rd_ack_int <= subMap2_VMERdDone_i;
+      rd_dat_d0 <= subMap2_VMERdData_i;
+      rd_ack_d0 <= subMap2_VMERdDone_i;
     when others =>
-      rd_ack_int <= VMERdMem;
+      rd_ack_d0 <= VMERdMem;
     end case;
   end process;
 end syn;
