@@ -35,7 +35,64 @@ rst_sync = True
 
 class Ibus(object):
     "Internal signals"
-    pass
+    def __init__(self):
+        # Size
+        self.data_size = None
+        self.addr_size = None
+        self.addr_low = None
+        # Read signals (in and out)
+        self.rd_req = None
+        self.rd_ack = None
+        self.rd_dat = None
+        self.rd_adr = None
+        # Write signals (in and out)
+        self.wr_req = None
+        self.wr_ack = None
+        self.wr_dat = None
+        self.wr_adr = None
+
+    def pipeline(self, root, module, conds, suffix):
+        if not conds:
+            # No pipelining.
+            return self
+        res = Ibus()
+        names = []
+        c = 'rd-in' in conds
+        names.extend([('rd_req', c, 'i', None, None),
+                      ('rd_adr', c, 'i', self.addr_size, self.addr_low)])
+        c = 'rd-out' in conds
+        names.extend([('rd_ack', c, 'o', None, None),
+                      ('rd_dat', c, 'o', self.data_size, 0)])
+        c = 'wr-in' in conds
+        names.extend([('wr_req', c, 'i', None, None),
+                      ('wr_adr', c, 'i', self.addr_size, self.addr_low),
+                      ('wr_dat', c, 'i', self.data_size, 0)])
+        c = 'wr-out' in conds
+        names.extend([('wr_ack', c, 'o', None, None)])
+        module.stmts.append(HDLComment("pipelining for {}".format('+'.join(conds))))
+        proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'],
+                       rst_sync=rst_sync)
+        for n, c, d, sz, lo in names:
+            sig = getattr(self, n)
+            if c:
+                w = module.new_HDLSignal(n + suffix, sz, lo)
+                if w.size is None:
+                    if d == 'i':
+                        asgn = HDLAssign(w, bit_0)
+                    else:
+                        asgn = HDLAssign(sig, bit_0)
+                    proc.rst_stmts.append(asgn)
+                if d == 'i':
+                    asgn = HDLAssign(w, sig)
+                else:
+                    asgn = HDLAssign(sig, w)
+                proc.sync_stmts.append(asgn)
+            else:
+                w = sig
+            setattr(res, n, w)
+        module.stmts.append(proc)
+        
+        return res
 
 
 def add_bus(root, module, bus):
@@ -116,14 +173,20 @@ class WBBus(BusGen):
         module.stmts.append(proc)
         return HDLAnd(stb, HDLNot(wb_xip))
 
-    def add_decode_wb(self, root, module, ibus):
+    def add_decode_wb(self, root, module, ibus, busgroup):
         "Generate internal signals used by decoder/processes from WB bus."
+        ibus.addr_size = root.c_addr_bits
+        ibus.addr_low = root.c_addr_word_bits
+        ibus.data_size = root.c_word_bits
         ibus.clk = root.h_bus['clk']
         ibus.rst = root.h_bus['rst']
         ibus.rd_dat = root.h_bus['dato']
         ibus.wr_dat = root.h_bus['dati']
-        ibus.rd_adr = root.h_bus['adr']
-        ibus.wr_adr = root.h_bus['adr']
+        addr = root.h_bus['adr']
+        if busgroup:
+            addr = HDLSlice(addr, ibus.addr_low, ibus.addr_size)
+        ibus.rd_adr = addr
+        ibus.wr_adr = addr
         ibus.rd_req = module.new_HDLSignal('rd_req_int')    # Read access
         ibus.wr_req = module.new_HDLSignal('wr_req_int')    # Write access
         ibus.rd_ack = module.new_HDLSignal('rd_ack_int')    # Ack for read
@@ -233,7 +296,7 @@ class WBBus(BusGen):
 
         # Bus access
         module.stmts.append(HDLComment('WB decode signals'))
-        self.add_decode_wb(root, module, ibus)
+        self.add_decode_wb(root, module, ibus, busgroup is True)
 
     def gen_bus_slave(self, root, module, prefix, n, busgroup):
         n.h_busgroup = busgroup
@@ -381,6 +444,9 @@ class AXI4LiteBus(BusGen):
             root.c_addr_bits, root.c_addr_word_bits, root.c_word_bits, False))
         add_bus(root, module, bus)
         root.h_bussplit = True
+        ibus.addr_size = root.c_addr_bits
+        ibus.addr_low = root.c_addr_word_bits
+        ibus.data_size = root.c_word_bits
         ibus.rst = root.h_bus['rst']
         ibus.clk = root.h_bus['clk']
 
@@ -584,6 +650,9 @@ class CERNBEBus(BusGen):
             self.split, self.buserr, False))
         add_bus(root, module, bus)
         root.h_bussplit = self.split
+        ibus.addr_size = root.c_addr_bits
+        ibus.addr_low = root.c_addr_word_bits
+        ibus.data_size = root.c_word_bits
         ibus.clk = root.h_bus['clk']
         ibus.rst = root.h_bus['rst']
         ibus.rd_dat = root.h_bus['dato']
@@ -1499,6 +1568,9 @@ def generate_hdl(root):
         root.h_itf = None
         root.h_ports = module
     add_ports(root, module, root)
+
+    if root.hdl_pipeline:
+        ibus = ibus.pipeline(root, module, root.hdl_pipeline, '_d0')
 
     # Add internal processes + wires
     root.h_ram = None

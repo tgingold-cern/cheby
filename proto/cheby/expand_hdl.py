@@ -72,12 +72,43 @@ def expand_x_hdl_field(f, n, dct):
         expand_x_hdl_field_kv(f, n, k, v)
 
 
+def expand_pipeline(n, v):
+    s = parser.read_text(n, 'pipeline', v)
+    els = s.split(',')
+    vals = {'none': [],
+            'in': ['rd-in', 'wr-in'],
+            'out': ['rd-out', 'wr-out'],
+            'rd': ['rd-in', 'rd-out'],
+            'wr': ['wr-in', 'wr-out'],
+            'rd-in': ['rd-in'],
+            'rd-out': ['rd-out'],
+            'wr-in': ['wr-in'],
+            'wr-out': ['wr-out']}
+    # Check values.
+    for e in els:
+        if e not in vals:
+            parser.error("unhandled '{}' in x-hdl/pipeline of {}".format(
+                         e, n.get_path()))
+    # Compute res.
+    res = set()
+    if 'none' in els:
+        if len(els) != 1:
+            parser.error("'none' can only be alone in x-hdl/pipeline of {}".format(
+                         n.get_path()))
+        return []
+    for e in els:
+        res.update(vals[e])
+    return list(res)
+
 def expand_x_hdl_root(n, dct):
-    for k, _ in dct.items():
+    n.hdl_pipeline = ['wr-in', 'wr-out']
+    for k, v in dct.items():
         if k in ['busgroup', 'iogroup', 'reg_prefix', 'block_prefix']:
             pass
+        elif k == 'pipeline':
+            n.hdl_pipeline = expand_pipeline(n, v)
         else:
-            parser.error("unhandled '{}' in x-hdl of {}".format(
+            parser.error("unhandled '{}' in x-hdl of root {}".format(
                          k, n.get_path()))
 
 
