@@ -229,6 +229,20 @@ register.  This creates shorter names.
 
 `block_prefix`:: If false, discard block prefix.
 
+`pipeline`:: Finely define the pipelining.  In case of timing closure issues,
+you can set this value to "all".  Possible values are "rd-in", "rd-out",
+"wr-in", "wr-out".  Values starting with "wr-" act on signals for write
+commands, while values starting with "rd-" act on signals for read commands.
+Values finishing with "-in" acts on input signals, while values finishing
+with "-out" acts on output signals.  So for example "wr-in" adds a
+registers on input signals for write commands.  It is possible to use a
+set of values separated by commas.  The default is "wr-in,rd-out".
+There are also aliases: "wr" is for "wr-in,wr-out", "rd" for "rd-in,rd-out",
+"in" for "wr-in,rd-in", "out" for "wr-out,rd-out" and "all" for all the
+values.  Finally it is possible to use "none" not to use any pipelining.
+The pipelining is a single barrier of registers inserted on an internal bus,
+which is created from the external bus.
+
 === Registers
 
 A register uses one (usual case) or two (for 64-bit registers) words address.
