@@ -1,0 +1,35 @@
+memory-map:
+  bus: BUS
+  name: reg2pip_NAME
+  description: a single register
+  x-hdl:
+    pipeline: wr-in
+  children:
+    - reg:
+        name: reg1
+        width: 32
+        access: rw
+        type: unsigned
+        preset: 0xabcd1234
+    - reg:
+        name: rwo_sa
+        access: wo
+        width: 32
+        x-hdl:
+          write-strobe: True
+          write-ack: True
+    - reg:
+        name: wwo_st
+        access: wo
+        width: 32
+        x-hdl:
+          type: wire
+          write-strobe: True
+    - reg:
+        name: wwo_sa
+        access: wo
+        width: 32
+        x-hdl:
+          type: wire
+          write-strobe: True
+          write-ack: True
