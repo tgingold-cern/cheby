@@ -178,7 +178,7 @@ begin
     wb_in.dat <= x"87654321";
     wait until rising_edge(clk);
     assert wwo_st_wr_count = 1 severity error;
-    assert wwo_st = x"87654321" severity error;
+    --  assert wwo_st = x"87654321" severity error; -- direct wiring
     assert wwo_st_val = x"1234_000c" severity error;
 
     --  Test wwo_sa register
@@ -188,7 +188,7 @@ begin
     wb_in.dat <= x"87654321";
     wait until rising_edge(clk);
     assert wwo_sa_wr_count = 1 severity error;
-    assert wwo_sa = x"87654321" severity error;
+    --  assert wwo_sa = x"87654321" severity error; -- direct wiring
     assert wwo_sa_val = x"1234_0010" severity error;
 
     end_of_test <= true;

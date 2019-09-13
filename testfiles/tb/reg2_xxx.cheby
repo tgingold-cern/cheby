@@ -2,6 +2,8 @@ memory-map:
   bus: BUS
   name: reg2_NAME
   description: a single register
+  x-hdl:
+    pipeline: none
   children:
     - reg:
         name: reg1

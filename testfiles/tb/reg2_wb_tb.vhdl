@@ -208,7 +208,7 @@ begin
     wait until rising_edge(clk);
     assert rwo_sa_wr_count = 1 severity error;
     assert rwo_sa = x"1234_0010" severity error;
-    assert rwo_sa_val = x"1234_0010" severity warning; --  FIXME
+    assert rwo_sa_val = x"1234_0010" severity error;
 
     --  Test wwo_st register
     assert wwo_st_wr_count = 0 severity error;
@@ -217,7 +217,7 @@ begin
     wb_in.dat <= x"87654321";
     wait until rising_edge(clk);
     assert wwo_st_wr_count = 1 severity error;
-    assert wwo_st = x"87654321" severity error;
+    assert wwo_st = x"87654321" severity error; --  Check direct wiring.
     assert wwo_st_val = x"1234_0014" severity error;
 
     --  Test wwo_sa register
