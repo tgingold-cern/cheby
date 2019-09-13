@@ -1,3 +1,4 @@
+import types
 from cheby.layout import ilog2
 import cheby.tree as tree
 from cheby.hdltree import (HDLComponent, HDLComponentSpec,
@@ -1143,7 +1144,7 @@ def gen_hdl_area_decls(area, pfx, root, module, isigs):
             if include is not None:
                 el.h_has_external = (include == 'external')
 
-                el_isigs = gen_hdl.Isigs()
+                el_isigs = types.SimpleNamespace()
                 npfx = pfx + el.name + '_'
                 if el.h_has_external:
                     gen_hdl_ext_bus(
@@ -1360,6 +1361,9 @@ def gen_hdl_misc_root(root, module, isigs):
 def gen_gena_regctrl(root, use_common_visual):
     module = gen_hdl.gen_hdl_header(root)
     module.name = 'RegCtrl_{}'.format(root.name)
+    if not root.h_bussplit:
+        root.h_bus['adrr'] = root.h_bus['adr']
+        root.h_bus['adrw'] = root.h_bus['adr']
 
     # Depends on CommonVisual
     root.h_common_visual = use_common_visual
@@ -1375,7 +1379,7 @@ def gen_gena_regctrl(root, use_common_visual):
     lib = get_gena_gen(root, 'vhdl-library', 'work')
     module.deps.append((lib, 'MemMap_{}'.format(root.name)))
 
-    isigs = gen_hdl.Isigs()
+    isigs = types.SimpleNamespace()
     isigs.Loc_VMERdMem = HDLSignal('Loc_VMERdMem', 3)
     isigs.Loc_VMEWrMem = HDLSignal('Loc_VMEWrMem', 2)
     module.decls.extend([isigs.Loc_VMERdMem, isigs.Loc_VMEWrMem])
