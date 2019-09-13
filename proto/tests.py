@@ -1,4 +1,4 @@
-#! /usr/bin/env python
+#! /usr/bin/env python3
 """Simple test program"""
 import sys
 import os
@@ -27,6 +27,7 @@ srcdir = os.path.join(os.path.dirname(os.path.realpath(__file__)),
                       '../testfiles/')
 verbose = False
 flag_regen = False
+flag_keep = False
 nbr_tests = 0
 
 
@@ -40,7 +41,10 @@ def werr(str):
 
 
 def error(msg):
-    raise TestError('error: {}'.format(msg))
+    if flag_keep:
+        werr('error: {}'.format(msg))
+    else:
+        raise TestError('error: {}'.format(msg))
 
 
 class write_null(object):
@@ -187,7 +191,9 @@ def compare_buffer_and_file(buf, filename):
     nlines = len(buf_lines)
     if nlines != len(ref_lines):
         werr('Number of lines mismatch')
-        return
+        return False
+    if flag_keep:
+        return False
     for i in range(nlines):
         if buf_lines[i] == ref_lines[i]:
             print('=' + buf_lines[i])
@@ -573,13 +579,15 @@ def test_custom():
 
 
 def main():
-    global verbose, flag_regen
+    global verbose, flag_regen, flag_keep
 
     # Crude
     if '-v' in sys.argv[1:]:
         verbose = True
     if '--regen' in sys.argv[1:]:
         flag_regen = True
+    if '-k' in sys.argv[1:]:
+        flag_keep = True
 
     try:
         test_self()
