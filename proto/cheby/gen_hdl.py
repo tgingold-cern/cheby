@@ -57,24 +57,32 @@ class Ibus(object):
             return self
         res = Ibus()
         names = []
-        c = 'rd-in' in conds
-        names.extend([('rd_req', c, 'i', None, None),
-                      ('rd_adr', c, 'i', self.addr_size, self.addr_low)])
-        c = 'rd-out' in conds
-        names.extend([('rd_ack', c, 'o', None, None),
-                      ('rd_dat', c, 'o', self.data_size, 0)])
-        c = 'wr-in' in conds
-        names.extend([('wr_req', c, 'i', None, None),
-                      ('wr_adr', c, 'i', self.addr_size, self.addr_low),
-                      ('wr_dat', c, 'i', self.data_size, 0)])
-        c = 'wr-out' in conds
-        names.extend([('wr_ack', c, 'o', None, None)])
+        c_ri = 'rd-in' in conds
+        names.extend([('rd_req', c_ri, 'i', None, None),
+                      ('rd_adr', c_ri, 'i', self.addr_size, self.addr_low)])
+        c_ro = 'rd-out' in conds
+        names.extend([('rd_ack', c_ro, 'o', None, None),
+                      ('rd_dat', c_ro, 'o', self.data_size, 0)])
+        c_wi = 'wr-in' in conds
+        copy_wa = (self.rd_adr == self.wr_adr) and (c_wi == c_ri)
+        names.extend([('wr_req', c_wi, 'i', None, None),
+                      ('wr_adr', c_wi, 'i', self.addr_size, self.addr_low),
+                      ('wr_dat', c_wi, 'i', self.data_size, 0)])
+        c_wo = 'wr-out' in conds
+        names.extend([('wr_ack', c_wo, 'o', None, None)])
         module.stmts.append(HDLComment("pipelining for {}".format('+'.join(conds))))
         proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'],
                        rst_sync=rst_sync)
         for n, c, d, sz, lo in names:
+            if n == 'wr_adr' and copy_wa:
+                # If wr_adr == rd_adr in both self and future res, do not create a signal,
+                # simply copy it.
+                continue
             sig = getattr(self, n)
-            if c:
+            if sig is None:
+                # Address signals may not exist.
+                w = None
+            elif c:
                 w = module.new_HDLSignal(n + suffix, sz, lo)
                 if w.size is None:
                     if d == 'i':
@@ -90,8 +98,10 @@ class Ibus(object):
             else:
                 w = sig
             setattr(res, n, w)
+        if copy_wa:
+            res.wr_adr = res.rd_adr
         module.stmts.append(proc)
-        
+
         return res
 
 
@@ -650,22 +660,22 @@ class CERNBEBus(BusGen):
             self.split, self.buserr, False))
         add_bus(root, module, bus)
         root.h_bussplit = self.split
-        ibus.addr_size = root.c_addr_bits
-        ibus.addr_low = root.c_addr_word_bits
-        ibus.data_size = root.c_word_bits
-        ibus.clk = root.h_bus['clk']
-        ibus.rst = root.h_bus['rst']
-        ibus.rd_dat = root.h_bus['dato']
-        ibus.wr_dat = root.h_bus['dati']
+        if ibus is not None:
+            ibus.addr_size = root.c_addr_bits
+            ibus.addr_low = root.c_addr_word_bits
+            ibus.data_size = root.c_word_bits
+            ibus.clk = root.h_bus['clk']
+            ibus.rst = root.h_bus['rst']
+            ibus.rd_dat = root.h_bus['dato']
+            ibus.wr_dat = root.h_bus['dati']
 
-        if self.split:
-            ibus.rd_adr = root.h_bus['adrr']
-            ibus.wr_adr = root.h_bus['adrw']
-        else:
-            ibus.rd_adr = root.h_bus['adr']
-            ibus.wr_adr = root.h_bus['adr']
+            if self.split:
+                ibus.rd_adr = root.h_bus['adrr']
+                ibus.wr_adr = root.h_bus['adrw']
+            else:
+                ibus.rd_adr = root.h_bus['adr']
+                ibus.wr_adr = root.h_bus['adr']
 
-        if ibus:
             self.add_decode_cern_be_vme(root, module, ibus)
 
     def gen_bus_slave(self, root, module, prefix, n, busgroup):
@@ -802,8 +812,7 @@ class SRAMBus(BusGen):
                      HDLSlice(ibus.wr_adr, root.c_addr_word_bits, n.c_addr_bits)))
 
     def write_bus_slave(self, root, stmts, n, proc, ibus):
-        proc.rst_stmts.append(HDLAssign(n.h_bus['wr'], bit_0))
-        proc.sync_stmts.append(HDLAssign(n.h_bus['wr'], bit_0))
+        proc.stmts.append(HDLAssign(n.h_bus['wr'], bit_0))
         stmts.append(HDLAssign(n.h_bus['wr'], ibus.wr_req))
         stmts.append(HDLAssign(ibus.wr_ack, ibus.wr_req))
 
@@ -1057,7 +1066,7 @@ def add_processes_array(root, module, ibus, arr):
         module.stmts.append(proc)
 
         # Handle R & W accesses (priority to W)
-        module.stmts.append(HDLAssign(arr.h_wreq, 
+        module.stmts.append(HDLAssign(arr.h_wreq,
             functools.reduce(HDLOr, [r.h_sig_wr for r in arr.children])))
         rreq = functools.reduce(HDLOr, [r.h_rreq for r in arr.children])
         module.stmts.append(HDLAssign(arr.h_rr,
@@ -1495,7 +1504,7 @@ def add_write_mux_process(root, module, ibus):
                     if off == 0:
                         wrproc.sensitivity.append(wack)
                     wack = strobe_index(root, n, off, wack)
-                else:                    
+                else:
                     wack = ibus.wr_req
                 s.append(HDLAssign(ibus.wr_ack, wack))
             elif isinstance(n, tree.Submap):
@@ -1535,15 +1544,14 @@ def name_to_busgen(name):
         raise AssertionError("Unhandled bus '{}'".format(name))
 
 
-def gen_hdl_header(root, ibus):
+def gen_hdl_header(root, ibus=None):
+    # Note: also called from gen_gena_regctrl but without ibus.
     module = HDLModule()
     module.name = root.name
 
     # Create the bus
     root.h_busgen = name_to_busgen(root.bus)
     root.h_busgen.expand_bus(root, module, ibus)
-
-    ibus.bussplit = root.h_bussplit
 
     return module
 
