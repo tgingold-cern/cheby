@@ -1423,9 +1423,10 @@ def add_read_mux_process(root, module, ibus):
                         rdproc.stmts.append(HDLAssign(n.h_rreq_port, v))
                 # Ack
                 if n.h_rack_port is not None:
-                    rack = strobe_index(root, n, off, n.h_rack_port)
+                    rack = n.h_rack_port
                     if off == 0:
                         rdproc.sensitivity.append(rack)
+                    rack = strobe_index(root, n, off, rack)
                 else:
                     rack = ibus.rd_req
                 s.append(HDLAssign(rd_ack, rack))
