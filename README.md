@@ -34,6 +34,10 @@ Please note that the documentation build process requires
 
 To create a new release:
 
+* Run cheby tests (proto/tests.py)
+
+* Run simulation tests (testfiles/tb)
+
 * document changes and issues in this README.md file
 
 * increase the version in cheby/__init__.py and in doc/cheby-ug.txt
@@ -47,6 +51,8 @@ To create a new release:
 * Update the wiki at https://gitlab.cern.ch/cohtdrivers/cheby/wikis/home
 
 ## Version 1.4
+
+Add x-hdl:pipeline to control pipelining of the root.
 
 ## Version 1.3
 
