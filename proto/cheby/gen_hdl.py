@@ -30,11 +30,18 @@ from cheby.layout import ilog2
 
 dirname = {'IN': 'i', 'OUT': 'o'}
 
+# Used by all HDLSync processes.
+# When true, the flip-flop reset is synchronous.
 rst_sync = True
 
 
 class Ibus(object):
-    "Internal signals"
+    """Internal bus.
+       This bus is used internally to connect elements.
+       This is a very simple bus: A pulse is sent on the *_req wire, and the transaction is finished
+       when a pulse is received on the *_ack wire.  Can be combinational.  The address must be
+       stable during the transaction.
+    """
     def __init__(self):
         # Size
         self.data_size = None
