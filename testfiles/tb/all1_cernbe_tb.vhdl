@@ -43,14 +43,6 @@ begin
     end if;
   end process;
 
-  --  Watchdog
-  process
-  begin
-    wait until end_of_test for 2 us;
-    assert end_of_test report "Timeout" severity error;
-    wait;
-  end process;
-
   rst_n <= '0' after 0 ns, '1' after 20 ns;
 
   dut : entity work.all1_cernbe
@@ -219,7 +211,7 @@ begin
   --  Watchdog.
   process
   begin
-    wait until end_of_test for 2 us;
+    wait until end_of_test for 3 us;
     assert end_of_test report "timeout" severity failure;
     wait;
   end process;

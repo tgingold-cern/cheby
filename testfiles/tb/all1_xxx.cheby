@@ -1,8 +1,9 @@
 memory-map:
-  bus: xxx
+  bus: BUS
   name: all1_NAME
   x-hdl:
     busgroup: True
+    pipeline: PIPELINE
   children:
   - reg:
       name: reg1

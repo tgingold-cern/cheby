@@ -216,7 +216,7 @@ begin
   --  Watchdog.
   process
   begin
-    wait until end_of_test for 2 us;
+    wait until end_of_test for 3 us;
     assert end_of_test report "timeout" severity failure;
     wait;
   end process;
