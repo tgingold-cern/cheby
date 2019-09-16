@@ -973,15 +973,6 @@ def add_ports_array(root, module, arr):
         root, module, arr.c_name + '_adr', arr.h_addr_width, 'IN')
     arr.h_addr.comment = "RAM port for {}".format(arr.c_name)
 
-    if root.h_bussplit:
-        # Read request and Write request.  Priority for the write.
-        arr.h_wr = module.new_HDLSignal(arr.c_name + '_wr')
-        arr.h_rr = module.new_HDLSignal(arr.c_name + '_rr')
-        # Any write request
-        arr.h_wreq = module.new_HDLSignal(arr.c_name + '_wreq')
-        arr.h_adr_int = module.new_HDLSignal(arr.c_name + '_adr_int',
-                                             arr.h_addr_width)
-
 
 def add_ports_array_reg(root, module, reg):
     """Create ports and wires for a ram.
@@ -1052,7 +1043,16 @@ def add_processes_array(root, module, ibus, arr):
     if root.h_ram is None:
         module.deps.append(('work', 'wbgen2_pkg'))
         root.h_ram = True
-    if root.h_bussplit:
+
+    if ibus.wr_adr != ibus.rd_adr:
+        # Read request and Write request.  Priority for the write.
+        arr.h_wr = module.new_HDLSignal(arr.c_name + '_wr')
+        arr.h_rr = module.new_HDLSignal(arr.c_name + '_rr')
+        # Any write request
+        arr.h_wreq = module.new_HDLSignal(arr.c_name + '_wreq')
+        arr.h_adr_int = module.new_HDLSignal(arr.c_name + '_adr_int',
+                                             arr.h_addr_width)
+                                            
         # Create a mux for the ram address
         proc = HDLComb()
         proc.sensitivity.extend([ibus.rd_adr, ibus.wr_adr, arr.h_wr])
@@ -1071,6 +1071,8 @@ def add_processes_array(root, module, ibus, arr):
         module.stmts.append(HDLAssign(arr.h_rr,
             HDLAnd(rreq, HDLNot(arr.h_wreq))))
         module.stmts.append(HDLAssign(arr.h_wr, arr.h_wreq))
+    else:
+        arr.h_adr_int = None
 
 
 def add_processes_array_reg(root, module, ibus, reg):
@@ -1085,7 +1087,7 @@ def add_processes_array_reg(root, module, ibus, reg):
     inst.params.append(("g_use_bwsel", HDLBool(False)))
     inst.conns.append(("clk_a_i", root.h_bus['clk']))
     inst.conns.append(("clk_b_i", root.h_bus['clk']))
-    if root.h_bussplit:
+    if arr.h_adr_int is not None:
         adr_int = arr.h_adr_int
     else:
         adr_int = HDLSlice(ibus.rd_adr, root.c_addr_word_bits, arr.h_addr_width)
