@@ -1,6 +1,6 @@
 test-v2:
     stage: build
-    image: python:2
+    image: python:3
     script:
     - python -V
     - pip install pyyaml
