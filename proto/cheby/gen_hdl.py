@@ -617,9 +617,8 @@ class CERNBEBus(BusGen):
         CERN-BE-VME bus."""
         ibus.rd_req = root.h_bus['rd']
         ibus.wr_req = root.h_bus['wr']
-        ibus.rd_ack = HDLSignal('rd_ack_int')    # Ack for read
-        ibus.wr_ack = HDLSignal('wr_ack_int')    # Ack for write
-        module.decls.extend([ibus.rd_ack, ibus.wr_ack])
+        ibus.rd_ack = module.new_HDLSignal('rd_ack_int')    # Ack for read
+        ibus.wr_ack = module.new_HDLSignal('wr_ack_int')    # Ack for write
         module.stmts.append(HDLAssign(root.h_bus['rack'], ibus.rd_ack))
         module.stmts.append(HDLAssign(root.h_bus['wack'], ibus.wr_ack))
 
@@ -711,7 +710,7 @@ class CERNBEBus(BusGen):
         if root.h_bussplit:
             # Handle read requests.
             proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_sync=rst_sync)
-            # Writerequests set on WE, clear by RdDone
+            # Write requests set on WE, clear by RdDone
             proc.sync_stmts.append(HDLAssign(n.h_wr,
                 HDLAnd(HDLOr(n.h_wr, n.h_we), HDLNot(n.h_bus['wack']))))
             proc.rst_stmts.append(HDLAssign(n.h_wr, bit_0))
