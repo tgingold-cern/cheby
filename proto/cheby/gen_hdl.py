@@ -147,7 +147,7 @@ class BusGen(object):
         """Create an interface to a slave (Add declarations)"""
         raise AssertionError("Not implemented")
 
-    def wire_bus_slave(self, root, stmts, n, ibus):
+    def wire_bus_slave(self, root, module, n, ibus):
         """Create HDL for the interface (Assignments)"""
         raise AssertionError("Not implemented")
 
@@ -344,7 +344,8 @@ class WBBus(BusGen):
                             HDLReplicate(bit_0, root.c_addr_word_bits, False))
         return res
 
-    def wire_bus_slave(self, root, stmts, n, ibus):
+    def wire_bus_slave(self, root, module, n, ibus):
+        stmts = module.stmts
         stmts.append(HDLComment("Assignments for submap {}".format(n.name)))
         stmts.append(HDLAssign(n.h_tr, HDLOr(n.h_wt, n.h_rt)))
         proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_sync=rst_sync)
@@ -552,7 +553,8 @@ class AXI4LiteBus(BusGen):
         n.h_rd = module.new_HDLSignal(prefix + 'rd')
         n.h_wr = module.new_HDLSignal(prefix + 'wr')
 
-    def wire_bus_slave(self, root, stmts, n, ibus):
+    def wire_bus_slave(self, root, module, n, ibus):
+        stmts = module.stmts
         stmts.append(HDLComment("Assignments for submap {}".format(n.name)))
         stmts.append(HDLAssign(n.h_bus['awvalid'], n.h_aw_val))
         stmts.append(HDLAssign(
@@ -703,7 +705,20 @@ class CERNBEBus(BusGen):
             n.h_wt = module.new_HDLSignal(prefix + 'wt')
             n.h_rt = module.new_HDLSignal(prefix + 'rt')
 
-    def wire_bus_slave(self, root, stmts, n, ibus):
+    def gen_adr_mux(self, root, module, n, ibus):
+        # Mux for addresses.
+        proc = HDLComb()
+        proc.sensitivity.extend([ibus.rd_adr, ibus.wr_adr, n.h_wt, n.h_ws])
+        if_stmt = HDLIfElse(HDLEq(HDLOr(n.h_ws, n.h_wt), bit_1))
+        if_stmt.then_stmts.append(HDLAssign(n.h_bus['adr'],
+                           HDLSlice(ibus.wr_adr, root.c_addr_word_bits, n.c_addr_bits)))
+        if_stmt.else_stmts.append(HDLAssign(n.h_bus['adr'],
+                           HDLSlice(ibus.rd_adr, root.c_addr_word_bits, n.c_addr_bits)))
+        proc.stmts.append(if_stmt)
+        module.stmts.append(proc)
+
+    def wire_bus_slave(self, root, module, n, ibus):
+        stmts = module.stmts
         stmts.append(HDLComment("Assignments for submap {}".format(n.name)))
         stmts.append(HDLAssign(n.h_bus['dati'], ibus.wr_dat))
 
@@ -735,15 +750,17 @@ class CERNBEBus(BusGen):
             stmts.append(HDLAssign(n.h_ws,
                 HDLAnd(n.h_wr, HDLNot(HDLOr(n.h_rt, n.h_wt)))))
             # Mux for addresses.
-            proc = HDLComb()
-            proc.sensitivity.extend([ibus.rd_adr, ibus.wr_adr, n.h_wt, n.h_ws])
-            if_stmt = HDLIfElse(HDLEq(HDLOr(n.h_ws, n.h_wt), bit_1))
-            if_stmt.then_stmts.append(HDLAssign(n.h_bus['adr'],
-                               HDLSlice(ibus.wr_adr, root.c_addr_word_bits, n.c_addr_bits)))
-            if_stmt.else_stmts.append(HDLAssign(n.h_bus['adr'],
-                               HDLSlice(ibus.rd_adr, root.c_addr_word_bits, n.c_addr_bits)))
-            proc.stmts.append(if_stmt)
-            stmts.append(proc)
+            self.gen_adr_mux(root, module, n, ibus)
+        elif ibus.rd_adr != ibus.wr_adr:
+            n.h_ws = module.new_HDLSignal(n.c_name + '_ws')
+            n.h_wt = module.new_HDLSignal(n.c_name + '_wt')
+            proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_sync=rst_sync)
+            proc.sync_stmts.append(HDLAssign(n.h_wt, n.h_ws))
+            proc.rst_stmts.append(HDLAssign(n.h_wt, bit_0))
+            module.stmts.append(HDLAssign(n.h_ws,
+                HDLOr(ibus.wr_req, HDLParen(HDLAnd(n.h_wt, HDLNot(ibus.rd_req))))))
+            # Mux for addresses.
+            self.gen_adr_mux(root, module, n, ibus)
         else:
             stmts.append(HDLAssign(n.h_bus['adr'],
                                 HDLSlice(ibus.rd_adr, root.c_addr_word_bits, n.c_addr_bits)))
@@ -799,7 +816,8 @@ class SRAMBus(BusGen):
         n.h_bus['rack'] = module.new_HDLSignal(prefix + 'rack')
         n.h_bus['re'] = module.new_HDLSignal(prefix + 're')
 
-    def wire_bus_slave(self, root, stmts, n, ibus):
+    def wire_bus_slave(self, root, module, n, ibus):
+        stmts = module.stmts
         proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_sync=rst_sync)
         proc.rst_stmts.append(HDLAssign(n.h_bus['rack'], bit_0))
         proc.sync_stmts.append(HDLAssign(n.h_bus['rack'],
@@ -1207,7 +1225,6 @@ def add_processes_regs(root, module, ibus, n):
 
 def add_processes(root, module, ibus, node):
     """Create assignment from register to outputs."""
-    stmts = module.stmts
     for n in node.children:
         if isinstance(n, tree.Block):
             add_processes(root, module, ibus, n)
@@ -1215,7 +1232,7 @@ def add_processes(root, module, ibus, node):
             if n.interface == 'include':
                 add_processes(root, module, ibus, n.c_submap)
             else:
-                n.h_busgen.wire_bus_slave(root, stmts, n, ibus)
+                n.h_busgen.wire_bus_slave(root, module, n, ibus)
         elif isinstance(n, tree.Array):
             add_processes_array(root, module, ibus, n)
             for c in n.children:
