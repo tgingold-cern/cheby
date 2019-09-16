@@ -59,6 +59,9 @@ class Ibus(object):
         self.wr_adr = None
 
     def pipeline(self, root, module, conds, suffix):
+        """Create a new ibus by adding registers to self according to :param conds:
+           :param suffix: is used to create signals name.
+        """
         if not conds:
             # No pipelining.
             return self
@@ -880,8 +883,7 @@ def add_ports_reg(root, module, n):
 
         # Create the register (only for registers)
         if f.hdl_type == 'reg':
-            f.h_reg = HDLSignal(f.c_name + '_reg', w)
-            module.decls.append(f.h_reg)
+            f.h_reg = module.new_HDLSignal(f.c_name + '_reg', w)
             n.h_has_regs = True
         else:
             f.h_reg = None
@@ -939,8 +941,7 @@ def add_ports_reg(root, module, n):
 
     # Internal read port.
     if n.access in ['ro', 'rw'] and n.has_fields():
-        n.h_rint = HDLSignal(n.c_name + '_rint', n.c_rwidth)
-        module.decls.append(n.h_rint)
+        n.h_rint = module.new_HDLSignal(n.c_name + '_rint', n.c_rwidth)
     else:
         n.h_rint = None
 
@@ -1019,25 +1020,18 @@ def add_ports_array_reg(root, module, reg):
             root, module, reg.c_name + '_dat', reg.c_rwidth, 'OUT')
 
     nbr_bytes = reg.c_rwidth // tree.BYTE_SIZE
-    reg.h_sig_bwsel = HDLSignal(reg.c_name + '_int_bwsel', nbr_bytes)
-    module.decls.append(reg.h_sig_bwsel)
+    reg.h_sig_bwsel = module.new_HDLSignal(reg.c_name + '_int_bwsel', nbr_bytes)
 
     if reg.access == 'ro':
         raise AssertionError  # TODO
     else:
         # External port is RO.
-        reg.h_sig_dato = HDLSignal(reg.c_name + '_int_dato', reg.c_rwidth)
-        module.decls.append(reg.h_sig_dato)
-        reg.h_dat_ign = HDLSignal(reg.c_name + '_ext_dat', reg.c_rwidth)
-        module.decls.append(reg.h_dat_ign)
-        reg.h_rreq = HDLSignal(reg.c_name + '_rreq')
-        module.decls.append(reg.h_rreq)
-        reg.h_rack = HDLSignal(reg.c_name + '_rack')
-        module.decls.append(reg.h_rack)
-        reg.h_sig_wr = HDLSignal(reg.c_name + '_int_wr')
-        module.decls.append(reg.h_sig_wr)
-        reg.h_ext_wr = HDLSignal(reg.c_name + '_ext_wr')
-        module.decls.append(reg.h_ext_wr)
+        reg.h_sig_dato = module.new_HDLSignal(reg.c_name + '_int_dato', reg.c_rwidth)
+        reg.h_dat_ign = module.new_HDLSignal(reg.c_name + '_ext_dat', reg.c_rwidth)
+        reg.h_rreq = module.new_HDLSignal(reg.c_name + '_rreq')
+        reg.h_rack = module.new_HDLSignal(reg.c_name + '_rack')
+        reg.h_sig_wr = module.new_HDLSignal(reg.c_name + '_int_wr')
+        reg.h_ext_wr = module.new_HDLSignal(reg.c_name + '_ext_wr')
 
 
 def add_ports(root, module, node):
