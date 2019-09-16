@@ -44,6 +44,10 @@ architecture syn of mainMap2 is
   signal wr_req_d0                      : std_logic;
   signal wr_adr_d0                      : std_logic_vector(14 downto 2);
   signal wr_dat_d0                      : std_logic_vector(31 downto 0);
+  signal subMap1_ws                     : std_logic;
+  signal subMap1_wt                     : std_logic;
+  signal subMap2_ws                     : std_logic;
+  signal subMap2_wt                     : std_logic;
 begin
   VMERdDone <= rd_ack_int;
   VMEWrDone <= wr_ack_int;
@@ -66,11 +70,25 @@ begin
 
   -- Assignments for submap subMap1
   subMap1_VMEWrData_o <= wr_dat_d0;
-  subMap1_VMEAddr_o <= VMEAddr(12 downto 2);
+  subMap1_ws <= wr_req_d0 or (subMap1_wt and not VMERdMem);
+  process (VMEAddr, wr_adr_d0, subMap1_wt, subMap1_ws) begin
+    if (subMap1_ws or subMap1_wt) = '1' then
+      subMap1_VMEAddr_o <= wr_adr_d0(12 downto 2);
+    else
+      subMap1_VMEAddr_o <= VMEAddr(12 downto 2);
+    end if;
+  end process;
 
   -- Assignments for submap subMap2
   subMap2_VMEWrData_o <= wr_dat_d0;
-  subMap2_VMEAddr_o <= VMEAddr(12 downto 2);
+  subMap2_ws <= wr_req_d0 or (subMap2_wt and not VMERdMem);
+  process (VMEAddr, wr_adr_d0, subMap2_wt, subMap2_ws) begin
+    if (subMap2_ws or subMap2_wt) = '1' then
+      subMap2_VMEAddr_o <= wr_adr_d0(12 downto 2);
+    else
+      subMap2_VMEAddr_o <= VMEAddr(12 downto 2);
+    end if;
+  end process;
 
   -- Process for write requests.
   process (wr_adr_d0, wr_req_d0, subMap1_VMEWrDone_i, subMap2_VMEWrDone_i) begin
