@@ -32,12 +32,16 @@ class ConstsPrinter(object):
     def pr_size(self, n, sz):
         self.pr_dec_const(self.pr_name(n) + "_SIZE", sz)
 
+    def pr_version(self, n, nums):
+        v = (nums[0] << 16) | (nums[1] << 8) | nums[2]
+        self.pr_hex_const(self.pr_name(n) + "_VERSION", v)
+
     def pr_reg(self, n):
         if n.has_fields():
             return
         f = n.children[0]
-        if f.preset is not None:
-            self.pr_hex_const(self.pr_name(n) + '_PRESET', f.preset)
+        if f.c_preset is not None:
+            self.pr_hex_const(self.pr_name(n) + '_PRESET', f.c_preset)
 
     def pr_field_offset(self, f):
         self.pr_dec_const(self.pr_name(f) + "_OFFSET", f.lo)
@@ -202,6 +206,8 @@ def pconsts_composite(pr, n):
 @ConstsVisitor.register(tree.Root)
 def pconsts_root(pr, n):
     pr.printer.pr_size(n, n.c_size)
+    if n.version is not None:
+        pr.printer.pr_version(n, n.c_version)
     for el in n.children:
         pr.visit(el)
 

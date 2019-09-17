@@ -142,6 +142,8 @@ def cprint_composite(cp, n):
 
 @CPrinter.register(tree.Root)
 def cprint_root(cp, n):
+    if n.version:
+        cp.cp_txt("/* For {} version: {} */".format(n.name, n.version))
     cp.start_struct(n.name)
     cprint_composite(cp, n)
     cp.end_struct(None)

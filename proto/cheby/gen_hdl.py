@@ -940,7 +940,7 @@ def add_ports_reg(root, module, n):
         n.h_wreq = None
 
     # Internal read port.
-    if n.access in ['ro', 'rw'] and n.has_fields():
+    if n.access in ['ro', 'rw'] and (n.has_fields() or n.children[0].hdl_type == 'const'):
         n.h_rint = module.new_HDLSignal(n.c_name + '_rint', n.c_rwidth)
     else:
         n.h_rint = None
@@ -1181,7 +1181,7 @@ def add_processes_regs(root, module, ibus, n):
                         continue
                     # Reset code
                     if f.h_reg is not None and off == 0:
-                        v = 0 if f.preset is None else f.preset
+                        v = f.c_preset or 0
                         cst = HDLConst(v, f.c_iowidth if f.c_iowidth != 1 else None)
                         wrproc.rst_stmts.append(HDLAssign(f.h_reg, cst))
                     # Assign code
@@ -1216,7 +1216,7 @@ def add_processes_regs(root, module, ibus, n):
             elif f.h_iport is not None:
                 src = f.h_iport
             elif f.hdl_type == 'const':
-                src = HDLConst(f.preset, f.c_rwidth)
+                src = HDLConst(f.c_preset, f.c_rwidth)
             else:
                 raise AssertionError
             pad(f.lo)

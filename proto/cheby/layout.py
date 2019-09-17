@@ -120,9 +120,16 @@ def layout_field(f, parent, pos):
                 f, "field {} overlaps field {} in bit {}".format(
                     f.get_path(), pos[i].get_path(), i))
     # Check preset
-    if f.preset is not None and f.preset >= (1 << f.c_rwidth):
-        raise LayoutException(
-            f, "incorrect preset value for field {}".format(f.get_path()))
+    if f.preset is not None:
+        if isinstance(f.preset, str):
+            raise LayoutException(
+                f, "preset {} not allowed in field {}".format(f.preset, f.get_path()))
+        if f.preset >= (1 << f.c_rwidth):
+            raise LayoutException(
+                f, "incorrect preset value for field {}".format(f.get_path()))
+        f.c_preset = f.preset
+    else:
+        f.c_preset = None
 
 
 @Layout.register(tree.Reg)
@@ -213,7 +220,19 @@ def layout_reg(lo, n):
         n.children.append(f)
         f.name = None
         f.description = n.description
-        f.preset = n.preset
+        if n.preset == 'version':
+            if lo.root.version is None:
+                raise LayoutException(
+                    n, "cannot use 'preset: version' for register {} without a version at the root".format(
+                        n.get_path()))
+            if n.c_rwidth != 32:
+                raise LayoutException(
+                    n, "reg {}: can only use 'preset: version' when width=32".format(
+                        n.get_path()))
+            v = lo.root.c_version
+            f.c_preset = (v[0] << 16) | (v[1] << 8) | v[2]
+        else:
+            f.c_preset = n.preset
         f.lo = 0
         f.hi = n.c_rwidth - 1
         f.c_rwidth = n.c_rwidth
@@ -407,6 +426,22 @@ def layout_root(lo, root):
     layout_composite(lo, root)
 
 
+def layout_version(root):
+    nums = root.version.split('.')
+    if len(nums) != 3:
+        raise LayoutException(
+            root, "semantic version must be written as X.Y.Z")
+    nval = [int(x) for x in nums]
+    rstr = "{}.{}.{}".format(*nval)
+    if rstr != root.version:
+        raise LayoutException(
+            root, "semantic version must be written as X.Y.Z")
+    if any([v < 0 or v > 255 for v in nval]):
+        raise LayoutException(
+            root, "semantic version cannot be greater than 255")
+    root.c_version = nval
+
+
 def layout_cheby_memmap(root):
     flag_align_reg = True
     root.c_buserr = False
@@ -450,6 +485,10 @@ def layout_cheby_memmap(root):
             raise LayoutException(root, "incorrect word-endian value '{}'".format(
                 root.word_endian))
         root.c_word_endian = root.word_endian
+
+    # version
+    if root.version is not None:
+        layout_version(root)
 
     # Number of bits in the address used by a word
     root.c_addr_word_bits = ilog2(root.c_word_size)

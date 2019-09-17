@@ -82,6 +82,7 @@ class CompositeNode(NamedNode):
         self.align = None
         self.size_str = None     # Size (possibly with units)
         self.size_val = None     # Value of size_str.
+        self.version = None      # Semantic version (as a string)
         self.children = []
         # Computed variables
         self.c_blk_bits = None   # Number of bits for sub-blocks

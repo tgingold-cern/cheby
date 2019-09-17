@@ -59,6 +59,13 @@ def read_address(parent, key, val):
         return read_int(parent, key, val)
 
 
+def read_preset(parent, key, val):
+    if val == 'version':
+        return 'version'
+    else:
+        return read_int(parent, key, val)
+
+
 def parse_named(node, key, val):
     if key == 'name':
         node.name = read_text(node, key, val)
@@ -142,7 +149,7 @@ def parse_field(parent, el):
                 res.lo = int(v[pos + 1:], 0)
                 res.hi = int(v[0:pos], 0)
         elif k == 'preset':
-            res.preset = v
+            res.preset = read_preset(res, k, v)
         else:
             error("unhandled '{}' in field {}".format(k, parent.get_path()))
     return res
@@ -156,7 +163,7 @@ def parse_reg(parent, el):
         elif k == 'width':
             res.width = read_int(res, k, v)
         elif k == 'preset':
-            res.preset = read_int(res, k, v)
+            res.preset = read_preset(res, k, v)
         elif k == 'type':
             res.type = read_text(res, k, v)
         elif k == 'access':
@@ -253,6 +260,8 @@ def parse_yaml(filename):
             res.size_str, res.size_val = read_size(res, k, v)
         elif k == 'word-endian':
             res.word_endian = read_text(res, k, v)
+        elif k == 'version':
+            res.version = read_text(res, k, v)
         else:
             error("unhandled '{}' in root".format(k))
     return res
