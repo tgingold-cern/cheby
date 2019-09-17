@@ -1,0 +1,18 @@
+memory-map:
+  bus: wb-32-be
+  name: semver2
+  description: a single register
+  version: 1.2.3
+  children:
+    - reg:
+        name: r1
+        width: 32
+        access: rw
+        type: unsigned
+    - reg:
+        name: v
+        width: 32
+        access: ro
+        preset: version
+        x-hdl:
+          type: const

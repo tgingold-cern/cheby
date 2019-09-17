@@ -260,7 +260,7 @@ def test_hdl_ref():
               'issue11/test_port1_field',
               'issue11/test_port2_reg', 'issue11/test_port2_wire',
               'issue13/mainMap2',
-              'wires1']:
+              'wires1', 'semver1', 'semver2']:
         if verbose:
             print('test hdl with ref: {}'.format(f))
         cheby_file = srcdir + f + '.cheby'
@@ -515,7 +515,7 @@ def test_wbgen2cheby():
 def test_consts():
     # Generate constants and compare with a baseline.
     global nbr_tests
-    for f in ['demo_all']:
+    for f in ['demo_all', 'semver1']:
         if verbose:
             print('test consts: {}'.format(f))
         cheby_file = srcdir + f + '.cheby'
