@@ -51,7 +51,7 @@ def print_reg(fd, r, abs_addr):
     sz = 2  # Room for at least 2 digits
     for desc_raw in descr:
         for col in desc_raw:
-            sz = max(sz, (len(col.content) + col.colspan - 1) / col.colspan)
+            sz = max(sz, (len(col.content) + col.colspan - 1) // col.colspan)
     wln(fd, '+' + ('-' * (sz + 0) + '+') * 8)
     for desc_raw in descr:
         for col in desc_raw:
@@ -61,7 +61,6 @@ def print_reg(fd, r, abs_addr):
     wln(fd)
 
     if r.has_fields():
-        t = []
         for f in r.children:
             wln(fd, f.name)
             wln(fd, "  {}".format(f.comment or
@@ -77,6 +76,9 @@ def print_root(fd, root):
     wln(fd)
     wln(fd, root.description)
     wln(fd)
+    if root.version is not None:
+        wln(fd, "version: {}".format(root.version))
+        wln(fd)
 
     t = [["HW address", "Type", "Name", "HDL name"]]
     summary = gen_doc.MemmapSummary(root)

@@ -214,11 +214,13 @@ def phtml_header(fd, periph):
     wln(fd, '''</HEAD>
 <BODY>
 <h1 class="heading">{entity}</h1>
-<h3>{description}</h3>
-<p>{comment}</p>'''.format(
-        entity=entity, description=periph.description,
-        comment=periph.comment.replace('\n', '<br>')
-            if periph.comment else ''))
+<h3>{description}</h3>'''.format(
+        entity=entity, description=periph.description))
+    if periph.comment:
+        wln(fd, '<p>{comment}</p>'.format(
+            comment=periph.comment.replace('\n', '<br>')))
+    if periph.version is not None:
+        wln(fd, "<p>Version: {}</p>".format(periph.version))
 
 
 def pprint_root(fd, root):

@@ -21,6 +21,7 @@ import cheby.gen_wbgen_hdl as gen_wbgen_hdl
 import cheby.print_consts as print_consts
 import cheby.print_html as print_html
 import cheby.print_markdown as print_markdown
+import cheby.print_rest as print_rest
 import cheby.gen_custom as gen_custom
 
 srcdir = os.path.join(os.path.dirname(os.path.realpath(__file__)),
@@ -537,12 +538,13 @@ def test_consts():
 def test_doc():
     # Generate html and md, compare with a baseline.
     global nbr_tests
-    for f in ['issue9/test']:
+    for f in ['issue9/test', 'semver1']:
         if verbose:
             print('test doc: {}'.format(f))
         cheby_file = srcdir + f + '.cheby'
         html_file = srcdir + f + '.html'
         md_file = srcdir + f + '.md'
+        rst_file = srcdir + f + '.rst'
         t = parse_ok(cheby_file)
         layout_ok(t)
         expand_hdl.expand_hdl(t)
@@ -550,7 +552,8 @@ def test_doc():
 
         for file, pprint, style in [
                 (html_file, print_html.pprint, 'html'),
-                (md_file, print_markdown.print_markdown, 'md')]:
+                (md_file, print_markdown.print_markdown, 'md'),
+                (rst_file, print_rest.print_rest, 'rst')]:
             buf = write_buffer()
             pprint(buf, t)
             if not compare_buffer_and_file(buf, file):
