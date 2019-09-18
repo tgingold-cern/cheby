@@ -215,6 +215,10 @@ If you need to reserve area in a module, you can use the `size` attribute to
 specify the size (in bytes) of the memory space used by the module.  The suffixes
 k, M and G are allowed.
 
+It is possible to specify a semantic version using the `version` attribute.
+The version consists of 3 numbers between 0 and 255 separated by comma.
+The version appears in generated files.
+
 The following attributes under `x-hdl` are supported:
 
 `busgroup`:: Use an input and an output record (in vhdl) for the bus.  The
@@ -301,7 +305,10 @@ or `float`.  The type has no impact on the hardware, but changes the
 software view.
 
 It is possible to define the initial (just after a reset) value of a register
-using the `preset` attribute.
+using the `preset` attribute.  For 32 bit registers, you can also use the
+map version (set in the root) as the initial value by using `version` for
+`preset` attribute.  Bits 0 to 7 are set to the patch level, bits 8 to 15
+to the minor version and bits 16 to 23 to the major.
 
 The `type` attribute within `x-hdl` is available and behaves as
 defined below in the section for fields.
