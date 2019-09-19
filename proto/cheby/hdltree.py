@@ -13,10 +13,6 @@ class HDLUnit(HDLNode):
         self.libraries = []
         self.deps = []      # list of (lib, pkg)
 
-    def add_dependence(self, name):
-        if name not in self.deps:
-            self.deps.append(name)
-
 
 class HDLPortsBase(object):
     "Base class for a class that has ports"
