@@ -250,7 +250,7 @@ def generate_expr(e, prio=-1):
     elif isinstance(e, hdltree.HDLExternalName):
         return e.name
     else:
-        assert False, "unhandled hdl expr {}".format(e)
+        raise AssertionError("unhandled hdl expr {}".format(e))
 
 
 def get_base_name(s):
@@ -320,7 +320,7 @@ def generate_seq(fd, s, level):
         w(fd, indent)
         wln(fd, "-- {}".format(s.comment))
     else:
-        assert False, "unhandled hdl seq {}".format(s)
+        raise AssertionError("unhandled hdl seq {}".format(s))
 
 
 def generate_comment(fd, n, indent):
