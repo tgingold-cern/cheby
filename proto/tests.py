@@ -167,7 +167,7 @@ def test_print():
     global nbr_tests
     fd = write_null()
     for f in ['demo.yaml', 'reg_value1.yaml', 'reg_value2.yaml',
-              'reg_value3.yaml', 'demo_all.cheby']:
+              'reg_value3.yaml', 'demo_all.cheby', 'semver1.cheby']:
         t = parse_ok(srcdir + f)
         layout_ok(t)
         pprint.pprint_cheby(fd, t)
