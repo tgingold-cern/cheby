@@ -24,8 +24,8 @@ package demo_all_Consts is
   constant DEMO_ALL_SUB3_SIZE : Natural := 4096;
   constant ADDR_DEMO_ALL_ARR1 : Natural := 16#2000#;
   constant DEMO_ALL_ARR1_SIZE : Natural := 8;
-  constant ADDR_DEMO_ALL_ARR1_AREG10 : Natural := 16#2000#;
-  constant ADDR_DEMO_ALL_ARR1_AREG11 : Natural := 16#2004#;
+  constant ADDR_DEMO_ALL_ARR1_AREG1_0 : Natural := 16#2000#;
+  constant ADDR_DEMO_ALL_ARR1_AREG1_1 : Natural := 16#2004#;
   constant ADDR_DEMO_ALL_RAM_RO1 : Natural := 16#2080#;
   constant DEMO_ALL_RAM_RO1_SIZE : Natural := 4;
   constant ADDR_DEMO_ALL_RAM_RO1_VALUE : Natural := 16#0#;

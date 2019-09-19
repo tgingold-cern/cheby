@@ -181,7 +181,7 @@ def unroll_array(n):
     el = n.children[0]
     for i in range(n.repeat_val):
         c = tree_copy(el, res)
-        c.name = "{}{:x}".format(el.name, i)
+        c.name = "{}_{}".format(el.name, i)
         c.c_address = i * n.c_elsize
         res.children.append(c)
     layout.build_sorted_children(res)
