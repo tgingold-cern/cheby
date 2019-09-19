@@ -13,6 +13,6 @@ memory-map:
         name: v
         width: 32
         access: ro
-        preset: version
+        constant: version
         x-hdl:
           type: const

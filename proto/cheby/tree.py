@@ -139,6 +139,7 @@ class Reg(NamedNode):
         self.address = None
         self.children = []
         self.preset = None
+        self.constant = None
         # Computed (by layout)
         self.c_size = None      # Size in bytes
         self.c_rwidth = None    # Width of the register

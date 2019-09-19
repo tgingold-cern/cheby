@@ -220,7 +220,8 @@ def layout_reg(lo, n):
         n.children.append(f)
         f.name = None
         f.description = n.description
-        if n.preset == 'version':
+        f.comment = n.comment
+        if n.constant == 'version':
             if lo.root.version is None:
                 raise LayoutException(
                     n, "cannot use 'preset: version' for register {} without a version at the root".format(

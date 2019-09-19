@@ -66,6 +66,12 @@ def read_preset(parent, key, val):
         return read_int(parent, key, val)
 
 
+def parse_name(node, els):
+    """Do an early decode of the name attribute to improve error messages."""
+    name = els.get('name', None)
+    if name is not None and isstr(name):
+        node.name = name
+
 def parse_named(node, key, val):
     if key == 'name':
         node.name = read_text(node, key, val)
@@ -102,7 +108,7 @@ def parse_named(node, key, val):
 
 def parse_children(node, val):
     if not isinstance(val, list):
-        error("'children' of {} must be a list".format(node.get_path()))
+        error("'children' for {} must be a list".format(node.get_path()))
     for el in val:
         for k, v in el.items():
             if v is None:
@@ -149,7 +155,7 @@ def parse_field(parent, el):
                 res.lo = int(v[pos + 1:], 0)
                 res.hi = int(v[0:pos], 0)
         elif k == 'preset':
-            res.preset = read_preset(res, k, v)
+            res.preset = read_int(res, k, v)
         else:
             error("unhandled '{}' in field {}".format(k, parent.get_path()))
     return res
@@ -157,13 +163,16 @@ def parse_field(parent, el):
 
 def parse_reg(parent, el):
     res = tree.Reg(parent)
+    parse_name(res, el)
     for k, v in el.items():
         if parse_named(res, k, v):
             pass
         elif k == 'width':
             res.width = read_int(res, k, v)
         elif k == 'preset':
-            res.preset = read_preset(res, k, v)
+            res.preset = read_int(res, k, v)
+        elif k == 'constant':
+            res.constant = read_text(res, k, v)
         elif k == 'type':
             res.type = read_text(res, k, v)
         elif k == 'access':
@@ -180,7 +189,7 @@ def parse_reg(parent, el):
                               k1, parent.get_path()))
                     res.children.append(ch)
         else:
-            error("unhandled '{}' in reg {}".format(k, parent.get_path()))
+            error("unhandled '{}' in reg {}".format(k, res.get_path()))
     return res
 
 
@@ -250,6 +259,7 @@ def parse_yaml(filename):
     el = el['memory-map']
 
     res = tree.Root()
+    parse_name(res, el)
     res.c_filename = filename
     for k, v in el.items():
         if parse_composite(res, k, v):

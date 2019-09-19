@@ -304,11 +304,12 @@ A plain register has a type, which could be `unsigned` (the default), `signed`
 or `float`.  The type has no impact on the hardware, but changes the
 software view.
 
-It is possible to define the initial (just after a reset) value of a register
-using the `preset` attribute.  For 32 bit registers, you can also use the
-map version (set in the root) as the initial value by using `version` for
-`preset` attribute.  Bits 0 to 7 are set to the patch level, bits 8 to 15
-to the minor version and bits 16 to 23 to the major.
+It is possible to define the initial (just after a reset) value of a
+register using the `preset` attribute.  For 32 bit registers, you can
+also use the map version (set in the root) as the initial value by
+giving the value `version` to the `preset` attribute.  Bits 0 to 7 are
+set to the patch level, bits 8 to 15 to the minor version and bits 16
+to 23 to the major.  You cannot have both `preset` and `constant` attributes.
 
 The `type` attribute within `x-hdl` is available and behaves as
 defined below in the section for fields.
@@ -338,9 +339,9 @@ It is possible to define the initial value of a field using the
 `preset` attribute.
 
 The `type` attribute within `x-hdl` is available.  It can be set to
-`reg` (the default unless register access type is `ro`) or to `wire`
-(the default when the access type is `ro`). When set to `wire` no
-register is created.
+`reg` (the default unless register access type is `ro`), or `wire`
+(the default when the access type is `ro`) or `const`. When set to
+`wire` no register is created.
 
 Example of a register with two fields:
 
