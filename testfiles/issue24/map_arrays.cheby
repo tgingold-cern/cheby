@@ -1,0 +1,40 @@
+memory-map:
+  bus: axi4-lite-32
+  name: arraysTests
+  x-cern-info:
+    map-version: 00000000
+    ident-code: 0x0
+  children:
+    - array:
+        name: repeatBlock
+        address: next
+        repeat: 32
+        align: False
+        x-fesa:
+          persistence: Fesa
+        children:
+          - block:
+              name: regsBlock
+              address: next
+              children:
+                - reg:
+                    name: reg1
+                    address: next
+                    width: 16
+                    access: rw
+                    x-fesa:
+                      persistence: Fesa
+                - reg:
+                    name: reg2
+                    address: next
+                    width: 32
+                    access: rw
+                    x-fesa:
+                      persistence: Fesa
+                - reg:
+                    name: reg3
+                    address: next
+                    width: 16
+                    access: rw
+                    x-fesa:
+                      persistence: Fesa
