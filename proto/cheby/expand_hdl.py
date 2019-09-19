@@ -155,7 +155,7 @@ def expand_x_hdl(n):
 
 
 def tree_copy(n, new_parent):
-    if isinstance(n, tree.Reg):
+    if isinstance(n, tree.Reg) or isinstance(n, tree.CompositeNode):
         res = copy.copy(n)
         res._parent = new_parent
         res.children = [tree_copy(f, res) for f in n.children]
