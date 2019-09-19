@@ -221,6 +221,10 @@ def layout_reg(lo, n):
         f.name = None
         f.description = n.description
         f.comment = n.comment
+        if n.constant is not None and n.preset is not None:
+            raise LayoutException(
+                n, "reg {}: can not have both 'preset' and 'constant' attributes".format(
+                    n.get_path()))
         if n.constant == 'version':
             if lo.root.version is None:
                 raise LayoutException(
