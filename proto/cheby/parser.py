@@ -59,13 +59,6 @@ def read_address(parent, key, val):
         return read_int(parent, key, val)
 
 
-def read_preset(parent, key, val):
-    if val == 'version':
-        return 'version'
-    else:
-        return read_int(parent, key, val)
-
-
 def parse_name(node, els):
     """Do an early decode of the name attribute to improve error messages."""
     name = els.get('name', None)
