@@ -218,7 +218,8 @@ def test_hdl():
               'inter-mt/mt_cpu_xb-busgroup.cheby',
               'inter-mt/mt_cpu_xb-busgroup2.cheby',
               'inter-mt/mt_cpu_lr-busgroup.cheby',
-              'demo_all.cheby', 'big_addr.cheby', 'issue24/map_arrays.cheby']:
+              'demo_all.cheby', 'big_addr.cheby', 'issue24/map_arrays.cheby',
+              'cern_info.cheby']:
         if verbose:
             print('test hdl: {}'.format(f))
         t = parse_ok(srcdir + f)

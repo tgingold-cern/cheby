@@ -1,0 +1,26 @@
+memory-map:
+  name: cregs
+  bus: cern-be-vme-err-32
+  size: 1024k
+  x-cern-info:
+    ident-code: 0x11
+    map-version: 20161031
+  children:
+    - reg:
+        name: test1
+        width: 32
+        access: rw
+    - reg:
+        name: mapver
+        width: 32
+        access: ro
+        constant: map-version
+        x-hdl:
+          type: const
+    - reg:
+        name: icode
+        width: 32
+        access: ro
+        constant: ident-code
+        x-hdl:
+          type: const
