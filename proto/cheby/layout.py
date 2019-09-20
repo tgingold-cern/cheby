@@ -228,7 +228,7 @@ def layout_reg(lo, n):
         if n.constant == 'version':
             if lo.root.version is None:
                 raise LayoutException(
-                    n, "cannot use 'preset: version' for register {} without a version at the root".format(
+                    n, "cannot use 'constant: version' for register {} without a version at the root".format(
                         n.get_path()))
             if n.c_rwidth != 32:
                 raise LayoutException(
@@ -236,6 +236,20 @@ def layout_reg(lo, n):
                         n.get_path()))
             v = lo.root.c_version
             f.c_preset = (v[0] << 16) | (v[1] << 8) | v[2]
+        elif n.constant == 'map-version':
+            v = lo.root.get_extension('x_cern_info', 'map-version', None)
+            if v is None:
+                raise LayoutException(
+                    n, "cannot use 'constant: map-version' for register {} without x-cern-info:map-version".format(
+                        n.get_path()))
+            f.c_preset = v
+        elif n.constant == 'ident-code':
+            v = lo.root.get_extension('x_cern_info', 'ident-code', None)
+            if v is None:
+                raise LayoutException(
+                    n, "cannot use 'constant: ident-code' for register {} without x-cern-info:ident-code".format(
+                        n.get_path()))
+            f.c_preset = v
         else:
             f.c_preset = n.preset
         f.lo = 0
