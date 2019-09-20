@@ -56,6 +56,9 @@ Add x-hdl:pipeline to control pipelining of the root.
 
 Add root:version for versionning.
 
+Add attribute 'constant' to registers to get the value of version, map-version
+or ident-code.
+
 ## Version 1.3
 
 Add x-hdl:port to specify how ports are generated for registers (issue#11)

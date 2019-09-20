@@ -311,6 +311,11 @@ giving the value `version` to the `preset` attribute.  Bits 0 to 7 are
 set to the patch level, bits 8 to 15 to the minor version and bits 16
 to 23 to the major.  You cannot have both `preset` and `constant` attributes.
 
+Using the `constant` attribute, you can also give the value of attributes
+from the root `x-cern-info` mapping.  When the `constant` attribute of
+a register is set to `map-version`, the value of the register is set
+to the value of the map-version.  Likewise for `ident-code`.
+
 The `type` attribute within `x-hdl` is available and behaves as
 defined below in the section for fields.
 
