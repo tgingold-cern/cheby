@@ -324,7 +324,7 @@ class WBBus(BusGen):
     def gen_bus_slave(self, root, module, prefix, n, busgroup):
         n.h_busgroup = busgroup
         n.h_bus = self.gen_wishbone(
-            module, module, n.name,
+            module, module, n.c_name,
             n.c_addr_bits, root.c_addr_word_bits, root.c_word_bits,
             n.description, True, busgroup is True)
         # Internal signals
@@ -552,7 +552,7 @@ class AXI4LiteBus(BusGen):
     def gen_bus_slave(self, root, module, prefix, n, busgroup):
         ports = self.gen_axi4lite_bus(
             lambda name, sz=None, lo=0, dir='IN': (name, module.add_port(
-                '{}_{}_{}'.format(n.name, name, dirname[dir]),
+                '{}_{}_{}'.format(n.c_name, name, dirname[dir]),
                 size=sz, lo_idx=lo, dir=dir)),
             n.c_addr_bits, root.c_addr_word_bits, root.c_word_bits, True)
         n.h_bus = {}
@@ -696,7 +696,7 @@ class CERNBEBus(BusGen):
         """Create an interface to a slave (Add declarations)"""
         ports = self.gen_cern_bus(
             lambda name, sz=None, lo=0, dir='IN': module.add_port(
-                '{}_{}_{}'.format(n.name, name, dirname[dir]),
+                '{}_{}_{}'.format(n.c_name, name, dirname[dir]),
                 size=sz, lo_idx=lo, dir=dir),
             n.c_addr_bits, root.c_addr_word_bits, root.c_word_bits,
             self.split, self.buserr, True)
