@@ -33,7 +33,11 @@ class SimplePrinter(tree.Visitor):
             self.sp_raw('  {:02}:   '.format(f.lo))
         else:
             self.sp_raw('  {:02}-{:02}:'.format(f.lo, f.hi))
-        self.sp_raw(' {}\n'.format(f.name))
+        name = f.name
+        if name is None:
+            assert isinstance(f, tree.FieldReg)
+            name = f._parent.name
+        self.sp_raw(' {}\n'.format(name))
 
 
 @SimplePrinter.register(tree.Reg)
