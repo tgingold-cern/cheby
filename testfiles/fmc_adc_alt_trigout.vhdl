@@ -62,6 +62,7 @@ entity alt_trigout is
 end alt_trigout;
 
 architecture syn of alt_trigout is
+  signal adr_int                        : std_logic_vector(4 downto 2);
   signal rd_req_int                     : std_logic;
   signal wr_req_int                     : std_logic;
   signal rd_ack_int                     : std_logic;
@@ -89,6 +90,7 @@ architecture syn of alt_trigout is
 begin
 
   -- WB decode signals
+  adr_int <= wb_i.adr(4 downto 2);
   wb_en <= wb_i.cyc and wb_i.stb;
 
   process (clk_i) begin
@@ -129,7 +131,7 @@ begin
         rd_ack_int <= rd_ack_d0;
         wb_o.dat <= rd_dat_d0;
         wr_req_d0 <= wr_req_int;
-        wr_adr_d0 <= wb_i.adr(4 downto 2);
+        wr_adr_d0 <= adr_int;
         wr_dat_d0 <= wb_i.dat;
       end if;
     end if;
@@ -234,13 +236,13 @@ begin
   end process;
 
   -- Process for read requests.
-  process (wb_i.adr(4 downto 2), rd_req_int, status_rint, ctrl_rint, ts_mask_sec_rint, ts_cycles_rint) begin
+  process (adr_int, rd_req_int, status_rint, ctrl_rint, ts_mask_sec_rint, ts_cycles_rint) begin
     -- By default ack read requests
     rd_dat_d0 <= (others => 'X');
     ts_cycles_rd_o <= '0';
-    case wb_i.adr(4 downto 2)(4 downto 3) is
+    case adr_int(4 downto 3) is
     when "00" => 
-      case wb_i.adr(4 downto 2)(2 downto 2) is
+      case adr_int(2 downto 2) is
       when "0" => 
         -- status
         rd_ack_d0 <= rd_req_int;
@@ -253,7 +255,7 @@ begin
         rd_ack_d0 <= rd_req_int;
       end case;
     when "01" => 
-      case wb_i.adr(4 downto 2)(2 downto 2) is
+      case adr_int(2 downto 2) is
       when "0" => 
         -- ts_mask_sec
         rd_ack_d0 <= rd_req_int;
@@ -266,7 +268,7 @@ begin
         rd_ack_d0 <= rd_req_int;
       end case;
     when "10" => 
-      case wb_i.adr(4 downto 2)(2 downto 2) is
+      case adr_int(2 downto 2) is
       when "0" => 
         -- ts_cycles
         ts_cycles_rd_o <= rd_req_int;
