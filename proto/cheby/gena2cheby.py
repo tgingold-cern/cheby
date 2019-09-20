@@ -380,8 +380,10 @@ def conv_register_data(parent, el):
             res.x_conversions['read'] = convFactorSyntaxModifier(v)
         elif k == 'write-conversion-factor':
             res.x_conversions['write'] = convFactorSyntaxModifier(v)
-        elif k in ['max-val', 'min-val', 'unit']:
+        elif k == 'unit':
             res.x_fesa[k] = v
+        elif k in ['max-val', 'min-val']:
+            res.x_driver_edge[k] = v
         else:
             raise UnknownAttribute(k)
     res.address = conv_address(attrs['address'])
