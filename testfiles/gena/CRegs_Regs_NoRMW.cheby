@@ -37,9 +37,10 @@ memory-map:
         access: rw
         address: next
         x-fesa:
+          persistence: Fesa
+        x-driver-edge:
           max-val: 4294967295
           min-val: 4294967295
-          persistence: Fesa
     - reg:
         name: test5
         width: 16
@@ -55,9 +56,10 @@ memory-map:
         access: wo
         address: next
         x-fesa:
+          persistence: Fesa
+        x-driver-edge:
           max-val: 0
           min-val: 0
-          persistence: Fesa
     - reg:
         name: test7
         width: 16
@@ -65,8 +67,9 @@ memory-map:
         access: rw
         address: next
         x-fesa:
-          max-val: 65535
           persistence: Fesa
+        x-driver-edge:
+          max-val: 65535
     - reg:
         name: test8
         width: 32
@@ -74,6 +77,7 @@ memory-map:
         access: rw
         address: next
         x-fesa:
+          persistence: Fesa
+        x-driver-edge:
           max-val: 4294967295
           min-val: 4294967295
-          persistence: Fesa
