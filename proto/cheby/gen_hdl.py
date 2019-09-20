@@ -202,9 +202,12 @@ class WBBus(BusGen):
         ibus.rst = root.h_bus['rst']
         ibus.rd_dat = root.h_bus['dato']
         ibus.wr_dat = root.h_bus['dati']
-        addr = root.h_bus['adr']
         if busgroup:
-            addr = HDLSlice(addr, ibus.addr_low, ibus.addr_size)
+            addr = module.new_HDLSignal('adr_int', ibus.addr_size, lo_idx=ibus.addr_low)
+            module.stmts.append(
+                HDLAssign(addr, HDLSlice(root.h_bus['adr'], ibus.addr_low, ibus.addr_size)))
+        else:
+            addr = root.h_bus['adr']
         ibus.rd_adr = addr
         ibus.wr_adr = addr
         ibus.rd_req = module.new_HDLSignal('rd_req_int')    # Read access
