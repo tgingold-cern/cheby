@@ -58,7 +58,7 @@ class SyntaxValidator(ast.NodeVisitor):
         self.generic_visit(node)
 
     def convertVariablesSyntax(self):
-        regexPattern = "([a-zA-Z0-9]+\_+[a-zA-Z0-9]+\w+)(?<!_)"
+        regexPattern = r"([a-zA-Z0-9]+\_+[a-zA-Z0-9]+\w+)(?<!_)"
 
         rawVariables = self.names - self.calls
         allVars = re.findall(regexPattern, ",".join(rawVariables))
