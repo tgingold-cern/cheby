@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type="text/xsl" href="http://abwww.cern.ch/ap/deployments/applications/cern/accsoft/rf/accsoft-rf-cheburashka/PRO/source/src/java/cern/accsoft/rf/cheburashka/xml/schema/MemMapStyleSheet.xsl"?><memory-map xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" area-depth="1k" equipment-code="PX-ALCOB" ident-code="0x1" map-version="20190923" mem-map-access-mode="A24/D16" name="testmap" semantic-mem-map-version="0.0.1" xsi:schemaLocation="http://abwww.cern.ch/ap/deployments/applications/cern/accsoft/rf/accsoft-rf-cheburashka/PRO/source/src/java/cern/accsoft/rf/cheburashka/xml/schema/TemplateMemMap.xsd">
+  <register-data access-mode="rw" address="next" code-generation-rule="HW,Fesa" element-width="16" name="reg1" persistence="PPM" preset="128">
+    <sub-reg name="sfield" range="0-3"/>
+    <sub-reg name="sfield1" range="4-8"/>
+  </register-data>
+</memory-map>
