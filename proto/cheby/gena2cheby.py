@@ -408,7 +408,11 @@ def conv_register_data(parent, el):
         else:
             raise UnknownValue('bit-encoding', enc)
         res.children.append(cheby.tree.FieldReg(res))
-        res.preset = conv_int(attrs.get('preset', None))
+        preset = res.x_gena.get('preset', None)
+        if preset is not None:
+            res.preset = conv_int(preset)
+            # Remove the x-gena:preset attribute, as it has been moved to preset.
+            del res.x_gena['preset']
     else:
         # FIXME: what about bit-encoding ?  For resizing ?
         # Move preset to children
@@ -422,6 +426,7 @@ def conv_register_data(parent, el):
                     else:
                         w = f.hi - f.lo + 1
                     f.preset = (preset >> f.lo) & ((1 << w) - 1)
+            #del res.x_gena['preset']
     if res.address == 'virtual':
         return
         # if not hasattr(parent, 'x_fesa'):
