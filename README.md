@@ -59,6 +59,8 @@ Add root:version for versionning.
 Add attribute 'constant' to registers to get the value of version, map-version
 or ident-code.
 
+Fix --gen-gena-regctrl generation for inline multi-word register (issue#32)
+
 ## Version 1.3
 
 Add x-hdl:port to specify how ports are generated for registers (issue#11)
