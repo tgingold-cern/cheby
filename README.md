@@ -61,6 +61,8 @@ or ident-code.
 
 Fix --gen-gena-regctrl generation for inline multi-word register (issue#32)
 
+gena2cheby: do not generate duplicate x-gena:preset attribute (issue#33)
+
 ## Version 1.3
 
 Add x-hdl:port to specify how ports are generated for registers (issue#11)
