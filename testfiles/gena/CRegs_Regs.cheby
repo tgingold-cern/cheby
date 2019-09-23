@@ -150,7 +150,6 @@ memory-map:
         address: next
         x-gena:
           auto-clear: 0x0
-          preset: 0x0
         x-fesa:
           persistence: Fesa
         children:
