@@ -1,0 +1,19 @@
+memory-map:
+  name: testmap
+  bus: cern-be-vme-16
+  size: 1k
+  x-driver-edge:
+    equipment-code: PX-ALCOB
+  x-cern-info:
+    ident-code: 0x1
+    map-version: 20190923
+    semantic-mem-map-version: 0.0.1
+  children:
+    - reg:
+        name: reg1
+        width: 16
+        access: rw
+        address: next
+        preset: 0xc
+        x-fesa:
+          persistence: PPM
