@@ -419,6 +419,7 @@ def conv_register_data(parent, el):
         preset = attrs.get('preset', None)
         if preset is not None:
             preset = conv_int(preset)
+            npreset = 0
             for f in res.children:
                 if f.preset is None:
                     if f.hi is None:
@@ -426,7 +427,11 @@ def conv_register_data(parent, el):
                     else:
                         w = f.hi - f.lo + 1
                     f.preset = (preset >> f.lo) & ((1 << w) - 1)
-            #del res.x_gena['preset']
+                    npreset |= f.preset << f.lo
+            if npreset == preset:
+                # Remove the x-gena:preset attribute if useless.  Contrary to the
+                # preset attribute, it can also set the value of unused fields.
+                del res.x_gena['preset']
     if res.address == 'virtual':
         return
         # if not hasattr(parent, 'x_fesa'):
