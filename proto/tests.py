@@ -432,13 +432,13 @@ def test_gena2cheby_err():
         nbr_tests += 1
 
 
-def test_gena_regressions():
+def test_gena2cheby_regressions():
     global nbr_tests
     files = ['issue7/code_fields',
              'issue_gena_rst/CRegs', 'issue_gena_rst/CRegs_srff']
     for f in files:
         if verbose:
-            print('test gena regression: {}'.format(f))
+            print('test gena2cheby regression: {}'.format(f))
         # Test Gena to Cheby conversion
         xmlfile = srcdir + f + '.xml'
         chebfile = srcdir + f + '.cheby'
@@ -447,6 +447,17 @@ def test_gena_regressions():
         pprint.pprint_cheby(buf, t)
         if not compare_buffer_and_file(buf, chebfile):
             error('gena2cheby conversion error for {}'.format(f))
+
+
+def test_gena_gen_regressions():
+    global nbr_tests
+    files = ['issue7/code_fields',
+             'issue_gena_rst/CRegs', 'issue_gena_rst/CRegs_srff',
+             'issue32/memmap']
+    for f in files:
+        if verbose:
+            print('test gena regression: {}'.format(f))
+        chebfile = srcdir + f + '.cheby'
         # Test parse+layout
         t = parse_ok(chebfile)
         layout_ok(t)
@@ -605,7 +616,8 @@ def main():
         test_gena_regctrl_err()
         test_gena2cheby()
         test_gena2cheby_err()
-        test_gena_regressions()
+        test_gena2cheby_regressions()
+        test_gena_gen_regressions()
         test_wbgen2cheby()
         test_consts()
         test_doc()

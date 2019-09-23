@@ -1,0 +1,13 @@
+memory-map:
+  bus: cern-be-vme-16
+  name: memmap
+  x-cern-info:
+    map-version: 00000000
+    ident-code: 0x0
+  children:
+    - reg:
+        name: reg1
+        address: next
+        width: 32
+        access: rw
+        preset: 0xa5a5a5a5
