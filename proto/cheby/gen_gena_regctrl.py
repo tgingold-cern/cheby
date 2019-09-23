@@ -205,7 +205,7 @@ def gen_hdl_reg_decls(reg, pfx, root, module, isigs):
             for suff, _ in reg.h_mux.codelist:
                 reg_name = 'CtrlReg_{}{}{}{}'.format(
                     pfx, reg.name, suff, subsuffix(i, reg.c_nwords))
-                regs[suff] = HDLSignal(reg_name, reg.c_rwidth)
+                regs[suff] = HDLSignal(reg_name, reg.c_rwidth // reg.c_nwords)
                 module.decls.append(regs[suff])
             reg.h_ctrlreg.append(regs)
 
@@ -269,7 +269,7 @@ def gen_hdl_rmw_ctrl_reg(reg, root, module, kind,
     proc.rst_stmts.append(HDLAssign(ctrlreg, reg.h_gena_psm[i]))
     s_if = HDLIfElse(HDLAnd(HDLEq(sel, bit_1), HDLEq(root.h_bus['wr'], bit_1)))
     if kind == 'CtrlRegN':
-        asgn = HDLSlice(root.h_bus['dati'], 0, reg.c_rwidth)
+        asgn = HDLSlice(root.h_bus['dati'], 0, reg.c_rwidth // reg.c_nwords)
     elif kind == 'RMWReg':
         # Assign: r = (r and not data(hi)) or (data(lo) and data(hi))
         hi = HDLSlice(root.h_bus['dati'], reg.c_rwidth, reg.c_rwidth)
