@@ -19,7 +19,7 @@ class EdgeReg(object):
         else:
             mask = 10 * ' '
         fd.write("{bid:>14}, {name:>11}, {rwmode:>6}, 0x{offset:06x},"
-                 "     {dwidth:>2}, {depth:>5}, {mask}, {desc}\n".format(
+                 "     {dwidth:>2}, 0x{depth:<5x}, {mask}, 0, {desc}\n".format(
                      bid=block_name, name=self.name, rwmode=self.rwmode,
                      offset=self.offset, dwidth=self.dwidth,
                      depth=self.depth, mask=mask, desc=self.desc))
@@ -43,11 +43,11 @@ class EncoreBlock(object):
                     mask = (2 << (f.hi - f.lo)) - 1
                 mask = mask << f.lo
                 self.regs.append(EdgeReg(
-                    f.name, reg, offset, 1, mask, f.description))
+                    "{}_{}".format(reg.name, f.name), reg, offset, 1, mask, f.description))
 
     def write(self, fd):
         fd.write("block_def_name,    reg_name, rwmode,   offset, dwidth,"
-                 " depth,       mask, description\n")
+                 " depth,       mask, flags, description\n")
         for r in self.regs:
             r.write(fd, self.block_name)
 
@@ -56,30 +56,25 @@ class Encore(object):
     def __init__(self):
         self.blocks = []
         self.inst = []
-        self.cur_block = EncoreBlock("sys")
-        self.next_num = 1
 
-    def instantiate(self, blk):
-        self.inst.append(blk)
+    def instantiate(self, name, blk, off):
+        self.inst.append((name, blk, off))
 
     def write_instances(self, fd):
         fd.write(
-            "block_inst_name, block_def_id, bar_id,    offset, description\n")
-        num = 0
-        for b in self.inst:
-            fd.write("blk{}, {}, 0, 0,\n".format(num, b.num))
-            num += 1
+            "block_inst_name, block_def_name, bar_def_name,    offset, description\n")
+        for name, blk, off in self.inst:
+            fd.write("{}, {}, bar0, 0x{:08x},\n".format(name, blk.block_name, off))
 
     def write(self, fd):
-        # Append the block being built
-        if self.cur_block is not None \
-           and self.cur_block.regs:
-            self.instantiate(self.cur_block)
-            self.blocks.append(self.cur_block)
         # Write all blocks
-        for b in self.blocks:
-            b.write(fd)
-        # self.write_instances(fd)
+        s = []
+        for _, b, _ in self.inst:
+            if b not in s:
+                b.write(fd)
+                fd.write('\n')
+                s.append(b)
+        self.write_instances(fd)
 
 
 def p_vme_header(fd, root):
@@ -94,21 +89,26 @@ def p_vme_header(fd, root):
     fd.write("\n")
 
 
-def p_body(e, n, offset):
+def p_body(e, b, n, offset):
     for el in n.children:
         if isinstance(el, tree.Reg):
-            e.cur_block.append_reg(el, offset)
-        elif (isinstance(el, tree.Array)
-              and len(el.children) == 1
-              and isinstance(el.children[0], tree.Reg)
-              and (el.align is None or el.align)):
-            # A regular memory
-            e.cur_block.append_reg(el.children[0], offset)
+            b.append_reg(el, offset)
+        elif isinstance(el, tree.Array):
+            if len(el.children) == 1 \
+               and isinstance(el.children[0], tree.Reg) \
+               and (el.align is None or el.align):
+                # A regular memory
+                b.append_reg(el.children[0], offset)
+            else:
+                b2 = EncoreBlock(el.name)
+                p_body(e, b2, el, 0)
+                for i in range(0, el.repeat_val):
+                    e.instantiate("{}_{}".format(el.name, i), b2, offset + el.c_abs_addr + i * el.c_elsize)
         elif isinstance(el, tree.Block):
-            p_body(e, el, offset)
+            p_body(e, b, el, offset)
         elif isinstance(el, tree.Submap):
             if el.filename is not None:
-                p_body(e, el.c_submap, offset + el.c_abs_addr)
+                p_body(e, b, el.c_submap, offset + el.c_abs_addr)
             else:
                 pass
         else:
@@ -119,5 +119,17 @@ def generate_edge(fd, root):
     e = Encore()
     # Headers are not generated.
     # p_vme_header(fd, root)
-    p_body(e, root, 0)
+    b = EncoreBlock("sys")
+    e.instantiate("sys", b, 0)
+    p_body(e, b, root, 0)
+
+    fd.write("hw_mod_name, hw_lif_name, hw_lif_vers, edge_vers, bus, endian, description\n")
+    fd.write("{:<10}, {}, dev, 2.0.0, VME, BE, {}\n".format(
+        root.name, root.name, root.description))
+    fd.write("\n")
+
+    fd.write("bar_def_name, bar_no, addrspace, dwidth, size,    blt_mode, mblt_mode, description\n")
+    fd.write("bar0,         0,      A24,       32,     0x10000, 0,        0,       ,\n")
+    fd.write("\n")
+
     e.write(fd)

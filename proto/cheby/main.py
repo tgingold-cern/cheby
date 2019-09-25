@@ -170,6 +170,9 @@ def handle_file(args, filename):
     if args.gen_install_script is not None:
         with open_filename(args.gen_install_script) as f:
             gen_device_script.generate_device_script(f, t)
+    if args.gen_edge is not None:
+        with open_filename(args.gen_edge) as f:
+            gen_edge.generate_edge(f, t)
     # Decode x-hdl, unroll
     expand_hdl.expand_hdl(t)
     if args.print_simple_expanded is not None:
@@ -178,9 +181,6 @@ def handle_file(args, filename):
     if args.print_pretty_expanded is not None:
         with open_filename(args.print_pretty_expanded) as f:
             pprint.pprint_cheby(f, t)
-    if args.gen_edge is not None:
-        with open_filename(args.gen_edge) as f:
-            gen_edge.generate_edge(f, t)
     if args.gen_gena_regctrl is not None:
         if not args.gen_gena_memmap:
             gen_gena_memmap.gen_gena_memmap(t)
