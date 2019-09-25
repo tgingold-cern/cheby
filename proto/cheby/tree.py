@@ -117,6 +117,8 @@ class Submap(CompositeNode):
         super(Submap, self).__init__(parent)
         self.filename = None
         self.interface = None
+        # Computed variables
+        self.c_submap = None
 
 
 class Array(CompositeNode):

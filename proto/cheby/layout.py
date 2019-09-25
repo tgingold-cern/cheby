@@ -528,7 +528,7 @@ def set_abs_address(n, base_addr):
     if isinstance(n, tree.Reg):
         pass
     elif isinstance(n, tree.Submap):
-        if n.interface == 'include':
+        if n.filename is not None:
             set_abs_address(n.c_submap, n.c_abs_addr)
     elif isinstance(n, tree.Array):
         # Still relative, but need to set c_abs_addr
