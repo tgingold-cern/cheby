@@ -3,6 +3,7 @@ end all1_axi4_tb;
 
 library ieee;
 use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 
 use work.wishbone_pkg.all;
 use work.axi4_tb_pkg.all;
@@ -15,6 +16,10 @@ architecture behav of all1_axi4_tb is
   signal wr_out  : t_axi4lite_write_master_out;
   signal rd_in   : t_axi4lite_read_master_in;
   signal rd_out  : t_axi4lite_read_master_out;
+
+  signal ram_ro_adr     : std_logic_vector(2 downto 0);
+  signal ram_ro_val_we  : std_logic;
+  signal ram_ro_val_dat : std_logic_vector(31 downto 0);
 
   --  For sub1.
   signal sub1_wb_in  : t_wishbone_slave_in;
@@ -74,6 +79,10 @@ begin
       ram1_adr_i     => (others => '0'),
       ram1_val_rd_i  => '0',
       ram1_val_dat_o => open,
+
+      ram_ro_adr_i     => ram_ro_adr,
+      ram_ro_val_we_i  => ram_ro_val_we,
+      ram_ro_val_dat_i => ram_ro_val_dat,
 
       sub1_wb_cyc_o => sub1_wb_in.cyc,
       sub1_wb_stb_o => sub1_wb_in.stb,
@@ -138,6 +147,24 @@ begin
               rst_n => rst_n,
               bus_in => sub3_in,
               bus_out => sub3_out);
+
+  --  Init RAM.
+  process
+  begin
+    --  Wait after reset.
+    wait until rising_edge(clk) and rst_n = '1';
+
+    for i in 0 to 7 loop
+      ram_ro_adr <= std_logic_vector (to_unsigned(i, 3));
+      ram_ro_val_we <= '1';
+      ram_ro_val_dat <= (others => '0');
+      ram_ro_val_dat (26 downto 24) <= std_logic_vector (to_unsigned(i, 3));
+      wait until rising_edge(clk);
+    end loop;
+
+    ram_ro_val_we <= '0';
+    wait;
+  end process;
 
   process
     procedure test_bus(name : string; addr : std_logic_vector(31 downto 0))
@@ -213,7 +240,7 @@ begin
     axi4lite_read (clk, rd_out, rd_in, x"0000_0000", v);
     assert v = x"0000_abcd" severity error;
 
-    --  Testing memory
+    --  Testing memory (rw)
     report "Testing memory (write)" severity note;
     axi4lite_write (clk, wr_out, wr_in, x"0000_0024", x"abcd_0001");
     axi4lite_write (clk, wr_out, wr_in, x"0000_002c", x"abcd_0203");
@@ -224,6 +251,13 @@ begin
 
     axi4lite_read (clk, rd_out, rd_in, x"0000_002c", v);
     assert v = x"abcd_0203" severity error;
+
+    --  Testing memory (ro)
+    report "Testing memory RO" severity note;
+    axi4lite_read (clk, rd_out, rd_in, x"0000_0044", v);
+    assert v = x"0100_0000" severity error;
+    axi4lite_read (clk, rd_out, rd_in, x"0000_004c", v);
+    assert v = x"0300_0000" severity error;
 
     --  Testing WB
     test_bus ("wishbone", x"0000_1000");

@@ -26,6 +26,14 @@ memory-map:
           name: val
           access: rw
           width: 32
+  - array:
+      name: ram_ro
+      repeat: 8
+      children:
+      - reg:
+          name: val
+          access: ro
+          width: 32
   - submap:
       name: sub1_wb
       size: 0x1000

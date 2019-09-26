@@ -3,6 +3,7 @@ end all1_cernbe_tb;
 
 library ieee;
 use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 
 use work.wishbone_pkg.all;
 use work.axi4_tb_pkg.all;
@@ -13,6 +14,10 @@ architecture behav of all1_cernbe_tb is
   signal clk     : std_logic;
   signal bus_in   : t_cernbe_master_in;
   signal bus_out  : t_cernbe_master_out;
+
+  signal ram_ro_adr     : std_logic_vector(2 downto 0);
+  signal ram_ro_val_we  : std_logic;
+  signal ram_ro_val_dat : std_logic_vector(31 downto 0);
 
   --  For sub1.
   signal sub1_wb_in  : t_wishbone_slave_in;
@@ -60,6 +65,10 @@ begin
       ram1_adr_i     => (others => '0'),
       ram1_val_rd_i  => '0',
       ram1_val_dat_o => open,
+
+      ram_ro_adr_i     => ram_ro_adr,
+      ram_ro_val_we_i  => ram_ro_val_we,
+      ram_ro_val_dat_i => ram_ro_val_dat,
 
       sub1_wb_cyc_o => sub1_wb_in.cyc,
       sub1_wb_stb_o => sub1_wb_in.stb,
@@ -124,6 +133,24 @@ begin
               rst_n => rst_n,
               bus_in => sub3_in,
               bus_out => sub3_out);
+
+  --  Init RAM.
+  process
+  begin
+    --  Wait after reset.
+    wait until rising_edge(clk) and rst_n = '1';
+
+    for i in 0 to 7 loop
+      ram_ro_adr <= std_logic_vector (to_unsigned(i, 3));
+      ram_ro_val_we <= '1';
+      ram_ro_val_dat <= (others => '0');
+      ram_ro_val_dat (26 downto 24) <= std_logic_vector (to_unsigned(i, 3));
+      wait until rising_edge(clk);
+    end loop;
+
+    ram_ro_val_we <= '0';
+    wait;
+  end process;
 
   process
     procedure test_bus(name : string; addr : std_logic_vector(31 downto 0))
@@ -190,6 +217,13 @@ begin
 
     cernbe_read (clk, bus_out, bus_in, x"0000_002c", v);
     assert v = x"abcd_0203" severity error;
+
+    --  Testing memory (ro)
+    report "Testing memory RO" severity note;
+    cernbe_read (clk, bus_out, bus_in, x"0000_0044", v);
+    assert v = x"0100_0000" severity error;
+    cernbe_read (clk, bus_out, bus_in, x"0000_004c", v);
+    assert v = x"0300_0000" severity error;
 
     --  Testing wishbone
     test_bus("wishbone", x"0000_1000");
