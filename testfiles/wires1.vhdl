@@ -18,14 +18,17 @@ entity wires1 is
     wb_stall_o           : out   std_logic;
     wb_dat_o             : out   std_logic_vector(31 downto 0);
 
+    -- REG strobe
     strobe_o             : out   std_logic_vector(31 downto 0);
     strobe_wr_o          : out   std_logic;
     strobe_rd_o          : out   std_logic;
 
+    -- REG wires
     wires_i              : in    std_logic_vector(31 downto 0);
     wires_o              : out   std_logic_vector(31 downto 0);
     wires_rd_o           : out   std_logic;
 
+    -- REG acks
     acks_i               : in    std_logic_vector(31 downto 0);
     acks_o               : out   std_logic_vector(31 downto 0);
     acks_wr_o            : out   std_logic;
