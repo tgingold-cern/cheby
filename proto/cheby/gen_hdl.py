@@ -881,8 +881,18 @@ def add_ports_reg(root, module, n):
 
     n.h_has_regs = False
 
+    # Register comment.  Always add a separation between registers ports.
+    comment = n.comment or n.description
+    comment = '' if comment is None else '\n' + comment
+
     for f in n.children:
         w = None if f.c_iowidth == 1 else f.c_iowidth
+
+        if n.hdl_port != 'reg' and not isinstance(f, tree.FieldReg):
+            # Append field comment to the register comment (if present)
+            pcomment = f.comment or f.description
+            if pcomment is not None:
+                comment = pcomment if comment is None else  comment + '\n' + pcomment
 
         # Create the register (only for registers)
         if f.hdl_type == 'reg':
@@ -897,12 +907,14 @@ def add_ports_reg(root, module, n):
                 # One port used for all fields.
                 if iport is None:
                     iport = add_module_port(root, module, n.c_name, n.width, dir='IN')
-                    iport.comment = n.comment or n.description
+                    iport.comment = comment
+                    comment = None
                 f.h_iport = Slice_or_Index(iport, f.lo, w)
             else:
                 # One port per field.
                 f.h_iport = add_module_port(root, module, f.c_name, w, dir='IN')
-                f.h_iport.comment = f.comment or f.description
+                f.h_iport.comment = comment
+                comment = None
         else:
             f.h_iport = None
 
@@ -912,18 +924,18 @@ def add_ports_reg(root, module, n):
                 # One port used for all fields.
                 if oport is None:
                     oport = add_module_port(root, module, n.c_name, n.width, dir='OUT')
-                    if f.h_iport is None:
-                        # Add comment but not twice.
-                        oport.comment = n.comment or n.description
+                    oport.comment = comment
+                    comment = None
                 f.h_oport = Slice_or_Index(oport, f.lo, w)
             else:
                 # One port per field.
                 f.h_oport = add_module_port(root, module, f.c_name, w, dir='OUT')
-                if f.h_iport is None:
-                    # Add comment but not twice.
-                    f.h_oport.comment = f.comment or f.description
+                f.h_oport.comment = comment
+                comment = None
         else:
             f.h_oport = None
+
+    comment = None
 
     # Strobe size.  There is one strobe signal per word, so create a vector if
     # the register is longer than a word.
