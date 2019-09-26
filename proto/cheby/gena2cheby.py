@@ -644,6 +644,7 @@ def conv_submap(parent, el):
                     xg['include'] = 'external'
                 elif e == 'include=int' or e == 'include=generate':
                     xg['include'] = 'internal'
+                    res.interface = 'include'
                 elif e.startswith('include'):
                     raise UnknownGenAttribute(e, res)
                 elif e == 'no-hdl':
