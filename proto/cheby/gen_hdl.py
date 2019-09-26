@@ -1022,9 +1022,9 @@ def add_ports_array_reg(root, module, reg):
     :attr h_rd: the read enable
     :attr h_dat: the data (either input or output)
     """
-    # Create ports
+    # Create ports for external access to the RAM.
     if reg.access == 'ro':
-        reg.h_we = add_module_port(
+        reg.h_wr = add_module_port(
             root, module, reg.c_name + '_we', None, 'IN')
         reg.h_dat = add_module_port(
             root, module, reg.c_name + '_dat', reg.c_rwidth, 'IN')
@@ -1038,7 +1038,14 @@ def add_ports_array_reg(root, module, reg):
     reg.h_sig_bwsel = module.new_HDLSignal(reg.c_name + '_int_bwsel', nbr_bytes)
 
     if reg.access == 'ro':
-        raise AssertionError  # TODO
+        # External port is WO
+        reg.h_sig_dati = module.new_HDLSignal(reg.c_name + '_int_dati', reg.c_rwidth)
+        reg.h_sig_dato = module.new_HDLSignal(reg.c_name + '_int_dato', reg.c_rwidth)
+        reg.h_dat_ign = module.new_HDLSignal(reg.c_name + '_ext_dat', reg.c_rwidth)
+        reg.h_rreq = module.new_HDLSignal(reg.c_name + '_rreq')
+        reg.h_rack = module.new_HDLSignal(reg.c_name + '_rack')
+        reg.h_sig_wr = module.new_HDLSignal(reg.c_name + '_int_wr')
+        reg.h_ext_rd = module.new_HDLSignal(reg.c_name + '_ext_rd')
     else:
         # External port is RO.
         reg.h_sig_dato = module.new_HDLSignal(reg.c_name + '_int_dato', reg.c_rwidth)
@@ -1079,7 +1086,7 @@ def add_processes_array(root, module, ibus, arr):
         module.deps.append(('work', 'wbgen2_pkg'))
         root.h_ram = True
 
-    if ibus.wr_adr != ibus.rd_adr:
+    if ibus.wr_adr != ibus.rd_adr and any([r.access in ['wo', 'rw'] for r in arr.children]):
         # Read request and Write request.  Priority for the write.
         arr.h_wr = module.new_HDLSignal(arr.c_name + '_wr')
         arr.h_rr = module.new_HDLSignal(arr.c_name + '_rr')
@@ -1132,28 +1139,44 @@ def add_processes_array_reg(root, module, ibus, reg):
     inst.conns.append(("bwsel_b_i", reg.h_sig_bwsel))
     inst.conns.append(("bwsel_a_i", reg.h_sig_bwsel))
 
-    if reg.access == 'ro':
-        raise AssertionError  # TODO
-        # inst.conns.append(("data_a_o", reg.h_dat))
-        # inst.conns.append(("rd_a_i", rd_sig))
+    proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_sync=rst_sync)
+    proc.rst_stmts.append(HDLAssign(reg.h_rack, bit_0))
+    if root.h_bussplit and reg.access in ['rw', 'wo']:
+        # Arbiter: the RAM has only one address bus on port A.
+        rack = HDLAnd(HDLAnd(reg.h_rreq, HDLNot(arr.h_wreq)),
+                      HDLNot(reg.h_rack))
     else:
-        # External port is RO.
-        module.stmts.append(HDLAssign(reg.h_ext_wr, bit_0))
+        rack = reg.h_rreq
+    proc.sync_stmts.append(HDLAssign(reg.h_rack, rack))
+    module.stmts.append(proc)
 
-        proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_sync=rst_sync)
-        proc.rst_stmts.append(HDLAssign(reg.h_rack, bit_0))
-        if root.h_bussplit:
-            rack = HDLAnd(HDLAnd(reg.h_rreq, HDLNot(arr.h_wreq)),
-                          HDLNot(reg.h_rack))
-        else:
-            rack = reg.h_rreq
-        proc.sync_stmts.append(HDLAssign(reg.h_rack, rack))
-        module.stmts.append(proc)
+    if reg.access == 'ro':
+        # Internal port (RO)
+        inst.conns.append(("data_a_i", reg.h_sig_dati))  # Unused.
+        inst.conns.append(("data_a_o", reg.h_sig_dato))
+        inst.conns.append(("rd_a_i", reg.h_rreq))
+        inst.conns.append(("wr_a_i", reg.h_sig_wr))
 
+        module.stmts.append(HDLAssign(reg.h_sig_wr, bit_0))
+        module.stmts.append(HDLAssign(reg.h_sig_dati, HDLReplicate(bit_x, reg.c_rwidth)))
+
+        # External port (WO)
+        module.stmts.append(HDLAssign(reg.h_ext_rd, bit_0))
+
+        inst.conns.append(("addr_b_i", arr.h_addr))
+        inst.conns.append(("data_b_i", reg.h_dat))
+        inst.conns.append(("data_b_o", reg.h_dat_ign))
+        inst.conns.append(("rd_b_i", reg.h_ext_rd))
+        inst.conns.append(("wr_b_i", reg.h_wr))
+    else:
+        # Internal port (RW)
         inst.conns.append(("data_a_i", ibus.wr_dat))
         inst.conns.append(("data_a_o", reg.h_sig_dato))
         inst.conns.append(("rd_a_i", reg.h_rreq))
         inst.conns.append(("wr_a_i", reg.h_sig_wr))
+
+        # External port (RO)
+        module.stmts.append(HDLAssign(reg.h_ext_wr, bit_0))
 
         inst.conns.append(("addr_b_i", arr.h_addr))
         inst.conns.append(("data_b_i", reg.h_dat_ign))
@@ -1489,7 +1512,7 @@ def add_read_mux_process(root, module, ibus):
                 s.append(HDLAssign(rd_data, r.h_sig_dato))
                 # Set rd signal to ram: read when there is not WR request,
                 # and either a read request or a pending read request.
-                if root.h_bussplit:
+                if root.h_bussplit and r.access in ['wo', 'rw']:
                     rd_sig = HDLAnd(ibus.rd_req, HDLNot(n.h_wreq))
                     rdproc.sensitivity.extend([n.h_wreq])
                 else:
@@ -1551,9 +1574,10 @@ def add_write_mux_process(root, module, ibus):
                 s.append(HDLComment("RAM {}".format(n.c_name)))
                 # TODO: handle list of registers!
                 r = n.children[0]
-                wrproc.stmts.append(HDLAssign(r.h_sig_wr, bit_0))
-                s.append(HDLAssign(r.h_sig_wr, ibus.wr_req))
-                s.append(HDLAssign(ibus.wr_ack, ibus.wr_req))
+                if r.access in ['rw', 'wo']:
+                    wrproc.stmts.append(HDLAssign(r.h_sig_wr, bit_0))
+                    s.append(HDLAssign(r.h_sig_wr, ibus.wr_req))
+                    s.append(HDLAssign(ibus.wr_ack, ibus.wr_req))
                 return
             else:
                 # Blocks have been handled.
