@@ -10,6 +10,7 @@ entity alt_trigin is
     wb_i                 : in    t_wishbone_slave_in;
     wb_o                 : out   t_wishbone_slave_out;
 
+    -- Control register
     -- Enable trigger, cleared when triggered
     ctrl_enable_i        : in    std_logic;
     ctrl_enable_o        : out   std_logic;

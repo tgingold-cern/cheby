@@ -17,12 +17,15 @@ entity wires1 is
     wb_rty_o             : out   std_logic;
     wb_stall_o           : out   std_logic;
     wb_dat_o             : out   std_logic_vector(31 downto 0);
+
     strobe_o             : out   std_logic_vector(31 downto 0);
     strobe_wr_o          : out   std_logic;
     strobe_rd_o          : out   std_logic;
+
     wires_i              : in    std_logic_vector(31 downto 0);
     wires_o              : out   std_logic_vector(31 downto 0);
     wires_rd_o           : out   std_logic;
+
     acks_i               : in    std_logic_vector(31 downto 0);
     acks_o               : out   std_logic_vector(31 downto 0);
     acks_wr_o            : out   std_logic;

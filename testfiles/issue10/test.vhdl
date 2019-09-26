@@ -29,18 +29,18 @@ entity test is
     -- Test register 1
     register1_o          : out   std_logic_vector(63 downto 0);
 
+    -- Test register 2
     -- Test field 1
     block1_register2_field1_i : in    std_logic;
-
     -- Test field 2
     block1_register2_field2_i : in    std_logic_vector(2 downto 0);
 
     -- Test register 3
     block1_register3_o   : out   std_logic_vector(31 downto 0);
 
+    -- Test register 4
     -- Test field 3
     block1_block2_register4_field3_i : in    std_logic;
-
     -- Test field 4
     block1_block2_register4_field4_i : in    std_logic_vector(2 downto 0)
   );

@@ -16,6 +16,7 @@ entity semver1 is
     wb_rty_o             : out   std_logic;
     wb_stall_o           : out   std_logic;
     wb_dat_o             : out   std_logic_vector(31 downto 0);
+
     r1_o                 : out   std_logic_vector(31 downto 0)
   );
 end semver1;

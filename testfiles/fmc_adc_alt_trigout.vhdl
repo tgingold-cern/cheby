@@ -10,51 +10,43 @@ entity alt_trigout is
     wb_i                 : in    t_wishbone_slave_in;
     wb_o                 : out   t_wishbone_slave_out;
 
+    -- Status register
     -- Set when WR is enabled
     wr_enable_i          : in    std_logic;
-
     -- WR link status
     wr_link_i            : in    std_logic;
-
     -- Set when WR time is valid
     wr_valid_i           : in    std_logic;
-
     -- Set when the timestamp fifo is not empty
     ts_present_i         : in    std_logic;
 
+    -- Control register
     -- Enable channel 1 trigger
     ch1_enable_o         : out   std_logic;
-
     -- Enable channel 2 trigger
     ch2_enable_o         : out   std_logic;
-
     -- Enable channel 3 trigger
     ch3_enable_o         : out   std_logic;
-
     -- Enable channel 4 trigger
     ch4_enable_o         : out   std_logic;
-
     -- Enable external trigger
     ext_enable_o         : out   std_logic;
 
+    -- Time (seconds) of the last event
     -- Seconds part of the timestamp
     ts_sec_i             : in    std_logic_vector(39 downto 0);
-
     -- Set if channel 1 triggered
     ch1_mask_i           : in    std_logic;
-
     -- Set if channel 2 triggered
     ch2_mask_i           : in    std_logic;
-
     -- Set if channel 3 triggered
     ch3_mask_i           : in    std_logic;
-
     -- Set if channel 4 triggered
     ch4_mask_i           : in    std_logic;
-
     -- Set if external trigger
     ext_mask_i           : in    std_logic;
 
+    -- Reading this register discard the entry
     -- Cycles
     cycles_i             : in    std_logic_vector(27 downto 0);
     ts_cycles_rd_o       : out   std_logic

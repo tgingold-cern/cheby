@@ -13,7 +13,9 @@ entity exemple is
     VMEWrMem             : in    std_logic;
     VMERdDone            : out   std_logic;
     VMEWrDone            : out   std_logic;
+
     smallReg_i           : in    std_logic_vector(15 downto 0);
+
     largeReg_i           : in    std_logic_vector(63 downto 0)
   );
 end exemple;
