@@ -84,7 +84,7 @@ def sprint_composite(sp, n):
     sp.sp_info("[al: {}, sz: {}, sel: {}, blk: {}] ".format(
                 n.c_align, n.c_size, n.c_sel_bits, n.c_blk_bits))
     sp.inc()
-    for el in n.children:
+    for el in n.c_sorted_children:
         sp.visit(el)
     sp.dec()
 
