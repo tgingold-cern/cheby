@@ -50,7 +50,7 @@ To create a new release:
 
 * Update the wiki at https://gitlab.cern.ch/cohtdrivers/cheby/wikis/home
 
-## Version 1.4
+## Version 1.4 (dev)
 
 Add x-hdl:pipeline to control pipelining of the root.
 
@@ -62,6 +62,8 @@ or ident-code.
 Fix --gen-gena-regctrl generation for inline multi-word register (issue#32)
 
 gena2cheby: do not generate duplicate x-gena:preset attribute (issue#33)
+
+Improve comments generation on ports (issue#35)
 
 ## Version 1.3
 
