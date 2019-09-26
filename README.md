@@ -67,6 +67,8 @@ Improve comments generation on ports (issue#35)
 
 gena2cheby: set 'interface' to 'include' if 'include=int' was set (issue#23)
 
+Add support for memories with ro access (issue#22)
+
 ## Version 1.3
 
 Add x-hdl:port to specify how ports are generated for registers (issue#11)
