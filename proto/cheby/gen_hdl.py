@@ -322,11 +322,12 @@ class WBBus(BusGen):
         self.add_decode_wb(root, module, ibus, busgroup is True)
 
     def gen_bus_slave(self, root, module, prefix, n, busgroup):
+        comment = '\n' + (n.comment or n.description or 'WB bus {}'.format(n.name))
         n.h_busgroup = busgroup
         n.h_bus = self.gen_wishbone(
             module, module, n.c_name,
             n.c_addr_bits, root.c_addr_word_bits, root.c_word_bits,
-            n.description, True, busgroup is True)
+            comment, True, busgroup is True)
         # Internal signals
         # Enable (set by decoding logic)
         n.h_re = module.new_HDLSignal(prefix + 're')
@@ -558,7 +559,8 @@ class AXI4LiteBus(BusGen):
         n.h_bus = {}
         for name, p in ports:
             n.h_bus[name] = p
-        n.h_bus['awvalid'].comment = n.description
+        comment = '\n' + (n.comment or n.description or 'AXI-4 lite bus {}'.format(n.name))
+        n.h_bus['awvalid'].comment = comment
         # Internal signals: valid signals.
         n.h_aw_val = module.new_HDLSignal(prefix + 'aw_val')
         n.h_w_val = module.new_HDLSignal(prefix + 'w_val')
@@ -703,7 +705,8 @@ class CERNBEBus(BusGen):
         n.h_bus = {}
         for name, p in ports:
             n.h_bus[name] = p
-        n.h_bus['adrr' if self.split else 'adr'].comment = n.description
+        comment = '\n' + (n.comment or n.description or 'CERN-BE bus {}'.format(n.name))
+        n.h_bus['adrr' if self.split else 'adr'].comment = comment
         if root.h_bussplit:
             # Request signals
             n.h_wr = module.new_HDLSignal(prefix + 'wr')
@@ -882,8 +885,7 @@ def add_ports_reg(root, module, n):
     n.h_has_regs = False
 
     # Register comment.  Always add a separation between registers ports.
-    comment = n.comment or n.description
-    comment = '' if comment is None else '\n' + comment
+    comment = '\n' + (n.comment or n.description or "REG {}".format(n.name))
 
     for f in n.children:
         w = None if f.c_iowidth == 1 else f.c_iowidth
@@ -1013,7 +1015,7 @@ def add_ports_array(root, module, arr):
     arr.h_addr_width = ilog2(arr.repeat_val)
     arr.h_addr = add_module_port(
         root, module, arr.c_name + '_adr', arr.h_addr_width, 'IN')
-    arr.h_addr.comment = "RAM port for {}".format(arr.c_name)
+    arr.h_addr.comment = '\n' + "RAM port for {}".format(arr.c_name)
 
 
 def add_ports_array_reg(root, module, reg):
