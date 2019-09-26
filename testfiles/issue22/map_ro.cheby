@@ -1,0 +1,14 @@
+memory-map:
+  bus: axi4-lite-32
+  name: map_ro
+  children:
+    - array:
+        name: memoryData
+        address: next
+        repeat: 1024
+        children:
+          - reg:
+              name: block
+              address: next
+              width: 16
+              access: ro
