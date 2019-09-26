@@ -65,6 +65,8 @@ gena2cheby: do not generate duplicate x-gena:preset attribute (issue#33)
 
 Improve comments generation on ports (issue#35)
 
+gena2cheby: set 'interface' to 'include' if 'include=int' was set (issue#23)
+
 ## Version 1.3
 
 Add x-hdl:port to specify how ports are generated for registers (issue#11)
