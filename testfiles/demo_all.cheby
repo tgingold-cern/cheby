@@ -68,11 +68,12 @@ memory-map:
         name: sub1
         description: A normal submap
         filename: demo_all_sub.cheby
+        include: False
     - submap:
         name: sub2
         description: An included submap
         filename: demo_all_sub.cheby
-        interface: include
+        include: True
     - submap:
         name: sub3
         size: 0x1000

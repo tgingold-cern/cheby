@@ -36,7 +36,7 @@ memory-map:
       name: localreg
       description: Per-Core Local Registers
       filename: mt_cpu_lr.cheby
-      interface: include
+      include: True
   - submap:
       address: 0x00200000
       size:    0x00100000
