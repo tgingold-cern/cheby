@@ -32,6 +32,10 @@ def align(n, mul):
     return ((n + mul - 1) // mul) * mul
 
 
+def warning(n, msg):
+    sys.stderr.write("{}:layout warning: {}\n".format(n.get_root().c_filename, msg))
+
+
 def get_gena(n, name, default=None):
     "Get the value from a gena extension"
     return n.get_extension('x_gena', name, default)
@@ -308,6 +312,12 @@ def layout_submap(lo, n):
         if n.interface is None:
             raise LayoutException(
                 n, "no interface for generic submap '{}'".format(n.get_path()))
+        if n.interface == 'include':
+            raise LayoutException(
+                n, "'interface' cannot be 'include' for the generic submap '{}'".format(n.get_path()))
+        if n.include is not None:
+            raise LayoutException(
+                n, "use of 'include' is not allowed when 'filename' is not present")
         n.c_size = n.size_val
         n.c_interface = n.interface
     else:
@@ -318,9 +328,18 @@ def layout_submap(lo, n):
         layout_cheby_memmap(submap)
         n.c_submap = submap
         n.c_size = n.c_submap.c_size
+        if n.interface == 'include':
+            warning(n, "use of 'interface: include' is deprecated (for '{}')".format (n.get_path()))
+            warning(n, "use 'include: True' instead")
+            n.include = True
+            n.interface = None
         if n.interface is None:
             n.c_interface = submap.bus
-        elif n.interface == 'include':
+        else:
+            raise LayoutException(
+                n, "interface override is not allowed for submap '{}'".format(
+                    n.get_path()))
+        if n.include is True:
             # Check compatibility of word-endianness.
             if ((lo.root.c_word_endian == 'big' and submap.c_word_endian == 'little')
                 or (lo.root.c_word_endian == 'little' and submap.c_word_endian == 'big')):
@@ -332,10 +351,6 @@ def layout_submap(lo, n):
                 raise LayoutException(
                     n, "cannot include submap '{}' with word endianness != 'none'".format(
                         n.get_path()))
-        else:
-            raise LayoutException(
-                n, "interface override is not allowed for submap '{}'".format(
-                    n.get_path()))
     n.c_addr_bits = ilog2(n.c_size) - lo.root.c_addr_word_bits
     align_block(lo, n)
 

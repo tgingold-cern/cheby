@@ -998,7 +998,7 @@ def add_ports_submap(root, module, n):
         n.h_busgen = name_to_busgen(n.interface)
         n.h_busgen.gen_bus_slave(root, module, n.c_name + '_', n, busgroup)
     else:
-        if n.interface == 'include':
+        if n.include is True:
             # Inline
             add_ports(root, module, n.c_submap)
         else:
@@ -1271,7 +1271,7 @@ def add_processes(root, module, ibus, node):
         if isinstance(n, tree.Block):
             add_processes(root, module, ibus, n)
         elif isinstance(n, tree.Submap):
-            if n.interface == 'include':
+            if n.include is True:
                 add_processes(root, module, ibus, n.c_submap)
             else:
                 n.h_busgen.wire_bus_slave(root, module, n, ibus)
@@ -1372,7 +1372,7 @@ def gather_leaves(n):
     if isinstance(n, tree.Reg):
         return [n]
     elif isinstance(n, tree.Submap):
-        if n.interface == 'include':
+        if n.include is True:
             return gather_leaves(n.c_submap)
         else:
             return [n]

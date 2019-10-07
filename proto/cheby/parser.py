@@ -219,6 +219,8 @@ def parse_submap(parent, el):
             res.filename = read_text(res, k, v)
         elif k == 'interface':
             res.interface = read_text(res, k, v)
+        elif k == 'include':
+            res.include = read_bool(res, k, v)
         else:
             error("unhandled '{}' in submap {}".format(k, parent.get_path()))
     return res

@@ -159,6 +159,7 @@ def pprint_submap(pp, n):
     pprint_complex_head(pp, n)
     pp.pp_str('filename', n.filename)
     pp.pp_str('interface', n.interface)
+    pp.pp_bool('include', n.include)
     pprint_complex_tail(pp, n)
     pp.pp_endobj()
 
