@@ -69,6 +69,8 @@ gena2cheby: set 'interface' to 'include' if 'include=int' was set (issue#23)
 
 Add support for memories with ro access (issue#22)
 
+Add attribute `include` for submaps (issue#36)
+
 ## Version 1.3
 
 Add x-hdl:port to specify how ports are generated for registers (issue#11)

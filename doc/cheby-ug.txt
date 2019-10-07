@@ -160,12 +160,12 @@ Some attributes are common to all nodes:
 * `name`: The name of the node.  This is required for all nodes.  The name is
 also used to create HDL or C names in general files.
 
-* `description`: This should be a short text that explain the purpose
+* `comment`: This should be a short text that explain the purpose
 of the node.  The description is copied into the code (as a comment)
 to make it more readable.  This attribute is not required but it is recommended
 to always provide it.
 
-* `comment`: This is a longer text that will be copied into the generated
+* `description`: This is a longer text that will be copied into the generated
 documentation.
 
 * `children`: For nodes that have children, this is a list of the children.
@@ -439,9 +439,10 @@ Example of a replication:
 
 === Submap
 
-If the `filename` attribue is not present, then this is a generic
+If the `filename` attribute is not present, then this is a generic
 submap and a bus port is generated in the HDL.  The size of the submap
-is required.
+is required.  The attribute `interface` specifies which interface is used
+for the connection.
 
 Example of a generic submap:
 
@@ -456,7 +457,7 @@ Example of a generic submap:
 
 If the `filename` attribute is present, the `size` attribute is not allowed as
 the size of the submap is defined by the memory map given by the file.  If the
-`interface` attribute is present and set to `include`, then the memory map
+`include` attribute is present and set to `True`, then the memory map
 described by the file is included directly, otherwise a bus interface is
 generated in the HDL.
 
@@ -478,7 +479,7 @@ Example of an included submap:
         name: sub2
         description: An included submap
         filename: demo_all_sub.cheby
-        interface: include
+        include: True
 ----
 
 ==  Generated HDL
