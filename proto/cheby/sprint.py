@@ -70,18 +70,9 @@ def sprint_submap(sp, n):
     sp.base_addr = old_base
 
 
-@SimplePrinter.register(tree.Array)
-def sprint_array(sp, n):
-    sp.sp_name('array[{}] of {}'.format(n.repeat_val, n.c_elsize), n)
-    old_base = sp.base_addr
-    sp.base_addr = 0
-    sprint_composite(sp, n)
-    sp.base_addr = old_base
-
-
 @SimplePrinter.register(tree.Memory)
 def sprint_memory(sp, n):
-    sp.sp_name('memory[{} bytes] of {}'.format(n.size_val, n.c_elsize), n)
+    sp.sp_name('memory[{}] of {}'.format(n.c_depth, n.c_elsize), n)
     old_base = sp.base_addr
     sp.base_addr = 0
     sprint_composite(sp, n)

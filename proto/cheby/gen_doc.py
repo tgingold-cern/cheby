@@ -83,8 +83,8 @@ class MemmapSummary(object):
                 self.raws.append(SummaryRaw(rng, 'SUBMAP', name, n, n_addr))
                 if n.filename is not None:
                     self.gen_raws(n.c_submap, name + '.', addr_pfx, n_addr)
-            elif isinstance(n, tree.Array):
-                self.raws.append(SummaryRaw(rng, 'ARRAY', name, n, n_addr))
+            elif isinstance(n, tree.Memory):
+                self.raws.append(SummaryRaw(rng, 'MEMORY', name, n, n_addr))
                 self.gen_raws(n, name + '.', addr_pfx + ' +', 0)
             else:
                 assert False, "MemmapSummary: unhandled tree node {}".format(n)

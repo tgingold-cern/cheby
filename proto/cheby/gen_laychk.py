@@ -31,12 +31,6 @@ def sprint_block(cg, n):
     chklayout_composite(cg, n)
 
 
-@ChkGen.register(tree.Array)
-def sprint_array(cg, n):
-    cg.cg_size(n.name, n.c_elsize)
-    chklayout_composite(cg, n)
-
-
 @ChkGen.register(tree.Memory)
 def sprint_memory(cg, n):
     cg.cg_size(n.name, n.c_elsize)

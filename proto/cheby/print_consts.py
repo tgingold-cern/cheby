@@ -190,13 +190,6 @@ def pconsts_submap(pr, n):
         pconsts_composite(pr, n.c_submap)
 
 
-@ConstsVisitor.register(tree.Array)
-def pconsts_array(pr, n):
-    pr.pr_address(n)
-    pr.pr_size(n, n.c_elsize)
-    pconsts_composite(pr, n)
-
-
 @ConstsVisitor.register(tree.Memory)
 def pconsts_memory(pr, n):
     pr.pr_address(n)

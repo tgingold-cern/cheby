@@ -367,29 +367,6 @@ def layout_block(lo, n):
     align_block(lo, n)
 
 
-@Layout.register(tree.Array)
-def layout_array(lo, n):
-    # Sanity check
-    if len(n.children) != 1:
-        raise LayoutException(
-            n, "array '{}' must have one element".format(n.get_path()))
-    if n.repeat_val is None:
-        raise LayoutException(
-            n, "missing repeat count for {}".format(n.get_path()))
-    layout_composite(lo, n)
-    n.c_elsize = align(n.c_size, n.c_align)
-    if n.align is None or n.align:
-        # Align to power of 2.
-        n.c_elsize = round_pow2(n.c_elsize)
-        n.c_size = n.c_elsize * n.repeat_val
-        n.c_align = n.c_elsize * round_pow2(n.repeat_val)
-    else:
-        n.c_size = n.c_elsize * n.repeat_val
-    # FIXME: only significant when aligned ?
-    n.c_blk_bits = ilog2(n.c_elsize)
-    n.c_sel_bits = ilog2(n.c_size) - n.c_blk_bits
-
-
 @Layout.register(tree.Repeat)
 def layout_repeat(lo, n):
     # Sanity check
@@ -590,7 +567,7 @@ def set_abs_address(n, base_addr):
     elif isinstance(n, tree.Submap):
         if n.filename is not None:
             set_abs_address(n.c_submap, n.c_abs_addr)
-    elif isinstance(n, (tree.Memory, tree.Repeat, tree.Array)):
+    elif isinstance(n, (tree.Memory, tree.Repeat)):
         # Still relative, but need to set c_abs_addr
         for e in n.children:
             set_abs_address(e, 0)

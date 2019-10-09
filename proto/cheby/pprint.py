@@ -164,15 +164,6 @@ def pprint_submap(pp, n):
     pp.pp_endobj()
 
 
-@PrettyPrinter.register(tree.Array)
-def pprint_array(pp, n):
-    pp.pp_obj('array')
-    pprint_complex_head(pp, n)
-    pp.pp_str('repeat', n.repeat_str)
-    pprint_complex_tail(pp, n)
-    pp.pp_endobj()
-
-
 @PrettyPrinter.register(tree.Memory)
 def pprint_memory(pp, n):
     pp.pp_obj('memory')

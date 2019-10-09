@@ -509,7 +509,7 @@ def conv_memory_channel(el):
 
 
 def conv_memory_data(parent, el):
-    res = cheby.tree.Array(parent)
+    res = cheby.tree.Memory(parent)
     res.x_gena = {}
     res.x_fesa = {}
     attrs = el.attrib
@@ -547,8 +547,8 @@ def conv_memory_data(parent, el):
         else:
             raise UnknownAttribute(k)
     res.address = conv_address(attrs['address'])
-    res.repeat_str = attrs['element-depth']
-    res.repeat_val = conv_depth(res.repeat_str)
+    res.size_str = attrs['element-depth']
+    res.size_val = conv_depth(res.size_str)
 
     reg = cheby.tree.Reg(res)
     res.children.append(reg)
@@ -561,18 +561,6 @@ def conv_memory_data(parent, el):
         error('memory data of {} is widened from {} to {}.'.format(
               res.name, reg.width, bus_width))
         reg.width = bus_width
-    # Convert repeat from bytes to words.
-    ws = reg.width // cheby.tree.BYTE_SIZE
-    res.repeat_val //= ws
-    repeat_unit = res.repeat_str[-1]
-    if repeat_unit in "kMG":
-        v = int(res.repeat_str[:-1])
-        if v % ws != 0:
-            v = v * 1024
-            repeat_unit = {'k': '', 'M': 'k', 'G': 'M'}[repeat_unit]
-        res.repeat_str = "{}{}".format(v // ws, repeat_unit)
-    else:
-        res.repeat_str = str(res.repeat_val)
 
     memory_channel = []
     for child in el:

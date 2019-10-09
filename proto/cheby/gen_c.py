@@ -110,15 +110,6 @@ def cprint_block(cp, n):
     cp.end_struct(n.name)
 
 
-@CPrinter.register(tree.Array)
-def cprint_array(cp, n):
-    cp.cp_txt('/* [0x{:x}]: ARRAY {} */'.format(
-              n.c_address, n.description or '(no description)'))
-    cp.start_struct(n.name)
-    cprint_children(cp, n, n.c_elsize)
-    cp.end_struct('{}[{}]'.format(n.name, n.repeat_val))
-
-
 @CPrinter.register(tree.Memory)
 def cprint_memory(cp, n):
     cp.cp_txt('/* [0x{:x}]: MEMORY {} */'.format(

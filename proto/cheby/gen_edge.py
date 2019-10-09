@@ -93,17 +93,13 @@ def p_body(e, b, n, offset):
     for el in n.children:
         if isinstance(el, tree.Reg):
             b.append_reg(el, offset)
-        elif isinstance(el, tree.Array):
-            if len(el.children) == 1 \
-               and isinstance(el.children[0], tree.Reg) \
-               and (el.align is None or el.align):
-                # A regular memory
-                b.append_reg(el.children[0], offset)
-            else:
-                b2 = EncoreBlock(el.name)
-                p_body(e, b2, el, 0)
-                for i in range(0, el.repeat_val):
-                    e.instantiate("{}_{}".format(el.name, i), b2, offset + el.c_abs_addr + i * el.c_elsize)
+        elif isinstance(el, tree.Memory):
+            b.append_reg(el.children[0], offset)
+        elif isinstance(el, tree.Repeat):
+            b2 = EncoreBlock(el.name)
+            p_body(e, b2, el, 0)
+            for i in range(0, el.count):
+                e.instantiate("{}_{}".format(el.name, i), b2, offset + el.c_abs_addr + i * el.c_elsize)
         elif isinstance(el, tree.Block):
             p_body(e, b, el, offset)
         elif isinstance(el, tree.Submap):

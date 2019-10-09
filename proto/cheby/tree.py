@@ -138,15 +138,6 @@ class Memory(CompositeNode):
         self.c_depth = None       # Memory depth (size / elsize)
 
 
-class Array(CompositeNode):
-    _dispatcher = {}
-
-    def __init__(self, parent):
-        super(Array, self).__init__(parent)
-        self.repeat_str = None      # As a string, with k/M/G suffixes
-        self.repeat_val = None
-
-
 class Reg(NamedNode):
     _dispatcher = {}
 
