@@ -93,7 +93,7 @@ def convFactorSyntaxModifier(convFactorInput):
         validator.visit(ast.parse(convFactorInput))
         return validator.convertVariablesSyntax()
     except Exception as errMsg:
-        raise UnknownValue("Failed to parse conversion factor: {}: {}".format(convFactorInput, errMsg))
+        raise UnknownValue("Failed to parse conversion factor: {}: {}".format(convFactorInput, errMsg), None)
 
 
 def error(str):

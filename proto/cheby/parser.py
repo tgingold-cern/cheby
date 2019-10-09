@@ -1,3 +1,4 @@
+import sys
 import yaml
 import cheby.tree as tree
 
@@ -10,6 +11,8 @@ class ParseException(Exception):
 def error(msg):
     raise ParseException(msg)
 
+def warning(n, msg):
+    sys.stderr.write("{}:warning: {}\n".format(n.get_root().c_filename, msg))
 
 def isstr(s):
     "Test if s is a string (python 2 and 3)"
@@ -115,6 +118,10 @@ def parse_children(node, val):
                 ch = parse_submap(node, v)
             elif k == 'array':
                 ch = parse_array(node, v)
+            elif k == 'memory':
+                ch = parse_memory(node, v)
+            elif k == 'repeat':
+                ch = parse_repeat(node, v)
             else:
                 error("unhandled '{}' in children of {}".format(
                       k, node.get_path()))
@@ -229,14 +236,50 @@ def parse_submap(parent, el):
 def parse_array(parent, el):
     if not isinstance(el, dict):
         error("array {} must be a dictionnary".format(parent.get_path()))
-    res = tree.Array(parent)
+    if el.get('align', True):
+        res = tree.Memory(parent)
+    else:
+        res = tree.Repeat(parent)
     for k, v in el.items():
         if parse_complex(res, k, v):
             pass
         elif k == 'repeat':
-            res.repeat_str, res.repeat_val = read_size(res, k, v)
+            if isinstance(res, tree.Memory):
+                _, res.c_depth = read_size(res, k, v)
+            else:
+                res.count = read_int(res, k, v)
         else:
             error("unhandled '{}' in array {}".format(k, parent.get_path()))
+    if isinstance(res, tree.Memory):
+        warning(res, "'array' is deprecated, use 'memory' for {}".format(res.get_path()))
+    else:
+        warning(res, "'array' is deprecated, use 'repeat' for {}".format(res.get_path()))
+    return res
+
+
+def parse_repeat(parent, el):
+    if not isinstance(el, dict):
+        error("repeat {} must be a dictionnary".format(parent.get_path()))
+    res = tree.Repeat(parent)
+    for k, v in el.items():
+        if parse_complex(res, k, v):
+            pass
+        elif k == 'count':
+            res.count = read_int(res, k, v)
+        else:
+            error("unhandled '{}' in repeat {}".format(k, parent.get_path()))
+    return res
+
+
+def parse_memory(parent, el):
+    if not isinstance(el, dict):
+        error("memory {} must be a dictionnary".format(parent.get_path()))
+    res = tree.Memory(parent)
+    for k, v in el.items():
+        if parse_complex(res, k, v):
+            pass
+        else:
+            error("unhandled '{}' in memory {}".format(k, parent.get_path()))
     return res
 
 

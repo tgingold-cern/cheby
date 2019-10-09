@@ -192,7 +192,7 @@ def tree_copy(n, new_parent):
         raise AssertionError(n)
 
 
-def unroll_array(n):
+def unroll_repeat(n):
     # Transmute the array to a block with children
     res = tree.Block(n._parent)
     res.name = n.name
@@ -203,7 +203,7 @@ def unroll_array(n):
     res.c_size = n.c_size
     assert len(n.children) == 1
     el = n.children[0]
-    for i in range(n.repeat_val):
+    for i in range(n.count):
         c = tree_copy(el, res)
         c.name = "{}_{}".format(el.name, i)
         c.c_address = i * n.c_elsize
@@ -212,15 +212,15 @@ def unroll_array(n):
     return res
 
 
-def unroll_arrays(n):
+def unroll_repeats(n):
     if isinstance(n, tree.Reg):
         # Nothing to do.
         return n
-    if isinstance(n, tree.Array) and n.align is False:
+    if isinstance(n, tree.Repeat):
         # Unroll
-        return unroll_array(n)
+        return unroll_repeat(n)
     if isinstance(n, tree.CompositeNode):
-        nl = [unroll_arrays(el) for el in n.children]
+        nl = [unroll_repeats(el) for el in n.children]
         n.children = nl
         layout.build_sorted_children(n)
         return n
@@ -229,5 +229,5 @@ def unroll_arrays(n):
 
 def expand_hdl(root):
     expand_x_hdl(root)
-    unroll_arrays(root)
+    unroll_repeats(root)
     layout.set_abs_address(root, 0)

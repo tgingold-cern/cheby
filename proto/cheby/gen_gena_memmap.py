@@ -172,7 +172,7 @@ def gen_memory_data(n, root, decls, name, pfx):
     word_width = ilog2(root.c_word_size)
     addr_width = ilog2(n.c_size) - word_width
     for e in n.children:
-        if isinstance(e, tree.Array):
+        if isinstance(e, tree.Memory):
             addr = e.c_address >> word_width
             e.h_gena_sta = gen_addr_cst(
                 decls, addr, 'C_Mem_{}_{}_Sta'.format(pfx, e.name),

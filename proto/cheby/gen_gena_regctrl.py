@@ -73,7 +73,7 @@ def extract_mux(root, mux, reg):
         code_obj = res.sel
         code_attr = 'code'
     if code_attr == 'memory-channel':
-        assert isinstance(code_obj, tree.Array)
+        assert isinstance(code_obj, tree.Memory)
         channels = code_obj.get_extension('x_gena', 'memory-channels', None)
         for d in channels:
             chan = d['memory-channel']
@@ -1127,7 +1127,7 @@ def gen_hdl_area_decls(area, pfx, root, module, isigs):
                 el.h_ignored = True
             else:
                 gen_hdl_reg_decls(el, pfx, root, module, isigs)
-        elif isinstance(el, tree.Array):
+        elif isinstance(el, tree.Memory):
             gen_hdl_mem_decls(el, pfx, root, module, isigs)
         elif isinstance(el, (tree.Block, tree.Submap)):
             if el.get_extension('x_gena', 'reserved', False):
@@ -1187,7 +1187,7 @@ def gen_hdl_area(area, pfx, area_root, root, module, root_isigs):
             continue
         if isinstance(el, tree.Reg):
             regs.append(el)
-        elif isinstance(el, tree.Array):
+        elif isinstance(el, tree.Memory):
             mems.append(el)
         elif isinstance(el, (tree.Block, tree.Submap)):
             blks.append(el)

@@ -79,6 +79,24 @@ def sprint_array(sp, n):
     sp.base_addr = old_base
 
 
+@SimplePrinter.register(tree.Memory)
+def sprint_memory(sp, n):
+    sp.sp_name('memory[{} bytes] of {}'.format(n.size_val, n.c_elsize), n)
+    old_base = sp.base_addr
+    sp.base_addr = 0
+    sprint_composite(sp, n)
+    sp.base_addr = old_base
+
+
+@SimplePrinter.register(tree.Repeat)
+def sprint_repeat(sp, n):
+    sp.sp_name('repeat[{}] of {}'.format(n.count, n.c_elsize), n)
+    old_base = sp.base_addr
+    sp.base_addr = 0
+    sprint_composite(sp, n)
+    sp.base_addr = old_base
+
+
 @SimplePrinter.register(tree.CompositeNode)
 def sprint_composite(sp, n):
     sp.sp_info("[al: {}, sz: {}, sel: {}, blk: {}] ".format(

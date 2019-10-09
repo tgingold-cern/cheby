@@ -122,6 +122,22 @@ class Submap(CompositeNode):
         self.c_submap = None
 
 
+class Repeat(CompositeNode):
+    _dispatcher = {}
+
+    def __init__(self, parent):
+        super(Repeat, self).__init__(parent)
+        self.count = None
+
+
+class Memory(CompositeNode):
+    _dispatcher = {}
+
+    def __init__(self, parent):
+        super(Memory, self).__init__(parent)
+        self.c_depth = None       # Memory depth (size / elsize)
+
+
 class Array(CompositeNode):
     _dispatcher = {}
 

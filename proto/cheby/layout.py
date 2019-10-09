@@ -390,6 +390,51 @@ def layout_array(lo, n):
     n.c_sel_bits = ilog2(n.c_size) - n.c_blk_bits
 
 
+@Layout.register(tree.Repeat)
+def layout_repeat(lo, n):
+    # Sanity check
+    if len(n.children) != 1:
+        raise LayoutException(
+            n, "repeat '{}' must have one element".format(n.get_path()))
+    if n.count is None:
+        raise LayoutException(
+            n, "missing repeat count for {}".format(n.get_path()))
+    layout_composite(lo, n)
+    n.c_elsize = align(n.c_size, n.c_align)
+    n.c_size = n.c_elsize * n.count
+
+
+@Layout.register(tree.Memory)
+def layout_memory(lo, n):
+    # Sanity check
+    if len(n.children) != 1 or not isinstance(n.children[0], tree.Reg):
+        raise LayoutException(
+            n, "memory '{}' must have one element (a register)".format(n.get_path()))
+    layout_composite(lo, n)
+    n.c_elsize = align(n.c_size, n.c_align)
+    if n.size_val is None:
+        if n.c_depth is None:
+            raise LayoutException(
+                n, "missing size for memory {}".format(n.get_path()))
+        else:
+            # For backward compatibility with array.
+            n.size_val = n.c_depth * n.c_elsize
+    if n.align is not None and not n.align:
+        raise LayoutException(
+            n, "memory '{}' must be aligned")
+    # Align to power of 2.
+    n.c_elsize = round_pow2(n.c_elsize)
+    if n.size_val % n.c_elsize != 0:
+        raise LayoutException(
+            n, "memory size '{}' is not a multiple of the element")
+    n.c_depth = n.size_val // n.c_elsize
+    n.c_size = n.size_val
+    n.c_align = round_pow2(n.size_val)
+
+    n.c_blk_bits = ilog2(n.c_elsize)
+    n.c_sel_bits = ilog2(n.c_size) - n.c_blk_bits
+
+
 def build_sorted_children(n):
     """Create c_sorted_children (list of children sorted by address)"""
     n.c_sorted_children = sorted(n.children, key=(lambda x: x.c_address))
@@ -545,7 +590,7 @@ def set_abs_address(n, base_addr):
     elif isinstance(n, tree.Submap):
         if n.filename is not None:
             set_abs_address(n.c_submap, n.c_abs_addr)
-    elif isinstance(n, tree.Array):
+    elif isinstance(n, (tree.Memory, tree.Repeat, tree.Array)):
         # Still relative, but need to set c_abs_addr
         for e in n.children:
             set_abs_address(e, 0)

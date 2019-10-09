@@ -173,6 +173,23 @@ def pprint_array(pp, n):
     pp.pp_endobj()
 
 
+@PrettyPrinter.register(tree.Memory)
+def pprint_memory(pp, n):
+    pp.pp_obj('memory')
+    pprint_complex_head(pp, n)
+    pprint_complex_tail(pp, n)
+    pp.pp_endobj()
+
+
+@PrettyPrinter.register(tree.Repeat)
+def pprint_repeat(pp, n):
+    pp.pp_obj('repeat')
+    pprint_complex_head(pp, n)
+    pp.pp_int('count', n.count)
+    pprint_complex_tail(pp, n)
+    pp.pp_endobj()
+
+
 def pprint_complex_head(pp, n):
     pprint_composite_head(pp, n)
     pprint_address(pp, n)

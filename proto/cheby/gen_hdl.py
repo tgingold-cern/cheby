@@ -1007,18 +1007,18 @@ def add_ports_submap(root, module, n):
             n.h_busgen.gen_bus_slave(root, module, n.c_name + '_', n, busgroup)
 
 
-def add_ports_array(root, module, arr):
+def add_ports_memory(root, module, mem):
     """Create RAM ports and wires shared by all the registers.
     :attr h_addr: the address port
     """
     # Compute width, and create address port.
-    arr.h_addr_width = ilog2(arr.repeat_val)
-    arr.h_addr = add_module_port(
-        root, module, arr.c_name + '_adr', arr.h_addr_width, 'IN')
-    arr.h_addr.comment = '\n' + "RAM port for {}".format(arr.c_name)
+    mem.h_addr_width = ilog2(mem.c_depth)
+    mem.h_addr = add_module_port(
+        root, module, mem.c_name + '_adr', mem.h_addr_width, 'IN')
+    mem.h_addr.comment = '\n' + "RAM port for {}".format(mem.c_name)
 
 
-def add_ports_array_reg(root, module, reg):
+def add_ports_memory_reg(root, module, reg):
     """Create ports and wires for a ram.
     :attr h_we: the write enable
     :attr h_rd: the read enable
@@ -1068,12 +1068,12 @@ def add_ports(root, module, node):
         elif isinstance(n, tree.Submap):
             # Interface
             add_ports_submap(root, module, n)
-        elif isinstance(n, tree.Array):
-            add_ports_array(root, module, n)
+        elif isinstance(n, tree.Memory):
+            add_ports_memory(root, module, n)
             for c in n.children:
                 if isinstance(c, tree.Reg):
                     # Ram
-                    add_ports_array_reg(root, module, c)
+                    add_ports_memory_reg(root, module, c)
                 else:
                     raise AssertionError(c)
         elif isinstance(n, tree.Reg):
@@ -1082,8 +1082,8 @@ def add_ports(root, module, node):
             raise AssertionError
 
 
-def add_processes_array(root, module, ibus, arr):
-    module.stmts.append(HDLComment('Array {}'.format(arr.c_name)))
+def add_processes_memory(root, module, ibus, arr):
+    module.stmts.append(HDLComment('Memory {}'.format(arr.c_name)))
     if root.h_ram is None:
         module.deps.append(('work', 'wbgen2_pkg'))
         root.h_ram = True
@@ -1119,7 +1119,7 @@ def add_processes_array(root, module, ibus, arr):
         arr.h_adr_int = None
 
 
-def add_processes_array_reg(root, module, ibus, reg):
+def add_processes_memory_reg(root, module, ibus, reg):
     arr = reg._parent
     # Instantiate the ram.
     inst = HDLInstance(reg.c_name + "_raminst", "wbgen2_dpssram")
@@ -1275,12 +1275,12 @@ def add_processes(root, module, ibus, node):
                 add_processes(root, module, ibus, n.c_submap)
             else:
                 n.h_busgen.wire_bus_slave(root, module, n, ibus)
-        elif isinstance(n, tree.Array):
-            add_processes_array(root, module, ibus, n)
+        elif isinstance(n, tree.Memory):
+            add_processes_memory(root, module, ibus, n)
             for c in n.children:
                 if isinstance(c, tree.Reg):
                     # Ram
-                    add_processes_array_reg(root, module, ibus, c)
+                    add_processes_memory_reg(root, module, ibus, c)
                 else:
                     raise AssertionError(c)
         elif isinstance(n, tree.Reg):
@@ -1376,7 +1376,7 @@ def gather_leaves(n):
             return gather_leaves(n.c_submap)
         else:
             return [n]
-    elif isinstance(n, tree.Array):
+    elif isinstance(n, tree.Memory):
         return [n]
     elif isinstance(n, (tree.Root, tree.Block)):
         r = []
@@ -1505,7 +1505,7 @@ def add_read_mux_process(root, module, ibus):
             elif isinstance(n, tree.Submap):
                 s.append(HDLComment("Submap {}".format(n.c_name)))
                 n.h_busgen.read_bus_slave(root, s, n, rdproc, ibus, rd_data)
-            elif isinstance(n, tree.Array):
+            elif isinstance(n, tree.Memory):
                 s.append(HDLComment("RAM {}".format(n.c_name)))
                 # TODO: handle list of registers!
                 r = n.children[0]
@@ -1572,7 +1572,7 @@ def add_write_mux_process(root, module, ibus):
                 s.append(HDLComment("Submap {}".format(n.c_name)))
                 n.h_busgen.write_bus_slave(root, s, n, wrproc, ibus)
                 return
-            elif isinstance(n, tree.Array):
+            elif isinstance(n, tree.Memory):
                 s.append(HDLComment("RAM {}".format(n.c_name)))
                 # TODO: handle list of registers!
                 r = n.children[0]

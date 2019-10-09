@@ -37,6 +37,18 @@ def sprint_array(cg, n):
     chklayout_composite(cg, n)
 
 
+@ChkGen.register(tree.Memory)
+def sprint_memory(cg, n):
+    cg.cg_size(n.name, n.c_elsize)
+    chklayout_composite(cg, n)
+
+
+@ChkGen.register(tree.Repeat)
+def sprint_repeat(cg, n):
+    cg.cg_size(n.name, n.c_elsize)
+    chklayout_composite(cg, n)
+
+
 @ChkGen.register(tree.CompositeNode)
 def chklayout_composite(cg, n):
     for el in n.children:

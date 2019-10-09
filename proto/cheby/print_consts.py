@@ -197,6 +197,20 @@ def pconsts_array(pr, n):
     pconsts_composite(pr, n)
 
 
+@ConstsVisitor.register(tree.Memory)
+def pconsts_memory(pr, n):
+    pr.pr_address(n)
+    pr.pr_size(n, n.c_elsize)
+    pconsts_composite(pr, n)
+
+
+@ConstsVisitor.register(tree.Repeat)
+def pconsts_repeat(pr, n):
+    pr.pr_address(n)
+    pr.pr_size(n, n.c_elsize)
+    pconsts_composite(pr, n)
+
+
 @ConstsVisitor.register(tree.CompositeNode)
 def pconsts_composite(pr, n):
     for el in n.children:
