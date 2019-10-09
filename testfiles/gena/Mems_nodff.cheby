@@ -9,10 +9,10 @@ memory-map:
     ident-code: 0xff
     map-version: 20161101
   children:
-    - array:
+    - memory:
         name: mem1
         address: next
-        repeat: 512
+        size: 1k
         x-fesa:
           persistence: Fesa
         children:
@@ -20,10 +20,10 @@ memory-map:
               name: mem1
               width: 16
               access: rw
-    - array:
+    - memory:
         name: mem2
         address: next
-        repeat: 512
+        size: 1k
         x-fesa:
           persistence: Fesa
         children:
@@ -31,10 +31,10 @@ memory-map:
               name: mem2
               width: 16
               access: ro
-    - array:
+    - memory:
         name: mem3
         address: next
-        repeat: 512
+        size: 1k
         x-fesa:
           persistence: Fesa
         children:

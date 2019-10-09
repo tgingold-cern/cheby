@@ -64,10 +64,10 @@ memory-map:
         address: next
         x-fesa:
           persistence: Fesa
-    - array:
+    - memory:
         name: mem1
         address: next
-        repeat: 512
+        size: 1k
         x-fesa:
           persistence: Fesa
         children:
@@ -75,10 +75,10 @@ memory-map:
               name: mem1
               width: 16
               access: rw
-    - array:
+    - memory:
         name: mem2
         address: next
-        repeat: 512
+        size: 1k
         x-fesa:
           persistence: Fesa
         children:

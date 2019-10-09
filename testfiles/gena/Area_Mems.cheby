@@ -13,10 +13,10 @@ memory-map:
         x-gena:
           reserved: False
         children:
-          - array:
+          - memory:
               name: mem1
               address: next
-              repeat: 256
+              size: 1k
               x-fesa:
                 persistence: Fesa
               children:
@@ -24,10 +24,10 @@ memory-map:
                     name: mem1
                     width: 32
                     access: rw
-          - array:
+          - memory:
               name: mem2
               address: next
-              repeat: 256
+              size: 1k
               x-fesa:
                 persistence: Fesa
               children:
@@ -35,10 +35,10 @@ memory-map:
                     name: mem2
                     width: 32
                     access: wo
-          - array:
+          - memory:
               name: mem3
               address: next
-              repeat: 256
+              size: 1k
               x-fesa:
                 persistence: Fesa
               children:

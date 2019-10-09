@@ -6,10 +6,10 @@ memory-map:
     ident-code: 0xff
     map-version: 20161101
   children:
-    - array:
+    - memory:
         name: mem1
         address: next
-        repeat: 512
+        size: 1k
         x-fesa:
           persistence: Fesa
         children:

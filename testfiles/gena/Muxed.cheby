@@ -49,11 +49,11 @@ memory-map:
               name: bufferSelect
               description: Buffer selection
               range: 7-0
-    - array:
+    - memory:
         name: Mem
         description: Memory
         address: next
-        repeat: 256k
+        size: 512k
         x-gena:
           memory-channels:
             - memory-channel:
