@@ -153,7 +153,8 @@ that there is no new format to invent and many text editors have
 already support for it.  However the file extension is usually
 `.cheby`.
 
-The nodes are `memory-map`, `reg`, `field`, `array`, `block` and `submap`.
+The nodes are `memory-map`, `reg`, `field`, `memory`, `repeat`, `block`
+and `submap`.
 
 Some attributes are common to all nodes:
 
@@ -395,19 +396,19 @@ Example of a block:
 
 === RAMs
 
-A RAM is represented by an array of a register.  The number of elements is
-specified by the `repeat` attribute (usually it should be a power of 2) and
-allows k, M or G suffixes.
-
-The `align` attribute must be set to `true`.
+A RAM is represented by an `memory` element with one register as a
+child.  The size of the ram is specified by the `size` attribute
+(usually it should be a power of 2) and allows k, M or G suffixes.
+Note that the width of the ram (the number of address lines) is computed from
+the size of the ram and the size of the register.
 
 Example of a ram:
 
 [source]
 ----
-    - array:
+    - memory:
         name: ram_ro1
-        repeat: 32
+        size: 16
         children:
           - reg:
               name: value
@@ -417,8 +418,8 @@ Example of a ram:
 
 === Repetition
 
-It is possible to replicate elements using an `array` with the `align`
-attribute set to `false`.
+It is possible to replicate elements using `repeat`.  The number of
+repetitions is set by the `count` attribute.
 
 Be careful that such a repetition can generate a lot of hardware.
 
@@ -426,9 +427,9 @@ Example of a replication:
 
 [source]
 ----
-    - array:
+    - repeat:
         name: arr1
-        repeat: 2
+        count: 2
         align: False
         children:
           - reg:

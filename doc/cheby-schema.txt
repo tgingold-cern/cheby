@@ -247,6 +247,8 @@ Blocks could be used to implement fifo from wbgen:
 array
 -----
 
+(Deprecated, use memory or repeat).
+
 An array is a repetition of a structure.  They are considered to be important
 enough to deserve a specific name (and not an attribute of a block).
 
@@ -275,6 +277,42 @@ Compared to wbgen, the following features of memories are not supported:
 - wrap_bits
 - byte_select
 - width /= 32
+
+
+memory
+------
+
+Describe a RAM or a ROM.
+
+name: string
+description: string
+comment: string
+note: string
+  Like for the root node but applied on an array.
+address: address
+size: number
+  Number of bytes.  Expected to be a power of 2 for a memory.
+children: reg
+
+
+repeat
+------
+
+Repeatition of a structure.  They are considered to be important
+enough to deserve a specific name (and not an attribute of a block).
+
+name: string
+description: string
+comment: string
+note: string
+  Like for the root node but applied on an array.
+address: address
+repeat: number
+  Number of repetitions.
+size: number
+  Optionnal number of bytes for the repetition. Must be large enough to
+  contain all the children.
+children: { reg | block | array }
 
 
 Annex: references
