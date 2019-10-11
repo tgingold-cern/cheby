@@ -290,7 +290,7 @@ comment: string
 note: string
   Like for the root node but applied on an array.
 address: address
-size: number
+memsize: number
   Number of bytes.  Expected to be a power of 2 for a memory.
 children: reg
 

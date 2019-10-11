@@ -135,7 +135,9 @@ class Memory(CompositeNode):
 
     def __init__(self, parent):
         super(Memory, self).__init__(parent)
-        self.c_depth = None       # Memory depth (size / elsize)
+        self.memsize_val = None
+        self.memsize_str = None
+        self.c_depth = None       # Memory depth (memsize / elsize)
 
 
 class Reg(NamedNode):

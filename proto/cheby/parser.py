@@ -245,6 +245,7 @@ def parse_array(parent, el):
             pass
         elif k == 'repeat':
             if isinstance(res, tree.Memory):
+                # Number of elements, so the depth of the memory.
                 _, res.c_depth = read_size(res, k, v)
             else:
                 res.count = read_int(res, k, v)
@@ -278,6 +279,8 @@ def parse_memory(parent, el):
     for k, v in el.items():
         if parse_complex(res, k, v):
             pass
+        elif k == 'memsize':
+            res.memsize_str, res.memsize_val = read_size(res, k, v)
         else:
             error("unhandled '{}' in memory {}".format(k, parent.get_path()))
     return res

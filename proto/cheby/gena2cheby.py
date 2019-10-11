@@ -547,8 +547,8 @@ def conv_memory_data(parent, el):
         else:
             raise UnknownAttribute(k)
     res.address = conv_address(attrs['address'])
-    res.size_str = attrs['element-depth']
-    res.size_val = conv_depth(res.size_str)
+    res.memsize_str = attrs['element-depth']
+    res.memsize_val = conv_depth(res.memsize_str)
 
     reg = cheby.tree.Reg(res)
     res.children.append(reg)

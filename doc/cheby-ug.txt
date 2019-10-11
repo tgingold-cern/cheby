@@ -397,7 +397,7 @@ Example of a block:
 === RAMs
 
 A RAM is represented by an `memory` element with one register as a
-child.  The size of the ram is specified by the `size` attribute
+child.  The size of the ram is specified by the `memsize` attribute
 (usually it should be a power of 2) and allows k, M or G suffixes.
 Note that the width of the ram (the number of address lines) is computed from
 the size of the ram and the size of the register.
@@ -408,7 +408,7 @@ Example of a ram:
 ----
     - memory:
         name: ram_ro1
-        size: 16
+        memsize: 16
         children:
           - reg:
               name: value

@@ -358,7 +358,8 @@ def layout_submap(lo, n):
 @Layout.register(tree.Block)
 def layout_block(lo, n):
     if n.children:
-        layout_composite(lo, n)
+        layout_composite_children(lo, n)
+        layout_composite_size(lo, n)
     elif n.size_val is None:
         raise LayoutException(
             n, "no size in block '{}'".format(n.get_path()))
@@ -376,37 +377,41 @@ def layout_repeat(lo, n):
     if n.count is None:
         raise LayoutException(
             n, "missing repeat count for {}".format(n.get_path()))
-    layout_composite(lo, n)
+    layout_composite_children(lo, n)
+    layout_composite_size(lo, n)
     n.c_elsize = align(n.c_size, n.c_align)
     n.c_size = n.c_elsize * n.count
 
 
 @Layout.register(tree.Memory)
 def layout_memory(lo, n):
-    # Sanity check
+    # Sanity checks
     if len(n.children) != 1 or not isinstance(n.children[0], tree.Reg):
         raise LayoutException(
             n, "memory '{}' must have one element (a register)".format(n.get_path()))
-    layout_composite(lo, n)
-    n.c_elsize = align(n.c_size, n.c_align)
-    if n.size_val is None:
-        if n.c_depth is None:
-            raise LayoutException(
-                n, "missing size for memory {}".format(n.get_path()))
-        else:
-            # For backward compatibility with array.
-            n.size_val = n.c_depth * n.c_elsize
     if n.align is not None and not n.align:
         raise LayoutException(
             n, "memory '{}' must be aligned")
+    # Layout the children and use the size of the children as element size.
+    layout_composite_children(lo, n)
+    n.c_elsize = n.c_size
+    if n.memsize_val is None:
+        if n.c_depth is None:
+            raise LayoutException(
+                n, "missing memsize for memory {}".format(n.get_path()))
+        else:
+            # For backward compatibility with array.
+            n.memsize_val = n.c_depth * n.c_elsize
     # Align to power of 2.
     n.c_elsize = round_pow2(n.c_elsize)
-    if n.size_val % n.c_elsize != 0:
+    if n.memsize_val % n.c_elsize != 0:
         raise LayoutException(
-            n, "memory size '{}' is not a multiple of the element")
-    n.c_depth = n.size_val // n.c_elsize
-    n.c_size = n.size_val
-    n.c_align = round_pow2(n.size_val)
+            n, "memory memsize '{}' is not a multiple of the element")
+    n.c_depth = n.memsize_val // n.c_elsize
+    n.c_elsize = align(n.c_size, n.c_align)
+    n.c_size = n.c_depth * n.c_elsize
+    n.c_align = round_pow2(n.c_size)
+    layout_composite_size(lo, n)
 
     n.c_blk_bits = ilog2(n.c_elsize)
     n.c_sel_bits = ilog2(n.c_size) - n.c_blk_bits
@@ -417,8 +422,7 @@ def build_sorted_children(n):
     n.c_sorted_children = sorted(n.children, key=(lambda x: x.c_address))
 
 
-@Layout.register(tree.CompositeNode)
-def layout_composite(lo, n):
+def layout_composite_children(lo, n):
     layout_named(n)
 
     # Check each child has a unique name.
@@ -435,15 +439,29 @@ def layout_composite(lo, n):
     for c in n.children:
         lo1.visit(c)
         max_align = max(max_align, c.c_align)
-    has_aligned = False
-    for c in n.children:
-        if isinstance(c, tree.CompositeNode) and (c.align is None or c.align):
-            has_aligned = True
     n.c_size = 0
     for c in n.children:
         lo1.compute_address(c)
         n.c_size = max(n.c_size, c.c_address + c.c_size)
     n.c_align = max_align
+    # Keep children in order.
+    build_sorted_children(n)
+    # Check for no-overlap.
+    last_addr = 0
+    last_node = None
+    for c in n.c_sorted_children:
+        if c.c_address < last_addr:
+            raise LayoutException(
+                c, "element {} overlap {}".format(
+                    c.get_path(), last_node.get_path()))
+        last_addr = c.c_address + c.c_size
+        last_node = c
+
+
+def layout_composite_size(lo, n):
+    # If there is an aligned composite child, then the node must also be aligned.
+    has_aligned = any(
+        [isinstance(c, tree.CompositeNode) and (c.align is None or c.align) for c in n.children])
     if n.size_val is not None:
         if n.size_val < n.c_size:
             for c in n.children:
@@ -459,18 +477,6 @@ def layout_composite(lo, n):
     else:
         n.c_blk_bits = ilog2(n.c_size)
         n.c_sel_bits = 0
-    # Keep children in order.
-    build_sorted_children(n)
-    # Check for no-overlap.
-    last_addr = 0
-    last_node = None
-    for c in n.c_sorted_children:
-        if c.c_address < last_addr:
-            raise LayoutException(
-                c, "element {} overlap {}".format(
-                    c.get_path(), last_node.get_path()))
-        last_addr = c.c_address + c.c_size
-        last_node = c
 
 
 @Layout.register(tree.Root)
@@ -479,7 +485,8 @@ def layout_root(lo, root):
         raise LayoutException(
             root, "empty description '{}' must have a size".format(root.name))
     root.c_address = 0
-    layout_composite(lo, root)
+    layout_composite_children(lo, root)
+    layout_composite_size(lo, root)
 
 
 def layout_version(root):

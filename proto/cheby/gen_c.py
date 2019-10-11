@@ -116,7 +116,7 @@ def cprint_memory(cp, n):
               n.c_address, n.description or '(no description)'))
     cp.start_struct(n.name)
     cprint_children(cp, n, n.c_elsize)
-    cp.end_struct('{}[{}]'.format(n.name, n.size_val // n.c_elsize))
+    cp.end_struct('{}[{}]'.format(n.name, n.memsize_val // n.c_elsize))
 
 
 @CPrinter.register(tree.Repeat)
