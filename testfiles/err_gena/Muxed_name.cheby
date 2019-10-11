@@ -53,7 +53,7 @@ memory-map:
         name: Mem
         description: Memory
         address: next
-        size: 512k
+        memsize: 512k
         x-gena:
           memory-channels:
             - memory-channel:

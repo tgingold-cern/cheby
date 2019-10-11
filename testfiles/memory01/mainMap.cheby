@@ -1,0 +1,16 @@
+memory-map:
+  name: mainMap
+  bus: cern-be-vme-32
+  size: 1M
+
+  children:
+    - memory:
+        name: acqVP
+        address: next
+        memsize: 1k
+        description: ViewPort to the internal acquisition RAM/SRAM blocs
+        children:
+        - reg:
+            name: value
+            access: ro
+            width: 16

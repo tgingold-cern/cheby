@@ -12,7 +12,7 @@ memory-map:
     - memory:
         name: mem1
         address: next
-        size: 1k
+        memsize: 1k
         x-fesa:
           persistence: Fesa
         children:
@@ -23,7 +23,7 @@ memory-map:
     - memory:
         name: mem2
         address: next
-        size: 1k
+        memsize: 1k
         x-fesa:
           persistence: Fesa
         children:
@@ -34,7 +34,7 @@ memory-map:
     - memory:
         name: mem3
         address: next
-        size: 1k
+        memsize: 1k
         x-fesa:
           persistence: Fesa
         children:
