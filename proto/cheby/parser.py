@@ -281,6 +281,8 @@ def parse_memory(parent, el):
             pass
         elif k == 'memsize':
             res.memsize_str, res.memsize_val = read_size(res, k, v)
+        elif k == 'interface':
+            res.interface = read_text(res, k, v)
         else:
             error("unhandled '{}' in memory {}".format(k, parent.get_path()))
     return res

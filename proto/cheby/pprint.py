@@ -169,6 +169,7 @@ def pprint_memory(pp, n):
     pp.pp_obj('memory')
     pprint_complex_head(pp, n)
     pp.pp_str('memsize', n.memsize_str)
+    pp.pp_str('interface', n.interface)
     pprint_complex_tail(pp, n)
     pp.pp_endobj()
 

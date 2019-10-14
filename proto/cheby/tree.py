@@ -137,6 +137,7 @@ class Memory(CompositeNode):
         super(Memory, self).__init__(parent)
         self.memsize_val = None
         self.memsize_str = None
+        self.interface = None
         self.c_depth = None       # Memory depth (memsize / elsize)
 
 

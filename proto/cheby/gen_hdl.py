@@ -1015,6 +1015,10 @@ def add_ports_memory(root, module, mem):
     """Create RAM ports and wires shared by all the registers.
     :attr h_addr: the address port
     """
+    if mem.interface is not None:
+        mem.c_addr_bits = ilog2(mem.c_depth)
+        add_ports_interface(root, module, mem)
+        return
     # Compute width, and create address port.
     mem.h_addr_width = ilog2(mem.c_depth)
     mem.h_addr = add_module_port(
@@ -1284,13 +1288,16 @@ def add_processes(root, module, ibus, node):
             else:
                 add_process_interface(root, module, ibus, n)
         elif isinstance(n, tree.Memory):
-            add_processes_memory(root, module, ibus, n)
-            for c in n.children:
-                if isinstance(c, tree.Reg):
-                    # Ram
-                    add_processes_memory_reg(root, module, ibus, c)
-                else:
-                    raise AssertionError(c)
+            if n.interface is not None:
+                add_process_interface(root, module, ibus, n)
+            else:
+                add_processes_memory(root, module, ibus, n)
+                for c in n.children:
+                    if isinstance(c, tree.Reg):
+                        # Ram
+                        add_processes_memory_reg(root, module, ibus, c)
+                    else:
+                        raise AssertionError(c)
         elif isinstance(n, tree.Reg):
             add_processes_regs(root, module, ibus, n)
         else:
@@ -1489,7 +1496,14 @@ def add_read_reg(root, s, n, off, ibus, rdproc):
     s.append(HDLAssign(ibus.rd_dat, src))
 
 
+def add_read_interface(root, s, n, off, ibus, rdproc):
+    n.h_busgen.read_bus_slave(root, s, n, rdproc, ibus, ibus.rd_dat)
+
+
 def add_read_memory(root, s, n, off, ibus, rdproc):
+    if n.interface is not None:
+        add_read_interface(root, s, n, off, ibus, rdproc)
+        return
     # TODO: handle list of registers!
     r = n.children[0]
     rdproc.sensitivity.append(r.h_sig_dato)
@@ -1537,7 +1551,7 @@ def add_read_mux_process(root, module, ibus):
                 add_read_reg(root, s, n, off, ibus, rdproc)
             elif isinstance(n, tree.Submap):
                 s.append(HDLComment("Submap {}".format(n.c_name)))
-                n.h_busgen.read_bus_slave(root, s, n, rdproc, ibus, rd_data)
+                add_read_interface(root, s, n, off, ibus, rdproc)
             elif isinstance(n, tree.Memory):
                 s.append(HDLComment("RAM {}".format(n.c_name)))
                 add_read_memory(root, s, n, off, ibus, rdproc)
@@ -1571,7 +1585,14 @@ def add_write_reg(root, s, n, off, ibus, wrproc):
     s.append(HDLAssign(ibus.wr_ack, wack))
 
 
+def add_write_interface(root, s, n, off, ibus, wrproc):
+    n.h_busgen.write_bus_slave(root, s, n, wrproc, ibus)
+
+
 def add_write_memory(root, s, n, off, ibus, wrproc):
+    if n.interface is not None:
+        add_write_interface(root, s, n, off, ibus, wrproc)
+        return
     # TODO: handle list of registers!
     r = n.children[0]
     if r.access in ['rw', 'wo']:
@@ -1600,7 +1621,7 @@ def add_write_mux_process(root, module, ibus):
                 add_write_reg(root, s, n, off, ibus, wrproc)
             elif isinstance(n, tree.Submap):
                 s.append(HDLComment("Submap {}".format(n.c_name)))
-                n.h_busgen.write_bus_slave(root, s, n, wrproc, ibus)
+                add_write_interface(root, s, n, off, ibus, wrproc)
             elif isinstance(n, tree.Memory):
                 s.append(HDLComment("RAM {}".format(n.c_name)))
                 add_write_memory(root, s, n, off, ibus, wrproc)
