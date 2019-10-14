@@ -827,32 +827,60 @@ class SRAMBus(BusGen):
             prefix + 'wr_o', dir='OUT')
 
         # Internal signals
-        n.h_bus['rack'] = module.new_HDLSignal(prefix + 'rack')
-        n.h_bus['re'] = module.new_HDLSignal(prefix + 're')
+        n.h_rack = module.new_HDLSignal(prefix + 'rack')
+        n.h_re = module.new_HDLSignal(prefix + 're')
 
     def wire_bus_slave(self, root, module, n, ibus):
         stmts = module.stmts
+        # Acknowledge: delay rack by one cycle.
         proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_sync=rst_sync)
-        proc.rst_stmts.append(HDLAssign(n.h_bus['rack'], bit_0))
-        proc.sync_stmts.append(HDLAssign(n.h_bus['rack'],
-                HDLAnd(n.h_bus['re'], HDLNot(n.h_bus['rack']))))
+        proc.rst_stmts.append(HDLAssign(n.h_rack, bit_0))
+        proc.sync_stmts.append(HDLAssign(n.h_rack, HDLAnd(n.h_re, HDLNot(n.h_rack))))
         stmts.append(proc)
         stmts.append(HDLAssign(n.h_bus['dato'], ibus.wr_dat))
-        # FIXME: bus split ?
-        stmts.append(HDLAssign(n.h_bus['adr'],
-                     HDLSlice(ibus.wr_adr, root.c_addr_word_bits, n.c_addr_bits)))
+        if ibus.rd_adr != ibus.wr_adr:
+            # Asymetric pipelining: add a mux to select the address.
+            n.h_wp = module.new_HDLSignal(n.c_name + '_wp')
+            n.h_we = module.new_HDLSignal(n.c_name + '_we')
+            proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_sync=rst_sync)
+            proc.sync_stmts.append(HDLAssign(n.h_wp,
+                    HDLAnd(HDLOr(ibus.wr_req, n.h_wp), ibus.rd_req)))
+            proc.rst_stmts.append(HDLAssign(n.h_wp, bit_0))
+            module.stmts.append(proc)
+            # Write enable.
+            stmts.append(HDLAssign(n.h_we,
+                                   HDLAnd(HDLOr(ibus.wr_req, n.h_wp), HDLNot (ibus.rd_req))))
+            # Mux for addresses.
+            proc = HDLComb()
+            proc.sensitivity.extend([ibus.rd_adr, ibus.wr_adr, n.h_re])
+            if_stmt = HDLIfElse(HDLEq(n.h_re, bit_1))
+            if_stmt.then_stmts.append(HDLAssign(n.h_bus['adr'],
+                                      HDLSlice(ibus.rd_adr, root.c_addr_word_bits, n.c_addr_bits)))
+            if_stmt.else_stmts.append(HDLAssign(n.h_bus['adr'],
+                                      HDLSlice(ibus.wr_adr, root.c_addr_word_bits, n.c_addr_bits)))
+            proc.stmts.append(if_stmt)
+            module.stmts.append(proc)
+        else:
+            stmts.append(HDLAssign(n.h_bus['adr'],
+                         HDLSlice(ibus.rd_adr, root.c_addr_word_bits, n.c_addr_bits)))
 
     def write_bus_slave(self, root, stmts, n, proc, ibus):
+        # Immediately ack WR.
         proc.stmts.append(HDLAssign(n.h_bus['wr'], bit_0))
-        stmts.append(HDLAssign(n.h_bus['wr'], ibus.wr_req))
-        stmts.append(HDLAssign(ibus.wr_ack, ibus.wr_req))
+        if ibus.rd_adr != ibus.wr_adr:
+            wr = n.h_we
+        else:
+            wr = ibus.wr_req
+        stmts.append(HDLAssign(n.h_bus['wr'], wr))
+        stmts.append(HDLAssign(ibus.wr_ack, wr))
+        proc.sensitivity.append(wr)
 
     def read_bus_slave(self, root, stmts, n, proc, ibus, rd_data):
         stmts.append(HDLAssign(rd_data, n.h_bus['dati']))
-        stmts.append(HDLAssign(ibus.rd_ack, n.h_bus['rack']))
-        proc.stmts.append(HDLAssign(n.h_bus['re'], bit_0))
-        stmts.append(HDLAssign(n.h_bus['re'], ibus.rd_req))
-        proc.sensitivity.extend([ibus.rd_req, n.h_bus['dati'], n.h_bus['rack']])
+        stmts.append(HDLAssign(ibus.rd_ack, n.h_rack))
+        proc.stmts.append(HDLAssign(n.h_re, bit_0))
+        stmts.append(HDLAssign(n.h_re, ibus.rd_req))
+        proc.sensitivity.extend([ibus.rd_req, n.h_bus['dati'], n.h_rack])
 
 
 def add_module_port(root, module, name, size, dir):
@@ -1014,6 +1042,7 @@ def add_ports_memory(root, module, mem):
     """
     if mem.interface is not None:
         mem.c_addr_bits = ilog2(mem.c_depth)
+        mem.c_width = mem.c_elsize * tree.BYTE_SIZE
         add_ports_interface(root, module, mem)
         return
     # Compute width, and create address port.
@@ -1021,6 +1050,13 @@ def add_ports_memory(root, module, mem):
     mem.h_addr = add_module_port(
         root, module, mem.c_name + '_adr', mem.h_addr_width, 'IN')
     mem.h_addr.comment = '\n' + "RAM port for {}".format(mem.c_name)
+
+    for c in mem.children:
+        if isinstance(c, tree.Reg):
+            # Ram
+            add_ports_memory_reg(root, module, c)
+        else:
+            raise AssertionError(c)
 
 
 def add_ports_memory_reg(root, module, reg):
@@ -1075,12 +1111,6 @@ def add_ports(root, module, node):
             add_ports_submap(root, module, n)
         elif isinstance(n, tree.Memory):
             add_ports_memory(root, module, n)
-            for c in n.children:
-                if isinstance(c, tree.Reg):
-                    # Ram
-                    add_ports_memory_reg(root, module, c)
-                else:
-                    raise AssertionError(c)
         elif isinstance(n, tree.Reg):
             add_ports_reg(root, module, n)
         else:
@@ -1271,6 +1301,7 @@ def add_processes_regs(root, module, ibus, n):
 
 
 def add_process_interface(root, module, ibus, n):
+    module.stmts.append(HDLComment('Interface {}'.format(n.c_name)))
     n.h_busgen.wire_bus_slave(root, module, n, ibus)
 
 
