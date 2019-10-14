@@ -7,12 +7,11 @@ memory-map:
   x-wbgen:
     hdl_entity: wb_freq_multi_count_csr
   children:
-  - array:
+  - memory:
       name: frequency
       address: 0x00000000
-      repeat: 32
+      memsize: 128
       description: Frequency RAM
-      align: True
       x-wbgen:
         kind: ram
         access_dev: READ_WRITE

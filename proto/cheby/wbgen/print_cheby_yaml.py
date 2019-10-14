@@ -261,13 +261,12 @@ class Writer_YAML(object):
     def write_ram(self, n):
         # self.write_pre_comment(n.pre_comment)
         addr = n.addr_base
-        self.wseq("array")
+        self.wseq("memory")
         self.wattr_str("name", n.prefix)
         self.write_address(addr)
-        self.wattr_num("repeat", n.size)
+        self.wattr_num("memsize", n.size * n.width // 8)
         self.wattr_str("description", n.name)
         self.write_comment(n.desc)
-        self.wattr_str("align", 'True')
 
         self.wseq("x-wbgen")
         self.wattr_str("kind", 'ram')

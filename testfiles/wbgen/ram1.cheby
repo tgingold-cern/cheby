@@ -5,12 +5,11 @@ memory-map:
   x-wbgen:
     hdl_entity: ram1
   children:
-  - array:
+  - memory:
       name: ch1
       address: 0x00000000
-      repeat: 2048
+      memsize: 8192
       description: Channel 1
-      align: True
       x-wbgen:
         kind: ram
         access_dev: READ_ONLY
