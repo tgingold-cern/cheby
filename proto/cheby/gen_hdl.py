@@ -360,7 +360,7 @@ class WBBus(BusGen):
 
     def wire_bus_slave(self, root, module, n, ibus):
         stmts = module.stmts
-        stmts.append(HDLComment("Assignments for submap {}".format(n.name)))
+        stmts.append(HDLComment("Assignments for interface {}".format(n.name)))
         stmts.append(HDLAssign(n.h_tr, HDLOr(n.h_wt, n.h_rt)))
         proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_sync=rst_sync)
         proc.rst_stmts.append(HDLAssign(n.h_rt, bit_0))
@@ -570,7 +570,7 @@ class AXI4LiteBus(BusGen):
 
     def wire_bus_slave(self, root, module, n, ibus):
         stmts = module.stmts
-        stmts.append(HDLComment("Assignments for submap {}".format(n.name)))
+        stmts.append(HDLComment("Assignments for interface {}".format(n.name)))
         stmts.append(HDLAssign(n.h_bus['awvalid'], n.h_aw_val))
         stmts.append(HDLAssign(
             n.h_bus['awaddr'],
@@ -735,7 +735,7 @@ class CERNBEBus(BusGen):
 
     def wire_bus_slave(self, root, module, n, ibus):
         stmts = module.stmts
-        stmts.append(HDLComment("Assignments for submap {}".format(n.name)))
+        stmts.append(HDLComment("Assignments for interface {}".format(n.name)))
         stmts.append(HDLAssign(n.h_bus['dati'], ibus.wr_dat))
 
         if root.h_bussplit:
