@@ -72,7 +72,7 @@ begin
     end if;
   end process;
 
-  -- Assignments for interface subMap1
+  -- Interface subMap1
   subMap1_VMEWrData_o <= wr_dat_d0;
   subMap1_ws <= wr_req_d0 or (subMap1_wt and not VMERdMem);
   process (VMEAddr, wr_adr_d0, subMap1_wt, subMap1_ws) begin
@@ -83,7 +83,7 @@ begin
     end if;
   end process;
 
-  -- Assignments for interface subMap2
+  -- Interface subMap2
   subMap2_VMEWrData_o <= wr_dat_d0;
   subMap2_ws <= wr_req_d0 or (subMap2_wt and not VMERdMem);
   process (VMEAddr, wr_adr_d0, subMap2_wt, subMap2_ws) begin
