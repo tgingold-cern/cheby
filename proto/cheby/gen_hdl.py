@@ -1552,6 +1552,34 @@ def add_read_mux_process(root, module, ibus):
     rdproc.stmts.extend(stmts)
 
 
+def add_write_reg(root, s, n, off, ibus, wrproc):
+    # Strobe
+    if n.h_wreq is not None:
+        s.append(HDLAssign(strobe_index(root, n, off, n.h_wreq), ibus.wr_req))
+        if off == 0:
+            # Default values for the strobe
+            v = strobe_init(root, n)
+            wrproc.stmts.append(HDLAssign(n.h_wreq, v))
+    # Ack
+    wack = n.h_wack_port or n.h_wack
+    if wack is not None:
+        if off == 0:
+            wrproc.sensitivity.append(wack)
+        wack = strobe_index(root, n, off, wack)
+    else:
+        wack = ibus.wr_req
+    s.append(HDLAssign(ibus.wr_ack, wack))
+
+
+def add_write_memory(root, s, n, off, ibus, wrproc):
+    # TODO: handle list of registers!
+    r = n.children[0]
+    if r.access in ['rw', 'wo']:
+        wrproc.stmts.append(HDLAssign(r.h_sig_wr, bit_0))
+        s.append(HDLAssign(r.h_sig_wr, ibus.wr_req))
+        s.append(HDLAssign(ibus.wr_ack, ibus.wr_req))
+
+
 def add_write_mux_process(root, module, ibus):
     # Generate the write decoder.  This is a large combinational process
     # that mux the acks and regenerate the requests.
@@ -1569,35 +1597,13 @@ def add_write_mux_process(root, module, ibus):
         if n is not None:
             if isinstance(n, tree.Reg):
                 s.append(HDLComment(n.c_name))
-                # Strobe
-                if n.h_wreq is not None:
-                    s.append(HDLAssign(strobe_index(root, n, off, n.h_wreq), ibus.wr_req))
-                    if off == 0:
-                        # Default values for the strobe
-                        v = strobe_init(root, n)
-                        wrproc.stmts.append(HDLAssign(n.h_wreq, v))
-                # Ack
-                wack = n.h_wack_port or n.h_wack
-                if wack is not None:
-                    if off == 0:
-                        wrproc.sensitivity.append(wack)
-                    wack = strobe_index(root, n, off, wack)
-                else:
-                    wack = ibus.wr_req
-                s.append(HDLAssign(ibus.wr_ack, wack))
+                add_write_reg(root, s, n, off, ibus, wrproc)
             elif isinstance(n, tree.Submap):
                 s.append(HDLComment("Submap {}".format(n.c_name)))
                 n.h_busgen.write_bus_slave(root, s, n, wrproc, ibus)
-                return
             elif isinstance(n, tree.Memory):
                 s.append(HDLComment("RAM {}".format(n.c_name)))
-                # TODO: handle list of registers!
-                r = n.children[0]
-                if r.access in ['rw', 'wo']:
-                    wrproc.stmts.append(HDLAssign(r.h_sig_wr, bit_0))
-                    s.append(HDLAssign(r.h_sig_wr, ibus.wr_req))
-                    s.append(HDLAssign(ibus.wr_ack, ibus.wr_req))
-                return
+                add_write_memory(root, s, n, off, ibus, wrproc)
             else:
                 # Blocks have been handled.
                 raise AssertionError
