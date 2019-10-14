@@ -79,18 +79,17 @@ memory-map:
         size: 0x1000
         description: A bus
         interface: wb-32-be
-    - array:
+    - repeat:
         name: arr1
-        repeat: 2
-        align: False
+        count: 2
         children:
           - reg:
               name: areg1
               access: rw
               width: 32
-    - array:
+    - memory:
         name: ram_ro1
-        repeat: 32
+        memsize: 128
         children:
           - reg:
               name: value

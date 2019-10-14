@@ -3,10 +3,9 @@ memory-map:
   name: led_demo
   description: simple interface to leds
   children:
-    - array:
+    - repeat:
         name: leds
-        repeat: 8
-        align: False
+        count: 8
         children:
           - reg:
               name: led

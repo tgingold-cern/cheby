@@ -398,10 +398,10 @@ memory-map:
                 Number of data records currently being stored in FIFO 'Unrecognized request FIFO (UFIFO)'
               x-wbgen:
                 kind: count
-  - array:
+  - memory:
       name: ARAM
       address: 0x00000400
-      repeat: 256
+      memsize: 1k
       description: Aging bitmap for main hashtable
       comment: |
         Each bit in this memory reflects the state of corresponding entry in main hashtable:
