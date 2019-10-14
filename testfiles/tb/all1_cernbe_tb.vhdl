@@ -19,6 +19,11 @@ architecture behav of all1_cernbe_tb is
   signal ram_ro_val_we  : std_logic;
   signal ram_ro_val_dat : std_logic_vector(31 downto 0);
 
+  signal ram2_addr          : std_logic_vector(4 downto 2);
+  signal ram2_data_in       : std_logic_vector(31 downto 0);
+  signal ram2_data_out      : std_logic_vector(31 downto 0);
+  signal ram2_wr            : std_logic;
+
   --  For sub1.
   signal sub1_wb_in  : t_wishbone_slave_in;
   signal sub1_wb_out : t_wishbone_slave_out;
@@ -69,6 +74,11 @@ begin
       ram_ro_adr_i     => ram_ro_adr,
       ram_ro_val_we_i  => ram_ro_val_we,
       ram_ro_val_dat_i => ram_ro_val_dat,
+
+      ram2_addr_o      => ram2_addr,
+      ram2_data_i      => ram2_data_out,
+      ram2_data_o      => ram2_data_in,
+      ram2_wr_o        => ram2_wr,
 
       sub1_wb_cyc_o => sub1_wb_in.cyc,
       sub1_wb_stb_o => sub1_wb_in.stb,
@@ -133,6 +143,13 @@ begin
               rst_n => rst_n,
               bus_in => sub3_in,
               bus_out => sub3_out);
+
+  bram2 : entity work.sram2
+    port map (clk_i => clk,
+              addr_i => ram2_addr,
+              data_i => ram2_data_in,
+              data_o => ram2_data_out,
+              wr_i   => ram2_wr);
 
   --  Init RAM.
   process
@@ -224,6 +241,15 @@ begin
     assert v = x"0100_0000" severity error;
     cernbe_read (clk, bus_out, bus_in, x"0000_004c", v);
     assert v = x"0300_0000" severity error;
+
+    --  Testing memory (ram2)
+    report "Testing memory ram2 (write)" severity note;
+    cernbe_write (clk, bus_out, bus_in, x"0000_0064", x"def5_9001");
+    cernbe_write (clk, bus_out, bus_in, x"0000_006c", x"def5_0203");
+
+    report "Testing memory ram2 (read)" severity note;
+    cernbe_read (clk, bus_out, bus_in, x"0000_0064", v);
+    assert v = x"def5_9001" severity error;
 
     --  Testing wishbone
     test_bus("wishbone", x"0000_1000");

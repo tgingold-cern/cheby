@@ -18,21 +18,30 @@ memory-map:
       width: 32
       access: rw
       preset: 0x12340002
-  - array:
+  - memory:
       name: ram1
-      repeat: 8
+      memsize: 32
       children:
       - reg:
           name: val
           access: rw
           width: 32
-  - array:
+  - memory:
       name: ram_ro
-      repeat: 8
+      memsize: 32
       children:
       - reg:
           name: val
           access: ro
+          width: 32
+  - memory:
+      name: ram2
+      memsize: 32
+      interface: sram
+      children:
+      - reg:
+          name: val
+          access: rw
           width: 32
   - submap:
       name: sub1_wb
