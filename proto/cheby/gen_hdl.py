@@ -1458,6 +1458,58 @@ def strobe_index(root, n, off, lhs):
         return HDLIndex(lhs, off // root.c_word_bits)
 
 
+def add_read_reg(root, s, n, off, ibus, rdproc):
+    # Strobe
+    if n.h_rreq_port is not None:
+        s.append(HDLAssign(strobe_index(root, n, off, n.h_rreq_port), ibus.rd_req))
+        if off == 0:
+            # Default values for the strobe
+            v = strobe_init(root, n)
+            rdproc.stmts.append(HDLAssign(n.h_rreq_port, v))
+    # Ack
+    if n.h_rack_port is not None:
+        rack = n.h_rack_port
+        if off == 0:
+            rdproc.sensitivity.append(rack)
+        rack = strobe_index(root, n, off, rack)
+    else:
+        rack = ibus.rd_req
+    s.append(HDLAssign(ibus.rd_ack, rack))
+    if n.access == 'wo':
+        return
+    # Data
+    if n.h_rint is not None:
+        src = n.h_rint
+    else:
+        src = n.children[0].h_iport or n.children[0].h_reg
+    if off == 0:
+        rdproc.sensitivity.append(src)
+    if n.c_nwords != 1:
+        src = HDLSlice(src, off, root.c_word_bits)
+    s.append(HDLAssign(ibus.rd_dat, src))
+
+
+def add_read_memory(root, s, n, off, ibus, rdproc):
+    # TODO: handle list of registers!
+    r = n.children[0]
+    rdproc.sensitivity.append(r.h_sig_dato)
+    # Output ram data
+    s.append(HDLAssign(ibus.rd_dat, r.h_sig_dato))
+    # Set rd signal to ram: read when there is not WR request,
+    # and either a read request or a pending read request.
+    if root.h_bussplit and r.access in ['wo', 'rw']:
+        rd_sig = HDLAnd(ibus.rd_req, HDLNot(n.h_wreq))
+        rdproc.sensitivity.extend([n.h_wreq])
+    else:
+        rd_sig = ibus.rd_req
+    s.append(HDLAssign(r.h_rreq, rd_sig))
+    # But set it to 0 when the ram is not selected.
+    rdproc.stmts.append(HDLAssign(r.h_rreq, bit_0))
+    # Use delayed ack as ack.
+    s.append(HDLAssign(ibus.rd_ack, r.h_rack))
+    rdproc.sensitivity.append(r.h_rack)
+
+
 def add_read_mux_process(root, module, ibus):
     # Generate the read decoder.  This is a large combinational process
     # that mux the data and ack.
@@ -1482,57 +1534,13 @@ def add_read_mux_process(root, module, ibus):
         if n is not None:
             if isinstance(n, tree.Reg):
                 s.append(HDLComment(n.c_name))
-                # Strobe
-                if n.h_rreq_port is not None:
-                    s.append(HDLAssign(strobe_index(root, n, off, n.h_rreq_port), ibus.rd_req))
-                    if off == 0:
-                        # Default values for the strobe
-                        v = strobe_init(root, n)
-                        rdproc.stmts.append(HDLAssign(n.h_rreq_port, v))
-                # Ack
-                if n.h_rack_port is not None:
-                    rack = n.h_rack_port
-                    if off == 0:
-                        rdproc.sensitivity.append(rack)
-                    rack = strobe_index(root, n, off, rack)
-                else:
-                    rack = ibus.rd_req
-                s.append(HDLAssign(rd_ack, rack))
-                if n.access == 'wo':
-                    return
-                # Data
-                if n.h_rint is not None:
-                    src = n.h_rint
-                else:
-                    src = n.children[0].h_iport or n.children[0].h_reg
-                if off == 0:
-                    rdproc.sensitivity.append(src)
-                if n.c_nwords != 1:
-                    src = HDLSlice(src, off, root.c_word_bits)
-                s.append(HDLAssign(rd_data, src))
+                add_read_reg(root, s, n, off, ibus, rdproc)
             elif isinstance(n, tree.Submap):
                 s.append(HDLComment("Submap {}".format(n.c_name)))
                 n.h_busgen.read_bus_slave(root, s, n, rdproc, ibus, rd_data)
             elif isinstance(n, tree.Memory):
                 s.append(HDLComment("RAM {}".format(n.c_name)))
-                # TODO: handle list of registers!
-                r = n.children[0]
-                rdproc.sensitivity.append(r.h_sig_dato)
-                # Output ram data
-                s.append(HDLAssign(rd_data, r.h_sig_dato))
-                # Set rd signal to ram: read when there is not WR request,
-                # and either a read request or a pending read request.
-                if root.h_bussplit and r.access in ['wo', 'rw']:
-                    rd_sig = HDLAnd(ibus.rd_req, HDLNot(n.h_wreq))
-                    rdproc.sensitivity.extend([n.h_wreq])
-                else:
-                    rd_sig = ibus.rd_req
-                s.append(HDLAssign(r.h_rreq, rd_sig))
-                # But set it to 0 when the ram is not selected.
-                rdproc.stmts.append(HDLAssign(r.h_rreq, bit_0))
-                # Use delayed ack as ack.
-                s.append(HDLAssign(rd_ack, r.h_rack))
-                rdproc.sensitivity.append(r.h_rack)
+                add_read_memory(root, s, n, off, ibus, rdproc)
             else:
                 # Blocks have been handled.
                 raise AssertionError
@@ -1542,6 +1550,7 @@ def add_read_mux_process(root, module, ibus):
     stmts = []
     add_decoder(root, stmts, rd_adr, root, add_read)
     rdproc.stmts.extend(stmts)
+
 
 def add_write_mux_process(root, module, ibus):
     # Generate the write decoder.  This is a large combinational process
