@@ -991,12 +991,16 @@ def add_ports_reg(root, module, n):
         n.h_rack_port = None
 
 
+def add_ports_interface(root, module, n):
+    # Generic submap.
+    busgroup = n.get_extension('x_hdl', 'busgroup')
+    n.h_busgen = name_to_busgen(n.interface)
+    n.h_busgen.gen_bus_slave(root, module, n.c_name + '_', n, busgroup)
+
+
 def add_ports_submap(root, module, n):
     if n.filename is None:
-        # Generic submap.
-        busgroup = n.get_extension('x_hdl', 'busgroup')
-        n.h_busgen = name_to_busgen(n.interface)
-        n.h_busgen.gen_bus_slave(root, module, n.c_name + '_', n, busgroup)
+        add_ports_interface(root, module, n)
     else:
         if n.include is True:
             # Inline
@@ -1265,6 +1269,10 @@ def add_processes_regs(root, module, ibus, n):
         pad(n.c_rwidth)
 
 
+def add_process_interface(root, module, ibus, n):
+    n.h_busgen.wire_bus_slave(root, module, n, ibus)
+
+
 def add_processes(root, module, ibus, node):
     """Create assignment from register to outputs."""
     for n in node.children:
@@ -1274,7 +1282,7 @@ def add_processes(root, module, ibus, node):
             if n.include is True:
                 add_processes(root, module, ibus, n.c_submap)
             else:
-                n.h_busgen.wire_bus_slave(root, module, n, ibus)
+                add_process_interface(root, module, ibus, n)
         elif isinstance(n, tree.Memory):
             add_processes_memory(root, module, ibus, n)
             for c in n.children:
