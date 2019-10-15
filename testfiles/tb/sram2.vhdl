@@ -20,10 +20,10 @@ begin
   begin
     if rising_edge(clk_i) then
       addr := to_integer (unsigned (addr_i));
+      data_o <= mem (addr);
       if wr_i = '1' then
         mem (addr) := data_i;
       end if;
-      data_o <= mem (addr);
     end if;
   end process;
 end behav;
