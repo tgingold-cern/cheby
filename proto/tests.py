@@ -263,6 +263,7 @@ def test_hdl_ref():
               'issue11/test_port1_field',
               'issue11/test_port2_reg', 'issue11/test_port2_wire',
               'issue13/mainMap2', 'memory01/mainMap',
+              'issue39/addressingMemory',
               'wires1', 'semver1', 'semver2']:
         if verbose:
             print('test hdl with ref: {}'.format(f))

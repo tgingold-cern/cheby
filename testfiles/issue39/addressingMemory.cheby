@@ -1,0 +1,37 @@
+memory-map:
+  name: eda02175v2
+  description: Default registers for EDA-02175-V2 (1TFB PS) main board
+  note: EDA-02175-V2
+  bus: cern-be-vme-16
+  size: 2M
+  x-driver-edge:
+    equipment-code: PX-ALCOB
+  x-cern-info:
+    ident-code: 0x1
+    map-version: 20190917
+    semantic-mem-map-version: 0.0.1
+  children:
+    - memory:
+        name: acqVP
+        address: next
+        size: 1M
+        memsize: 128k
+        description: ViewPort to the internal acquisition RAM/SRAM blocs
+        interface: cern-be-vme-16
+        children:
+        - reg:
+            name: value
+            access: rw
+            width: 16
+    - reg:
+        name: softReset
+        description: Resets the system part of the logic in the FPGA. ONLY FOR LAB PURPOSES
+        width: 16
+        access: rw
+        address: next
+        x-fesa:
+          persistence: Fesa
+        children:
+          - field:
+              name: reset
+              range: 0
