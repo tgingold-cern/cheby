@@ -1,0 +1,24 @@
+memory-map:
+  bus: cern-be-vme-32
+  name: bugConstraintFields
+  x-cern-info:
+    map-version: 00000000
+    ident-code: 0x0
+  children:
+    - reg:
+        name: r1
+        address: next
+        width: 32
+        access: rw
+        x-gena:
+          gen:
+            resize: 11
+    - reg:
+        name: r2
+        address: next
+        width: 32
+        access: rw
+        children:
+          - field:
+              name: r2
+              range: 10-0
