@@ -1558,8 +1558,6 @@ def add_read_mux_process(root, module, ibus):
     # It can be combinational because the read address is stable until the
     # end of the access.
     module.stmts.append(HDLComment('Process for read requests.'))
-    rd_data = ibus.rd_dat
-    rd_ack = ibus.rd_ack
     rd_adr = ibus.rd_adr
     rdproc = HDLComb()
     if rd_adr is not None:
@@ -1569,7 +1567,7 @@ def add_read_mux_process(root, module, ibus):
 
     # All the read are ack'ed (including the read to unassigned addresses).
     rdproc.stmts.append(HDLComment("By default ack read requests"))
-    rdproc.stmts.append(HDLAssign(rd_data,
+    rdproc.stmts.append(HDLAssign(ibus.rd_dat,
                                   HDLReplicate(bit_x, root.c_word_bits)))
 
     def add_read(s, n, off):
@@ -1587,7 +1585,7 @@ def add_read_mux_process(root, module, ibus):
                 # Blocks have been handled.
                 raise AssertionError
         else:
-            s.append(HDLAssign(rd_ack, ibus.rd_req))
+            s.append(HDLAssign(ibus.rd_ack, ibus.rd_req))
 
     stmts = []
     add_decoder(root, stmts, rd_adr, root, add_read)
