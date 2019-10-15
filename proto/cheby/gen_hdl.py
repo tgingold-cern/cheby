@@ -1333,6 +1333,7 @@ def add_processes(root, module, ibus, node):
 
 
 def add_block_decoder(root, stmts, addr, children, hi, func, off):
+    # :param hi: is the highest address bit to be decoded.
     debug = False
     if debug:
         print("add_block_decoder: hi={}, off={:08x}".format(hi, off))
@@ -1361,6 +1362,7 @@ def add_block_decoder(root, stmts, addr, children, hi, func, off):
             func(stmts, el, 0)
             return
     else:
+        # Will add a decoder for the maximum aligned child.
         maxsz = max([e.c_align for e in children])
 
     maxszl2 = ilog2(maxsz)
@@ -1378,6 +1380,7 @@ def add_block_decoder(root, stmts, addr, children, hi, func, off):
         # Extract the first child.
         first = children.pop(0)
         l = [first]
+        # Skip holes in address to be decoded.
         base = max(next_base, first.c_abs_addr & mask)
         next_base = base + maxsz
         if debug:
@@ -1401,9 +1404,11 @@ def add_block_decoder(root, stmts, addr, children, hi, func, off):
             l.append(el)
             children.pop(0)
 
+        # If the block is larger than its alignment, re-decode it again.
         if ((last.c_abs_addr + last.c_size - 1) & mask) != base:
             children.insert(0, last)
 
+        # Sub-decode gathered children.
         add_block_decoder(root, ch.stmts, addr, l, maxszl2, func, base)
 
     ch = HDLChoiceDefault()
@@ -1412,6 +1417,7 @@ def add_block_decoder(root, stmts, addr, children, hi, func, off):
 
 
 def gather_leaves(n):
+    # Gather all elements that need to be decoded.
     if isinstance(n, tree.Reg):
         return [n]
     elif isinstance(n, tree.Submap):
@@ -1437,8 +1443,7 @@ def add_decoder(root, stmts, addr, n, func):
     children = gather_leaves(root)
     children = sorted(children, key=lambda x: x.c_abs_addr)
 
-    add_block_decoder(
-        root, stmts, addr, children, root.c_sel_bits + root.c_blk_bits, func, 0)
+    add_block_decoder(root, stmts, addr, children, ilog2(root.c_size), func, 0)
 
 
 def field_decode(root, reg, f, off, val, dat):
