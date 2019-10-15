@@ -402,6 +402,10 @@ child.  The size of the ram is specified by the `memsize` attribute
 Note that the width of the ram (the number of address lines) is computed from
 the size of the ram and the size of the register.
 
+Unless the attribute 'interface' is present, the memory is automatically
+instantiated.  Otherwise the attribute specifies the type of bus, like
+for an external submap.
+
 Example of a ram:
 
 [source]

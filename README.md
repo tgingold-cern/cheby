@@ -73,6 +73,8 @@ Add attribute `include` for submaps (issue#36)
 
 Add `memory` and `repeat` nodes to replace `array` (issue#39)
 
+Add `interface` attribute to `memory`.
+
 ## Version 1.3
 
 Add x-hdl:port to specify how ports are generated for registers (issue#11)
