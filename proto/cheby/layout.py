@@ -293,9 +293,8 @@ def load_submap(blk):
     return cheby.parser.parse_yaml(filename)
 
 
-def align_block(lo, n):
+def align_block(n):
     n.c_blk_bits = ilog2(n.c_size)
-    n.c_width = lo.word_size * tree.BYTE_SIZE
     if n.align is None or n.align:
         # Align to power of 2.
         n.c_size = round_pow2(n.c_size)
@@ -352,7 +351,8 @@ def layout_submap(lo, n):
                     n, "cannot include submap '{}' with word endianness != 'none'".format(
                         n.get_path()))
     n.c_addr_bits = ilog2(n.c_size) - lo.root.c_addr_word_bits
-    align_block(lo, n)
+    n.c_width = lo.word_size * tree.BYTE_SIZE
+    align_block(n)
 
 
 @Layout.register(tree.Block)
@@ -360,12 +360,13 @@ def layout_block(lo, n):
     if n.children:
         layout_composite_children(lo, n)
         layout_composite_size(lo, n)
-    elif n.size_val is None:
-        raise LayoutException(
-            n, "no size in block '{}'".format(n.get_path()))
     else:
-        n.c_size = n.size_val
-    align_block(lo, n)
+        if n.size_val is None:
+            raise LayoutException(
+                n, "no size for empty block '{}'".format(n.get_path()))
+        else:
+            n.c_size = n.size_val
+    align_block(n)
 
 
 @Layout.register(tree.Repeat)
@@ -381,6 +382,7 @@ def layout_repeat(lo, n):
     layout_composite_size(lo, n)
     n.c_elsize = align(n.c_size, n.c_align)
     n.c_size = n.c_elsize * n.count
+    align_block(n)
 
 
 @Layout.register(tree.Memory)
@@ -412,6 +414,7 @@ def layout_memory(lo, n):
     n.c_size = n.c_depth * n.c_elsize
     n.c_align = round_pow2(n.c_size)
     layout_composite_size(lo, n)
+    align_block(n)
 
     n.c_blk_bits = ilog2(n.c_elsize)
     n.c_sel_bits = ilog2(n.c_size) - n.c_blk_bits
@@ -459,9 +462,6 @@ def layout_composite_children(lo, n):
 
 
 def layout_composite_size(lo, n):
-    # If there is an aligned composite child, then the node must also be aligned.
-    has_aligned = any(
-        [isinstance(c, tree.CompositeNode) and (c.align is None or c.align) for c in n.children])
     if n.size_val is not None:
         if n.size_val < n.c_size:
             for c in n.children:
@@ -471,6 +471,10 @@ def layout_composite_size(lo, n):
                 n, "size of {} is too small (need {}, get {})".format(
                     n.get_path(), n.c_size, n.size_str))
         n.c_size = n.size_val
+
+    # If there is an aligned composite child, then the node must also be aligned.
+    has_aligned = any(
+        [isinstance(c, tree.CompositeNode) and (c.align is None or c.align) for c in n.children])
     if has_aligned:
         n.c_blk_bits = ilog2(n.c_align)
         n.c_sel_bits = ilog2(n.c_size) - n.c_blk_bits
