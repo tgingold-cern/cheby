@@ -913,7 +913,7 @@ def add_ports_reg(root, module, n):
     comment = '\n' + (n.comment or n.description or "REG {}".format(n.name))
 
     for f in n.children:
-        w = None if f.c_iowidth == 1 else f.c_iowidth
+        w = None if f.c_rwidth == 1 else f.c_rwidth
 
         if n.hdl_port != 'reg' and not isinstance(f, tree.FieldReg):
             # Append field comment to the register comment (if present)
@@ -1257,7 +1257,7 @@ def add_processes_regs(root, module, ibus, n):
                     # Reset code
                     if f.h_reg is not None and off == 0:
                         v = f.c_preset or 0
-                        cst = HDLConst(v, f.c_iowidth if f.c_iowidth != 1 else None)
+                        cst = HDLConst(v, f.c_rwidth if f.c_rwidth != 1 else None)
                         wrproc.rst_stmts.append(HDLAssign(f.h_reg, cst))
                     # Assign code
                     reg, dat = field_decode(root, n, f, off, f.h_reg, ibus.wr_dat)
