@@ -1274,19 +1274,24 @@ def layout_wbgen(root):
             bsz = reg.c_rwidth // tree.BYTE_SIZE
             assert bsz <= root.c_word_size
             r.h_ram_size = r.c_depth * bsz
+            r.c_sel_bits = ilog2(r.c_depth)
             max_ram_size = max(max_ram_size, r.h_ram_size)
             nbr_rams += 1
 
     # Split the address space into blocks (of equal length). One block
     # for registers (if any) and one block per ram
-    nbr_blocks = nbr_rams + (1 if reg_len > 0 else 0)
     block_size = max(reg_len, max_ram_size)
     assert block_size > 0, "there must be at least one reg or one ram"
     # Round to a power of 2.
     root.h_blk_bits = ilog2(block_size)
-    root.h_sel_bits = ilog2(nbr_blocks)
     root.h_reg_bits = 0 if reg_len == 0 else ilog2(reg_len)
     block_size = 1 << root.h_blk_bits
+    if nbr_rams != 0:
+        root.c_blk_bits = ilog2(root.c_align)
+        root.c_sel_bits = ilog2(root.c_size) - root.c_blk_bits
+    else:
+        root.c_blk_bits = ilog2(root.c_size)
+        root.c_sel_bits = 0
 
     # Assign ram addresses
     ram_off = block_size if reg_len > 0 else 0

@@ -198,8 +198,6 @@ def unroll_repeat(n):
     res.name = n.name
     res.align = False
     res.c_address = n.c_address
-    res.c_sel_bits = n.c_sel_bits
-    res.c_blk_bits = n.c_blk_bits
     res.c_size = n.c_size
     assert len(n.children) == 1
     el = n.children[0]

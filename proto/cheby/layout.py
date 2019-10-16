@@ -294,7 +294,6 @@ def load_submap(blk):
 
 
 def align_block(n):
-    n.c_blk_bits = ilog2(n.c_size)
     if n.align is None or n.align:
         # Align to power of 2.
         n.c_size = round_pow2(n.c_size)
@@ -416,9 +415,6 @@ def layout_memory(lo, n):
     layout_composite_size(lo, n)
     align_block(n)
 
-    n.c_blk_bits = ilog2(n.c_elsize)
-    n.c_sel_bits = ilog2(n.c_size) - n.c_blk_bits
-
 
 def build_sorted_children(n):
     """Create c_sorted_children (list of children sorted by address)"""
@@ -471,16 +467,6 @@ def layout_composite_size(lo, n):
                 n, "size of {} is too small (need {}, get {})".format(
                     n.get_path(), n.c_size, n.size_str))
         n.c_size = n.size_val
-
-    # If there is an aligned composite child, then the node must also be aligned.
-    has_aligned = any(
-        [isinstance(c, tree.CompositeNode) and (c.align is None or c.align) for c in n.children])
-    if has_aligned:
-        n.c_blk_bits = ilog2(n.c_align)
-        n.c_sel_bits = ilog2(n.c_size) - n.c_blk_bits
-    else:
-        n.c_blk_bits = ilog2(n.c_size)
-        n.c_sel_bits = 0
 
 
 @Layout.register(tree.Root)
