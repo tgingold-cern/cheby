@@ -1,19 +1,13 @@
 from cheby.hdl.globals import dirname
-from cheby.hdltree import (HDLModule, HDLPackage,
-                           HDLInterface, HDLInterfaceSelect, HDLInstance,
-                           HDLPort, HDLSignal,
-                           HDLAssign, HDLSync, HDLComb, HDLComment,
-                           HDLSwitch, HDLChoiceExpr, HDLChoiceDefault,
-                           HDLIfElse,
-                           bit_1, bit_0, bit_x,
-                           HDLAnd, HDLOr, HDLNot, HDLEq, HDLConcat,
-                           HDLIndex, HDLSlice, HDLReplicate, Slice_or_Index,
-                           HDLConst, HDLBinConst, HDLNumber, HDLBool, HDLParen)
+from cheby.hdltree import (HDLInterfaceSelect,
+                           bit_0,
+                           HDLIndex, HDLReplicate, Slice_or_Index)
+
 
 class ElGen(object):
     def gen_port(self, root, module, name, size, dir):
         pass
-    
+
     def gen_processes(self, root, module, ibus, n):
         pass
 
@@ -31,6 +25,7 @@ def add_module_port(root, module, name, size, dir):
     else:
         p = root.h_itf.add_port(name, size, dir=dir)
         return HDLInterfaceSelect(root.h_ports, p)
+
 
 def field_decode(root, reg, f, off, val, dat):
     """Handle multi-word accesses.  Slice (if needed) VAL and DAT for offset
@@ -82,5 +77,3 @@ def strobe_index(root, n, off, lhs):
         return lhs
     else:
         return HDLIndex(lhs, off // root.c_word_bits)
-
-

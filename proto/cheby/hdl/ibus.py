@@ -1,16 +1,7 @@
-from cheby.hdltree import (HDLModule, HDLPackage,
-                           HDLInterface, HDLInterfaceSelect, HDLInstance,
-                           HDLPort, HDLSignal,
-                           HDLAssign, HDLSync, HDLComb, HDLComment,
-                           HDLSwitch, HDLChoiceExpr, HDLChoiceDefault,
-                           HDLIfElse,
-                           bit_1, bit_0, bit_x,
-                           HDLAnd, HDLOr, HDLNot, HDLEq, HDLConcat,
-                           HDLIndex, HDLSlice, HDLReplicate, Slice_or_Index,
-                           HDLConst, HDLBinConst, HDLNumber, HDLBool, HDLParen)
-from cheby.hdl.busgen import BusGen
-import cheby.tree as tree
-from cheby.hdl.globals import rst_sync, dirname
+from cheby.hdltree import (HDLAssign, HDLSync, HDLComment,
+                           bit_0)
+from cheby.hdl.globals import rst_sync
+
 
 class Ibus(object):
     """Internal bus.

@@ -1,17 +1,13 @@
-from cheby.hdltree import (HDLModule, HDLPackage,
-                           HDLInterface, HDLInterfaceSelect, HDLInstance,
-                           HDLPort, HDLSignal,
-                           HDLAssign, HDLSync, HDLComb, HDLComment,
-                           HDLSwitch, HDLChoiceExpr, HDLChoiceDefault,
+from cheby.hdltree import (HDLPort,
+                           HDLAssign, HDLSync, HDLComb,
                            HDLIfElse,
-                           bit_1, bit_0, bit_x,
-                           HDLAnd, HDLOr, HDLNot, HDLEq, HDLConcat,
-                           HDLIndex, HDLSlice, HDLReplicate, Slice_or_Index,
-                           HDLConst, HDLBinConst, HDLNumber, HDLBool, HDLParen)
+                           bit_1, bit_0,
+                           HDLAnd, HDLOr, HDLNot, HDLEq,
+                           HDLSlice, HDLParen)
 from cheby.hdl.busgen import BusGen
-import cheby.tree as tree
 from cheby.hdl.globals import rst_sync, dirname
 from cheby.hdl.ibus import add_bus
+
 
 class CERNBEBus(BusGen):
     def __init__(self, name):
@@ -121,10 +117,12 @@ class CERNBEBus(BusGen):
         proc = HDLComb()
         proc.sensitivity.extend([ibus.rd_adr, ibus.wr_adr, n.h_wt, n.h_ws])
         if_stmt = HDLIfElse(HDLEq(HDLOr(n.h_ws, n.h_wt), bit_1))
-        if_stmt.then_stmts.append(HDLAssign(n.h_bus['adr'],
-                           HDLSlice(ibus.wr_adr, root.c_addr_word_bits, n.c_addr_bits)))
-        if_stmt.else_stmts.append(HDLAssign(n.h_bus['adr'],
-                           HDLSlice(ibus.rd_adr, root.c_addr_word_bits, n.c_addr_bits)))
+        if_stmt.then_stmts.append(
+            HDLAssign(n.h_bus['adr'],
+                      HDLSlice(ibus.wr_adr, root.c_addr_word_bits, n.c_addr_bits)))
+        if_stmt.else_stmts.append(
+            HDLAssign(n.h_bus['adr'],
+                      HDLSlice(ibus.rd_adr, root.c_addr_word_bits, n.c_addr_bits)))
         proc.stmts.append(if_stmt)
         module.stmts.append(proc)
 
@@ -136,29 +134,35 @@ class CERNBEBus(BusGen):
             # Handle read requests.
             proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_sync=rst_sync)
             # Write requests set on WE, clear by RdDone
-            proc.sync_stmts.append(HDLAssign(n.h_wr,
-                HDLAnd(HDLOr(n.h_wr, n.h_we), HDLNot(n.h_bus['wack']))))
+            proc.sync_stmts.append(
+                HDLAssign(n.h_wr,
+                          HDLAnd(HDLOr(n.h_wr, n.h_we), HDLNot(n.h_bus['wack']))))
             proc.rst_stmts.append(HDLAssign(n.h_wr, bit_0))
             # Write transaction set start W transaction, clear by WrDone
-            proc.sync_stmts.append(HDLAssign(n.h_wt,
-                HDLAnd(HDLOr(n.h_wt, n.h_ws), HDLNot(n.h_bus['wack']))))
+            proc.sync_stmts.append(
+                HDLAssign(n.h_wt,
+                          HDLAnd(HDLOr(n.h_wt, n.h_ws), HDLNot(n.h_bus['wack']))))
             proc.rst_stmts.append(HDLAssign(n.h_wt, bit_0))
             # Read requests set on RE, clear by RdDone
-            proc.sync_stmts.append(HDLAssign(n.h_rr,
-                HDLAnd(HDLOr(n.h_rr, n.h_re), HDLNot(n.h_bus['rack']))))
+            proc.sync_stmts.append(
+                HDLAssign(n.h_rr,
+                          HDLAnd(HDLOr(n.h_rr, n.h_re), HDLNot(n.h_bus['rack']))))
             proc.rst_stmts.append(HDLAssign(n.h_rr, bit_0))
             # Read transaction set start R transaction, clear by RdDone
-            proc.sync_stmts.append(HDLAssign(n.h_rt,
-                HDLAnd(HDLOr(n.h_rt, n.h_rs), HDLNot(n.h_bus['rack']))))
+            proc.sync_stmts.append(
+                HDLAssign(n.h_rt,
+                          HDLAnd(HDLOr(n.h_rt, n.h_rs), HDLNot(n.h_bus['rack']))))
             proc.rst_stmts.append(HDLAssign(n.h_rt, bit_0))
             stmts.append(proc)
             # Start a read transaction if a read request is pending and no transactions in
             # progress, and no write request (priority to write).
-            stmts.append(HDLAssign(n.h_rs,
-                HDLAnd(n.h_rr, HDLNot(HDLOr(n.h_wr, HDLOr(n.h_rt, n.h_wt))))))
+            stmts.append(
+                HDLAssign(n.h_rs,
+                          HDLAnd(n.h_rr, HDLNot(HDLOr(n.h_wr, HDLOr(n.h_rt, n.h_wt))))))
             # Start write transaction if pending write request and no read transaction XXX.
-            stmts.append(HDLAssign(n.h_ws,
-                HDLAnd(n.h_wr, HDLNot(HDLOr(n.h_rt, n.h_wt)))))
+            stmts.append(
+                HDLAssign(n.h_ws,
+                          HDLAnd(n.h_wr, HDLNot(HDLOr(n.h_rt, n.h_wt)))))
             # Mux for addresses.
             self.gen_adr_mux(root, module, n, ibus)
         elif ibus.rd_adr != ibus.wr_adr:
@@ -168,13 +172,14 @@ class CERNBEBus(BusGen):
             proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_sync=rst_sync)
             proc.sync_stmts.append(HDLAssign(n.h_wt, n.h_ws))
             proc.rst_stmts.append(HDLAssign(n.h_wt, bit_0))
-            module.stmts.append(HDLAssign(n.h_ws,
-                HDLOr(ibus.wr_req, HDLParen(HDLAnd(n.h_wt, HDLNot(ibus.rd_req))))))
+            module.stmts.append(
+                HDLAssign(n.h_ws,
+                          HDLOr(ibus.wr_req, HDLParen(HDLAnd(n.h_wt, HDLNot(ibus.rd_req))))))
             # Mux for addresses.
             self.gen_adr_mux(root, module, n, ibus)
         else:
             stmts.append(HDLAssign(n.h_bus['adr'],
-                                HDLSlice(ibus.rd_adr, root.c_addr_word_bits, n.c_addr_bits)))
+                                   HDLSlice(ibus.rd_adr, root.c_addr_word_bits, n.c_addr_bits)))
 
     def write_bus_slave(self, root, stmts, n, proc, ibus):
         proc.stmts.append(HDLAssign(n.h_bus['wr'], bit_0))

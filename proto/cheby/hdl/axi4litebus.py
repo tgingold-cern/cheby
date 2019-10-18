@@ -1,17 +1,15 @@
-from cheby.hdltree import (HDLModule, HDLPackage,
-                           HDLInterface, HDLInterfaceSelect, HDLInstance,
-                           HDLPort, HDLSignal,
-                           HDLAssign, HDLSync, HDLComb, HDLComment,
-                           HDLSwitch, HDLChoiceExpr, HDLChoiceDefault,
+from cheby.hdltree import (HDLPort,
+                           HDLAssign, HDLSync, HDLComment,
                            HDLIfElse,
-                           bit_1, bit_0, bit_x,
-                           HDLAnd, HDLOr, HDLNot, HDLEq, HDLConcat,
-                           HDLIndex, HDLSlice, HDLReplicate, Slice_or_Index,
-                           HDLConst, HDLBinConst, HDLNumber, HDLBool, HDLParen)
+                           bit_1, bit_0,
+                           HDLAnd, HDLOr, HDLNot, HDLEq,
+                           HDLSlice, HDLReplicate,
+                           HDLConst, HDLBinConst, HDLParen)
 from cheby.hdl.busgen import BusGen
 import cheby.tree as tree
 from cheby.hdl.globals import rst_sync, dirname
 from cheby.hdl.ibus import add_bus
+
 
 class AXI4LiteBus(BusGen):
     def __init__(self, name):
@@ -88,20 +86,22 @@ class AXI4LiteBus(BusGen):
         axi_wip = module.new_HDLSignal('axi_wip')
         axi_wdone = module.new_HDLSignal('axi_wdone')
         w_start = HDLAnd(root.h_bus['awvalid'], root.h_bus['wvalid'])
-        module.stmts.append(HDLAssign(ibus.wr_req,
-                HDLAnd(w_start, HDLNot(axi_wip))))
+        module.stmts.append(
+            HDLAssign(ibus.wr_req, HDLAnd(w_start, HDLNot(axi_wip))))
         module.stmts.append(HDLAssign(root.h_bus['awready'], axi_wdone))
-        module.stmts.append(HDLAssign(root.h_bus['wready'],
-                HDLAnd(axi_wip, ibus.wr_ack)))
+        module.stmts.append(
+            HDLAssign(root.h_bus['wready'], HDLAnd(axi_wip, ibus.wr_ack)))
         module.stmts.append(HDLAssign(root.h_bus['bvalid'], axi_wdone))
         proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_sync=rst_sync)
         proc.rst_stmts.append(HDLAssign(axi_wip, bit_0))
         proc.rst_stmts.append(HDLAssign(axi_wdone, bit_0))
-        proc.sync_stmts.append(HDLAssign(axi_wip,
-                HDLAnd(w_start, HDLNot(axi_wdone))))
+        proc.sync_stmts.append(
+            HDLAssign(axi_wip, HDLAnd(w_start, HDLNot(axi_wdone))))
         # Set on ack, cleared on bready.
-        proc.sync_stmts.append(HDLAssign(axi_wdone,
-                HDLOr(ibus.wr_ack, HDLParen(HDLAnd(axi_wdone, HDLNot(root.h_bus['bready']))))))
+        proc.sync_stmts.append(
+            HDLAssign(axi_wdone,
+                      HDLOr(ibus.wr_ack,
+                            HDLParen(HDLAnd(axi_wdone, HDLNot(root.h_bus['bready']))))))
         module.stmts.append(proc)
         module.stmts.append(HDLAssign(root.h_bus['bresp'], HDLConst(0, 2)))
 
@@ -114,25 +114,27 @@ class AXI4LiteBus(BusGen):
         axi_rip = module.new_HDLSignal('axi_rip')
         axi_rdone = module.new_HDLSignal('axi_rdone')
         r_start = root.h_bus['arvalid']
-        module.stmts.append(HDLAssign(ibus.rd_req,
-                HDLAnd(r_start, HDLNot(axi_rip))))
+        module.stmts.append(
+            HDLAssign(ibus.rd_req,
+                      HDLAnd(r_start, HDLNot(axi_rip))))
         module.stmts.append(HDLAssign(root.h_bus['arready'], axi_rdone))
-                #HDLAnd(axi_rip, ibus.rd_ack)))
         module.stmts.append(HDLAssign(root.h_bus['rvalid'], axi_rdone))
         proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_sync=rst_sync)
         proc.rst_stmts.append(HDLAssign(axi_rip, bit_0))
         proc.rst_stmts.append(HDLAssign(axi_rdone, bit_0))
-        proc.rst_stmts.append(HDLAssign(root.h_bus['rdata'],
-                HDLReplicate(bit_0, root.c_addr_bits)))
-        proc.sync_stmts.append(HDLAssign(axi_rip,
-                HDLAnd(r_start, HDLNot(axi_rdone))))
+        proc.rst_stmts.append(
+            HDLAssign(root.h_bus['rdata'],
+                      HDLReplicate(bit_0, root.c_addr_bits)))
+        proc.sync_stmts.append(
+            HDLAssign(axi_rip, HDLAnd(r_start, HDLNot(axi_rdone))))
         proc_if = HDLIfElse(HDLEq(ibus.rd_ack, bit_1))
         proc_if.then_stmts.append(HDLAssign(root.h_bus['rdata'], ibus.rd_dat))
         proc_if.else_stmts = None
         proc.sync_stmts.append(proc_if)
         # Set on ack, cleared on rready.
-        proc.sync_stmts.append(HDLAssign(axi_rdone,
-                HDLOr(ibus.rd_ack, HDLParen(HDLAnd(axi_rdone, HDLNot(root.h_bus['rready']))))))
+        proc.sync_stmts.append(
+            HDLAssign(axi_rdone,
+                      HDLOr(ibus.rd_ack, HDLParen(HDLAnd(axi_rdone, HDLNot(root.h_bus['rready']))))))
         module.stmts.append(proc)
         module.stmts.append(HDLAssign(root.h_bus['rresp'], HDLConst(0, 2)))
 
@@ -185,8 +187,9 @@ class AXI4LiteBus(BusGen):
             proc.rst_stmts.append(HDLAssign(x_val, bit_0))
             proc.sync_stmts.append(HDLAssign(x_val, bit_0))
             # VALID is set on WR, cleared by READY.
-            proc.sync_stmts.append(HDLAssign(x_val,
-                HDLOr(n.h_wr, HDLParen(HDLAnd(x_val, HDLNot(ready))))))
+            proc.sync_stmts.append(
+                HDLAssign(x_val,
+                          HDLOr(n.h_wr, HDLParen(HDLAnd(x_val, HDLNot(ready))))))
         stmts.append(proc)
 
     def write_bus_slave(self, root, stmts, n, proc, ibus):
@@ -201,5 +204,3 @@ class AXI4LiteBus(BusGen):
         stmts.append(HDLAssign(rd_data, n.h_bus['rdata']))
         stmts.append(HDLAssign(ibus.rd_ack, n.h_bus['rvalid']))
         proc.sensitivity.extend([n.h_bus['rdata'], n.h_bus['rvalid']])
-
-

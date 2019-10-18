@@ -2,6 +2,7 @@ from cheby.hdl.elgen import ElGen
 from cheby.hdltree import (HDLComment)
 from cheby.hdl.buses import name_to_busgen
 
+
 class GenInterface(ElGen):
     def gen_ports(self, root, module, n):
         # Generic submap.
@@ -18,5 +19,3 @@ class GenInterface(ElGen):
 
     def gen_write(self, root, s, n, off, ibus, wrproc):
         n.h_busgen.write_bus_slave(root, s, n, wrproc, ibus)
-
-

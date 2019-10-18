@@ -28,33 +28,12 @@ from cheby.hdltree import (HDLModule, HDLPackage,
 import cheby.tree as tree
 from cheby.layout import ilog2
 from cheby.hdl.wbbus import WBBus
-from cheby.hdl.globals import rst_sync, dirname
 from cheby.hdl.ibus import Ibus, add_bus
 from cheby.hdl.genreg import GenReg
 from cheby.hdl.geninterface import GenInterface
 from cheby.hdl.genmemory import GenMemory
-from cheby.hdl.elgen import add_module_port, strobe_index, strobe_init
+from cheby.hdl.gensubmap import GenSubmap
 from cheby.hdl.buses import name_to_busgen
-
-def add_ports_interface(root, module, n):
-    # Generic submap.
-    busgroup = n.get_extension('x_hdl', 'busgroup')
-    n.h_busgen = name_to_busgen(n.interface)
-    n.h_busgen.gen_bus_slave(root, module, n.c_name + '_', n, busgroup)
-
-
-def add_ports_submap(root, module, n):
-    if n.filename is None:
-        add_ports_interface(root, module, n)
-    else:
-        if n.include is True:
-            # Inline
-            add_ports(root, module, n.c_submap)
-        else:
-            busgroup = n.c_submap.get_extension('x_hdl', 'busgroup')
-            n.h_busgen = name_to_busgen(n.c_submap.bus)
-            n.h_busgen.gen_bus_slave(root, module, n.c_name + '_', n, busgroup)
-
 
 def add_ports(root, module, node):
     """Create ports for a composite node."""
@@ -64,19 +43,17 @@ def add_ports(root, module, node):
                 # Recurse
                 add_ports(root, module, n)
         elif isinstance(n, tree.Submap):
-            # Interface
-            add_ports_submap(root, module, n)
+            if n.include is True:
+                # Inline
+                add_ports(root, module, n.c_submap)
+            else:
+                n.h_gen.gen_ports(root, module, n)
         elif isinstance(n, tree.Memory):
             n.h_gen.gen_ports(root, module, n)
         elif isinstance(n, tree.Reg):
             n.h_gen.gen_ports(root, module, n)
         else:
             raise AssertionError
-
-
-def add_process_interface(root, module, ibus, n):
-    module.stmts.append(HDLComment('Interface {}'.format(n.c_name)))
-    n.h_busgen.wire_bus_slave(root, module, n, ibus)
 
 
 def add_processes(root, module, ibus, node):
@@ -88,7 +65,7 @@ def add_processes(root, module, ibus, node):
             if n.include is True:
                 add_processes(root, module, ibus, n.c_submap)
             else:
-                add_process_interface(root, module, ibus, n)
+                n.h_gen.gen_processes(root, module, ibus, n)
         elif isinstance(n, tree.Memory):
             n.h_gen.gen_processes(root, module, ibus, n)
         elif isinstance(n, tree.Reg):
@@ -211,10 +188,6 @@ def add_decoder(root, stmts, addr, n, func):
     add_block_decoder(root, stmts, addr, children, ilog2(root.c_size), func, 0)
 
 
-def add_read_interface(root, s, n, off, ibus, rdproc):
-    n.h_busgen.read_bus_slave(root, s, n, rdproc, ibus, ibus.rd_dat)
-
-
 def add_read_mux_process(root, module, ibus):
     # Generate the read decoder.  This is a large combinational process
     # that mux the data and ack.
@@ -240,7 +213,7 @@ def add_read_mux_process(root, module, ibus):
                 n.h_gen.gen_read(root, s, n, off, ibus, rdproc)
             elif isinstance(n, tree.Submap):
                 s.append(HDLComment("Submap {}".format(n.c_name)))
-                add_read_interface(root, s, n, off, ibus, rdproc)
+                n.h_gen.gen_read(root, s, n, off, ibus, rdproc)
             elif isinstance(n, tree.Memory):
                 s.append(HDLComment("RAM {}".format(n.c_name)))
                 n.h_gen.gen_read(root, s, n, off, ibus, rdproc)
@@ -253,10 +226,6 @@ def add_read_mux_process(root, module, ibus):
     stmts = []
     add_decoder(root, stmts, rd_adr, root, add_read)
     rdproc.stmts.extend(stmts)
-
-
-def add_write_interface(root, s, n, off, ibus, wrproc):
-    n.h_busgen.write_bus_slave(root, s, n, wrproc, ibus)
 
 
 def add_write_mux_process(root, module, ibus):
@@ -279,7 +248,7 @@ def add_write_mux_process(root, module, ibus):
                 n.h_gen.gen_write(root, s, n, off, ibus, wrproc)
             elif isinstance(n, tree.Submap):
                 s.append(HDLComment("Submap {}".format(n.c_name)))
-                add_write_interface(root, s, n, off, ibus, wrproc)
+                n.h_gen.gen_write(root, s, n, off, ibus, wrproc)
             elif isinstance(n, tree.Memory):
                 s.append(HDLComment("RAM {}".format(n.c_name)))
                 n.h_gen.gen_write(root, s, n, off, ibus, wrproc)
@@ -306,6 +275,10 @@ def set_gen(root, node):
             if n.include is True:
                 # Inline
                 set_gen(root, n.c_submap)
+            elif n.filename is None:
+                n.h_gen = GenInterface()
+            else:
+                n.h_gen = GenSubmap()
         elif isinstance(n, tree.Memory):
             if n.interface is not None:
                 n.c_addr_bits = ilog2(n.c_depth)

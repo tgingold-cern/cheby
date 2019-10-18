@@ -44,5 +44,3 @@ class BusGen(object):
     def read_bus_slave(self, root, stmts, n, proc, ibus, rd_data):
         """Set bus slave signals to read"""
         raise AssertionError("Not implemented")
-
-

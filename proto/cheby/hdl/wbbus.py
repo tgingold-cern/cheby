@@ -1,16 +1,15 @@
-from cheby.hdltree import (HDLModule, HDLPackage,
-                           HDLInterface, HDLInterfaceSelect, HDLInstance,
-                           HDLPort, HDLSignal,
+from cheby.hdltree import (HDLPackage,
+                           HDLInterface, HDLInterfaceSelect,
                            HDLAssign, HDLSync, HDLComb, HDLComment,
-                           HDLSwitch, HDLChoiceExpr, HDLChoiceDefault,
                            HDLIfElse,
-                           bit_1, bit_0, bit_x,
+                           bit_1, bit_0,
                            HDLAnd, HDLOr, HDLNot, HDLEq, HDLConcat,
-                           HDLIndex, HDLSlice, HDLReplicate, Slice_or_Index,
-                           HDLConst, HDLBinConst, HDLNumber, HDLBool, HDLParen)
+                           HDLSlice, HDLReplicate,
+                           HDLParen)
 from cheby.hdl.busgen import BusGen
 import cheby.tree as tree
 from cheby.hdl.globals import rst_sync, dirname
+
 
 class WBBus(BusGen):
     # Package wishbone_pkg that contains the wishbone interface
@@ -208,28 +207,34 @@ class WBBus(BusGen):
         proc.rst_stmts.append(HDLAssign(n.h_wt, bit_0))
         if root.h_bussplit:
             # WR is set on WE and cleared by ACK.
-            proc.sync_stmts.append(HDLAssign(n.h_wr,
-                HDLAnd(HDLOr(n.h_wr, n.h_we), HDLNot(n.h_wack))))
+            proc.sync_stmts.append(
+                HDLAssign(n.h_wr,
+                          HDLAnd(HDLOr(n.h_wr, n.h_we), HDLNot(n.h_wack))))
             proc.rst_stmts.append(HDLAssign(n.h_wr, bit_0))
             # WT is set on WR & ~TR and cleared by ACK
-            proc.sync_stmts.append(HDLAssign(n.h_wt,
-                HDLAnd(HDLOr(n.h_wt, HDLParen(HDLAnd(n.h_wr, HDLNot(n.h_tr)))),
-                       HDLNot(n.h_wack))))
+            proc.sync_stmts.append(
+                HDLAssign(n.h_wt,
+                          HDLAnd(HDLOr(n.h_wt, HDLParen(HDLAnd(n.h_wr, HDLNot(n.h_tr)))),
+                                 HDLNot(n.h_wack))))
             proc.rst_stmts.append(HDLAssign(n.h_rr, bit_0))
             # RR is set by RE and cleared by ACK.
-            proc.sync_stmts.append(HDLAssign(n.h_rr,
-                HDLAnd(HDLOr(n.h_rr, n.h_re), HDLNot(n.h_rack))))
+            proc.sync_stmts.append(
+                HDLAssign(n.h_rr,
+                          HDLAnd(HDLOr(n.h_rr, n.h_re), HDLNot(n.h_rack))))
             # RT is set by RR and cleared by ACK
-            proc.sync_stmts.append(HDLAssign(n.h_rt,
-                HDLAnd(HDLOr(n.h_rt, HDLParen(HDLAnd(n.h_rr, HDLNot(HDLOr(n.h_wr, n.h_tr))))),
-                    HDLNot(n.h_rack))))
+            proc.sync_stmts.append(
+                HDLAssign(n.h_rt,
+                          HDLAnd(HDLOr(n.h_rt, HDLParen(HDLAnd(n.h_rr, HDLNot(HDLOr(n.h_wr, n.h_tr))))),
+                                 HDLNot(n.h_rack))))
         else:
             # RT is set by RE and cleared by ACK.
-            proc.sync_stmts.append(HDLAssign(n.h_rt,
-                HDLAnd(HDLOr(n.h_rt, n.h_re), HDLNot(n.h_rack))))
+            proc.sync_stmts.append(
+                HDLAssign(n.h_rt,
+                          HDLAnd(HDLOr(n.h_rt, n.h_re), HDLNot(n.h_rack))))
             # WT is set by WE and cleared by ACK.
-            proc.sync_stmts.append(HDLAssign(n.h_wt,
-                HDLAnd(HDLOr(n.h_wt, n.h_we), HDLNot(n.h_wack))))
+            proc.sync_stmts.append(
+                HDLAssign(n.h_wt,
+                          HDLAnd(HDLOr(n.h_wt, n.h_we), HDLNot(n.h_wack))))
         stmts.append(proc)
         stmts.append(HDLAssign(n.h_bus['cyc'], n.h_tr))
         stmts.append(HDLAssign(n.h_bus['stb'], n.h_tr))

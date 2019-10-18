@@ -1,8 +1,8 @@
-from cheby.hdl.busgen import BusGen
 from cheby.hdl.wbbus import WBBus
 from cheby.hdl.cernbus import CERNBEBus
 from cheby.hdl.srambus import SRAMBus
 from cheby.hdl.axi4litebus import AXI4LiteBus
+
 
 def name_to_busgen(name):
     if name == 'wb-32-be':

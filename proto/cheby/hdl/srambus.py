@@ -1,17 +1,11 @@
-from cheby.hdltree import (HDLModule, HDLPackage,
-                           HDLInterface, HDLInterfaceSelect, HDLInstance,
-                           HDLPort, HDLSignal,
-                           HDLAssign, HDLSync, HDLComb, HDLComment,
-                           HDLSwitch, HDLChoiceExpr, HDLChoiceDefault,
+from cheby.hdltree import (HDLAssign, HDLSync, HDLComb,
                            HDLIfElse,
-                           bit_1, bit_0, bit_x,
-                           HDLAnd, HDLOr, HDLNot, HDLEq, HDLConcat,
-                           HDLIndex, HDLSlice, HDLReplicate, Slice_or_Index,
-                           HDLConst, HDLBinConst, HDLNumber, HDLBool, HDLParen)
+                           bit_1, bit_0,
+                           HDLAnd, HDLOr, HDLNot, HDLEq,
+                           HDLSlice)
 from cheby.hdl.busgen import BusGen
-import cheby.tree as tree
-from cheby.hdl.globals import rst_sync, dirname
-from cheby.hdl.ibus import add_bus
+from cheby.hdl.globals import rst_sync
+
 
 class SRAMBus(BusGen):
     def __init__(self, name):
@@ -49,13 +43,14 @@ class SRAMBus(BusGen):
             n.h_wp = module.new_HDLSignal(n.c_name + '_wp')
             n.h_we = module.new_HDLSignal(n.c_name + '_we')
             proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_sync=rst_sync)
-            proc.sync_stmts.append(HDLAssign(n.h_wp,
-                    HDLAnd(HDLOr(ibus.wr_req, n.h_wp), ibus.rd_req)))
+            proc.sync_stmts.append(
+                HDLAssign(n.h_wp,
+                          HDLAnd(HDLOr(ibus.wr_req, n.h_wp), ibus.rd_req)))
             proc.rst_stmts.append(HDLAssign(n.h_wp, bit_0))
             module.stmts.append(proc)
             # Write enable.
             stmts.append(HDLAssign(n.h_we,
-                                   HDLAnd(HDLOr(ibus.wr_req, n.h_wp), HDLNot (ibus.rd_req))))
+                                   HDLAnd(HDLOr(ibus.wr_req, n.h_wp), HDLNot(ibus.rd_req))))
             # Mux for addresses.
             proc = HDLComb()
             proc.sensitivity.extend([ibus.rd_adr, ibus.wr_adr, n.h_re])
