@@ -34,139 +34,8 @@ from cheby.hdl.srambus import SRAMBus
 from cheby.hdl.axi4litebus import AXI4LiteBus
 from cheby.hdl.globals import rst_sync, dirname
 from cheby.hdl.ibus import Ibus, add_bus
-
-def add_module_port(root, module, name, size, dir):
-    "Utility function to easily add a port to :param module:"
-    if root.h_itf is None:
-        return module.add_port(name + '_' + dirname[dir], size, dir=dir)
-    else:
-        p = root.h_itf.add_port(name, size, dir=dir)
-        return HDLInterfaceSelect(root.h_ports, p)
-
-
-def add_ports_reg(root, module, n):
-    """Add ports and wires for register or fields of :param n:
-       :field h_reg: the register.
-       :field h_rint: word(s) that are read from the register.
-       :field h_wreq: the internal write request signal.
-       :field h_iport: the input port.
-       :field h_oport: the output port.
-       :field h_wreq_port: the write strobe port.
-       :field h_rreq_port: the read strobe port.
-       :field h_rack_port: the read ack port.
-       :field h_wack_port: the write ack port.
-    """
-    iport = None
-    oport = None
-
-    n.h_has_regs = False
-
-    # Register comment.  Always add a separation between registers ports.
-    comment = '\n' + (n.comment or n.description or "REG {}".format(n.name))
-
-    for f in n.children:
-        w = None if f.c_rwidth == 1 else f.c_rwidth
-
-        if n.hdl_port != 'reg' and not isinstance(f, tree.FieldReg):
-            # Append field comment to the register comment (if present)
-            pcomment = f.comment or f.description
-            if pcomment is not None:
-                comment = pcomment if comment is None else  comment + '\n' + pcomment
-
-        # Create the register (only for registers)
-        if f.hdl_type == 'reg':
-            f.h_reg = module.new_HDLSignal(f.c_name + '_reg', w)
-            n.h_has_regs = True
-        else:
-            f.h_reg = None
-
-        # Input
-        if f.hdl_type == 'wire' and n.access in ['ro', 'rw']:
-            if n.hdl_port == 'reg':
-                # One port used for all fields.
-                if iport is None:
-                    iport = add_module_port(root, module, n.c_name, n.width, dir='IN')
-                    iport.comment = comment
-                    comment = None
-                f.h_iport = Slice_or_Index(iport, f.lo, w)
-            else:
-                # One port per field.
-                f.h_iport = add_module_port(root, module, f.c_name, w, dir='IN')
-                f.h_iport.comment = comment
-                comment = None
-        else:
-            f.h_iport = None
-
-        # Output
-        if n.access in ['wo', 'rw']:
-            if n.hdl_port == 'reg':
-                # One port used for all fields.
-                if oport is None:
-                    oport = add_module_port(root, module, n.c_name, n.width, dir='OUT')
-                    oport.comment = comment
-                    comment = None
-                f.h_oport = Slice_or_Index(oport, f.lo, w)
-            else:
-                # One port per field.
-                f.h_oport = add_module_port(root, module, f.c_name, w, dir='OUT')
-                f.h_oport.comment = comment
-                comment = None
-        else:
-            f.h_oport = None
-
-    comment = None
-
-    # Strobe size.  There is one strobe signal per word, so create a vector if
-    # the register is longer than a word.
-    if n.c_size <= root.c_word_size:
-        sz = None
-    else:
-        sz = n.c_nwords
-
-    # Internal write request signal.
-    n.h_wack = None
-    if n.access in ['wo', 'rw']:
-        n.h_wreq = module.new_HDLSignal(n.c_name + '_wreq', sz)
-        if n.h_has_regs:
-            # Need an intermediate wire for delayed ack
-            n.h_wack = module.new_HDLSignal(n.c_name + '_wack', sz)
-    else:
-        n.h_wreq = None
-
-    # Internal read port.
-    if n.access in ['ro', 'rw'] and (n.has_fields() or n.children[0].hdl_type == 'const'):
-        n.h_rint = module.new_HDLSignal(n.c_name + '_rint', n.c_rwidth)
-    else:
-        n.h_rint = None
-
-    # Write strobe
-    if n.hdl_write_strobe:
-        n.h_wreq_port = add_module_port(
-            root, module, n.c_name + '_wr', size=sz, dir='OUT')
-    else:
-        n.h_wreq_port = None
-
-    # Read strobe
-    if n.hdl_read_strobe:
-        n.h_rreq_port = add_module_port(
-            root, module, n.c_name + '_rd', size=sz, dir='OUT')
-    else:
-        n.h_rreq_port = None
-
-    # Write ack
-    if n.hdl_write_ack:
-        n.h_wack_port = add_module_port(
-            root, module, n.c_name + '_wack', size=sz, dir='IN')
-    else:
-        n.h_wack_port = None
-
-    # Read ack
-    if n.hdl_read_ack:
-        n.h_rack_port = add_module_port(
-            root, module, n.c_name + '_rack', size=sz, dir='IN')
-    else:
-        n.h_rack_port = None
-
+from cheby.hdl.genreg import GenReg
+from cheby.hdl.elgen import add_module_port, strobe_index, strobe_init
 
 def add_ports_interface(root, module, n):
     # Generic submap.
@@ -264,7 +133,7 @@ def add_ports(root, module, node):
         elif isinstance(n, tree.Memory):
             add_ports_memory(root, module, n)
         elif isinstance(n, tree.Reg):
-            add_ports_reg(root, module, n)
+            n.h_gen.gen_ports(root, module, n)
         else:
             raise AssertionError
 
@@ -378,80 +247,6 @@ def add_processes_memory_reg(root, module, ibus, reg):
                                   HDLReplicate(bit_1, nbr_bytes)))
 
 
-def add_processes_regs(root, module, ibus, n):
-    module.stmts.append(HDLComment('Register {}'.format(n.c_name)))
-    for f in n.children:
-        if f.h_reg is not None and f.h_oport is not None:
-            module.stmts.append(HDLAssign(f.h_oport, f.h_reg))
-
-    if n.access in ['rw', 'wo']:
-        # Handle wire fields.
-        for off in range(0, n.c_size, root.c_word_size):
-            off *= tree.BYTE_SIZE
-            for f in n.children:
-                if f.hdl_type != 'wire':
-                    continue
-                reg, dat = field_decode(root, n, f, off, f.h_oport, ibus.wr_dat)
-                if reg is not None:
-                    module.stmts.append(HDLAssign(reg, dat))
-
-        has_reg = any([f.hdl_type == 'reg' for f in n.children])
-        if has_reg:
-            wrproc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_sync=rst_sync)
-            module.stmts.append(wrproc)
-            for off in range(0, n.c_size, root.c_word_size):
-                off *= tree.BYTE_SIZE
-                wr_if = HDLIfElse(HDLEq(strobe_index(root, n, off, n.h_wreq), bit_1))
-                wr_if.else_stmts = None
-                for f in n.children:
-                    if f.hdl_type != 'reg':
-                        continue
-                    # Reset code
-                    if f.h_reg is not None and off == 0:
-                        v = f.c_preset or 0
-                        cst = HDLConst(v, f.c_rwidth if f.c_rwidth != 1 else None)
-                        wrproc.rst_stmts.append(HDLAssign(f.h_reg, cst))
-                    # Assign code
-                    reg, dat = field_decode(root, n, f, off, f.h_reg, ibus.wr_dat)
-                    if reg is not None:
-                        wr_if.then_stmts.append(HDLAssign(reg, dat))
-                wrproc.sync_stmts.append(wr_if)
-
-            # In case of regs, the strobe is delayed so that it appears at the same time as
-            # the value.
-            wrproc.sync_stmts.append(HDLAssign(n.h_wack, n.h_wreq))
-            wrproc.rst_stmts.append(HDLAssign(n.h_wack, strobe_init(root, n)))
-
-        if n.h_wreq_port is not None:
-            module.stmts.append(HDLAssign(n.h_wreq_port, n.h_wack or n.h_wreq))
-
-    if n.access in ['ro', 'rw'] and n.h_rint is not None:
-        nxt = 0
-        def pad(first):
-            width = first - nxt
-            if width <= 0:
-                return
-            if width == 1:
-                val = bit_0
-            else:
-                val = HDLReplicate(bit_0, first - nxt)
-            module.stmts.append(HDLAssign(Slice_or_Index(n.h_rint, nxt, width), val))
-
-        for f in n.children:
-            if f.h_reg is not None:
-                src = f.h_reg
-            elif f.h_iport is not None:
-                src = f.h_iport
-            elif f.hdl_type == 'const':
-                src = HDLConst(f.c_preset, f.c_rwidth)
-            else:
-                raise AssertionError
-            pad(f.lo)
-            module.stmts.append(HDLAssign(Slice_or_Index(n.h_rint, f.lo, f.c_rwidth), src))
-            nxt = f.lo + f.c_rwidth
-        pad(n.c_rwidth)
-
-
 def add_process_interface(root, module, ibus, n):
     module.stmts.append(HDLComment('Interface {}'.format(n.c_name)))
     n.h_busgen.wire_bus_slave(root, module, n, ibus)
@@ -479,7 +274,7 @@ def add_processes(root, module, ibus, node):
                     else:
                         raise AssertionError(c)
         elif isinstance(n, tree.Reg):
-            add_processes_regs(root, module, ibus, n)
+            n.h_gen.gen_processes(root, module, ibus, n)
         else:
             raise AssertionError
 
@@ -598,89 +393,6 @@ def add_decoder(root, stmts, addr, n, func):
     add_block_decoder(root, stmts, addr, children, ilog2(root.c_size), func, 0)
 
 
-def field_decode(root, reg, f, off, val, dat):
-    """Handle multi-word accesses.  Slice (if needed) VAL and DAT for offset
-       OFF and field F or register REG."""
-    # Register and value bounds
-    d_lo = f.lo
-    d_hi = f.lo + f.c_rwidth - 1
-    v_lo = 0
-    v_hi = f.c_rwidth - 1
-    # Next field if not affected by this read.
-    if d_hi < off:
-        return (None, None)
-    if d_lo >= off + root.c_word_bits:
-        return (None, None)
-    if d_lo < off:
-        # Strip the part below OFF.
-        delta = off - d_lo
-        d_lo = off
-        v_lo += delta
-    # Set right boundaries
-    d_lo -= off
-    d_hi -= off
-    if d_hi >= root.c_word_bits:
-        delta = d_hi + 1 - root.c_word_bits
-        d_hi = root.c_word_bits - 1
-        v_hi -= delta
-
-    if d_hi == root.c_word_bits - 1 and d_lo == 0:
-        pass
-    else:
-        dat = Slice_or_Index(dat, d_lo, d_hi - d_lo + 1)
-    if v_hi == f.c_rwidth - 1 and v_lo == 0:
-        pass
-    else:
-        val = Slice_or_Index(val, v_lo, v_hi - v_lo + 1)
-    return (val, dat)
-
-
-def strobe_init(root, n):
-    sz = n.c_size // root.c_word_size
-    if sz <= 1:
-        return bit_0
-    else:
-        return HDLReplicate(bit_0, sz)
-
-
-def strobe_index(root, n, off, lhs):
-    if n.c_size <= root.c_word_size:
-        return lhs
-    else:
-        return HDLIndex(lhs, off // root.c_word_bits)
-
-
-def add_read_reg(root, s, n, off, ibus, rdproc):
-    # Strobe
-    if n.h_rreq_port is not None:
-        s.append(HDLAssign(strobe_index(root, n, off, n.h_rreq_port), ibus.rd_req))
-        if off == 0:
-            # Default values for the strobe
-            v = strobe_init(root, n)
-            rdproc.stmts.append(HDLAssign(n.h_rreq_port, v))
-    # Ack
-    if n.h_rack_port is not None:
-        rack = n.h_rack_port
-        if off == 0:
-            rdproc.sensitivity.append(rack)
-        rack = strobe_index(root, n, off, rack)
-    else:
-        rack = ibus.rd_req
-    s.append(HDLAssign(ibus.rd_ack, rack))
-    if n.access == 'wo':
-        return
-    # Data
-    if n.h_rint is not None:
-        src = n.h_rint
-    else:
-        src = n.children[0].h_iport or n.children[0].h_reg
-    if off == 0:
-        rdproc.sensitivity.append(src)
-    if n.c_nwords != 1:
-        src = HDLSlice(src, off, root.c_word_bits)
-    s.append(HDLAssign(ibus.rd_dat, src))
-
-
 def add_read_interface(root, s, n, off, ibus, rdproc):
     n.h_busgen.read_bus_slave(root, s, n, rdproc, ibus, ibus.rd_dat)
 
@@ -731,7 +443,7 @@ def add_read_mux_process(root, module, ibus):
         if n is not None:
             if isinstance(n, tree.Reg):
                 s.append(HDLComment(n.c_name))
-                add_read_reg(root, s, n, off, ibus, rdproc)
+                n.h_gen.gen_read(root, s, n, off, ibus, rdproc)
             elif isinstance(n, tree.Submap):
                 s.append(HDLComment("Submap {}".format(n.c_name)))
                 add_read_interface(root, s, n, off, ibus, rdproc)
@@ -747,25 +459,6 @@ def add_read_mux_process(root, module, ibus):
     stmts = []
     add_decoder(root, stmts, rd_adr, root, add_read)
     rdproc.stmts.extend(stmts)
-
-
-def add_write_reg(root, s, n, off, ibus, wrproc):
-    # Strobe
-    if n.h_wreq is not None:
-        s.append(HDLAssign(strobe_index(root, n, off, n.h_wreq), ibus.wr_req))
-        if off == 0:
-            # Default values for the strobe
-            v = strobe_init(root, n)
-            wrproc.stmts.append(HDLAssign(n.h_wreq, v))
-    # Ack
-    wack = n.h_wack_port or n.h_wack
-    if wack is not None:
-        if off == 0:
-            wrproc.sensitivity.append(wack)
-        wack = strobe_index(root, n, off, wack)
-    else:
-        wack = ibus.wr_req
-    s.append(HDLAssign(ibus.wr_ack, wack))
 
 
 def add_write_interface(root, s, n, off, ibus, wrproc):
@@ -801,7 +494,7 @@ def add_write_mux_process(root, module, ibus):
         if n is not None:
             if isinstance(n, tree.Reg):
                 s.append(HDLComment(n.c_name))
-                add_write_reg(root, s, n, off, ibus, wrproc)
+                n.h_gen.gen_write(root, s, n, off, ibus, wrproc)
             elif isinstance(n, tree.Submap):
                 s.append(HDLComment("Submap {}".format(n.c_name)))
                 add_write_interface(root, s, n, off, ibus, wrproc)
@@ -819,6 +512,25 @@ def add_write_mux_process(root, module, ibus):
     add_decoder(root, stmts, wr_adr, root, add_write)
     wrproc.stmts.extend(stmts)
 
+
+def set_gen(root, node):
+    """Add the object to generate hdl"""
+    for n in node.children:
+        if isinstance(n, tree.Block):
+            if n.children:
+                # Recurse
+                set_gen(root, n)
+        elif isinstance(n, tree.Submap):
+            if n.include is True:
+                # Inline
+                set_gen(root, n.c_submap)
+        elif isinstance(n, tree.Memory):
+            pass
+        elif isinstance(n, tree.Reg):
+            n.h_gen = GenReg()
+            pass
+        else:
+            raise AssertionError
 
 def name_to_busgen(name):
     if name == 'wb-32-be':
@@ -852,6 +564,8 @@ def generate_hdl(root):
     WBBus.wb_pkg = None
 
     module = gen_hdl_header(root, ibus)
+
+    set_gen(root, root)
 
     # Add ports
     iogroup = root.get_extension('x_hdl', 'iogroup')
