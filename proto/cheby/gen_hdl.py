@@ -27,15 +27,14 @@ from cheby.hdltree import (HDLModule, HDLPackage,
                            HDLConst, HDLBinConst, HDLNumber, HDLBool, HDLParen)
 import cheby.tree as tree
 from cheby.layout import ilog2
-from cheby.hdl.busgen import BusGen
 from cheby.hdl.wbbus import WBBus
-from cheby.hdl.cernbus import CERNBEBus
-from cheby.hdl.srambus import SRAMBus
-from cheby.hdl.axi4litebus import AXI4LiteBus
 from cheby.hdl.globals import rst_sync, dirname
 from cheby.hdl.ibus import Ibus, add_bus
 from cheby.hdl.genreg import GenReg
+from cheby.hdl.geninterface import GenInterface
+from cheby.hdl.genmemory import GenMemory
 from cheby.hdl.elgen import add_module_port, strobe_index, strobe_init
+from cheby.hdl.buses import name_to_busgen
 
 def add_ports_interface(root, module, n):
     # Generic submap.
@@ -57,69 +56,6 @@ def add_ports_submap(root, module, n):
             n.h_busgen.gen_bus_slave(root, module, n.c_name + '_', n, busgroup)
 
 
-def add_ports_memory(root, module, mem):
-    """Create RAM ports and wires shared by all the registers.
-    :attr h_addr: the address port
-    """
-    if mem.interface is not None:
-        mem.c_addr_bits = ilog2(mem.c_depth)
-        mem.c_width = mem.c_elsize * tree.BYTE_SIZE
-        add_ports_interface(root, module, mem)
-        return
-    # Compute width, and create address port.
-    mem.h_addr_width = ilog2(mem.c_depth)
-    mem.h_addr = add_module_port(
-        root, module, mem.c_name + '_adr', mem.h_addr_width, 'IN')
-    mem.h_addr.comment = '\n' + "RAM port for {}".format(mem.c_name)
-
-    for c in mem.children:
-        if isinstance(c, tree.Reg):
-            # Ram
-            add_ports_memory_reg(root, module, c)
-        else:
-            raise AssertionError(c)
-
-
-def add_ports_memory_reg(root, module, reg):
-    """Create ports and wires for a ram.
-    :attr h_we: the write enable
-    :attr h_rd: the read enable
-    :attr h_dat: the data (either input or output)
-    """
-    # Create ports for external access to the RAM.
-    if reg.access == 'ro':
-        reg.h_wr = add_module_port(
-            root, module, reg.c_name + '_we', None, 'IN')
-        reg.h_dat = add_module_port(
-            root, module, reg.c_name + '_dat', reg.c_rwidth, 'IN')
-    else:
-        reg.h_rd = add_module_port(
-            root, module, reg.c_name + '_rd', None, 'IN')
-        reg.h_dat = add_module_port(
-            root, module, reg.c_name + '_dat', reg.c_rwidth, 'OUT')
-
-    nbr_bytes = reg.c_rwidth // tree.BYTE_SIZE
-    reg.h_sig_bwsel = module.new_HDLSignal(reg.c_name + '_int_bwsel', nbr_bytes)
-
-    if reg.access == 'ro':
-        # External port is WO
-        reg.h_sig_dati = module.new_HDLSignal(reg.c_name + '_int_dati', reg.c_rwidth)
-        reg.h_sig_dato = module.new_HDLSignal(reg.c_name + '_int_dato', reg.c_rwidth)
-        reg.h_dat_ign = module.new_HDLSignal(reg.c_name + '_ext_dat', reg.c_rwidth)
-        reg.h_rreq = module.new_HDLSignal(reg.c_name + '_rreq')
-        reg.h_rack = module.new_HDLSignal(reg.c_name + '_rack')
-        reg.h_sig_wr = module.new_HDLSignal(reg.c_name + '_int_wr')
-        reg.h_ext_rd = module.new_HDLSignal(reg.c_name + '_ext_rd')
-    else:
-        # External port is RO.
-        reg.h_sig_dato = module.new_HDLSignal(reg.c_name + '_int_dato', reg.c_rwidth)
-        reg.h_dat_ign = module.new_HDLSignal(reg.c_name + '_ext_dat', reg.c_rwidth)
-        reg.h_rreq = module.new_HDLSignal(reg.c_name + '_rreq')
-        reg.h_rack = module.new_HDLSignal(reg.c_name + '_rack')
-        reg.h_sig_wr = module.new_HDLSignal(reg.c_name + '_int_wr')
-        reg.h_ext_wr = module.new_HDLSignal(reg.c_name + '_ext_wr')
-
-
 def add_ports(root, module, node):
     """Create ports for a composite node."""
     for n in node.children:
@@ -131,120 +67,11 @@ def add_ports(root, module, node):
             # Interface
             add_ports_submap(root, module, n)
         elif isinstance(n, tree.Memory):
-            add_ports_memory(root, module, n)
+            n.h_gen.gen_ports(root, module, n)
         elif isinstance(n, tree.Reg):
             n.h_gen.gen_ports(root, module, n)
         else:
             raise AssertionError
-
-
-def add_processes_memory(root, module, ibus, arr):
-    module.stmts.append(HDLComment('Memory {}'.format(arr.c_name)))
-    if root.h_ram is None:
-        module.deps.append(('work', 'wbgen2_pkg'))
-        root.h_ram = True
-
-    if ibus.wr_adr != ibus.rd_adr and any([r.access in ['wo', 'rw'] for r in arr.children]):
-        # Read request and Write request.  Priority for the write.
-        arr.h_wr = module.new_HDLSignal(arr.c_name + '_wr')
-        arr.h_rr = module.new_HDLSignal(arr.c_name + '_rr')
-        # Any write request
-        arr.h_wreq = module.new_HDLSignal(arr.c_name + '_wreq')
-        arr.h_adr_int = module.new_HDLSignal(arr.c_name + '_adr_int',
-                                             arr.h_addr_width)
-                                            
-        # Create a mux for the ram address
-        proc = HDLComb()
-        proc.sensitivity.extend([ibus.rd_adr, ibus.wr_adr, arr.h_wr])
-        if_stmt = HDLIfElse(HDLEq(arr.h_wr, bit_1))
-        if_stmt.then_stmts.append(HDLAssign(arr.h_adr_int,
-            HDLSlice(ibus.wr_adr, root.c_addr_word_bits, arr.h_addr_width)))
-        if_stmt.else_stmts.append(HDLAssign(arr.h_adr_int,
-            HDLSlice(ibus.rd_adr, root.c_addr_word_bits, arr.h_addr_width)))
-        proc.stmts.append(if_stmt)
-        module.stmts.append(proc)
-
-        # Handle R & W accesses (priority to W)
-        module.stmts.append(HDLAssign(arr.h_wreq,
-            functools.reduce(HDLOr, [r.h_sig_wr for r in arr.children])))
-        rreq = functools.reduce(HDLOr, [r.h_rreq for r in arr.children])
-        module.stmts.append(HDLAssign(arr.h_rr,
-            HDLAnd(rreq, HDLNot(arr.h_wreq))))
-        module.stmts.append(HDLAssign(arr.h_wr, arr.h_wreq))
-    else:
-        arr.h_adr_int = None
-
-
-def add_processes_memory_reg(root, module, ibus, reg):
-    arr = reg._parent
-    # Instantiate the ram.
-    inst = HDLInstance(reg.c_name + "_raminst", "wbgen2_dpssram")
-    module.stmts.append(inst)
-    inst.params.append(("g_data_width", HDLNumber(reg.c_rwidth)))
-    inst.params.append(("g_size", HDLNumber(1 << arr.h_addr_width)))
-    inst.params.append(("g_addr_width", HDLNumber(arr.h_addr_width)))
-    inst.params.append(("g_dual_clock", HDLBool(False)))
-    inst.params.append(("g_use_bwsel", HDLBool(False)))
-    inst.conns.append(("clk_a_i", root.h_bus['clk']))
-    inst.conns.append(("clk_b_i", root.h_bus['clk']))
-    if arr.h_adr_int is not None:
-        adr_int = arr.h_adr_int
-    else:
-        adr_int = HDLSlice(ibus.rd_adr, root.c_addr_word_bits, arr.h_addr_width)
-    inst.conns.append(("addr_a_i", adr_int))
-
-    # Always write words to RAM (no byte select)
-    inst.conns.append(("bwsel_b_i", reg.h_sig_bwsel))
-    inst.conns.append(("bwsel_a_i", reg.h_sig_bwsel))
-
-    proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_sync=rst_sync)
-    proc.rst_stmts.append(HDLAssign(reg.h_rack, bit_0))
-    if root.h_bussplit and reg.access in ['rw', 'wo']:
-        # Arbiter: the RAM has only one address bus on port A.
-        rack = HDLAnd(HDLAnd(reg.h_rreq, HDLNot(arr.h_wreq)),
-                      HDLNot(reg.h_rack))
-    else:
-        rack = reg.h_rreq
-    proc.sync_stmts.append(HDLAssign(reg.h_rack, rack))
-    module.stmts.append(proc)
-
-    if reg.access == 'ro':
-        # Internal port (RO)
-        inst.conns.append(("data_a_i", reg.h_sig_dati))  # Unused.
-        inst.conns.append(("data_a_o", reg.h_sig_dato))
-        inst.conns.append(("rd_a_i", reg.h_rreq))
-        inst.conns.append(("wr_a_i", reg.h_sig_wr))
-
-        module.stmts.append(HDLAssign(reg.h_sig_wr, bit_0))
-        module.stmts.append(HDLAssign(reg.h_sig_dati, HDLReplicate(bit_x, reg.c_rwidth)))
-
-        # External port (WO)
-        module.stmts.append(HDLAssign(reg.h_ext_rd, bit_0))
-
-        inst.conns.append(("addr_b_i", arr.h_addr))
-        inst.conns.append(("data_b_i", reg.h_dat))
-        inst.conns.append(("data_b_o", reg.h_dat_ign))
-        inst.conns.append(("rd_b_i", reg.h_ext_rd))
-        inst.conns.append(("wr_b_i", reg.h_wr))
-    else:
-        # Internal port (RW)
-        inst.conns.append(("data_a_i", ibus.wr_dat))
-        inst.conns.append(("data_a_o", reg.h_sig_dato))
-        inst.conns.append(("rd_a_i", reg.h_rreq))
-        inst.conns.append(("wr_a_i", reg.h_sig_wr))
-
-        # External port (RO)
-        module.stmts.append(HDLAssign(reg.h_ext_wr, bit_0))
-
-        inst.conns.append(("addr_b_i", arr.h_addr))
-        inst.conns.append(("data_b_i", reg.h_dat_ign))
-        inst.conns.append(("data_b_o", reg.h_dat))
-        inst.conns.append(("rd_b_i", reg.h_rd))
-        inst.conns.append(("wr_b_i", reg.h_ext_wr))
-
-    nbr_bytes = reg.c_rwidth // tree.BYTE_SIZE
-    module.stmts.append(HDLAssign(reg.h_sig_bwsel,
-                                  HDLReplicate(bit_1, nbr_bytes)))
 
 
 def add_process_interface(root, module, ibus, n):
@@ -263,16 +90,7 @@ def add_processes(root, module, ibus, node):
             else:
                 add_process_interface(root, module, ibus, n)
         elif isinstance(n, tree.Memory):
-            if n.interface is not None:
-                add_process_interface(root, module, ibus, n)
-            else:
-                add_processes_memory(root, module, ibus, n)
-                for c in n.children:
-                    if isinstance(c, tree.Reg):
-                        # Ram
-                        add_processes_memory_reg(root, module, ibus, c)
-                    else:
-                        raise AssertionError(c)
+            n.h_gen.gen_processes(root, module, ibus, n)
         elif isinstance(n, tree.Reg):
             n.h_gen.gen_processes(root, module, ibus, n)
         else:
@@ -397,30 +215,6 @@ def add_read_interface(root, s, n, off, ibus, rdproc):
     n.h_busgen.read_bus_slave(root, s, n, rdproc, ibus, ibus.rd_dat)
 
 
-def add_read_memory(root, s, n, off, ibus, rdproc):
-    if n.interface is not None:
-        add_read_interface(root, s, n, off, ibus, rdproc)
-        return
-    # TODO: handle list of registers!
-    r = n.children[0]
-    rdproc.sensitivity.append(r.h_sig_dato)
-    # Output ram data
-    s.append(HDLAssign(ibus.rd_dat, r.h_sig_dato))
-    # Set rd signal to ram: read when there is not WR request,
-    # and either a read request or a pending read request.
-    if root.h_bussplit and r.access in ['wo', 'rw']:
-        rd_sig = HDLAnd(ibus.rd_req, HDLNot(n.h_wreq))
-        rdproc.sensitivity.extend([n.h_wreq])
-    else:
-        rd_sig = ibus.rd_req
-    s.append(HDLAssign(r.h_rreq, rd_sig))
-    # But set it to 0 when the ram is not selected.
-    rdproc.stmts.append(HDLAssign(r.h_rreq, bit_0))
-    # Use delayed ack as ack.
-    s.append(HDLAssign(ibus.rd_ack, r.h_rack))
-    rdproc.sensitivity.append(r.h_rack)
-
-
 def add_read_mux_process(root, module, ibus):
     # Generate the read decoder.  This is a large combinational process
     # that mux the data and ack.
@@ -449,7 +243,7 @@ def add_read_mux_process(root, module, ibus):
                 add_read_interface(root, s, n, off, ibus, rdproc)
             elif isinstance(n, tree.Memory):
                 s.append(HDLComment("RAM {}".format(n.c_name)))
-                add_read_memory(root, s, n, off, ibus, rdproc)
+                n.h_gen.gen_read(root, s, n, off, ibus, rdproc)
             else:
                 # Blocks have been handled.
                 raise AssertionError
@@ -463,18 +257,6 @@ def add_read_mux_process(root, module, ibus):
 
 def add_write_interface(root, s, n, off, ibus, wrproc):
     n.h_busgen.write_bus_slave(root, s, n, wrproc, ibus)
-
-
-def add_write_memory(root, s, n, off, ibus, wrproc):
-    if n.interface is not None:
-        add_write_interface(root, s, n, off, ibus, wrproc)
-        return
-    # TODO: handle list of registers!
-    r = n.children[0]
-    if r.access in ['rw', 'wo']:
-        wrproc.stmts.append(HDLAssign(r.h_sig_wr, bit_0))
-        s.append(HDLAssign(r.h_sig_wr, ibus.wr_req))
-        s.append(HDLAssign(ibus.wr_ack, ibus.wr_req))
 
 
 def add_write_mux_process(root, module, ibus):
@@ -500,7 +282,7 @@ def add_write_mux_process(root, module, ibus):
                 add_write_interface(root, s, n, off, ibus, wrproc)
             elif isinstance(n, tree.Memory):
                 s.append(HDLComment("RAM {}".format(n.c_name)))
-                add_write_memory(root, s, n, off, ibus, wrproc)
+                n.h_gen.gen_write(root, s, n, off, ibus, wrproc)
             else:
                 # Blocks have been handled.
                 raise AssertionError
@@ -525,25 +307,17 @@ def set_gen(root, node):
                 # Inline
                 set_gen(root, n.c_submap)
         elif isinstance(n, tree.Memory):
-            pass
+            if n.interface is not None:
+                n.c_addr_bits = ilog2(n.c_depth)
+                n.c_width = n.c_elsize * tree.BYTE_SIZE
+                n.h_gen = GenInterface()
+            else:
+                n.h_gen = GenMemory()
         elif isinstance(n, tree.Reg):
             n.h_gen = GenReg()
             pass
         else:
             raise AssertionError
-
-def name_to_busgen(name):
-    if name == 'wb-32-be':
-        return WBBus(name)
-    elif name == 'axi4-lite-32':
-        return AXI4LiteBus(name)
-    elif name.startswith('cern-be-vme-'):
-        return CERNBEBus(name)
-    elif name == 'sram':
-        return SRAMBus(name)
-    else:
-        raise AssertionError("Unhandled bus '{}'".format(name))
-
 
 def gen_hdl_header(root, ibus=None):
     # Note: also called from gen_gena_regctrl but without ibus.
