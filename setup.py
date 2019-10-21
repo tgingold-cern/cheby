@@ -6,7 +6,7 @@ exec(open('proto/cheby/__init__.py').read())
 setup(
     name="cheby",
     version=__version__,
-    packages=['cheby', 'cheby.wbgen'],
+    packages=['cheby', 'cheby.wbgen', 'cheby.hdl'],
     package_dir={'': 'proto'},
     entry_points={
         'console_scripts': [
