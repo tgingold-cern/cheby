@@ -10,6 +10,54 @@ from cheby.hdltree import (HDLAssign, HDLSync, HDLComment,
 
 
 class GenReg(ElGen):
+    def gen_ack_strobe_ports(self, root, module, n):
+        # Strobe size.  There is one strobe signal per word, so create a vector if
+        # the register is longer than a word.
+        sz = None if n.c_size <= root.c_word_size else n.c_nwords
+
+        # Write strobe
+        if n.hdl_write_strobe:
+            n.h_wreq_port = add_module_port(
+                root, module, n.c_name + '_wr', size=sz, dir='OUT')
+        else:
+            n.h_wreq_port = None
+
+        # Read strobe
+        if n.hdl_read_strobe:
+            n.h_rreq_port = add_module_port(
+                root, module, n.c_name + '_rd', size=sz, dir='OUT')
+        else:
+            n.h_rreq_port = None
+
+        # Write ack
+        if n.hdl_write_ack:
+            n.h_wack_port = add_module_port(
+                root, module, n.c_name + '_wack', size=sz, dir='IN')
+        else:
+            n.h_wack_port = None
+
+        # Read ack
+        if n.hdl_read_ack:
+            n.h_rack_port = add_module_port(
+                root, module, n.c_name + '_rack', size=sz, dir='IN')
+        else:
+            n.h_rack_port = None
+
+    def gen_regs(self, root, module, n):
+        """Add internal registers (to memorize the value)."""
+
+        n.h_has_regs = False
+
+        for f in n.children:
+            w = None if f.c_rwidth == 1 else f.c_rwidth
+
+            # Create the register (only for registers)
+            if f.hdl_type == 'reg':
+                f.h_reg = module.new_HDLSignal(f.c_name + '_reg', w)
+                n.h_has_regs = True
+            else:
+                f.h_reg = None
+
     def gen_ports(self, root, module, n):
         """Add ports and wires for register or fields of :param n:
            :field h_reg: the register.
@@ -22,10 +70,9 @@ class GenReg(ElGen):
            :field h_rack_port: the read ack port.
            :field h_wack_port: the write ack port.
         """
+        # Single port when 'port: reg' is set.
         iport = None
         oport = None
-
-        n.h_has_regs = False
 
         # Register comment.  Always add a separation between registers ports.
         comment = '\n' + (n.comment or n.description or "REG {}".format(n.name))
@@ -38,13 +85,6 @@ class GenReg(ElGen):
                 pcomment = f.comment or f.description
                 if pcomment is not None:
                     comment = pcomment if comment is None else comment + '\n' + pcomment
-
-            # Create the register (only for registers)
-            if f.hdl_type == 'reg':
-                f.h_reg = module.new_HDLSignal(f.c_name + '_reg', w)
-                n.h_has_regs = True
-            else:
-                f.h_reg = None
 
             # Input
             if f.hdl_type == 'wire' and n.access in ['ro', 'rw']:
@@ -82,16 +122,14 @@ class GenReg(ElGen):
 
         comment = None
 
-        # Strobe size.  There is one strobe signal per word, so create a vector if
-        # the register is longer than a word.
-        if n.c_size <= root.c_word_size:
-            sz = None
-        else:
-            sz = n.c_nwords
+        self.gen_regs(root, module, n)
+        self.gen_ack_strobe_ports(root, module, n)
 
         # Internal write request signal.
         n.h_wack = None
         if n.access in ['wo', 'rw']:
+            # Strobe size.
+            sz = None if n.c_size <= root.c_word_size else n.c_nwords
             n.h_wreq = module.new_HDLSignal(n.c_name + '_wreq', sz)
             if n.h_has_regs:
                 # Need an intermediate wire for delayed ack
@@ -105,42 +143,16 @@ class GenReg(ElGen):
         else:
             n.h_rint = None
 
-        # Write strobe
-        if n.hdl_write_strobe:
-            n.h_wreq_port = add_module_port(
-                root, module, n.c_name + '_wr', size=sz, dir='OUT')
-        else:
-            n.h_wreq_port = None
-
-        # Read strobe
-        if n.hdl_read_strobe:
-            n.h_rreq_port = add_module_port(
-                root, module, n.c_name + '_rd', size=sz, dir='OUT')
-        else:
-            n.h_rreq_port = None
-
-        # Write ack
-        if n.hdl_write_ack:
-            n.h_wack_port = add_module_port(
-                root, module, n.c_name + '_wack', size=sz, dir='IN')
-        else:
-            n.h_wack_port = None
-
-        # Read ack
-        if n.hdl_read_ack:
-            n.h_rack_port = add_module_port(
-                root, module, n.c_name + '_rack', size=sz, dir='IN')
-        else:
-            n.h_rack_port = None
-
     def gen_processes(self, root, module, ibus, n):
         module.stmts.append(HDLComment('Register {}'.format(n.c_name)))
+
+        # Assign ports from the register.
         for f in n.children:
             if f.h_reg is not None and f.h_oport is not None:
                 module.stmts.append(HDLAssign(f.h_oport, f.h_reg))
 
         if n.access in ['rw', 'wo']:
-            # Handle wire fields.
+            # Handle wire fields: create connections between the bus and the outputs.
             for off in range(0, n.c_size, root.c_word_size):
                 off *= tree.BYTE_SIZE
                 for f in n.children:
@@ -150,8 +162,7 @@ class GenReg(ElGen):
                     if reg is not None:
                         module.stmts.append(HDLAssign(reg, dat))
 
-            has_reg = any([f.hdl_type == 'reg' for f in n.children])
-            if has_reg:
+            if n.h_has_regs:
                 wrproc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_sync=rst_sync)
                 module.stmts.append(wrproc)
                 for off in range(0, n.c_size, root.c_word_size):
@@ -184,6 +195,7 @@ class GenReg(ElGen):
             nxt = 0
 
             def pad(first):
+                """Set the value of unused bits."""
                 width = first - nxt
                 if width <= 0:
                     return
