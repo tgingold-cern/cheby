@@ -216,7 +216,7 @@ class GenReg(ElGen):
                         # No field for this offset.
                         continue
                     if f.hdl_type == 'autoclear':
-                        strobe = n.h_wreq
+                        strobe = self.strobe_index(off, n.h_wreq)
                         if f.c_rwidth > 1:
                             strobe = HDLReplicate(strobe, f.c_rwidth, False)
                         dat = HDLAnd(dat, strobe)
