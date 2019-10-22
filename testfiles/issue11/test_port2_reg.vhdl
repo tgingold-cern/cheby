@@ -85,10 +85,8 @@ begin
   end process;
 
   -- Register i1Thresholds
-  i1Thresholds_rint(15 downto 0) <= (others => '0');
-  i1Thresholds_rint(31 downto 16) <= i1Thresholds_i(31 downto 16);
   i1Thresholds_rint(15 downto 0) <= i1Thresholds_i(15 downto 0);
-  i1Thresholds_rint(31 downto 16) <= (others => '0');
+  i1Thresholds_rint(31 downto 16) <= i1Thresholds_i(31 downto 16);
 
   -- Process for write requests.
   process (wr_req_d0) begin
