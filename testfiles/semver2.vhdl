@@ -114,11 +114,11 @@ begin
     r1_wreq <= '0';
     case wr_adr_d0(2 downto 2) is
     when "0" => 
-      -- r1
+      -- Reg r1
       r1_wreq <= wr_req_d0;
       wr_ack_int <= r1_wack;
     when "1" => 
-      -- v
+      -- Reg v
       wr_ack_int <= wr_req_d0;
     when others =>
       wr_ack_int <= wr_req_d0;
@@ -131,11 +131,11 @@ begin
     rd_dat_d0 <= (others => 'X');
     case wb_adr_i(2 downto 2) is
     when "0" => 
-      -- r1
+      -- Reg r1
       rd_ack_d0 <= rd_req_int;
       rd_dat_d0 <= r1_reg;
     when "1" => 
-      -- v
+      -- Reg v
       rd_ack_d0 <= rd_req_int;
       rd_dat_d0 <= v_rint;
     when others =>

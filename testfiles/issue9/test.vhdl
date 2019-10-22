@@ -174,18 +174,18 @@ begin
     block1_register3_wreq <= '0';
     case wr_adr_d0(4 downto 2) is
     when "000" => 
-      -- register1
+      -- Reg register1
       register1_wreq <= wr_req_d0;
       wr_ack_int <= register1_wack;
     when "100" => 
-      -- block1_register2
+      -- Reg block1_register2
       wr_ack_int <= wr_req_d0;
     when "101" => 
-      -- block1_register3
+      -- Reg block1_register3
       block1_register3_wreq <= wr_req_d0;
       wr_ack_int <= block1_register3_wack;
     when "110" => 
-      -- block1_block2_register4
+      -- Reg block1_block2_register4
       wr_ack_int <= wr_req_d0;
     when others =>
       wr_ack_int <= wr_req_d0;
@@ -198,18 +198,18 @@ begin
     rd_dat_d0 <= (others => 'X');
     case araddr(4 downto 2) is
     when "000" => 
-      -- register1
+      -- Reg register1
       rd_ack_d0 <= rd_req;
     when "100" => 
-      -- block1_register2
+      -- Reg block1_register2
       rd_ack_d0 <= rd_req;
       rd_dat_d0 <= block1_register2_rint;
     when "101" => 
-      -- block1_register3
+      -- Reg block1_register3
       rd_ack_d0 <= rd_req;
       rd_dat_d0 <= block1_register3_reg;
     when "110" => 
-      -- block1_block2_register4
+      -- Reg block1_block2_register4
       rd_ack_d0 <= rd_req;
       rd_dat_d0 <= block1_block2_register4_rint;
     when others =>

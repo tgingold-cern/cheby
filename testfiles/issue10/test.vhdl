@@ -179,11 +179,11 @@ begin
     when "00" => 
       case wr_adr_d0(2 downto 2) is
       when "0" => 
-        -- register1
+        -- Reg register1
         register1_wreq(0) <= wr_req_d0;
         wr_ack_int <= register1_wack(0);
       when "1" => 
-        -- register1
+        -- Reg register1
         register1_wreq(1) <= wr_req_d0;
         wr_ack_int <= register1_wack(1);
       when others =>
@@ -192,10 +192,10 @@ begin
     when "10" => 
       case wr_adr_d0(2 downto 2) is
       when "0" => 
-        -- block1_register2
+        -- Reg block1_register2
         wr_ack_int <= wr_req_d0;
       when "1" => 
-        -- block1_register3
+        -- Reg block1_register3
         block1_register3_wreq <= wr_req_d0;
         wr_ack_int <= block1_register3_wack;
       when others =>
@@ -204,7 +204,7 @@ begin
     when "11" => 
       case wr_adr_d0(2 downto 2) is
       when "0" => 
-        -- block1_block2_register4
+        -- Reg block1_block2_register4
         wr_ack_int <= wr_req_d0;
       when others =>
         wr_ack_int <= wr_req_d0;
@@ -222,10 +222,10 @@ begin
     when "00" => 
       case araddr(2 downto 2) is
       when "0" => 
-        -- register1
+        -- Reg register1
         rd_ack_d0 <= rd_req;
       when "1" => 
-        -- register1
+        -- Reg register1
         rd_ack_d0 <= rd_req;
       when others =>
         rd_ack_d0 <= rd_req;
@@ -233,11 +233,11 @@ begin
     when "10" => 
       case araddr(2 downto 2) is
       when "0" => 
-        -- block1_register2
+        -- Reg block1_register2
         rd_ack_d0 <= rd_req;
         rd_dat_d0 <= block1_register2_rint;
       when "1" => 
-        -- block1_register3
+        -- Reg block1_register3
         rd_ack_d0 <= rd_req;
         rd_dat_d0 <= block1_register3_reg;
       when others =>
@@ -246,7 +246,7 @@ begin
     when "11" => 
       case araddr(2 downto 2) is
       when "0" => 
-        -- block1_block2_register4
+        -- Reg block1_block2_register4
         rd_ack_d0 <= rd_req;
         rd_dat_d0 <= block1_block2_register4_rint;
       when others =>

@@ -130,11 +130,11 @@ begin
     register1_wreq <= (others => '0');
     case wr_adr_d0(2 downto 2) is
     when "0" => 
-      -- register1
+      -- Reg register1
       register1_wreq(1) <= wr_req_d0;
       wr_ack_int <= register1_wack(1);
     when "1" => 
-      -- register1
+      -- Reg register1
       register1_wreq(0) <= wr_req_d0;
       wr_ack_int <= register1_wack(0);
     when others =>
@@ -148,10 +148,10 @@ begin
     rd_dat_d0 <= (others => 'X');
     case araddr(2 downto 2) is
     when "0" => 
-      -- register1
+      -- Reg register1
       rd_ack_d0 <= rd_req;
     when "1" => 
-      -- register1
+      -- Reg register1
       rd_ack_d0 <= rd_req;
     when others =>
       rd_ack_d0 <= rd_req;

@@ -58,19 +58,19 @@ begin
   process (wr_adr_d0, wr_req_d0) begin
     case wr_adr_d0(19 downto 1) is
     when "0000000000000000000" => 
-      -- smallReg
+      -- Reg smallReg
       wr_ack_int <= wr_req_d0;
     when "0000000000000000001" => 
-      -- largeReg
+      -- Reg largeReg
       wr_ack_int <= wr_req_d0;
     when "0000000000000000010" => 
-      -- largeReg
+      -- Reg largeReg
       wr_ack_int <= wr_req_d0;
     when "0000000000000000011" => 
-      -- largeReg
+      -- Reg largeReg
       wr_ack_int <= wr_req_d0;
     when "0000000000000000100" => 
-      -- largeReg
+      -- Reg largeReg
       wr_ack_int <= wr_req_d0;
     when others =>
       wr_ack_int <= wr_req_d0;
@@ -83,23 +83,23 @@ begin
     rd_dat_d0 <= (others => 'X');
     case VMEAddr(19 downto 1) is
     when "0000000000000000000" => 
-      -- smallReg
+      -- Reg smallReg
       rd_ack_d0 <= VMERdMem;
       rd_dat_d0 <= smallReg_i;
     when "0000000000000000001" => 
-      -- largeReg
+      -- Reg largeReg
       rd_ack_d0 <= VMERdMem;
       rd_dat_d0 <= largeReg_i(47 downto 32);
     when "0000000000000000010" => 
-      -- largeReg
+      -- Reg largeReg
       rd_ack_d0 <= VMERdMem;
       rd_dat_d0 <= largeReg_i(31 downto 16);
     when "0000000000000000011" => 
-      -- largeReg
+      -- Reg largeReg
       rd_ack_d0 <= VMERdMem;
       rd_dat_d0 <= largeReg_i(15 downto 0);
     when "0000000000000000100" => 
-      -- largeReg
+      -- Reg largeReg
       rd_ack_d0 <= VMERdMem;
       rd_dat_d0 <= largeReg_i(63 downto 48);
     when others =>

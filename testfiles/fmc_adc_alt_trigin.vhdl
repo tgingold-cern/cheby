@@ -109,7 +109,7 @@ begin
     when "00" => 
       case wr_adr_d0(2 downto 2) is
       when "0" => 
-        -- ctrl
+        -- Reg ctrl
         ctrl_wreq <= wr_req_d0;
         wr_ack_int <= wr_req_d0;
       when others =>
@@ -118,10 +118,10 @@ begin
     when "01" => 
       case wr_adr_d0(2 downto 2) is
       when "0" => 
-        -- seconds
+        -- Reg seconds
         wr_ack_int <= wr_req_d0;
       when "1" => 
-        -- seconds
+        -- Reg seconds
         wr_ack_int <= wr_req_d0;
       when others =>
         wr_ack_int <= wr_req_d0;
@@ -129,7 +129,7 @@ begin
     when "10" => 
       case wr_adr_d0(2 downto 2) is
       when "0" => 
-        -- cycles
+        -- Reg cycles
         wr_ack_int <= wr_req_d0;
       when others =>
         wr_ack_int <= wr_req_d0;
@@ -147,7 +147,7 @@ begin
     when "00" => 
       case adr_int(2 downto 2) is
       when "0" => 
-        -- ctrl
+        -- Reg ctrl
         rd_ack_d0 <= rd_req_int;
         rd_dat_d0 <= ctrl_rint;
       when others =>
@@ -156,11 +156,11 @@ begin
     when "01" => 
       case adr_int(2 downto 2) is
       when "0" => 
-        -- seconds
+        -- Reg seconds
         rd_ack_d0 <= rd_req_int;
         rd_dat_d0 <= seconds_i(63 downto 32);
       when "1" => 
-        -- seconds
+        -- Reg seconds
         rd_ack_d0 <= rd_req_int;
         rd_dat_d0 <= seconds_i(31 downto 0);
       when others =>
@@ -169,7 +169,7 @@ begin
     when "10" => 
       case adr_int(2 downto 2) is
       when "0" => 
-        -- cycles
+        -- Reg cycles
         rd_ack_d0 <= rd_req_int;
         rd_dat_d0 <= cycles_i;
       when others =>

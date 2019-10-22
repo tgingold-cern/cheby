@@ -97,13 +97,13 @@ begin
     softReset_wreq <= '0';
     case wr_adr_d0(20 downto 20) is
     when "0" => 
-      -- RAM acqVP
+      -- Memory acqVP
       acqVP_VMEWrMem_o <= wr_req_d0;
       wr_ack_int <= acqVP_VMEWrDone_i;
     when "1" => 
       case wr_adr_d0(19 downto 1) is
       when "0000000000000000000" => 
-        -- softReset
+        -- Reg softReset
         softReset_wreq <= wr_req_d0;
         wr_ack_int <= softReset_wack;
       when others =>
@@ -121,14 +121,14 @@ begin
     acqVP_VMERdMem_o <= '0';
     case VMEAddr(20 downto 20) is
     when "0" => 
-      -- RAM acqVP
+      -- Memory acqVP
       acqVP_VMERdMem_o <= VMERdMem;
       rd_dat_d0 <= acqVP_VMERdData_i;
       rd_ack_d0 <= acqVP_VMERdDone_i;
     when "1" => 
       case VMEAddr(19 downto 1) is
       when "0000000000000000000" => 
-        -- softReset
+        -- Reg softReset
         rd_ack_d0 <= VMERdMem;
         rd_dat_d0 <= softReset_rint;
       when others =>

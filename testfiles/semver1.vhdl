@@ -105,7 +105,7 @@ begin
   -- Process for write requests.
   process (wr_req_d0, r1_wack) begin
     r1_wreq <= '0';
-    -- r1
+    -- Reg r1
     r1_wreq <= wr_req_d0;
     wr_ack_int <= r1_wack;
   end process;
@@ -114,7 +114,7 @@ begin
   process (rd_req_int, r1_reg) begin
     -- By default ack read requests
     rd_dat_d0 <= (others => 'X');
-    -- r1
+    -- Reg r1
     rd_ack_d0 <= rd_req_int;
     rd_dat_d0 <= r1_reg;
   end process;

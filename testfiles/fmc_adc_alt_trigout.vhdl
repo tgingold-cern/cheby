@@ -194,10 +194,10 @@ begin
     when "00" => 
       case wr_adr_d0(2 downto 2) is
       when "0" => 
-        -- status
+        -- Reg status
         wr_ack_int <= wr_req_d0;
       when "1" => 
-        -- ctrl
+        -- Reg ctrl
         ctrl_wreq <= wr_req_d0;
         wr_ack_int <= ctrl_wack;
       when others =>
@@ -206,10 +206,10 @@ begin
     when "01" => 
       case wr_adr_d0(2 downto 2) is
       when "0" => 
-        -- ts_mask_sec
+        -- Reg ts_mask_sec
         wr_ack_int <= wr_req_d0;
       when "1" => 
-        -- ts_mask_sec
+        -- Reg ts_mask_sec
         wr_ack_int <= wr_req_d0;
       when others =>
         wr_ack_int <= wr_req_d0;
@@ -217,7 +217,7 @@ begin
     when "10" => 
       case wr_adr_d0(2 downto 2) is
       when "0" => 
-        -- ts_cycles
+        -- Reg ts_cycles
         wr_ack_int <= wr_req_d0;
       when others =>
         wr_ack_int <= wr_req_d0;
@@ -236,11 +236,11 @@ begin
     when "00" => 
       case adr_int(2 downto 2) is
       when "0" => 
-        -- status
+        -- Reg status
         rd_ack_d0 <= rd_req_int;
         rd_dat_d0 <= status_rint;
       when "1" => 
-        -- ctrl
+        -- Reg ctrl
         rd_ack_d0 <= rd_req_int;
         rd_dat_d0 <= ctrl_rint;
       when others =>
@@ -249,11 +249,11 @@ begin
     when "01" => 
       case adr_int(2 downto 2) is
       when "0" => 
-        -- ts_mask_sec
+        -- Reg ts_mask_sec
         rd_ack_d0 <= rd_req_int;
         rd_dat_d0 <= ts_mask_sec_rint(63 downto 32);
       when "1" => 
-        -- ts_mask_sec
+        -- Reg ts_mask_sec
         rd_ack_d0 <= rd_req_int;
         rd_dat_d0 <= ts_mask_sec_rint(31 downto 0);
       when others =>
@@ -262,7 +262,7 @@ begin
     when "10" => 
       case adr_int(2 downto 2) is
       when "0" => 
-        -- ts_cycles
+        -- Reg ts_cycles
         ts_cycles_rd_o <= rd_req_int;
         rd_ack_d0 <= rd_req_int;
         rd_dat_d0 <= ts_cycles_rint;

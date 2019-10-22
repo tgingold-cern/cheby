@@ -100,7 +100,7 @@ begin
 
   -- Process for write requests.
   process (wr_adr_d0, wr_req_d0) begin
-    -- RAM acqVP
+    -- Memory acqVP
   end process;
 
   -- Process for read requests.
@@ -108,7 +108,7 @@ begin
     -- By default ack read requests
     rd_dat_d0 <= (others => 'X');
     acqVP_value_rreq <= '0';
-    -- RAM acqVP
+    -- Memory acqVP
     rd_dat_d0 <= acqVP_value_int_dato;
     acqVP_value_rreq <= VMERdMem;
     rd_ack_d0 <= acqVP_value_rack;

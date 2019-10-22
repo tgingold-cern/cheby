@@ -97,11 +97,11 @@ begin
     r2_wreq <= '0';
     case wr_adr_d0(2 downto 2) is
     when "0" => 
-      -- r1
+      -- Reg r1
       r1_wreq <= wr_req_d0;
       wr_ack_int <= r1_wack;
     when "1" => 
-      -- r2
+      -- Reg r2
       r2_wreq <= wr_req_d0;
       wr_ack_int <= r2_wack;
     when others =>
@@ -115,11 +115,11 @@ begin
     rd_dat_d0 <= (others => 'X');
     case VMEAddr(2 downto 2) is
     when "0" => 
-      -- r1
+      -- Reg r1
       rd_ack_d0 <= VMERdMem;
       rd_dat_d0 <= r1_reg;
     when "1" => 
-      -- r2
+      -- Reg r2
       rd_ack_d0 <= VMERdMem;
       rd_dat_d0 <= r2_rint;
     when others =>

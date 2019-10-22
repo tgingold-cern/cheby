@@ -92,7 +92,7 @@ begin
 
   -- Process for write requests.
   process (wr_req_d0) begin
-    -- i1Thresholds
+    -- Reg i1Thresholds
     wr_ack_int <= wr_req_d0;
   end process;
 
@@ -100,7 +100,7 @@ begin
   process (rd_req_int, i1Thresholds_rint) begin
     -- By default ack read requests
     rd_dat_d0 <= (others => 'X');
-    -- i1Thresholds
+    -- Reg i1Thresholds
     rd_ack_d0 <= rd_req_int;
     rd_dat_d0 <= i1Thresholds_rint;
   end process;
