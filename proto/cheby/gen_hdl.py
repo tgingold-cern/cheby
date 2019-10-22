@@ -36,44 +36,6 @@ from cheby.hdl.gensubmap import GenSubmap
 from cheby.hdl.genblock import GenBlock
 from cheby.hdl.buses import name_to_busgen
 
-def add_ports(root, module, node):
-    """Create ports for a composite node."""
-    for n in node.children:
-        if isinstance(n, tree.Block):
-            if n.children:
-                # Recurse
-                add_ports(root, module, n)
-        elif isinstance(n, tree.Submap):
-            if n.include is True:
-                # Inline
-                add_ports(root, module, n.c_submap)
-            else:
-                n.h_gen.gen_ports()
-        elif isinstance(n, tree.Memory):
-            n.h_gen.gen_ports()
-        elif isinstance(n, tree.Reg):
-            n.h_gen.gen_ports()
-        else:
-            raise AssertionError
-
-
-def add_processes(root, module, ibus, node):
-    """Create assignment from register to outputs."""
-    for n in node.children:
-        if isinstance(n, tree.Block):
-            add_processes(root, module, ibus, n)
-        elif isinstance(n, tree.Submap):
-            if n.include is True:
-                add_processes(root, module, ibus, n.c_submap)
-            else:
-                n.h_gen.gen_processes(ibus)
-        elif isinstance(n, tree.Memory):
-            n.h_gen.gen_processes(ibus)
-        elif isinstance(n, tree.Reg):
-            n.h_gen.gen_processes(ibus)
-        else:
-            raise AssertionError
-
 
 def add_block_decoder(root, stmts, addr, children, hi, func, off):
     # :param hi: is the highest address bit to be decoded.
@@ -295,14 +257,15 @@ def generate_hdl(root):
     else:
         root.h_itf = None
         root.h_ports = module
-    add_ports(root, module, root)
+
+    root.h_gen.gen_ports()
 
     if root.hdl_pipeline:
         ibus = ibus.pipeline(root, module, root.hdl_pipeline, '_d0')
 
     # Add internal processes + wires
     root.h_ram = None
-    add_processes(root, module, ibus, root)
+    root.h_gen.gen_processes(ibus)
 
     # Address decoders and muxes.
     add_write_mux_process(root, module, ibus)

@@ -37,13 +37,15 @@ class GenBlock(ElGen):
                 raise AssertionError
 
     def gen_ports(self):
-        pass
+        for n in self.n.children:
+            n.h_gen.gen_ports()
 
     def gen_processes(self, ibus):
-        pass
+        for n in self.n.children:
+            n.h_gen.gen_processes(ibus)
 
     def gen_read(self, s, off, ibus, rdproc):
-        pass
+        raise AssertionError
 
     def gen_write(self, s, off, ibus, wrproc):
-        pass
+        raise AssertionError
