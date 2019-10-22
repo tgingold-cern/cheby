@@ -210,7 +210,7 @@ def add_read_mux_process(root, module, ibus):
         if n is not None:
             if isinstance(n, tree.Reg):
                 s.append(HDLComment(n.c_name))
-                n.h_gen.gen_read(root, s, n, off, ibus, rdproc)
+                n.h_gen.gen_read(s, off, ibus, rdproc)
             elif isinstance(n, tree.Submap):
                 s.append(HDLComment("Submap {}".format(n.c_name)))
                 n.h_gen.gen_read(root, s, n, off, ibus, rdproc)

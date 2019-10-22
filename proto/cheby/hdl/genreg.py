@@ -45,21 +45,6 @@ def field_decode(root, reg, f, off, val, dat):
     return (val, dat)
 
 
-def strobe_init(root, n):
-    sz = n.c_size // root.c_word_size
-    if sz <= 1:
-        return bit_0
-    else:
-        return HDLReplicate(bit_0, sz)
-
-
-def strobe_index(root, n, off, lhs):
-    if n.c_size <= root.c_word_size:
-        return lhs
-    else:
-        return HDLIndex(lhs, off // root.c_word_bits)
-
-
 class GenReg(ElGen):
     def __init__(self, root, module, n):
         self.root = root
@@ -68,6 +53,21 @@ class GenReg(ElGen):
 
     def add_module_port(self, name, size, dir):
         return add_module_port(self.root, self.module, name, size, dir)
+
+    def strobe_init(self):
+        sz = self.n.c_size // self.root.c_word_size
+        if sz <= 1:
+            return bit_0
+        else:
+            return HDLReplicate(bit_0, sz)
+
+
+    def strobe_index(self, off, lhs):
+        if self.n.c_size <= self.root.c_word_size:
+            return lhs
+        else:
+            return HDLIndex(lhs, off // self.root.c_word_bits)
+
 
     def gen_ack_strobe_ports(self):
         n = self.n
@@ -236,7 +236,7 @@ class GenReg(ElGen):
                 self.module.stmts.append(wrproc)
                 for off in range(0, n.c_size, self.root.c_word_size):
                     off *= tree.BYTE_SIZE
-                    wr_if = HDLIfElse(HDLEq(strobe_index(self.root, n, off, n.h_wreq), bit_1))
+                    wr_if = HDLIfElse(HDLEq(self.strobe_index(off, n.h_wreq), bit_1))
                     wr_if.else_stmts = None
                     for f in n.children:
                         if f.hdl_type != 'reg':
@@ -255,7 +255,7 @@ class GenReg(ElGen):
                 # In case of regs, the strobe is delayed so that it appears at the same time as
                 # the value.
                 wrproc.sync_stmts.append(HDLAssign(n.h_wack, n.h_wreq))
-                wrproc.rst_stmts.append(HDLAssign(n.h_wack, strobe_init(self.root, n)))
+                wrproc.rst_stmts.append(HDLAssign(n.h_wack, self.strobe_init()))
 
             if n.h_wreq_port is not None:
                 self.module.stmts.append(HDLAssign(n.h_wreq_port, n.h_wack or n.h_wreq))
@@ -288,20 +288,21 @@ class GenReg(ElGen):
                 nxt = f.lo + f.c_rwidth
             pad(n.c_rwidth)
 
-    def gen_read(self, root, s, n, off, ibus, rdproc):
+    def gen_read(self, s, off, ibus, rdproc):
+        n = self.n
         # Strobe
         if n.h_rreq_port is not None:
-            s.append(HDLAssign(strobe_index(root, n, off, n.h_rreq_port), ibus.rd_req))
+            s.append(HDLAssign(self.strobe_index(off, n.h_rreq_port), ibus.rd_req))
             if off == 0:
                 # Default values for the strobe
-                v = strobe_init(root, n)
+                v = self.strobe_init()
                 rdproc.stmts.append(HDLAssign(n.h_rreq_port, v))
         # Ack
         if n.h_rack_port is not None:
             rack = n.h_rack_port
             if off == 0:
                 rdproc.sensitivity.append(rack)
-            rack = strobe_index(root, n, off, rack)
+            rack = self.strobe_index(off, rack)
         else:
             rack = ibus.rd_req
         s.append(HDLAssign(ibus.rd_ack, rack))
@@ -316,23 +317,23 @@ class GenReg(ElGen):
         if off == 0:
             rdproc.sensitivity.append(src)
         if n.c_nwords != 1:
-            src = HDLSlice(src, off, root.c_word_bits)
+            src = HDLSlice(src, off, self.root.c_word_bits)
         s.append(HDLAssign(ibus.rd_dat, src))
 
     def gen_write(self, root, s, n, off, ibus, wrproc):
         # Strobe
         if n.h_wreq is not None:
-            s.append(HDLAssign(strobe_index(root, n, off, n.h_wreq), ibus.wr_req))
+            s.append(HDLAssign(self.strobe_index(off, n.h_wreq), ibus.wr_req))
             if off == 0:
                 # Default values for the strobe
-                v = strobe_init(root, n)
+                v = self.strobe_init()
                 wrproc.stmts.append(HDLAssign(n.h_wreq, v))
         # Ack
         wack = n.h_wack_port or n.h_wack
         if wack is not None:
             if off == 0:
                 wrproc.sensitivity.append(wack)
-            wack = strobe_index(root, n, off, wack)
+            wack = self.strobe_index(off, wack)
         else:
             wack = ibus.wr_req
         s.append(HDLAssign(ibus.wr_ack, wack))
