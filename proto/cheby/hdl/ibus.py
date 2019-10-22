@@ -57,7 +57,7 @@ class Ibus(object):
                 # simply copy it.
                 continue
             sig = getattr(self, n)
-            if sig is None:
+            if sig is None or sz == 0:
                 # Address signals may not exist.
                 w = None
             elif c:
