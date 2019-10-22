@@ -344,10 +344,22 @@ using the little endian convention.
 It is possible to define the initial value of a field using the
 `preset` attribute.
 
-The `type` attribute within `x-hdl` is available.  It can be set to
-`reg` (the default unless register access type is `ro`), or `wire`
-(the default when the access type is `ro`) or `const`. When set to
-`wire` no register is created.
+The `type` attribute within `x-hdl` is available.  It can be set to:
+
+`reg`:: A register is created which can be read or written from the
+bus.  The value of the register is available on the ports.  This is
+the default unless register access type is `ro`.
+
+`wire`:: No logic is created.  In case of read from the bus, the current
+value on the input ports is returned.  The output ports are directly connected
+to the data bus.  It doesn't make sense not to also have a strobe port for
+write.  This is the default when the access type is `ro`.
+
+`const`:: No output available, the value is a constant, set by the `preset`
+attribute.
+
+`autoclear`:: Only for outputs.  In case of a write from the bus, the value
+is set on the output ports for only one clock cycle and then cleared.
 
 Example of a register with two fields:
 

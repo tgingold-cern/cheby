@@ -77,6 +77,8 @@ Add `interface` attribute to `memory`.
 
 Ignore gena 'resize' attribute for --gen-hdl (issue#40).
 
+Add `autoclear` port type.
+
 ## Version 1.3
 
 Add x-hdl:port to specify how ports are generated for registers (issue#11)
