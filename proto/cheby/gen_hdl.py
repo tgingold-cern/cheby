@@ -33,6 +33,7 @@ from cheby.hdl.genreg import GenReg
 from cheby.hdl.geninterface import GenInterface
 from cheby.hdl.genmemory import GenMemory
 from cheby.hdl.gensubmap import GenSubmap
+from cheby.hdl.genblock import GenBlock
 from cheby.hdl.buses import name_to_busgen
 
 def add_ports(root, module, node):
@@ -210,16 +211,14 @@ def add_read_mux_process(root, module, ibus):
         if n is not None:
             if isinstance(n, tree.Reg):
                 s.append(HDLComment(n.c_name))
-                n.h_gen.gen_read(s, off, ibus, rdproc)
             elif isinstance(n, tree.Submap):
                 s.append(HDLComment("Submap {}".format(n.c_name)))
-                n.h_gen.gen_read(s, off, ibus, rdproc)
             elif isinstance(n, tree.Memory):
                 s.append(HDLComment("RAM {}".format(n.c_name)))
-                n.h_gen.gen_read(s, off, ibus, rdproc)
             else:
                 # Blocks have been handled.
                 raise AssertionError
+            n.h_gen.gen_read(s, off, ibus, rdproc)
         else:
             s.append(HDLAssign(ibus.rd_ack, ibus.rd_req))
 
@@ -245,16 +244,14 @@ def add_write_mux_process(root, module, ibus):
         if n is not None:
             if isinstance(n, tree.Reg):
                 s.append(HDLComment(n.c_name))
-                n.h_gen.gen_write(s, off, ibus, wrproc)
             elif isinstance(n, tree.Submap):
                 s.append(HDLComment("Submap {}".format(n.c_name)))
-                n.h_gen.gen_write(s, off, ibus, wrproc)
             elif isinstance(n, tree.Memory):
                 s.append(HDLComment("RAM {}".format(n.c_name)))
-                n.h_gen.gen_write(s, off, ibus, wrproc)
             else:
                 # Blocks have been handled.
                 raise AssertionError
+            n.h_gen.gen_write(s, off, ibus, wrproc)
         else:
             # By default, ack unknown requests.
             s.append(HDLAssign(ibus.wr_ack, ibus.wr_req))
@@ -263,34 +260,6 @@ def add_write_mux_process(root, module, ibus):
     add_decoder(root, stmts, wr_adr, root, add_write)
     wrproc.stmts.extend(stmts)
 
-
-def set_gen(root, module, node):
-    """Add the object to generate hdl"""
-    for n in node.children:
-        if isinstance(n, tree.Block):
-            if n.children:
-                # Recurse
-                set_gen(root, module, n)
-        elif isinstance(n, tree.Submap):
-            if n.include is True:
-                # Inline
-                set_gen(root, module, n.c_submap)
-            elif n.filename is None:
-                n.h_gen = GenInterface(root, module, n)
-            else:
-                n.h_gen = GenSubmap(root, module, n)
-        elif isinstance(n, tree.Memory):
-            if n.interface is not None:
-                n.c_addr_bits = ilog2(n.c_depth)
-                n.c_width = n.c_elsize * tree.BYTE_SIZE
-                n.h_gen = GenInterface(root, module, n)
-            else:
-                n.h_gen = GenMemory(root, module, n)
-        elif isinstance(n, tree.Reg):
-            n.h_gen = GenReg(root, module, n)
-            pass
-        else:
-            raise AssertionError
 
 def gen_hdl_header(root, ibus=None):
     # Note: also called from gen_gena_regctrl but without ibus.
@@ -312,7 +281,8 @@ def generate_hdl(root):
 
     module = gen_hdl_header(root, ibus)
 
-    set_gen(root, module, root)
+    root.h_gen = GenBlock(root, module, root)
+    root.h_gen.create_generators()
 
     # Add ports
     iogroup = root.get_extension('x_hdl', 'iogroup')
