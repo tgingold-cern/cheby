@@ -18,6 +18,10 @@ class ElGen(object):
             p = self.root.h_itf.add_port(name, size, dir=dir)
             return HDLInterfaceSelect(self.root.h_ports, p)
 
+    def create_generators(self):
+        """Add the object to generate hdl"""
+        pass
+    
     def gen_port(self, root, module, name, size, dir):
         pass
 

@@ -14,12 +14,10 @@ class GenBlock(ElGen):
         for n in self.n.children:
             if isinstance(n, tree.Block):
                 n.h_gen = GenBlock(self.root, self.module, n)
-                n.h_gen.create_generators()
             elif isinstance(n, tree.Submap):
                 if n.include is True:
                     # Inline
                     n.h_gen = GenBlock(self.root, self.module, n.c_submap)
-                    n.h_gen.create_generators()
                 elif n.filename is None:
                     n.h_gen = GenInterface(self.root, self.module, n)
                 else:
@@ -35,6 +33,7 @@ class GenBlock(ElGen):
                 n.h_gen = GenReg(self.root, self.module, n)
             else:
                 raise AssertionError
+            n.h_gen.create_generators()
 
     def gen_ports(self):
         for n in self.n.children:
