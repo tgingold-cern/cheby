@@ -79,6 +79,9 @@ Ignore gena 'resize' attribute for --gen-hdl (issue#40).
 
 Add `autoclear` port type.
 
+Fix duplicate/incorrect assignments for --gen-hdl in case of holes and non
+ordered fields (issue#41).
+
 ## Version 1.3
 
 Add x-hdl:port to specify how ports are generated for registers (issue#11)
