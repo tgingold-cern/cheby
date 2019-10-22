@@ -51,7 +51,7 @@ def add_ports(root, module, node):
         elif isinstance(n, tree.Memory):
             n.h_gen.gen_ports(root, module, n)
         elif isinstance(n, tree.Reg):
-            n.h_gen.gen_ports(root, module, n)
+            n.h_gen.gen_ports()
         else:
             raise AssertionError
 
@@ -69,7 +69,7 @@ def add_processes(root, module, ibus, node):
         elif isinstance(n, tree.Memory):
             n.h_gen.gen_processes(root, module, ibus, n)
         elif isinstance(n, tree.Reg):
-            n.h_gen.gen_processes(root, module, ibus, n)
+            n.h_gen.gen_processes(ibus)
         else:
             raise AssertionError
 
@@ -264,17 +264,17 @@ def add_write_mux_process(root, module, ibus):
     wrproc.stmts.extend(stmts)
 
 
-def set_gen(root, node):
+def set_gen(root, module, node):
     """Add the object to generate hdl"""
     for n in node.children:
         if isinstance(n, tree.Block):
             if n.children:
                 # Recurse
-                set_gen(root, n)
+                set_gen(root, module, n)
         elif isinstance(n, tree.Submap):
             if n.include is True:
                 # Inline
-                set_gen(root, n.c_submap)
+                set_gen(root, module, n.c_submap)
             elif n.filename is None:
                 n.h_gen = GenInterface()
             else:
@@ -287,7 +287,7 @@ def set_gen(root, node):
             else:
                 n.h_gen = GenMemory()
         elif isinstance(n, tree.Reg):
-            n.h_gen = GenReg()
+            n.h_gen = GenReg(root, module, n)
             pass
         else:
             raise AssertionError
@@ -312,7 +312,7 @@ def generate_hdl(root):
 
     module = gen_hdl_header(root, ibus)
 
-    set_gen(root, root)
+    set_gen(root, module, root)
 
     # Add ports
     iogroup = root.get_extension('x_hdl', 'iogroup')
