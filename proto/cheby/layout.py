@@ -218,12 +218,12 @@ def layout_reg(lo, n):
                         f.name, n.get_path()))
             names.add(f.name)
             layout_field(f, n, pos)
-        n.c_sorted_children = sorted(n.children, key=(lambda x: x.lo))
+        build_sorted_fields(n)
     else:
         # Create the artificial field
         f = tree.FieldReg(n)
         n.children.append(f)
-        n.c_sorted_children = [f]
+        build_sorted_fields(n)
         f.name = None
         f.description = n.description
         f.comment = n.comment
@@ -422,6 +422,8 @@ def build_sorted_children(n):
     """Create c_sorted_children (list of children sorted by address)"""
     n.c_sorted_children = sorted(n.children, key=(lambda x: x.c_address))
 
+def build_sorted_fields(n):
+    n.c_sorted_fields = sorted(n.children, key=(lambda x: x.lo))
 
 def layout_composite_children(lo, n):
     layout_named(n)

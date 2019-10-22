@@ -163,7 +163,7 @@ def NamedNode_copy(n, new_parent):
 def Reg_copy(n, new_parent):
     res = NamedNode_copy(n, new_parent)
     res.children = [tree_copy(f, res) for f in n.children]
-    res.c_sorted_children = sorted(res.children, key=(lambda x: x.lo))
+    layout.build_sorted_fields(res)
     return res
 
 
