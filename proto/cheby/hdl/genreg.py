@@ -266,7 +266,7 @@ class GenReg(ElGen):
                     val = HDLReplicate(bit_0, first - nxt)
                 self.module.stmts.append(HDLAssign(Slice_or_Index(n.h_rint, nxt, width), val))
 
-            for f in n.children:
+            for f in n.c_sorted_children:
                 if f.h_reg is not None:
                     src = f.h_reg
                 elif f.h_iport is not None:

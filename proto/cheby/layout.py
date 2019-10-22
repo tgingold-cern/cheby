@@ -218,10 +218,12 @@ def layout_reg(lo, n):
                         f.name, n.get_path()))
             names.add(f.name)
             layout_field(f, n, pos)
+        n.c_sorted_children = sorted(n.children, key=(lambda x: x.lo))
     else:
         # Create the artificial field
         f = tree.FieldReg(n)
         n.children.append(f)
+        n.c_sorted_children = [f]
         f.name = None
         f.description = n.description
         f.comment = n.comment
