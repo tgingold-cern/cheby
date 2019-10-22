@@ -209,11 +209,18 @@ class GenReg(ElGen):
             for off in range(0, n.c_size, root.c_word_size):
                 off *= tree.BYTE_SIZE
                 for f in n.children:
-                    if f.hdl_type != 'wire':
+                    if f.hdl_type not in ('wire', 'autoclear'):
                         continue
                     reg, dat = field_decode(root, n, f, off, f.h_oport, ibus.wr_dat)
-                    if reg is not None:
-                        module.stmts.append(HDLAssign(reg, dat))
+                    if reg is None:
+                        # No field for this offset.
+                        continue
+                    if f.hdl_type == 'autoclear':
+                        strobe = n.h_wreq
+                        if f.c_rwidth > 1:
+                            strobe = HDLReplicate(strobe, f.c_rwidth, False)
+                        dat = HDLAnd(dat, strobe)
+                    module.stmts.append(HDLAssign(reg, dat))
 
             if n.h_has_regs:
                 # Create a process for the DFF.

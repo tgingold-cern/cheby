@@ -53,7 +53,7 @@ def expand_x_hdl_field_kv(f, n, k, v):
 
     if k == 'type':
         f.hdl_type = parser.read_text(n, k, v)
-        if f.hdl_type not in ['wire', 'reg', 'const']:
+        if f.hdl_type not in ['wire', 'reg', 'const', 'autoclear']:
             parser.error("incorrect value for 'type' in x-hdl of {}".format(
                 n.get_path()))
         elif f.hdl_type == 'const' and n.access != 'ro':
