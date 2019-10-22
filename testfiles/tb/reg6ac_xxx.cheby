@@ -1,0 +1,47 @@
+memory-map:
+  bus: BUS
+  name: reg6ac_NAME
+  description: Auto clear
+  children:
+  - reg:
+      name: reg1
+      width: 32
+      access: wo
+      preset: 0xabcd1234
+      x-hdl:
+        type: autoclear
+  - reg:
+     name: reg2
+     width: 32
+     access: wo
+     children:
+     - field:
+        name: f1
+        range: 0
+        x-hdl:
+          type: autoclear
+     - field:
+        name: f2
+        range: 17-16
+        x-hdl:
+          type: autoclear
+  - reg:
+     name: reg3
+     width: 64
+     access: wo
+     children:
+     - field:
+        name: f1
+        range: 0
+        x-hdl:
+          type: autoclear
+     - field:
+        name: f2
+        range: 23-20
+        x-hdl:
+          type: autoclear
+     - field:
+        name: f3
+        range: 63-60
+        x-hdl:
+          type: autoclear

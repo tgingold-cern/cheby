@@ -73,6 +73,13 @@ build_wb_reg()
      $GHDL -a $GHDL_FLAGS ${f}_wb_tb.vhdl
      $GHDL --elab-run $GHDL_FLAGS ${f}_wb_tb --assert-level=error --wave=${f}_wb.ghw
  done
+
+ # Autoclear
+ sed -e '/bus:/s/BUS/wb-32-be/' -e '/name:/s/NAME/wb/' < reg6ac_xxx.cheby > reg6ac_wb.cheby
+ $CHEBY --gen-hdl=reg6ac_wb.vhdl -i reg6ac_wb.cheby
+ $GHDL -a $GHDL_FLAGS reg6ac_wb.vhdl
+ $GHDL -a $GHDL_FLAGS reg6ac_wb_tb.vhdl
+ $GHDL --elab-run $GHDL_FLAGS --std=08 reg6ac_wb_tb --assert-level=error --wave=reg6ac_wb.ghw
 }
 
 build_infra
