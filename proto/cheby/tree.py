@@ -90,6 +90,7 @@ class CompositeNode(NamedNode):
 
 class Root(CompositeNode):
     _dispatcher = {}
+    NAME = "MemoryMap"
 
     def __init__(self):
         super(Root, self).__init__(None)
@@ -103,6 +104,7 @@ class Root(CompositeNode):
 
 class Block(CompositeNode):
     _dispatcher = {}
+    NAME = "Block"
 
     def __init__(self, parent):
         super(Block, self).__init__(parent)
@@ -110,6 +112,7 @@ class Block(CompositeNode):
 
 class Submap(CompositeNode):
     _dispatcher = {}
+    NAME = "Submap"
 
     def __init__(self, parent):
         super(Submap, self).__init__(parent)
@@ -122,6 +125,7 @@ class Submap(CompositeNode):
 
 class Repeat(CompositeNode):
     _dispatcher = {}
+    NAME = "Repeat"
 
     def __init__(self, parent):
         super(Repeat, self).__init__(parent)
@@ -130,6 +134,7 @@ class Repeat(CompositeNode):
 
 class Memory(CompositeNode):
     _dispatcher = {}
+    NAME = "Memory"
 
     def __init__(self, parent):
         super(Memory, self).__init__(parent)
@@ -141,6 +146,7 @@ class Memory(CompositeNode):
 
 class Reg(NamedNode):
     _dispatcher = {}
+    NAME = "Reg"
 
     def __init__(self, parent):
         super(Reg, self).__init__(parent)
@@ -171,6 +177,7 @@ class Reg(NamedNode):
 
 class FieldBase(NamedNode):
     "Base for Field and FieldReg"
+    NAME = "Field"
 
     def __init__(self, parent):
         super(FieldBase, self).__init__(parent)

@@ -171,15 +171,7 @@ def add_read_mux_process(root, module, ibus):
 
     def add_read(s, n, off):
         if n is not None:
-            if isinstance(n, tree.Reg):
-                s.append(HDLComment(n.c_name))
-            elif isinstance(n, tree.Submap):
-                s.append(HDLComment("Submap {}".format(n.c_name)))
-            elif isinstance(n, tree.Memory):
-                s.append(HDLComment("RAM {}".format(n.c_name)))
-            else:
-                # Blocks have been handled.
-                raise AssertionError
+            s.append(HDLComment("{} {}".format(n.NAME, n.c_name)))
             n.h_gen.gen_read(s, off, ibus, rdproc)
         else:
             s.append(HDLAssign(ibus.rd_ack, ibus.rd_req))
@@ -204,15 +196,7 @@ def add_write_mux_process(root, module, ibus):
 
     def add_write(s, n, off):
         if n is not None:
-            if isinstance(n, tree.Reg):
-                s.append(HDLComment(n.c_name))
-            elif isinstance(n, tree.Submap):
-                s.append(HDLComment("Submap {}".format(n.c_name)))
-            elif isinstance(n, tree.Memory):
-                s.append(HDLComment("RAM {}".format(n.c_name)))
-            else:
-                # Blocks have been handled.
-                raise AssertionError
+            s.append(HDLComment("{} {}".format(n.NAME, n.c_name)))
             n.h_gen.gen_write(s, off, ibus, wrproc)
         else:
             # By default, ack unknown requests.
