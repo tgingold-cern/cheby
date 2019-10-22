@@ -5,6 +5,19 @@ from cheby.hdltree import (HDLInterfaceSelect,
 
 
 class ElGen(object):
+    def __init__(self, root, module, n):
+        self.root = root
+        self.module = module
+        self.n = n
+
+    def add_module_port(self, name, size, dir):
+        "Utility function to easily add a port to :param module:"
+        if self.root.h_itf is None:
+            return self.module.add_port(name + '_' + dirname[dir], size, dir=dir)
+        else:
+            p = self.root.h_itf.add_port(name, size, dir=dir)
+            return HDLInterfaceSelect(self.root.h_ports, p)
+
     def gen_port(self, root, module, name, size, dir):
         pass
 
@@ -16,12 +29,3 @@ class ElGen(object):
 
     def gen_write(self, root, s, n, off, ibus, wrproc):
         pass
-
-
-def add_module_port(root, module, name, size, dir):
-    "Utility function to easily add a port to :param module:"
-    if root.h_itf is None:
-        return module.add_port(name + '_' + dirname[dir], size, dir=dir)
-    else:
-        p = root.h_itf.add_port(name, size, dir=dir)
-        return HDLInterfaceSelect(root.h_ports, p)

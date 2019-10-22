@@ -1,5 +1,5 @@
 import cheby.tree as tree
-from cheby.hdl.elgen import ElGen, add_module_port
+from cheby.hdl.elgen import ElGen
 from cheby.hdl.globals import rst_sync
 from cheby.hdltree import (HDLAssign, HDLSync, HDLComment,
                            HDLIfElse,
@@ -46,14 +46,6 @@ def field_decode(root, reg, f, off, val, dat):
 
 
 class GenReg(ElGen):
-    def __init__(self, root, module, n):
-        self.root = root
-        self.module = module
-        self.n = n
-
-    def add_module_port(self, name, size, dir):
-        return add_module_port(self.root, self.module, name, size, dir)
-
     def strobe_init(self):
         sz = self.n.c_size // self.root.c_word_size
         if sz <= 1:

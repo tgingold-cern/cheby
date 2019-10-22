@@ -4,11 +4,6 @@ from cheby.hdl.buses import name_to_busgen
 
 
 class GenInterface(ElGen):
-    def __init__(self, root, module, n):
-        self.root = root
-        self.module = module
-        self.n = n
-
     def gen_ports(self):
         # Generic submap.
         n = self.n

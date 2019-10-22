@@ -1,5 +1,5 @@
 import functools
-from cheby.hdl.elgen import ElGen, add_module_port
+from cheby.hdl.elgen import ElGen
 from cheby.hdltree import (HDLComment, HDLComb, HDLSync,
                            HDLEq, HDLOr, HDLAnd, HDLNot,
                            HDLIfElse,
@@ -11,14 +11,6 @@ import cheby.tree as tree
 
 
 class GenMemory(ElGen):
-    def __init__(self, root, module, n):
-        self.root = root
-        self.module = module
-        self.n = n
-
-    def add_module_port(self, name, size, dir):
-        return add_module_port(self.root, self.module, name, size, dir)
-
     def gen_ports(self):
         """Create RAM ports and wires shared by all the registers.
         :attr h_addr: the address port
