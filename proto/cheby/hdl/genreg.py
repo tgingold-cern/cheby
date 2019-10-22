@@ -1,12 +1,63 @@
 import cheby.tree as tree
-from cheby.hdl.elgen import ElGen, add_module_port, field_decode, strobe_init, strobe_index
+from cheby.hdl.elgen import ElGen, add_module_port
 from cheby.hdl.globals import rst_sync
 from cheby.hdltree import (HDLAssign, HDLSync, HDLComment,
                            HDLIfElse,
                            bit_1, bit_0,
-                           HDLEq,
-                           HDLSlice, HDLReplicate, Slice_or_Index,
+                           HDLEq, HDLAnd,
+                           HDLSlice, HDLIndex, HDLReplicate, Slice_or_Index,
                            HDLConst)
+
+def field_decode(root, reg, f, off, val, dat):
+    """Handle multi-word accesses.  Slice (if needed) VAL and DAT for offset
+       OFF and field F or register REG."""
+    # Register and value bounds
+    d_lo = f.lo
+    d_hi = f.lo + f.c_rwidth - 1
+    v_lo = 0
+    v_hi = f.c_rwidth - 1
+    # Next field if not affected by this read.
+    if d_hi < off:
+        return (None, None)
+    if d_lo >= off + root.c_word_bits:
+        return (None, None)
+    if d_lo < off:
+        # Strip the part below OFF.
+        delta = off - d_lo
+        d_lo = off
+        v_lo += delta
+    # Set right boundaries
+    d_lo -= off
+    d_hi -= off
+    if d_hi >= root.c_word_bits:
+        delta = d_hi + 1 - root.c_word_bits
+        d_hi = root.c_word_bits - 1
+        v_hi -= delta
+
+    if d_hi == root.c_word_bits - 1 and d_lo == 0:
+        pass
+    else:
+        dat = Slice_or_Index(dat, d_lo, d_hi - d_lo + 1)
+    if v_hi == f.c_rwidth - 1 and v_lo == 0:
+        pass
+    else:
+        val = Slice_or_Index(val, v_lo, v_hi - v_lo + 1)
+    return (val, dat)
+
+
+def strobe_init(root, n):
+    sz = n.c_size // root.c_word_size
+    if sz <= 1:
+        return bit_0
+    else:
+        return HDLReplicate(bit_0, sz)
+
+
+def strobe_index(root, n, off, lhs):
+    if n.c_size <= root.c_word_size:
+        return lhs
+    else:
+        return HDLIndex(lhs, off // root.c_word_bits)
 
 
 class GenReg(ElGen):
@@ -57,6 +108,25 @@ class GenReg(ElGen):
                 n.h_has_regs = True
             else:
                 f.h_reg = None
+
+    def gen_internal_wires(self, root, module, n):
+        # Internal write request signal.
+        n.h_wack = None
+        if n.access in ['wo', 'rw']:
+            # Strobe size.
+            sz = None if n.c_size <= root.c_word_size else n.c_nwords
+            n.h_wreq = module.new_HDLSignal(n.c_name + '_wreq', sz)
+            if n.h_has_regs:
+                # Need an intermediate wire for delayed ack
+                n.h_wack = module.new_HDLSignal(n.c_name + '_wack', sz)
+        else:
+            n.h_wreq = None
+
+        # Internal read port.
+        if n.access in ['ro', 'rw'] and (n.has_fields() or n.children[0].hdl_type == 'const'):
+            n.h_rint = module.new_HDLSignal(n.c_name + '_rint', n.c_rwidth)
+        else:
+            n.h_rint = None
 
     def gen_ports(self, root, module, n):
         """Add ports and wires for register or fields of :param n:
@@ -124,34 +194,17 @@ class GenReg(ElGen):
 
         self.gen_regs(root, module, n)
         self.gen_ack_strobe_ports(root, module, n)
-
-        # Internal write request signal.
-        n.h_wack = None
-        if n.access in ['wo', 'rw']:
-            # Strobe size.
-            sz = None if n.c_size <= root.c_word_size else n.c_nwords
-            n.h_wreq = module.new_HDLSignal(n.c_name + '_wreq', sz)
-            if n.h_has_regs:
-                # Need an intermediate wire for delayed ack
-                n.h_wack = module.new_HDLSignal(n.c_name + '_wack', sz)
-        else:
-            n.h_wreq = None
-
-        # Internal read port.
-        if n.access in ['ro', 'rw'] and (n.has_fields() or n.children[0].hdl_type == 'const'):
-            n.h_rint = module.new_HDLSignal(n.c_name + '_rint', n.c_rwidth)
-        else:
-            n.h_rint = None
+        self.gen_internal_wires(root, module, n)
 
     def gen_processes(self, root, module, ibus, n):
         module.stmts.append(HDLComment('Register {}'.format(n.c_name)))
 
-        # Assign ports from the register.
-        for f in n.children:
-            if f.h_reg is not None and f.h_oport is not None:
-                module.stmts.append(HDLAssign(f.h_oport, f.h_reg))
-
         if n.access in ['rw', 'wo']:
+            # Assign ports from the register.
+            for f in n.children:
+                if f.h_reg is not None and f.h_oport is not None:
+                    module.stmts.append(HDLAssign(f.h_oport, f.h_reg))
+
             # Handle wire fields: create connections between the bus and the outputs.
             for off in range(0, n.c_size, root.c_word_size):
                 off *= tree.BYTE_SIZE
@@ -163,6 +216,7 @@ class GenReg(ElGen):
                         module.stmts.append(HDLAssign(reg, dat))
 
             if n.h_has_regs:
+                # Create a process for the DFF.
                 wrproc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_sync=rst_sync)
                 module.stmts.append(wrproc)
                 for off in range(0, n.c_size, root.c_word_size):
@@ -236,9 +290,10 @@ class GenReg(ElGen):
         else:
             rack = ibus.rd_req
         s.append(HDLAssign(ibus.rd_ack, rack))
-        if n.access == 'wo':
-            return
         # Data
+        if n.access == 'wo':
+            # No data are returned for wo.
+            return
         if n.h_rint is not None:
             src = n.h_rint
         else:
