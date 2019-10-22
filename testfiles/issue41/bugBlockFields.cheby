@@ -1,0 +1,32 @@
+memory-map:
+  bus: cern-be-vme-32
+  name: bugBlockRegField
+  x-cern-info:
+    map-version: 00000000
+    ident-code: 0x0
+  children:
+    - block:
+        name: b1
+        address: next
+        children:
+          - reg:
+              name: r1
+              address: next
+              width: 32
+              access: rw
+              children:
+                - field:
+                    name: f1
+                    range: 0
+                - field:
+                    name: f2
+                    range: 12-3
+                - field:
+                    name: f3
+                    range: 2
+                - field:
+                    name: f4
+                    range: 1
+                - field:
+                    name: f5
+                    range: 13
