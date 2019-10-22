@@ -47,9 +47,9 @@ def add_ports(root, module, node):
                 # Inline
                 add_ports(root, module, n.c_submap)
             else:
-                n.h_gen.gen_ports(root, module, n)
+                n.h_gen.gen_ports()
         elif isinstance(n, tree.Memory):
-            n.h_gen.gen_ports(root, module, n)
+            n.h_gen.gen_ports()
         elif isinstance(n, tree.Reg):
             n.h_gen.gen_ports()
         else:
@@ -65,9 +65,9 @@ def add_processes(root, module, ibus, node):
             if n.include is True:
                 add_processes(root, module, ibus, n.c_submap)
             else:
-                n.h_gen.gen_processes(root, module, ibus, n)
+                n.h_gen.gen_processes(ibus)
         elif isinstance(n, tree.Memory):
-            n.h_gen.gen_processes(root, module, ibus, n)
+            n.h_gen.gen_processes(ibus)
         elif isinstance(n, tree.Reg):
             n.h_gen.gen_processes(ibus)
         else:
@@ -213,10 +213,10 @@ def add_read_mux_process(root, module, ibus):
                 n.h_gen.gen_read(s, off, ibus, rdproc)
             elif isinstance(n, tree.Submap):
                 s.append(HDLComment("Submap {}".format(n.c_name)))
-                n.h_gen.gen_read(root, s, n, off, ibus, rdproc)
+                n.h_gen.gen_read(s, off, ibus, rdproc)
             elif isinstance(n, tree.Memory):
                 s.append(HDLComment("RAM {}".format(n.c_name)))
-                n.h_gen.gen_read(root, s, n, off, ibus, rdproc)
+                n.h_gen.gen_read(s, off, ibus, rdproc)
             else:
                 # Blocks have been handled.
                 raise AssertionError
@@ -245,13 +245,13 @@ def add_write_mux_process(root, module, ibus):
         if n is not None:
             if isinstance(n, tree.Reg):
                 s.append(HDLComment(n.c_name))
-                n.h_gen.gen_write(root, s, n, off, ibus, wrproc)
+                n.h_gen.gen_write(s, off, ibus, wrproc)
             elif isinstance(n, tree.Submap):
                 s.append(HDLComment("Submap {}".format(n.c_name)))
-                n.h_gen.gen_write(root, s, n, off, ibus, wrproc)
+                n.h_gen.gen_write(s, off, ibus, wrproc)
             elif isinstance(n, tree.Memory):
                 s.append(HDLComment("RAM {}".format(n.c_name)))
-                n.h_gen.gen_write(root, s, n, off, ibus, wrproc)
+                n.h_gen.gen_write(s, off, ibus, wrproc)
             else:
                 # Blocks have been handled.
                 raise AssertionError
@@ -276,16 +276,16 @@ def set_gen(root, module, node):
                 # Inline
                 set_gen(root, module, n.c_submap)
             elif n.filename is None:
-                n.h_gen = GenInterface()
+                n.h_gen = GenInterface(root, module, n)
             else:
-                n.h_gen = GenSubmap()
+                n.h_gen = GenSubmap(root, module, n)
         elif isinstance(n, tree.Memory):
             if n.interface is not None:
                 n.c_addr_bits = ilog2(n.c_depth)
                 n.c_width = n.c_elsize * tree.BYTE_SIZE
-                n.h_gen = GenInterface()
+                n.h_gen = GenInterface(root, module, n)
             else:
-                n.h_gen = GenMemory()
+                n.h_gen = GenMemory(root, module, n)
         elif isinstance(n, tree.Reg):
             n.h_gen = GenReg(root, module, n)
             pass

@@ -320,7 +320,8 @@ class GenReg(ElGen):
             src = HDLSlice(src, off, self.root.c_word_bits)
         s.append(HDLAssign(ibus.rd_dat, src))
 
-    def gen_write(self, root, s, n, off, ibus, wrproc):
+    def gen_write(self, s, off, ibus, wrproc):
+        n = self.n
         # Strobe
         if n.h_wreq is not None:
             s.append(HDLAssign(self.strobe_index(off, n.h_wreq), ibus.wr_req))
