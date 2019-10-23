@@ -8,7 +8,67 @@ from cheby.hdltree import (HDLAssign, HDLSync, HDLComment,
                            HDLSlice, HDLIndex, HDLReplicate, Slice_or_Index,
                            HDLConst)
 
+class GenFieldBase(object):
+    def __init__(self, reg, field):
+        self.reg = reg
+        self.field = field
+
+    def need_iport(self):
+        """Return true if an input port is needed."""
+        return False
+
+    def need_oport(self):
+        """Return true if an output port is needed."""
+        return False
+
+    def need_reg(self):
+        """Return true if the field requires an internal register."""
+        return False
+
+    def get_input(self):
+        """Return the value on a bus read.  Can be larger than a word."""
+        raise AssertionError
+
+
+class GenFieldReg(GenFieldBase):
+    def need_oport(self):
+        return True
+
+    def need_reg(self):
+        return True
+
+    def get_input(self):
+        return self.field.h_reg
+
+
+class GenFieldWire(GenFieldBase):
+    def need_iport(self):
+        return self.reg.access in ['ro', 'rw']
+
+    def need_oport(self):
+        return self.reg.access in ['wo', 'rw']
+
+    def get_input(self):
+        return self.field.h_iport
+
+
+class GenFieldConst(GenFieldBase):
+    def get_input(self):
+        return HDLConst(self.field.c_preset, self.field.c_rwidth)
+
+
+class GenFieldAutoclear(GenFieldBase):
+    def need_oport(self):
+        return True
+
+
 class GenReg(ElGen):
+    FIELD_GEN = {
+        'reg': GenFieldReg,
+        'wire': GenFieldWire,
+        'const': GenFieldConst,
+        'autoclear': GenFieldAutoclear}
+
     def field_decode(self, f, off, val, dat):
         """Handle multi-word accesses.  Slice (if needed) VAL and DAT for offset
            OFF and field F."""
@@ -97,10 +157,9 @@ class GenReg(ElGen):
         n.h_has_regs = False
 
         for f in n.children:
-            w = None if f.c_rwidth == 1 else f.c_rwidth
-
             # Create the register (only for registers)
-            if f.hdl_type == 'reg':
+            if f.h_gen.need_reg():
+                w = None if f.c_rwidth == 1 else f.c_rwidth
                 f.h_reg = self.module.new_HDLSignal(f.c_name + '_reg', w)
                 n.h_has_regs = True
             else:
@@ -147,6 +206,9 @@ class GenReg(ElGen):
         comment = '\n' + (n.comment or n.description or "REG {}".format(n.name))
 
         for f in n.children:
+            # Set hdl generator for the field.
+            f.h_gen = self.FIELD_GEN[f.hdl_type](n, f)
+
             w = None if f.c_rwidth == 1 else f.c_rwidth
 
             if n.hdl_port != 'reg' and not isinstance(f, tree.FieldReg):
@@ -156,7 +218,7 @@ class GenReg(ElGen):
                     comment = pcomment if comment is None else comment + '\n' + pcomment
 
             # Input
-            if f.hdl_type == 'wire' and n.access in ['ro', 'rw']:
+            if f.h_gen.need_iport():
                 if n.hdl_port == 'reg':
                     # One port used for all fields.
                     if iport is None:
@@ -173,7 +235,7 @@ class GenReg(ElGen):
                 f.h_iport = None
 
             # Output
-            if n.access in ['wo', 'rw']:
+            if f.h_gen.need_oport():
                 if n.hdl_port == 'reg':
                     # One port used for all fields.
                     if oport is None:
@@ -224,8 +286,8 @@ class GenReg(ElGen):
 
             if n.h_has_regs:
                 # Create a process for the DFF.
-                wrproc = HDLSync(self.root.h_bus['clk'], self.root.h_bus['rst'], rst_sync=rst_sync)
-                self.module.stmts.append(wrproc)
+                ffproc = HDLSync(self.root.h_bus['clk'], self.root.h_bus['rst'], rst_sync=rst_sync)
+                self.module.stmts.append(ffproc)
                 for off in range(0, n.c_size, self.root.c_word_size):
                     off *= tree.BYTE_SIZE
                     wr_if = HDLIfElse(HDLEq(self.strobe_index(off, n.h_wreq), bit_1))
@@ -237,17 +299,17 @@ class GenReg(ElGen):
                         if f.h_reg is not None and off == 0:
                             v = f.c_preset or 0
                             cst = HDLConst(v, f.c_rwidth if f.c_rwidth != 1 else None)
-                            wrproc.rst_stmts.append(HDLAssign(f.h_reg, cst))
+                            ffproc.rst_stmts.append(HDLAssign(f.h_reg, cst))
                         # Assign code
                         reg, dat = self.field_decode(f, off, f.h_reg, ibus.wr_dat)
                         if reg is not None:
                             wr_if.then_stmts.append(HDLAssign(reg, dat))
-                    wrproc.sync_stmts.append(wr_if)
+                    ffproc.sync_stmts.append(wr_if)
 
                 # In case of regs, the strobe is delayed so that it appears at the same time as
                 # the value.
-                wrproc.sync_stmts.append(HDLAssign(n.h_wack, n.h_wreq))
-                wrproc.rst_stmts.append(HDLAssign(n.h_wack, self.strobe_init()))
+                ffproc.sync_stmts.append(HDLAssign(n.h_wack, n.h_wreq))
+                ffproc.rst_stmts.append(HDLAssign(n.h_wack, self.strobe_init()))
 
             if n.h_wreq_port is not None:
                 self.module.stmts.append(HDLAssign(n.h_wreq_port, n.h_wack or n.h_wreq))
@@ -267,15 +329,8 @@ class GenReg(ElGen):
                 self.module.stmts.append(HDLAssign(Slice_or_Index(n.h_rint, nxt, width), val))
 
             for f in n.c_sorted_fields:
-                if f.h_reg is not None:
-                    src = f.h_reg
-                elif f.h_iport is not None:
-                    src = f.h_iport
-                elif f.hdl_type == 'const':
-                    src = HDLConst(f.c_preset, f.c_rwidth)
-                else:
-                    raise AssertionError
                 pad(f.lo)
+                src = f.h_gen.get_input()
                 self.module.stmts.append(HDLAssign(Slice_or_Index(n.h_rint, f.lo, f.c_rwidth), src))
                 nxt = f.lo + f.c_rwidth
             pad(n.c_rwidth)
@@ -305,7 +360,7 @@ class GenReg(ElGen):
         if n.h_rint is not None:
             src = n.h_rint
         else:
-            src = n.children[0].h_iport or n.children[0].h_reg
+            src = n.children[0].h_gen.get_input()
         if off == 0:
             rdproc.sensitivity.append(src)
         if n.c_nwords != 1:
