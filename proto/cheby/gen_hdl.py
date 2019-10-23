@@ -14,25 +14,16 @@
    The _i/_o suffixes are also used for ports, so the ports of the bus can
    also have conflicts with user names.
 """
-import functools
-from cheby.hdltree import (HDLModule, HDLPackage,
-                           HDLInterface, HDLInterfaceSelect, HDLInstance,
-                           HDLPort, HDLSignal,
-                           HDLAssign, HDLSync, HDLComb, HDLComment,
+from cheby.hdltree import (HDLModule, HDLInterface,
+                           HDLAssign, HDLComb, HDLComment,
                            HDLSwitch, HDLChoiceExpr, HDLChoiceDefault,
-                           HDLIfElse,
-                           bit_1, bit_0, bit_x,
-                           HDLAnd, HDLOr, HDLNot, HDLEq, HDLConcat,
-                           HDLIndex, HDLSlice, HDLReplicate, Slice_or_Index,
-                           HDLConst, HDLBinConst, HDLNumber, HDLBool, HDLParen)
+                           bit_x,
+                           HDLSlice, HDLReplicate,
+                           HDLConst)
 import cheby.tree as tree
 from cheby.layout import ilog2
 from cheby.hdl.wbbus import WBBus
-from cheby.hdl.ibus import Ibus, add_bus
-from cheby.hdl.genreg import GenReg
-from cheby.hdl.geninterface import GenInterface
-from cheby.hdl.genmemory import GenMemory
-from cheby.hdl.gensubmap import GenSubmap
+from cheby.hdl.ibus import Ibus
 from cheby.hdl.genblock import GenBlock
 from cheby.hdl.buses import name_to_busgen
 
