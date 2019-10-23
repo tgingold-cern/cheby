@@ -8,44 +8,44 @@ from cheby.hdltree import (HDLAssign, HDLSync, HDLComment,
                            HDLSlice, HDLIndex, HDLReplicate, Slice_or_Index,
                            HDLConst)
 
-def field_decode(root, reg, f, off, val, dat):
-    """Handle multi-word accesses.  Slice (if needed) VAL and DAT for offset
-       OFF and field F or register REG."""
-    # Register and value bounds
-    d_lo = f.lo
-    d_hi = f.lo + f.c_rwidth - 1
-    v_lo = 0
-    v_hi = f.c_rwidth - 1
-    # Next field if not affected by this read.
-    if d_hi < off:
-        return (None, None)
-    if d_lo >= off + root.c_word_bits:
-        return (None, None)
-    if d_lo < off:
-        # Strip the part below OFF.
-        delta = off - d_lo
-        d_lo = off
-        v_lo += delta
-    # Set right boundaries
-    d_lo -= off
-    d_hi -= off
-    if d_hi >= root.c_word_bits:
-        delta = d_hi + 1 - root.c_word_bits
-        d_hi = root.c_word_bits - 1
-        v_hi -= delta
-
-    if d_hi == root.c_word_bits - 1 and d_lo == 0:
-        pass
-    else:
-        dat = Slice_or_Index(dat, d_lo, d_hi - d_lo + 1)
-    if v_hi == f.c_rwidth - 1 and v_lo == 0:
-        pass
-    else:
-        val = Slice_or_Index(val, v_lo, v_hi - v_lo + 1)
-    return (val, dat)
-
-
 class GenReg(ElGen):
+    def field_decode(self, f, off, val, dat):
+        """Handle multi-word accesses.  Slice (if needed) VAL and DAT for offset
+           OFF and field F."""
+        # Register and value bounds
+        d_lo = f.lo
+        d_hi = f.lo + f.c_rwidth - 1
+        v_lo = 0
+        v_hi = f.c_rwidth - 1
+        # Next field if not affected by this read.
+        if d_hi < off:
+            return (None, None)
+        if d_lo >= off + self.root.c_word_bits:
+            return (None, None)
+        if d_lo < off:
+            # Strip the part below OFF.
+            delta = off - d_lo
+            d_lo = off
+            v_lo += delta
+        # Set right boundaries
+        d_lo -= off
+        d_hi -= off
+        if d_hi >= self.root.c_word_bits:
+            delta = d_hi + 1 - self.root.c_word_bits
+            d_hi = self.root.c_word_bits - 1
+            v_hi -= delta
+
+        if d_hi == self.root.c_word_bits - 1 and d_lo == 0:
+            pass
+        else:
+            dat = Slice_or_Index(dat, d_lo, d_hi - d_lo + 1)
+        if v_hi == f.c_rwidth - 1 and v_lo == 0:
+            pass
+        else:
+            val = Slice_or_Index(val, v_lo, v_hi - v_lo + 1)
+        return (val, dat)
+
+
     def strobe_init(self):
         sz = self.n.c_size // self.root.c_word_size
         if sz <= 1:
@@ -211,7 +211,7 @@ class GenReg(ElGen):
                 for f in n.children:
                     if f.hdl_type not in ('wire', 'autoclear'):
                         continue
-                    reg, dat = field_decode(self.root, n, f, off, f.h_oport, ibus.wr_dat)
+                    reg, dat = self.field_decode(f, off, f.h_oport, ibus.wr_dat)
                     if reg is None:
                         # No field for this offset.
                         continue
@@ -239,7 +239,7 @@ class GenReg(ElGen):
                             cst = HDLConst(v, f.c_rwidth if f.c_rwidth != 1 else None)
                             wrproc.rst_stmts.append(HDLAssign(f.h_reg, cst))
                         # Assign code
-                        reg, dat = field_decode(self.root, n, f, off, f.h_reg, ibus.wr_dat)
+                        reg, dat = self.field_decode(f, off, f.h_reg, ibus.wr_dat)
                         if reg is not None:
                             wr_if.then_stmts.append(HDLAssign(reg, dat))
                     wrproc.sync_stmts.append(wr_if)
