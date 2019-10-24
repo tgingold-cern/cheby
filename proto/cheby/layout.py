@@ -27,9 +27,15 @@ def round_pow2(val):
     return 1 << ilog2(val)
 
 
+def align_floor(n, mul):
+    """Return the greatest natural V such as V is a multiple of MUL and V <= N."""
+    return (n // mul) * mul
+
+
 def align(n, mul):
-    """Return n aligned to the next multiple of mul"""
-    return ((n + mul - 1) // mul) * mul
+    """Return n aligned to the next multiple of mul.
+       This is the lowest natural V such as V is a multiple of MUL and V >= N."""
+    return align_floor(n + mul - 1, mul)
 
 
 def warning(n, msg):

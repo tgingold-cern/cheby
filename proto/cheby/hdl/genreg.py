@@ -1,4 +1,5 @@
 import cheby.tree as tree
+import cheby.layout as layout
 from cheby.hdl.elgen import ElGen
 from cheby.hdl.globals import rst_sync
 from cheby.hdltree import (HDLAssign, HDLSync, HDLComment,
@@ -81,11 +82,12 @@ class GenFieldBase(object):
             val = Slice_or_Index(val, v_lo, v_hi - v_lo + 1)
         return (val, dat)
 
-    def strobe_index(self, off, lhs):
-        if self.reg.c_size <= self.root.c_word_size:
-            return lhs
-        else:
-            return HDLIndex(lhs, off // self.root.c_word_bits)
+    def get_offset_range(self):
+        """Return an iterator on the address offsets for this register."""
+        wb = self.root.c_word_bits
+        return range(layout.align_floor(self.field.lo, wb),
+                     layout.align(self.field.lo + self.field.c_rwidth, wb),
+                     wb)
 
     def need_iport(self):
         """Return true if an input port is needed."""
@@ -104,9 +106,11 @@ class GenFieldBase(object):
         raise AssertionError
 
     def connect_output(self, stmts, ibus):
+        """Called once for wo/rw registers to connect outputs"""
         return
 
     def assign_reg(self, stmts, off, ibus):
+        """Called if need_reg() was true to connect the register."""
         return
 
 class GenFieldReg(GenFieldBase):
@@ -139,11 +143,8 @@ class GenFieldWire(GenFieldBase):
 
     def connect_output(self, stmts, ibus):
         # Handle wire fields: create connections between the bus and the outputs.
-        for off in range(0, self.reg.c_size * tree.BYTE_SIZE, self.root.c_word_bits):
+        for off in self.get_offset_range():
             reg, dat = self.field_decode(off, self.field.h_oport, ibus.wr_dat)
-            if reg is None:
-                # No field for this offset.
-                continue
             stmts.append(HDLAssign(reg, dat))
 
 class GenFieldConst(GenFieldBase):
@@ -158,12 +159,9 @@ class GenFieldAutoclear(GenFieldBase):
 
     def connect_output(self, stmts, ibus):
         # Handle wire fields: create connections between the bus and the outputs.
-        for off in range(0, self.reg.c_size * tree.BYTE_SIZE, self.root.c_word_bits):
+        for off in self.get_offset_range():
             reg, dat = self.field_decode(off, self.field.h_oport, ibus.wr_dat)
-            if reg is None:
-                # No field for this offset.
-                continue
-            strobe = self.strobe_index(off, self.reg.h_wreq)
+            strobe = self.reg.h_gen.strobe_index(off, self.reg.h_wreq)
             if self.field.c_rwidth > 1:
                 strobe = HDLReplicate(strobe, self.field.c_rwidth, False)
             dat = HDLAnd(dat, strobe)
