@@ -14,7 +14,7 @@ class GenFieldBase(object):
         self.reg = reg
         self.field = field
 
-    def extract(self, off, val):
+    def extract_bounds(self, off):
         f = self.field
         # Register and value bounds
         d_hi = f.lo + f.c_rwidth - 1
@@ -22,9 +22,9 @@ class GenFieldBase(object):
         v_hi = f.c_rwidth - 1
         # Return None if no part of the field is at OFF.
         if d_hi < off:
-            return None
+            return (None, None)
         if f.lo >= off + self.root.c_word_bits:
-            return None
+            return (None, None)
         if f.lo < off:
             # Strip the part below OFF.
             v_lo += off - f.lo
@@ -32,12 +32,15 @@ class GenFieldBase(object):
         d_hi -= off
         if d_hi >= self.root.c_word_bits:
             v_hi -= d_hi + 1 - self.root.c_word_bits
+        return (v_lo, v_hi - v_lo + 1)
 
-        if v_hi == f.c_rwidth - 1 and v_lo == 0:
+    def extract(self, off, val):
+        lo, w = self.extract_bounds(off)
+        if w == self.field.c_rwidth:
             # The whole field is selected
             return val
         else:
-            return Slice_or_Index(val, v_lo, v_hi - v_lo + 1)
+            return Slice_or_Index(val, lo, w)
 
     def need_iport(self):
         """Return true if an input port is needed."""
@@ -80,7 +83,8 @@ class GenFieldWire(GenFieldBase):
 
 class GenFieldConst(GenFieldBase):
     def get_input(self, off):
-        return HDLConst(self.field.c_preset, self.field.c_rwidth)
+        lo, w = self.extract_bounds(off)
+        return HDLConst(self.field.c_preset >> lo, w if w != 1 else None)
 
 
 class GenFieldAutoclear(GenFieldBase):

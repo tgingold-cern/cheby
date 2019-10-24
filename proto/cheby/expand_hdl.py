@@ -125,7 +125,7 @@ def expand_x_hdl(n):
     "Decode x-hdl extensions"
     x_hdl = getattr(n, 'x_hdl', {})
     if isinstance(n, tree.Field):
-        expand_x_hdl_field(n, n, x_hdl)
+        expand_x_hdl_field(n, n._parent, x_hdl)
     elif isinstance(n, tree.Reg):
         expand_x_hdl_reg(n, x_hdl)
     elif isinstance(n, tree.Root):
