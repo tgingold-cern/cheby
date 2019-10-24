@@ -42,6 +42,51 @@ class GenFieldBase(object):
         else:
             return Slice_or_Index(val, lo, w)
 
+    def field_decode(self, off, val, dat):
+        """Handle multi-word accesses.  Slice (if needed) VAL and DAT for offset
+           OFF and field F."""
+        f = self.field
+        # Register and value bounds
+        d_lo = f.lo
+        d_hi = f.lo + f.c_rwidth - 1
+        v_lo = 0
+        v_hi = f.c_rwidth - 1
+        # Next field if not affected by this read.
+        if d_hi < off:
+            return (None, None)
+        if d_lo >= off + self.root.c_word_bits:
+            return (None, None)
+        if d_lo < off:
+            # Strip the part below OFF.
+            delta = off - d_lo
+            d_lo = off
+            v_lo += delta
+        # Set right boundaries
+        d_lo -= off
+        d_hi -= off
+        if d_hi >= self.root.c_word_bits:
+            delta = d_hi + 1 - self.root.c_word_bits
+            d_hi = self.root.c_word_bits - 1
+            v_hi -= delta
+
+        if d_hi == self.root.c_word_bits - 1 and d_lo == 0:
+            pass
+        else:
+            dat = Slice_or_Index(dat, d_lo, d_hi - d_lo + 1)
+        if val is None:
+            pass
+        elif v_hi == f.c_rwidth - 1 and v_lo == 0:
+            pass
+        else:
+            val = Slice_or_Index(val, v_lo, v_hi - v_lo + 1)
+        return (val, dat)
+
+    def strobe_index(self, off, lhs):
+        if self.reg.c_size <= self.root.c_word_size:
+            return lhs
+        else:
+            return HDLIndex(lhs, off // self.root.c_word_bits)
+
     def need_iport(self):
         """Return true if an input port is needed."""
         return False
@@ -58,6 +103,8 @@ class GenFieldBase(object):
         """Return the value on a bus read.  Can be larger than a word."""
         raise AssertionError
 
+    def connect_output(self, stmts, ibus):
+        return
 
 class GenFieldReg(GenFieldBase):
     def need_oport(self):
@@ -69,6 +116,8 @@ class GenFieldReg(GenFieldBase):
     def get_input(self, off):
         return self.extract(off, self.field.h_reg)
 
+    def connect_output(self, stmts, ibus):
+        stmts.append(HDLAssign(self.field.h_oport, self.field.h_reg))
 
 class GenFieldWire(GenFieldBase):
     def need_iport(self):
@@ -80,6 +129,14 @@ class GenFieldWire(GenFieldBase):
     def get_input(self, off):
         return self.extract(off, self.field.h_iport)
 
+    def connect_output(self, stmts, ibus):
+        # Handle wire fields: create connections between the bus and the outputs.
+        for off in range(0, self.reg.c_size * tree.BYTE_SIZE, self.root.c_word_bits):
+            reg, dat = self.field_decode(off, self.field.h_oport, ibus.wr_dat)
+            if reg is None:
+                # No field for this offset.
+                continue
+            stmts.append(HDLAssign(reg, dat))
 
 class GenFieldConst(GenFieldBase):
     def get_input(self, off):
@@ -91,6 +148,18 @@ class GenFieldAutoclear(GenFieldBase):
     def need_oport(self):
         return True
 
+    def connect_output(self, stmts, ibus):
+        # Handle wire fields: create connections between the bus and the outputs.
+        for off in range(0, self.reg.c_size * tree.BYTE_SIZE, self.root.c_word_bits):
+            reg, dat = self.field_decode(off, self.field.h_oport, ibus.wr_dat)
+            if reg is None:
+                # No field for this offset.
+                continue
+            strobe = self.strobe_index(off, self.reg.h_wreq)
+            if self.field.c_rwidth > 1:
+                strobe = HDLReplicate(strobe, self.field.c_rwidth, False)
+            dat = HDLAnd(dat, strobe)
+            stmts.append(HDLAssign(reg, dat))
 
 class GenReg(ElGen):
     FIELD_GEN = {
@@ -287,28 +356,9 @@ class GenReg(ElGen):
         self.module.stmts.append(HDLComment('Register {}'.format(n.c_name)))
 
         if n.access in ['rw', 'wo']:
-            # Assign ports from the register.
             for f in n.children:
-                if f.h_reg is not None and f.h_oport is not None:
-                    self.module.stmts.append(HDLAssign(f.h_oport, f.h_reg))
-
-            # Handle wire fields: create connections between the bus and the outputs.
-            for off in range(0, n.c_size, self.root.c_word_size):
-                off *= tree.BYTE_SIZE
-                for f in n.children:
-                    if f.hdl_type not in ('wire', 'autoclear'):
-                        continue
-                    reg, dat = self.field_decode(f, off, f.h_oport, ibus.wr_dat)
-                    if reg is None:
-                        # No field for this offset.
-                        continue
-                    if f.hdl_type == 'autoclear':
-                        strobe = self.strobe_index(off, n.h_wreq)
-                        if f.c_rwidth > 1:
-                            strobe = HDLReplicate(strobe, f.c_rwidth, False)
-                        dat = HDLAnd(dat, strobe)
-                    self.module.stmts.append(HDLAssign(reg, dat))
-
+                f.h_gen.connect_output(self.module.stmts, ibus)
+                
             if n.h_has_regs:
                 # Create a process for the DFF.
                 ffproc = HDLSync(self.root.h_bus['clk'], self.root.h_bus['rst'], rst_sync=rst_sync)
