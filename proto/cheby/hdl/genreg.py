@@ -17,27 +17,21 @@ class GenFieldBase(object):
     def extract(self, off, val):
         f = self.field
         # Register and value bounds
-        d_lo = f.lo
         d_hi = f.lo + f.c_rwidth - 1
         v_lo = 0
         v_hi = f.c_rwidth - 1
         # Return None if no part of the field is at OFF.
         if d_hi < off:
             return None
-        if d_lo >= off + self.root.c_word_bits:
+        if f.lo >= off + self.root.c_word_bits:
             return None
-        if d_lo < off:
+        if f.lo < off:
             # Strip the part below OFF.
-            delta = off - d_lo
-            d_lo = off
-            v_lo += delta
+            v_lo += off - f.lo
         # Set right boundaries
-        d_lo -= off
         d_hi -= off
         if d_hi >= self.root.c_word_bits:
-            delta = d_hi + 1 - self.root.c_word_bits
-            d_hi = self.root.c_word_bits - 1
-            v_hi -= delta
+            v_hi -= d_hi + 1 - self.root.c_word_bits
 
         if v_hi == f.c_rwidth - 1 and v_lo == 0:
             # The whole field is selected
