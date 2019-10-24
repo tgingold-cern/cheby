@@ -99,12 +99,12 @@ begin
   acqVP_value_int_bwsel <= (others => '1');
 
   -- Process for write requests.
-  process (wr_adr_d0, wr_req_d0) begin
+  process () begin
     -- Memory acqVP
   end process;
 
   -- Process for read requests.
-  process (VMEAddr, VMERdMem, acqVP_value_int_dato, acqVP_value_rack) begin
+  process (acqVP_value_int_dato, VMERdMem, acqVP_value_rack) begin
     -- By default ack read requests
     rd_dat_d0 <= (others => 'X');
     acqVP_value_rreq <= '0';
