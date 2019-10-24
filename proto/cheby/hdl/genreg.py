@@ -9,9 +9,41 @@ from cheby.hdltree import (HDLAssign, HDLSync, HDLComment,
                            HDLConst)
 
 class GenFieldBase(object):
-    def __init__(self, reg, field):
+    def __init__(self, root, reg, field):
+        self.root = root
         self.reg = reg
         self.field = field
+
+    def extract(self, off, val):
+        f = self.field
+        # Register and value bounds
+        d_lo = f.lo
+        d_hi = f.lo + f.c_rwidth - 1
+        v_lo = 0
+        v_hi = f.c_rwidth - 1
+        # Return None if no part of the field is at OFF.
+        if d_hi < off:
+            return None
+        if d_lo >= off + self.root.c_word_bits:
+            return None
+        if d_lo < off:
+            # Strip the part below OFF.
+            delta = off - d_lo
+            d_lo = off
+            v_lo += delta
+        # Set right boundaries
+        d_lo -= off
+        d_hi -= off
+        if d_hi >= self.root.c_word_bits:
+            delta = d_hi + 1 - self.root.c_word_bits
+            d_hi = self.root.c_word_bits - 1
+            v_hi -= delta
+
+        if v_hi == f.c_rwidth - 1 and v_lo == 0:
+            # The whole field is selected
+            return val
+        else:
+            return Slice_or_Index(val, v_lo, v_hi - v_lo + 1)
 
     def need_iport(self):
         """Return true if an input port is needed."""
@@ -25,7 +57,7 @@ class GenFieldBase(object):
         """Return true if the field requires an internal register."""
         return False
 
-    def get_input(self):
+    def get_input(self, off):
         """Return the value on a bus read.  Can be larger than a word."""
         raise AssertionError
 
@@ -37,8 +69,8 @@ class GenFieldReg(GenFieldBase):
     def need_reg(self):
         return True
 
-    def get_input(self):
-        return self.field.h_reg
+    def get_input(self, off):
+        return self.extract(off, self.field.h_reg)
 
 
 class GenFieldWire(GenFieldBase):
@@ -48,12 +80,12 @@ class GenFieldWire(GenFieldBase):
     def need_oport(self):
         return self.reg.access in ['wo', 'rw']
 
-    def get_input(self):
-        return self.field.h_iport
+    def get_input(self, off):
+        return self.extract(off, self.field.h_iport)
 
 
 class GenFieldConst(GenFieldBase):
-    def get_input(self):
+    def get_input(self, off):
         return HDLConst(self.field.c_preset, self.field.c_rwidth)
 
 
@@ -99,7 +131,9 @@ class GenReg(ElGen):
             pass
         else:
             dat = Slice_or_Index(dat, d_lo, d_hi - d_lo + 1)
-        if v_hi == f.c_rwidth - 1 and v_lo == 0:
+        if val is None:
+            pass
+        elif v_hi == f.c_rwidth - 1 and v_lo == 0:
             pass
         else:
             val = Slice_or_Index(val, v_lo, v_hi - v_lo + 1)
@@ -179,16 +213,9 @@ class GenReg(ElGen):
         else:
             n.h_wreq = None
 
-        # Internal read port.
-        if n.access in ['ro', 'rw'] and (n.has_fields() or n.children[0].hdl_type == 'const'):
-            n.h_rint = self.module.new_HDLSignal(n.c_name + '_rint', n.c_rwidth)
-        else:
-            n.h_rint = None
-
     def gen_ports(self):
         """Add ports and wires for register or fields of :param n:
            :field h_reg: the register.
-           :field h_rint: word(s) that are read from the register.
            :field h_wreq: the internal write request signal.
            :field h_iport: the input port.
            :field h_oport: the output port.
@@ -207,7 +234,7 @@ class GenReg(ElGen):
 
         for f in n.children:
             # Set hdl generator for the field.
-            f.h_gen = self.FIELD_GEN[f.hdl_type](n, f)
+            f.h_gen = self.FIELD_GEN[f.hdl_type](self.root, n, f)
 
             w = None if f.c_rwidth == 1 else f.c_rwidth
 
@@ -314,26 +341,6 @@ class GenReg(ElGen):
             if n.h_wreq_port is not None:
                 self.module.stmts.append(HDLAssign(n.h_wreq_port, n.h_wack or n.h_wreq))
 
-        if n.access in ['ro', 'rw'] and n.h_rint is not None:
-            nxt = 0
-
-            def pad(first):
-                """Set the value of unused bits."""
-                width = first - nxt
-                if width <= 0:
-                    return
-                if width == 1:
-                    val = bit_0
-                else:
-                    val = HDLReplicate(bit_0, first - nxt)
-                self.module.stmts.append(HDLAssign(Slice_or_Index(n.h_rint, nxt, width), val))
-
-            for f in n.c_sorted_fields:
-                pad(f.lo)
-                src = f.h_gen.get_input()
-                self.module.stmts.append(HDLAssign(Slice_or_Index(n.h_rint, f.lo, f.c_rwidth), src))
-                nxt = f.lo + f.c_rwidth
-            pad(n.c_rwidth)
 
     def gen_read(self, s, off, ibus, rdproc):
         n = self.n
@@ -355,13 +362,31 @@ class GenReg(ElGen):
         if n.access == 'wo':
             # No data are returned for wo.
             return
-        if n.h_rint is not None:
-            src = n.h_rint
-        else:
-            src = n.children[0].h_gen.get_input()
-        if n.c_nwords != 1:
-            src = HDLSlice(src, off, self.root.c_word_bits)
-        s.append(HDLAssign(ibus.rd_dat, src))
+
+        nxt = off
+
+        def pad(first):
+            """Set the value of unused bits."""
+            width = first - nxt
+            if width <= 0:
+                return
+            if width == 1:
+                val = bit_0
+            else:
+                val = HDLReplicate(bit_0, first - nxt)
+            s.append(HDLAssign(Slice_or_Index(ibus.rd_dat, nxt - off, width), val))
+
+        for f in n.c_sorted_fields:
+            if f.lo > off + self.root.c_word_bits:
+                break
+            if f.lo + f.c_rwidth < off:
+                continue
+            pad(f.lo)
+            src = f.h_gen.get_input(off)
+            _, dst = self.field_decode(f, off, None, ibus.rd_dat)
+            s.append(HDLAssign(dst, src))
+            nxt = f.lo + f.c_rwidth
+        pad(off + self.root.c_word_bits)
 
     def gen_write(self, s, off, ibus, wrproc):
         n = self.n
