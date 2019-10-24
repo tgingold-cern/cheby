@@ -88,8 +88,8 @@ begin
   end process;
 
   -- Register i1Thresholds
-  i1Thresholds_o(15 downto 0) <= i1Thresholds_lowThreshold_reg;
   i1Thresholds_o(31 downto 16) <= wr_dat_d0(31 downto 16);
+  i1Thresholds_o(15 downto 0) <= i1Thresholds_lowThreshold_reg;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then

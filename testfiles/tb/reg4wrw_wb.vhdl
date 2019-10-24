@@ -113,8 +113,8 @@ begin
   end process;
 
   -- Register fwrw_rws
-  fwrw_rws_f2_o <= fwrw_rws_f2_reg;
   fwrw_rws_f1_o <= wr_dat_d0(11 downto 0);
+  fwrw_rws_f2_o <= fwrw_rws_f2_reg;
   fwrw_rws_f3_o <= wr_dat_d0(31 downto 8);
   process (clk_i) begin
     if rising_edge(clk_i) then
@@ -135,8 +135,8 @@ begin
   fwrw_rws_wr_o <= fwrw_rws_wack;
 
   -- Register fwrw_rws_rwa
-  fwrw_rws_rwa_f2_o <= fwrw_rws_rwa_f2_reg;
   fwrw_rws_rwa_f1_o <= wr_dat_d0(11 downto 0);
+  fwrw_rws_rwa_f2_o <= fwrw_rws_rwa_f2_reg;
   fwrw_rws_rwa_f3_o <= wr_dat_d0(31 downto 8);
   process (clk_i) begin
     if rising_edge(clk_i) then
