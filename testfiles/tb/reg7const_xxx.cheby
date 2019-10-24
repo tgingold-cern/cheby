@@ -1,0 +1,65 @@
+memory-map:
+  bus: BUS
+  name: reg7const_NAME
+  description: Constants
+  children:
+  - reg:
+      name: reg1
+      width: 32
+      access: ro
+      preset: 0xabcd1234
+      x-hdl:
+        type: const
+  - reg:
+     name: reg2
+     width: 32
+     access: ro
+     children:
+     - field:
+        name: f1
+        range: 0
+        preset: 1
+        x-hdl:
+          type: const
+     - field:
+        name: f2
+        range: 17-16
+        preset: 3
+        x-hdl:
+          type: const
+  - reg:
+     name: reg3
+     width: 64
+     access: ro
+     children:
+     - field:
+        name: f1
+        range: 0
+        preset: 1
+        x-hdl:
+          type: const
+     - field:
+        name: f2
+        range: 23-20
+        preset: 5
+        x-hdl:
+          type: const
+     - field:
+        name: f3
+        range: 40-24
+        preset: 0xcba9
+        x-hdl:
+          type: const
+     - field:
+        name: f4
+        range: 63-60
+        preset: 10
+        x-hdl:
+          type: const
+  - reg:
+      name: reg4
+      width: 64
+      access: ro
+      preset: 0xabcd1234567890ef
+      x-hdl:
+        type: const
