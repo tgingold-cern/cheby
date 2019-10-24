@@ -106,6 +106,9 @@ class GenFieldBase(object):
     def connect_output(self, stmts, ibus):
         return
 
+    def assign_reg(self, stmts, off, ibus):
+        return
+
 class GenFieldReg(GenFieldBase):
     def need_oport(self):
         return True
@@ -118,6 +121,11 @@ class GenFieldReg(GenFieldBase):
 
     def connect_output(self, stmts, ibus):
         stmts.append(HDLAssign(self.field.h_oport, self.field.h_reg))
+
+    def assign_reg(self, stmts, off, ibus):
+        reg, dat = self.field_decode(off, self.field.h_reg, ibus.wr_dat)
+        if reg is not None:
+            stmts.append(HDLAssign(reg, dat))
 
 class GenFieldWire(GenFieldBase):
     def need_iport(self):
@@ -358,27 +366,23 @@ class GenReg(ElGen):
         if n.access in ['rw', 'wo']:
             for f in n.children:
                 f.h_gen.connect_output(self.module.stmts, ibus)
-                
+
             if n.h_has_regs:
                 # Create a process for the DFF.
                 ffproc = HDLSync(self.root.h_bus['clk'], self.root.h_bus['rst'], rst_sync=rst_sync)
                 self.module.stmts.append(ffproc)
+                # Reset code
+                for f in n.children:
+                    if f.h_reg is not None:
+                        cst = HDLConst(f.c_preset or 0, f.c_rwidth if f.c_rwidth != 1 else None)
+                        ffproc.rst_stmts.append(HDLAssign(f.h_reg, cst))
                 for off in range(0, n.c_size, self.root.c_word_size):
                     off *= tree.BYTE_SIZE
                     wr_if = HDLIfElse(HDLEq(self.strobe_index(off, n.h_wreq), bit_1))
                     wr_if.else_stmts = None
                     for f in n.children:
-                        if f.hdl_type != 'reg':
-                            continue
-                        # Reset code
-                        if f.h_reg is not None and off == 0:
-                            v = f.c_preset or 0
-                            cst = HDLConst(v, f.c_rwidth if f.c_rwidth != 1 else None)
-                            ffproc.rst_stmts.append(HDLAssign(f.h_reg, cst))
-                        # Assign code
-                        reg, dat = self.field_decode(f, off, f.h_reg, ibus.wr_dat)
-                        if reg is not None:
-                            wr_if.then_stmts.append(HDLAssign(reg, dat))
+                        if f.h_reg is not None:
+                            f.h_gen.assign_reg(wr_if.then_stmts, off, ibus)
                     ffproc.sync_stmts.append(wr_if)
 
                 # In case of regs, the strobe is delayed so that it appears at the same time as
