@@ -347,8 +347,6 @@ class GenReg(ElGen):
         # Ack
         if n.h_rack_port is not None:
             rack = n.h_rack_port
-            if off == 0:
-                rdproc.sensitivity.append(rack)
             rack = self.strobe_index(off, rack)
         else:
             rack = ibus.rd_req
@@ -361,8 +359,6 @@ class GenReg(ElGen):
             src = n.h_rint
         else:
             src = n.children[0].h_gen.get_input()
-        if off == 0:
-            rdproc.sensitivity.append(src)
         if n.c_nwords != 1:
             src = HDLSlice(src, off, self.root.c_word_bits)
         s.append(HDLAssign(ibus.rd_dat, src))
@@ -379,8 +375,6 @@ class GenReg(ElGen):
         # Ack
         wack = n.h_wack_port or n.h_wack
         if wack is not None:
-            if off == 0:
-                wrproc.sensitivity.append(wack)
             wack = self.strobe_index(off, wack)
         else:
             wack = ibus.wr_req

@@ -196,11 +196,9 @@ class AXI4LiteBus(BusGen):
         proc.stmts.append(HDLAssign(n.h_wr, bit_0))
         stmts.append(HDLAssign(n.h_wr, ibus.wr_req))
         stmts.append(HDLAssign(ibus.wr_ack, n.h_bus['bvalid']))
-        proc.sensitivity.extend([n.h_bus['bvalid']])
 
     def read_bus_slave(self, root, stmts, n, proc, ibus, rd_data):
         proc.stmts.append(HDLAssign(n.h_rd, bit_0))
         stmts.append(HDLAssign(n.h_rd, ibus.rd_req))
         stmts.append(HDLAssign(rd_data, n.h_bus['rdata']))
         stmts.append(HDLAssign(ibus.rd_ack, n.h_bus['rvalid']))
-        proc.sensitivity.extend([n.h_bus['rdata'], n.h_bus['rvalid']])

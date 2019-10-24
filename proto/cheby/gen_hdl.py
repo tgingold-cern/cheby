@@ -21,6 +21,7 @@ from cheby.hdltree import (HDLModule, HDLInterface,
                            HDLSlice, HDLReplicate,
                            HDLConst)
 import cheby.tree as tree
+import cheby.hdlutils as hdlutils
 from cheby.layout import ilog2
 from cheby.hdl.wbbus import WBBus
 from cheby.hdl.ibus import Ibus
@@ -150,9 +151,6 @@ def add_read_mux_process(root, module, ibus):
     module.stmts.append(HDLComment('Process for read requests.'))
     rd_adr = ibus.rd_adr
     rdproc = HDLComb()
-    if rd_adr is not None:
-        rdproc.sensitivity.append(rd_adr)
-    rdproc.sensitivity.extend([ibus.rd_req])
     module.stmts.append(rdproc)
 
     # All the read are ack'ed (including the read to unassigned addresses).
@@ -170,6 +168,7 @@ def add_read_mux_process(root, module, ibus):
     stmts = []
     add_decoder(root, stmts, rd_adr, root, add_read)
     rdproc.stmts.extend(stmts)
+    hdlutils.compute_sensitivity(rdproc)
 
 
 def add_write_mux_process(root, module, ibus):
@@ -180,9 +179,6 @@ def add_write_mux_process(root, module, ibus):
     module.stmts.append(HDLComment('Process for write requests.'))
     wr_adr = ibus.wr_adr
     wrproc = HDLComb()
-    if wr_adr is not None:
-        wrproc.sensitivity.append(wr_adr)
-    wrproc.sensitivity.extend([ibus.wr_req])
     module.stmts.append(wrproc)
 
     def add_write(s, n, off):
@@ -196,6 +192,7 @@ def add_write_mux_process(root, module, ibus):
     stmts = []
     add_decoder(root, stmts, wr_adr, root, add_write)
     wrproc.stmts.extend(stmts)
+    hdlutils.compute_sensitivity(wrproc)
 
 
 def gen_hdl_header(root, ibus=None):

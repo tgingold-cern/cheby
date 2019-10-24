@@ -188,11 +188,9 @@ class CERNBEBus(BusGen):
             proc.stmts.append(HDLAssign(n.h_we, bit_0))
             stmts.append(HDLAssign(n.h_we, ibus.wr_req))
             stmts.append(HDLAssign(n.h_bus['wr'], n.h_ws))
-            proc.sensitivity.extend([n.h_ws])
         else:
             stmts.append(HDLAssign(n.h_bus['wr'], ibus.wr_req))
         stmts.append(HDLAssign(ibus.wr_ack, n.h_bus['wack']))
-        proc.sensitivity.extend([n.h_bus['wack']])
 
     def read_bus_slave(self, root, stmts, n, proc, ibus, rd_data):
         proc.stmts.append(HDLAssign(n.h_bus['rd'], bit_0))
@@ -201,9 +199,7 @@ class CERNBEBus(BusGen):
             proc.stmts.append(HDLAssign(n.h_re, bit_0))
             stmts.append(HDLAssign(n.h_re, ibus.rd_req))
             stmts.append(HDLAssign(n.h_bus['rd'], n.h_rs))
-            proc.sensitivity.extend([n.h_rs])
         else:
             stmts.append(HDLAssign(n.h_bus['rd'], ibus.rd_req))
         stmts.append(HDLAssign(rd_data, n.h_bus['dato']))
         stmts.append(HDLAssign(ibus.rd_ack, n.h_bus['rack']))
-        proc.sensitivity.extend([n.h_bus['dato'], n.h_bus['rack']])

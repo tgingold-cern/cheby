@@ -185,14 +185,12 @@ class GenMemory(ElGen):
         # TODO: handle list of registers!
         n = self.n
         r = n.children[0]
-        rdproc.sensitivity.append(r.h_sig_dato)
         # Output ram data
         s.append(HDLAssign(ibus.rd_dat, r.h_sig_dato))
         # Set rd signal to ram: read when there is not WR request,
         # and either a read request or a pending read request.
         if self.root.h_bussplit and r.access in ['wo', 'rw']:
             rd_sig = HDLAnd(ibus.rd_req, HDLNot(n.h_wreq))
-            rdproc.sensitivity.extend([n.h_wreq])
         else:
             rd_sig = ibus.rd_req
         s.append(HDLAssign(r.h_rreq, rd_sig))
@@ -200,7 +198,6 @@ class GenMemory(ElGen):
         rdproc.stmts.append(HDLAssign(r.h_rreq, bit_0))
         # Use delayed ack as ack.
         s.append(HDLAssign(ibus.rd_ack, r.h_rack))
-        rdproc.sensitivity.append(r.h_rack)
 
     def gen_write(self, s, off, ibus, wrproc):
         # TODO: handle list of registers!

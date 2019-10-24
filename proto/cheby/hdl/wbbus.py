@@ -262,7 +262,6 @@ class WBBus(BusGen):
         proc.stmts.append(HDLAssign(n.h_we, bit_0))
         stmts.append(HDLAssign(n.h_we, ibus.wr_req))
         stmts.append(HDLAssign(ibus.wr_ack, n.h_wack))
-        proc.sensitivity.extend([n.h_wack])
 
     def read_bus_slave(self, root, stmts, n, proc, ibus, rd_data):
         proc.stmts.append(HDLAssign(n.h_re, bit_0))
@@ -270,4 +269,3 @@ class WBBus(BusGen):
         stmts.append(HDLAssign(rd_data, n.h_bus['dato']))
         # Propagate ack provided it is a write transaction and only for one cycle.
         stmts.append(HDLAssign(ibus.rd_ack, n.h_rack))
-        proc.sensitivity.extend([n.h_bus['dato'], n.h_rack])
