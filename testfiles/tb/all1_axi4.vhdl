@@ -206,7 +206,7 @@ begin
   end process;
   rresp <= "00";
 
-  -- pipelining for wr-in+wr-out+rd-in+rd-out
+  -- pipelining for rd-in+rd-out+wr-in+wr-out
   process (aclk) begin
     if rising_edge(aclk) then
       if areset_n = '0' then

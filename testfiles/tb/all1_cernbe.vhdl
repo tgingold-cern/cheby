@@ -133,7 +133,7 @@ begin
   VMERdDone <= rd_ack_int;
   VMEWrDone <= wr_ack_int;
 
-  -- pipelining for wr-in+wr-out+rd-in+rd-out
+  -- pipelining for rd-in+rd-out+wr-in+wr-out
   process (Clk) begin
     if rising_edge(Clk) then
       if Rst = '0' then

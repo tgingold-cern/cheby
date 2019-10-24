@@ -70,7 +70,7 @@ begin
   wb_rty_o <= '0';
   wb_err_o <= '0';
 
-  -- pipelining for rd-out+wr-in
+  -- pipelining for wr-in+rd-out
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then

@@ -166,7 +166,7 @@ begin
   wb_o.rty <= '0';
   wb_o.err <= '0';
 
-  -- pipelining for wr-in+wr-out+rd-in+rd-out
+  -- pipelining for rd-in+rd-out+wr-in+wr-out
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
