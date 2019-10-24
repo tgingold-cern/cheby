@@ -15,7 +15,7 @@ class GenFieldBase(object):
         self.reg = reg
         self.field = field
 
-    def extract_bounds(self, off):
+    def extract_reg_bounds(self, off):
         f = self.field
         # Register and value bounds
         d_hi = f.lo + f.c_rwidth - 1
@@ -35,52 +35,29 @@ class GenFieldBase(object):
             v_hi -= d_hi + 1 - self.root.c_word_bits
         return (v_lo, v_hi - v_lo + 1)
 
-    def extract(self, off, val):
-        lo, w = self.extract_bounds(off)
+    def extract_reg2(self, val, lo, w):
         if w == self.field.c_rwidth:
             # The whole field is selected
             return val
         else:
             return Slice_or_Index(val, lo, w)
 
-    def field_decode(self, off, val, dat):
-        """Handle multi-word accesses.  Slice (if needed) VAL and DAT for offset
-           OFF and field F."""
-        f = self.field
-        # Register and value bounds
-        d_lo = f.lo
-        d_hi = f.lo + f.c_rwidth - 1
-        v_lo = 0
-        v_hi = f.c_rwidth - 1
-        # Next field if not affected by this read.
-        if d_hi < off:
-            return (None, None)
-        if d_lo >= off + self.root.c_word_bits:
-            return (None, None)
-        if d_lo < off:
-            # Strip the part below OFF.
-            delta = off - d_lo
-            d_lo = off
-            v_lo += delta
-        # Set right boundaries
-        d_lo -= off
-        d_hi -= off
-        if d_hi >= self.root.c_word_bits:
-            delta = d_hi + 1 - self.root.c_word_bits
-            d_hi = self.root.c_word_bits - 1
-            v_hi -= delta
+    def extract_dat2(self, val, lo, w):
+        if w == self.root.c_word_bits:
+            assert lo == 0
+            # The whole field is selected
+            return val
+        else:
+            return Slice_or_Index(val, lo, w)
 
-        if d_hi == self.root.c_word_bits - 1 and d_lo == 0:
-            pass
-        else:
-            dat = Slice_or_Index(dat, d_lo, d_hi - d_lo + 1)
-        if val is None:
-            pass
-        elif v_hi == f.c_rwidth - 1 and v_lo == 0:
-            pass
-        else:
-            val = Slice_or_Index(val, v_lo, v_hi - v_lo + 1)
-        return (val, dat)
+    def extract_reg(self, off, val):
+        lo, w = self.extract_reg_bounds(off)
+        return self.extract_reg2(val, lo, w)
+
+    def extract_reg_dat(self, off, reg, dat):
+        lo, w = self.extract_reg_bounds(off)
+        return (self.extract_reg2(reg, lo, w),
+                self.extract_dat2(dat, self.field.lo + lo - off, w))
 
     def get_offset_range(self):
         """Return an iterator on the address offsets for this register."""
@@ -121,15 +98,14 @@ class GenFieldReg(GenFieldBase):
         return True
 
     def get_input(self, off):
-        return self.extract(off, self.field.h_reg)
+        return self.extract_reg(off, self.field.h_reg)
 
     def connect_output(self, stmts, ibus):
         stmts.append(HDLAssign(self.field.h_oport, self.field.h_reg))
 
     def assign_reg(self, stmts, off, ibus):
-        reg, dat = self.field_decode(off, self.field.h_reg, ibus.wr_dat)
-        if reg is not None:
-            stmts.append(HDLAssign(reg, dat))
+        reg, dat = self.extract_reg_dat(off, self.field.h_reg, ibus.wr_dat)
+        stmts.append(HDLAssign(reg, dat))
 
 class GenFieldWire(GenFieldBase):
     def need_iport(self):
@@ -139,17 +115,17 @@ class GenFieldWire(GenFieldBase):
         return self.reg.access in ['wo', 'rw']
 
     def get_input(self, off):
-        return self.extract(off, self.field.h_iport)
+        return self.extract_reg(off, self.field.h_iport)
 
     def connect_output(self, stmts, ibus):
         # Handle wire fields: create connections between the bus and the outputs.
         for off in self.get_offset_range():
-            reg, dat = self.field_decode(off, self.field.h_oport, ibus.wr_dat)
+            reg, dat = self.extract_reg_dat(off, self.field.h_oport, ibus.wr_dat)
             stmts.append(HDLAssign(reg, dat))
 
 class GenFieldConst(GenFieldBase):
     def get_input(self, off):
-        lo, w = self.extract_bounds(off)
+        lo, w = self.extract_reg_bounds(off)
         return HDLConst(self.field.c_preset >> lo, w if w != 1 else None)
 
 
@@ -160,12 +136,12 @@ class GenFieldAutoclear(GenFieldBase):
     def connect_output(self, stmts, ibus):
         # Handle wire fields: create connections between the bus and the outputs.
         for off in self.get_offset_range():
-            reg, dat = self.field_decode(off, self.field.h_oport, ibus.wr_dat)
+            lo, w = self.extract_reg_bounds(off)
             strobe = self.reg.h_gen.strobe_index(off, self.reg.h_wreq)
             if self.field.c_rwidth > 1:
                 strobe = HDLReplicate(strobe, self.field.c_rwidth, False)
-            dat = HDLAnd(dat, strobe)
-            stmts.append(HDLAssign(reg, dat))
+            dat = HDLAnd(self.extract_dat2(ibus.wr_dat, self.field.lo + lo - off, w), strobe)
+            stmts.append(HDLAssign(self.extract_reg2(self.field.h_oport, lo, w), dat))
 
 class GenReg(ElGen):
     FIELD_GEN = {
@@ -366,7 +342,7 @@ class GenReg(ElGen):
                     wr_if = HDLIfElse(HDLEq(self.strobe_index(off, n.h_wreq), bit_1))
                     wr_if.else_stmts = None
                     for f in n.children:
-                        if f.h_reg is not None:
+                        if f.h_reg is not None and off in f.h_gen.get_offset_range():
                             f.h_gen.assign_reg(wr_if.then_stmts, off, ibus)
                     ffproc.sync_stmts.append(wr_if)
 
