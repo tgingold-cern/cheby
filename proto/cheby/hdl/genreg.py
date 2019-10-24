@@ -176,43 +176,30 @@ class GenReg(ElGen):
         'const': GenFieldConst,
         'autoclear': GenFieldAutoclear}
 
-    def field_decode(self, f, off, val, dat):
+    def field_decode(self, f, off, dat):
         """Handle multi-word accesses.  Slice (if needed) VAL and DAT for offset
            OFF and field F."""
         # Register and value bounds
         d_lo = f.lo
         d_hi = f.lo + f.c_rwidth - 1
-        v_lo = 0
-        v_hi = f.c_rwidth - 1
         # Next field if not affected by this read.
         if d_hi < off:
-            return (None, None)
+            return None
         if d_lo >= off + self.root.c_word_bits:
-            return (None, None)
+            return None
         if d_lo < off:
             # Strip the part below OFF.
-            delta = off - d_lo
             d_lo = off
-            v_lo += delta
         # Set right boundaries
         d_lo -= off
         d_hi -= off
         if d_hi >= self.root.c_word_bits:
-            delta = d_hi + 1 - self.root.c_word_bits
             d_hi = self.root.c_word_bits - 1
-            v_hi -= delta
 
         if d_hi == self.root.c_word_bits - 1 and d_lo == 0:
-            pass
+            return dat
         else:
-            dat = Slice_or_Index(dat, d_lo, d_hi - d_lo + 1)
-        if val is None:
-            pass
-        elif v_hi == f.c_rwidth - 1 and v_lo == 0:
-            pass
-        else:
-            val = Slice_or_Index(val, v_lo, v_hi - v_lo + 1)
-        return (val, dat)
+            return Slice_or_Index(dat, d_lo, d_hi - d_lo + 1)
 
 
     def strobe_init(self):
@@ -435,7 +422,7 @@ class GenReg(ElGen):
                 continue
             pad(f.lo)
             src = f.h_gen.get_input(off)
-            _, dst = self.field_decode(f, off, None, ibus.rd_dat)
+            dst = self.field_decode(f, off, ibus.rd_dat)
             s.append(HDLAssign(dst, src))
             nxt = f.lo + f.c_rwidth
         pad(off + self.root.c_word_bits)
