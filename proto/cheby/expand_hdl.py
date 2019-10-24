@@ -98,7 +98,7 @@ def expand_pipeline(n, v):
         return []
     for e in els:
         res.update(vals[e])
-    return list(res)
+    return sorted(list(res))
 
 def expand_x_hdl_root(n, dct):
     n.hdl_pipeline = ['wr-in', 'rd-out']
