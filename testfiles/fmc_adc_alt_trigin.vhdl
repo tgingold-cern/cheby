@@ -35,7 +35,6 @@ architecture syn of alt_trigin is
   signal wb_rip                         : std_logic;
   signal wb_wip                         : std_logic;
   signal ctrl_wreq                      : std_logic;
-  signal ctrl_rint                      : std_logic_vector(31 downto 0);
   signal rd_ack_d0                      : std_logic;
   signal rd_dat_d0                      : std_logic_vector(31 downto 0);
   signal wr_req_d0                      : std_logic;
@@ -94,9 +93,6 @@ begin
   -- Register ctrl
   ctrl_enable_o <= wr_dat_d0(1);
   ctrl_wr_o <= ctrl_wreq;
-  ctrl_rint(0) <= '0';
-  ctrl_rint(1) <= ctrl_enable_i;
-  ctrl_rint(31 downto 2) <= (others => '0');
 
   -- Register seconds
 
@@ -140,7 +136,7 @@ begin
   end process;
 
   -- Process for read requests.
-  process (adr_int, rd_req_int, ctrl_rint, seconds_i, cycles_i) begin
+  process (adr_int, rd_req_int, ctrl_enable_i, seconds_i, cycles_i) begin
     -- By default ack read requests
     rd_dat_d0 <= (others => 'X');
     case adr_int(4 downto 3) is
@@ -149,7 +145,9 @@ begin
       when "0" => 
         -- Reg ctrl
         rd_ack_d0 <= rd_req_int;
-        rd_dat_d0 <= ctrl_rint;
+        rd_dat_d0(0) <= '0';
+        rd_dat_d0(1) <= ctrl_enable_i;
+        rd_dat_d0(31 downto 2) <= (others => '0');
       when others =>
         rd_ack_d0 <= rd_req_int;
       end case;

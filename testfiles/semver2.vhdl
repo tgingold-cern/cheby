@@ -35,7 +35,6 @@ architecture syn of semver2 is
   signal r1_reg                         : std_logic_vector(31 downto 0);
   signal r1_wreq                        : std_logic;
   signal r1_wack                        : std_logic;
-  signal v_rint                         : std_logic_vector(31 downto 0);
   signal rd_ack_d0                      : std_logic;
   signal rd_dat_d0                      : std_logic_vector(31 downto 0);
   signal wr_req_d0                      : std_logic;
@@ -107,7 +106,6 @@ begin
   end process;
 
   -- Register v
-  v_rint(31 downto 0) <= "00000000000000010000001000000011";
 
   -- Process for write requests.
   process (wr_adr_d0, wr_req_d0, r1_wack) begin
@@ -126,7 +124,7 @@ begin
   end process;
 
   -- Process for read requests.
-  process (wb_adr_i, rd_req_int, r1_reg, v_rint) begin
+  process (wb_adr_i, rd_req_int, r1_reg) begin
     -- By default ack read requests
     rd_dat_d0 <= (others => 'X');
     case wb_adr_i(2 downto 2) is
@@ -137,7 +135,7 @@ begin
     when "1" => 
       -- Reg v
       rd_ack_d0 <= rd_req_int;
-      rd_dat_d0 <= v_rint;
+      rd_dat_d0 <= "00000000000000010000001000000011";
     when others =>
       rd_ack_d0 <= rd_req_int;
     end case;

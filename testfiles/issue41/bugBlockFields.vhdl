@@ -33,7 +33,6 @@ architecture syn of bugBlockRegField is
   signal b1_r1_f5_reg                   : std_logic;
   signal b1_r1_wreq                     : std_logic;
   signal b1_r1_wack                     : std_logic;
-  signal b1_r1_rint                     : std_logic_vector(31 downto 0);
   signal rd_ack_d0                      : std_logic;
   signal rd_dat_d0                      : std_logic_vector(31 downto 0);
   signal wr_req_d0                      : std_logic;
@@ -84,12 +83,6 @@ begin
       end if;
     end if;
   end process;
-  b1_r1_rint(0) <= b1_r1_f1_reg;
-  b1_r1_rint(1) <= b1_r1_f4_reg;
-  b1_r1_rint(2) <= b1_r1_f3_reg;
-  b1_r1_rint(12 downto 3) <= b1_r1_f2_reg;
-  b1_r1_rint(13) <= b1_r1_f5_reg;
-  b1_r1_rint(31 downto 14) <= (others => '0');
 
   -- Process for write requests.
   process (wr_req_d0, b1_r1_wack) begin
@@ -100,11 +93,16 @@ begin
   end process;
 
   -- Process for read requests.
-  process (VMERdMem, b1_r1_rint) begin
+  process (VMERdMem, b1_r1_f1_reg, b1_r1_f4_reg, b1_r1_f3_reg, b1_r1_f2_reg, b1_r1_f5_reg) begin
     -- By default ack read requests
     rd_dat_d0 <= (others => 'X');
     -- Reg b1_r1
     rd_ack_d0 <= VMERdMem;
-    rd_dat_d0 <= b1_r1_rint;
+    rd_dat_d0(0) <= b1_r1_f1_reg;
+    rd_dat_d0(1) <= b1_r1_f4_reg;
+    rd_dat_d0(2) <= b1_r1_f3_reg;
+    rd_dat_d0(12 downto 3) <= b1_r1_f2_reg;
+    rd_dat_d0(13) <= b1_r1_f5_reg;
+    rd_dat_d0(31 downto 14) <= (others => '0');
   end process;
 end syn;

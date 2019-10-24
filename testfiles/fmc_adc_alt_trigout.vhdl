@@ -63,7 +63,6 @@ architecture syn of alt_trigout is
   signal ack_int                        : std_logic;
   signal wb_rip                         : std_logic;
   signal wb_wip                         : std_logic;
-  signal status_rint                    : std_logic_vector(31 downto 0);
   signal ch1_enable_reg                 : std_logic;
   signal ch2_enable_reg                 : std_logic;
   signal ch3_enable_reg                 : std_logic;
@@ -71,9 +70,6 @@ architecture syn of alt_trigout is
   signal ext_enable_reg                 : std_logic;
   signal ctrl_wreq                      : std_logic;
   signal ctrl_wack                      : std_logic;
-  signal ctrl_rint                      : std_logic_vector(31 downto 0);
-  signal ts_mask_sec_rint               : std_logic_vector(63 downto 0);
-  signal ts_cycles_rint                 : std_logic_vector(31 downto 0);
   signal rd_ack_d0                      : std_logic;
   signal rd_dat_d0                      : std_logic_vector(31 downto 0);
   signal wr_req_d0                      : std_logic;
@@ -130,12 +126,6 @@ begin
   end process;
 
   -- Register status
-  status_rint(0) <= wr_enable_i;
-  status_rint(1) <= wr_link_i;
-  status_rint(2) <= wr_valid_i;
-  status_rint(7 downto 3) <= (others => '0');
-  status_rint(8) <= ts_present_i;
-  status_rint(31 downto 9) <= (others => '0');
 
   -- Register ctrl
   ch1_enable_o <= ch1_enable_reg;
@@ -164,28 +154,10 @@ begin
       end if;
     end if;
   end process;
-  ctrl_rint(0) <= ch1_enable_reg;
-  ctrl_rint(1) <= ch2_enable_reg;
-  ctrl_rint(2) <= ch3_enable_reg;
-  ctrl_rint(3) <= ch4_enable_reg;
-  ctrl_rint(7 downto 4) <= (others => '0');
-  ctrl_rint(8) <= ext_enable_reg;
-  ctrl_rint(31 downto 9) <= (others => '0');
 
   -- Register ts_mask_sec
-  ts_mask_sec_rint(39 downto 0) <= ts_sec_i;
-  ts_mask_sec_rint(47 downto 40) <= (others => '0');
-  ts_mask_sec_rint(48) <= ch1_mask_i;
-  ts_mask_sec_rint(49) <= ch2_mask_i;
-  ts_mask_sec_rint(50) <= ch3_mask_i;
-  ts_mask_sec_rint(51) <= ch4_mask_i;
-  ts_mask_sec_rint(55 downto 52) <= (others => '0');
-  ts_mask_sec_rint(56) <= ext_mask_i;
-  ts_mask_sec_rint(63 downto 57) <= (others => '0');
 
   -- Register ts_cycles
-  ts_cycles_rint(27 downto 0) <= cycles_i;
-  ts_cycles_rint(31 downto 28) <= (others => '0');
 
   -- Process for write requests.
   process (wr_adr_d0, wr_req_d0, ctrl_wack) begin
@@ -228,7 +200,7 @@ begin
   end process;
 
   -- Process for read requests.
-  process (adr_int, rd_req_int, status_rint, ctrl_rint, ts_mask_sec_rint, ts_cycles_rint) begin
+  process (adr_int, rd_req_int, wr_enable_i, wr_link_i, wr_valid_i, ts_present_i, ch1_enable_reg, ch2_enable_reg, ch3_enable_reg, ch4_enable_reg, ext_enable_reg, ts_sec_i, ch1_mask_i, ch2_mask_i, ch3_mask_i, ch4_mask_i, ext_mask_i, cycles_i) begin
     -- By default ack read requests
     rd_dat_d0 <= (others => 'X');
     ts_cycles_rd_o <= '0';
@@ -238,11 +210,22 @@ begin
       when "0" => 
         -- Reg status
         rd_ack_d0 <= rd_req_int;
-        rd_dat_d0 <= status_rint;
+        rd_dat_d0(0) <= wr_enable_i;
+        rd_dat_d0(1) <= wr_link_i;
+        rd_dat_d0(2) <= wr_valid_i;
+        rd_dat_d0(7 downto 3) <= (others => '0');
+        rd_dat_d0(8) <= ts_present_i;
+        rd_dat_d0(31 downto 9) <= (others => '0');
       when "1" => 
         -- Reg ctrl
         rd_ack_d0 <= rd_req_int;
-        rd_dat_d0 <= ctrl_rint;
+        rd_dat_d0(0) <= ch1_enable_reg;
+        rd_dat_d0(1) <= ch2_enable_reg;
+        rd_dat_d0(2) <= ch3_enable_reg;
+        rd_dat_d0(3) <= ch4_enable_reg;
+        rd_dat_d0(7 downto 4) <= (others => '0');
+        rd_dat_d0(8) <= ext_enable_reg;
+        rd_dat_d0(31 downto 9) <= (others => '0');
       when others =>
         rd_ack_d0 <= rd_req_int;
       end case;
@@ -251,11 +234,19 @@ begin
       when "0" => 
         -- Reg ts_mask_sec
         rd_ack_d0 <= rd_req_int;
-        rd_dat_d0 <= ts_mask_sec_rint(63 downto 32);
+        rd_dat_d0(7 downto 0) <= ts_sec_i(39 downto 32);
+        rd_dat_d0(15 downto 8) <= (others => '0');
+        rd_dat_d0(16) <= ch1_mask_i;
+        rd_dat_d0(17) <= ch2_mask_i;
+        rd_dat_d0(18) <= ch3_mask_i;
+        rd_dat_d0(19) <= ch4_mask_i;
+        rd_dat_d0(23 downto 20) <= (others => '0');
+        rd_dat_d0(24) <= ext_mask_i;
+        rd_dat_d0(31 downto 25) <= (others => '0');
       when "1" => 
         -- Reg ts_mask_sec
         rd_ack_d0 <= rd_req_int;
-        rd_dat_d0 <= ts_mask_sec_rint(31 downto 0);
+        rd_dat_d0 <= ts_sec_i(31 downto 0);
       when others =>
         rd_ack_d0 <= rd_req_int;
       end case;
@@ -265,7 +256,8 @@ begin
         -- Reg ts_cycles
         ts_cycles_rd_o <= rd_req_int;
         rd_ack_d0 <= rd_req_int;
-        rd_dat_d0 <= ts_cycles_rint;
+        rd_dat_d0(27 downto 0) <= cycles_i;
+        rd_dat_d0(31 downto 28) <= (others => '0');
       when others =>
         rd_ack_d0 <= rd_req_int;
       end case;

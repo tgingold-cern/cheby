@@ -31,7 +31,6 @@ architecture syn of bugConstraintFields is
   signal r2_r2_reg                      : std_logic_vector(10 downto 0);
   signal r2_wreq                        : std_logic;
   signal r2_wack                        : std_logic;
-  signal r2_rint                        : std_logic_vector(31 downto 0);
   signal rd_ack_d0                      : std_logic;
   signal rd_dat_d0                      : std_logic_vector(31 downto 0);
   signal wr_req_d0                      : std_logic;
@@ -88,8 +87,6 @@ begin
       end if;
     end if;
   end process;
-  r2_rint(10 downto 0) <= r2_r2_reg;
-  r2_rint(31 downto 11) <= (others => '0');
 
   -- Process for write requests.
   process (wr_adr_d0, wr_req_d0, r1_wack, r2_wack) begin
@@ -110,7 +107,7 @@ begin
   end process;
 
   -- Process for read requests.
-  process (VMEAddr, VMERdMem, r1_reg, r2_rint) begin
+  process (VMEAddr, VMERdMem, r1_reg, r2_r2_reg) begin
     -- By default ack read requests
     rd_dat_d0 <= (others => 'X');
     case VMEAddr(2 downto 2) is
@@ -121,7 +118,8 @@ begin
     when "1" => 
       -- Reg r2
       rd_ack_d0 <= VMERdMem;
-      rd_dat_d0 <= r2_rint;
+      rd_dat_d0(10 downto 0) <= r2_r2_reg;
+      rd_dat_d0(31 downto 11) <= (others => '0');
     when others =>
       rd_ack_d0 <= VMERdMem;
     end case;

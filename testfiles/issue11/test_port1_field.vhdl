@@ -36,7 +36,6 @@ architecture syn of sreg is
   signal i1Thresholds_lowThreshold_reg  : std_logic_vector(15 downto 0);
   signal i1Thresholds_wreq              : std_logic;
   signal i1Thresholds_wack              : std_logic;
-  signal i1Thresholds_rint              : std_logic_vector(31 downto 0);
   signal rd_ack_d0                      : std_logic;
   signal rd_dat_d0                      : std_logic_vector(31 downto 0);
   signal wr_req_d0                      : std_logic;
@@ -107,8 +106,6 @@ begin
       end if;
     end if;
   end process;
-  i1Thresholds_rint(15 downto 0) <= i1Thresholds_lowThreshold_reg;
-  i1Thresholds_rint(31 downto 16) <= i1Thresholds_highThreshold_reg;
 
   -- Process for write requests.
   process (wr_req_d0, i1Thresholds_wack) begin
@@ -119,11 +116,12 @@ begin
   end process;
 
   -- Process for read requests.
-  process (rd_req_int, i1Thresholds_rint) begin
+  process (rd_req_int, i1Thresholds_lowThreshold_reg, i1Thresholds_highThreshold_reg) begin
     -- By default ack read requests
     rd_dat_d0 <= (others => 'X');
     -- Reg i1Thresholds
     rd_ack_d0 <= rd_req_int;
-    rd_dat_d0 <= i1Thresholds_rint;
+    rd_dat_d0(15 downto 0) <= i1Thresholds_lowThreshold_reg;
+    rd_dat_d0(31 downto 16) <= i1Thresholds_highThreshold_reg;
   end process;
 end syn;

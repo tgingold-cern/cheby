@@ -34,7 +34,6 @@ architecture syn of eda02175v2 is
   signal softReset_reset_reg            : std_logic;
   signal softReset_wreq                 : std_logic;
   signal softReset_wack                 : std_logic;
-  signal softReset_rint                 : std_logic_vector(15 downto 0);
   signal rd_ack_d0                      : std_logic;
   signal rd_dat_d0                      : std_logic_vector(15 downto 0);
   signal wr_req_d0                      : std_logic;
@@ -88,8 +87,6 @@ begin
       end if;
     end if;
   end process;
-  softReset_rint(0) <= softReset_reset_reg;
-  softReset_rint(15 downto 1) <= (others => '0');
 
   -- Process for write requests.
   process (wr_adr_d0, wr_req_d0, acqVP_VMEWrDone_i, softReset_wack) begin
@@ -115,7 +112,7 @@ begin
   end process;
 
   -- Process for read requests.
-  process (VMEAddr, VMERdMem, acqVP_VMERdData_i, acqVP_VMERdDone_i, softReset_rint) begin
+  process (VMEAddr, VMERdMem, acqVP_VMERdData_i, acqVP_VMERdDone_i, softReset_reset_reg) begin
     -- By default ack read requests
     rd_dat_d0 <= (others => 'X');
     acqVP_VMERdMem_o <= '0';
@@ -130,7 +127,8 @@ begin
       when "0000000000000000000" => 
         -- Reg softReset
         rd_ack_d0 <= VMERdMem;
-        rd_dat_d0 <= softReset_rint;
+        rd_dat_d0(0) <= softReset_reset_reg;
+        rd_dat_d0(15 downto 1) <= (others => '0');
       when others =>
         rd_ack_d0 <= VMERdMem;
       end case;

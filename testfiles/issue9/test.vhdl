@@ -59,11 +59,9 @@ architecture syn of test is
   signal register1_reg                  : std_logic_vector(31 downto 0);
   signal register1_wreq                 : std_logic;
   signal register1_wack                 : std_logic;
-  signal block1_register2_rint          : std_logic_vector(31 downto 0);
   signal block1_register3_reg           : std_logic_vector(31 downto 0);
   signal block1_register3_wreq          : std_logic;
   signal block1_register3_wack          : std_logic;
-  signal block1_block2_register4_rint   : std_logic_vector(31 downto 0);
   signal rd_ack_d0                      : std_logic;
   signal rd_dat_d0                      : std_logic_vector(31 downto 0);
   signal wr_req_d0                      : std_logic;
@@ -143,9 +141,6 @@ begin
   end process;
 
   -- Register block1_register2
-  block1_register2_rint(0) <= block1_register2_field1_i;
-  block1_register2_rint(3 downto 1) <= block1_register2_field2_i;
-  block1_register2_rint(31 downto 4) <= (others => '0');
 
   -- Register block1_register3
   block1_register3_o <= block1_register3_reg;
@@ -164,9 +159,6 @@ begin
   end process;
 
   -- Register block1_block2_register4
-  block1_block2_register4_rint(0) <= block1_block2_register4_field3_i;
-  block1_block2_register4_rint(3 downto 1) <= block1_block2_register4_field4_i;
-  block1_block2_register4_rint(31 downto 4) <= (others => '0');
 
   -- Process for write requests.
   process (wr_adr_d0, wr_req_d0, register1_wack, block1_register3_wack) begin
@@ -193,7 +185,7 @@ begin
   end process;
 
   -- Process for read requests.
-  process (araddr, rd_req, block1_register2_rint, block1_register3_reg, block1_block2_register4_rint) begin
+  process (araddr, rd_req, block1_register2_field1_i, block1_register2_field2_i, block1_register3_reg, block1_block2_register4_field3_i, block1_block2_register4_field4_i) begin
     -- By default ack read requests
     rd_dat_d0 <= (others => 'X');
     case araddr(4 downto 2) is
@@ -203,7 +195,9 @@ begin
     when "100" => 
       -- Reg block1_register2
       rd_ack_d0 <= rd_req;
-      rd_dat_d0 <= block1_register2_rint;
+      rd_dat_d0(0) <= block1_register2_field1_i;
+      rd_dat_d0(3 downto 1) <= block1_register2_field2_i;
+      rd_dat_d0(31 downto 4) <= (others => '0');
     when "101" => 
       -- Reg block1_register3
       rd_ack_d0 <= rd_req;
@@ -211,7 +205,9 @@ begin
     when "110" => 
       -- Reg block1_block2_register4
       rd_ack_d0 <= rd_req;
-      rd_dat_d0 <= block1_block2_register4_rint;
+      rd_dat_d0(0) <= block1_block2_register4_field3_i;
+      rd_dat_d0(3 downto 1) <= block1_block2_register4_field4_i;
+      rd_dat_d0(31 downto 4) <= (others => '0');
     when others =>
       rd_ack_d0 <= rd_req;
     end case;
