@@ -1,0 +1,55 @@
+memory-map:
+  bus: BUS
+  name: reg8orclr_NAME
+  description: Constants
+  children:
+  - reg:
+      name: reg1
+      width: 32
+      access: rw
+      x-hdl:
+        type: or-clr
+  - reg:
+     name: reg2
+     width: 32
+     access: rw
+     children:
+     - field:
+        name: f1
+        range: 0
+        preset: 1
+        x-hdl:
+          type: or-clr
+     - field:
+        name: f2
+        range: 17-16
+        preset: 3
+        x-hdl:
+          type: or-clr
+  - reg:
+     name: reg3
+     width: 64
+     access: rw
+     children:
+     - field:
+        name: f1
+        range: 0
+        preset: 1
+        x-hdl:
+          type: or-clr
+     - field:
+        name: f2
+        range: 23-20
+        x-hdl:
+          type: or-clr
+     - field:
+        name: f3
+        range: 39-24
+        x-hdl:
+          type: or-clr
+     - field:
+        name: f4
+        range: 63-60
+        preset: 10
+        x-hdl:
+          type: or-clr
