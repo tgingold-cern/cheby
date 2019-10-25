@@ -5,7 +5,7 @@ from cheby.hdl.globals import rst_sync
 from cheby.hdltree import (HDLAssign, HDLSync, HDLComment,
                            HDLIfElse,
                            bit_1, bit_0,
-                           HDLEq, HDLAnd,
+                           HDLEq, HDLAnd, HDLOr, HDLNot, HDLParen,
                            HDLSlice, HDLIndex, HDLReplicate, Slice_or_Index,
                            HDLConst)
 
@@ -86,7 +86,7 @@ class GenFieldBase(object):
         """Called once for wo/rw registers to connect outputs"""
         return
 
-    def assign_reg(self, stmts, off, ibus):
+    def assign_reg(self, then_stmts, else_stmts, off, ibus):
         """Called if need_reg() was true to connect the register."""
         return
 
@@ -103,9 +103,9 @@ class GenFieldReg(GenFieldBase):
     def connect_output(self, stmts, ibus):
         stmts.append(HDLAssign(self.field.h_oport, self.field.h_reg))
 
-    def assign_reg(self, stmts, off, ibus):
+    def assign_reg(self, then_stmts, else_stmts, off, ibus):
         reg, dat = self.extract_reg_dat(off, self.field.h_reg, ibus.wr_dat)
-        stmts.append(HDLAssign(reg, dat))
+        then_stmts.append(HDLAssign(reg, dat))
 
 class GenFieldWire(GenFieldBase):
     def need_iport(self):
@@ -143,12 +143,33 @@ class GenFieldAutoclear(GenFieldBase):
             dat = HDLAnd(self.extract_dat2(ibus.wr_dat, self.field.lo + lo - off, w), strobe)
             stmts.append(HDLAssign(self.extract_reg2(self.field.h_oport, lo, w), dat))
 
+
+class GenFieldOrClr(GenFieldBase):
+    def need_iport(self):
+        return True
+
+    def need_reg(self):
+        return True
+
+    def get_input(self, off):
+        return self.extract_reg(off, self.field.h_reg)
+
+    def assign_reg(self, then_stmts, else_stmts, off, ibus):
+        lo, w = self.extract_reg_bounds(off)
+        inp = self.extract_reg2(self.field.h_iport, lo, w)
+        reg = self.extract_reg2(self.field.h_reg, lo, w)
+        dat = self.extract_dat2(ibus.wr_dat, self.field.lo + lo - off, w)
+        then_stmts.append(HDLAssign(reg, HDLOr(inp, HDLParen(HDLAnd(reg, HDLNot(dat))))))
+        else_stmts.append(HDLAssign(reg, HDLOr(inp, reg)))
+
+
 class GenReg(ElGen):
     FIELD_GEN = {
         'reg': GenFieldReg,
         'wire': GenFieldWire,
         'const': GenFieldConst,
-        'autoclear': GenFieldAutoclear}
+        'autoclear': GenFieldAutoclear,
+        'or-clr': GenFieldOrClr}
 
     def field_decode(self, f, off, dat):
         """Handle multi-word accesses.  Slice (if needed) VAL and DAT for offset
@@ -340,10 +361,11 @@ class GenReg(ElGen):
                 for off in range(0, n.c_size, self.root.c_word_size):
                     off *= tree.BYTE_SIZE
                     wr_if = HDLIfElse(HDLEq(self.strobe_index(off, n.h_wreq), bit_1))
-                    wr_if.else_stmts = None
                     for f in n.children:
                         if f.h_reg is not None and off in f.h_gen.get_offset_range():
-                            f.h_gen.assign_reg(wr_if.then_stmts, off, ibus)
+                            f.h_gen.assign_reg(wr_if.then_stmts, wr_if.else_stmts, off, ibus)
+                    if len(wr_if.else_stmts) == 0:
+                        wr_if.else_stmts = None
                     ffproc.sync_stmts.append(wr_if)
 
                 # In case of regs, the strobe is delayed so that it appears at the same time as
