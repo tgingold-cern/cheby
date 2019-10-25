@@ -84,6 +84,8 @@ ordered fields (issue#41).
 
 Fix pipeline for null-address buses (issue#41)
 
+Support or-clr (aka 'srff' in Cheburashka) type.
+
 ## Version 1.3
 
 Add x-hdl:port to specify how ports are generated for registers (issue#11)

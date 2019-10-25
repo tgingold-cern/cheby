@@ -361,6 +361,10 @@ attribute.
 `autoclear`:: Only for outputs.  In case of a write from the bus, the value
 is set on the output ports for only one clock cycle and then cleared.
 
+`or-clr`:: A register is created, and the current value is or-ed with the
+input port.  The register is cleared on a write (when bits are 1).  This
+allows to capture events.
+
 Example of a register with two fields:
 
 [source]
