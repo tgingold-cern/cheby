@@ -16,16 +16,29 @@ class GenFieldBase(object):
         self.field = field
 
     def extract_reg_bounds(self, off):
+        """Return the (LO, W) bounds of the register for index :param off:.
+        For single word register, this function returns (0, W) where W is
+        the width of the register when :param off: is 0.
+        For multi word registers, it returns the bounds of the field that is
+        visible at word :param off: (in bits).  The field must be visible at
+        that offset.
+        Graphically, for words of 32 bits, and a field at range 39-16:
+            +--------+--------+--------+--------+
+            |63    56|55    48|47    40|39****32|  offset: 32
+            +--------+--------+--------+--------+
+            |31****24|23****16|15     8|7      0|  offset:  0
+            +--------+--------+--------+--------+
+         returns: (0, 16) when off = 0
+                  (16, 8) when off = 32
+        """
         f = self.field
         # Register and value bounds
         d_hi = f.lo + f.c_rwidth - 1
         v_lo = 0
         v_hi = f.c_rwidth - 1
-        # Return None if no part of the field is at OFF.
-        if d_hi < off:
-            return (None, None)
-        if f.lo >= off + self.root.c_word_bits:
-            return (None, None)
+        # Check register is at least partially at OFF.
+        assert d_hi >= off
+        assert f.lo < off + self.root.c_word_bits
         if f.lo < off:
             # Strip the part below OFF.
             v_lo += off - f.lo
