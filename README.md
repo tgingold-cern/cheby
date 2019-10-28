@@ -86,6 +86,8 @@ Fix pipeline for null-address buses (issue#41)
 
 Support or-clr (aka 'srff' in Cheburashka) type.
 
+Fix crash while generating hdl for a single register with cernbus (issue#45)
+
 ## Version 1.3
 
 Add x-hdl:port to specify how ports are generated for registers (issue#11)
