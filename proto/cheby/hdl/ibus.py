@@ -86,5 +86,6 @@ class Ibus(object):
 def add_bus(root, module, bus):
     root.h_bus = {}
     for n, h in bus:
-        module.ports.append(h)
+        if h is not None:
+            module.ports.append(h)
         root.h_bus[n] = h
