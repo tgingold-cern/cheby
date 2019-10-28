@@ -42,7 +42,7 @@ def add_block_decoder(root, stmts, addr, children, hi, func, off):
         # If there is only one child, no need to decode anymore.
         el = children[0]
         if isinstance(el, tree.Reg):
-            if hi == 0 or hi == root.c_addr_word_bits:
+            if hi <= root.c_addr_word_bits:
                 foff = off & (el.c_size - 1)
                 if root.c_word_endian == 'big':
                     # Big endian
