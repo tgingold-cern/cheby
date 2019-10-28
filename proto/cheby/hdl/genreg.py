@@ -146,6 +146,11 @@ class GenFieldAutoclear(GenFieldBase):
     def need_oport(self):
         return True
 
+    def get_input(self, off):
+        # In case the field appear within an rw register.
+        _, w = self.extract_reg_bounds(off)
+        return HDLConst(0, w if w != 1 else None)
+
     def connect_output(self, stmts, ibus):
         # Handle wire fields: create connections between the bus and the outputs.
         for off in self.get_offset_range():
