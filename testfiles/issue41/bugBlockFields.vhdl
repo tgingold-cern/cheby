@@ -6,7 +6,6 @@ entity bugBlockRegField is
   port (
     Clk                  : in    std_logic;
     Rst                  : in    std_logic;
-    VMEAddr              : in    std_logic_vector(1 downto 2);
     VMERdData            : out   std_logic_vector(31 downto 0);
     VMEWrData            : in    std_logic_vector(31 downto 0);
     VMERdMem             : in    std_logic;
