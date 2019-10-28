@@ -266,7 +266,7 @@ def test_hdl_ref():
               'issue39/addressingMemory',
               'issue40/bugConstraints',
               'issue41/bugBlockFields',
-              'issue45/test8',
+              'issue45/test8', 'issue45/test16',
               'wires1', 'semver1', 'semver2']:
         if verbose:
             print('test hdl with ref: {}'.format(f))
