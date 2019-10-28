@@ -171,9 +171,15 @@ begin
       when "0" => 
         -- Reg reg3
         rd_ack_d0 <= rd_req_int;
+        rd_dat_d0(27 downto 0) <= (others => '0');
+        rd_dat_d0(31 downto 28) <= "0000";
       when "1" => 
         -- Reg reg3
         rd_ack_d0 <= rd_req_int;
+        rd_dat_d0(0) <= '0';
+        rd_dat_d0(19 downto 1) <= (others => '0');
+        rd_dat_d0(23 downto 20) <= "0000";
+        rd_dat_d0(31 downto 24) <= (others => '0');
       when others =>
         rd_ack_d0 <= rd_req_int;
       end case;

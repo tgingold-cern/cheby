@@ -28,7 +28,7 @@ memory-map:
   - reg:
      name: reg3
      width: 64
-     access: wo
+     access: rw
      children:
      - field:
         name: f1
