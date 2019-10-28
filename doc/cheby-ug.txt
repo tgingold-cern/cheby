@@ -363,7 +363,9 @@ is set on the output ports for only one clock cycle and then cleared.
 
 `or-clr`:: A register is created, and the current value is or-ed with the
 input port.  The register is cleared on a write (when bits are 1).  This
-allows to capture events.
+allows to capture events.  Software developers should be careful when using
+these registers: they should only clear bits that were read as 1; otherwise
+they could miss events.
 
 Example of a register with two fields:
 
