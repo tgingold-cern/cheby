@@ -166,8 +166,8 @@ def test_layout():
 def test_print():
     global nbr_tests
     fd = write_null()
-    for f in ['demo.yaml', 'reg_value1.yaml', 'reg_value2.yaml',
-              'reg_value3.yaml', 'demo_all.cheby', 'semver1.cheby']:
+    for f in ['demo.yaml', 'reg_value1.cheby', 'reg_value2.cheby',
+              'reg_value3.cheby', 'demo_all.cheby', 'semver1.cheby']:
         t = parse_ok(srcdir + f)
         layout_ok(t)
         pprint.pprint_cheby(fd, t)
@@ -207,24 +207,24 @@ def compare_buffer_and_file(buf, filename):
 def test_hdl():
     global nbr_tests
     fd = write_null()
-    for f in ['simple_reg3.yaml', 'simple_reg4_ro.yaml',
-              'reg_value1.yaml', 'reg_value2.yaml', 'reg_value3.yaml',
-              'field_value1.yaml', 'field_value2.yaml',
-              'wb_slave_vic.cheby',
-              '../examples/svec-leds/leds.cheby',
-              'inter-mt/mt_cpu_xb.cheby',
-              'inter-mt/mt_cpu_xb-include.cheby',
-              'inter-mt/mt_cpu_xb-extern.cheby',
-              'inter-mt/mt_cpu_xb-busgroup.cheby',
-              'inter-mt/mt_cpu_xb-busgroup2.cheby',
-              'inter-mt/mt_cpu_lr-busgroup.cheby',
-              'demo_all.cheby', 'big_addr.cheby', 'issue24/map_arrays.cheby',
-              'cern_info.cheby', 'issue22/map_ro.cheby', 'issue22/map_rw.cheby',
-              'demo_all_old.cheby',
-              'access/const_ro.cheby', 'access/const_rw.cheby']:
+    for f in ['simple_reg3', 'simple_reg4_ro',
+              'reg_value1', 'reg_value2', 'reg_value3',
+              'field_value1', 'field_value2',
+              'wb_slave_vic',
+              '../examples/svec-leds/leds',
+              'inter-mt/mt_cpu_xb',
+              'inter-mt/mt_cpu_xb-include',
+              'inter-mt/mt_cpu_xb-extern',
+              'inter-mt/mt_cpu_xb-busgroup',
+              'inter-mt/mt_cpu_xb-busgroup2',
+              'inter-mt/mt_cpu_lr-busgroup',
+              'demo_all', 'big_addr', 'issue24/map_arrays',
+              'cern_info', 'issue22/map_ro', 'issue22/map_rw',
+              'demo_all_old',
+              'access/const_ro', 'access/const_rw']:
         if verbose:
             print('test hdl: {}'.format(f))
-        t = parse_ok(srcdir + f)
+        t = parse_ok(srcdir + f + '.cheby')
         layout_ok(t)
         expand_hdl.expand_hdl(t)
         gen_name.gen_name_root(t)
