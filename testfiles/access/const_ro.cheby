@@ -1,0 +1,12 @@
+memory-map:
+  bus: wb-32-be
+  name: const_ok
+  description: a single register
+  children:
+    - reg:
+        name: breg
+        width: 32
+        access: ro
+        preset: 0x123
+        x-hdl:
+          type: const

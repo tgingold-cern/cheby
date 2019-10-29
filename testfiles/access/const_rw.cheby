@@ -1,0 +1,12 @@
+memory-map:
+  bus: wb-32-be
+  name: const_ok
+  description: a single register
+  children:
+    - reg:
+        name: areg
+        width: 32
+        access: rw
+        preset: 400
+        x-hdl:
+          type: const

@@ -220,7 +220,8 @@ def test_hdl():
               'inter-mt/mt_cpu_lr-busgroup.cheby',
               'demo_all.cheby', 'big_addr.cheby', 'issue24/map_arrays.cheby',
               'cern_info.cheby', 'issue22/map_ro.cheby', 'issue22/map_rw.cheby',
-              'demo_all_old.cheby']:
+              'demo_all_old.cheby',
+              'access/const_ro.cheby', 'access/const_rw.cheby']:
         if verbose:
             print('test hdl: {}'.format(f))
         t = parse_ok(srcdir + f)
@@ -242,7 +243,8 @@ def expand_hdl_err(t):
 
 def test_hdl_err():
     global nbr_tests
-    for f in ['issue11/test_port1_err1', 'issue11/test_port_err2']:
+    for f in ['issue11/test_port1_err1', 'issue11/test_port_err2',
+              'access/const_err_wo', 'access/const_err_nopreset']:
         if verbose:
             print('test hdl error: {}'.format(f))
         t = parse_ok(srcdir + f + '.cheby')
