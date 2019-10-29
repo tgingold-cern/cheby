@@ -221,7 +221,9 @@ def test_hdl():
               'demo_all', 'big_addr', 'issue24/map_arrays',
               'cern_info', 'issue22/map_ro', 'issue22/map_rw',
               'demo_all_old',
-              'access/const_ro', 'access/const_rw']:
+              'access/const_ro', 'access/const_rw',
+              'access/autoclear_rw', 'access/autoclear_wo',
+              'access/orclr_rw']:
         if verbose:
             print('test hdl: {}'.format(f))
         t = parse_ok(srcdir + f + '.cheby')
@@ -244,7 +246,9 @@ def expand_hdl_err(t):
 def test_hdl_err():
     global nbr_tests
     for f in ['issue11/test_port1_err1', 'issue11/test_port_err2',
-              'access/const_err_wo', 'access/const_err_nopreset']:
+              'access/const_err_wo', 'access/const_err_nopreset',
+              'access/autoclear_err_ro',
+              'access/orclr_err_ro', 'access/orclr_err_wo']:
         if verbose:
             print('test hdl error: {}'.format(f))
         t = parse_ok(srcdir + f + '.cheby')

@@ -1,0 +1,11 @@
+memory-map:
+  bus: wb-32-be
+  name: autoclear_wo
+  description: a single register
+  children:
+    - reg:
+        name: breg
+        width: 32
+        access: wo
+        x-hdl:
+          type: autoclear

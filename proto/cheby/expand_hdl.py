@@ -73,6 +73,15 @@ def expand_x_hdl_field_validate(f):
             # Check c_preset as preset may be set on the reg (when there is no field)
             parser.error("{}: 'const' x-hdl.type requires a 'preset' value".format(
                 f.get_path()))
+    if f.hdl_type == 'autoclear':
+        if f._parent.access == 'ro':
+            parser.error("{}: 'autoclear' x-hdl.type not allowed for 'ro' access".format(
+                f.get_path()))
+    if f.hdl_type == 'or-clr':
+        if f._parent.access != 'rw':
+            parser.error("{}: 'or-clr' x-hdl.type requires 'rw' access".format(
+                f.get_path()))
+        
 
 def expand_x_hdl_field(f, n, dct):
     "Decode all x-hdl attributes for a field"
