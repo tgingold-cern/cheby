@@ -42,7 +42,10 @@ def expand_x_hdl_reg(n, dct):
             parser.error("unhandled '{}' in x-hdl of reg {}".format(
                          k, n.get_path()))
 
+    if not n.has_fields():
+        expand_x_hdl_field_validate(n.children[0])
 
+    
 def init_x_hdl_field(f):
     "Set default values for x-hdl attributes of a field"
     f.hdl_type = 'wire' if f._parent.access == 'ro' else 'reg'
@@ -56,13 +59,20 @@ def expand_x_hdl_field_kv(f, n, k, v):
         if f.hdl_type not in ['wire', 'reg', 'const', 'autoclear', 'or-clr']:
             parser.error("incorrect value for 'type' in x-hdl of {}".format(
                 n.get_path()))
-        elif f.hdl_type == 'const' and n.access != 'ro':
-            parser.error("'const' x-hdl.type only allowed for 'ro' access for {}".format(
-                n.get_path()))
     else:
         parser.error("unhandled '{}' in x-hdl of field {}".format(
             k, n.get_path()))
 
+def expand_x_hdl_field_validate(f):
+    # Validate x-hdl attributes
+    if f.hdl_type == 'const':
+        if f._parent.access == 'wo':
+            parser.error("{}: 'const' x-hdl.type not allowed for 'wo' access".format(
+                f.get_path()))
+        if f.c_preset is None:
+            # Check c_preset as preset may be set on the reg (when there is no field)
+            parser.error("{}: 'const' x-hdl.type requires a 'preset' value".format(
+                f.get_path()))
 
 def expand_x_hdl_field(f, n, dct):
     "Decode all x-hdl attributes for a field"
@@ -70,7 +80,8 @@ def expand_x_hdl_field(f, n, dct):
 
     for k, v in dct.items():
         expand_x_hdl_field_kv(f, n, k, v)
-
+    
+    expand_x_hdl_field_validate(f)
 
 def expand_pipeline(n, v):
     s = parser.read_text(n, 'pipeline', v)
