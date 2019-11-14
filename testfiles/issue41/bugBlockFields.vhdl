@@ -23,6 +23,7 @@ entity bugBlockRegField is
 end bugBlockRegField;
 
 architecture syn of bugBlockRegField is
+  signal rst_n                          : std_logic;
   signal rd_ack_int                     : std_logic;
   signal wr_ack_int                     : std_logic;
   signal b1_r1_f1_reg                   : std_logic;
@@ -37,13 +38,14 @@ architecture syn of bugBlockRegField is
   signal wr_req_d0                      : std_logic;
   signal wr_dat_d0                      : std_logic_vector(31 downto 0);
 begin
+  rst_n <= not Rst;
   VMERdDone <= rd_ack_int;
   VMEWrDone <= wr_ack_int;
 
   -- pipelining for wr-in+rd-out
   process (Clk) begin
     if rising_edge(Clk) then
-      if Rst = '0' then
+      if rst_n = '0' then
         rd_ack_int <= '0';
         wr_req_d0 <= '0';
       else
@@ -63,7 +65,7 @@ begin
   b1_r1_f5_o <= b1_r1_f5_reg;
   process (Clk) begin
     if rising_edge(Clk) then
-      if Rst = '0' then
+      if rst_n = '0' then
         b1_r1_f1_reg <= '0';
         b1_r1_f2_reg <= "0000000000";
         b1_r1_f3_reg <= '0';

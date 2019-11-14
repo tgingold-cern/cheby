@@ -23,6 +23,7 @@ entity bugConstraintFields is
 end bugConstraintFields;
 
 architecture syn of bugConstraintFields is
+  signal rst_n                          : std_logic;
   signal rd_ack_int                     : std_logic;
   signal wr_ack_int                     : std_logic;
   signal r1_reg                         : std_logic_vector(31 downto 0);
@@ -37,13 +38,14 @@ architecture syn of bugConstraintFields is
   signal wr_adr_d0                      : std_logic_vector(2 downto 2);
   signal wr_dat_d0                      : std_logic_vector(31 downto 0);
 begin
+  rst_n <= not Rst;
   VMERdDone <= rd_ack_int;
   VMEWrDone <= wr_ack_int;
 
   -- pipelining for wr-in+rd-out
   process (Clk) begin
     if rising_edge(Clk) then
-      if Rst = '0' then
+      if rst_n = '0' then
         rd_ack_int <= '0';
         wr_req_d0 <= '0';
       else
@@ -60,7 +62,7 @@ begin
   r1_o <= r1_reg;
   process (Clk) begin
     if rising_edge(Clk) then
-      if Rst = '0' then
+      if rst_n = '0' then
         r1_reg <= "00000000000000000000000000000000";
         r1_wack <= '0';
       else
@@ -76,7 +78,7 @@ begin
   r2_r2_o <= r2_r2_reg;
   process (Clk) begin
     if rising_edge(Clk) then
-      if Rst = '0' then
+      if rst_n = '0' then
         r2_r2_reg <= "00000000000";
         r2_wack <= '0';
       else

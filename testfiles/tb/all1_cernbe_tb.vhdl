@@ -11,6 +11,7 @@ use work.cernbe_tb_pkg.all;
 
 architecture behav of all1_cernbe_tb is
   signal rst_n   : std_logic;
+  signal rst     : std_logic;
   signal clk     : std_logic;
   signal bus_in   : t_cernbe_master_in;
   signal bus_out  : t_cernbe_master_out;
@@ -54,11 +55,12 @@ begin
   end process;
 
   rst_n <= '0' after 0 ns, '1' after 20 ns;
+  rst <= not rst_n;
 
   dut : entity work.all1_cernbe
     port map (
       Clk       => clk,
-      Rst       => rst_n,
+      Rst       => rst,
       VMEAddr   => bus_out.VMEAddr(13 downto 2),
       VMERdData => bus_in.VMERdData,
       VMEWRData => bus_out.VMEWrData,

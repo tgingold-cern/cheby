@@ -23,6 +23,7 @@ entity mainMap is
 end mainMap;
 
 architecture syn of mainMap is
+  signal rst_n                          : std_logic;
   signal rd_ack_int                     : std_logic;
   signal wr_ack_int                     : std_logic;
   signal acqVP_value_int_bwsel          : std_logic_vector(1 downto 0);
@@ -39,13 +40,14 @@ architecture syn of mainMap is
   signal wr_adr_d0                      : std_logic_vector(19 downto 2);
   signal wr_dat_d0                      : std_logic_vector(31 downto 0);
 begin
+  rst_n <= not Rst;
   VMERdDone <= rd_ack_int;
   VMEWrDone <= wr_ack_int;
 
   -- pipelining for wr-in+rd-out
   process (Clk) begin
     if rising_edge(Clk) then
-      if Rst = '0' then
+      if rst_n = '0' then
         rd_ack_int <= '0';
         wr_req_d0 <= '0';
       else
@@ -86,7 +88,7 @@ begin
   
   process (Clk) begin
     if rising_edge(Clk) then
-      if Rst = '0' then
+      if rst_n = '0' then
         acqVP_value_rack <= '0';
       else
         acqVP_value_rack <= acqVP_value_rreq;

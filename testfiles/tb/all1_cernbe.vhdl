@@ -86,6 +86,7 @@ entity all1_cernbe is
 end all1_cernbe;
 
 architecture syn of all1_cernbe is
+  signal rst_n                          : std_logic;
   signal rd_ack_int                     : std_logic;
   signal wr_ack_int                     : std_logic;
   signal reg1_reg                       : std_logic_vector(31 downto 0);
@@ -130,13 +131,14 @@ architecture syn of all1_cernbe is
   signal wr_dat_d0                      : std_logic_vector(31 downto 0);
   signal wr_ack_d0                      : std_logic;
 begin
+  rst_n <= not Rst;
   VMERdDone <= rd_ack_int;
   VMEWrDone <= wr_ack_int;
 
   -- pipelining for rd-in+rd-out+wr-in+wr-out
   process (Clk) begin
     if rising_edge(Clk) then
-      if Rst = '0' then
+      if rst_n = '0' then
         rd_req_d0 <= '0';
         rd_ack_int <= '0';
         wr_req_d0 <= '0';
@@ -157,7 +159,7 @@ begin
   reg1_o <= reg1_reg;
   process (Clk) begin
     if rising_edge(Clk) then
-      if Rst = '0' then
+      if rst_n = '0' then
         reg1_reg <= "00010010001101000000000000000000";
         reg1_wack <= '0';
       else
@@ -173,7 +175,7 @@ begin
   reg2_o <= reg2_reg;
   process (Clk) begin
     if rising_edge(Clk) then
-      if Rst = '0' then
+      if rst_n = '0' then
         reg2_reg <= "00010010001101000000000000000010";
         reg2_wack <= '0';
       else
@@ -213,7 +215,7 @@ begin
   
   process (Clk) begin
     if rising_edge(Clk) then
-      if Rst = '0' then
+      if rst_n = '0' then
         ram1_val_rack <= '0';
       else
         ram1_val_rack <= ram1_val_rreq;
@@ -251,7 +253,7 @@ begin
   
   process (Clk) begin
     if rising_edge(Clk) then
-      if Rst = '0' then
+      if rst_n = '0' then
         ram_ro_val_rack <= '0';
       else
         ram_ro_val_rack <= ram_ro_val_rreq;
@@ -266,7 +268,7 @@ begin
   -- Interface ram2
   process (Clk) begin
     if rising_edge(Clk) then
-      if Rst = '0' then
+      if rst_n = '0' then
         ram2_rack <= '0';
       else
         ram2_rack <= ram2_re and not ram2_rack;
@@ -280,7 +282,7 @@ begin
   sub1_wb_tr <= sub1_wb_wt or sub1_wb_rt;
   process (Clk) begin
     if rising_edge(Clk) then
-      if Rst = '0' then
+      if rst_n = '0' then
         sub1_wb_rt <= '0';
         sub1_wb_wt <= '0';
       else
@@ -312,7 +314,7 @@ begin
   sub2_axi4_rready_o <= '1';
   process (Clk) begin
     if rising_edge(Clk) then
-      if Rst = '0' then
+      if rst_n = '0' then
         sub2_axi4_aw_val <= '0';
         sub2_axi4_w_val <= '0';
       else

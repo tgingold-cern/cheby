@@ -41,6 +41,7 @@ entity mainMap2 is
 end mainMap2;
 
 architecture syn of mainMap2 is
+  signal rst_n                          : std_logic;
   signal rd_ack_int                     : std_logic;
   signal wr_ack_int                     : std_logic;
   signal rd_ack_d0                      : std_logic;
@@ -53,13 +54,14 @@ architecture syn of mainMap2 is
   signal subMap2_ws                     : std_logic;
   signal subMap2_wt                     : std_logic;
 begin
+  rst_n <= not Rst;
   VMERdDone <= rd_ack_int;
   VMEWrDone <= wr_ack_int;
 
   -- pipelining for wr-in+rd-out
   process (Clk) begin
     if rising_edge(Clk) then
-      if Rst = '0' then
+      if rst_n = '0' then
         rd_ack_int <= '0';
         wr_req_d0 <= '0';
       else

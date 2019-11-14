@@ -29,6 +29,7 @@ entity eda02175v2 is
 end eda02175v2;
 
 architecture syn of eda02175v2 is
+  signal rst_n                          : std_logic;
   signal rd_ack_int                     : std_logic;
   signal wr_ack_int                     : std_logic;
   signal softReset_reset_reg            : std_logic;
@@ -42,13 +43,14 @@ architecture syn of eda02175v2 is
   signal acqVP_ws                       : std_logic;
   signal acqVP_wt                       : std_logic;
 begin
+  rst_n <= not Rst;
   VMERdDone <= rd_ack_int;
   VMEWrDone <= wr_ack_int;
 
   -- pipelining for wr-in+rd-out
   process (Clk) begin
     if rising_edge(Clk) then
-      if Rst = '0' then
+      if rst_n = '0' then
         rd_ack_int <= '0';
         wr_req_d0 <= '0';
       else
@@ -76,7 +78,7 @@ begin
   softReset_reset_o <= softReset_reset_reg;
   process (Clk) begin
     if rising_edge(Clk) then
-      if Rst = '0' then
+      if rst_n = '0' then
         softReset_reset_reg <= '0';
         softReset_wack <= '0';
       else
