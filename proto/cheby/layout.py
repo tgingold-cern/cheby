@@ -140,6 +140,15 @@ def layout_field(f, parent, pos):
         f.c_preset = f.preset
     else:
         f.c_preset = None
+    # Check type
+    if f.type is None:
+        f.c_type = parent.c_type
+    else:
+        if f.type not in ('signed', 'unsigned'):
+            raise LayoutException(
+                f, "type of field {} must be either 'signed' or 'unsigned'".format(
+                    f.get_path()))
+        f.c_type = f.type
 
 
 @Layout.register(tree.Reg)
@@ -211,11 +220,14 @@ def layout_reg(lo, n):
         n.c_align = lo.word_size
     names = set()
     if n.children:
-        if n.type is not None:
-            raise LayoutException(
-                n, "register {} with both a type and fields".format(
-                    n.get_path()))
-        n.c_type = None
+        if n.type is None:
+            n.c_type = 'unsigned'
+        else:
+            if n.type not in ('signed', 'unsigned'):
+                raise LayoutException(
+                    n, "type register {} with fields must be either 'signed' or 'unsigned'".format(
+                        n.get_path()))
+            n.c_type = n.type
         pos = [None] * n.width
         for f in n.children:
             if f.name in names:

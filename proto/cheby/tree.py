@@ -184,6 +184,8 @@ class FieldBase(NamedNode):
         self.hi = None
         self.lo = None
         self.preset = None
+        self.type = None
+        self.c_type = None
 
 
 class Field(FieldBase):

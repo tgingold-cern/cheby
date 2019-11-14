@@ -156,6 +156,8 @@ def parse_field(parent, el):
                 res.hi = int(v[0:pos], 0)
         elif k == 'preset':
             res.preset = read_int(res, k, v)
+        elif k == 'type':
+            res.type = read_text(res, k, v)
         else:
             error("unhandled '{}' in field {}".format(k, parent.get_path()))
     return res
