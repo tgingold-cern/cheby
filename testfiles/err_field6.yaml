@@ -7,7 +7,7 @@ memory-map:
         name: areg
         access: rw
         width: 32
-        type: signed   # type and field
+        type: float   # non-integral type
         children:
           - field:
               name: afield1
