@@ -67,6 +67,14 @@ class CERNBEBus(BusGen):
             self.split, self.buserr, False))
         add_bus(root, module, bus)
         root.h_bussplit = self.split
+
+        # The reset port Rst is active high, while internally we use an active low reset.
+        # Kludge: not reverted for gen_gena_regctrl...
+        if ibus is not None:
+            rstn = module.new_HDLSignal('rst_n')
+            module.stmts.append(HDLAssign(rstn, HDLNot(root.h_bus['rst'])))
+            root.h_bus['rst'] = rstn
+
         if ibus is not None:
             ibus.addr_size = root.c_addr_bits
             ibus.addr_low = root.c_addr_word_bits
