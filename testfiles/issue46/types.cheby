@@ -1,0 +1,34 @@
+memory-map:
+  bus: wb-32-be
+  name: types
+  description: set type on fields
+  children:
+    - reg:
+        name: reg0
+        description: a normal reg with some fields
+        width: 32
+        access: rw
+        type: signed
+        children:
+          - field:
+              name: field00
+              description: 1-bit field
+              type: unsigned
+              range: 1
+          - field:
+              name: field01
+              description: multi bit field
+              type: signed
+              range: 7-4
+          - field:
+              name: field02
+              description: a field with a preset value
+              range: 10-8
+              preset: 2
+    - reg:
+        name: reg1
+        description: a reg without fields
+        width: 32
+        access: rw
+        type: unsigned
+        preset: 0x123
