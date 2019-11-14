@@ -88,6 +88,9 @@ Support or-clr (aka 'srff' in Cheburashka) type.
 
 Fix crash while generating hdl for a single register with cernbus (issue#45)
 
+Correctly handle Rst polarity of CERN-BE bus (issue#47).
+IMPORTANT: this is incompatible with previous Cheby behaviour.
+
 ## Version 1.3
 
 Add x-hdl:port to specify how ports are generated for registers (issue#11)
