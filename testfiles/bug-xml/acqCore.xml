@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type="text/xsl" href="http://abwww.cern.ch/ap/deployments/applications/cern/accsoft/rf/accsoft-rf-cheburashka/PRO/source/src/java/cern/accsoft/rf/cheburashka/xml/schema/MemMapStyleSheet.xsl"?><memory-map xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" area-depth="1k" description="Acquisition IP core memory map" equipment-code="SP-ALCCA" ident-code="0xff" map-version="20191120" mem-map-access-mode="A32/D32" name="acqCore" semantic-mem-map-version="0.0.1" xsi:schemaLocation="http://abwww.cern.ch/ap/deployments/applications/cern/accsoft/rf/accsoft-rf-cheburashka/PRO/source/src/java/cern/accsoft/rf/cheburashka/xml/schema/TemplateMemMap.xsd">
+  <submap address="0x000000" filename="ipInfo.xml" gen="include=int" name="ipInfo"/>
+  <register-data access-mode="rw" address="next" bit-encoding="unsigned" code-generation-rule="HW,Fesa" comment="Multiplexed by functSel register value" description="Control" element-width="32" name="control" persistence="Fesa">
+    <bit-field-data autoclear="true" bit="0" description="IP core software reset" name="softReset"/>
+    <bit-field-data autoclear="true" bit="1" comment="not implemented yet" description="Clear fault flags" name="clrFaults"/>
+    <bit-field-data bit="2" description="Enable the debug mode, acquisition of a known pattern" name="debugMode"/>
+    <bit-field-data autoclear="true" bit="3" description="software general start trigger" name="softStart"/>
+    <bit-field-data autoclear="true" bit="4" description="software general stop trigger" name="softStop"/>
+    <bit-field-data autoclear="false" bit="5" description="selection of the memory base address" name="bufferAddrSel"/>
+  </register-data>
+  <register-data access-mode="r" address="next" bit-encoding="unsigned" code-generation-rule="HW,Fesa" description="Start address of the buffer 0 where the acquisition data are stored" element-width="32" gen="write-strobe" name="bufferStartAddress0" persistence="Fesa" unit="bytes"/>
+  <register-data access-mode="r" address="next" bit-encoding="unsigned" code-generation-rule="HW,Fesa" description="Start address of the buffer 1 where the acquisition data are stored" element-width="32" gen="write-strobe" name="bufferStartAddress1" persistence="Fesa" unit="bytes"/>
+  <register-data access-mode="r" address="next" bit-encoding="unsigned" code-generation-rule="HW,Fesa" description="buffer size for each channel" element-width="32" name="bufferSize" persistence="Fesa" unit="samples [32bit word]"/>
+  <register-data access-mode="rw" address="next" bit-encoding="unsigned" code-generation-rule="HW,Fesa" description="buffer selection and channel selection" element-width="32" name="acqBufSel" persistence="PPM">
+    <sub-reg description="Selector of multiplexed channel:  0 to 31" name="bufferSelect" range="15-0"/>
+    <sub-reg description="Selector of multiplexed channel:  0 to 11" name="channelSelect" range="31-16"/>
+  </register-data>
+  <register-data access-mode="rw" address="next" code-generation-rule="HW,Fesa" comment="Multiplexed by acqChanSel register value" comment-encoding="PlainText" description="Acquisition control" element-width="32" gen="write-strobe, read-strobe, ext-creg" name="acqControl" persistence="PPM">
+    <bit-field-data bit="0" description="Enable the channel" name="enable"/>
+    <bit-field-data autoclear="true" bit="1" description="Software manual start trigger" name="softStartTrig"/>
+    <bit-field-data autoclear="true" bit="2" description="Software manual stop trigger" name="softStopTrig"/>
+    <sub-reg description="select the decimation mode (only if acqDSP block is instantiated)" name="decimation" range="5-3">
+      <code-field code="0" description="no decimation" name="noDecimation"/>
+      <code-field code="1" description="peak detection mode" name="peakDetection"/>
+      <code-field code="2" description="horizontal decimation" name="horizDecimation"/>
+      <code-field code="3" description="vertical decimation without horizontal decimation" name="vertDecimation"/>
+      <code-field code="4" description="vertical decimation with horizontal decimation" name="vertDecimationWithHoriz"/>
+    </sub-reg>
+  </register-data>
+  <register-data access-mode="r" address="next" code-generation-rule="HW,Fesa" comment="Multiplexed by acqChanSel register value" comment-encoding="PlainText" description="Acquisition status" element-width="32" gen="write-strobe, read-strobe, ext-creg" name="acqStatus" persistence="PPM">
+    <bit-field-data bit="31" description="Buffer selected is enabled" name="enabled"/>
+    <bit-field-data bit="30" description="Channel selected is frozen and ready to be read out" name="available"/>
+    <bit-field-data bit="29" description="Channel has wrapped around the end of the memory" name="complete"/>
+    <sub-reg description="acqDSP instantation configuration" name="mode" range="1-0">
+      <code-field code="0" description="no acqDSP block is present" name="noAcqDSP"/>
+      <code-field code="1" description="acqDSP is present without vertical decimation" name="acqDSP"/>
+      <code-field code="2" description="acqDSP is present with vertical decimation" name="acqDSPWithVert"/>
+    </sub-reg>
+    <sub-reg description="Data format" name="format" range="3-2">
+      <code-field code="0" description="signed" name="signedFormat"/>
+      <code-field code="1" comment="" description="unsigned" name="unsignedFormat"/>
+      <code-field code="2" description="float" name="floatFormat"/>
+    </sub-reg>
+    <bit-field-data bit="28" description="The channel is acquiring data" name="busy"/>
+    <bit-field-data bit="27" description="FIFO empty status bit" name="empty"/>
+    <bit-field-data bit="26" name="fifoFullError"/>
+  </register-data>
+  <register-data access-mode="rw" address="next" code-generation-rule="HW,Fesa" comment="Multiplexed by acqChanSel register value" comment-encoding="PlainText" description="Acquisition length in samples" element-width="32" gen="write-strobe, read-strobe, ext-creg" name="acqLength" persistence="PPM" unit="samples"/>
+  <register-data access-mode="r" address="next" code-generation-rule="HW,Fesa" comment="Multiplexed by acqChanSel register value" comment-encoding="PlainText" description="Acquisition freeze address" element-width="32" gen="write-strobe, read-strobe, ext-creg" name="acqFrzAddr" persistence="PPM" unit="bytes"/>
+  <register-data access-mode="rw" address="next" code-generation-rule="HW,Fesa" comment="Multiplexed by acqChanSel register value" comment-encoding="PlainText" description="acquisition rate for horizontal decimation " element-width="32" gen="write-strobe, read-strobe, ext-creg" name="acqRateH1" persistence="PPM">
+    <sub-reg description="multiplier for CIC filter output rescaling" name="horizScaleMult" range="15-0"/>
+  </register-data>
+  <register-data access-mode="rw" address="next" code-generation-rule="HW,Fesa" comment="Multiplexed by acqChanSel register value" comment-encoding="PlainText" description="acquisition rate for horizontal decimation " element-width="32" gen="write-strobe, read-strobe, ext-creg" name="acqRateH2" persistence="PPM">
+    <sub-reg description="divisor for CIC filter output rescaling" name="horizScaleDiv" range="31-24"/>
+    <sub-reg description="horizontal decimation rate" name="horizRate" range="23-0"/>
+  </register-data>
+  <register-data access-mode="rw" address="next" code-generation-rule="HW,Fesa" comment="Multiplexed by acqChanSel register value" comment-encoding="PlainText" description="acquisition rate for vertical decimation " element-width="32" gen="write-strobe, read-strobe, ext-creg" max-val="1024" min-val="2" name="acqRateV" persistence="PPM">
+    <sub-reg description="vertical decimation rate" name="vertRate" range="10-0"/>
+  </register-data>
+</memory-map>

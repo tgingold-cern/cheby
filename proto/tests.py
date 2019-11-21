@@ -447,7 +447,7 @@ def test_gena2cheby_regressions():
     global nbr_tests
     files = ['issue7/code_fields',
              'issue_gena_rst/CRegs', 'issue_gena_rst/CRegs_srff',
-             'issue33/testmap', 'issue33b/testmap']
+             'issue33/testmap', 'issue33b/testmap', 'bug-xml/acqCore']
     for f in files:
         if verbose:
             print('test gena2cheby regression: {}'.format(f))
@@ -459,6 +459,7 @@ def test_gena2cheby_regressions():
         pprint.pprint_cheby(buf, t)
         if not compare_buffer_and_file(buf, chebfile):
             error('gena2cheby conversion error for {}'.format(f))
+        nbr_tests += 1
 
 
 def test_gena_gen_regressions():
