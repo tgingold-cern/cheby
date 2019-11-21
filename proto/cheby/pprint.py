@@ -43,7 +43,7 @@ class PrettyPrinter(tree.Visitor):
         self.pp_indent()
         self.pp_raw("{}: 0x{:x}\n".format(name, s))
 
-    trans = {"'": "''", "\n": r"\n", ":": r"\:"}
+    trans = {"'": "''", "\n": r"\n"}
 
     def pp_str(self, name, s):
         if s is None:
