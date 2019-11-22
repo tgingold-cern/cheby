@@ -77,18 +77,20 @@ class AXI4LiteBus(BusGen):
         ibus.rd_dat = module.new_HDLSignal('dato', root.c_word_bits)
         ibus.wr_adr = root.h_bus['awaddr']
         ibus.rd_adr = root.h_bus['araddr']
+
         # For the write accesses:
         # The W and AW channels are handled together: the write strobe is
         # generated when both AWVALID and WVALID are set.
-        # AWREADY and WREADY are asserted when the read ack is enabled, and
-        # then BVALID is asserted until BREADY is set.
+        # AWREADY and WREADY are asserted on the ack.
+        # BVALID is asserted the next cycle, until BREADY is asserted.
         module.stmts.append(HDLComment("AW, W and B channels"))
         axi_wip = module.new_HDLSignal('axi_wip')
         axi_wdone = module.new_HDLSignal('axi_wdone')
         w_start = HDLAnd(root.h_bus['awvalid'], root.h_bus['wvalid'])
         module.stmts.append(
             HDLAssign(ibus.wr_req, HDLAnd(w_start, HDLNot(axi_wip))))
-        module.stmts.append(HDLAssign(root.h_bus['awready'], axi_wdone))
+        module.stmts.append(
+            HDLAssign(root.h_bus['awready'], HDLAnd(axi_wip, ibus.wr_ack)))
         module.stmts.append(
             HDLAssign(root.h_bus['wready'], HDLAnd(axi_wip, ibus.wr_ack)))
         module.stmts.append(HDLAssign(root.h_bus['bvalid'], axi_wdone))
@@ -117,7 +119,8 @@ class AXI4LiteBus(BusGen):
         module.stmts.append(
             HDLAssign(ibus.rd_req,
                       HDLAnd(r_start, HDLNot(axi_rip))))
-        module.stmts.append(HDLAssign(root.h_bus['arready'], axi_rdone))
+        module.stmts.append(
+            HDLAssign(root.h_bus['arready'], HDLAnd(axi_rip, ibus.rd_ack)))
         module.stmts.append(HDLAssign(root.h_bus['rvalid'], axi_rdone))
         proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_sync=rst_sync)
         proc.rst_stmts.append(HDLAssign(axi_rip, bit_0))
