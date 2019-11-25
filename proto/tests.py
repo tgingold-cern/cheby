@@ -141,20 +141,20 @@ def test_layout():
         os.remove(cname)
         os.remove(t.name + '.s')
         nbr_tests += 1
-    for f in ['err_bus_name.yaml',
-              'err_reg_addr1.yaml', 'err_reg_addr2.yaml',
-              'err_reg_width1.yaml',
-              'err_reg_type1.yaml', 'err_reg_type2.yaml',
-              'err_reg_type3.yaml',
-              'err_field1.yaml', 'err_field2.yaml', 'err_field3.yaml',
-              'err_field4.yaml', 'err_field5.yaml', 'err_field6.yaml',
-              'err_field_name1.yaml', 'err_field_name2.yaml',
-              'err_reg_name1.yaml', 'err_reg_name2.yaml',
-              'err_reg_acc1.yaml', 'err_reg_acc2.yaml',
-              'err_field_preset1.yaml',
-              'err_noelements.yaml',
-              'err_arr1.yaml', 'err_arr2.yaml',
-              'err_block_size1.yaml',
+    for f in ['layout/err_bus_name.yaml',
+              'layout/err_reg_addr1.yaml', 'layout/err_reg_addr2.yaml',
+              'layout/err_reg_width1.yaml',
+              'layout/err_reg_type1.yaml', 'layout/err_reg_type2.yaml',
+              'layout/err_reg_type3.yaml',
+              'layout/err_field1.yaml', 'layout/err_field2.yaml', 'layout/err_field3.yaml',
+              'layout/err_field4.yaml', 'layout/err_field5.yaml', 'layout/err_field6.yaml',
+              'layout/err_field_name1.yaml', 'layout/err_field_name2.yaml',
+              'layout/err_reg_name1.yaml', 'layout/err_reg_name2.yaml',
+              'layout/err_reg_acc1.yaml', 'layout/err_reg_acc2.yaml',
+              'layout/err_field_preset1.yaml',
+              'layout/err_noelements.yaml',
+              'layout/err_arr1.yaml', 'layout/err_arr2.yaml',
+              'layout/err_block_size1.yaml',
               'issue14/test-err.cheby']:
         if verbose:
             print('test layout: {}'.format(f))
@@ -304,7 +304,7 @@ def test_self():
             error("self-test error for {}".format(func_name))
     test((lambda: parse_ok(srcdir + 'error1.yaml')), "parse_ok")
     test((lambda: parse_err(srcdir + 'simple_reg1.yaml')), "parse_err")
-    t = parse_ok(srcdir + 'err_bus_name.yaml')
+    t = parse_ok(srcdir + 'layout/err_bus_name.yaml')
     test((lambda: layout_ok(t)), "layout_ok")
     t = parse_ok(srcdir + 'demo.yaml')
     test((lambda: layout_err(t)), "layout_err")
