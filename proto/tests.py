@@ -89,19 +89,19 @@ def test_parser():
             print('test parser: {}'.format(f))
         parse_ok(srcdir + f)
         nbr_tests += 1
-    for f in ['no-such-file.yaml', 'error1.yaml',
-              'err_name_type1.yaml', 'err_width_type1.yaml',
-              'err_align_type1.yaml',
-              'parse_err_elem1.yaml', 'parse_err_elem2.yaml',
-              'parse_err_reg1.yaml',
-              'parse_err_field1.yaml', 'parse_err_field2.yaml',
-              'parse_err_field3.yaml',
-              'parse_err_array1.yaml', 'parse_err_array2.yaml',
-              'parse_err_block1.yaml',
-              'err_cnt.cheby', 'err_cnt2.cheby']:
+    for f in ['no-such-file', 'error1',
+              'err_name_type1', 'err_width_type1',
+              'err_align_type1',
+              'parse_err_elem1', 'parse_err_elem2',
+              'parse_err_reg1',
+              'parse_err_field1', 'parse_err_field2',
+              'parse_err_field3',
+              'parse_err_array1', 'parse_err_array2',
+              'parse_err_block1',
+              'err_cnt', 'err_cnt2']:
         if verbose:
             print('test parser: {}'.format(f))
-        parse_err(srcdir + 'parser/' + f)
+        parse_err(srcdir + 'parser/' + f + '.cheby')
         nbr_tests += 1
 
 
