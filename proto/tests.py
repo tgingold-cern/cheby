@@ -83,8 +83,8 @@ def parse_err(f):
 
 def test_parser():
     global nbr_tests
-    for f in ['demo.yaml', 'simple_reg1.yaml', 'simple_reg2.yaml',
-              'block1.yaml', 'submap2.yaml', 'submap3.yaml', 'block4.yaml']:
+    for f in ['demo.yaml', 'features/simple_reg1.yaml', 'features/simple_reg2.yaml',
+              'features/block1.yaml', 'features/submap2.yaml', 'features/submap3.yaml', 'features/block4.yaml']:
         if verbose:
             print('test parser: {}'.format(f))
         parse_ok(srcdir + f)
@@ -122,7 +122,7 @@ def layout_err(t):
 
 def test_layout():
     global nbr_tests
-    for f in ['demo.yaml', 'block1.yaml', 'array1.yaml', 'array2.yaml',
+    for f in ['demo.yaml', 'features/block1.yaml', 'features/array1.yaml', 'features/array2.yaml',
               'bug-gen-c/fids-errmiss.cheby']:
         if verbose:
             print('test layout: {}'.format(f))
@@ -166,8 +166,8 @@ def test_layout():
 def test_print():
     global nbr_tests
     fd = write_null()
-    for f in ['demo.yaml', 'reg_value1.cheby', 'reg_value2.cheby',
-              'reg_value3.cheby', 'demo_all.cheby', 'semver1.cheby']:
+    for f in ['demo.yaml', 'features/reg_value1.cheby', 'features/reg_value2.cheby',
+              'features/reg_value3.cheby', 'demo_all.cheby', 'features/semver1.cheby']:
         t = parse_ok(srcdir + f)
         layout_ok(t)
         pprint.pprint_cheby(fd, t)
@@ -207,9 +207,9 @@ def compare_buffer_and_file(buf, filename):
 def test_hdl():
     global nbr_tests
     fd = write_null()
-    for f in ['simple_reg3', 'simple_reg4_ro',
-              'reg_value1', 'reg_value2', 'reg_value3',
-              'field_value1', 'field_value2',
+    for f in ['features/simple_reg3', 'features/simple_reg4_ro',
+              'features/reg_value1', 'features/reg_value2', 'features/reg_value3',
+              'features/field_value1', 'features/field_value2',
               'wb_slave_vic',
               '../examples/svec-leds/leds',
               'inter-mt/mt_cpu_xb',
@@ -218,8 +218,8 @@ def test_hdl():
               'inter-mt/mt_cpu_xb-busgroup',
               'inter-mt/mt_cpu_xb-busgroup2',
               'inter-mt/mt_cpu_lr-busgroup',
-              'demo_all', 'big_addr', 'issue24/map_arrays',
-              'cern_info', 'issue22/map_ro', 'issue22/map_rw',
+              'demo_all', 'features/big_addr', 'issue24/map_arrays',
+              'features/cern_info', 'issue22/map_ro', 'issue22/map_rw',
               'demo_all_old',
               'access/const_ro', 'access/const_rw',
               'access/autoclear_rw', 'access/autoclear_wo',
@@ -273,7 +273,7 @@ def test_hdl_ref():
               'issue40/bugConstraints',
               'issue41/bugBlockFields',
               'issue45/test8', 'issue45/test16',
-              'wires1', 'semver1', 'semver2']:
+              'features/wires1', 'features/semver1', 'features/semver2']:
         if verbose:
             print('test hdl with ref: {}'.format(f))
         cheby_file = srcdir + f + '.cheby'
@@ -303,7 +303,7 @@ def test_self():
         if not ok:
             error("self-test error for {}".format(func_name))
     test((lambda: parse_ok(srcdir + 'error1.yaml')), "parse_ok")
-    test((lambda: parse_err(srcdir + 'simple_reg1.yaml')), "parse_err")
+    test((lambda: parse_err(srcdir + 'features/simple_reg1.yaml')), "parse_err")
     t = parse_ok(srcdir + 'layout/err_bus_name.yaml')
     test((lambda: layout_ok(t)), "layout_ok")
     t = parse_ok(srcdir + 'demo.yaml')
@@ -541,7 +541,7 @@ def test_wbgen2cheby():
 def test_consts():
     # Generate constants and compare with a baseline.
     global nbr_tests
-    for f in ['demo_all', 'semver1']:
+    for f in ['demo_all', 'features/semver1']:
         if verbose:
             print('test consts: {}'.format(f))
         cheby_file = srcdir + f + '.cheby'
@@ -563,7 +563,7 @@ def test_consts():
 def test_doc():
     # Generate html and md, compare with a baseline.
     global nbr_tests
-    for f in ['issue9/test', 'semver1']:
+    for f in ['issue9/test', 'features/semver1']:
         if verbose:
             print('test doc: {}'.format(f))
         cheby_file = srcdir + f + '.cheby'
