@@ -1,0 +1,35 @@
+memory-map:
+  name: adf4002
+  bus: cern-be-vme-err-32
+  size: 512
+  x-driver-edge:
+    equipment-code: PX-ALGSA
+  x-cern-info:
+    ident-code: 0x01
+    map-version: 20191108
+    semantic-mem-map-version: 1.0.0
+  children:
+    - reg:
+        name: nCounter
+        description: Describes the the N counter latch of the PLL
+        width: 32
+        access: rw
+        address: next
+        x-gena:
+          gen:
+            no-split: True
+          preset: 6401
+        x-fesa:
+          persistence: Fesa
+        children:
+          - field:
+              name: cpGain
+              description: Read comment for more info (or datasheet)
+              comment: '0 ( function_FastlockEnable) | 0 (CpGain)  -> CP current setting 1 permanently used\n0 ( function_FastlockEnable) | 1 (CpGain)  -> CP current setting 2 permanently used\n1 ( function_FastlockEnable) | 0 (CpGain)  -> CP current setting 1 used\n1 ( function_FastlockEnable) | 1 (CpGain)  -> CP current switched to settings 2 (dependant on FastLock mode)'
+              range: 21
+              preset: 0x0
+          - field:
+              name: counter
+              description: 13 bits value for the divider
+              range: 20-8
+              preset: 0x19

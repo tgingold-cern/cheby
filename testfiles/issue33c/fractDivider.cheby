@@ -1,0 +1,75 @@
+memory-map:
+  name: fractDivider
+  description: Fractional RF Divider
+  bus: cern-be-vme-16
+  size: 1M
+  x-driver-edge:
+    equipment-code: SP-ALCPF
+    module-type: RF_FRACTDIV
+    name: RFFRACTDIV
+  x-cern-info:
+    ident-code: 0x50
+    map-version: 20191107
+    semantic-mem-map-version: 1.0.0
+  children:
+    - reg:
+        name: status1
+        description: General status, all unused bits read 1
+        width: 16
+        access: ro
+        address: next
+        x-gena:
+          preset: 0xffff
+        x-fesa:
+          persistence: PPM
+        children:
+          - field:
+              name: vmeSNValid
+              description: VME serial number is valid
+              range: 15
+              preset: 0x1
+          - field:
+              name: noFaults
+              description: No faults have occurred
+              range: 14
+              preset: 0x1
+          - field:
+              name: noOverflows
+              description: No overflows have occurred
+              range: 13
+              preset: 0x1
+          - field:
+              name: powerOk
+              description: All power supplies are OK
+              range: 12
+              preset: 0x1
+          - field:
+              name: intlk11AOutNotSet
+              description: Interlock not driven by module
+              range: 11
+              preset: 0x1
+          - field:
+              name: intlk11BOutNotSet
+              description: Interlock not driven by module
+              range: 10
+              preset: 0x1
+          - field:
+              name: intlk11ANotActive
+              description: Interlock not active
+              range: 9
+              preset: 0x1
+          - field:
+              name: intlk11BNotActive
+              description: Interlock not active
+              range: 8
+              preset: 0x1
+          - field:
+              name: intlk11CNotActive
+              description: Interlock not active
+              range: 7
+              preset: 0x1
+          - field:
+              name: temp4Valid
+              description: Board temp sensor 4 readback is valid (close to FPGA)
+              range: 4
+              preset: 0x1

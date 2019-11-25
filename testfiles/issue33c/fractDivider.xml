@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type="text/xsl" href="http://abwww.cern.ch/ap/deployments/applications/cern/accsoft/rf/accsoft-rf-cheburashka/PRO/source/src/java/cern/accsoft/rf/cheburashka/xml/schema/MemMapStyleSheet.xsl"?><memory-map xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" area-depth="1M" description="Fractional RF Divider" driver-name="RFFRACTDIV" equipment-code="SP-ALCPF" ident-code="0x50" map-version="20191107" mem-map-access-mode="A24/D16" module-type="RF_FRACTDIV" name="fractDivider" semantic-mem-map-version="1.0.0" xsi:schemaLocation="http://abwww.cern.ch/ap/deployments/applications/cern/accsoft/rf/accsoft-rf-cheburashka/PRO/source/src/java/cern/accsoft/rf/cheburashka/xml/schema/TemplateMemMap.xsd">
+  <register-data access-mode="r" address="next" bit-encoding="unsigned" code-generation-rule="HW,Fesa" description="General status, all unused bits read 1" element-width="16" name="status1" persistence="PPM" preset="0xffff">
+    <bit-field-data bit="15" description="VME serial number is valid" name="vmeSNValid"/>
+    <bit-field-data bit="14" description="No faults have occurred" name="noFaults"/>
+    <bit-field-data bit="13" description="No overflows have occurred" name="noOverflows"/>
+    <bit-field-data bit="12" description="All power supplies are OK" name="powerOk"/>
+    <bit-field-data bit="11" description="Interlock not driven by module" name="intlk11AOutNotSet"/>
+    <bit-field-data bit="10" description="Interlock not driven by module" name="intlk11BOutNotSet"/>
+    <bit-field-data bit="9" description="Interlock not active" name="intlk11ANotActive"/>
+    <bit-field-data bit="8" description="Interlock not active" name="intlk11BNotActive"/>
+    <bit-field-data bit="7" description="Interlock not active" name="intlk11CNotActive"/>
+    <bit-field-data bit="4" description="Board temp sensor 4 readback is valid (close to FPGA)" name="temp4Valid"/>
+  </register-data>
+</memory-map>
