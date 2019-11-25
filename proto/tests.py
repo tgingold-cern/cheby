@@ -414,7 +414,8 @@ def test_gena2cheby_err():
     global nbr_tests
     files = ['err_memmap_acc_mode', 'err_root_attr', 'err_root_gen',
              'err_root_element', 'err_submap_child', 'err_submap_gen',
-             'err_submap_attr', 'err_submap_include', 'err_comment',
+             'err_submap_attr', 'err_submap_include', 'err_submap_noinc',
+             'err_comment',
              'err_area_attrs', 'err_area_gen',
              'err_memory_gen', 'err_memory_attr', 'err_memory_child',
              'err_memory_channel_attrs', 'err_memory_channel_child',
