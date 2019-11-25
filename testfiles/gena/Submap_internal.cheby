@@ -11,6 +11,3 @@ memory-map:
         address: next
         filename: Inc_CRegs.cheby
         include: True
-        x-gena:
-          gen:
-            include: internal
