@@ -86,9 +86,13 @@ class AXI4LiteBus(BusGen):
         module.stmts.append(HDLComment("AW, W and B channels"))
         axi_wip = module.new_HDLSignal('axi_wip')
         axi_wdone = module.new_HDLSignal('axi_wdone')
+        # Start a transaction when both AWVALID and WVALID are set.
         w_start = HDLAnd(root.h_bus['awvalid'], root.h_bus['wvalid'])
+        # Send a write request pulse.
         module.stmts.append(
             HDLAssign(ibus.wr_req, HDLAnd(w_start, HDLNot(axi_wip))))
+        # Acknowlege the master write request when it was acknowledged by the
+        # slave.
         module.stmts.append(
             HDLAssign(root.h_bus['awready'], HDLAnd(axi_wip, ibus.wr_ack)))
         module.stmts.append(
@@ -97,9 +101,13 @@ class AXI4LiteBus(BusGen):
         proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_sync=rst_sync)
         proc.rst_stmts.append(HDLAssign(axi_wip, bit_0))
         proc.rst_stmts.append(HDLAssign(axi_wdone, bit_0))
+        # WIP indicates a Write In Progress. It is set during the whole transaction.
+        # WIP is set on a start, cleared on WDONE.
         proc.sync_stmts.append(
             HDLAssign(axi_wip, HDLAnd(w_start, HDLNot(axi_wdone))))
-        # Set on ack, cleared on bready.
+        # WDONE indicates that the write is done on the slave part (so waiting to
+        # be acknowledged by the master.)
+        # WDONE is set on ack, cleared on BREADY.
         proc.sync_stmts.append(
             HDLAssign(axi_wdone,
                       HDLOr(ibus.wr_ack,
@@ -116,9 +124,9 @@ class AXI4LiteBus(BusGen):
         axi_rip = module.new_HDLSignal('axi_rip')
         axi_rdone = module.new_HDLSignal('axi_rdone')
         r_start = root.h_bus['arvalid']
+        # Send a pulse to the slave at the start of a transaction.
         module.stmts.append(
-            HDLAssign(ibus.rd_req,
-                      HDLAnd(r_start, HDLNot(axi_rip))))
+            HDLAssign(ibus.rd_req, HDLAnd(r_start, HDLNot(axi_rip))))
         module.stmts.append(
             HDLAssign(root.h_bus['arready'], HDLAnd(axi_rip, ibus.rd_ack)))
         module.stmts.append(HDLAssign(root.h_bus['rvalid'], axi_rdone))
@@ -128,6 +136,7 @@ class AXI4LiteBus(BusGen):
         proc.rst_stmts.append(
             HDLAssign(root.h_bus['rdata'],
                       HDLReplicate(bit_0, root.c_addr_bits)))
+        # Read In Progress is set during the whole read transaction.
         proc.sync_stmts.append(
             HDLAssign(axi_rip, HDLAnd(r_start, HDLNot(axi_rdone))))
         proc_if = HDLIfElse(HDLEq(ibus.rd_ack, bit_1))
