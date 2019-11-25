@@ -1,5 +1,6 @@
 from cheby.hdltree import (HDLAssign, HDLSync, HDLComment,
                            bit_0)
+import cheby.tree as tree
 from cheby.hdl.globals import rst_sync
 
 
@@ -25,6 +26,7 @@ class Ibus(object):
         self.wr_ack = None
         self.wr_dat = None
         self.wr_adr = None
+        self.wr_sel = None
 
     def pipeline(self, root, module, conds, suffix):
         """Create a new ibus by adding registers to self according to :param conds:
@@ -45,7 +47,8 @@ class Ibus(object):
         copy_wa = (self.rd_adr == self.wr_adr) and (c_wi == c_ri)
         names.extend([('wr_req', c_wi, 'i', None, None),
                       ('wr_adr', c_wi, 'i', self.addr_size, self.addr_low),
-                      ('wr_dat', c_wi, 'i', self.data_size, 0)])
+                      ('wr_dat', c_wi, 'i', self.data_size, 0),
+                      ('wr_sel', c_wi, 'i', self.data_size // tree.BYTE_SIZE, 0)])
         c_wo = 'wr-out' in conds
         names.extend([('wr_ack', c_wo, 'o', None, None)])
         module.stmts.append(HDLComment("pipelining for {}".format('+'.join(conds))))

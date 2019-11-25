@@ -74,6 +74,7 @@ class AXI4LiteBus(BusGen):
         ibus.rd_ack = module.new_HDLSignal('rd_ack_int')   # Ack for read
         ibus.wr_ack = module.new_HDLSignal('wr_ack_int')   # Ack for write
         ibus.wr_dat = root.h_bus['wdata']
+        ibus.wr_sel = root.h_bus['wstrb']
         ibus.rd_dat = module.new_HDLSignal('dato', root.c_word_bits)
         ibus.wr_adr = root.h_bus['awaddr']
         ibus.rd_adr = root.h_bus['araddr']
@@ -177,7 +178,7 @@ class AXI4LiteBus(BusGen):
         stmts.append(HDLAssign(n.h_bus['awprot'], HDLBinConst(0, 3)))
         stmts.append(HDLAssign(n.h_bus['wvalid'], n.h_w_val))
         stmts.append(HDLAssign(n.h_bus['wdata'], ibus.wr_dat))
-        stmts.append(HDLAssign(n.h_bus['wstrb'], HDLBinConst(0xf, 4)))
+        stmts.append(HDLAssign(n.h_bus['wstrb'], ibus.wr_sel or HDLReplicate(bit_1, 4)))
         stmts.append(HDLAssign(n.h_bus['bready'], bit_1))
 
         stmts.append(HDLAssign(n.h_bus['arvalid'], n.h_rd))

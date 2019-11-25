@@ -42,9 +42,6 @@ class GenMemory(ElGen):
             reg.h_rd = self.add_module_port(reg.c_name + '_rd', None, 'IN')
             reg.h_dat = self.add_module_port(reg.c_name + '_dat', reg.c_rwidth, 'OUT')
 
-        nbr_bytes = reg.c_rwidth // tree.BYTE_SIZE
-        reg.h_sig_bwsel = self.module.new_HDLSignal(reg.c_name + '_int_bwsel', nbr_bytes)
-
         if reg.access == 'ro':
             # External port is WO
             reg.h_sig_dati = self.module.new_HDLSignal(reg.c_name + '_int_dati', reg.c_rwidth)
@@ -119,7 +116,7 @@ class GenMemory(ElGen):
         inst.params.append(("g_size", HDLNumber(1 << mem.h_addr_width)))
         inst.params.append(("g_addr_width", HDLNumber(mem.h_addr_width)))
         inst.params.append(("g_dual_clock", HDLBool(False)))
-        inst.params.append(("g_use_bwsel", HDLBool(False)))
+        inst.params.append(("g_use_bwsel", HDLBool(ibus.wr_sel is not None)))
         inst.conns.append(("clk_a_i", self.root.h_bus['clk']))
         inst.conns.append(("clk_b_i", self.root.h_bus['clk']))
         if mem.h_adr_int is not None:
@@ -128,9 +125,9 @@ class GenMemory(ElGen):
             adr_int = HDLSlice(ibus.rd_adr, self.root.c_addr_word_bits, mem.h_addr_width)
         inst.conns.append(("addr_a_i", adr_int))
 
-        # Always write words to RAM (no byte select)
-        inst.conns.append(("bwsel_b_i", reg.h_sig_bwsel))
-        inst.conns.append(("bwsel_a_i", reg.h_sig_bwsel))
+        # Use byte select on port A if available.
+        bwsel = HDLReplicate(bit_1, reg.c_rwidth // tree.BYTE_SIZE)
+        inst.conns.append(("bwsel_a_i", ibus.wr_sel or bwsel))
 
         proc = HDLSync(self.root.h_bus['clk'], self.root.h_bus['rst'], rst_sync=rst_sync)
         proc.rst_stmts.append(HDLAssign(reg.h_rack, bit_0))
@@ -157,6 +154,7 @@ class GenMemory(ElGen):
             self.module.stmts.append(HDLAssign(reg.h_ext_rd, bit_0))
 
             inst.conns.append(("addr_b_i", mem.h_addr))
+            inst.conns.append(("bwsel_b_i", bwsel))
             inst.conns.append(("data_b_i", reg.h_dat))
             inst.conns.append(("data_b_o", reg.h_dat_ign))
             inst.conns.append(("rd_b_i", reg.h_ext_rd))
@@ -172,14 +170,11 @@ class GenMemory(ElGen):
             self.module.stmts.append(HDLAssign(reg.h_ext_wr, bit_0))
 
             inst.conns.append(("addr_b_i", mem.h_addr))
+            inst.conns.append(("bwsel_b_i", bwsel))
             inst.conns.append(("data_b_i", reg.h_dat_ign))
             inst.conns.append(("data_b_o", reg.h_dat))
             inst.conns.append(("rd_b_i", reg.h_rd))
             inst.conns.append(("wr_b_i", reg.h_ext_wr))
-
-        nbr_bytes = reg.c_rwidth // tree.BYTE_SIZE
-        self.module.stmts.append(HDLAssign(reg.h_sig_bwsel,
-                                      HDLReplicate(bit_1, nbr_bytes)))
 
     def gen_read(self, s, off, ibus, rdproc):
         # TODO: handle list of registers!
