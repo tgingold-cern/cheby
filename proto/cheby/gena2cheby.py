@@ -628,8 +628,10 @@ def conv_submap(parent, el):
             for e in [g.strip() for g in v.split(',')]:
                 if e == 'include':
                     xg['include'] = 'include'
+                    raise UnknownGenAttribute(e, "no value for 'include'")
                 elif e == 'include=ext':
                     xg['include'] = 'external'
+                    res.include = False
                 elif e == 'include=int' or e == 'include=generate':
                     xg['include'] = 'internal'
                     res.include = True
@@ -646,6 +648,9 @@ def conv_submap(parent, el):
                     raise UnknownGenAttribute(e, res)
             if 'include' not in xg:
                 raise UnknownGenAttribute(el, "'include' is required for submaps")
+            else:
+                # Remove this gen extension, keep the standard 'include' attribute.
+                del xg['include']
             res.x_gena['gen'] = xg
         elif k in ['ro2wo', 'access-mode-flip']:
             res.x_gena[k] = v

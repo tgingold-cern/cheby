@@ -84,6 +84,7 @@ def pprint_extension(pp, name, n):
 
 
 def pprint_extensions(pp, n):
+    # Display known extensions.
     for name in ['x-gena',
                  'x-hdl',
                  'x-fesa',

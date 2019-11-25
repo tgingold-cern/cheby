@@ -1135,14 +1135,14 @@ def gen_hdl_area_decls(area, pfx, root, module, isigs):
                 el.h_ignored = True
                 continue
             if isinstance(el, tree.Submap):
-                include = get_gena_gen(el, 'include', None)
+                include = el.include
             elif get_gena_gen(el, 'ext-area', False):
-                include = 'external'
+                include = False
             else:
                 # A regular area.
                 include = True
             if include is not None:
-                el.h_has_external = (include == 'external')
+                el.h_has_external = not include
 
                 el_isigs = types.SimpleNamespace()
                 npfx = pfx + el.name + '_'
@@ -1160,7 +1160,6 @@ def gen_hdl_area_decls(area, pfx, root, module, isigs):
                 else:
                     if isinstance(el, tree.Submap):
                         assert len(el.children) == 0
-                        assert get_gena_gen(el, 'include') == 'internal'
                         el.children = el.c_submap.children
                         lib = get_gena_gen(el.c_submap, 'vhdl-library')
                         if not lib:
