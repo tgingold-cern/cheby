@@ -49,6 +49,7 @@ architecture syn of test_axi4 is
   signal wr_req_d0                      : std_logic;
   signal wr_adr_d0                      : std_logic_vector(2 downto 2);
   signal wr_dat_d0                      : std_logic_vector(31 downto 0);
+  signal wr_sel_d0                      : std_logic_vector(3 downto 0);
 begin
 
   -- AW, W and B channels
@@ -102,6 +103,7 @@ begin
         wr_req_d0 <= wr_req;
         wr_adr_d0 <= awaddr;
         wr_dat_d0 <= wdata;
+        wr_sel_d0 <= wstrb;
       end if;
     end if;
   end process;
