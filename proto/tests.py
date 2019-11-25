@@ -261,7 +261,7 @@ def test_hdl_err():
 def test_hdl_ref():
     # Generate vhdl and compare with a baseline.
     global nbr_tests
-    for f in ['fmc_adc_alt_trigin', 'fmc_adc_alt_trigout',
+    for f in ['fmc-adc01/fmc_adc_alt_trigin', 'fmc-adc01/fmc_adc_alt_trigout',
               'issue9/test', 'issue10/test',
               'issue8/simpleMap_bug', 'issue8/simpleMap_noBug',
               'issue14/test-axi', 'issue14/test-be', 'issue14/test-le',
