@@ -71,7 +71,7 @@ begin
 
   -- AW, W and B channels
   wr_req <= (awvalid and wvalid) and not axi_wip;
-  awready <= axi_wdone;
+  awready <= axi_wip and wr_ack_int;
   wready <= axi_wip and wr_ack_int;
   bvalid <= axi_wdone;
   process (aclk) begin
@@ -89,7 +89,7 @@ begin
 
   -- AR and R channels
   rd_req <= arvalid and not axi_rip;
-  arready <= axi_rdone;
+  arready <= axi_rip and rd_ack_int;
   rvalid <= axi_rdone;
   process (aclk) begin
     if rising_edge(aclk) then
