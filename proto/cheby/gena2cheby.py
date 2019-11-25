@@ -684,7 +684,6 @@ def conv_root(root, filename):
     res.x_gena = {}
     res.x_fesa = {}
     res.x_driver_edge = {}
-    res.x_cern_info = {}
     acc_mode = None
     size_val = None
     size_str = None
@@ -703,7 +702,7 @@ def conv_root(root, filename):
             size_str = v
             size_val = conv_depth(v)
         elif k in ('map-version', 'ident-code', 'semantic-mem-map-version'):
-            res.x_cern_info[k] = v
+            res.x_gena[k] = v
         elif k == 'gen':
             xg = {}
             for e in [g.strip() for g in v.split(',')]:

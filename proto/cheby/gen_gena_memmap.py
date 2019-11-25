@@ -8,34 +8,46 @@ def get_gena(n, name, default=None):
     return n.get_extension('x_gena', name, default)
 
 
+def get_cern_info(root, name, default=None):
+    return root.get_extension('x_cern_info', name, default)
+
+
+def get_version(root, name):
+    # Versions info have moved from x-cern-info to x-gena.
+    gena = get_gena(root, name)
+    if gena is not None:
+        return gena
+    cern_info = get_cern_info(root, name)
+    return cern_info
+
+
 def gen_header(root, decls):
-    if hasattr(root, 'x_cern_info'):
-        cpfx = 'C_{}'.format(root.name)
-        ident_code = root.x_cern_info.get('ident-code')
-        if ident_code is not None:
-            width = root.c_word_size * tree.BYTE_SIZE
-            decls.append(HDLComment('Ident Code'))
-            decls.append(HDLConstant(cpfx + '_IdentCode', width,
-                         value=HDLHexConst(ident_code, width)))
+    cpfx = 'C_{}'.format(root.name)
+    ident_code = get_version(root, 'ident-code')
+    if ident_code is not None:
+        width = root.c_word_size * tree.BYTE_SIZE
+        decls.append(HDLComment('Ident Code'))
+        decls.append(HDLConstant(cpfx + '_IdentCode', width,
+                     value=HDLHexConst(ident_code, width)))
 
-        version = root.x_cern_info.get('map-version')
-        if version:
-            decls.append(HDLComment('Memory Map Version'))
-            cst = HDLConstant(cpfx + '_MemMapVersion', 32,
-                              value=HDLHexConst(version, 32))
-            cst.eol_comment = '{}'.format(version)
-            decls.append(cst)
+    version = get_version(root, 'map-version')
+    if version is not None:
+        decls.append(HDLComment('Memory Map Version'))
+        cst = HDLConstant(cpfx + '_MemMapVersion', 32,
+                          value=HDLHexConst(version, 32))
+        cst.eol_comment = '{}'.format(version)
+        decls.append(cst)
 
-        sem_version = root.x_cern_info.get('semantic-mem-map-version')
-        if sem_version:
-            # TODO: check format ?
-            vers = [int(x) for x in sem_version.split('.')]
-            ver32 = (vers[0] << 20) | (vers[1] << 10) | vers[2]
-            decls.append(HDLComment('Semantic Memory Map Version'))
-            cst = HDLConstant(cpfx + '_SemanticMemMapVersion', 32,
-                              value=HDLHexConst(ver32, 32))
-            cst.eol_comment = '{}'.format(sem_version)
-            decls.append(cst)
+    sem_version = get_version(root, 'semantic-mem-map-version')
+    if sem_version is not None:
+        # TODO: check format ?
+        vers = [int(x) for x in sem_version.split('.')]
+        ver32 = (vers[0] << 20) | (vers[1] << 10) | vers[2]
+        decls.append(HDLComment('Semantic Memory Map Version'))
+        cst = HDLConstant(cpfx + '_SemanticMemMapVersion', 32,
+                          value=HDLHexConst(ver32, 32))
+        cst.eol_comment = '{}'.format(sem_version)
+        decls.append(cst)
 
 
 def gen_addr_cst(decls, addr, name, addr_width, block_width, word_width):
