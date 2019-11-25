@@ -644,6 +644,8 @@ def conv_submap(parent, el):
                     xg[e] = True
                 else:
                     raise UnknownGenAttribute(e, res)
+            if 'include' not in xg:
+                raise UnknownGenAttribute(el, "'include' is required for submaps")
             res.x_gena['gen'] = xg
         elif k in ['ro2wo', 'access-mode-flip']:
             res.x_gena[k] = v
