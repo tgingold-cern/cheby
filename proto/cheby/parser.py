@@ -79,24 +79,34 @@ def parse_named(node, key, val):
             node.comment = node.comment.rstrip()
     elif key == 'note':
         node.note = read_text(node, key, val)
-    elif key == 'x-wbgen':
-        node.x_wbgen = val
-    elif key == 'x-hdl':
-        node.x_hdl = val
-    elif key == 'x-conversions':
-        node.x_conversions = val
-    elif key == 'x_gena' or key == 'x-gena':
-        node.x_gena = val
-    elif key == 'x-fesa':
-        node.x_fesa = val
-    elif key == 'x-driver-edge':
-        node.x_driver_edge = val
-    elif key == 'x-cern-info':
-        node.x_cern_info = val
-    elif key == 'x-devicetree':
-        node.x_devicetree = val
-    elif key == 'x-interrupts':
-        node.x_interrupts = val
+    elif isinstance(val, dict):
+        if key == 'x-wbgen':
+            node.x_wbgen = val
+        elif key == 'x-hdl':
+            node.x_hdl = val
+        elif key == 'x-conversions':
+            node.x_conversions = val
+        elif key == 'x_gena' or key == 'x-gena':
+            node.x_gena = val
+        elif key == 'x-fesa':
+            node.x_fesa = val
+        elif key == 'x-driver-edge':
+            node.x_driver_edge = val
+        elif key == 'x-cern-info':
+            node.x_cern_info = val
+        elif key == 'x-devicetree':
+            node.x_devicetree = val
+        elif key == 'x-interrupts':
+            node.x_interrupts = val
+        elif key.startswith("x-"):
+            # Unkown extension.  This is a warning to allow users to add extensions.
+            # But in order to avoid conflicts, they are kindly requested to register the
+            #  extension name.
+            warning(node, "unknown extension name '{}'".format(key))
+            warning(node, "please register the extension on https://gitlab.cern.ch/cohtdrivers/cheby")
+            return True
+        else:
+            return False
     else:
         return False
     return True
