@@ -2,7 +2,7 @@ memory-map:
   name: cregs_d8
   bus: cern-be-vme-8
   size: 1024k
-  x-cern-info:
+  x-gena:
     ident-code: 0xff
     map-version: 20161031
   children:

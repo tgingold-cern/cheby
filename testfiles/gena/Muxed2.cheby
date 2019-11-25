@@ -3,7 +3,7 @@ memory-map:
   description: Muxed registers
   bus: cern-be-vme-16
   size: 1M
-  x-cern-info:
+  x-gena:
     ident-code: 0x00
     map-version: 20180513
   children:

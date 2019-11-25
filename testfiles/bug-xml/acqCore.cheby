@@ -3,12 +3,12 @@ memory-map:
   description: Acquisition IP core memory map
   bus: cern-be-vme-err-32
   size: 1k
-  x-driver-edge:
-    equipment-code: SP-ALCCA
-  x-cern-info:
+  x-gena:
     ident-code: 0xff
     map-version: 20191120
     semantic-mem-map-version: 0.0.1
+  x-driver-edge:
+    equipment-code: SP-ALCCA
   children:
     - submap:
         name: ipInfo

@@ -2,7 +2,7 @@ memory-map:
   name: semver
   bus: cern-be-vme-err-32
   size: 1024k
-  x-cern-info:
+  x-gena:
     ident-code: 0xff
     map-version: 20161031
     semantic-mem-map-version: 1.2.3

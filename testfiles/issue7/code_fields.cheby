@@ -2,12 +2,12 @@ memory-map:
   name: codeFields
   bus: cern-be-vme-16
   size: 16k
-  x-driver-edge:
-    equipment-code: PX-ALCOB
-  x-cern-info:
+  x-gena:
     ident-code: 0x1
     map-version: 20190204
     semantic-mem-map-version: 1.0.0
+  x-driver-edge:
+    equipment-code: PX-ALCOB
   children:
     - block:
         name: area1

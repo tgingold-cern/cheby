@@ -5,7 +5,6 @@ memory-map:
   x-gena:
     gen:
       no-mem-mux-dff: True
-  x-cern-info:
     ident-code: 0xff
     map-version: 20161101
   children:
