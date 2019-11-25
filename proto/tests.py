@@ -101,7 +101,7 @@ def test_parser():
               'err_cnt.cheby', 'err_cnt2.cheby']:
         if verbose:
             print('test parser: {}'.format(f))
-        parse_err(srcdir + f)
+        parse_err(srcdir + 'parser/' + f)
         nbr_tests += 1
 
 
