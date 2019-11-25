@@ -43,6 +43,7 @@ class WBBus(BusGen):
         ibus.rst = root.h_bus['rst']
         ibus.rd_dat = root.h_bus['dato']
         ibus.wr_dat = root.h_bus['dati']
+        ibus.wr_sel = root.h_bus['sel']
         if busgroup:
             addr = module.new_HDLSignal('adr_int', ibus.addr_size, lo_idx=ibus.addr_low)
             module.stmts.append(
@@ -254,7 +255,7 @@ class WBBus(BusGen):
         else:
             stmts.append(HDLAssign(n.h_bus['adr'],
                                    self.slice_addr(ibus.rd_adr, root, n)))
-        stmts.append(HDLAssign(n.h_bus['sel'], HDLReplicate(bit_1, 4)))
+        stmts.append(HDLAssign(n.h_bus['sel'], ibus.wr_sel or HDLReplicate(bit_1, 4)))
         stmts.append(HDLAssign(n.h_bus['we'], n.h_wt))
         stmts.append(HDLAssign(n.h_bus['dati'], ibus.wr_dat))
 
