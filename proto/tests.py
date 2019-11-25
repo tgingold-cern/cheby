@@ -84,7 +84,8 @@ def parse_err(f):
 def test_parser():
     global nbr_tests
     for f in ['demo.yaml', 'features/simple_reg1.cheby', 'features/simple_reg2.cheby',
-              'features/block1.cheby', 'features/submap2.cheby', 'features/submap3.cheby', 'features/block4.cheby']:
+              'features/block1.cheby', 'features/submap2.cheby', 'features/submap3.cheby',
+              'features/block4.cheby', 'parser/extension1.cheby']:
         if verbose:
             print('test parser: {}'.format(f))
         parse_ok(srcdir + f)
@@ -98,7 +99,7 @@ def test_parser():
               'parse_err_field3',
               'parse_err_array1', 'parse_err_array2',
               'parse_err_block1',
-              'err_cnt', 'err_cnt2']:
+              'err_cnt', 'err_cnt2', 'err_extension']:
         if verbose:
             print('test parser: {}'.format(f))
         parse_err(srcdir + 'parser/' + f + '.cheby')

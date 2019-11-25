@@ -1,0 +1,11 @@
+memory-map:
+  bus: wb-32-be
+  name: err_width
+  description: a single register
+  my-ext:
+     val: 3
+  children:
+    - reg:
+        name: arr1
+        width: 32
+        access: rw
