@@ -83,8 +83,8 @@ def parse_err(f):
 
 def test_parser():
     global nbr_tests
-    for f in ['demo.yaml', 'features/simple_reg1.yaml', 'features/simple_reg2.yaml',
-              'features/block1.yaml', 'features/submap2.yaml', 'features/submap3.yaml', 'features/block4.yaml']:
+    for f in ['demo.yaml', 'features/simple_reg1.cheby', 'features/simple_reg2.cheby',
+              'features/block1.cheby', 'features/submap2.cheby', 'features/submap3.cheby', 'features/block4.cheby']:
         if verbose:
             print('test parser: {}'.format(f))
         parse_ok(srcdir + f)
@@ -122,7 +122,7 @@ def layout_err(t):
 
 def test_layout():
     global nbr_tests
-    for f in ['demo.yaml', 'features/block1.yaml', 'features/array1.yaml', 'features/array2.yaml',
+    for f in ['demo.yaml', 'features/block1.cheby', 'features/array1.cheby', 'features/array2.cheby',
               'bug-gen-c/fids-errmiss.cheby']:
         if verbose:
             print('test layout: {}'.format(f))
@@ -303,7 +303,7 @@ def test_self():
         if not ok:
             error("self-test error for {}".format(func_name))
     test((lambda: parse_ok(srcdir + 'error1.yaml')), "parse_ok")
-    test((lambda: parse_err(srcdir + 'features/simple_reg1.yaml')), "parse_err")
+    test((lambda: parse_err(srcdir + 'features/simple_reg1.cheby')), "parse_err")
     t = parse_ok(srcdir + 'layout/err_bus_name.yaml')
     test((lambda: layout_ok(t)), "layout_ok")
     t = parse_ok(srcdir + 'demo.yaml')
