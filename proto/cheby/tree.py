@@ -82,7 +82,6 @@ class CompositeNode(NamedNode):
         self.align = None
         self.size_str = None     # Size (possibly with units)
         self.size_val = None     # Value of size_str.
-        self.version = None      # Semantic version (as a string)
         self.children = []
         # Computed variables
         self.c_size = None       # Compute by layout (aligned)
@@ -96,6 +95,7 @@ class Root(CompositeNode):
         super(Root, self).__init__(None)
         self.bus = None
         self.word_endian = None
+        self.version = None      # Semantic version (as a string)
         # Computed variables
         self.c_word_size = None  # Word size in bytes
         self.c_filename = None  # Filename for the tree.
