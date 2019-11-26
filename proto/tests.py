@@ -156,6 +156,7 @@ def test_layout():
               'layout/err_noelements.yaml',
               'layout/err_arr1.yaml', 'layout/err_arr2.yaml',
               'layout/err_block_size1.yaml',
+              'layout/err_presets2.cheby',
               'issue14/test-err.cheby']:
         if verbose:
             print('test layout: {}'.format(f))

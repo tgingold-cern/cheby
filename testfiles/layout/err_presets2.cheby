@@ -1,0 +1,15 @@
+memory-map:
+  bus: wb-32-be
+  name: presets2
+  description: a single register
+  children:
+    - reg:
+        name: arr1
+        width: 32
+        access: rw
+        preset: 0
+        children:
+        - field:
+           name: f1
+           range: 2-0
+           preset: 0x3
