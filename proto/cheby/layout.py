@@ -220,6 +220,10 @@ def layout_reg(lo, n):
         n.c_align = lo.word_size
     names = set()
     if n.children:
+        # This register has fields.
+        if n.preset is not None:
+            raise LayoutException(
+            n, "preset is not allowed for register with fields")
         if n.type is None:
             n.c_type = 'unsigned'
         else:
