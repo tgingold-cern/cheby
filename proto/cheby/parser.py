@@ -161,9 +161,11 @@ def parse_field(parent, el):
                 res.lo = v
             else:
                 pos = v.find('-')
-                assert pos > 0
-                res.lo = int(v[pos + 1:], 0)
-                res.hi = int(v[0:pos], 0)
+                if pos < 0:
+                    res.lo = int(v)
+                else:
+                    res.lo = int(v[pos + 1:], 0)
+                    res.hi = int(v[0:pos], 0)
         elif k == 'preset':
             res.preset = read_int(res, k, v)
         elif k == 'type':
