@@ -212,6 +212,7 @@ def test_hdl():
     for f in ['features/simple_reg3', 'features/simple_reg4_ro',
               'features/reg_value1', 'features/reg_value2', 'features/reg_value3',
               'features/field_value1', 'features/field_value2',
+              'features/field_range1',
               'wb_slave_vic',
               '../examples/svec-leds/leds',
               'inter-mt/mt_cpu_xb',
