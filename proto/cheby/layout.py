@@ -505,20 +505,22 @@ def layout_root(lo, root):
     layout_composite_size(lo, root)
 
 
-def layout_version(root):
-    nums = root.version.split('.')
+def layout_semantic_version(n, val):
+    if val is None:
+        return None
+    nums = val.split('.')
     if len(nums) != 3:
         raise LayoutException(
-            root, "semantic version must be written as X.Y.Z")
+            n, "semantic version must be written as X.Y.Z")
     nval = [int(x) for x in nums]
     rstr = "{}.{}.{}".format(*nval)
-    if rstr != root.version:
+    if rstr != val:
         raise LayoutException(
-            root, "semantic version must be written as X.Y.Z")
+            n, "semantic version must be written as X.Y.Z")
     if any([v < 0 or v > 255 for v in nval]):
         raise LayoutException(
-            root, "semantic version cannot be greater than 255")
-    root.c_version = nval
+            n, "semantic version cannot be greater than 255")
+    return nval
 
 
 def layout_cheby_memmap(root):
@@ -566,8 +568,10 @@ def layout_cheby_memmap(root):
         root.c_word_endian = root.word_endian
 
     # version
-    if root.version is not None:
-        layout_version(root)
+    root.c_version = layout_semantic_version(root, root.version)
+
+    # x-map-info
+    root.c_memmap_version = layout_semantic_version(root, root.memmap_version)
 
     # Number of bits in the address used by a word
     root.c_addr_word_bits = ilog2(root.c_word_size)

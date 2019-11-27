@@ -302,6 +302,18 @@ def parse_memory(parent, el):
     return res
 
 
+def parse_map_info(root, el):
+    if not isinstance(el, dict):
+        error("x-map-info {} must be a dictionnary".format(root.get_path()))
+    for k, v in el.items():
+        if k == 'ident':
+            root.ident = read_int(root, k, v)
+        elif k == 'memmap-version':
+            root.memmap_version = read_text(root, k, v)
+        else:
+            error("unhandled '{}' in x-map-info".format(k))
+
+
 def parse_yaml(filename):
     try:
         el = yaml.load(open(filename), Loader=yaml.SafeLoader)
@@ -319,7 +331,9 @@ def parse_yaml(filename):
     parse_name(res, el)
     res.c_filename = filename
     for k, v in el.items():
-        if parse_composite(res, k, v):
+        if k == 'x-map-info':
+            parse_map_info(res, v)
+        elif parse_composite(res, k, v):
             pass
         elif k == 'bus':
             res.bus = read_text(res, k, v)

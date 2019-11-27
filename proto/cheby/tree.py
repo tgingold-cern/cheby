@@ -95,11 +95,15 @@ class Root(CompositeNode):
         super(Root, self).__init__(None)
         self.bus = None
         self.word_endian = None
-        self.version = None      # Semantic version (as a string)
+        self.version = None        # Semantic version (as a string)
+        self.ident = None          # x-map-info:ident
+        self.memmap_version = None # x-map-info:memmap-version
         # Computed variables
         self.c_word_size = None  # Word size in bytes
         self.c_filename = None  # Filename for the tree.
         self.c_word_endian = None  # word endianness ('any', 'little', 'big')
+        self.c_version = None
+        self.c_memmap_version = None
 
 
 class Block(CompositeNode):

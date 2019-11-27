@@ -32,9 +32,12 @@ class ConstsPrinter(object):
     def pr_size(self, n, sz):
         self.pr_dec_const(self.pr_name(n) + "_SIZE", sz)
 
-    def pr_version(self, n, nums):
+    def pr_version(self, n, name, nums):
         v = (nums[0] << 16) | (nums[1] << 8) | nums[2]
-        self.pr_hex_const(self.pr_name(n) + "_VERSION", v)
+        self.pr_hex_const(self.pr_name(n) + "_" + name, v)
+
+    def pr_ident(self, n, name, val):
+        self.pr_hex_const(self.pr_name(n) + "_" + name, val)
 
     def pr_reg(self, n):
         if n.has_fields():
@@ -214,7 +217,12 @@ def pconsts_composite(pr, n):
 def pconsts_root(pr, n):
     pr.printer.pr_size(n, n.c_size)
     if n.version is not None:
-        pr.printer.pr_version(n, n.c_version)
+        pr.printer.pr_version(n, 'VERSION', n.c_version)
+    if n.c_memmap_version is not None:
+        pr.printer.pr_version(n, 'MEMMAP_VERSION', n.c_memmap_version)
+    if n.ident is not None:
+        pr.printer.pr_ident(n, 'IDENT', n.ident)
+
     for el in n.children:
         pr.visit(el)
 
