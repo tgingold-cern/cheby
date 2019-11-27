@@ -91,6 +91,12 @@ Fix crash while generating hdl for a single register with cernbus (issue#45)
 Correctly handle Rst polarity of CERN-BE bus (issue#47).
 IMPORTANT: this is incompatible with previous Cheby behaviour.
 
+gena2cheby now put the ident-code, map-version and semantic-mem-map-version
+to the x-gena section instead of the x-cern-info section.
+
+A new section x-map-info is now supported at the root with 2 attributes:
+ident and memmap-version.  Values are written to the consts file.
+
 ## Version 1.3
 
 Add x-hdl:port to specify how ports are generated for registers (issue#11)
