@@ -1,0 +1,13 @@
+memory-map:
+  bus: wb-32-be
+  name: semver1
+  description: a single register
+  x-map-info:
+    ident: 0x12345678
+    memmap-version: 1.0.0
+  children:
+    - reg:
+        name: r1
+        width: 32
+        access: rw
+        type: unsigned
