@@ -1021,9 +1021,9 @@ def gen_hdl_area_decode(root, module, area, bus_addr):
     return HDLIfElse(cond)
 
 
-def gen_hdl_areardmux(root, module, isigs, area, areas):
+def gen_hdl_areardmux(root, module, isigs, area, areas, pfx):
     proc = HDLComb()
-    proc.name = 'AreaRdMux'
+    proc.name = pfx + 'AreaRdMux'
     bus_addr = root.h_bus['adrr']
     proc.sensitivity.extend([bus_addr, isigs.MemRdData, isigs.MemRdDone])
 
@@ -1048,9 +1048,9 @@ def gen_hdl_areardmux(root, module, isigs, area, areas):
     module.stmts.append(HDLComment(None))
 
 
-def gen_hdl_areawrmux(root, module, isigs, area, areas):
+def gen_hdl_areawrmux(root, module, isigs, area, areas, pfx):
     proc = HDLComb()
-    proc.name = 'AreaWrMux'
+    proc.name = pfx + 'AreaWrMux'
     bus_addr = root.h_bus['adrw']
     proc.sensitivity.extend([bus_addr, isigs.MemWrDone])
 
@@ -1262,8 +1262,8 @@ def gen_hdl_area(area, pfx, area_root, root, module, root_isigs):
 
     # Areas and submaps.
     if blks:
-        gen_hdl_areardmux(root, module, isigs, area, blks)
-        gen_hdl_areawrmux(root, module, isigs, area, blks)
+        gen_hdl_areardmux(root, module, isigs, area, blks, pfx)
+        gen_hdl_areawrmux(root, module, isigs, area, blks, pfx)
         for el in blks:
             if el.h_has_external:
                 gen_hdl_ext_bus_asgn(el, 'rw', root, module)
