@@ -1,0 +1,19 @@
+memory-map:
+  name: submap_noinc
+  bus: cern-be-vme-16
+  size: 1024k
+  x-gena:
+    ident-code: 0xff
+    map-version: 20161101
+  children:
+    - submap:
+        name: submap1
+        description: example
+        address: next
+        filename: Inc_CRegs.cheby
+        include: False
+        x-gena:
+          gen:
+            generate: True
+            no-mem-mux-dff: True
+          ro2wo: 'True'
