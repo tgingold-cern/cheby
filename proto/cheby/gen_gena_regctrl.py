@@ -1135,7 +1135,8 @@ def gen_hdl_area_decls(area, pfx, root, module, isigs):
                 el.h_ignored = True
                 continue
             if isinstance(el, tree.Submap):
-                include = el.include
+                # If there is no include, assume it is set to False.
+                include = el.include or False
             elif get_gena_gen(el, 'ext-area', False):
                 include = False
             else:
