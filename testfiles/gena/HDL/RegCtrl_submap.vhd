@@ -16,7 +16,15 @@ entity RegCtrl_submap is
     VMERdMem             : in    std_logic;
     VMEWrMem             : in    std_logic;
     VMERdDone            : out   std_logic;
-    VMEWrDone            : out   std_logic
+    VMEWrDone            : out   std_logic;
+    submap1_Sel          : out   std_logic;
+    submap1_Addr         : out   std_logic_vector(9 downto 1);
+    submap1_RdData       : in    std_logic_vector(15 downto 0);
+    submap1_WrData       : out   std_logic_vector(15 downto 0);
+    submap1_RdMem        : out   std_logic;
+    submap1_WrMem        : out   std_logic;
+    submap1_RdDone       : in    std_logic;
+    submap1_WrDone       : in    std_logic
   );
 end RegCtrl_submap;
 
@@ -44,6 +52,7 @@ architecture syn of RegCtrl_submap is
   signal RdData                         : std_logic_vector(15 downto 0);
   signal RdDone                         : std_logic;
   signal WrDone                         : std_logic;
+  signal Sel_submap1                    : std_logic;
 begin
   Loc_CRegRdData <= (others => '0');
   Loc_CRegRdOK <= '0';
@@ -72,9 +81,31 @@ begin
 
   MemWrDone <= Loc_MemWrDone;
 
-  RdData <= MemRdData;
-  RdDone <= MemRdDone;
-  WrDone <= MemWrDone;
+  AreaRdMux: process (VMEAddr, MemRdData, MemRdDone, submap1_RdData, submap1_RdDone) begin
+    Sel_submap1 <= '0';
+    if VMEAddr(19 downto 10) = C_Submap_submap_submap1 then
+      RdData <= submap1_RdData;
+      RdDone <= submap1_RdDone;
+      Sel_submap1 <= '1';
+    else
+      RdData <= MemRdData;
+      RdDone <= MemRdDone;
+    end if;
+  end process AreaRdMux;
+
+  AreaWrMux: process (VMEAddr, MemWrDone, submap1_WrDone) begin
+    if VMEAddr(19 downto 10) = C_Submap_submap_submap1 then
+      WrDone <= submap1_WrDone;
+    else
+      WrDone <= MemWrDone;
+    end if;
+  end process AreaWrMux;
+
+  submap1_Addr <= VMEAddr(9 downto 1);
+  submap1_Sel <= Sel_submap1;
+  submap1_RdMem <= Sel_submap1 and VMERdMem;
+  submap1_WrMem <= Sel_submap1 and VMEWrMem;
+  submap1_WrData <= VMEWrData;
 
   StrobeSeq: process (Clk) begin
     if rising_edge(Clk) then

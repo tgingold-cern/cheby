@@ -2,5 +2,6 @@
  name="comment"
  xsi:schemaLocation="http://abwww.cern.ch/ap/dist/accsoft/rf/accsoft-rf-cheburashka/PRO/src/java/cern/accsoft/rf/cheburashka/xml/schema/TemplateMemMap.xsd">
   <submap address="next" filename="Inc_CRegs.xml" name="submap1"
+          gen="include=ext"
           comment="a comment" comment-encoding="PlainText" />
 </memory-map>
