@@ -1,0 +1,14 @@
+memory-map:
+  bus: cern-be-vme-32
+  name: ssmap
+  x-cern-info:
+    map-version: 00000000
+    ident-code: 0x0
+  children:
+    - block:
+        name: b1
+        children:
+          - reg:
+              name: r1
+              width: 32
+              access: rw

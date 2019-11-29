@@ -473,7 +473,7 @@ def test_gena_gen_regressions():
     global nbr_tests
     files = ['issue7/code_fields',
              'issue_gena_rst/CRegs', 'issue_gena_rst/CRegs_srff',
-             'issue32/memmap', 'gena2cheby/submap_noinc']
+             'issue32/memmap', 'gena2cheby/submap_noinc', 'issue49/mainMap']
     for f in files:
         if verbose:
             print('test gena regression: {}'.format(f))
