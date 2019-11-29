@@ -22,6 +22,11 @@ class UnknownGenAttribute(Exception):
         self.msg = msg
         self.node = n
 
+class ErrorGenAttribute(Exception):
+    def __init__(self, n, msg):
+        self.msg = msg
+        self.node = n
+
 
 class UnknownTag(Exception):
     def __init__(self, msg):
@@ -617,6 +622,7 @@ def conv_submap(parent, el):
     res = cheby.tree.Submap(parent)
     res.x_gena = {}
     attrs = el.attrib
+    xg = {}
     for k, v in attrs.items():
         if conv_common(res, k, v):
             pass
@@ -624,11 +630,10 @@ def conv_submap(parent, el):
             # Handled
             pass
         elif k == 'gen':
-            xg = {}
             for e in [g.strip() for g in v.split(',')]:
                 if e == 'include':
                     xg['include'] = 'include'
-                    raise UnknownGenAttribute(e, "no value for 'include'")
+                    raise ErrorGenAttribute(res, "no value for 'include'")
                 elif e == 'include=ext':
                     xg['include'] = 'external'
                     res.include = False
@@ -646,16 +651,16 @@ def conv_submap(parent, el):
                     xg[e] = True
                 else:
                     raise UnknownGenAttribute(e, res)
-            if 'include' not in xg:
-                raise UnknownGenAttribute(el, "'include' is required for submaps")
-            else:
-                # Remove this gen extension, keep the standard 'include' attribute.
-                del xg['include']
             res.x_gena['gen'] = xg
         elif k in ['ro2wo', 'access-mode-flip']:
             res.x_gena[k] = v
         else:
             raise UnknownAttribute(k)
+    if 'include' not in xg:
+        raise ErrorGenAttribute(res, "'include' is required for submaps")
+    else:
+        # Remove this gen extension, keep the standard 'include' attribute.
+        del xg['include']
     res.name = attrs['name']
     res.filename = os.path.splitext(attrs['filename'])[0] + '.cheby'
     res.address = conv_address(attrs['address'])
@@ -802,6 +807,9 @@ def main():
         except UnknownGenAttribute as e:
             error("error: unknown 'gen=' attribute '{}' in {}".format(
                 e.msg, e.node.get_path()))
+            sys.exit(1)
+        except ErrorGenAttribute as e:
+            error("error: {}: {}".format(e.node.get_path(), e.msg))
             sys.exit(1)
         except UnknownTag as e:
             error("error: unknown tag '{}'".format(
