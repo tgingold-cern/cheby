@@ -264,6 +264,20 @@ def layout_reg(lo, n):
                         n.get_path()))
             v = lo.root.c_version
             f.c_preset = (v[0] << 16) | (v[1] << 8) | v[2]
+        elif n.constant == 'ident':
+            v = lo.root.ident
+            if v is None:
+                raise LayoutException(
+                    n, "cannot use 'constant: ident' for register {} without x-map-info:ident".format(
+                        n.get_path()))
+            f.c_preset = v
+        elif n.constant == 'memmap-version':
+            v = lo.root.c_memmap_version
+            if v is None:
+                raise LayoutException(
+                    n, "cannot use 'constant: memmap-version' for register {} without x-map-info:memmap-version".format(
+                        n.get_path()))
+            f.c_preset = (v[0] << 16) | (v[1] << 8) | v[2]
         elif n.constant == 'map-version':
             v = lo.root.get_extension('x_cern_info', 'map-version', None)
             if v is None:
