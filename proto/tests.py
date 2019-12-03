@@ -454,13 +454,23 @@ def test_gena2cheby_regressions():
     global nbr_tests
     files = ['issue7/code_fields',
              'issue_gena_rst/CRegs', 'issue_gena_rst/CRegs_srff',
-             'issue33/testmap', 'issue33b/testmap', 'bug-xml/acqCore']
+             'issue33/testmap', 'issue33b/testmap', 'bug-xml/acqCore',
+             'issue33d/preset1-preset-no',
+             'issue33d/preset1-preset-always',
+             'issue33d/preset1-preset-nosplit',
+             'issue33d/preset2-preset-nosplit']
     for f in files:
         if verbose:
             print('test gena2cheby regression: {}'.format(f))
         # Test Gena to Cheby conversion
         xmlfile = srcdir + f + '.xml'
         chebfile = srcdir + f + '.cheby'
+        if f.endswith("-preset-no"):
+            gena2cheby.flag_keep_preset = "no"
+        elif f.endswith("-preset-always"):
+            gena2cheby.flag_keep_preset = "always"
+        else:
+            gena2cheby.flag_keep_preset = "no-split"
         t = gena2cheby.convert(xmlfile)
         buf = write_buffer()
         pprint.pprint_cheby(buf, t)

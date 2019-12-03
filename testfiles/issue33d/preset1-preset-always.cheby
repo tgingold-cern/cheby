@@ -1,0 +1,27 @@
+memory-map:
+  name: preset1
+  bus: cern-be-vme-err-32
+  size: 1024k
+  x-gena:
+    ident-code: 0xff
+    map-version: 20161031
+  children:
+    - reg:
+        name: test1
+        width: 32
+        access: ro
+        address: 0x0
+        x-gena:
+          holes-preset: 0x4000
+        x-fesa:
+          persistence: Fesa
+        children:
+          - field:
+              name: b15
+              description: b15
+              range: 15
+              preset: 0x0
+          - field:
+              name: w14
+              range: 13-0
+              preset: 0x2
