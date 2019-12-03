@@ -185,6 +185,21 @@ def conv_common(node, k, v):
     return True
 
 
+def adjust_common(n):
+    """Merge note to comment/description"""
+    if n.note is not None:
+        if n.note == n.description:
+            pass
+        elif n.description is None:
+            n.description = n.note
+        else:
+            if n.comment is None:
+                n.comment = n.note
+            else:
+                n.comment += '\n' + n.note
+        n.note = None
+
+
 def conv_codefield(parent, el):
     cf = parent.x_gena.get('code-field', [])
     cf.append({f: el.attrib[f] for f in ['name', 'code', 'description', 'comment', 'note'] if f in el.attrib})
@@ -249,6 +264,7 @@ def conv_bit_field_data(reg, el):
                 res.x_fesa[k] = alarm_mapping[str.lower(v)]
         else:
             raise UnknownAttribute(k)
+    adjust_common(res)
     res.lo = int(attrs['bit'])
     for child in el:
         if child.tag == 'code-field':
@@ -314,6 +330,7 @@ def conv_sub_reg(reg, el):
             res.x_gena[k] = v
         else:
             raise UnknownAttribute(k)
+    adjust_common(res)
     rng = attrs['range'].split('-')
     res.hi = int(rng[0])
     res.lo = int(rng[1])
@@ -397,6 +414,7 @@ def conv_register_data(parent, el):
             res.x_driver_edge[k] = v
         else:
             raise UnknownAttribute(k)
+    adjust_common(res)
     res.address = conv_address(attrs['address'])
     res.width = int(attrs['element-width'], 0)
     if attrs['access-mode'] == 'rmw':
@@ -563,6 +581,7 @@ def conv_memory_data(parent, el):
             res.x_fesa[k] = v
         else:
             raise UnknownAttribute(k)
+    adjust_common(res)
     res.address = conv_address(attrs['address'])
     res.memsize_str = attrs['element-depth']
     res.memsize_val = conv_depth(res.memsize_str)
@@ -620,6 +639,7 @@ def conv_area(parent, el):
             ignore_attr(k, el)
         else:
             raise UnknownAttribute(k)
+    adjust_common(res)
     res.name = attrs['name']
     res.address = conv_address(attrs['address'])
     res.size_str = attrs['element-depth']
@@ -668,6 +688,7 @@ def conv_submap(parent, el):
             res.x_gena[k] = v
         else:
             raise UnknownAttribute(k)
+    adjust_common(res)
     if 'include' not in xg:
         raise ErrorGenAttribute(res, "'include' is required for submaps")
     else:
@@ -759,6 +780,7 @@ def conv_root(root, filename):
             pass
         else:
             raise UnknownAttribute(k)
+    adjust_common(res)
     if acc_mode == 'A24/D8':
         res.bus = 'cern-be-vme' + err_suffix + split_suffix + '-8'
         res.c_word_size = 1

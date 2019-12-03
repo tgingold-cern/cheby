@@ -79,6 +79,7 @@ def parse_named(node, key, val):
             node.comment = node.comment.rstrip()
     elif key == 'note':
         node.note = read_text(node, key, val)
+        warning(node, "'note' attribute is deprecated")
     elif isinstance(val, dict):
         if key == 'x-wbgen':
             node.x_wbgen = val
