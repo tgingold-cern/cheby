@@ -276,7 +276,8 @@ def test_hdl_ref():
               'issue40/bugConstraints',
               'issue41/bugBlockFields',
               'issue45/test8', 'issue45/test16',
-              'features/wires1', 'features/semver1', 'features/semver2']:
+              'features/wires1', 'features/semver1', 'features/semver2',
+              'features/mapinfo2']:
         if verbose:
             print('test hdl with ref: {}'.format(f))
         cheby_file = srcdir + f + '.cheby'
