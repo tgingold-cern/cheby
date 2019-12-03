@@ -5,7 +5,7 @@ from cheby.hdltree import (HDLComment, HDLComb, HDLSync,
                            HDLIfElse,
                            HDLAssign, HDLSlice, HDLReplicate, HDLInstance,
                            HDLNumber, HDLBool, bit_1, bit_0, bit_x)
-from cheby.hdl.globals import rst_sync
+from cheby.hdl.globals import gconfig
 from cheby.layout import ilog2
 import cheby.tree as tree
 
@@ -129,7 +129,7 @@ class GenMemory(ElGen):
         bwsel = HDLReplicate(bit_1, reg.c_rwidth // tree.BYTE_SIZE)
         inst.conns.append(("bwsel_a_i", ibus.wr_sel or bwsel))
 
-        proc = HDLSync(self.root.h_bus['clk'], self.root.h_bus['rst'], rst_sync=rst_sync)
+        proc = HDLSync(self.root.h_bus['clk'], self.root.h_bus['rst'], rst_sync=gconfig.rst_sync)
         proc.rst_stmts.append(HDLAssign(reg.h_rack, bit_0))
         if self.root.h_bussplit and reg.access in ['rw', 'wo']:
             # Arbiter: the RAM has only one address bus on port A.

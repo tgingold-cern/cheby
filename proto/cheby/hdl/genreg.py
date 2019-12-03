@@ -1,7 +1,7 @@
 import cheby.tree as tree
 import cheby.layout as layout
 from cheby.hdl.elgen import ElGen
-from cheby.hdl.globals import rst_sync
+from cheby.hdl.globals import gconfig
 from cheby.hdltree import (HDLAssign, HDLSync, HDLComment,
                            HDLIfElse,
                            bit_1, bit_0,
@@ -369,7 +369,7 @@ class GenReg(ElGen):
 
             if n.h_has_regs:
                 # Create a process for the DFF.
-                ffproc = HDLSync(self.root.h_bus['clk'], self.root.h_bus['rst'], rst_sync=rst_sync)
+                ffproc = HDLSync(self.root.h_bus['clk'], self.root.h_bus['rst'], rst_sync=gconfig.rst_sync)
                 self.module.stmts.append(ffproc)
                 # Reset code
                 for f in n.children:

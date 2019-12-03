@@ -4,7 +4,7 @@ from cheby.hdltree import (HDLAssign, HDLSync, HDLComb,
                            HDLAnd, HDLOr, HDLNot, HDLEq,
                            HDLSlice)
 from cheby.hdl.busgen import BusGen
-from cheby.hdl.globals import rst_sync
+from cheby.hdl.globals import gconfig
 
 
 class SRAMBus(BusGen):
@@ -33,7 +33,7 @@ class SRAMBus(BusGen):
     def wire_bus_slave(self, root, module, n, ibus):
         stmts = module.stmts
         # Acknowledge: delay rack by one cycle.
-        proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_sync=rst_sync)
+        proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_sync=gconfig.rst_sync)
         proc.rst_stmts.append(HDLAssign(n.h_rack, bit_0))
         proc.sync_stmts.append(HDLAssign(n.h_rack, HDLAnd(n.h_re, HDLNot(n.h_rack))))
         stmts.append(proc)
@@ -42,7 +42,7 @@ class SRAMBus(BusGen):
             # Asymetric pipelining: add a mux to select the address.
             n.h_wp = module.new_HDLSignal(n.c_name + '_wp')
             n.h_we = module.new_HDLSignal(n.c_name + '_we')
-            proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_sync=rst_sync)
+            proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_sync=gconfig.rst_sync)
             proc.sync_stmts.append(
                 HDLAssign(n.h_wp,
                           HDLAnd(HDLOr(ibus.wr_req, n.h_wp), ibus.rd_req)))

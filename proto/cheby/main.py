@@ -27,6 +27,7 @@ import cheby.print_rest as print_rest
 import cheby.print_consts as print_consts
 import cheby.gen_devicetree as gen_devicetree
 import cheby.gen_device_script as gen_device_script
+import cheby.hdl.globals
 
 
 def decode_args():
@@ -87,6 +88,8 @@ def decode_args():
                          help='generate documentation')
     aparser.add_argument('--input', '-i', required=True,
                          help='input file')
+    aparser.add_argument('--ff-reset', choices=['sync', 'async'], default='sync',
+                         help='select synchronous or asynchronous reset for flip-flops')
 
     return aparser.parse_args()
 
@@ -247,6 +250,10 @@ def handle_file(args, filename):
 
 def main():
     args = decode_args()
+    if args.ff_reset == 'async':
+        cheby.hdl.globals.gconfig.rst_sync = False
+    else:
+        cheby.hdl.globals.gconfig.rst_sync = True
     f = args.input
     try:
         handle_file(args, f)

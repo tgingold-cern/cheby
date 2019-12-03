@@ -1,7 +1,7 @@
 from cheby.hdltree import (HDLAssign, HDLSync, HDLComment,
                            bit_0)
 import cheby.tree as tree
-from cheby.hdl.globals import rst_sync
+from cheby.hdl.globals import gconfig
 
 
 class Ibus(object):
@@ -53,7 +53,7 @@ class Ibus(object):
         names.extend([('wr_ack', c_wo, 'o', None, None)])
         module.stmts.append(HDLComment("pipelining for {}".format('+'.join(conds))))
         proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'],
-                       rst_sync=rst_sync)
+                       rst_sync=gconfig.rst_sync)
         for n, c, d, sz, lo in names:
             if n == 'wr_adr' and copy_wa:
                 # If wr_adr == rd_adr in both self and future res, do not create a signal,

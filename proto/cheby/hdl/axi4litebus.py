@@ -7,7 +7,7 @@ from cheby.hdltree import (HDLPort,
                            HDLConst, HDLBinConst, HDLParen)
 from cheby.hdl.busgen import BusGen
 import cheby.tree as tree
-from cheby.hdl.globals import rst_sync, dirname
+from cheby.hdl.globals import gconfig, dirname
 from cheby.hdl.ibus import add_bus
 
 
@@ -99,7 +99,7 @@ class AXI4LiteBus(BusGen):
         module.stmts.append(
             HDLAssign(root.h_bus['wready'], HDLAnd(axi_wip, ibus.wr_ack)))
         module.stmts.append(HDLAssign(root.h_bus['bvalid'], axi_wdone))
-        proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_sync=rst_sync)
+        proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_sync=gconfig.rst_sync)
         proc.rst_stmts.append(HDLAssign(axi_wip, bit_0))
         proc.rst_stmts.append(HDLAssign(axi_wdone, bit_0))
         # WIP indicates a Write In Progress. It is set during the whole transaction.
@@ -131,7 +131,7 @@ class AXI4LiteBus(BusGen):
         module.stmts.append(
             HDLAssign(root.h_bus['arready'], HDLAnd(axi_rip, ibus.rd_ack)))
         module.stmts.append(HDLAssign(root.h_bus['rvalid'], axi_rdone))
-        proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_sync=rst_sync)
+        proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_sync=gconfig.rst_sync)
         proc.rst_stmts.append(HDLAssign(axi_rip, bit_0))
         proc.rst_stmts.append(HDLAssign(axi_rdone, bit_0))
         proc.rst_stmts.append(
@@ -190,7 +190,7 @@ class AXI4LiteBus(BusGen):
         # FIXME: rready only available with axi4 root.
         stmts.append(HDLAssign(n.h_bus['rready'],
                                root.h_bus.get('rready', bit_1)))
-        proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_sync=rst_sync)
+        proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_sync=gconfig.rst_sync)
         # Machine state for valid/ready AW and W channels
         # Set valid on request, clear valid on ready.
         # Set done on ready, clear done on ack.

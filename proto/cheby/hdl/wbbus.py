@@ -8,7 +8,7 @@ from cheby.hdltree import (HDLPackage,
                            HDLParen)
 from cheby.hdl.busgen import BusGen
 import cheby.tree as tree
-from cheby.hdl.globals import rst_sync, dirname
+from cheby.hdl.globals import gconfig, dirname
 
 
 class WBBus(BusGen):
@@ -27,7 +27,7 @@ class WBBus(BusGen):
         # and cleared on the ack.
         wb_xip = module.new_HDLSignal('wb_{}ip'.format(pfx))
         proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'],
-                       rst_sync=rst_sync)
+                       rst_sync=gconfig.rst_sync)
         proc.rst_stmts.append(HDLAssign(wb_xip, bit_0))
         proc.sync_stmts.append(HDLAssign(
             wb_xip, HDLAnd(HDLOr(wb_xip, HDLParen(stb)), HDLNot(ack))))
@@ -203,7 +203,7 @@ class WBBus(BusGen):
     def wire_bus_slave(self, root, module, n, ibus):
         stmts = module.stmts
         stmts.append(HDLAssign(n.h_tr, HDLOr(n.h_wt, n.h_rt)))
-        proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_sync=rst_sync)
+        proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_sync=gconfig.rst_sync)
         proc.rst_stmts.append(HDLAssign(n.h_rt, bit_0))
         proc.rst_stmts.append(HDLAssign(n.h_wt, bit_0))
         if root.h_bussplit:

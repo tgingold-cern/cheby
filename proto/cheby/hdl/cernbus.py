@@ -5,7 +5,7 @@ from cheby.hdltree import (HDLPort,
                            HDLAnd, HDLOr, HDLNot, HDLEq,
                            HDLSlice, HDLParen)
 from cheby.hdl.busgen import BusGen
-from cheby.hdl.globals import rst_sync, dirname
+from cheby.hdl.globals import gconfig, dirname
 from cheby.hdl.ibus import add_bus
 
 
@@ -140,7 +140,7 @@ class CERNBEBus(BusGen):
 
         if root.h_bussplit:
             # Handle read requests.
-            proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_sync=rst_sync)
+            proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_sync=gconfig.rst_sync)
             # Write requests set on WE, clear by RdDone
             proc.sync_stmts.append(
                 HDLAssign(n.h_wr,
@@ -177,7 +177,7 @@ class CERNBEBus(BusGen):
             # Asymetric pipelining: add a mux to select the address.
             n.h_ws = module.new_HDLSignal(n.c_name + '_ws')
             n.h_wt = module.new_HDLSignal(n.c_name + '_wt')
-            proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_sync=rst_sync)
+            proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_sync=gconfig.rst_sync)
             proc.sync_stmts.append(HDLAssign(n.h_wt, n.h_ws))
             proc.rst_stmts.append(HDLAssign(n.h_wt, bit_0))
             module.stmts.append(
