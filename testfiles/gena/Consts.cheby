@@ -1,7 +1,7 @@
 memory-map:
   name: const
   description: Test of gen=const
-  note: EDA-02281
+  comment: EDA-02281
   bus: cern-be-vme-err-32
   size: 256k
   x-gena:
@@ -20,7 +20,7 @@ memory-map:
     - reg:
         name: firmwareVersion
         description: Firmware Version code
-        note: dec2hex(20111031)
+        comment: dec2hex(20111031)
         width: 32
         type: unsigned
         access: ro
@@ -33,7 +33,7 @@ memory-map:
     - reg:
         name: memMapVersion
         description: Memory Map Version
-        note: dec2hex(20121120)
+        comment: dec2hex(20121120)
         width: 32
         type: unsigned
         access: ro
@@ -46,7 +46,7 @@ memory-map:
     - reg:
         name: designerID
         description: Firmware Designer ID
-        note: Packed Baudot Hardware (MS) + Firmware (LS) Designer name
+        comment: Packed Baudot Hardware (MS) + Firmware (LS) Designer name
         width: 32
         access: ro
         address: next
