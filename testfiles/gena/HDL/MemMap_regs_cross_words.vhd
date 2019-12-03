@@ -22,10 +22,10 @@ package MemMap_regs_cross_words is
   constant C_ACM_regs_cross_words_test3_0 : std_logic_vector(15 downto 0) := "0000000000000000";-- : Value : X"0000"
 
   -- Register Preset Masks : Memory Map
-  constant C_PSM_regs_cross_words_test2_1 : std_logic_vector(31 downto 16) := "1010101111001101";-- : Value : X"abcd"
-  constant C_PSM_regs_cross_words_test2_0 : std_logic_vector(15 downto 0) := "0001001000110100";-- : Value : X"1234"
-  constant C_PSM_regs_cross_words_test3_1 : std_logic_vector(31 downto 16) := "1010101111001101";-- : Value : X"abcd"
-  constant C_PSM_regs_cross_words_test3_0 : std_logic_vector(15 downto 0) := "0001001000110100";-- : Value : X"1234"
+  constant C_PSM_regs_cross_words_test2_1 : std_logic_vector(31 downto 16) := "1000000000000000";-- : Value : X"8000"
+  constant C_PSM_regs_cross_words_test2_0 : std_logic_vector(15 downto 0) := "0000000000000000";-- : Value : X"0000"
+  constant C_PSM_regs_cross_words_test3_1 : std_logic_vector(31 downto 16) := "1000000000000000";-- : Value : X"8000"
+  constant C_PSM_regs_cross_words_test3_0 : std_logic_vector(15 downto 0) := "0000000000000000";-- : Value : X"0000"
 
   -- CODE FIELDS
   -- Memory Data : Memory Map

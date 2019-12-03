@@ -7,10 +7,16 @@ import argparse
 from xml.etree import ElementTree as ET
 import cheby.tree
 import cheby.pprint
+import cheby.layout as layout
 
 # If True, display ignored constructs.
 flag_ignore = False
 
+# Whether holes-preset is kept.
+# always: keep them
+# no-split: kept only if no-split attribute is also present.
+# never: discard them
+flag_keep_preset = 'no-split'
 
 class UnknownAttribute(Exception):
     def __init__(self, msg):
@@ -436,7 +442,12 @@ def conv_register_data(parent, el):
                     f.preset = (preset >> f.lo) & mask
                 preset &= ~(mask << f.lo)
             if preset != 0:
-                res.x_gena['holes-preset'] = "0x{:x}".format(preset)
+                if flag_keep_preset == 'always' \
+                   or (flag_keep_preset == 'no-split'
+                       and layout.get_gena_gen(res, 'no-split', False)):
+                    res.x_gena['holes-preset'] = "0x{:x}".format(preset)
+                else:
+                    sys.stderr.write("warning: discard preset for {}\n".format(res.get_path()))
             del res.x_gena['preset']
     if res.address == 'virtual':
         return
@@ -785,7 +796,7 @@ def convert(filename):
 
 
 def main():
-    global flag_ignore
+    global flag_ignore, flag_keep_preset
     aparser = argparse.ArgumentParser(description='Gena to Cheby converter',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="Convert the XML input file to cheby YAML file\n"
@@ -799,9 +810,13 @@ def main():
                          help='do not display the result')
     aparser.add_argument('-f', '--out_file', action='store_true',
                          help="Output to file with changed extension")
+    aparser.add_argument('--keep-preset', choices=['no', 'no-split', 'always'], default='no-split',
+                         help="keep holes-preset attributes")
 
     args = aparser.parse_args()
     flag_ignore = args.ignore
+    flag_keep_preset = args.keep_preset
+
     for file in args.FILE:
         try:
             res = convert(file)

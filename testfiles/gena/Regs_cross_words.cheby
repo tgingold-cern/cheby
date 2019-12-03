@@ -11,8 +11,6 @@ memory-map:
         width: 32
         access: ro
         address: next
-        x-gena:
-          holes-preset: 0x2bcd1234
         x-fesa:
           persistence: Fesa
         children:
@@ -29,8 +27,6 @@ memory-map:
         width: 32
         access: ro
         address: next
-        x-gena:
-          holes-preset: 0x2bcd1234
         x-fesa:
           persistence: Fesa
         children:

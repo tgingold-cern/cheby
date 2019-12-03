@@ -88,7 +88,6 @@ memory-map:
         address: next
         x-gena:
           auto-clear: 0xffff
-          holes-preset: 0x3c3e
         x-fesa:
           persistence: Fesa
         children:
@@ -211,7 +210,6 @@ memory-map:
         address: next
         x-gena:
           auto-clear: 0xffffffff
-          holes-preset: 0x7c3c3c3e
         x-fesa:
           persistence: Fesa
         children:

@@ -16,7 +16,7 @@ package MemMap_sub_reg_one is
   constant C_ACM_sub_reg_one_test1 : std_logic_vector(31 downto 0) := "00000000000000000000000000000000";-- : Value : X"00000000"
 
   -- Register Preset Masks : Memory Map
-  constant C_PSM_sub_reg_one_test1 : std_logic_vector(31 downto 0) := "00000000000000000000000011100000";-- : Value : X"000000e0"
+  constant C_PSM_sub_reg_one_test1 : std_logic_vector(31 downto 0) := "00000000000000000000000000000000";-- : Value : X"00000000"
 
   -- CODE FIELDS
   -- Memory Data : Memory Map

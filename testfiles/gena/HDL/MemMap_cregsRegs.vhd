@@ -43,13 +43,13 @@ package MemMap_cregsRegs is
   constant C_PSM_cregsRegs_test2_0 : std_logic_vector(15 downto 0) := "1100001111000001";-- : Value : X"c3c1"
   constant C_PSM_cregsRegs_test3 : std_logic_vector(15 downto 0) := "0000000000000000";-- : Value : X"0000"
   constant C_PSM_cregsRegs_test4_1 : std_logic_vector(31 downto 16) := "0000000000000000";-- : Value : X"0000"
-  constant C_PSM_cregsRegs_test4_0 : std_logic_vector(15 downto 0) := "0011110000111110";-- : Value : X"3c3e"
+  constant C_PSM_cregsRegs_test4_0 : std_logic_vector(15 downto 0) := "0000000000000000";-- : Value : X"0000"
   constant C_PSM_cregsRegs_test5 : std_logic_vector(15 downto 0) := "0000000000000000";-- : Value : X"0000"
   constant C_PSM_cregsRegs_test6_1 : std_logic_vector(31 downto 16) := "1000001111000011";-- : Value : X"83c3"
   constant C_PSM_cregsRegs_test6_0 : std_logic_vector(15 downto 0) := "1100001111000001";-- : Value : X"c3c1"
   constant C_PSM_cregsRegs_test7 : std_logic_vector(15 downto 0) := "0000000000000000";-- : Value : X"0000"
-  constant C_PSM_cregsRegs_test8_1 : std_logic_vector(31 downto 16) := "0111110000111100";-- : Value : X"7c3c"
-  constant C_PSM_cregsRegs_test8_0 : std_logic_vector(15 downto 0) := "0011110000111110";-- : Value : X"3c3e"
+  constant C_PSM_cregsRegs_test8_1 : std_logic_vector(31 downto 16) := "0000000000000000";-- : Value : X"0000"
+  constant C_PSM_cregsRegs_test8_0 : std_logic_vector(15 downto 0) := "0000000000000000";-- : Value : X"0000"
 
   -- CODE FIELDS
   constant C_Code_cregsRegs_test8_msBit_hello : std_logic_vector(31 downto 31) := "0";
