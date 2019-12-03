@@ -12,6 +12,10 @@ import os.path
 import cheby.tree as tree
 import cheby.parser
 
+# Command line option to override word-endianness
+# Can be: default, little, big
+# Apply to the whole design.
+word_endianness = 'default'
 
 def ilog2(val):
     "Return n such as 2**n >= val and 2**(n-1) < val"
@@ -580,6 +584,9 @@ def layout_cheby_memmap(root):
             raise LayoutException(root, "incorrect word-endian value '{}'".format(
                 root.word_endian))
         root.c_word_endian = root.word_endian
+    # Override by the command line
+    if word_endianness != 'default':
+        root.c_word_endian = word_endianness
 
     # version
     root.c_version = layout_semantic_version(root, root.version)

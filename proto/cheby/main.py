@@ -90,9 +90,14 @@ def decode_args():
                          help='input file')
     aparser.add_argument('--ff-reset', choices=['sync', 'async'], default='sync',
                          help='select synchronous or asynchronous reset for flip-flops')
+    aparser.add_argument('--word-endian', choices=['default', 'big', 'little'], default='default',
+                          help='override the word-endianness in memmory maps')
 
-    return aparser.parse_args()
+    args = aparser.parse_args()
+    cheby.hdl.globals.gconfig.rst_sync = (args.ff_reset != 'async')
+    layout.word_endianness = args.word_endian
 
+    return args
 
 def print_hdl(out, lang, h):
     if lang == 'vhdl':
@@ -250,10 +255,6 @@ def handle_file(args, filename):
 
 def main():
     args = decode_args()
-    if args.ff_reset == 'async':
-        cheby.hdl.globals.gconfig.rst_sync = False
-    else:
-        cheby.hdl.globals.gconfig.rst_sync = True
     f = args.input
     try:
         handle_file(args, f)
