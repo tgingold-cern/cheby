@@ -92,10 +92,14 @@ def compute_acm(reg):
 
 
 def compute_preset(reg):
-    res = get_gena(reg, 'preset', 0)
+    res = get_gena(reg, 'holes-preset', None)
+    if res is None:
+        # Backward compatibility.
+        res = get_gena(reg, 'preset', 0)
     for f in reg.children:
         v = f.preset
         if v is not None:
+            # Note: in the case of holes-preset, we could check that it only defines value for holes.
             mask = (1 << f.c_rwidth) - 1
             res = (res & ~(mask << f.lo)) | (v << f.lo)
     return res

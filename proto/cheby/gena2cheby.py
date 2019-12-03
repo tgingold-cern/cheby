@@ -413,6 +413,7 @@ def conv_register_data(parent, el):
         else:
             raise UnknownValue('bit-encoding', enc)
         res.children.append(cheby.tree.FieldReg(res))
+        # Move the preset attribute.
         preset = res.x_gena.get('preset', None)
         if preset is not None:
             res.preset = conv_int(preset)
@@ -420,23 +421,23 @@ def conv_register_data(parent, el):
             del res.x_gena['preset']
     else:
         # FIXME: what about bit-encoding ?  For resizing ?
-        # Move preset to children
+        # Move preset to children, keep values for holes in holes-preset.
         preset = attrs.get('preset', None)
         if preset is not None:
             preset = conv_int(preset)
-            npreset = 0
             for f in res.children:
+                if f.hi is None:
+                    w = 1
+                else:
+                    w = f.hi - f.lo + 1
+                mask = (1 << w) - 1
                 if f.preset is None:
-                    if f.hi is None:
-                        w = 1
-                    else:
-                        w = f.hi - f.lo + 1
-                    f.preset = (preset >> f.lo) & ((1 << w) - 1)
-                    npreset |= f.preset << f.lo
-            if npreset == preset:
-                # Remove the x-gena:preset attribute if useless.  Contrary to the
-                # preset attribute, it can also set the value of unused fields.
-                del res.x_gena['preset']
+                    # Extract the preset value from the register preset.
+                    f.preset = (preset >> f.lo) & mask
+                preset &= ~(mask << f.lo)
+            if preset != 0:
+                res.x_gena['holes-preset'] = "0x{:x}".format(preset)
+            del res.x_gena['preset']
     if res.address == 'virtual':
         return
         # if not hasattr(parent, 'x_fesa'):

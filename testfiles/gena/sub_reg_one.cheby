@@ -12,7 +12,7 @@ memory-map:
         access: ro
         address: 0x0
         x-gena:
-          preset: 0xe0
+          holes-preset: 0xe0
         x-fesa:
           persistence: Fesa
         children:

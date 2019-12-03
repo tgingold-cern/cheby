@@ -99,6 +99,7 @@ def gen_hdl_reg_decls(reg, pfx, root, module, isigs):
     reg.h_mux = mux
     reg.h_port = None
     if get_gena_gen(reg, 'no-split'):
+        # Create one port for the whole register (instead of for fields).
         reg.h_port = []
         for suff, _ in reg.h_mux.codelist:
             port = HDLPort(pfx + reg.name + suff, size=reg.c_iowidth, dir=mode)

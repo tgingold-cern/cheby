@@ -12,7 +12,7 @@ memory-map:
         access: ro
         address: next
         x-gena:
-          preset: 0xabcd1234
+          holes-preset: 0x2bcd1234
         x-fesa:
           persistence: Fesa
         children:
@@ -30,7 +30,7 @@ memory-map:
         access: ro
         address: next
         x-gena:
-          preset: 0xabcd1234
+          holes-preset: 0x2bcd1234
         x-fesa:
           persistence: Fesa
         children:
