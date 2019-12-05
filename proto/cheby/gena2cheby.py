@@ -3,6 +3,7 @@ import sys
 import ast
 import re
 import os.path
+from pathlib import Path
 import argparse
 from xml.etree import ElementTree as ET
 import cheby.tree
@@ -17,6 +18,16 @@ flag_ignore = False
 # no-split: kept only if no-split attribute is also present.
 # never: discard them
 flag_keep_preset = 'no-split'
+
+# parse recursively
+flag_recurse = False
+
+# autosave to file with .cheby extension
+flag_out_file = False
+
+# do not display the result
+flag_quiet = False
+
 
 class UnknownAttribute(Exception):
     def __init__(self, msg):
@@ -694,6 +705,15 @@ def conv_submap(parent, el):
     else:
         # Remove this gen extension, keep the standard 'include' attribute.
         del xg['include']
+
+    # process recursively
+
+    if flag_recurse:
+        try:
+            base_path = Path(res.get_root().c_filename).parent
+            process_file(base_path / attrs["filename"])
+        except Exception as e:
+            error(f"Failed to parse recursively file: {attrs['filename']} because: {e}")
     res.name = attrs['name']
     res.filename = os.path.splitext(attrs['filename'])[0] + '.cheby'
     res.address = conv_address(attrs['address'])
@@ -718,7 +738,7 @@ def conv_element(parent, child):
 
 def conv_root(root, filename):
     res = cheby.tree.Root()
-
+    res.c_filename = filename
     res.x_gena = {}
     res.x_fesa = {}
     res.x_driver_edge = {}
@@ -817,8 +837,31 @@ def convert(filename):
     return conv_root(root, filename)
 
 
+def process_file(filename):
+    try:
+        res = convert(filename)
+    except UnknownGenAttribute as e:
+        error("error: unknown 'gen=' attribute '{}' in {}".format(
+            e.msg, e.node.get_path()))
+        raise
+    except ErrorGenAttribute as e:
+        error("error: {}: {}".format(e.node.get_path(), e.msg))
+        raise
+    except UnknownTag as e:
+        error("error: unknown tag '{}'".format(
+            e.msg))
+        raise
+    if not flag_quiet:
+        if flag_out_file:
+            new_filename = os.path.splitext(filename)[0] + '.cheby'
+            with open(new_filename, 'w') as f:
+                cheby.pprint.pprint_cheby(f, res)
+        else:
+            cheby.pprint.pprint_cheby(sys.stdout, res)
+
+
 def main():
-    global flag_ignore, flag_keep_preset
+    global flag_ignore, flag_keep_preset, flag_recurse, flag_out_file, flag_recurse, flag_quiet
     aparser = argparse.ArgumentParser(description='Gena to Cheby converter',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="Convert the XML input file to cheby YAML file\n"
@@ -834,32 +877,25 @@ def main():
                          help="Output to file with changed extension")
     aparser.add_argument('--keep-preset', choices=['no', 'no-split', 'always'], default='no-split',
                          help="keep holes-preset attributes")
+    aparser.add_argument('-r', '--recursive', action='store_true',
+                         help="Recursively parse submaps, works only with -f (--out_file)")
 
     args = aparser.parse_args()
     flag_ignore = args.ignore
     flag_keep_preset = args.keep_preset
+    flag_out_file = args.out_file
+    flag_recurse = args.recursive and flag_out_file
+    flag_quiet = args.quiet
+
+    succeeded = True
 
     for file in args.FILE:
         try:
-            res = convert(file)
-        except UnknownGenAttribute as e:
-            error("error: unknown 'gen=' attribute '{}' in {}".format(
-                e.msg, e.node.get_path()))
-            sys.exit(1)
-        except ErrorGenAttribute as e:
-            error("error: {}: {}".format(e.node.get_path(), e.msg))
-            sys.exit(1)
-        except UnknownTag as e:
-            error("error: unknown tag '{}'".format(
-                e.msg))
-            sys.exit(1)
-        if not args.quiet:
-            if args.out_file:
-                new_filename = os.path.splitext(file)[0] + '.cheby'
-                with open(new_filename, 'w') as f:
-                    cheby.pprint.pprint_cheby(f, res)
-            else:
-                cheby.pprint.pprint_cheby(sys.stdout, res)
+            process_file(file)
+        except:
+            succeeded = False
+    if not succeeded:
+        exit(1)
 
 
 if __name__ == '__main__':
