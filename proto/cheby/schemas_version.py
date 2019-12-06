@@ -5,6 +5,5 @@ VERSIONS = {
     'x-fesa': "1.0.0",
     'x-driver-edge': "1.0.0",
     'x-conversions': "1.0.0",
-    'x-enums': "1.0.0",
     "x-wbgen": "1.0.0"
 }
