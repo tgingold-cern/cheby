@@ -15,6 +15,8 @@ The current extensions are described in the following sections.
 
 ## x-driver-edge
 
+## x-conversions
+
 ## x-cern-info
 
 ## x-wbgen
