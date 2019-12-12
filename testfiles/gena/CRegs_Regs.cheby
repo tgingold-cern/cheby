@@ -2,6 +2,97 @@ memory-map:
   name: cregsRegs
   bus: cern-be-vme-16
   size: 1024k
+  x-enums:
+    - enum:
+        name: cregsRegs_test1
+        width: 8
+        children:
+          - item:
+              name: hello
+              value: 0
+          - item:
+              name: World
+              value: 1
+    - enum:
+        name: cregsRegs_test2_msBit
+        width: 1
+        children:
+          - item:
+              name: hello
+              value: 0
+          - item:
+              name: world
+              value: 1
+    - enum:
+        name: cregsRegs_test2_msReg
+        width: 4
+        children:
+          - item:
+              name: hello
+              value: 0
+          - item:
+              name: world
+              value: 1
+    - enum:
+        name: cregsRegs_test4_msBit
+        width: 1
+        children:
+          - item:
+              name: hello
+              value: 0
+          - item:
+              name: world
+              value: 1
+    - enum:
+        name: cregsRegs_test4_msReg
+        width: 4
+        children:
+          - item:
+              name: hello
+              value: 0
+          - item:
+              name: world
+              value: 1
+    - enum:
+        name: cregsRegs_test6_msBit
+        width: 1
+        children:
+          - item:
+              name: hello
+              value: 0
+          - item:
+              name: world
+              value: 1
+    - enum:
+        name: cregsRegs_test6_msReg
+        width: 4
+        children:
+          - item:
+              name: hello
+              value: 0
+          - item:
+              name: world
+              value: 1
+    - enum:
+        name: cregsRegs_test8_msBit
+        width: 1
+        children:
+          - item:
+              name: hello
+              value: 0
+          - item:
+              name: world
+              value: 1
+    - enum:
+        name: cregsRegs_test8_msReg
+        width: 4
+        children:
+          - item:
+              name: hello
+              value: 0
+          - item:
+              name: world
+              value: 1
   x-gena:
     ident-code: 0xff
     map-version: 20161031
@@ -12,13 +103,6 @@ memory-map:
         access: rw
         address: 0x0
         x-gena:
-          code-fields:
-            - code-field:
-                code: 0
-                name: hello
-            - code-field:
-                code: 1
-                name: World
           rmw: True
         x-fesa:
           persistence: Fesa
@@ -36,26 +120,12 @@ memory-map:
               preset: 0x1
               x-gena:
                 auto-clear: 1
-                code-fields:
-                  - code-field:
-                      code: 0
-                      name: hello
-                  - code-field:
-                      code: 1
-                      name: world
           - field:
               name: msReg
               range: 25-22
               preset: 0xf
               x-gena:
                 auto-clear: 0xf
-                code-fields:
-                  - code-field:
-                      code: 0
-                      name: hello
-                  - code-field:
-                      code: 1
-                      name: world
           - field:
               name: boundryReg
               range: 17-14
@@ -97,26 +167,12 @@ memory-map:
               preset: 0x0
               x-gena:
                 auto-clear: 0
-                code-fields:
-                  - code-field:
-                      code: 0
-                      name: hello
-                  - code-field:
-                      code: 1
-                      name: world
           - field:
               name: msReg
               range: 25-22
               preset: 0x0
               x-gena:
                 auto-clear: 0x0
-                code-fields:
-                  - code-field:
-                      code: 0
-                      name: hello
-                  - code-field:
-                      code: 1
-                      name: world
           - field:
               name: boundryReg
               range: 17-14
@@ -158,26 +214,12 @@ memory-map:
               preset: 0x1
               x-gena:
                 auto-clear: 1
-                code-fields:
-                  - code-field:
-                      code: 0
-                      name: hello
-                  - code-field:
-                      code: 1
-                      name: world
           - field:
               name: msReg
               range: 25-22
               preset: 0xf
               x-gena:
                 auto-clear: 0xf
-                code-fields:
-                  - code-field:
-                      code: 0
-                      name: hello
-                  - code-field:
-                      code: 1
-                      name: world
           - field:
               name: boundryReg
               range: 17-14
@@ -219,26 +261,12 @@ memory-map:
               preset: 0x0
               x-gena:
                 auto-clear: 0
-                code-fields:
-                  - code-field:
-                      code: 0
-                      name: hello
-                  - code-field:
-                      code: 1
-                      name: world
           - field:
               name: msReg
               range: 25-22
               preset: 0x0
               x-gena:
                 auto-clear: 0x0
-                code-fields:
-                  - code-field:
-                      code: 0
-                      name: hello
-                  - code-field:
-                      code: 1
-                      name: world
           - field:
               name: boundryReg
               range: 17-14
