@@ -892,7 +892,9 @@ def main():
     for file in args.FILE:
         try:
             process_file(file)
-        except:
+        except Exception as e:
+            if False:
+                print('error: {}'.format(e))
             succeeded = False
     if not succeeded:
         exit(1)
