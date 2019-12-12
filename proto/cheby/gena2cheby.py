@@ -212,10 +212,38 @@ def adjust_common(n):
 
 
 def conv_codefield(parent, el):
-    cf = parent.x_gena.get('code-field', [])
-    cf.append({f: el.attrib[f] for f in ['name', 'code', 'description', 'comment', 'note'] if f in el.attrib})
-    parent.x_gena['code-field'] = cf
+    if False:
+        cf = parent.x_gena.get('code-field', [])
+        cf.append({f: el.attrib[f] for f in ['name', 'code', 'description', 'comment', 'note'] if f in el.attrib})
+        parent.x_gena['code-field'] = cf
 
+
+def conv_codefields(parent, el, width):
+    if not any([child.tag == 'code-field' for child in el]):
+        return
+    res = cheby.tree.EnumDecl(parent)
+    root = parent
+    name = root.name
+    while root._parent is not None:
+        root = root._parent
+        name = root.name + '_' + name
+    res.name = name
+    res.width = width
+    for child in el:
+        if child.tag == 'code-field':
+            val = cheby.tree.EnumVal(res)
+            for k, v in child.attrib.items():
+                if k in ('description', 'comment', 'note'):
+                    conv_common(val, k, v)
+                elif k == 'name':
+                    val.name = v
+                elif k == 'code':
+                    val.value = conv_int(v)
+                else:
+                    raise UnknownAttribute(k)
+            adjust_common(val)
+            res.children.append(val)
+    root.x_enums.append(res)
 
 def conv_constant(parent, el):
     cv = parent.x_driver_edge.get('constant-value', [])
@@ -277,6 +305,7 @@ def conv_bit_field_data(reg, el):
             raise UnknownAttribute(k)
     adjust_common(res)
     res.lo = int(attrs['bit'])
+    conv_codefields(res, el, 1)
     for child in el:
         if child.tag == 'code-field':
             conv_codefield(res, child)
@@ -350,6 +379,7 @@ def conv_sub_reg(reg, el):
     elif res.lo > res.hi:
         # Swap incorrect order.
         res.lo, res.hi = (res.hi, res.lo)
+    conv_codefields(res, el, 1 if res.hi is None else res.hi - res.lo + 1)
     for child in el:
         if child.tag == 'code-field':
             conv_codefield(res, child)
@@ -431,6 +461,7 @@ def conv_register_data(parent, el):
     if attrs['access-mode'] == 'rmw':
         res.x_gena['rmw'] = True
     res.access = conv_access(attrs['access-mode'])
+    conv_codefields(res, el, res.width // 2 if attrs['access-mode'] == 'rmw' else res.width)
     for child in el:
         if child.tag == 'code-field':
             conv_codefield(res, child)
@@ -742,6 +773,7 @@ def conv_root(root, filename):
     res.x_gena = {}
     res.x_fesa = {}
     res.x_driver_edge = {}
+    res.x_enums = []
     acc_mode = None
     size_val = None
     size_str = None
