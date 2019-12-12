@@ -235,6 +235,21 @@ def gen_areas_address(areas, root, decls):
         decls.append(cst)
 
 
+def gen_enums(root, decls):
+    enums = root.x_enums
+    if len(enums) == 0:
+        return
+
+    decls.append(HDLComment('ENUMERATIONS'))
+    for en in enums:
+        pfx = 'C_Code_' + en.name
+        wd = en.width
+        for val in en.children:
+            cst = HDLConstant(pfx + '_' + val.name, wd,
+                              value=HDLBinConst(val.value, wd))
+            decls.append(cst)
+
+
 def gen_gena_memmap(root):
     res = HDLPackage()
     res.name = 'MemMap_{}'.format(root.name)
@@ -252,6 +267,8 @@ def gen_gena_memmap(root):
             gen_block(e, root, decls, name, pfx)
 
     gen_block(root, root, decls, 'Memory Map', root.name)
+
+    gen_enums(root, decls)
 
     res.decls = decls
     root.h_gena_pkg = res
