@@ -417,8 +417,7 @@ def test_gena2cheby_err():
     global nbr_tests
     files = ['err_memmap_acc_mode', 'err_root_attr', 'err_root_gen',
              'err_root_element', 'err_submap_child', 'err_submap_gen',
-             'err_submap_attr', 'err_submap_include', 'err_submap_noinc',
-             'err_submap_noinc2',
+             'err_submap_attr', 'err_submap_include',
              'err_comment',
              'err_area_attrs', 'err_area_gen',
              'err_memory_gen', 'err_memory_attr', 'err_memory_child',
@@ -459,7 +458,8 @@ def test_gena2cheby_regressions():
              'issue33d/preset1-preset-no',
              'issue33d/preset1-preset-always',
              'issue33d/preset1-preset-nosplit',
-             'issue33d/preset2-preset-nosplit']
+             'issue33d/preset2-preset-nosplit',
+             'issue51/map']
     for f in files:
         if verbose:
             print('test gena2cheby regression: {}'.format(f))
