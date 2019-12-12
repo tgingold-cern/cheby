@@ -122,6 +122,10 @@ def error(str):
     sys.stderr.write(str + '\n')
 
 
+def warning(s):
+    sys.stderr.write('warning: ' + s + '\n')
+
+
 def ignore_attr(attr, el):
     if flag_ignore:
         sys.stderr.write("note: ignored attribute '{}' in tag '{}'\n".format(
@@ -732,7 +736,8 @@ def conv_submap(parent, el):
             raise UnknownAttribute(k)
     adjust_common(res)
     if 'include' not in xg:
-        raise ErrorGenAttribute(res, "'include' is required for submaps")
+        warning("'include' is set to 'external' if missing")
+        res.include = False
     else:
         # Remove this gen extension, keep the standard 'include' attribute.
         del xg['include']
