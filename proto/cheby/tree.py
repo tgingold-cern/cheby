@@ -98,6 +98,7 @@ class Root(CompositeNode):
         self.version = None        # Semantic version (as a string)
         self.ident = None          # x-map-info:ident
         self.memmap_version = None # x-map-info:memmap-version
+        self.x_enums = []
         # Computed variables
         self.c_word_size = None  # Word size in bytes
         self.c_filename = None  # Filename for the tree.
@@ -200,6 +201,20 @@ class Field(FieldBase):
 class FieldReg(FieldBase):
     "A pseudo field for a register without fields."
     pass
+
+
+class EnumVal(NamedNode):
+    def __init__(self, parent):
+        super(EnumVal, self).__init__(parent)
+        self.value = None
+
+
+class EnumDecl(CompositeNode):
+    def __init__(self, parent):
+        super(EnumDecl, self).__init__(parent)
+        self.width = None
+        # children are EnumVal.
+
 
 
 class Visitor(object):

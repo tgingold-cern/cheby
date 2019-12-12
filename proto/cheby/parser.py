@@ -315,6 +315,49 @@ def parse_map_info(root, el):
             error("unhandled '{}' in x-map-info".format(k))
 
 
+def parse_enums_values(decl, el):
+    if not isinstance(el, list):
+        error("x-enums:enum {} 'children' must be a list".format(decl.name))
+    for val in el:
+        if not isinstance(val, dict) \
+           or len(val) != 1 \
+           or 'item' not in val:
+            error("x-enums:enum {} 'children' must be a list of 'item'")
+        val = val['item']
+        res = tree.EnumVal(decl)
+        parse_name(res, val)
+        for k, v in val.items():
+            if parse_named(res, k, v):
+                pass
+            elif k == 'value':
+                res.value = read_int(res, k, v)
+            else:
+                error("unhandled '{}' in x-enums:enum {} item {}".format(decl.name, val.name, k))
+        decl.children.append(res)
+
+def parse_enums(root, enums):
+    if not isinstance(enums, list):
+        error("x-enums must be a list (of enum)")
+    for en in enums:
+        if not isinstance(en, dict) \
+           or len(en) != 1 \
+           or 'enum' not in en:
+            error("x-enums list element must be 'enum'")
+        en = en['enum']
+        res = tree.EnumDecl(root)
+        parse_name(res, en)
+        for k, v in en.items():
+            if parse_named(res, k, v):
+                pass
+            elif k == 'width':
+                res.width = read_int(res, k, v)
+            elif k == 'children':
+                parse_enums_values(res, v)
+            else:
+                error("unhandled '{}' in x-enums:enum".format(k))
+        root.x_enums.append(res)
+
+
 def parse_yaml(filename):
     try:
         el = yaml.load(open(filename), Loader=yaml.SafeLoader)
@@ -334,6 +377,8 @@ def parse_yaml(filename):
     for k, v in el.items():
         if k == 'x-map-info':
             parse_map_info(res, v)
+        elif k == 'x-enums':
+            parse_enums(res, v)
         elif parse_composite(res, k, v):
             pass
         elif k == 'bus':

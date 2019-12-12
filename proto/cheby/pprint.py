@@ -62,6 +62,7 @@ def pprint_extension(pp, name, n):
             # Discard empty dict.
             return
         if all([isinstance(el, dict) and not el for el in n.values()]):
+            # Dict of empty dict ?
             return
         pp.pp_obj(name)
         for k in sorted(n):
@@ -69,6 +70,8 @@ def pprint_extension(pp, name, n):
             pprint_extension(pp, k, v)
         pp.pp_endobj()
     elif isinstance(n, list):
+        if len (n) == 0:
+            return
         pp.pp_list(name + 's')
         for e in n:
             pprint_extension(pp, name, e)
@@ -208,12 +211,32 @@ def pprint_composite_tail(pp, n):
         pp.pp_endlist()
 
 
+def pprint_enums(pp, n):
+    if len(n.x_enums) == 0:
+        return
+    pp.pp_list('x-enums')
+    for en in n.x_enums:
+        pp.pp_obj('enum')
+        pprint_named(pp, en)
+        pp.pp_int('width', en.width)
+        pp.pp_list('children')
+        for val in en.children:
+            pp.pp_obj('item')
+            pprint_named(pp, val)
+            pp.pp_int('value', val.value)
+            pp.pp_endobj()
+        pp.pp_endlist()
+        pp.pp_endobj()
+    pp.pp_endlist()
+
+
 @PrettyPrinter.register(tree.Root)
 def pprint_root(pp, n):
     pp.pp_obj('memory-map')
     pprint_composite_head(pp, n)
     pp.pp_str('bus', n.bus)
     pp.pp_str('size', n.size_str)
+    pprint_enums(pp, n)
     pprint_composite_tail(pp, n)
     pp.pp_endobj()
 
