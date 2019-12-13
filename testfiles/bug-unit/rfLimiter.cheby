@@ -1,0 +1,84 @@
+memory-map:
+  name: rfLimiter
+  bus: cern-be-vme-err-32
+  size: 1k
+  x-gena:
+    ident-code: 0xff
+    map-version: 20191111
+    semantic-mem-map-version: 0.0.3
+  x-driver-edge:
+    equipment-code: SP-ALCCA
+  children:
+    - submap:
+        name: ipInfo
+        address: 0x0
+        filename: ipInfo.cheby
+        include: True
+    - reg:
+        name: delay
+        description: delay for automatic delay compensation (phase rotator)
+        comment: 'delay with correction factor to compute the phase wrt to the FTWH1 for IQ phase rotator.\n\nFormat: Fix28_4 (internal)\n\ncorrection factor: f_clk*1e-3*H=577.5\nf_clk=125 [MHz]\nH=4630\n\nDelay resolution : 0.125ns\nMax delay : 4095.875ns\nMax register value: 4095.875*577.5*2^4  = +/-37845885\n'
+        width: 32
+        type: signed
+        access: rw
+        address: next
+        x-fesa:
+          persistence: Fesa
+          unit: ns
+        x-driver-edge:
+          max-val: 37845885
+          min-val: '-37845885'
+        x-conversions:
+          read: val/577.5/pow(2.0, 4.0)
+          write: val*577.5*pow(2.0, 4.0)
+    - reg:
+        name: phaseOffset
+        description: phase offset for automatic delay compensation (phase rotator)
+        comment: 'delay with correction factor to compute the phase wrt to the FTWH1 for IQ phase rotator.\n\nFormat: Fix_32_4\n\ncorrection factor: f_clk*1e-3*H=577.5\nf_clk=125 [MHz]\nH=4630'
+        width: 32
+        access: rw
+        address: next
+        x-fesa:
+          persistence: Fesa
+          unit: deg
+        x-driver-edge:
+          max-val: 32767
+          min-val: '-32768'
+        x-conversions:
+          read: val/pow(2.0, 15.0)*180.0
+          write: val/180.0*pow(2.0, 15.0)
+        children:
+          - field:
+              name: value
+              range: 15-0
+              x-fesa:
+                unit: deg
+              x-conversions:
+                read: val/pow(2.0, 15.0)*180.0
+                write: val/180.0*pow(2.0, 15.0)
+    - reg:
+        name: gain
+        description: IQ gain applied with the automatic delay compensation (phase rotator)
+        comment: 'Static gain correction applied by the phase rotator. Used to calibrate small gain error from output stage and Power amplifier\n\nRange [-2;+2[\nFormat: Fix_16_14'
+        width: 32
+        access: rw
+        address: next
+        x-fesa:
+          persistence: Fesa
+          unit: '-'
+        x-driver-edge:
+          max-val: 32767
+          min-val: '-32768'
+        x-conversions:
+          read: val/pow(2.0, 14.0)
+          write: val*pow(2.0, 14.0)
+        children:
+          - field:
+              name: value
+              range: 15-0
+              preset: 0x4000
+              x-fesa:
+                unit: '-'
+              x-conversions:
+                read: val/pow(2.0, 14.0)
+                write: val*pow(2.0, 14.0)
