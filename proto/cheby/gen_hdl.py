@@ -43,7 +43,7 @@ def add_block_decoder(root, stmts, addr, children, hi, func, off):
         el = children[0]
         if isinstance(el, tree.Reg):
             if hi <= root.c_addr_word_bits:
-                foff = off & (el.c_size - 1)
+                foff = off - el.c_abs_addr
                 if root.c_word_endian == 'big':
                     # Big endian
                     foff = el.c_size - root.c_word_size - foff
