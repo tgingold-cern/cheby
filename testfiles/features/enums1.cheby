@@ -1,0 +1,31 @@
+memory-map:
+  bus: wb-32-be
+  name: enums1
+  description: a single register
+  x-enums:
+    - enum:
+        name: enum1
+        width: 8
+        children:
+          - item:
+              name: hello
+              value: 0
+          - item:
+              name: World
+              value: 1
+    - enum:
+        name: enum2
+        width: 1
+        children:
+          - item:
+              name: hello
+              value: 0
+          - item:
+              name: world
+              value: 1
+  children:
+    - reg:
+        name: r1
+        width: 32
+        access: rw
+        type: unsigned
