@@ -49,7 +49,7 @@ class PrettyPrinter(tree.Visitor):
         if s is None:
             return
         self.pp_indent()
-        if any(c in s for c in "'[]\n:"):
+        if any(c in s for c in "'[]\n:") or s.startswith('-'):
             s = "'" + ''.join([self.trans.get(c, c) for c in s]) + "'"
         elif s.lower() in ['on', 'off', 'false', 'true']:
             s = "'" + s + "'"
