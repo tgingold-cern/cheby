@@ -2,21 +2,6 @@ memory-map:
   name: codeFields
   bus: cern-be-vme-16
   size: 16k
-  x-enums:
-    - enum:
-        name: codeFields_area1_myRegister
-        width: 16
-        children:
-          - item:
-              name: problematicCodeField
-              value: 0
-    - enum:
-        name: codeFields_area2_myRegister
-        width: 16
-        children:
-          - item:
-              name: problematicCodeField
-              value: 0
   x-gena:
     ident-code: 0x1
     map-version: 20190204
@@ -36,6 +21,11 @@ memory-map:
               width: 16
               access: rw
               address: next
+              x-gena:
+                code-fields:
+                  - code-field:
+                      code: 0
+                      name: problematicCodeField
               x-fesa:
                 persistence: Fesa
     - block:
@@ -50,5 +40,10 @@ memory-map:
               width: 16
               access: rw
               address: next
+              x-gena:
+                code-fields:
+                  - code-field:
+                      code: 0
+                      name: problematicCodeField
               x-fesa:
                 persistence: Fesa
