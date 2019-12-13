@@ -905,6 +905,8 @@ def main():
              "The result is printed on the standard output\n"
              "You can then use cheby to generate vhdl:\n"
              " cheby --gen-gena-regctrl=OUTPUT.vhdl -i INPUT.cheby")
+    aparser.add_argument('--version', action='version',
+                         version='%(prog)s ' + cheby.__version__)
     aparser.add_argument('FILE', nargs='+')
     aparser.add_argument('-i', '--ignore', action='store_true',
                          help='display ignored attributes')
