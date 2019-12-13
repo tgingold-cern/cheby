@@ -267,7 +267,8 @@ read the get the current value.  The hardware cannot change the value.
 read the current value of the port, and cannot modify it.
 
 The size (in bits) of the register can be specified by the `width` attribute.
-The size cannot be larger than two words.
+The size can be larger than a word (but then you have to consider word
+endianness issues).
 
 It is possible to have fields in a register.  A field is a group of
 consecutive bits and has a name.
