@@ -28,6 +28,8 @@ flag_out_file = False
 # do not display the result
 flag_quiet = False
 
+# If code-fields are converted to enumerations.
+flag_enums = False
 
 class UnknownAttribute(Exception):
     def __init__(self, msg):
@@ -216,13 +218,15 @@ def adjust_common(n):
 
 
 def conv_codefield(parent, el):
-    if False:
+    if not flag_enums:
         cf = parent.x_gena.get('code-field', [])
         cf.append({f: el.attrib[f] for f in ['name', 'code', 'description', 'comment', 'note'] if f in el.attrib})
         parent.x_gena['code-field'] = cf
 
 
 def conv_codefields(parent, el, width):
+    if not flag_enums:
+        return
     if not any([child.tag == 'code-field' for child in el]):
         return
     res = cheby.tree.EnumDecl(parent)
@@ -899,6 +903,7 @@ def process_file(filename):
 
 def main():
     global flag_ignore, flag_keep_preset, flag_recurse, flag_out_file, flag_recurse, flag_quiet
+    global flag_enums
     aparser = argparse.ArgumentParser(description='Gena to Cheby converter',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="Convert the XML input file to cheby YAML file\n"
@@ -918,6 +923,10 @@ def main():
                          help="keep holes-preset attributes")
     aparser.add_argument('-r', '--recursive', action='store_true',
                          help="Recursively parse submaps, works only with -f (--out_file)")
+    aparser.add_argument('--enums', action='store_true', default='false',
+                         help='Use enumeration for code-fields')
+    aparser.add_argument('--no-enums', action='store_false', dest='enums',
+                         help='Do not use enumeration for code-fields but x-gena extensions (default)')
 
     args = aparser.parse_args()
     flag_ignore = args.ignore
@@ -925,6 +934,7 @@ def main():
     flag_out_file = args.out_file
     flag_recurse = args.recursive and flag_out_file
     flag_quiet = args.quiet
+    flag_enums = args.enums
 
     succeeded = True
 
