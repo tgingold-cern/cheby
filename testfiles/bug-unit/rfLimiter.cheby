@@ -65,7 +65,6 @@ memory-map:
         address: next
         x-fesa:
           persistence: Fesa
-          unit: '-'
         x-driver-edge:
           max-val: 32767
           min-val: '-32768'
@@ -77,8 +76,6 @@ memory-map:
               name: value
               range: 15-0
               preset: 0x4000
-              x-fesa:
-                unit: '-'
               x-conversions:
                 read: val/pow(2.0, 14.0)
                 write: val*pow(2.0, 14.0)
