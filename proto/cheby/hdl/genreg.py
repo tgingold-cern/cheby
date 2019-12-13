@@ -430,9 +430,9 @@ class GenReg(ElGen):
             s.append(HDLAssign(Slice_or_Index(ibus.rd_dat, nxt - off, width), val))
 
         for f in n.c_sorted_fields:
-            if f.lo > off + self.root.c_word_bits:
+            if f.lo >= off + self.root.c_word_bits:
                 break
-            if f.lo + f.c_rwidth < off:
+            if f.lo + f.c_rwidth <= off:
                 continue
             pad(f.lo)
             src = f.h_gen.get_input(off)
