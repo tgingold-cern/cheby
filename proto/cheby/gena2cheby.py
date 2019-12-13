@@ -373,7 +373,8 @@ def conv_sub_reg(reg, el):
         elif k == 'write-conversion-factor':
             res.x_conversions['write'] = convFactorSyntaxModifier(v)
         elif k in ['unit']:
-            res.x_fesa[k] = v
+            if v != '-':
+                res.x_fesa[k] = v
         elif k in ['constant-value']:
             res.x_gena[k] = v
         else:
@@ -458,7 +459,8 @@ def conv_register_data(parent, el):
         elif k == 'write-conversion-factor':
             res.x_conversions['write'] = convFactorSyntaxModifier(v)
         elif k == 'unit':
-            res.x_fesa[k] = v
+            if v != '-':
+                res.x_fesa[k] = v
         elif k in ['max-val', 'min-val']:
             res.x_driver_edge[k] = v
         else:
@@ -549,8 +551,11 @@ def conv_memory_buffer(el):
     attrs = el.attrib
     for k, v in attrs.items():
         if k in ('description', 'buffer-type', 'buffer-select-code', 'name',
-                 'unit', 'bit-encoding', 'note', 'comment'):
+                 'bit-encoding', 'note', 'comment'):
             res[k] = v
+        elif k == 'unit':
+            if v != '-':
+                res['unit'] = v
         elif k in ('read-conversion-factor', 'write-conversion-factor'):
             res[k] = convFactorSyntaxModifier(v)
         elif k in ('comment-encoding', ):
