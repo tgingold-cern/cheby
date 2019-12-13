@@ -15,7 +15,7 @@
    also have conflicts with user names.
 """
 from cheby.hdltree import (HDLModule, HDLInterface,
-                           HDLAssign, HDLComb, HDLComment,
+                           HDLAssign, HDLComb, HDLComment, HDLConstant,
                            HDLSwitch, HDLChoiceExpr, HDLChoiceDefault,
                            bit_x,
                            HDLSlice, HDLReplicate,
@@ -207,6 +207,15 @@ def gen_hdl_header(root, ibus=None):
     return module
 
 
+def gen_enums(root, module):
+    decls = module.global_decls
+    for en in root.x_enums:
+        decls.append(HDLComment("Enumeration {}".format(en.name)))
+        for val in en.children:
+            decls.append(HDLConstant("C_{}_{}".format(en.name, val.name),
+                size=en.width, value=HDLConst(val.value, en.width)))
+
+
 def generate_hdl(root):
     ibus = Ibus()
 
@@ -217,6 +226,8 @@ def generate_hdl(root):
 
     root.h_gen = GenBlock(root, module, root)
     root.h_gen.create_generators()
+
+    gen_enums(root, module)
 
     # Add ports
     iogroup = root.get_extension('x_hdl', 'iogroup')
