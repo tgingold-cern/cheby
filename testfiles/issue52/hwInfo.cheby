@@ -1,0 +1,77 @@
+memory-map:
+  name: hwInfo
+  bus: cern-be-vme-16
+  children:
+    - reg:
+        name: stdVersion
+        width: 32
+        access: ro
+        address: 0x0
+        children:
+          - field:
+              name: major
+              range: 23-16
+              preset: 1
+              x-hdl:
+                type: const
+          - field:
+              name: minor
+              range: 15-8
+              preset: 0
+              x-hdl:
+                type: const
+          - field:
+              name: patch
+              range: 7-0
+              preset: 0
+              x-hdl:
+                type: const
+    - reg:
+        name: serialNumber
+        description: HW serial number
+        width: 64
+        access: ro
+        address: 0x4
+    - reg:
+        name: firmwareVersion
+        description: Firmware Version
+        width: 32
+        access: ro
+        address: 0xc
+        children:
+          - field:
+              name: major
+              range: 23-16
+          - field:
+              name: minor
+              range: 15-8
+          - field:
+              name: patch
+              range: 7-0
+    - reg:
+        name: memMapVersion
+        description: Memory Map Version
+        width: 32
+        access: ro
+        address: 0x10
+        children:
+          - field:
+              name: major
+              range: 23-16
+          - field:
+              name: minor
+              range: 15-8
+          - field:
+              name: patch
+              range: 7-0
+    - reg:
+        name: echo
+        description: Echo register
+        width: 32
+        access: rw
+        address: 0x14
+        children:
+          - field:
+              name: echo
+              description: This version of the standard foresees only 8bits linked to real memory
+              range: 7-0

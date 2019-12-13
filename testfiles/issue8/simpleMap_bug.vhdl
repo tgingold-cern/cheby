@@ -91,19 +91,19 @@ begin
     when "0000000000000000001" => 
       -- Reg largeReg
       rd_ack_d0 <= VMERdMem;
-      rd_dat_d0 <= largeReg_i(47 downto 32);
+      rd_dat_d0 <= largeReg_i(63 downto 48);
     when "0000000000000000010" => 
       -- Reg largeReg
       rd_ack_d0 <= VMERdMem;
-      rd_dat_d0 <= largeReg_i(31 downto 16);
+      rd_dat_d0 <= largeReg_i(47 downto 32);
     when "0000000000000000011" => 
       -- Reg largeReg
       rd_ack_d0 <= VMERdMem;
-      rd_dat_d0 <= largeReg_i(15 downto 0);
+      rd_dat_d0 <= largeReg_i(31 downto 16);
     when "0000000000000000100" => 
       -- Reg largeReg
       rd_ack_d0 <= VMERdMem;
-      rd_dat_d0 <= largeReg_i(63 downto 48);
+      rd_dat_d0 <= largeReg_i(15 downto 0);
     when others =>
       rd_ack_d0 <= VMERdMem;
     end case;
