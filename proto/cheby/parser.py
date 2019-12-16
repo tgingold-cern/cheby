@@ -93,8 +93,8 @@ def parse_named(node, key, val):
             node.x_fesa = val
         elif key == 'x-driver-edge':
             node.x_driver_edge = val
-        elif key == 'x-cern-info':
-            node.x_cern_info = val
+        elif key == 'x-map-info':
+            node.x_map_info = val
         elif key == 'x-devicetree':
             node.x_devicetree = val
         elif key == 'x-interrupts':
