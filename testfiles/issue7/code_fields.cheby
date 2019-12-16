@@ -3,11 +3,12 @@ memory-map:
   bus: cern-be-vme-16
   size: 16k
   x-gena:
-    ident-code: 0x1
     map-version: 20190204
-    semantic-mem-map-version: 1.0.0
   x-driver-edge:
     equipment-code: PX-ALCOB
+  x-map-info:
+    ident: 0x1
+    memmap-version: 1.0.0
   children:
     - block:
         name: area1

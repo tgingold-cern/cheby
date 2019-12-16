@@ -7,10 +7,11 @@ memory-map:
     equipment-code: SP-ALCPF
     module-type: RF_FRACTDIV
     name: RFFRACTDIV
-  x-cern-info:
-    ident-code: 0x50
+  x-map-info:
+    ident: 0x50
+    memmap-version: 1.0.0
+  x-gena:
     map-version: 20191107
-    semantic-mem-map-version: 1.0.0
   children:
     - reg:
         name: status1

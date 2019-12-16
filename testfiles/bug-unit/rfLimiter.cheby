@@ -3,11 +3,12 @@ memory-map:
   bus: cern-be-vme-err-32
   size: 1k
   x-gena:
-    ident-code: 0xff
     map-version: 20191111
-    semantic-mem-map-version: 0.0.3
   x-driver-edge:
     equipment-code: SP-ALCCA
+  x-map-info:
+    ident: 0xff
+    memmap-version: 0.0.3
   children:
     - submap:
         name: ipInfo

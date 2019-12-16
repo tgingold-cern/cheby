@@ -2,9 +2,10 @@ memory-map:
   bus: cern-be-vme-32
   name: mainMap
   size: 1k
-  x-cern-info:
+  x-gena:
     map-version: 00000000
-    ident-code: 0x0
+  x-map-info:
+    ident: 0x0
   children:
     - submap:
         name: ssmap2

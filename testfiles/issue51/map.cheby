@@ -3,11 +3,12 @@ memory-map:
   bus: cern-be-vme-err-32
   size: 10k
   x-gena:
-    ident-code: 0x1
     map-version: 20190607
-    semantic-mem-map-version: 0.0.1
   x-driver-edge:
     equipment-code: PX-ALCOB
+  x-map-info:
+    ident: 0x1
+    memmap-version: 0.0.1
   children:
     - submap:
         name: submap

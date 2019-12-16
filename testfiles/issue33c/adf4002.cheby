@@ -4,8 +4,9 @@ memory-map:
   size: 512
   x-driver-edge:
     equipment-code: PX-ALGSA
-  x-cern-info:
-    ident-code: 0x01
+  x-map-info:
+    ident: 0x01
+  x-gena:
     map-version: 20191108
     semantic-mem-map-version: 1.0.0
   children:

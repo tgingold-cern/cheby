@@ -8,14 +8,15 @@ memory-map:
     gen:
       packages:
         - package: my_lib.my_pkg
-    ident-code: 0x00300010
     map-version: 20190607
-    semantic-mem-map-version: 1.1.0
   x-driver-edge:
     equipment-code: PX-ALGCA
     module-type: RF_VXS_MAIN
     name: RFVXSMAIN
     vme-base-addr: 0xb0000000
+  x-map-info:
+    ident: 0x00300010
+    memmap-version: 1.1.0
   children:
     - reg:
         name: firmwareVersion

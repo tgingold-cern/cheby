@@ -2,8 +2,9 @@ memory-map:
   name: incCRegs
   bus: cern-be-vme-err-32
   size: 1024
-  x-cern-info:
-    ident-code: 0xff
+  x-map-info:
+    ident: 0xff
+  x-gena:
     map-version: 20161031
   children:
     - reg:
