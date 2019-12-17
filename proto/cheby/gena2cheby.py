@@ -933,7 +933,7 @@ def main():
                          help="keep holes-preset attributes")
     aparser.add_argument('-r', '--recursive', action='store_true',
                          help="Recursively parse submaps, works only with -f (--out_file)")
-    aparser.add_argument('--enums', action='store_true', default='false',
+    aparser.add_argument('--enums', action='store_true', default=False,
                          help='Use enumeration for code-fields')
     aparser.add_argument('--no-enums', action='store_false', dest='enums',
                          help='Do not use enumeration for code-fields but x-gena extensions (default)')
