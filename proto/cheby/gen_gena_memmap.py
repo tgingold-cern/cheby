@@ -8,29 +8,16 @@ def get_gena(n, name, default=None):
     return n.get_extension('x_gena', name, default)
 
 
-def get_cern_info(root, name, default=None):
-    return root.get_extension('x_cern_info', name, default)
-
-
-def get_version(root, name):
-    # Versions info have moved from x-cern-info to x-gena.
-    gena = get_gena(root, name)
-    if gena is not None:
-        return gena
-    cern_info = get_cern_info(root, name)
-    return cern_info
-
-
 def gen_header(root, decls):
     cpfx = 'C_{}'.format(root.name)
-    ident_code = get_version(root, 'ident-code')
+    ident_code = root.ident
     if ident_code is not None:
         width = root.c_word_size * tree.BYTE_SIZE
         decls.append(HDLComment('Ident Code'))
         decls.append(HDLConstant(cpfx + '_IdentCode', width,
                      value=HDLHexConst(ident_code, width)))
 
-    version = get_version(root, 'map-version')
+    version = get_gena(root, 'map-version')
     if version is not None:
         decls.append(HDLComment('Memory Map Version'))
         cst = HDLConstant(cpfx + '_MemMapVersion', 32,
@@ -38,7 +25,7 @@ def gen_header(root, decls):
         cst.eol_comment = '{}'.format(version)
         decls.append(cst)
 
-    sem_version = get_version(root, 'semantic-mem-map-version')
+    sem_version = root.memmap_version
     if sem_version is not None:
         # TODO: check format ?
         vers = [int(x) for x in sem_version.split('.')]

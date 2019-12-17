@@ -3,8 +3,9 @@ memory-map:
   bus: cern-be-vme-16
   size: 1024k
   x-gena:
-    ident-code: 0xff
     map-version: 20161101
+  x-map-info:
+    ident: 0xff
   children:
     - memory:
         name: mem1

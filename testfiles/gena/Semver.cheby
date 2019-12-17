@@ -3,9 +3,10 @@ memory-map:
   bus: cern-be-vme-err-32
   size: 1024k
   x-gena:
-    ident-code: 0xff
     map-version: 20161031
-    semantic-mem-map-version: 1.2.3
+  x-map-info:
+    ident: 0xff
+    memmap-version: 1.2.3
   children:
     - reg:
         name: test3

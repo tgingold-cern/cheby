@@ -1,9 +1,10 @@
 memory-map:
   bus: cern-be-vme-32
   name: ssmap
-  x-cern-info:
+  x-gena:
     map-version: 00000000
-    ident-code: 0x0
+  x-map-info:
+    ident: 0x0
   children:
     - block:
         name: b1

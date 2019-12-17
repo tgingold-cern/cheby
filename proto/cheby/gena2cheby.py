@@ -788,6 +788,7 @@ def conv_root(root, filename):
     res.x_fesa = {}
     res.x_driver_edge = {}
     res.x_enums = []
+    res.x_map_info = {}
     acc_mode = None
     size_val = None
     size_str = None
@@ -805,8 +806,12 @@ def conv_root(root, filename):
         elif k == 'area-depth':
             size_str = v
             size_val = conv_depth(v)
-        elif k in ('map-version', 'ident-code', 'semantic-mem-map-version'):
+        elif k == 'map-version':
             res.x_gena[k] = v
+        elif k == 'ident-code':
+            res.x_map_info['ident'] = v
+        elif k == 'semantic-mem-map-version':
+            res.x_map_info['memmap-version'] = v
         elif k == 'gen':
             xg = {}
             for e in [g.strip() for g in v.split(',')]:
