@@ -93,7 +93,8 @@ def pprint_extensions(pp, n):
                  'x-fesa',
                  'x-driver-edge',
                  'x-conversions',
-                 'x-map-info']:
+                 'x-map-info',
+                 'schema-version']:
         attr = name.replace('-', '_')
         if hasattr(n, attr):
             pprint_extension(pp, name, getattr(n, attr))

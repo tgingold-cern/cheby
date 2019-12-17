@@ -9,6 +9,7 @@ from xml.etree import ElementTree as ET
 import cheby.tree
 import cheby.pprint
 import cheby.layout as layout
+from cheby.schemas_version import VERSIONS
 
 # If True, display ignored constructs.
 flag_ignore = False
@@ -789,6 +790,7 @@ def conv_root(root, filename):
     res.x_driver_edge = {}
     res.x_enums = []
     res.x_map_info = {}
+    res.schema_version = VERSIONS
     acc_mode = None
     size_val = None
     size_str = None
