@@ -99,6 +99,7 @@ class Root(CompositeNode):
         self.ident = None          # x-map-info:ident
         self.memmap_version = None # x-map-info:memmap-version
         self.x_enums = []
+        self.schema_version = {}
         # Computed variables
         self.c_word_size = None  # Word size in bytes
         self.c_filename = None  # Filename for the tree.

@@ -389,6 +389,8 @@ def parse_yaml(filename):
             res.word_endian = read_text(res, k, v)
         elif k == 'version':
             res.version = read_text(res, k, v)
+        elif k == 'schema-version':
+            res.schema_version = v
         else:
             error("unhandled '{}' in root".format(k))
     return res
