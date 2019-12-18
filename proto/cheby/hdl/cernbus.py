@@ -178,8 +178,11 @@ class CERNBEBus(BusGen):
             n.h_ws = module.new_HDLSignal(n.c_name + '_ws')
             n.h_wt = module.new_HDLSignal(n.c_name + '_wt')
             proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_sync=gconfig.rst_sync)
-            proc.sync_stmts.append(HDLAssign(n.h_wt, n.h_ws))
+            proc.sync_stmts.append(
+                HDLAssign(n.h_wt,
+                          HDLAnd(HDLOr(n.h_wt, n.h_ws), HDLNot(n.h_bus['wack']))))
             proc.rst_stmts.append(HDLAssign(n.h_wt, bit_0))
+            stmts.append(proc)
             module.stmts.append(
                 HDLAssign(n.h_ws,
                           HDLOr(ibus.wr_req, HDLParen(HDLAnd(n.h_wt, HDLNot(ibus.rd_req))))))
