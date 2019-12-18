@@ -65,6 +65,15 @@ begin
 
   -- Interface acqVP
   acqVP_VMEWrData_o <= wr_dat_d0;
+  process (Clk) begin
+    if rising_edge(Clk) then
+      if rst_n = '0' then
+        acqVP_wt <= '0';
+      else
+        acqVP_wt <= (acqVP_wt or acqVP_ws) and not acqVP_VMEWrDone_i;
+      end if;
+    end if;
+  end process;
   acqVP_ws <= wr_req_d0 or (acqVP_wt and not VMERdMem);
   process (VMEAddr, wr_adr_d0, acqVP_wt, acqVP_ws) begin
     if (acqVP_ws or acqVP_wt) = '1' then
