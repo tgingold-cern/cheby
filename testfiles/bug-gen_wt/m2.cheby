@@ -1,0 +1,8 @@
+memory-map:
+  bus: cern-be-vme-32
+  name: m2
+  children:
+    - reg:
+        name: r1
+        width: 16
+        access: rw

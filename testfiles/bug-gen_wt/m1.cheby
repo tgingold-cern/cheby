@@ -1,0 +1,11 @@
+memory-map:
+  bus: cern-be-vme-32
+  name: m1
+  children:
+    - reg:
+        name: r1
+        width: 32
+        access: rw
+    - submap:
+        name: sm2
+        filename: m2.cheby
