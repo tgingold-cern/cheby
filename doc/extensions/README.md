@@ -9,15 +9,15 @@ The current extensions are described in the following sections.
 ## <a name="x-map-info">x-map-info
 This extension is the successor of [x-cern-info](#x-cern-info) and some attributes previously used in x-gena as well.
 
-It contains 2 posible attributes
+It contains 2 possible attributes
 *  ident
 *  memmap-version
 
 ### ident
 Ident is a unique identifier of a memory map which can be feed back to a ro register to provide information and identification about what type of board/firwmare the memory map belongs to.
-The value itself is not standardized among the different CERN groups. 
+The value itself is not standardized among the different CERN groups.
 
-In RF we have a long standing list of idents (formarlly names ident-code in the old cheburashka based memory maps) for VME which are mastered centrally by John Molendijk (`john.molendijk@cern.ch`). 
+In RF we have a long standing list of idents (formarlly names ident-code in the old cheburashka based memory maps) for VME which are mastered centrally by John Molendijk (`john.molendijk@cern.ch`).
 For uTCA based boards we start from scratch with a new list of idents. Currently there is no central person or location to award them and in fact the firmware does not yet provide any meaningful data. But a first [wiki page](https://wikis.cern.ch/pages/viewpage.action?pageId=122066518) has been created
 
 * **Previous used ident-code attribute in x-cern-info/ident-code and x-gena/ident-code are migrated to x-map-info/ident**
@@ -39,7 +39,7 @@ These values are being exposed by according registers in the firmware/IP cores.
 
 ## x-driver-edge
 
-TBD: For now this is just the list of existing attributres, further documentation needs to be added
+TBD: For now this is just the list of existing attributes, further documentation needs to be added
 * name
 * equipment-code
 * module-type
@@ -80,4 +80,4 @@ It is possible to not add all of the attributes if you have a driver which fits 
 # Deprecated extensions
 
 ## <a name="x-cern-info">x-cern-info
-This attrtibute is debriacted! Please use [x-map-info](#x-map-info)
+This attribute is deprecated! Please use [x-map-info](#x-map-info)
