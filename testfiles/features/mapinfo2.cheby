@@ -15,8 +15,6 @@ memory-map:
         width: 32
         access: ro
         constant: memmap-version
-        x-hdl:
-          type: const
     - reg:
         name: icode
         width: 32
