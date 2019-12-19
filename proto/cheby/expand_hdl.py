@@ -48,7 +48,12 @@ def expand_x_hdl_reg(n, dct):
     
 def init_x_hdl_field(f):
     "Set default values for x-hdl attributes of a field"
-    f.hdl_type = 'wire' if f._parent.access == 'ro' else 'reg'
+    if f._parent.constant is not None:
+        f.hdl_type = 'const'
+    elif f._parent.access == 'ro':
+        f.hdl_type = 'wire'
+    else:
+        f.hdl_type = 'reg'
 
 
 def expand_x_hdl_field_kv(f, n, k, v):
