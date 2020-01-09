@@ -222,6 +222,23 @@ def adjust_common(n):
         n.note = None
 
 
+def adjust_common_dict(n):
+    """Merge note to comment/description but for a dict.
+       FIXME: this is almost the same as adjust_common, so is there an easy way to factorize the code ?"""
+    if 'note' not in n:
+        return
+    if n['note'] == n.get('description'):
+        pass
+    elif 'description' not in n:
+        n['description'] = n['note']
+    else:
+        if 'comment' not in n:
+            n['comment'] = n['note']
+        else:
+            n['comment'] += '\n' + n['note']
+    del(n['note'])
+
+
 def conv_codefield(parent, el):
     if not flag_enums:
         cf = parent.x_gena.get('code-field', [])
@@ -567,6 +584,7 @@ def conv_memory_buffer(el):
             pass
         else:
             raise UnknownAttribute(k)
+    adjust_common_dict(res)
 
     bit_fields = []
     for child in el:
