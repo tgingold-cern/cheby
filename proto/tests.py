@@ -461,7 +461,7 @@ def test_gena2cheby_regressions():
              'issue33d/preset1-preset-always',
              'issue33d/preset1-preset-nosplit',
              'issue33d/preset2-preset-nosplit',
-             'issue51/map', 'bug-unit/rfLimiter']
+             'issue51/map', 'bug-unit/rfLimiter', 'bug-note/WB3_DDR']
     for f in files:
         if verbose:
             print('test gena2cheby regression: {}'.format(f))
