@@ -32,29 +32,33 @@ flag_quiet = False
 # If code-fields are converted to enumerations.
 flag_enums = False
 
-class UnknownAttribute(Exception):
+class AppException(Exception):
+    "Exception defined for the application"
+    pass
+
+class UnknownAttribute(AppException):
     def __init__(self, msg):
         self.msg = msg
 
 
-class UnknownGenAttribute(Exception):
+class UnknownGenAttribute(AppException):
     def __init__(self, msg, n):
         self.msg = msg
         self.node = n
 
-class ErrorGenAttribute(Exception):
+class ErrorGenAttribute(AppException):
     def __init__(self, n, msg):
         self.msg = msg
         self.node = n
 
 
-class UnknownTag(Exception):
+class UnknownTag(AppException):
     def __init__(self, msg):
         super(UnknownTag, self).__init__()
         self.msg = msg
 
 
-class UnknownValue(Exception):
+class UnknownValue(AppException):
     def __init__(self, name, val):
         self.name = name
         self.val = val
@@ -953,9 +957,12 @@ def main():
     for file in args.FILE:
         try:
             process_file(file)
-        except Exception as e:
+        except AppException as e:
             if False:
                 print('error: {}'.format(e))
+            succeeded = False
+        except Exception as e:
+            print('error: {}'.format(e))
             succeeded = False
     if not succeeded:
         exit(1)
