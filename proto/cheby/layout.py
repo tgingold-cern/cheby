@@ -96,7 +96,7 @@ def layout_named(n):
             n, "missing name for {}".format(n.get_path()))
 
 
-def layout_field(f, parent, pos):
+def layout_field(root, f, parent, pos):
     layout_named(f)
     # Check range is present
     if f.lo is None:
@@ -148,9 +148,19 @@ def layout_field(f, parent, pos):
     if f.type is None:
         f.c_type = parent.c_type
     else:
-        if f.type not in ('signed', 'unsigned'):
+        if f.type.startswith('enum.'):
+            enumname = f.type[5:]
+            en = root.c_enums_dict.get(enumname)
+            if en is None:
+                raise LayoutException(
+                    f, "enumeration '{}' is not defined".format(enumname))
+            if en.width != f.c_rwidth:
+                raise LayoutException(
+                    f, "width of field {} ({}) doesn't match width of enum {} ({})".format(
+                        f.get_path(), f.c_rwidth, enumname, en.width))
+        elif f.type not in ('signed', 'unsigned'):
             raise LayoutException(
-                f, "type of field {} must be either 'signed' or 'unsigned'".format(
+                f, "type of field {} must be either 'signed', 'unsigned' or 'enum'".format(
                     f.get_path()))
         f.c_type = f.type
 
@@ -243,7 +253,7 @@ def layout_reg(lo, n):
                     f, "field '{}' reuse a name in reg {}".format(
                         f.name, n.get_path()))
             names.add(f.name)
-            layout_field(f, n, pos)
+            layout_field(lo.root, f, n, pos)
         build_sorted_fields(n)
     else:
         # Create the artificial field
@@ -535,6 +545,15 @@ def layout_semantic_version(n, val):
     return nval
 
 
+def layout_enums(root):
+    for e in root.x_enums:
+        if root.c_enums_dict.get(e.name) is not None:
+            raise LayoutException(
+                e, "duplicate enum name {}".format(e.name))
+        else:
+            root.c_enums_dict[e.name] = e
+
+
 def layout_cheby_memmap(root):
     flag_align_reg = True
     root.c_buserr = False
@@ -587,6 +606,9 @@ def layout_cheby_memmap(root):
 
     # x-map-info
     root.c_memmap_version = layout_semantic_version(root, root.memmap_version)
+
+    # x-enums
+    layout_enums(root)
 
     # Number of bits in the address used by a word
     root.c_addr_word_bits = ilog2(root.c_word_size)

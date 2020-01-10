@@ -106,6 +106,7 @@ class Root(CompositeNode):
         self.c_word_endian = None  # word endianness ('any', 'little', 'big')
         self.c_version = None
         self.c_memmap_version = None
+        self.c_enums_dict = {}      # Dictionnary from enum name to enum node.
 
 
 class Block(CompositeNode):
