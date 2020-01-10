@@ -1,0 +1,25 @@
+memory-map:
+  bus: wb-32-be
+  name: enums2
+  description: a single register field
+  x-enums:
+    - enum:
+        name: enum1
+        width: 8
+        children:
+          - item:
+              name: hello
+              value: 0
+          - item:
+              name: World
+              value: 1
+  children:
+    - reg:
+        name: r1
+        width: 32
+        access: rw
+        children:
+          - field:
+              name: f1
+              range: 3-0
+              type: enum.enum1
