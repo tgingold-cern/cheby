@@ -99,6 +99,8 @@ to the x-gena section instead of the x-cern-info section.
 A new section x-map-info is now supported at the root with 2 attributes:
 ident and memmap-version.  Values are written to the consts file.
 
+Support added for enumerated types.
+
 ## Version 1.3
 
 Add x-hdl:port to specify how ports are generated for registers (issue#11)

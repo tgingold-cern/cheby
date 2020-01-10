@@ -302,8 +302,8 @@ set to `field` (the default), ports are created for each field.
 
 ==== Plain Registers
 
-A plain register has a type, which could be `unsigned` (the default), `signed`
-or `float`.  The type has no impact on the hardware, but changes the
+A plain register has a type, which could be `unsigned` (the default), `signed` or
+`float`.  The type has no impact on the hardware, but changes the
 software view.
 
 It is possible to define the initial (just after a reset) value of a
@@ -344,6 +344,12 @@ using the little endian convention.
 
 It is possible to define the initial value of a field using the
 `preset` attribute.
+
+It is possible to use a different type than the register type (which acts as
+the default type).  The `float` type is not available for fields.  It is however
+possible to use an enumeration type by specifying `enum.NAME`, where `NAME`
+must be a name of an enumeration defined in the `x-enums` extension.  The width
+of the field must be the same as the width of the enumeration.
 
 The `type` attribute within `x-hdl` is available.  It can be set to:
 
