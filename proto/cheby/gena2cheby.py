@@ -194,14 +194,14 @@ def conv_bool(k, s):
 
 def conv_common(node, k, v):
     if k == 'description':
-        node.description = v
+        node.description = conv_string(v)
     elif k == 'comment':
         node.comment = conv_string(v)
     elif k == 'comment-encoding':
         if v != 'PlainText':
             raise UnknownValue(k, v)
     elif k == 'note':
-        node.note = v
+        node.note = conv_string(v)
     else:
         return False
     return True
@@ -556,7 +556,11 @@ def conv_memory_bit_field_data(el):
     res = {}
     attrs = el.attrib
     for k, v in attrs.items():
-        if k in ('bit', 'name', 'description', 'comment'):
+        if k in ('name', 'description', 'comment'):
+            s = conv_string(v)
+            if s is not None:
+                res[k] = s
+        elif k in ('bit',):
             res[k] = v
         elif k in ('comment-encoding',):
             pass
@@ -572,8 +576,11 @@ def conv_memory_buffer(el):
     res = {}
     attrs = el.attrib
     for k, v in attrs.items():
-        if k in ('description', 'buffer-type', 'buffer-select-code', 'name',
-                 'bit-encoding', 'note', 'comment'):
+        if k in ('note', 'description', 'comment'):
+            s = conv_string(v)
+            if s is not None:
+                res[k] = s
+        elif k in ('buffer-type', 'buffer-select-code', 'name', 'bit-encoding'):
             res[k] = v
         elif k == 'unit':
             if v != '-':

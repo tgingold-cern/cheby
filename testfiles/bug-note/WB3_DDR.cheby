@@ -196,7 +196,6 @@ memory-map:
                   - memory-buffer:
                       bit-encoding: signed
                       buffer-select-code: 1
-                      comment: 
                       description: Depends on AcqMethod
                       name: AcqBuf2
                   - memory-buffer:
