@@ -408,7 +408,7 @@ def test_gena2cheby():
              'err_memory_width', 'memory_buffer', 'memory_bit_field',
              'regs_gen',
              'sub_reg_gen', 'sub_reg_gen_ignore',
-             'bit_field_gen']
+             'bit_field_gen', 'reg_name_boolean']
     for f in files:
         if verbose:
             print('test gena2cheby: {}'.format(f))
