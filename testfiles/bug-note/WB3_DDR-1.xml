@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?><?xml-stylesheet type="text/xsl" href="http://abwww.cern.ch/ap/dist/accsoft/rf/accsoft-rf-cheburashka/PRO/src/java/cern/accsoft/rf/cheburashka/xml/schema/MemMapStyleSheet.xsl"?><memory-map xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" area-depth="256k" description="DDR" driver-name="RFVXSWB3" equipment-code="PX-ALGCA" ident-code="0x00300010" map-version="20160114" mem-map-access-mode="A32/D32" module-type="RF_VXS_WB3" name="wb3DDR" note="DDR" xsi:schemaLocation="http://abwww.cern.ch/ap/dist/accsoft/rf/accsoft-rf-cheburashka/PRO/src/java/cern/accsoft/rf/cheburashka/xml/schema/TemplateMemMap.xsd">
+  <register-data access-mode="rw" address="next" bit-encoding="unsigned" code-generation-rule="HW,Fesa" comment="" description="Acquisition channel and buffer selection" element-width="32" name="acqBufSel" persistence="None">
+    <sub-reg description="Channel (family) selection, ex: OBS/PM, External/Internal" gen="ext-codes=acqVP.memory-channel" name="channelSelect" range="31-16"/>
+    <sub-reg description="Buffer selection, content relative to AcqMethod" name="bufferSelect" range="15-0"/>
+  </register-data>
+  <register-data access-mode="rw" address="next" bit-encoding="unsigned" code-generation-rule="HW,Fesa" description="Viewport page selection for buffer selected with acqBufSel" element-width="32" name="acqPageSel" persistence="None"/>
+  <register-data access-mode="r" address="next" bit-encoding="unsigned" code-generation-rule="HW,Fesa" description="Acquisition channel freeze address in bytes" element-width="32" gen="mux=acqBufSel_channelSelect,resize=26" name="acqFrzAddr" note="Register is multiplexed based on channelSelect" persistence="None"/>
+  <register-data access-mode="r" address="next" bit-encoding="unsigned" code-generation-rule="HW,Fesa" description="Size in bytes of buffers in current channel" element-width="32" gen="mux=acqBufSel_channelSelect" name="acqSize" note="Register is multiplexed based on channelSelect" persistence="None"/>
+  <register-data access-mode="r" address="next" bit-encoding="unsigned" code-generation-rule="HW,Fesa" description="Status of current buffer" element-width="32" gen="mux=acqBufSel_channelSelect" name="acqStatus" note="Register is multiplexed based on channelSelect" persistence="None">
+    <bit-field-data bit="31" description="Selected buffer is enabled" name="enabled"/>
+    <bit-field-data bit="30" description="Selected channel is frozen" name="available"/>
+    <bit-field-data bit="29" description="Selected channel has been filled" name="complete"/>
+  </register-data>
+  <register-data access-mode="rw" address="next" bit-encoding="unsigned" code-generation-rule="HW,Fesa" description="Acquisition Observation Rate Select" element-width="32" gen="mux=acqBufSel_channelSelect" name="acqRateSel" note="Register is multiplexed based on channelSelect" persistence="None"/>
+  <register-data access-mode="rw" address="next" bit-encoding="unsigned" code-generation-rule="HW,Fesa" element-width="32" gen="mux=acqBufSel_channelSelect" name="acqMethod" note="Register is multiplexed based on channelSelect" persistence="None">
+    <code-field code="0" name="standard"/>
+    <code-field code="1" name="Advanced"/>
+  </register-data>
+  <register-data access-mode="rw" address="next" code-generation-rule="HW,Fesa" element-width="32" name="bufferWriteSrcSel" persistence="Fesa">
+    <code-field code="0" name="bfieldRaw"/>
+    <code-field code="1" name="bdotRaw"/>
+    <code-field code="2" name="frev"/>
+    <code-field code="3" name="bfieldWR"/>
+    <code-field code="4" name="bfieldUpDw"/>
+    <code-field code="5" name="bfieldDiff"/>
+    <code-field code="6" name="dacDpllHpll"/>
+    <code-field code="7" name="wrRxLatency"/>
+  </register-data>
+  <register-data access-mode="rw" address="next" code-generation-rule="HW,Fesa" element-width="32" name="acqStrobeRateReducerByN" persistence="Fesa"/>
+  <memory-data access-mode="rw" address="next" description="Acquisition memory viewport" element-depth="128k" element-width="32" gen="gen=ignore" name="acqVP" persistence="PPM">
+    <memory-channel acq-base-freq="RF/1" acq-width="32" buffer-alignment="end" channel-select-code="0" description="Observation" name="DDR" ors-definition="linear">
+      <memory-buffer bit-encoding="signed" buffer-select-code="0" description="Depends on AcqMethod" name="AcqBuf1"/>
+      <memory-buffer bit-encoding="signed" buffer-select-code="1" description="Depends on AcqMethod" name="AcqBuf2" note="a note"/>
+      <memory-buffer bit-encoding="signed" buffer-select-code="2" description="Depends on AcqMethod" name="AcqBuf3"/>
+      <memory-buffer bit-encoding="signed" buffer-select-code="3" description="Depends on AcqMethod" name="AcqBuf4"/>
+      <memory-buffer bit-encoding="signed" buffer-select-code="4" description="Depends on AcqMethod" name="AcqBuf5"/>
+      <memory-buffer bit-encoding="signed" buffer-select-code="5" description="Depends on AcqMethod" name="AcqBuf6"/>
+      <memory-buffer bit-encoding="signed" buffer-select-code="6" description="Depends on AcqMethod" name="AcqBuf7"/>
+      <memory-buffer bit-encoding="signed" buffer-select-code="7" description="Depends on AcqMethod" name="AcqBuf8"/>
+      <memory-buffer bit-encoding="signed" buffer-select-code="8" description="Depends on AcqMethod" name="AcqBuf9"/>
+      <memory-buffer bit-encoding="signed" buffer-select-code="9" description="Depends on AcqMethod" name="AcqBuf10"/>
+      <memory-buffer bit-encoding="signed" buffer-select-code="10" description="Depends on AcqMethod" name="AcqBuf11"/>
+      <memory-buffer bit-encoding="signed" buffer-select-code="11" description="Depends on AcqMethod" name="AcqBuf12"/>
+      <memory-buffer bit-encoding="signed" buffer-select-code="12" description="Depends on AcqMethod" name="AcqBuf13"/>
+      <memory-buffer bit-encoding="signed" buffer-select-code="13" description="Depends on AcqMethod" name="AcqBuf14"/>
+      <memory-buffer bit-encoding="signed" buffer-select-code="14" description="Depends on AcqMethod" name="AcqBuf15"/>
+      <memory-buffer bit-encoding="signed" buffer-select-code="15" description="Depends on AcqMethod" name="AcqBuf16"/>
+    </memory-channel>
+  </memory-data>
+</memory-map>
