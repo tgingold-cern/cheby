@@ -1,0 +1,263 @@
+memory-map:
+  name: modulation
+  bus: cern-be-vme-err-32
+  size: 1024
+  x-driver-edge:
+    equipment-code: SP-ALCCA
+    module-type: RF_MODULATION
+  children:
+  - reg:
+      name: ident
+      width: 64
+      access: ro
+      address: next
+      x-fesa:
+        persistence: None
+  - reg:
+      name: firmwareVersion
+      width: 32
+      access: ro
+      address: next
+      x-fesa:
+        persistence: None
+  - reg:
+      name: memMapVersion
+      width: 32
+      access: ro
+      address: next
+      x-fesa:
+        persistence: None
+  - reg:
+      name: sysControl
+      width: 32
+      access: rw
+      address: next
+      x-gena:
+        rmw: true
+      x-fesa:
+        persistence: None
+  - reg:
+      name: control
+      width: 32
+      access: rw
+      address: next
+      x-gena:
+        rmw: true
+      x-fesa:
+        persistence: PPM
+      children:
+      - field:
+          name: useTestSignal
+          description: Use DDS generated test signal instead of ADC input as demodulation
+            input
+          comment: Test signal is synthezied with additional internal DDS, test signals
+            frequency given by ftw_RF.
+          range: 0
+      - field:
+          name: useStaticSignal
+          description: Use static signal from register instead of demodulation output
+          comment: Test signal is synthezied with additional internal DDS, test signals
+            frequency given by ftw_RF.
+          range: 1
+      - field:
+          name: bypassWRF
+          description: Use register constants instead of B-Train White Rabbit Frame
+            signals
+          range: 2
+      - field:
+          name: bypassDemod
+          description: Bypass demodulator
+          range: 3
+      - field:
+          name: bypassMod
+          description: Bypass modulator
+          range: 4
+  - block:
+      name: testSignal
+      address: next
+      size: 16
+      x-gena:
+        reserved: false
+      children:
+      - reg:
+          name: amplitude
+          description: Amplitude for the test signal
+          width: 32
+          type: unsigned
+          access: rw
+          address: next
+          x-fesa:
+            max-val: 65536
+            min-val: 0
+            persistence: None
+          x-conversions:
+            read: val / pow(2.0,16.0)
+            write: val * pow(2.0,16.0)
+      - reg:
+          name: ftw
+          description: FTW of the test signal (frequency relative to fs)
+          width: 64
+          type: unsigned
+          access: rw
+          address: next
+          x-fesa:
+            max-val: 281474976710656
+            min-val: 0
+            persistence: Fesa
+          x-conversions:
+            read: val / pow(2.0,48.0)
+            write: val * pow(2.0,48.0)
+  - block:
+      name: staticSignal
+      address: next
+      size: 16
+      x-gena:
+        reserved: false
+      children:
+      - reg:
+          name: i
+          description: Constant to be used as OTF input for channel I
+          width: 32
+          type: signed
+          access: rw
+          address: next
+          x-fesa:
+            max-val: 32767
+            min-val: -32768
+            persistence: None
+          x-conversions:
+            read: val / pow(2.0,15.0)
+            write: val * pow(2.0,15.0)
+      - reg:
+          name: q
+          description: Constant to be used as OTF input for channel Q
+          width: 32
+          type: signed
+          access: rw
+          address: next
+          x-fesa:
+            max-val: 32767
+            min-val: -32768
+            persistence: None
+          x-conversions:
+            read: val / pow(2.0,15.0)
+            write: val * pow(2.0,15.0)
+  - block:
+      name: ftw
+      address: next
+      size: 64
+      x-gena:
+        reserved: false
+      children:
+      - reg:
+          name: h1
+          description: Please change me
+          width: 64
+          type: unsigned
+          access: rw
+          address: next
+          x-fesa:
+            max-val: 281474976710656
+            min-val: 0
+            persistence: Fesa
+          x-conversions:
+            read: val / pow(2.0,48.0)
+            write: val * pow(2.0,48.0)
+      - reg:
+          name: avg
+          description: Please change me
+          width: 64
+          type: unsigned
+          access: rw
+          address: next
+          x-fesa:
+            max-val: 281474976710656
+            min-val: 0
+            persistence: Fesa
+          x-conversions:
+            read: val / pow(2.0,48.0)
+            write: val * pow(2.0,48.0)
+      - reg:
+          name: on
+          description: Please change me
+          width: 64
+          type: unsigned
+          access: rw
+          address: next
+          x-fesa:
+            max-val: 281474976710656
+            min-val: 0
+            persistence: Fesa
+          x-conversions:
+            read: val / pow(2.0,48.0)
+            write: val * pow(2.0,48.0)
+      - reg:
+          name: loout
+          description: Please change me
+          width: 64
+          type: unsigned
+          access: rw
+          address: next
+          x-fesa:
+            max-val: 281474976710656
+            min-val: 0
+            persistence: Fesa
+          x-conversions:
+            read: val / pow(2.0,48.0)
+            write: val * pow(2.0,48.0)
+      - reg:
+          name: loin
+          description: Please change me
+          width: 64
+          type: unsigned
+          access: rw
+          address: next
+          x-fesa:
+            max-val: 281474976710656
+            min-val: 0
+            persistence: Fesa
+          x-conversions:
+            read: val / pow(2.0,48.0)
+            write: val * pow(2.0,48.0)
+      - reg:
+          name: offset
+          description: Please change me
+          width: 64
+          type: unsigned
+          access: rw
+          address: next
+          x-fesa:
+            max-val: 281474976710656
+            min-val: 0
+            persistence: Fesa
+          x-conversions:
+            read: val / pow(2.0,48.0)
+            write: val * pow(2.0,48.0)
+      - reg:
+          name: rate
+          description: Please change me
+          width: 32
+          type: unsigned
+          access: rw
+          address: next
+          x-fesa:
+            max-val: 4294967296
+            min-val: 0
+            persistence: Fesa
+          x-conversions:
+            read: val / pow(2.0,32.0)
+            write: val * pow(2.0,32.0)
+  schema-version:
+    core: 1.0.0
+    x-gena: 1.0.0
+    x-hdl: 1.0.0
+    x-fesa: 1.0.0
+    x-driver-edge: 1.0.0
+    x-conversions: 1.0.0
+    x-wbgen: 1.0.0
+    x-map-info: 1.0.0
+  x-gena:
+    map-version: 20190517
+  x-map-info:
+    ident: 0xff
+    memmap-version: 0.0.1

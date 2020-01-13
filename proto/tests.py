@@ -171,7 +171,8 @@ def test_print():
     global nbr_tests
     fd = write_null()
     for f in ['demo.yaml', 'features/reg_value1.cheby', 'features/reg_value2.cheby',
-              'features/reg_value3.cheby', 'demo_all.cheby', 'features/semver1.cheby']:
+              'features/reg_value3.cheby', 'demo_all.cheby', 'features/semver1.cheby',
+              'issue55/modulation.cheby']:
         t = parse_ok(srcdir + f)
         layout_ok(t)
         pprint.pprint_cheby(fd, t)
