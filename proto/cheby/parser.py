@@ -1,5 +1,5 @@
 import sys
-import yaml
+import cheby.yamlread as yamlread
 import cheby.tree as tree
 
 
@@ -360,7 +360,7 @@ def parse_enums(root, enums):
 
 def parse_yaml(filename):
     try:
-        el = yaml.load(open(filename), Loader=yaml.SafeLoader)
+        el = yamlread.load(open(filename))
     except IOError as e:
         error("cannot open {}: {}".format(filename, e))
 
