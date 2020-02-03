@@ -11,7 +11,7 @@ memory-map:
     ident: 0xff
     memmap-version: 0.0.1
   schema-version:
-    core: 1.0.0
+    core: 2.0.0
     x-conversions: 1.0.0
     x-driver-edge: 1.0.0
     x-fesa: 1.0.0

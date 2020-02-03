@@ -248,7 +248,7 @@ memory-map:
             read: val / pow(2.0,32.0)
             write: val * pow(2.0,32.0)
   schema-version:
-    core: 1.0.0
+    core: 2.0.0
     x-gena: 1.0.0
     x-hdl: 1.0.0
     x-fesa: 1.0.0
