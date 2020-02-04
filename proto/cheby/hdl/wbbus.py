@@ -18,7 +18,7 @@ class WBBus(BusGen):
     wb_ports = None
 
     def __init__(self, name):
-        assert name == 'wb-32-be'
+        assert name.startswith('wb-')
 
     def add_in_progress_reg(self, root, module, stb, ack, pfx):
         # The ack is not combinational, thus the strobe may stay longer
@@ -122,6 +122,10 @@ class WBBus(BusGen):
             res = {}
             for name, sig in WBBus.wb_ports.items():
                 res[name] = HDLInterfaceSelect(port, sig)
+            if data_bits < 32:
+                res['dato'] = HDLSlice(res['dato'], 0, data_bits)
+                res['dati'] = HDLSlice(res['dati'], 0, data_bits)
+                res['sel'] = HDLSlice(res['sel'], 0, data_bits // tree.BYTE_SIZE)
             return res
         else:
             res = self.gen_wishbone_bus(

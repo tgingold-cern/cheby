@@ -560,6 +560,16 @@ def layout_cheby_memmap(root):
     if root.bus is None or root.bus == 'wb-32-be':
         root.c_word_size = 4
         root.c_word_endian = 'big'
+    elif root.bus.startswith('wb-'):
+        params = root.bus[3:]
+        root.c_word_endian = 'big'
+        if params == '32':
+            root.c_word_size = 4
+        elif params == '16':
+            root.c_word_size = 2
+        else:
+            raise LayoutException(
+                root, "unknown bus size '{}'".format(root.bus))
     elif root.bus == 'axi4-lite-32':
         root.c_word_size = 4
         root.c_word_endian = 'little'

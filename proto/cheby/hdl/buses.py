@@ -5,7 +5,7 @@ from cheby.hdl.axi4litebus import AXI4LiteBus
 
 
 def name_to_busgen(name):
-    if name == 'wb-32-be':
+    if name.startswith('wb-'):
         return WBBus(name)
     elif name == 'axi4-lite-32':
         return AXI4LiteBus(name)
