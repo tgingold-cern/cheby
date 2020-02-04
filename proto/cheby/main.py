@@ -35,6 +35,8 @@ def decode_args():
                                       prog='cheby')
     aparser.add_argument('--version', action='version',
                          version='%(prog)s ' + cheby.__version__)
+    aparser.add_argument('--example', action='store_true',
+                         help='print a simple example (for a starting point)')
     aparser.add_argument('--print-pretty', nargs='?', const='-',
                          help='regenerate in YAML')
     aparser.add_argument('--print-simple', nargs='?', const='-',
@@ -86,7 +88,7 @@ def decode_args():
                          help='select language for doc generation')
     aparser.add_argument('--gen-doc', nargs='?', const='-',
                          help='generate documentation')
-    aparser.add_argument('--input', '-i', required=True,
+    aparser.add_argument('--input', '-i',
                          help='input file')
     aparser.add_argument('--ff-reset', choices=['sync', 'async'], default='sync',
                          help='select synchronous or asynchronous reset for flip-flops')
@@ -251,9 +253,34 @@ def handle_file(args, filename):
             print_hdl(f, args.hdl, h)
 
 
+def print_example():
+    sys.stdout.write("""memory-map:
+  bus: wb-32-be
+  name: example
+  description: An example of a cheby memory map
+  children:
+    - reg:
+        name: regA
+        description: The first register (with some fields)
+        width: 32
+        access: rw
+        children:
+          - field:
+              name: field0
+              description: 1-bit field
+              range: 1
+""")
+
 def main():
     args = decode_args()
+    if args.example:
+        print_example()
+        sys.exit(0)
+
     f = args.input
+    if f is None:
+        sys.stderr.write('error: argument --input/-i is required\n')
+        sys.exit(2)
     try:
         handle_file(args, f)
     except cheby.parser.ParseException as e:
