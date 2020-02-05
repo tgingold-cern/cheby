@@ -465,8 +465,18 @@ def conv_register_data(parent, el):
                 else:
                     raise UnknownGenAttribute(e, res)
             res.x_gena['gen'] = xg
-        elif k in ('persistence', ):
-            res.x_fesa[k] = v
+        elif k == 'persistence':
+            if v == "Fesa":
+                res.x_fesa['persistence'] = True
+                res.x_fesa['multiplexed'] = False
+            elif v == "PPM":
+                res.x_fesa['persistence'] = True
+                res.x_fesa['multiplexed'] = True
+            elif v == "None":
+                res.x_fesa['persistence'] = False
+                res.x_fesa['multiplexed'] = False
+            else:
+                raise UnknownValue(k, v)
         elif k == 'code-generation-rule':
             if v not in ('Fesa', 'HW', 'HW,Fesa'):
                 raise UnknownValue('code-generation-rule', v)
@@ -662,8 +672,18 @@ def conv_memory_data(parent, el):
                 else:
                     raise UnknownGenAttribute(e, res)
             res.x_gena['gen'] = xg
-        elif k in ('persistence', ):
-            res.x_fesa[k] = v
+        elif k == 'persistence':
+            if v == "Fesa":
+                res.x_fesa['persistence'] = True
+                res.x_fesa['multiplexed'] = False
+            elif v == "PPM":
+                res.x_fesa['persistence'] = True
+                res.x_fesa['multiplexed'] = True
+            elif v == "None":
+                res.x_fesa['persistence'] = False
+                res.x_fesa['multiplexed'] = False
+            else:
+                raise UnknownValue(k, v)
         else:
             raise UnknownAttribute(k)
     adjust_common(res)

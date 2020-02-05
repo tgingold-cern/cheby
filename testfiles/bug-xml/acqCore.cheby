@@ -14,7 +14,7 @@ memory-map:
     core: 2.0.0
     x-conversions: 1.0.0
     x-driver-edge: 1.0.0
-    x-fesa: 1.0.0
+    x-fesa: 2.0.0
     x-gena: 1.0.0
     x-hdl: 1.0.0
     x-map-info: 1.0.0
@@ -33,7 +33,8 @@ memory-map:
         access: rw
         address: next
         x-fesa:
-          persistence: Fesa
+          multiplexed: False
+          persistence: True
         children:
           - field:
               name: softReset
@@ -81,7 +82,8 @@ memory-map:
           gen:
             write-strobe: True
         x-fesa:
-          persistence: Fesa
+          multiplexed: False
+          persistence: True
           unit: bytes
     - reg:
         name: bufferStartAddress1
@@ -94,7 +96,8 @@ memory-map:
           gen:
             write-strobe: True
         x-fesa:
-          persistence: Fesa
+          multiplexed: False
+          persistence: True
           unit: bytes
     - reg:
         name: bufferSize
@@ -104,7 +107,8 @@ memory-map:
         access: ro
         address: next
         x-fesa:
-          persistence: Fesa
+          multiplexed: False
+          persistence: True
           unit: 'samples [32bit word]'
     - reg:
         name: acqBufSel
@@ -113,7 +117,8 @@ memory-map:
         access: rw
         address: next
         x-fesa:
-          persistence: PPM
+          multiplexed: True
+          persistence: True
         children:
           - field:
               name: bufferSelect
@@ -136,7 +141,8 @@ memory-map:
             read-strobe: True
             write-strobe: True
         x-fesa:
-          persistence: PPM
+          multiplexed: True
+          persistence: True
         children:
           - field:
               name: enable
@@ -193,7 +199,8 @@ memory-map:
             read-strobe: True
             write-strobe: True
         x-fesa:
-          persistence: PPM
+          multiplexed: True
+          persistence: True
         children:
           - field:
               name: enabled
@@ -268,7 +275,8 @@ memory-map:
             read-strobe: True
             write-strobe: True
         x-fesa:
-          persistence: PPM
+          multiplexed: True
+          persistence: True
           unit: samples
     - reg:
         name: acqFrzAddr
@@ -283,7 +291,8 @@ memory-map:
             read-strobe: True
             write-strobe: True
         x-fesa:
-          persistence: PPM
+          multiplexed: True
+          persistence: True
           unit: bytes
     - reg:
         name: acqRateH1
@@ -298,7 +307,8 @@ memory-map:
             read-strobe: True
             write-strobe: True
         x-fesa:
-          persistence: PPM
+          multiplexed: True
+          persistence: True
         children:
           - field:
               name: horizScaleMult
@@ -317,7 +327,8 @@ memory-map:
             read-strobe: True
             write-strobe: True
         x-fesa:
-          persistence: PPM
+          multiplexed: True
+          persistence: True
         children:
           - field:
               name: horizScaleDiv
@@ -340,7 +351,8 @@ memory-map:
             read-strobe: True
             write-strobe: True
         x-fesa:
-          persistence: PPM
+          multiplexed: True
+          persistence: True
         x-driver-edge:
           max-val: 1024
           min-val: 2

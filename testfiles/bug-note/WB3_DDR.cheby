@@ -15,7 +15,7 @@ memory-map:
     core: 2.0.0
     x-conversions: 1.0.0
     x-driver-edge: 1.0.0
-    x-fesa: 1.0.0
+    x-fesa: 2.0.0
     x-gena: 1.0.0
     x-hdl: 1.0.0
     x-map-info: 1.0.0
@@ -28,7 +28,8 @@ memory-map:
         access: rw
         address: next
         x-fesa:
-          persistence: None
+          multiplexed: False
+          persistence: False
         children:
           - field:
               name: channelSelect
@@ -49,7 +50,8 @@ memory-map:
         access: rw
         address: next
         x-fesa:
-          persistence: None
+          multiplexed: False
+          persistence: False
     - reg:
         name: acqFrzAddr
         description: Acquisition channel freeze address in bytes
@@ -63,7 +65,8 @@ memory-map:
             mux: acqBufSel.channelSelect
             resize: 26
         x-fesa:
-          persistence: None
+          multiplexed: False
+          persistence: False
     - reg:
         name: acqSize
         description: Size in bytes of buffers in current channel
@@ -76,7 +79,8 @@ memory-map:
           gen:
             mux: acqBufSel.channelSelect
         x-fesa:
-          persistence: None
+          multiplexed: False
+          persistence: False
     - reg:
         name: acqStatus
         description: Status of current buffer
@@ -88,7 +92,8 @@ memory-map:
           gen:
             mux: acqBufSel.channelSelect
         x-fesa:
-          persistence: None
+          multiplexed: False
+          persistence: False
         children:
           - field:
               name: enabled
@@ -114,7 +119,8 @@ memory-map:
           gen:
             mux: acqBufSel.channelSelect
         x-fesa:
-          persistence: None
+          multiplexed: False
+          persistence: False
     - reg:
         name: acqMethod
         description: Register is multiplexed based on channelSelect
@@ -133,7 +139,8 @@ memory-map:
           gen:
             mux: acqBufSel.channelSelect
         x-fesa:
-          persistence: None
+          multiplexed: False
+          persistence: False
     - reg:
         name: bufferWriteSrcSel
         width: 32
@@ -166,14 +173,16 @@ memory-map:
                 code: 7
                 name: wrRxLatency
         x-fesa:
-          persistence: Fesa
+          multiplexed: False
+          persistence: True
     - reg:
         name: acqStrobeRateReducerByN
         width: 32
         access: rw
         address: next
         x-fesa:
-          persistence: Fesa
+          multiplexed: False
+          persistence: True
     - memory:
         name: acqVP
         description: Acquisition memory viewport
@@ -271,7 +280,8 @@ memory-map:
                 name: DDR
                 ors-definition: linear
         x-fesa:
-          persistence: PPM
+          multiplexed: True
+          persistence: True
         children:
           - reg:
               name: acqVP

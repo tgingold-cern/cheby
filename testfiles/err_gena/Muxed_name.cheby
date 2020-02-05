@@ -11,7 +11,7 @@ memory-map:
     core: 2.0.0
     x-conversions: 1.0.0
     x-driver-edge: 1.0.0
-    x-fesa: 1.0.0
+    x-fesa: 2.0.0
     x-gena: 1.0.0
     x-hdl: 1.0.0
     x-map-info: 1.0.0
@@ -27,7 +27,8 @@ memory-map:
           gen:
             mux: regSelX.channelSelect
         x-fesa:
-          persistence: PPM
+          multiplexed: True
+          persistence: True
     - reg:
         name: muxedRegRW
         description: muxed-reg-rw
@@ -38,7 +39,8 @@ memory-map:
           gen:
             mux: regSel.channelSelect
         x-fesa:
-          persistence: PPM
+          multiplexed: True
+          persistence: True
     - reg:
         name: regSel
         description: Acquisition buffer selection
@@ -46,7 +48,8 @@ memory-map:
         access: rw
         address: next
         x-fesa:
-          persistence: PPM
+          multiplexed: True
+          persistence: True
         children:
           - field:
               name: channelSelect
@@ -77,7 +80,8 @@ memory-map:
                 description: chan 1
                 name: channel1
         x-fesa:
-          persistence: PPM
+          multiplexed: True
+          persistence: True
         children:
           - reg:
               name: Mem
