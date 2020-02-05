@@ -10,7 +10,7 @@ memory-map:
     core: 2.0.0
     x-conversions: 1.0.0
     x-driver-edge: 1.0.0
-    x-fesa: 1.0.0
+    x-fesa: 2.0.0
     x-gena: 1.0.0
     x-hdl: 1.0.0
     x-map-info: 1.0.0
@@ -23,7 +23,8 @@ memory-map:
         access: rw
         address: 0x0
         x-fesa:
-          persistence: Fesa
+          multiplexed: False
+          persistence: True
     - reg:
         name: test2
         width: 64
@@ -31,7 +32,8 @@ memory-map:
         access: rw
         address: next
         x-fesa:
-          persistence: Fesa
+          multiplexed: False
+          persistence: True
     - reg:
         name: test3
         width: 16
@@ -39,7 +41,8 @@ memory-map:
         access: rw
         address: next
         x-fesa:
-          persistence: Fesa
+          multiplexed: False
+          persistence: True
     - reg:
         name: test4
         width: 32
@@ -47,7 +50,8 @@ memory-map:
         access: rw
         address: next
         x-fesa:
-          persistence: Fesa
+          multiplexed: False
+          persistence: True
         x-driver-edge:
           max-val: 4294967295
           min-val: 4294967295
@@ -58,7 +62,8 @@ memory-map:
         access: wo
         address: next
         x-fesa:
-          persistence: Fesa
+          multiplexed: False
+          persistence: True
     - reg:
         name: test6
         width: 64
@@ -66,7 +71,8 @@ memory-map:
         access: wo
         address: next
         x-fesa:
-          persistence: Fesa
+          multiplexed: False
+          persistence: True
         x-driver-edge:
           max-val: 0
           min-val: 0
@@ -77,7 +83,8 @@ memory-map:
         access: rw
         address: next
         x-fesa:
-          persistence: Fesa
+          multiplexed: False
+          persistence: True
         x-driver-edge:
           max-val: 65535
     - reg:
@@ -87,7 +94,8 @@ memory-map:
         access: rw
         address: next
         x-fesa:
-          persistence: Fesa
+          multiplexed: False
+          persistence: True
         x-driver-edge:
           max-val: 4294967295
           min-val: 4294967295

@@ -13,7 +13,7 @@ memory-map:
     core: 2.0.0
     x-conversions: 1.0.0
     x-driver-edge: 1.0.0
-    x-fesa: 1.0.0
+    x-fesa: 2.0.0
     x-gena: 1.0.0
     x-hdl: 1.0.0
     x-map-info: 1.0.0
@@ -25,7 +25,8 @@ memory-map:
         access: rw
         address: next
         x-fesa:
-          persistence: PPM
+          multiplexed: True
+          persistence: True
         children:
           - field:
               name: sfield
