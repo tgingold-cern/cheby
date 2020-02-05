@@ -215,10 +215,7 @@ def adjust_common(n):
         elif n.description is None:
             n.description = n.note
         else:
-            if n.comment is None:
-                n.comment = n.note
-            else:
-                n.comment += '\n' + n.note
+            n.description += '\n' + n.note
         n.note = None
 
 

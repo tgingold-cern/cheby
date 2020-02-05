@@ -54,8 +54,7 @@ memory-map:
           persistence: False
     - reg:
         name: acqFrzAddr
-        description: Acquisition channel freeze address in bytes
-        comment: Register is multiplexed based on channelSelect
+        description: 'Acquisition channel freeze address in bytes\nRegister is multiplexed based on channelSelect'
         width: 32
         type: unsigned
         access: ro
@@ -69,8 +68,7 @@ memory-map:
           persistence: False
     - reg:
         name: acqSize
-        description: Size in bytes of buffers in current channel
-        comment: Register is multiplexed based on channelSelect
+        description: 'Size in bytes of buffers in current channel\nRegister is multiplexed based on channelSelect'
         width: 32
         type: unsigned
         access: ro
@@ -83,8 +81,7 @@ memory-map:
           persistence: False
     - reg:
         name: acqStatus
-        description: Status of current buffer
-        comment: Register is multiplexed based on channelSelect
+        description: 'Status of current buffer\nRegister is multiplexed based on channelSelect'
         width: 32
         access: ro
         address: next
@@ -109,8 +106,7 @@ memory-map:
               range: 29
     - reg:
         name: acqRateSel
-        description: Acquisition Observation Rate Select
-        comment: Register is multiplexed based on channelSelect
+        description: 'Acquisition Observation Rate Select\nRegister is multiplexed based on channelSelect'
         width: 32
         type: unsigned
         access: rw
