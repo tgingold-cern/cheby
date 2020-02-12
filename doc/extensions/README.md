@@ -1,9 +1,9 @@
-#Updates
-##core
-###1.0.0 -> 2.0.0
+# Updates
+## core
+### 1.0.0 -> 2.0.0
 * merge 'note' with 'description'
 ## x-fesa:
-###1.0.0 -> 2.0.0
+### 1.0.0 -> 2.0.0
 * split persistence=PPM/Fesa/None to persistence=true/false and multiplexed=true/false
 # Extensions
 
