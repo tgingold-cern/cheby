@@ -1,0 +1,14 @@
+memory-map:
+  bus: wb-32-be
+  name: port
+  description: an example with all the features
+  children:
+    - reg:
+        name: reg1
+        description: a reg without fields
+        width: 32
+        access: rw
+        type: unsigned
+        preset: 0x123
+        x-hdl:
+          port: reg
