@@ -106,6 +106,9 @@ The tool gena2cheby now discards empty note, description and comment.
 Attribute 'x-hdl:port' is now allowed in a register without
 fields.  A warning is emitted.  (issue#58)
 
+Attribute 'constant' is not allowed in a register with fields and
+properly diagnosticed.  (issue#57)
+
 ## Version 1.3
 
 Add x-hdl:port to specify how ports are generated for registers (issue#11)
