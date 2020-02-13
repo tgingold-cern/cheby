@@ -7,6 +7,7 @@ from cheby.hdltree import (HDLPort,
                            HDLConst, HDLBinConst, HDLParen)
 from cheby.hdl.busgen import BusGen
 import cheby.tree as tree
+import cheby.parser as parser
 from cheby.hdl.globals import gconfig, dirname
 from cheby.hdl.ibus import add_bus
 
@@ -45,6 +46,9 @@ class AXI4LiteBus(BusGen):
 
     def expand_bus(self, root, module, ibus):
         """Create AXI4-Lite interface for the design."""
+        if root.get_extension('x_hdl', 'busgroup'):
+            parser.warning(root, "busgroup on '{}' is ignored for axi4-lite".format(
+                root.get_path()))
         bus = [('clk', HDLPort("aclk")),
                ('rst', HDLPort("areset_n"))]
         bus.extend(self.gen_axi4lite_bus(
@@ -152,6 +156,9 @@ class AXI4LiteBus(BusGen):
         module.stmts.append(HDLAssign(root.h_bus['rresp'], HDLConst(0, 2)))
 
     def gen_bus_slave(self, root, module, prefix, n, busgroup):
+        if busgroup:
+            parser.warning(root, "busgroup on '{}' is ignored for axi4-lite".format(
+                root.get_path()))
         ports = self.gen_axi4lite_bus(
             lambda name, sz=None, lo=0, dir='IN': (name, module.add_port(
                 '{}_{}_{}'.format(n.c_name, name, dirname[dir]),

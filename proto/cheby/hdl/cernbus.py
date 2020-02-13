@@ -7,6 +7,7 @@ from cheby.hdltree import (HDLPort,
 from cheby.hdl.busgen import BusGen
 from cheby.hdl.globals import gconfig, dirname
 from cheby.hdl.ibus import add_bus
+import cheby.parser as parser
 
 
 class CERNBEBus(BusGen):
@@ -59,6 +60,9 @@ class CERNBEBus(BusGen):
 
     def expand_bus(self, root, module, ibus):
         """Create CERN-BE interface."""
+        if root.get_extension('x_hdl', 'busgroup'):
+            parser.warning(root, "busgroup on '{}' is ignored for cern-be-vme".format(
+                root.get_path()))
         bus = [('clk', HDLPort("Clk")),
                ('rst', HDLPort("Rst"))]
         bus.extend(self.gen_cern_bus(
@@ -95,6 +99,9 @@ class CERNBEBus(BusGen):
 
     def gen_bus_slave(self, root, module, prefix, n, busgroup):
         """Create an interface to a slave (Add declarations)"""
+        if busgroup:
+            parser.warning(root, "busgroup on '{}' is ignored fpr cern-be-vme".format(
+                root.get_path()))
         ports = self.gen_cern_bus(
             lambda name, sz=None, lo=0, dir='IN': module.add_port(
                 '{}_{}_{}'.format(n.c_name, name, dirname[dir]),

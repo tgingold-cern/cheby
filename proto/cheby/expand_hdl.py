@@ -153,7 +153,12 @@ def expand_x_hdl_root(n, dct):
 def expand_x_hdl_submap(n, dct):
     for k, _ in dct.items():
         if k == 'busgroup':
-            pass
+            if n.include:
+                parser.warning(n, "x-hdl:busgroup for included submap '{}' is ignored".format(
+                    n.get_path()))
+            elif n.filename:
+                parser.warning(n, "x-hdl:busgroup for submap '{}' is ignored (defined by the file)".format(
+                    n.get_path()))
         else:
             parser.error("unhandled '{}' in x-hdl of {}".format(
                          k, n.get_path()))
