@@ -13,6 +13,7 @@ def expand_x_hdl_reg(n, dct):
     n.hdl_write_ack = False
     n.hdl_read_ack = False
     n.hdl_port = 'field'
+    n.hdl_type = None
 
     if not n.has_fields():
         # x-hdl can also be used for the implicit field.
@@ -38,6 +39,9 @@ def expand_x_hdl_reg(n, dct):
         elif not n.has_fields():
             # x-hdl can also be used for the implicit field.
             expand_x_hdl_field_kv(n.children[0], n, k, v)
+        elif k == 'type':
+            # Inherited
+            n.hdl_type = expand_x_hdl_field_type(n, v)
         else:
             parser.error("unhandled '{}' in x-hdl of reg {}".format(
                          k, n.get_path()))
@@ -48,7 +52,9 @@ def expand_x_hdl_reg(n, dct):
     
 def init_x_hdl_field(f):
     "Set default values for x-hdl attributes of a field"
-    if f._parent.constant is not None:
+    if f._parent.hdl_type is not None:
+        f.hdl_type = f._parent.hdl_type
+    elif f._parent.constant is not None:
         f.hdl_type = 'const'
     elif f._parent.access == 'ro':
         f.hdl_type = 'wire'
@@ -56,14 +62,21 @@ def init_x_hdl_field(f):
         f.hdl_type = 'reg'
 
 
+def expand_x_hdl_field_type(n, v):
+    """Decode and check attribute 'type' with value :arg v:
+    :arg n: node for error"""
+    res = parser.read_text(n, 'type', v)
+    if res not in ['wire', 'reg', 'const', 'autoclear', 'or-clr']:
+        parser.error("incorrect value for 'type' in x-hdl of {}".format(
+            n.get_path()))
+    return res
+
+
 def expand_x_hdl_field_kv(f, n, k, v):
     "Decode one x-hdl attribute for a field"
 
     if k == 'type':
-        f.hdl_type = parser.read_text(n, k, v)
-        if f.hdl_type not in ['wire', 'reg', 'const', 'autoclear', 'or-clr']:
-            parser.error("incorrect value for 'type' in x-hdl of {}".format(
-                n.get_path()))
+        f.hdl_type = expand_x_hdl_field_type(n, v)
     else:
         parser.error("unhandled '{}' in x-hdl of field {}".format(
             k, n.get_path()))
