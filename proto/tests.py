@@ -230,7 +230,10 @@ def test_hdl():
               'demo_all_old',
               'access/const_ro', 'access/const_rw',
               'access/autoclear_rw', 'access/autoclear_wo',
-              'access/orclr_rw', 'issue46/types', 'issue58/port']:
+              'access/orclr_rw', 'issue46/types', 'issue58/port',
+              'issue60/busgroup-axi4', 'issue60/busgroup-cernbe',
+              'issue60/busgroup-filename', 'issue60/busgroup-include',
+              'issue60/busgroup-interface']:
         if verbose:
             print('test hdl: {}'.format(f))
         t = parse_ok(srcdir + f + '.cheby')

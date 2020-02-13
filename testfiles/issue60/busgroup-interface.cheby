@@ -1,0 +1,12 @@
+memory-map:
+  bus: wb-32-be
+  name: busgroup_interface
+  description: an example with all the features
+  children:
+    - submap:
+        name: sub3
+        size: 0x1000
+        description: A bus
+        interface: axi4-lite-32
+        x-hdl:
+          busgroup: s1

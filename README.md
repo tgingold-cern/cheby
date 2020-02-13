@@ -112,6 +112,8 @@ properly diagnosticed.  (issue#57)
 Attribute 'x-hdl:type' can now be added to 'reg' and inherited by
 the fields.  A field can overwrite the attribute.  (issue#59)
 
+Emit warnings when 'x-hdl:busgroup' is ignored.  (issue#60)
+
 ## Version 1.3
 
 Add x-hdl:port to specify how ports are generated for registers (issue#11)

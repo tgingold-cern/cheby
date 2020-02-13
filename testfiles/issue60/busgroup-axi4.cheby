@@ -1,0 +1,26 @@
+memory-map:
+  bus: axi4-lite-32
+  name: demo_all
+  description: an example with all the features
+  x-hdl:
+    busgroup: b
+  children:
+    - reg:
+        name: reg0
+        description: a normal reg with some fields
+        width: 32
+        access: rw
+        children:
+          - field:
+              name: field00
+              description: 1-bit field
+              range: 1
+          - field:
+              name: field01
+              description: multi bit field
+              range: 7-4
+          - field:
+              name: field02
+              description: a field with a preset value
+              range: 10-8
+              preset: 2

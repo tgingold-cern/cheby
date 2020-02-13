@@ -1,0 +1,11 @@
+memory-map:
+  bus: wb-32-be
+  name: busgroup_filename
+  description: an example with all the features
+  children:
+    - submap:
+        name: sub1
+        description: A normal submap
+        filename: ../demo_all_sub.cheby
+        x-hdl:
+          busgroup: s1
