@@ -1,0 +1,29 @@
+memory-map:
+  bus: wb-32-be
+  name: inherit
+  description: an example with all the features
+  children:
+    - reg:
+        name: reg0
+        description: a normal reg with some fields
+        width: 32
+        access: rw
+        x-hdl:
+          type: wire
+          write-strobe: True
+        children:
+          - field:
+              name: field00
+              description: 1-bit field
+              range: 1
+          - field:
+              name: field01
+              description: multi bit field
+              range: 7-4
+              x-hdl:
+                type: reg
+          - field:
+              name: field02
+              description: a field with a preset value
+              range: 10-8
+              preset: 2

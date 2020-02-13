@@ -300,6 +300,10 @@ When set to `reg`, only one port per direction is created using the
 size of the register.  User has to extract the fields from this port.  When
 set to `field` (the default), ports are created for each field.
 
+`type`:: Provide a default value for the `type` attribute of fields.  A field
+can overwrite the value.  See fields for the values.
+
+
 ==== Plain Registers
 
 A plain register has a type, which could be `unsigned` (the default), `signed` or

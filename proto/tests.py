@@ -284,7 +284,8 @@ def test_hdl_ref():
               'features/mapinfo2',
               'features/enums1', 'features/enums2',
               'issue52/hwInfo',
-              'bug-gen_wt/m1']:
+              'bug-gen_wt/m1',
+              'issue59/inherit']:
         if verbose:
             print('test hdl with ref: {}'.format(f))
         cheby_file = srcdir + f + '.cheby'
