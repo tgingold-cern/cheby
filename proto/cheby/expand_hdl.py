@@ -33,7 +33,7 @@ def expand_x_hdl_reg(n, dct):
                 parser.error("incorrect value for 'port' in x-hdl of {}".format(
                     n.get_path()))
             if not n.has_fields():
-                parser.error("'port' in x-hdl of register '{}' without fields is useless".format(
+                parser.warning(n, "'port' in x-hdl of register '{}' without fields is useless".format(
                     n.get_path()))
         elif not n.has_fields():
             # x-hdl can also be used for the implicit field.
