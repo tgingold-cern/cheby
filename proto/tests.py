@@ -123,8 +123,11 @@ def layout_err(t):
 
 def test_layout():
     global nbr_tests
+    hfiles = []
     for f in ['demo.yaml', 'features/block1.cheby', 'features/array1.cheby', 'features/array2.cheby',
-              'bug-gen-c/fids-errmiss.cheby']:
+              'bug-gen-c/fids-errmiss.cheby',
+              'bug-gen-c-02/mbox_regs.cheby',
+              'bug-gen-c-02/fip_urv_regs.cheby']:
         if verbose:
             print('test layout: {}'.format(f))
         t = parse_ok(srcdir + f)
@@ -138,10 +141,12 @@ def test_layout():
         with open(cname, 'w') as fd:
             gen_laychk.gen_chklayout_cheby(fd, t)
         subprocess.check_call(['gcc', '-S', cname])
-        os.remove(hname)
+        hfiles.append(hname)
         os.remove(cname)
         os.remove(t.name + '.s')
         nbr_tests += 1
+    for f in hfiles:
+        os.remove(f)
     for f in ['layout/err_bus_name.yaml',
               'layout/err_reg_addr1.yaml', 'layout/err_reg_addr2.yaml',
               'layout/err_reg_width1.yaml',

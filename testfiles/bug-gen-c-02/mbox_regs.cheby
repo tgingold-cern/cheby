@@ -1,0 +1,33 @@
+memory-map:
+  bus: wb-32-be
+  name: mbox_regs
+  description: Registers for mailboxes
+  children:
+    - reg:
+        name: mboxout
+        description: Mailbox to the fip urv
+        width: 32
+        access: wo
+        x-hdl:
+          write-strobe: True
+          type: wire
+    - reg:
+        name: mboxin
+        description: Mailbox from the fip urv
+        width: 32
+        access: ro
+        x-hdl:
+          read-strobe: True
+          type: wire
+    - reg:
+        name: status
+        description: Status for mailboxes
+        width: 32
+        access: ro
+        children:
+        - field:
+            name: mbin
+            range: 0
+        - field:
+            name: mbout
+            range: 1

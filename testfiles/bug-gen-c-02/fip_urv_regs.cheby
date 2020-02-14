@@ -1,0 +1,92 @@
+memory-map:
+  bus: wb-32-be
+  name: fip_urv_regs
+  description: Registers for the fip urv
+  x-hdl:
+    busgroup: True
+  children:
+    - reg:
+        name: plc_ctrl
+        description: PLC processor control
+        width: 32
+        access: rw
+        children:
+          - field:
+              name: rstn
+              description: Put the PLC processor on reset
+              range: 0
+              preset: 0
+    - reg:
+        name: fip_status
+        description: Status bits from NanoFIP
+        width: 32
+        access: ro
+        children:
+        - field:
+            name: var1_rdy
+            range: 0
+        - field:
+            name: var3_rdy
+            range: 1
+    - reg:
+        name: fip_var1
+        description: Set access to var 1
+        width: 32
+        access: rw
+        children:
+        - field:
+           name: acc
+           range: 0
+    - reg:
+        name: fip_var3
+        description: Set access to var 1
+        width: 32
+        access: rw
+        children:
+        - field:
+           name: acc
+           range: 0
+    - submap:
+        name: mailboxes
+        filename: "mbox_regs.cheby"
+        include: True
+    - reg:
+        name: presence
+        description: presence lines for boards
+        width: 32
+        access: ro
+        children:
+        - field:
+            name: en
+            range: 7-0
+    - reg:
+        name: leds
+        description: led
+        width: 32
+        access: rw
+        children:
+        - field:
+            name: val
+            range: 5-0
+    - repeat:
+        name: boards
+        count: 8
+        children:
+         - reg:
+             name: pins
+             width: 32
+             access: ro
+    - submap:
+        name: fip_reg
+        interface: wb-32-be
+        description: NanoFIP internal memory/registers
+        size: 2k
+        x-hdl:
+          busgroup: True
+    - submap:
+        name: plc_mem
+        interface: wb-32-be
+        description: Memory of the PLC urv
+        size: 8k
+        x-hdl:
+          busgroup: True
