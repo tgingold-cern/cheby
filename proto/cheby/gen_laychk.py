@@ -43,6 +43,15 @@ def sprint_repeat(cg, n):
     chklayout_composite(cg, n)
 
 
+@ChkGen.register(tree.Submap)
+def sprint_submap(cg, n):
+    if n.filename is None:
+        pass
+    else:
+        sn = n.c_submap
+        cg.cg_size(sn.name, sn.c_size)
+
+
 @ChkGen.register(tree.CompositeNode)
 def chklayout_composite(cg, n):
     for el in n.children:

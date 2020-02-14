@@ -159,9 +159,6 @@ def handle_file(args, filename):
     if args.print_memmap_verbose is not None:
         with open_filename(args.print_memmap_verbose) as f:
             sprint.sprint_cheby(f, t, False, True)
-    if args.gen_c_check_layout is not None:
-        with open_filename(args.gen_c_check_layout) as f:
-            gen_laychk.gen_chklayout_cheby(f, t)
     if args.gen_gena_memmap is not None:
         with open_filename(args.gen_gena_memmap) as f:
             h = gen_gena_memmap.gen_gena_memmap(t)
@@ -213,6 +210,9 @@ def handle_file(args, filename):
     if args.gen_c is not None:
         with open_filename(args.gen_c) as f:
             gen_c.gen_c_cheby(f, t, args.c_style)
+    if args.gen_c_check_layout is not None:
+        with open_filename(args.gen_c_check_layout) as f:
+            gen_laychk.gen_chklayout_cheby(f, t)
     if args.gen_consts is not None:
         with open_filename(args.gen_consts) as f:
             print_consts.pconsts_cheby(f, t, args.consts_style)

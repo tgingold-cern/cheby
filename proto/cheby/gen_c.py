@@ -79,7 +79,13 @@ def cprint_children(cp, n, size):
         if i != 0:
             cp.cp_txt('')
         cp.visit(el)
-        addr = el.c_address + el.c_size
+        if isinstance(el, tree.Submap) and el.filename is not None:
+            # Boxed instance.  There might be a difference of size
+            # between the real submap and how much memory is used
+            # in this map.
+            addr = el.c_address + el.c_submap.c_size
+        else:
+            addr = el.c_address + el.c_size
     # Last pad
     maybe_pad(size - addr)
 
