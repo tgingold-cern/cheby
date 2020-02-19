@@ -87,7 +87,10 @@ def convert_common(res, e):
 
 
 def convert_field_access(e):
-    return check_name(e, ['READ_ONLY', 'WRITE_ONLY', 'READ_WRITE'])
+    res = check_name(e, ['READ_ONLY', 'WRITE_ONLY', 'READ_WRITE', 'WRITE_READ'])
+    if res == 'WRITE_READ':
+        res = 'READ_WRITE'
+    return res
 
 
 def convert_field(t):
