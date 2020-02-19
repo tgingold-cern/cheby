@@ -1,0 +1,30 @@
+peripheral {
+   name = "register test 2";
+   description = "A simple register";
+   prefix = "reg2";
+   hdl_entity="reg2";
+
+   reg {
+     name = "Register 2";
+     description = "Register 2 has two fields";
+     prefix = "R2";
+
+      field {
+         name = "Reset bit";
+         description = "1 to reset";
+         prefix = "reset";
+         type = BIT;
+         access_bus = WRITE_READ;
+         access_dev = READ_ONLY;
+      };
+
+      field {
+         name = "Enable";
+         description = "1 to enable device";
+         prefix = "enable";
+         type = BIT;
+         access_bus = READ_WRITE;
+         access_dev = READ_ONLY;
+      };
+   };
+};

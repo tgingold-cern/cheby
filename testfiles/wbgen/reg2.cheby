@@ -1,0 +1,38 @@
+memory-map:
+  bus: wb-32-be
+  name: reg2
+  description: register test 2
+  comment: |
+    A simple register
+  x-wbgen:
+    hdl_entity: reg2
+  children:
+  - reg:
+      name: R2
+      address: 0x00000000
+      width: 32
+      access: rw
+      description: Register 2
+      comment: |
+        Register 2 has two fields
+      children:
+      - field:
+          name: reset
+          range: 0
+          description: Reset bit
+          comment: |
+            1 to reset
+          x-wbgen:
+            type: BIT
+            access_bus: READ_WRITE
+            access_dev: READ_ONLY
+      - field:
+          name: enable
+          range: 1
+          description: Enable
+          comment: |
+            1 to enable device
+          x-wbgen:
+            type: BIT
+            access_bus: READ_WRITE
+            access_dev: READ_ONLY
