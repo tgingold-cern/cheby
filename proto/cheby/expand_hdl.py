@@ -66,7 +66,7 @@ def expand_x_hdl_field_type(n, v):
     """Decode and check attribute 'type' with value :arg v:
     :arg n: node for error"""
     res = parser.read_text(n, 'type', v)
-    if res not in ['wire', 'reg', 'const', 'autoclear', 'or-clr']:
+    if res not in ['wire', 'reg', 'const', 'autoclear', 'or-clr', 'or-clr-out']:
         parser.error("incorrect value for 'type' in x-hdl of {}".format(
             n.get_path()))
     return res

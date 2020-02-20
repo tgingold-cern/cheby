@@ -1,0 +1,11 @@
+memory-map:
+  bus: wb-32-be
+  name: orclrout
+  description: a single register
+  children:
+    - reg:
+        name: breg
+        width: 32
+        access: rw
+        x-hdl:
+          type: or-clr-out

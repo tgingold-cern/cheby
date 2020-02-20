@@ -181,13 +181,22 @@ class GenFieldOrClr(GenFieldBase):
         else_stmts.append(HDLAssign(reg, HDLOr(inp, reg)))
 
 
+class GenFieldOrClrOut(GenFieldOrClr):
+    def need_oport(self):
+        return True
+
+    def connect_output(self, stmts, ibus):
+        stmts.append(HDLAssign(self.field.h_oport, self.field.h_reg))
+
+
 class GenReg(ElGen):
     FIELD_GEN = {
         'reg': GenFieldReg,
         'wire': GenFieldWire,
         'const': GenFieldConst,
         'autoclear': GenFieldAutoclear,
-        'or-clr': GenFieldOrClr}
+        'or-clr': GenFieldOrClr,
+        'or-clr-out': GenFieldOrClrOut}
 
     def field_decode(self, f, off, dat):
         """Handle multi-word accesses.  Slice (if needed) VAL and DAT for offset

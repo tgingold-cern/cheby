@@ -119,6 +119,9 @@ READ_WRITE (issue #63).
 
 Styles 'vhdl-ohwr' and 'vhdl-orig' have been added for `--consts-style'.
 
+'x-hdl:type: or-clr-out' has been added.  It behaves like 'or-clr' and
+also outputs the current value.
+
 ## Version 1.3
 
 Add x-hdl:port to specify how ports are generated for registers (issue#11)
