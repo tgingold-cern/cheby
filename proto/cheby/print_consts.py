@@ -84,10 +84,10 @@ class ConstsPrinterVerilog(ConstsPrinter):
 class ConstsPrinterVHDL(ConstsPrinter):
     def __init__(self, fd, root):
         super(ConstsPrinterVHDL, self).__init__(fd, root)
-        self.name = root.name
+        self.pkg_name = root.name + '_Consts'
 
     def pr_header(self):
-        self.pr_raw("package {}_Consts is\n".format(self.name))
+        self.pr_raw("package {} is\n".format(self.pkg_name))
 
     def pr_const(self, name, val):
         self.pr_raw("  constant {} : Natural := {};\n".format(name, val))
@@ -103,7 +103,16 @@ class ConstsPrinterVHDL(ConstsPrinter):
         pass
 
     def pr_trailer(self):
-        self.pr_raw("end package {}_Consts;\n".format(self.name))
+        self.pr_raw("end package {};\n".format(self.pkg_name))
+
+
+class ConstsPrinterVHDLOhwr(ConstsPrinterVHDL):
+    def __init__(self, fd, root):
+        super(ConstsPrinterVHDLOhwr, self).__init__(fd, root)
+        self.pkg_name = root.name + '_consts_pkg'
+
+    def pr_const(self, name, val):
+        self.pr_raw("  constant c_{} : Natural := {};\n".format(name, val))
 
 
 class ConstsPrinterH(ConstsPrinter):
@@ -234,6 +243,8 @@ def pconsts_for_gen_c(fd, root):
 
 def pconsts_cheby(fd, root, style):
     cls = {'verilog': ConstsPrinterVerilog,
+           'vhdl-orig': ConstsPrinterVHDL,
+           'vhdl-ohwr': ConstsPrinterVHDLOhwr,
            'vhdl': ConstsPrinterVHDL,
            'h': ConstsPrinterH}
     pr = ConstsVisitor(cls[style](fd, root))

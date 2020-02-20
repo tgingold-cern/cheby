@@ -59,7 +59,8 @@ def decode_args():
                          help='select language for hdl generation')
     aparser.add_argument('--gen-hdl', nargs='?', const='-',
                          help='generate hdl file')
-    aparser.add_argument('--consts-style', choices=['vhdl', 'verilog', 'h'],
+    aparser.add_argument('--consts-style', choices=['vhdl', 'vhdl-ohwr', 'vhdl-orig',
+                                                    'verilog', 'h'],
                          default='verilog',
                          help='select style for --gen-consts')
     aparser.add_argument('--gen-consts', nargs='?', const='-',

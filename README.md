@@ -117,6 +117,8 @@ Emit warnings when 'x-hdl:busgroup' is ignored.  (issue#60)
 For wbgen2cheby, WRITE_READ access is handled like
 READ_WRITE (issue #63).
 
+Styles 'vhdl-ohwr' and 'vhdl-orig' have been added for `--consts-style'.
+
 ## Version 1.3
 
 Add x-hdl:port to specify how ports are generated for registers (issue#11)
