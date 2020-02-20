@@ -61,8 +61,14 @@ def gen_reg_addr(n, root, decls, name, pfx):
             num = reg.c_nwords
             reg.h_gena_regaddr = []
             for i in range(num):
+                if root.c_word_endian == 'big':
+                    off = i
+                elif root.c_word_endian == 'little':
+                    off = num - i - 1
+                else:
+                    raise AssertionError
                 cst = gen_addr_cst(
-                    decls, addr + i, 'C_Reg_{}_{}{}'.format(
+                    decls, addr + off, 'C_Reg_{}_{}{}'.format(
                         pfx, reg.name, subsuffix(num - i - 1, num)),
                     addr_width, word_width, word_width)
                 reg.h_gena_regaddr.insert(0, cst)
