@@ -532,7 +532,7 @@ def test_gena_gen_regressions():
 
 def test_wbgen2cheby():
     global nbr_tests
-    files = ['reg1', 'reg2', 'reg_field1', 'reg_in', 'reg_noprefix',
+    files = ['reg1', 'reg2', 'reg_field1', 'reg_in', 'reg_noprefix', 'reg_noprefix2',
              'reg_unsigned', 'reg_signed',
              'reg_loadext', 'reg_ackread',
              'reg_rwrw_async', 'reg_rowo_async', 'reg_rwro_async',

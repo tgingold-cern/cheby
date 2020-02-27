@@ -1,0 +1,27 @@
+memory-map:
+  bus: wb-32-be
+  name: reg_noprefix2
+  description: register test w/o prefix
+  comment: |
+    A simple register
+  x-wbgen:
+    hdl_entity: reg_noprefix2
+  children:
+  - reg:
+      name: R1
+      address: 0x00000000
+      width: 32
+      access: rw
+      description: Register 1
+      comment: |
+        Register 1 has two fields
+      children:
+      - field:
+          name: value
+          range: 3-0
+          description: Value reg
+          x-wbgen:
+            type: SLV
+            access_bus: READ_WRITE
+            access_dev: READ_ONLY
+            field_description: Value reg
