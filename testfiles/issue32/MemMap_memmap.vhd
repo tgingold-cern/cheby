@@ -18,8 +18,8 @@ package MemMap_memmap is
   constant C_ACM_memmap_reg1_0 : std_logic_vector(15 downto 0) := "0000000000000000";-- : Value : X"0000"
 
   -- Register Preset Masks : Memory Map
-  constant C_PSM_memmap_reg1_1 : std_logic_vector(31 downto 16) := "0000000000000000";-- : Value : X"0000"
-  constant C_PSM_memmap_reg1_0 : std_logic_vector(15 downto 0) := "0000000000000000";-- : Value : X"0000"
+  constant C_PSM_memmap_reg1_1 : std_logic_vector(31 downto 16) := "1010010110100101";-- : Value : X"a5a5"
+  constant C_PSM_memmap_reg1_0 : std_logic_vector(15 downto 0) := "1010010110100101";-- : Value : X"a5a5"
 
   -- CODE FIELDS
   -- Memory Data : Memory Map

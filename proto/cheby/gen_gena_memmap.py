@@ -90,7 +90,7 @@ def compute_preset(reg):
         # Backward compatibility.
         res = get_gena(reg, 'preset', 0)
     for f in reg.children:
-        v = f.preset
+        v = f.c_preset
         if v is not None:
             # Note: in the case of holes-preset, we could check that it only defines value for holes.
             mask = (1 << f.c_rwidth) - 1
