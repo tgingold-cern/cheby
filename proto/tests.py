@@ -216,6 +216,7 @@ def compare_buffer_and_file(buf, filename):
 
 
 def test_hdl():
+    # Just generate vhdl (without baseline)
     global nbr_tests
     fd = write_null()
     for f in ['features/simple_reg3', 'features/simple_reg4_ro',
@@ -294,7 +295,7 @@ def test_hdl_ref():
               'features/orclrout_rw',
               'issue52/hwInfo',
               'bug-gen_wt/m1',
-              'issue59/inherit']:
+              'issue59/inherit', 'issue64/simple_reg1']:
         if verbose:
             print('test hdl with ref: {}'.format(f))
         cheby_file = srcdir + f + '.cheby'
@@ -577,7 +578,7 @@ def test_wbgen2cheby():
 def test_consts():
     # Generate constants and compare with a baseline.
     global nbr_tests
-    for f in ['demo_all', 'features/semver1', 'features/mapinfo1']:
+    for f in ['demo_all', 'features/semver1', 'features/mapinfo1', 'issue64/simple_reg1']:
         if verbose:
             print('test consts: {}'.format(f))
         cheby_file = srcdir + f + '.cheby'

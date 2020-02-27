@@ -1,0 +1,12 @@
+memory-map:
+  bus: wb-32-be
+  name: sreg
+  description: a single register
+  x-hdl:
+    name-suffix: _map
+  children:
+    - reg:
+        name: areg
+        width: 32
+        access: rw
+        type: unsigned
