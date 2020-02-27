@@ -249,11 +249,11 @@ def conv_codefields(parent, el, width):
     if not any([child.tag == 'code-field' for child in el]):
         return
     res = cheby.tree.EnumDecl(parent)
-    root = parent
-    name = root.name
+    name = parent.name
+    root = parent._parent
     while root._parent is not None:
-        root = root._parent
         name = root.name + '_' + name
+        root = root._parent
     res.name = name
     res.width = width
     for child in el:
