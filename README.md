@@ -129,7 +129,8 @@ Fix generation of multiword rmw without common visual library (issue #68)
 
 Registers smaller than a word are now correctly handled by gen-hdl (issue #66)
 
-Attribute 'x-hdl:block_prefix' has been renamed 'x-hdl:block-prefix' (issue #65).
+Attribute 'x-hdl:block_prefix' has been renamed 'x-hdl:block-prefix'. Likewise
+'x-hdl:reg_prefix' has been renamed 'x-hdl:reg-prefix' (issue #65).
 
 ## Version 1.3
 

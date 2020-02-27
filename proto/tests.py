@@ -294,6 +294,7 @@ def test_hdl_ref():
               'features/enums1', 'features/enums2', 'features/enums3',
               'features/orclrout_rw',
               'features/blkprefix1', 'features/blkprefix2',
+              'features/regprefix1', 'features/regprefix2',
               'issue52/hwInfo',
               'bug-gen_wt/m1',
               'issue59/inherit', 'issue64/simple_reg1', 'issue66/m1']:

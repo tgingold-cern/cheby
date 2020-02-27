@@ -229,7 +229,7 @@ value is a boolean.
 will also generate a package to declare the records.  The value of this
 attribute is the name of the port.
 
-`reg_prefix`:: If false, discard register prefix and every prefix before
+`reg-prefix`:: If false, discard register prefix and every prefix before
 register.  This creates shorter names.
 
 `block-prefix`:: If false, discard block prefix.
