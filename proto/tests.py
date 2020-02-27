@@ -259,8 +259,17 @@ def expand_hdl_err(t):
     error('hdl error expected for {}'.format(t.name))
 
 
+def gen_name_err(t):
+    try:
+        gen_name.gen_name_root(t)
+    except parser.ParseException:
+        return
+    error('hdl error expected for {}'.format(t.name))
+
+
 def test_hdl_err():
     global nbr_tests
+    # Error in expand_hdl
     for f in ['issue11/test_port1_err1', 'issue11/test_port_err2',
               'access/const_err_wo', 'access/const_err_nopreset',
               'access/autoclear_err_ro',
@@ -271,6 +280,15 @@ def test_hdl_err():
         layout_ok(t)
         expand_hdl_err(t)
         gen_name.gen_name_root(t)
+        nbr_tests += 1
+    # Error in gen_name
+    for f in ['issue65/m1']:
+        if verbose:
+            print('test hdl error: {}'.format(f))
+        t = parse_ok(srcdir + f + '.cheby')
+        layout_ok(t)
+        expand_hdl.expand_hdl(t)
+        gen_name_err(t)
         nbr_tests += 1
 
 

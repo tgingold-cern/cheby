@@ -1,0 +1,70 @@
+memory-map:
+  bus: cern-be-vme-32
+  name: m1
+  schema-version:
+    core: 2.0.0
+    x-hdl: 1.0.0
+    x-wbgen: 1.0.0
+    x-fesa: 2.0.0
+    x-driver-edge: 1.0.0
+    x-gena: 1.0.0
+    x-conversions: 1.0.0
+    x-map-info: 1.0.0
+  x-hdl:
+    reg_prefix: false
+    block_prefix: false
+  children:
+    - reg:
+        name: r1
+        width: 32
+        access: rw
+        children:
+          - field:
+              name: f1
+              range: 2-0
+          - field:
+              name: f2
+              range: 4
+    - reg:
+        name: r2
+        width: 32
+        access: rw
+        children:
+          - field:
+              name: f1
+              range: 2-0
+          - field:
+              name: f2
+              range: 4
+    - reg:
+        name: r3
+        width: 32
+        access: rw
+    - block:
+        name: n1
+        children:
+          - reg:
+              name: r2
+              width: 32
+              access: rw
+              children:
+                - field:
+                    name: f1
+                    range: 2-0
+                - field:
+                    name: f2
+                    range: 4
+    - block:
+        name: b2
+        children:
+          - reg:
+              name: r2
+              width: 32
+              access: rw
+              children:
+                - field:
+                    name: f1
+                    range: 2-0
+                - field:
+                    name: f2
+                    range: 4

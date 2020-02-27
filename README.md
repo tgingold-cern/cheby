@@ -132,6 +132,9 @@ Registers smaller than a word are now correctly handled by gen-hdl (issue #66)
 Attribute 'x-hdl:block_prefix' has been renamed 'x-hdl:block-prefix'. Likewise
 'x-hdl:reg_prefix' has been renamed 'x-hdl:reg-prefix' (issue #65).
 
+Name collisions are now reported (instead of being generated in the
+hdl file) (issue #65).
+
 ## Version 1.3
 
 Add x-hdl:port to specify how ports are generated for registers (issue#11)
