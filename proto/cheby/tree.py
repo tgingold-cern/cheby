@@ -214,7 +214,8 @@ class EnumVal(NamedNode):
 class EnumDecl(CompositeNode):
     def __init__(self, parent):
         super(EnumDecl, self).__init__(parent)
-        self.width = None
+        self.width = None       # Width or None
+        self.c_width = None     # computed width.
         # children are EnumVal.
 
 

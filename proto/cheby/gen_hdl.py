@@ -19,7 +19,7 @@ from cheby.hdltree import (HDLModule, HDLInterface,
                            HDLSwitch, HDLChoiceExpr, HDLChoiceDefault,
                            bit_x,
                            HDLSlice, HDLReplicate,
-                           HDLConst)
+                           HDLConst, HDLNumber)
 import cheby.tree as tree
 import cheby.hdlutils as hdlutils
 from cheby.layout import ilog2
@@ -217,8 +217,13 @@ def gen_enums(root, module):
     for en in root.x_enums:
         decls.append(HDLComment("Enumeration {}".format(en.name)))
         for val in en.children:
-            decls.append(HDLConstant("C_{}_{}".format(en.name, val.name),
-                size=en.width, value=HDLConst(val.value, en.width)))
+            if en.width is None:
+                cst = HDLConstant("C_{}_{}".format(en.name, val.name),
+                    value=HDLNumber(val.value), typ='N')
+            else:
+                cst = HDLConstant("C_{}_{}".format(en.name, val.name),
+                    size=en.width, value=HDLConst(val.value, en.width))
+            decls.append(cst)
 
 
 def generate_hdl(root):

@@ -96,6 +96,24 @@ def layout_named(n):
             n, "missing name for {}".format(n.get_path()))
 
 
+def check_enum_type(root, n, width):
+    enumname = n.type[5:]
+    en = root.c_enums_dict.get(enumname)
+    if en is None:
+        raise LayoutException(
+            n, "enumeration '{}' is not defined".format(enumname))
+    if en.width is None:
+        if en.c_width > width:
+            raise LayoutException(
+                n, "width of field {} ({}) is too small for enum {} ({})".format(
+                    n.get_path(), width, enumname, en.c_width))
+    else:
+        if en.width != width:
+            raise LayoutException(
+                n, "width of field {} ({}) doesn't match width of enum {} ({})".format(
+                    n.get_path(), width, enumname, en.width))
+
+
 def layout_field(root, f, parent, pos):
     layout_named(f)
     # Check range is present
@@ -149,15 +167,7 @@ def layout_field(root, f, parent, pos):
         f.c_type = parent.c_type
     else:
         if f.type.startswith('enum.'):
-            enumname = f.type[5:]
-            en = root.c_enums_dict.get(enumname)
-            if en is None:
-                raise LayoutException(
-                    f, "enumeration '{}' is not defined".format(enumname))
-            if en.width != f.c_rwidth:
-                raise LayoutException(
-                    f, "width of field {} ({}) doesn't match width of enum {} ({})".format(
-                        f.get_path(), f.c_rwidth, enumname, en.width))
+            check_enum_type(root, f, f.c_rwidth)
         elif f.type not in ('signed', 'unsigned'):
             raise LayoutException(
                 f, "type of field {} must be either 'signed', 'unsigned' or 'enum'".format(
@@ -321,6 +331,8 @@ def layout_reg(lo, n):
                 raise LayoutException(
                     n, "incorrect width for float register {}".format(
                         n.get_path()))
+        elif n.type.startswith('enum.'):
+            check_enum_type(lo.root, n, n.width)
         else:
             raise LayoutException(
                 n, "incorrect type for register {}".format(n.get_path()))
@@ -555,6 +567,21 @@ def layout_enums(root):
                 e, "duplicate enum name {}".format(e.name))
         else:
             root.c_enums_dict[e.name] = e
+        e.c_width = e.width or 1
+        for lit in e.children:
+            if lit.value < 0:
+                raise LayoutException(
+                    lit, "enumeration value must be positive")
+            elif lit.value == 0:
+                lit_width = 1
+            else:
+                lit_width = ilog2(lit.value)
+            if e.width is None:
+                e.c_width = max(e.c_width, lit_width)
+            else:
+                if lit_width > e.width:
+                    raise LayoutException(
+                        lit, "value is too large (needs a size of {})".format(lit_width))
 
 
 def layout_cheby_memmap(root):
