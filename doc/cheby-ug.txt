@@ -248,6 +248,9 @@ Finally it is possible to use "none" not to use any pipelining.
 The pipelining is a single barrier of registers inserted on an internal bus,
 which is created from the external bus.
 
+`name-suffix`: The name of the hdl entity or module is by default the name of
+the memory map.  This attribute adds a suffix to those names.
+
 === Registers
 
 A register uses one (usual case) or two (for 64-bit registers) words address.
