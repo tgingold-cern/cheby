@@ -127,6 +127,8 @@ name for hdl module name.
 
 Fix generation of multiword rmw without common visual library (issue #68)
 
+Registers smaller than a word are now correctly handled by gen-hdl (issue #66)
+
 ## Version 1.3
 
 Add x-hdl:port to specify how ports are generated for registers (issue#11)

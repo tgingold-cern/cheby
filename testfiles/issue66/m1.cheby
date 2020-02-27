@@ -1,0 +1,24 @@
+memory-map:
+  name: m1
+  bus: cern-be-vme-err-32
+  size: 1M
+  schema-version:
+    core: 2.0.0
+    x-conversions: 1.0.0
+    x-driver-edge: 1.0.0
+    x-fesa: 2.0.0
+    x-gena: 1.0.0
+    x-hdl: 1.0.0
+    x-map-info: 1.0.0
+    x-wbgen: 1.0.0
+  children:
+    - reg:
+        name: r1
+        width: 8
+        access: rw
+        address: next
+    - reg:
+        name: r2
+        width: 16
+        access: rw
+        address: next
