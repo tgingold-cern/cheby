@@ -198,7 +198,7 @@ def add_write_mux_process(root, module, ibus):
 def gen_hdl_header(root, ibus=None):
     # Note: also called from gen_gena_regctrl but without ibus.
     module = HDLModule()
-    module.name = root.name
+    module.name = root.hdl_module_name
 
     # Create the bus
     root.h_busgen = name_to_busgen(root.bus)

@@ -1360,6 +1360,7 @@ def gen_hdl_misc_root(root, module, isigs):
 
 
 def gen_gena_regctrl(root, use_common_visual):
+    root.hdl_module_name = root.name
     module = gen_hdl.gen_hdl_header(root)
     module.name = 'RegCtrl_{}'.format(root.name)
     if not root.h_bussplit:

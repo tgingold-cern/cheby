@@ -84,7 +84,7 @@ class ConstsPrinterVerilog(ConstsPrinter):
 class ConstsPrinterVHDL(ConstsPrinter):
     def __init__(self, fd, root):
         super(ConstsPrinterVHDL, self).__init__(fd, root)
-        self.pkg_name = root.name + '_Consts'
+        self.pkg_name = root.hdl_module_name + '_Consts'
 
     def pr_header(self):
         self.pr_raw("package {} is\n".format(self.pkg_name))
@@ -109,7 +109,7 @@ class ConstsPrinterVHDL(ConstsPrinter):
 class ConstsPrinterVHDLOhwr(ConstsPrinterVHDL):
     def __init__(self, fd, root):
         super(ConstsPrinterVHDLOhwr, self).__init__(fd, root)
-        self.pkg_name = root.name + '_consts_pkg'
+        self.pkg_name = root.hdl_module_name + '_consts_pkg'
 
     def pr_const(self, name, val):
         self.pr_raw("  constant c_{} : Natural := {};\n".format(name, val))

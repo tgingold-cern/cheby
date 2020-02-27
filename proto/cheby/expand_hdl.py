@@ -141,13 +141,16 @@ def expand_pipeline(n, v):
 def expand_x_hdl_root(n, dct):
     n.hdl_pipeline = ['wr-in', 'rd-out']
     for k, v in dct.items():
-        if k in ['busgroup', 'iogroup', 'reg_prefix', 'block_prefix']:
+        if k in ['busgroup', 'iogroup', 'reg_prefix', 'block_prefix', 'name-suffix']:
             pass
         elif k == 'pipeline':
             n.hdl_pipeline = expand_pipeline(n, v)
         else:
             parser.error("unhandled '{}' in x-hdl of root {}".format(
                          k, n.get_path()))
+    # Set name of the module.
+    suffix = dct.get('name-suffix', '')
+    n.hdl_module_name = n.name + suffix
 
 
 def expand_x_hdl_submap(n, dct):
