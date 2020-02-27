@@ -1,10 +1,20 @@
 import cheby.tree as tree
+import cheby.parser as parser
 
 
 class Context(object):
     def __init__(self):
         self.reg_prefix = False
         self.blk_prefix = False
+        self.names = {}
+
+    def set_field_name(self, field, name):
+        """Set c_name of :param field: to :param name: and detect collisions"""
+        if name in self.names:
+            parser.error("field '{}' and '{}' have the same name '{}'".format(
+                         self.names[name].get_path(), field.get_path(), name))
+        self.names[name] = field
+        field.c_name = name
 
 
 def concat(l, r):
@@ -29,13 +39,14 @@ def gen_name_children(children, prefix, ctxt):
             nprefix = concat_if(prefix, n.name, ctxt.reg_prefix)
             for f in n.children:
                 if isinstance(f, tree.FieldReg):
-                    f.c_name = nprefix if nprefix else n.name
+                    cname = nprefix if nprefix else n.name
                 elif f.name == '':
                     # Handle anonymous field.  Only one such field is allowed.
                     assert len(n.children) == 1
-                    f.c_name = nprefix if nprefix else n.c_name
+                    cname = nprefix if nprefix else n.c_name
                 else:
-                    f.c_name = concat(nprefix, f.name)
+                    cname = concat(nprefix, f.name)
+                ctxt.set_field_name(f, cname)
         elif isinstance(n, tree.Submap):
             nprefix = n.c_name if ctxt.blk_prefix else prefix
             if n.filename is not None:
