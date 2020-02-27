@@ -1,0 +1,31 @@
+memory-map:
+  name: m1
+  bus: cern-be-vme-err-32
+  size: 1M
+  x-gena:
+    map-version: 20200221
+  x-driver-edge:
+    equipment-code: PX-ALCOB
+  x-map-info:
+    ident: 0x1
+    memmap-version: 1.0.0
+  schema-version:
+    core: 2.0.0
+    x-conversions: 1.0.0
+    x-driver-edge: 1.0.0
+    x-fesa: 2.0.0
+    x-gena: 1.0.0
+    x-hdl: 1.0.0
+    x-map-info: 1.0.0
+    x-wbgen: 1.0.0
+  children:
+    - reg:
+        name: r1
+        width: 64
+        access: rw
+        address: next
+        x-fesa:
+          multiplexed: True
+          persistence: True
+        x-gena:
+          rmw: true
