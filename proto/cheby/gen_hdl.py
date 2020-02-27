@@ -44,12 +44,17 @@ def add_block_decoder(root, stmts, addr, children, hi, func, off):
         if isinstance(el, tree.Reg):
             if hi <= root.c_addr_word_bits:
                 foff = off - el.c_abs_addr
-                if root.c_word_endian == 'big':
-                    # Big endian
-                    foff = el.c_size - root.c_word_size - foff
+                if el.c_size <= root.c_word_size:
+                    # If the size of the register is smaller than the word,
+                    # always reads at 0.  Word endianness doesn't matter.
+                    assert foff == 0
                 else:
-                    # Little endian
-                    foff = foff
+                    if root.c_word_endian == 'big':
+                        # Big endian
+                        foff = el.c_size - root.c_word_size - foff
+                    else:
+                        # Little endian
+                        foff = foff
                 func(stmts, el, foff * tree.BYTE_SIZE)
                 return
             else:

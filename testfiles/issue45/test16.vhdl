@@ -67,6 +67,7 @@ begin
 
   -- Process for write requests.
   process (wr_req_d0, r1_wack) begin
+    r1_wreq <= '0';
     -- Reg r1
     r1_wreq <= wr_req_d0;
     wr_ack_int <= r1_wack;
@@ -78,7 +79,7 @@ begin
     rd_dat_d0 <= (others => 'X');
     -- Reg r1
     rd_ack_d0 <= VMERdMem;
-    rd_dat_d0(15 downto 0) <= (others => '0');
-    rd_dat_d0(31 downto 16) <= r1_reg;
+    rd_dat_d0(15 downto 0) <= r1_reg;
+    rd_dat_d0(31 downto 16) <= (others => '0');
   end process;
 end syn;
