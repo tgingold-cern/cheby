@@ -142,7 +142,7 @@ def expand_x_hdl_root(n, dct):
     n.hdl_pipeline = ['wr-in', 'rd-out']
     for k, v in dct.items():
         if k in ['busgroup', 'iogroup',
-                 'reg_prefix', 'block_prefix', 'block-prefix',
+                 'reg_prefix', 'reg-prefix', 'block_prefix', 'block-prefix',
                  'name-suffix']:
             pass
         elif k == 'pipeline':
