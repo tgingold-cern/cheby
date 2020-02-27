@@ -150,7 +150,7 @@ class Writer_YAML(object):
         if n.prefix is not None:
             name = n.prefix
         else:
-            name = ''  # parent.prefix
+            name = 'value'  # parent.prefix
         self.wattr_str("name", name)
         if n.bit_len != 1:
             self.wattr_str("range",
