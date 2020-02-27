@@ -583,6 +583,7 @@ def test_consts():
             print('test consts: {}'.format(f))
         cheby_file = srcdir + f + '.cheby'
         vhdl_file = srcdir + f + '-consts.vhdl'
+        vhdl_ohwr_file = srcdir + f + '-consts.vhdl-ohwr'
         verilog_file = srcdir + f + '-consts.v'
         c_file = srcdir + f + '-consts.h'
         t = parse_ok(cheby_file)
@@ -590,7 +591,9 @@ def test_consts():
         expand_hdl.expand_hdl(t)
         gen_name.gen_name_root(t)
 
-        for file, style in [(verilog_file, 'verilog'), (vhdl_file, 'vhdl'), (c_file, 'h')]:
+        for file, style in [(verilog_file, 'verilog'),
+                            (vhdl_file, 'vhdl'), (vhdl_ohwr_file, 'vhdl-ohwr'),
+                            (c_file, 'h')]:
             buf = write_buffer()
             print_consts.pconsts_cheby(buf, t, style)
             if not compare_buffer_and_file(buf, file):

@@ -114,6 +114,10 @@ class ConstsPrinterVHDLOhwr(ConstsPrinterVHDL):
     def pr_const(self, name, val):
         self.pr_raw("  constant c_{} : Natural := {};\n".format(name, val))
 
+    def pr_address(self, n):
+        # ADDR is a suffix.
+        self.pr_hex_const(self.pr_name(n) + "_ADDR", n.c_abs_addr)
+
 
 class ConstsPrinterH(ConstsPrinter):
     "Printer for the C language"

@@ -1,0 +1,5 @@
+package semver1_consts_pkg is
+  constant c_SEMVER1_SIZE : Natural := 4;
+  constant c_SEMVER1_VERSION : Natural := 16#10000#;
+  constant c_SEMVER1_R1_ADDR : Natural := 16#0#;
+end package semver1_consts_pkg;

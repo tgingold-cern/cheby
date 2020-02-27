@@ -1,0 +1,4 @@
+package sreg_map_consts_pkg is
+  constant c_SREG_SIZE : Natural := 4;
+  constant c_SREG_AREG_ADDR : Natural := 16#0#;
+end package sreg_map_consts_pkg;
