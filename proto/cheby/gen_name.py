@@ -50,6 +50,8 @@ def gen_name_children(children, prefix, ctxt):
 def gen_name_root(root):
     ctxt = Context()
     ctxt.reg_prefix = root.get_extension('x_hdl', 'reg_prefix', True)
-    ctxt.blk_prefix = root.get_extension('x_hdl', 'block_prefix', True)
+    ctxt.blk_prefix = root.get_extension('x_hdl', 'block-prefix')
+    if ctxt.blk_prefix is None:
+        ctxt.blk_prefix = root.get_extension('x_hdl', 'block_prefix', True)
     prefix = None
     gen_name_children(root.children, prefix, ctxt)

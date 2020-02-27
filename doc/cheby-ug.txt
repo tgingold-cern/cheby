@@ -232,7 +232,7 @@ attribute is the name of the port.
 `reg_prefix`:: If false, discard register prefix and every prefix before
 register.  This creates shorter names.
 
-`block_prefix`:: If false, discard block prefix.
+`block-prefix`:: If false, discard block prefix.
 
 `pipeline`:: Finely define the pipelining.  In case of timing closure issues,
 you can set this value to "all".  Possible values are "rd-in", "rd-out",

@@ -141,7 +141,9 @@ def expand_pipeline(n, v):
 def expand_x_hdl_root(n, dct):
     n.hdl_pipeline = ['wr-in', 'rd-out']
     for k, v in dct.items():
-        if k in ['busgroup', 'iogroup', 'reg_prefix', 'block_prefix', 'name-suffix']:
+        if k in ['busgroup', 'iogroup',
+                 'reg_prefix', 'block_prefix', 'block-prefix',
+                 'name-suffix']:
             pass
         elif k == 'pipeline':
             n.hdl_pipeline = expand_pipeline(n, v)
