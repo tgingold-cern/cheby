@@ -291,7 +291,7 @@ def test_hdl_ref():
               'issue45/test8', 'issue45/test16',
               'features/wires1', 'features/semver1', 'features/semver2',
               'features/mapinfo2',
-              'features/enums1', 'features/enums2',
+              'features/enums1', 'features/enums2', 'features/enums3',
               'features/orclrout_rw',
               'issue52/hwInfo',
               'bug-gen_wt/m1',

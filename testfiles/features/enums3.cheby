@@ -1,0 +1,29 @@
+memory-map:
+  bus: wb-32-be
+  name: enums3
+  description: Unsize enum
+  x-enums:
+    - enum:
+        name: enum1
+        children:
+          - item:
+              name: hello
+              value: 0
+          - item:
+              name: World
+              value: 1
+  children:
+    - reg:
+        name: r1
+        width: 32
+        access: rw
+        children:
+          - field:
+              name: f1
+              range: 7-0
+              type: enum.enum1
+    - reg:
+        name: r2
+        width: 32
+        access: rw
+        type: enum.enum1
