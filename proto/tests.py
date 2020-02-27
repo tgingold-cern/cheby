@@ -293,6 +293,7 @@ def test_hdl_ref():
               'features/mapinfo2',
               'features/enums1', 'features/enums2', 'features/enums3',
               'features/orclrout_rw',
+              'features/blkprefix1',
               'issue52/hwInfo',
               'bug-gen_wt/m1',
               'issue59/inherit', 'issue64/simple_reg1', 'issue66/m1']:
