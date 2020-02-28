@@ -18,7 +18,7 @@ memory-map:
           name: ID
           description: Version identifier
           range: 31-0
-          preset: 2
+          preset: 0x2
           x-wbgen:
             access_bus: READ_WRITE
             access_dev: READ_ONLY

@@ -19,7 +19,7 @@ memory-map:
           description: version
           comment: current version
           range: 7-0
-          preset: 19
+          preset: 0x13
           x-wbgen:
             access_bus: READ_ONLY
             access_dev: WRITE_ONLY

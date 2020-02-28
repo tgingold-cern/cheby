@@ -121,10 +121,10 @@ class Writer_YAML(object):
 
     def write_field_content(self, n, parent):
         if n.reset_value is not None:
-            self.wattr_num("preset", n.reset_value)
+            self.wattr_str("preset", "0x{:x}".format(n.reset_value))
         elif n.value is not None:
             # Use preset to store CONSTANT value
-            self.wattr_num("preset", n.value)
+            self.wattr_str("preset", "0x{:x}".format(n.value))
         self.wseq("x-wbgen")
         if isinstance(parent, tree.FifoCSReg):
             self.wattr_str("kind", n.kind)
