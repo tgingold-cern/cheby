@@ -2,8 +2,7 @@ memory-map:
   name: irq1
   bus: wb-32-be
   description: irq1 ack
-  comment: |
-    An irq line with a simple register
+  comment: An irq line with a simple register
   x-wbgen:
     hdl_entity: irqack
   children:
@@ -13,15 +12,13 @@ memory-map:
       width: 32
       access: rw
       description: Register 1
-      comment: |
-        Register 1 has two fields
+      comment: Register 1 has two fields
       children:
       - field:
           name: reset
           range: 0
           description: Reset bit
-          comment: |
-            1 to reset
+          comment: 1 to reset
           x-wbgen:
             type: BIT
             access_bus: READ_WRITE
@@ -30,8 +27,7 @@ memory-map:
           name: mode
           range: 3-1
           description: Mode
-          comment: |
-            Set device mode
+          comment: Set device mode
           x-wbgen:
             type: SLV
             access_bus: READ_WRITE
@@ -49,8 +45,7 @@ memory-map:
             pos: 1
             ack_line: True
             description: Interrupt 1
-            comment: |
-              Interrupt #1
+            comment: Interrupt #1
       children:
       - reg:
           name: eic_idr
@@ -58,8 +53,7 @@ memory-map:
           width: 32
           access: wo
           description: Interrupt disable register
-          comment: |
-            Writing 1 disables handling of the interrupt associated with corresponding bit. Writin 0 has no effect.
+          comment: Writing 1 disables handling of the interrupt associated with corresponding bit. Writin 0 has no effect.
           children:
           - field:
               name: int1
@@ -77,8 +71,7 @@ memory-map:
           width: 32
           access: wo
           description: Interrupt enable register
-          comment: |
-            Writing 1 enables handling of the interrupt associated with corresponding bit. Writin 0 has no effect.
+          comment: Writing 1 enables handling of the interrupt associated with corresponding bit. Writin 0 has no effect.
           children:
           - field:
               name: int1
@@ -96,8 +89,7 @@ memory-map:
           width: 32
           access: ro
           description: Interrupt mask register
-          comment: |
-            Shows which interrupts are enabled. 1 means that the interrupt associated with the bitfield is enabled
+          comment: Shows which interrupts are enabled. 1 means that the interrupt associated with the bitfield is enabled
           children:
           - field:
               name: int1
@@ -115,8 +107,7 @@ memory-map:
           width: 32
           access: rw
           description: Interrupt status register
-          comment: |
-            Each bit represents the state of corresponding interrupt. 1 means the interrupt is pending. Writing 1 to a bit clears the corresponding interrupt. Writing 0 has no effect.
+          comment: Each bit represents the state of corresponding interrupt. 1 means the interrupt is pending. Writing 1 to a bit clears the corresponding interrupt. Writing 0 has no effect.
           children:
           - field:
               name: int1

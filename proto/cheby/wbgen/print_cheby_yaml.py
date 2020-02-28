@@ -107,13 +107,17 @@ class Writer_YAML(object):
             s = ''.join({"\n": r'\n', "\\": "\\\\"}.get(c, c) for c in txt)
             self.w('{}: "{}"\n'.format(name, s))
         else:
-            self.w('{}: |\n'.format(name))
-            self.indent += 1
-            for l in txt.rstrip().split('\n'):
-                self.windent()
-                self.w(l.strip())
-                self.w('\n')
-            self.indent -= 1
+            txt = txt.rstrip()
+            if any(c in txt for c in "'[]\n:") or txt.startswith('-'):
+                self.w('{}: |\n'.format(name))
+                self.indent += 1
+                for l in txt.split('\n'):
+                    self.windent()
+                    self.w(l.strip())
+                    self.w('\n')
+                self.indent -= 1
+            else:
+                self.w('{}: {}\n'.format(name, txt))
 
     def write_field_content(self, n, parent):
         if n.reset_value is not None:

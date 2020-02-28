@@ -3,8 +3,7 @@ memory-map:
   name: sysc
   bus: wb-32-be
   description: WR Core System Controller
-  comment: |
-    
+  comment: 
   x-wbgen:
     hdl_entity: wrc_syscon_wb
   children:
@@ -19,8 +18,7 @@ memory-map:
           name: TRIG
           range: 27-0
           description: Reset trigger
-          comment: |
-            Write 0xdeadbee latch the state of RSTR.RST to the reset line of the LM32 CPU.
+          comment: Write 0xdeadbee latch the state of RSTR.RST to the reset line of the LM32 CPU.
           x-wbgen:
             type: PASS_THROUGH
           x-hdl:
@@ -29,8 +27,7 @@ memory-map:
           name: RST
           range: 28
           description: Reset line state value
-          comment: |
-            State of the reset line
+          comment: State of the reset line
           x-wbgen:
             type: BIT
             access_bus: READ_WRITE
@@ -304,8 +301,7 @@ memory-map:
           name: NAME
           range: 31-0
           description: Board name
-          comment: |
-            4-letter name of the board
+          comment: 4-letter name of the board
           x-wbgen:
             type: SLV
             access_bus: READ_ONLY
@@ -580,8 +576,7 @@ memory-map:
       width: 32
       access: rw
       description: "WRPC Diag: Tx PTP Frame cnts"
-      comment: |
-        Number of transmitted PTP Frames
+      comment: Number of transmitted PTP Frames
       x-wbgen:
         type: SLV
         access_bus: READ_WRITE
@@ -593,8 +588,7 @@ memory-map:
       width: 32
       access: rw
       description: "WRPC Diag: Rx PTP Frame cnts"
-      comment: |
-        Number of received PTP Frames
+      comment: Number of received PTP Frames
       x-wbgen:
         type: SLV
         access_bus: READ_WRITE
@@ -606,8 +600,7 @@ memory-map:
       width: 32
       access: rw
       description: "WRPC Diag:local time [msb of s]"
-      comment: |
-        Local Time expressed in seconds since epoch (TAI)
+      comment: Local Time expressed in seconds since epoch (TAI)
       x-wbgen:
         type: SLV
         access_bus: READ_WRITE
@@ -619,8 +612,7 @@ memory-map:
       width: 32
       access: rw
       description: "WRPC Diag: local time [lsb of s]"
-      comment: |
-        Local Time expressed in seconds since epoch (TAI)
+      comment: Local Time expressed in seconds since epoch (TAI)
       x-wbgen:
         type: SLV
         access_bus: READ_WRITE
@@ -632,8 +624,7 @@ memory-map:
       width: 32
       access: rw
       description: "WRPC Diag: local time [ns]"
-      comment: |
-        Nanoseconds part of the Local Time expressed in seconds since epoch (TAI)
+      comment: Nanoseconds part of the Local Time expressed in seconds since epoch (TAI)
       x-wbgen:
         type: SLV
         access_bus: READ_WRITE

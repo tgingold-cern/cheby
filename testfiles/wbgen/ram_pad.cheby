@@ -11,15 +11,13 @@ memory-map:
       width: 32
       access: rw
       description: Register 1
-      comment: |
-        Register 1 has two fields
+      comment: Register 1 has two fields
       children:
       - field:
           name: enable
           range: 0
           description: Enable
-          comment: |
-            1 to enable device
+          comment: 1 to enable device
           x-wbgen:
             type: BIT
             access_bus: READ_WRITE

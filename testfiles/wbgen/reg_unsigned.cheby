@@ -2,8 +2,7 @@ memory-map:
   name: reg1
   bus: wb-32-be
   description: register test 1
-  comment: |
-    A simple unsigned register
+  comment: A simple unsigned register
   x-wbgen:
     hdl_entity: reg1
   children:
@@ -13,15 +12,13 @@ memory-map:
       width: 32
       access: ro
       description: Register 1
-      comment: |
-        Register 1 has two fields
+      comment: Register 1 has two fields
       children:
       - field:
           name: val
           range: 3-0
           description: Value
-          comment: |
-            Value of reg
+          comment: Value of reg
           x-wbgen:
             type: UNSIGNED
             access_bus: READ_ONLY

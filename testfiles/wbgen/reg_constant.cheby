@@ -2,8 +2,7 @@ memory-map:
   name: pt
   bus: wb-32-be
   description: register constant
-  comment: |
-    A simple passthrough register
+  comment: A simple passthrough register
   x-wbgen:
     hdl_entity: rcst
   children:
@@ -13,15 +12,13 @@ memory-map:
       width: 32
       access: ro
       description: Register 1
-      comment: |
-        Register 1 has two fields
+      comment: Register 1 has two fields
       children:
       - field:
           name: ver
           range: 7-0
           description: version
-          comment: |
-            current version
+          comment: current version
           preset: 19
           x-wbgen:
             type: CONSTANT

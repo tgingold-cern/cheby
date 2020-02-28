@@ -2,8 +2,7 @@ memory-map:
   name: ver_reg
   bus: wb-32-be
   description: version test 1
-  comment: |
-    A simple register
+  comment: A simple register
   x-wbgen:
     hdl_entity: ver_reg
     version: 2
@@ -30,15 +29,13 @@ memory-map:
       width: 32
       access: rw
       description: Register 1
-      comment: |
-        Register 1 has one fields
+      comment: Register 1 has one fields
       children:
       - field:
           name: reset
           range: 0
           description: Reset bit
-          comment: |
-            1 to reset
+          comment: 1 to reset
           x-wbgen:
             type: BIT
             access_bus: READ_WRITE

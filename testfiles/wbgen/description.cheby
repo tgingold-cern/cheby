@@ -14,8 +14,7 @@ memory-map:
       width: 32
       access: rw
       description: Register 1
-      comment: |
-        Register 1 has two fields
+      comment: Register 1 has two fields
       x-wbgen:
         type: SLV
         access_bus: READ_WRITE
