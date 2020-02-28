@@ -16,21 +16,21 @@ memory-map:
     x-map-info: 1.0.0
     x-wbgen: 1.0.0
   children:
-    - reg:
-        name: test1
-        width: 32
-        access: ro
-        address: 0x0
-        x-fesa:
-          multiplexed: False
-          persistence: True
-        children:
-          - field:
-              name: b15
-              description: b15
-              range: 15
-              preset: 0x0
-          - field:
-              name: w14
-              range: 14-0
-              preset: 0xc
+  - reg:
+      name: test1
+      width: 32
+      access: ro
+      address: 0x0
+      x-fesa:
+        multiplexed: False
+        persistence: True
+      children:
+      - field:
+          name: b15
+          description: b15
+          range: 15
+          preset: 0x0
+      - field:
+          name: w14
+          range: 14-0
+          preset: 0xc

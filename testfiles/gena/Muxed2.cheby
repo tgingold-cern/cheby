@@ -17,73 +17,73 @@ memory-map:
     x-map-info: 1.0.0
     x-wbgen: 1.0.0
   children:
-    - reg:
-        name: muxedRegRO
-        description: muxed-reg-ro
-        width: 32
-        access: ro
-        address: next
-        x-gena:
-          gen:
-            mux: regSel.channelSelect
-        x-fesa:
-          multiplexed: True
-          persistence: True
-    - reg:
-        name: muxedRegRW
-        description: muxed-reg-rw
-        width: 32
-        access: rw
-        address: next
-        x-gena:
-          gen:
-            mux: regSel.channelSelect
-        x-fesa:
-          multiplexed: True
-          persistence: True
-    - reg:
-        name: regSel
-        description: Acquisition buffer selection
-        width: 16
-        access: rw
-        address: next
-        x-fesa:
-          multiplexed: True
-          persistence: True
-        children:
-          - field:
-              name: channelSelect
-              description: Channel selection
-              range: 15
-              x-gena:
-                gen:
-                  ext-codes: Mem.memory-channel
-          - field:
-              name: bufferSelect
-              description: Buffer selection
-              range: 7-0
-    - memory:
-        name: Mem
-        description: Memory
-        address: next
-        memsize: 512k
-        x-gena:
-          memory-channels:
-            - memory-channel:
-                acq-width: 16
-                channel-select-code: 0
-                description: chan 0
-                name: channel0
-            - memory-channel:
-                acq-width: 16
-                channel-select-code: 1
-                description: chan 1
-                name: channel1
-        x-fesa:
-          multiplexed: True
-          persistence: True
-        children:
-          - reg:
-              name: Mem
-              width: 16
-              access: rw
+  - reg:
+      name: muxedRegRO
+      description: muxed-reg-ro
+      width: 32
+      access: ro
+      address: next
+      x-gena:
+        gen:
+          mux: regSel.channelSelect
+      x-fesa:
+        multiplexed: True
+        persistence: True
+  - reg:
+      name: muxedRegRW
+      description: muxed-reg-rw
+      width: 32
+      access: rw
+      address: next
+      x-gena:
+        gen:
+          mux: regSel.channelSelect
+      x-fesa:
+        multiplexed: True
+        persistence: True
+  - reg:
+      name: regSel
+      description: Acquisition buffer selection
+      width: 16
+      access: rw
+      address: next
+      x-fesa:
+        multiplexed: True
+        persistence: True
+      children:
+      - field:
+          name: channelSelect
+          description: Channel selection
+          range: 15
+          x-gena:
+            gen:
+              ext-codes: Mem.memory-channel
+      - field:
+          name: bufferSelect
+          description: Buffer selection
+          range: 7-0
+  - memory:
+      name: Mem
+      description: Memory
+      address: next
+      memsize: 512k
+      x-gena:
+        memory-channels:
+        - memory-channel:
+            acq-width: 16
+            channel-select-code: 0
+            description: chan 0
+            name: channel0
+        - memory-channel:
+            acq-width: 16
+            channel-select-code: 1
+            description: chan 1
+            name: channel1
+      x-fesa:
+        multiplexed: True
+        persistence: True
+      children:
+      - reg:
+          name: Mem
+          width: 16
+          access: rw

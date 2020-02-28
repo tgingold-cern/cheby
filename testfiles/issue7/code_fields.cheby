@@ -19,43 +19,43 @@ memory-map:
     x-map-info: 1.0.0
     x-wbgen: 1.0.0
   children:
-    - block:
-        name: area1
-        address: next
-        size: 1k
-        x-gena:
-          reserved: False
-        children:
-          - reg:
-              name: myRegister
-              width: 16
-              access: rw
-              address: next
-              x-gena:
-                code-fields:
-                  - code-field:
-                      code: 0
-                      name: problematicCodeField
-              x-fesa:
-                multiplexed: False
-                persistence: True
-    - block:
-        name: area2
-        address: next
-        size: 1k
-        x-gena:
-          reserved: False
-        children:
-          - reg:
-              name: myRegister
-              width: 16
-              access: rw
-              address: next
-              x-gena:
-                code-fields:
-                  - code-field:
-                      code: 0
-                      name: problematicCodeField
-              x-fesa:
-                multiplexed: False
-                persistence: True
+  - block:
+      name: area1
+      address: next
+      size: 1k
+      x-gena:
+        reserved: False
+      children:
+      - reg:
+          name: myRegister
+          width: 16
+          access: rw
+          address: next
+          x-gena:
+            code-fields:
+            - code-field:
+                code: 0
+                name: problematicCodeField
+          x-fesa:
+            multiplexed: False
+            persistence: True
+  - block:
+      name: area2
+      address: next
+      size: 1k
+      x-gena:
+        reserved: False
+      children:
+      - reg:
+          name: myRegister
+          width: 16
+          access: rw
+          address: next
+          x-gena:
+            code-fields:
+            - code-field:
+                code: 0
+                name: problematicCodeField
+          x-fesa:
+            multiplexed: False
+            persistence: True

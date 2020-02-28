@@ -16,65 +16,65 @@ memory-map:
     x-map-info: 1.0.0
     x-wbgen: 1.0.0
   children:
-    - reg:
-        name: test3
-        width: 32
-        access: rw
-        address: next
-        x-fesa:
-          multiplexed: False
-          persistence: True
-    - reg:
-        name: test4
-        width: 64
-        access: rw
-        address: next
-        x-fesa:
-          multiplexed: False
-          persistence: True
-    - block:
-        name: area1
-        address: next
-        size: 1k
-        x-gena:
-          reserved: False
-        children:
-          - reg:
-              name: test1
-              width: 32
-              access: rw
-              address: next
-              x-fesa:
-                multiplexed: False
-                persistence: True
-          - reg:
-              name: test2
-              width: 64
-              access: rw
-              address: next
-              x-fesa:
-                multiplexed: False
-                persistence: True
-    - block:
-        name: area2
-        address: next
-        size: 1k
-        x-gena:
-          reserved: False
-        children:
-          - reg:
-              name: test1
-              width: 32
-              access: rw
-              address: next
-              x-fesa:
-                multiplexed: False
-                persistence: True
-          - reg:
-              name: test3
-              width: 64
-              access: rw
-              address: next
-              x-fesa:
-                multiplexed: False
-                persistence: True
+  - reg:
+      name: test3
+      width: 32
+      access: rw
+      address: next
+      x-fesa:
+        multiplexed: False
+        persistence: True
+  - reg:
+      name: test4
+      width: 64
+      access: rw
+      address: next
+      x-fesa:
+        multiplexed: False
+        persistence: True
+  - block:
+      name: area1
+      address: next
+      size: 1k
+      x-gena:
+        reserved: False
+      children:
+      - reg:
+          name: test1
+          width: 32
+          access: rw
+          address: next
+          x-fesa:
+            multiplexed: False
+            persistence: True
+      - reg:
+          name: test2
+          width: 64
+          access: rw
+          address: next
+          x-fesa:
+            multiplexed: False
+            persistence: True
+  - block:
+      name: area2
+      address: next
+      size: 1k
+      x-gena:
+        reserved: False
+      children:
+      - reg:
+          name: test1
+          width: 32
+          access: rw
+          address: next
+          x-fesa:
+            multiplexed: False
+            persistence: True
+      - reg:
+          name: test3
+          width: 64
+          access: rw
+          address: next
+          x-fesa:
+            multiplexed: False
+            persistence: True

@@ -17,11 +17,11 @@ memory-map:
     x-map-info: 1.0.0
     x-wbgen: 1.0.0
   children:
-    - reg:
-        name: test3
-        width: 32
-        access: rw
-        address: next
-        x-fesa:
-          multiplexed: False
-          persistence: True
+  - reg:
+      name: test3
+      width: 32
+      access: rw
+      address: next
+      x-fesa:
+        multiplexed: False
+        persistence: True

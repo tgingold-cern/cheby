@@ -8,7 +8,7 @@ memory-map:
   children:
   - memory:
       name: frequency
-      address: 0x00000000
+      address: 0x0
       memsize: 128
       description: Frequency RAM
       x-wbgen:

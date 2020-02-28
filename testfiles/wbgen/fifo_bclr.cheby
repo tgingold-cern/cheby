@@ -7,7 +7,7 @@ memory-map:
   children:
   - block:
       name: fifo_bclr
-      address: 0x00000000
+      address: 0x0
       size: 8
       description: fifo bus clear
       align: False
@@ -22,7 +22,7 @@ memory-map:
           description: FIFO 'fifo bus clear' data input register 0
           width: 32
           access: wo
-          address: 0x00000000
+          address: 0x0
           children:
           - field:
               name: val
@@ -35,7 +35,7 @@ memory-map:
           description: FIFO 'fifo bus clear' control/status register
           width: 32
           access: wo
-          address: 0x00000004
+          address: 0x4
           x-wbgen:
             kind: fifocs
           children:

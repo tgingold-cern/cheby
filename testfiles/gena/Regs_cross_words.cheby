@@ -16,37 +16,37 @@ memory-map:
     x-map-info: 1.0.0
     x-wbgen: 1.0.0
   children:
-    - reg:
-        name: test2
-        width: 32
-        access: ro
-        address: next
-        x-fesa:
-          multiplexed: False
-          persistence: True
-        children:
-          - field:
-              name: hi
-              range: 31
-              preset: 0x1
-          - field:
-              name: lo
-              range: 0
-              preset: 0x0
-    - reg:
-        name: test3
-        width: 32
-        access: ro
-        address: next
-        x-fesa:
-          multiplexed: False
-          persistence: True
-        children:
-          - field:
-              name: hi
-              range: 31
-              preset: 0x1
-          - field:
-              name: lo
-              range: 14
-              preset: 0x0
+  - reg:
+      name: test2
+      width: 32
+      access: ro
+      address: next
+      x-fesa:
+        multiplexed: False
+        persistence: True
+      children:
+      - field:
+          name: hi
+          range: 31
+          preset: 0x1
+      - field:
+          name: lo
+          range: 0
+          preset: 0x0
+  - reg:
+      name: test3
+      width: 32
+      access: ro
+      address: next
+      x-fesa:
+        multiplexed: False
+        persistence: True
+      children:
+      - field:
+          name: hi
+          range: 31
+          preset: 0x1
+      - field:
+          name: lo
+          range: 14
+          preset: 0x0

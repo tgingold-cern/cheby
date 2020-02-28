@@ -19,12 +19,12 @@ memory-map:
     x-map-info: 1.0.0
     x-wbgen: 1.0.0
   children:
-    - reg:
-        name: reg1
-        width: 16
-        access: rw
-        address: next
-        preset: 0xc
-        x-fesa:
-          multiplexed: True
-          persistence: True
+  - reg:
+      name: reg1
+      width: 16
+      access: rw
+      address: next
+      preset: 0xc
+      x-fesa:
+        multiplexed: True
+        persistence: True

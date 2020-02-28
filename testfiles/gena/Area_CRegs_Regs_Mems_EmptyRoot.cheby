@@ -16,102 +16,102 @@ memory-map:
     x-map-info: 1.0.0
     x-wbgen: 1.0.0
   children:
-    - block:
-        name: area
-        address: next
-        size: 512k
-        x-gena:
-          reserved: False
-        children:
+  - block:
+      name: area
+      address: next
+      size: 512k
+      x-gena:
+        reserved: False
+      children:
+      - reg:
+          name: test1
+          width: 32
+          access: rw
+          address: 0x0
+          x-gena:
+            rmw: True
+          x-fesa:
+            multiplexed: False
+            persistence: True
+      - reg:
+          name: test2
+          width: 64
+          access: rw
+          address: next
+          x-gena:
+            rmw: True
+          x-fesa:
+            multiplexed: False
+            persistence: True
+      - reg:
+          name: test3
+          width: 32
+          access: rw
+          address: next
+          x-fesa:
+            multiplexed: False
+            persistence: True
+      - reg:
+          name: test4
+          width: 64
+          access: rw
+          address: next
+          x-fesa:
+            multiplexed: False
+            persistence: True
+      - reg:
+          name: test5
+          width: 32
+          access: wo
+          address: next
+          x-fesa:
+            multiplexed: False
+            persistence: True
+      - reg:
+          name: test6
+          width: 64
+          access: wo
+          address: next
+          x-fesa:
+            multiplexed: False
+            persistence: True
+      - reg:
+          name: test7
+          width: 64
+          access: ro
+          address: 0x80
+          x-fesa:
+            multiplexed: False
+            persistence: True
+      - reg:
+          name: test8
+          width: 64
+          access: ro
+          address: next
+          x-fesa:
+            multiplexed: False
+            persistence: True
+      - memory:
+          name: mem1
+          address: next
+          memsize: 1k
+          x-fesa:
+            multiplexed: False
+            persistence: True
+          children:
           - reg:
-              name: test1
-              width: 32
-              access: rw
-              address: 0x0
-              x-gena:
-                rmw: True
-              x-fesa:
-                multiplexed: False
-                persistence: True
-          - reg:
-              name: test2
-              width: 64
-              access: rw
-              address: next
-              x-gena:
-                rmw: True
-              x-fesa:
-                multiplexed: False
-                persistence: True
-          - reg:
-              name: test3
-              width: 32
-              access: rw
-              address: next
-              x-fesa:
-                multiplexed: False
-                persistence: True
-          - reg:
-              name: test4
-              width: 64
-              access: rw
-              address: next
-              x-fesa:
-                multiplexed: False
-                persistence: True
-          - reg:
-              name: test5
-              width: 32
-              access: wo
-              address: next
-              x-fesa:
-                multiplexed: False
-                persistence: True
-          - reg:
-              name: test6
-              width: 64
-              access: wo
-              address: next
-              x-fesa:
-                multiplexed: False
-                persistence: True
-          - reg:
-              name: test7
-              width: 64
-              access: ro
-              address: 0x80
-              x-fesa:
-                multiplexed: False
-                persistence: True
-          - reg:
-              name: test8
-              width: 64
-              access: ro
-              address: next
-              x-fesa:
-                multiplexed: False
-                persistence: True
-          - memory:
               name: mem1
-              address: next
-              memsize: 1k
-              x-fesa:
-                multiplexed: False
-                persistence: True
-              children:
-                - reg:
-                    name: mem1
-                    width: 32
-                    access: rw
-          - memory:
+              width: 32
+              access: rw
+      - memory:
+          name: mem2
+          address: next
+          memsize: 1k
+          x-fesa:
+            multiplexed: False
+            persistence: True
+          children:
+          - reg:
               name: mem2
-              address: next
-              memsize: 1k
-              x-fesa:
-                multiplexed: False
-                persistence: True
-              children:
-                - reg:
-                    name: mem2
-                    width: 32
-                    access: rw
+              width: 32
+              access: rw

@@ -96,7 +96,7 @@ class Writer_YAML(object):
             self.w('# {}\n'.format(l))
 
     def write_address(self, addr):
-        self.wattr_num("address", "0x{:08x}".format(
+        self.wattr_num("address", "0x{:x}".format(
                        (addr - self.block_addr[-1]) * layout.DATA_BYTES))
 
     def write_comment(self, txt, name='comment'):

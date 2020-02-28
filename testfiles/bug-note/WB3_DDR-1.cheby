@@ -21,266 +21,266 @@ memory-map:
     x-map-info: 1.0.0
     x-wbgen: 1.0.0
   children:
-    - reg:
-        name: acqBufSel
-        description: Acquisition channel and buffer selection
-        width: 32
-        access: rw
-        address: next
-        x-fesa:
-          multiplexed: False
-          persistence: False
-        children:
-          - field:
-              name: channelSelect
-              description: 'Channel (family) selection, ex: OBS/PM, External/Internal'
-              range: 31-16
-              x-gena:
-                gen:
-                  ext-codes: acqVP.memory-channel
-          - field:
-              name: bufferSelect
-              description: Buffer selection, content relative to AcqMethod
-              range: 15-0
-    - reg:
-        name: acqPageSel
-        description: Viewport page selection for buffer selected with acqBufSel
-        width: 32
-        type: unsigned
-        access: rw
-        address: next
-        x-fesa:
-          multiplexed: False
-          persistence: False
-    - reg:
-        name: acqFrzAddr
-        description: 'Acquisition channel freeze address in bytes\nRegister is multiplexed based on channelSelect'
-        width: 32
-        type: unsigned
-        access: ro
-        address: next
-        x-gena:
-          gen:
-            mux: acqBufSel.channelSelect
-            resize: 26
-        x-fesa:
-          multiplexed: False
-          persistence: False
-    - reg:
-        name: acqSize
-        description: 'Size in bytes of buffers in current channel\nRegister is multiplexed based on channelSelect'
-        width: 32
-        type: unsigned
-        access: ro
-        address: next
-        x-gena:
-          gen:
-            mux: acqBufSel.channelSelect
-        x-fesa:
-          multiplexed: False
-          persistence: False
-    - reg:
-        name: acqStatus
-        description: 'Status of current buffer\nRegister is multiplexed based on channelSelect'
-        width: 32
-        access: ro
-        address: next
-        x-gena:
-          gen:
-            mux: acqBufSel.channelSelect
-        x-fesa:
-          multiplexed: False
-          persistence: False
-        children:
-          - field:
-              name: enabled
-              description: Selected buffer is enabled
-              range: 31
-          - field:
-              name: available
-              description: Selected channel is frozen
-              range: 30
-          - field:
-              name: complete
-              description: Selected channel has been filled
-              range: 29
-    - reg:
-        name: acqRateSel
-        description: 'Acquisition Observation Rate Select\nRegister is multiplexed based on channelSelect'
-        width: 32
-        type: unsigned
-        access: rw
-        address: next
-        x-gena:
-          gen:
-            mux: acqBufSel.channelSelect
-        x-fesa:
-          multiplexed: False
-          persistence: False
-    - reg:
-        name: acqMethod
-        description: Register is multiplexed based on channelSelect
-        width: 32
-        type: unsigned
-        access: rw
-        address: next
-        x-gena:
-          code-fields:
-            - code-field:
-                code: 0
-                name: standard
-            - code-field:
-                code: 1
-                name: Advanced
-          gen:
-            mux: acqBufSel.channelSelect
-        x-fesa:
-          multiplexed: False
-          persistence: False
-    - reg:
-        name: bufferWriteSrcSel
-        width: 32
-        access: rw
-        address: next
-        x-gena:
-          code-fields:
-            - code-field:
-                code: 0
-                name: bfieldRaw
-            - code-field:
-                code: 1
-                name: bdotRaw
-            - code-field:
-                code: 2
-                name: frev
-            - code-field:
-                code: 3
-                name: bfieldWR
-            - code-field:
-                code: 4
-                name: bfieldUpDw
-            - code-field:
-                code: 5
-                name: bfieldDiff
-            - code-field:
-                code: 6
-                name: dacDpllHpll
-            - code-field:
-                code: 7
-                name: wrRxLatency
-        x-fesa:
-          multiplexed: False
-          persistence: True
-    - reg:
-        name: acqStrobeRateReducerByN
-        width: 32
-        access: rw
-        address: next
-        x-fesa:
-          multiplexed: False
-          persistence: True
-    - memory:
-        name: acqVP
-        description: Acquisition memory viewport
-        address: next
-        memsize: 128k
-        x-gena:
-          memory-channels:
-            - memory-channel:
-                acq-base-freq: RF/1
-                acq-width: 32
-                buffer-alignment: end
-                channel-select-code: 0
-                description: Observation
-                memory-buffers:
-                  - memory-buffer:
-                      bit-encoding: signed
-                      buffer-select-code: 0
-                      description: Depends on AcqMethod
-                      name: AcqBuf1
-                  - memory-buffer:
-                      bit-encoding: signed
-                      buffer-select-code: 1
-                      comment: a note
-                      description: Depends on AcqMethod
-                      name: AcqBuf2
-                  - memory-buffer:
-                      bit-encoding: signed
-                      buffer-select-code: 2
-                      description: Depends on AcqMethod
-                      name: AcqBuf3
-                  - memory-buffer:
-                      bit-encoding: signed
-                      buffer-select-code: 3
-                      description: Depends on AcqMethod
-                      name: AcqBuf4
-                  - memory-buffer:
-                      bit-encoding: signed
-                      buffer-select-code: 4
-                      description: Depends on AcqMethod
-                      name: AcqBuf5
-                  - memory-buffer:
-                      bit-encoding: signed
-                      buffer-select-code: 5
-                      description: Depends on AcqMethod
-                      name: AcqBuf6
-                  - memory-buffer:
-                      bit-encoding: signed
-                      buffer-select-code: 6
-                      description: Depends on AcqMethod
-                      name: AcqBuf7
-                  - memory-buffer:
-                      bit-encoding: signed
-                      buffer-select-code: 7
-                      description: Depends on AcqMethod
-                      name: AcqBuf8
-                  - memory-buffer:
-                      bit-encoding: signed
-                      buffer-select-code: 8
-                      description: Depends on AcqMethod
-                      name: AcqBuf9
-                  - memory-buffer:
-                      bit-encoding: signed
-                      buffer-select-code: 9
-                      description: Depends on AcqMethod
-                      name: AcqBuf10
-                  - memory-buffer:
-                      bit-encoding: signed
-                      buffer-select-code: 10
-                      description: Depends on AcqMethod
-                      name: AcqBuf11
-                  - memory-buffer:
-                      bit-encoding: signed
-                      buffer-select-code: 11
-                      description: Depends on AcqMethod
-                      name: AcqBuf12
-                  - memory-buffer:
-                      bit-encoding: signed
-                      buffer-select-code: 12
-                      description: Depends on AcqMethod
-                      name: AcqBuf13
-                  - memory-buffer:
-                      bit-encoding: signed
-                      buffer-select-code: 13
-                      description: Depends on AcqMethod
-                      name: AcqBuf14
-                  - memory-buffer:
-                      bit-encoding: signed
-                      buffer-select-code: 14
-                      description: Depends on AcqMethod
-                      name: AcqBuf15
-                  - memory-buffer:
-                      bit-encoding: signed
-                      buffer-select-code: 15
-                      description: Depends on AcqMethod
-                      name: AcqBuf16
-                name: DDR
-                ors-definition: linear
-        x-fesa:
-          multiplexed: True
-          persistence: True
-        children:
-          - reg:
-              name: acqVP
-              width: 32
-              access: rw
+  - reg:
+      name: acqBufSel
+      description: Acquisition channel and buffer selection
+      width: 32
+      access: rw
+      address: next
+      x-fesa:
+        multiplexed: False
+        persistence: False
+      children:
+      - field:
+          name: channelSelect
+          description: 'Channel (family) selection, ex: OBS/PM, External/Internal'
+          range: 31-16
+          x-gena:
+            gen:
+              ext-codes: acqVP.memory-channel
+      - field:
+          name: bufferSelect
+          description: Buffer selection, content relative to AcqMethod
+          range: 15-0
+  - reg:
+      name: acqPageSel
+      description: Viewport page selection for buffer selected with acqBufSel
+      width: 32
+      type: unsigned
+      access: rw
+      address: next
+      x-fesa:
+        multiplexed: False
+        persistence: False
+  - reg:
+      name: acqFrzAddr
+      description: 'Acquisition channel freeze address in bytes\nRegister is multiplexed based on channelSelect'
+      width: 32
+      type: unsigned
+      access: ro
+      address: next
+      x-gena:
+        gen:
+          mux: acqBufSel.channelSelect
+          resize: 26
+      x-fesa:
+        multiplexed: False
+        persistence: False
+  - reg:
+      name: acqSize
+      description: 'Size in bytes of buffers in current channel\nRegister is multiplexed based on channelSelect'
+      width: 32
+      type: unsigned
+      access: ro
+      address: next
+      x-gena:
+        gen:
+          mux: acqBufSel.channelSelect
+      x-fesa:
+        multiplexed: False
+        persistence: False
+  - reg:
+      name: acqStatus
+      description: 'Status of current buffer\nRegister is multiplexed based on channelSelect'
+      width: 32
+      access: ro
+      address: next
+      x-gena:
+        gen:
+          mux: acqBufSel.channelSelect
+      x-fesa:
+        multiplexed: False
+        persistence: False
+      children:
+      - field:
+          name: enabled
+          description: Selected buffer is enabled
+          range: 31
+      - field:
+          name: available
+          description: Selected channel is frozen
+          range: 30
+      - field:
+          name: complete
+          description: Selected channel has been filled
+          range: 29
+  - reg:
+      name: acqRateSel
+      description: 'Acquisition Observation Rate Select\nRegister is multiplexed based on channelSelect'
+      width: 32
+      type: unsigned
+      access: rw
+      address: next
+      x-gena:
+        gen:
+          mux: acqBufSel.channelSelect
+      x-fesa:
+        multiplexed: False
+        persistence: False
+  - reg:
+      name: acqMethod
+      description: Register is multiplexed based on channelSelect
+      width: 32
+      type: unsigned
+      access: rw
+      address: next
+      x-gena:
+        code-fields:
+        - code-field:
+            code: 0
+            name: standard
+        - code-field:
+            code: 1
+            name: Advanced
+        gen:
+          mux: acqBufSel.channelSelect
+      x-fesa:
+        multiplexed: False
+        persistence: False
+  - reg:
+      name: bufferWriteSrcSel
+      width: 32
+      access: rw
+      address: next
+      x-gena:
+        code-fields:
+        - code-field:
+            code: 0
+            name: bfieldRaw
+        - code-field:
+            code: 1
+            name: bdotRaw
+        - code-field:
+            code: 2
+            name: frev
+        - code-field:
+            code: 3
+            name: bfieldWR
+        - code-field:
+            code: 4
+            name: bfieldUpDw
+        - code-field:
+            code: 5
+            name: bfieldDiff
+        - code-field:
+            code: 6
+            name: dacDpllHpll
+        - code-field:
+            code: 7
+            name: wrRxLatency
+      x-fesa:
+        multiplexed: False
+        persistence: True
+  - reg:
+      name: acqStrobeRateReducerByN
+      width: 32
+      access: rw
+      address: next
+      x-fesa:
+        multiplexed: False
+        persistence: True
+  - memory:
+      name: acqVP
+      description: Acquisition memory viewport
+      address: next
+      memsize: 128k
+      x-gena:
+        memory-channels:
+        - memory-channel:
+            acq-base-freq: RF/1
+            acq-width: 32
+            buffer-alignment: end
+            channel-select-code: 0
+            description: Observation
+            memory-buffers:
+            - memory-buffer:
+                bit-encoding: signed
+                buffer-select-code: 0
+                description: Depends on AcqMethod
+                name: AcqBuf1
+            - memory-buffer:
+                bit-encoding: signed
+                buffer-select-code: 1
+                comment: a note
+                description: Depends on AcqMethod
+                name: AcqBuf2
+            - memory-buffer:
+                bit-encoding: signed
+                buffer-select-code: 2
+                description: Depends on AcqMethod
+                name: AcqBuf3
+            - memory-buffer:
+                bit-encoding: signed
+                buffer-select-code: 3
+                description: Depends on AcqMethod
+                name: AcqBuf4
+            - memory-buffer:
+                bit-encoding: signed
+                buffer-select-code: 4
+                description: Depends on AcqMethod
+                name: AcqBuf5
+            - memory-buffer:
+                bit-encoding: signed
+                buffer-select-code: 5
+                description: Depends on AcqMethod
+                name: AcqBuf6
+            - memory-buffer:
+                bit-encoding: signed
+                buffer-select-code: 6
+                description: Depends on AcqMethod
+                name: AcqBuf7
+            - memory-buffer:
+                bit-encoding: signed
+                buffer-select-code: 7
+                description: Depends on AcqMethod
+                name: AcqBuf8
+            - memory-buffer:
+                bit-encoding: signed
+                buffer-select-code: 8
+                description: Depends on AcqMethod
+                name: AcqBuf9
+            - memory-buffer:
+                bit-encoding: signed
+                buffer-select-code: 9
+                description: Depends on AcqMethod
+                name: AcqBuf10
+            - memory-buffer:
+                bit-encoding: signed
+                buffer-select-code: 10
+                description: Depends on AcqMethod
+                name: AcqBuf11
+            - memory-buffer:
+                bit-encoding: signed
+                buffer-select-code: 11
+                description: Depends on AcqMethod
+                name: AcqBuf12
+            - memory-buffer:
+                bit-encoding: signed
+                buffer-select-code: 12
+                description: Depends on AcqMethod
+                name: AcqBuf13
+            - memory-buffer:
+                bit-encoding: signed
+                buffer-select-code: 13
+                description: Depends on AcqMethod
+                name: AcqBuf14
+            - memory-buffer:
+                bit-encoding: signed
+                buffer-select-code: 14
+                description: Depends on AcqMethod
+                name: AcqBuf15
+            - memory-buffer:
+                bit-encoding: signed
+                buffer-select-code: 15
+                description: Depends on AcqMethod
+                name: AcqBuf16
+            name: DDR
+            ors-definition: linear
+      x-fesa:
+        multiplexed: True
+        persistence: True
+      children:
+      - reg:
+          name: acqVP
+          width: 32
+          access: rw

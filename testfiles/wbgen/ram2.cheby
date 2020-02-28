@@ -7,7 +7,7 @@ memory-map:
   children:
   - memory:
       name: ch1
-      address: 0x00000000
+      address: 0x0
       memsize: 8192
       description: Channel 1
       x-wbgen:
@@ -20,7 +20,7 @@ memory-map:
           access: rw
   - memory:
       name: ch2
-      address: 0x00002000
+      address: 0x2000
       memsize: 4096
       description: Channel 2
       x-wbgen:

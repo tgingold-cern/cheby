@@ -16,8 +16,8 @@ memory-map:
     x-map-info: 1.0.0
     x-wbgen: 1.0.0
   children:
-    - submap:
-        name: submap1
-        address: next
-        filename: Inc_CRegs.cheby
-        include: True
+  - submap:
+      name: submap1
+      address: next
+      filename: Inc_CRegs.cheby
+      include: True

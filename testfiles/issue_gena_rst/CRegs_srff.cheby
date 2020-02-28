@@ -16,25 +16,25 @@ memory-map:
     x-map-info: 1.0.0
     x-wbgen: 1.0.0
   children:
-    - reg:
-        name: test3
-        width: 32
-        access: ro
-        address: next
-        x-gena:
-          gen:
-            srff: True
-        x-fesa:
-          multiplexed: False
-          persistence: True
-    - reg:
-        name: test5
-        width: 64
-        access: ro
-        address: next
-        x-gena:
-          gen:
-            srff: True
-        x-fesa:
-          multiplexed: False
-          persistence: True
+  - reg:
+      name: test3
+      width: 32
+      access: ro
+      address: next
+      x-gena:
+        gen:
+          srff: True
+      x-fesa:
+        multiplexed: False
+        persistence: True
+  - reg:
+      name: test5
+      width: 64
+      access: ro
+      address: next
+      x-gena:
+        gen:
+          srff: True
+      x-fesa:
+        multiplexed: False
+        persistence: True

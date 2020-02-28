@@ -6,7 +6,7 @@ memory-map:
   x-gena:
     gen:
       packages:
-        - package: my_lib.my_pkg
+      - package: my_lib.my_pkg
     map-version: 20190607
   x-driver-edge:
     equipment-code: PX-ALGCA
@@ -26,53 +26,53 @@ memory-map:
     x-map-info: 1.0.0
     x-wbgen: 1.0.0
   children:
-    - reg:
-        name: firmwareVersion
-        description: 'Firmware Version code\ndec2hex(20111031)'
-        width: 32
-        type: unsigned
-        access: ro
-        address: next
-        x-gena:
-          gen:
-            const: C_MainFirmwareVersion
-        x-fesa:
-          multiplexed: False
-          persistence: False
-    - reg:
-        name: memMapVersion
-        description: 'Memory Map Version\ndec2hex(20121120)'
-        width: 32
-        type: unsigned
-        access: ro
-        address: next
-        x-gena:
-          gen:
-            const: C_MainFPGA_MemMapVersion
-        x-fesa:
-          multiplexed: False
-          persistence: False
-    - reg:
-        name: designerID
-        description: 'Firmware Designer ID\nPacked Baudot Hardware (MS) + Firmware (LS) Designer name'
-        width: 32
-        access: ro
-        address: next
-        x-fesa:
-          multiplexed: False
-          persistence: False
-        children:
-          - field:
-              name: hwDesigner
-              description: Hardware designer ID
-              range: 31-16
-              x-gena:
-                gen:
-                  const: John
-          - field:
-              name: fwDesigner
-              description: Firmware designer ID
-              range: 15-0
-              x-gena:
-                gen:
-                  const: John
+  - reg:
+      name: firmwareVersion
+      description: 'Firmware Version code\ndec2hex(20111031)'
+      width: 32
+      type: unsigned
+      access: ro
+      address: next
+      x-gena:
+        gen:
+          const: C_MainFirmwareVersion
+      x-fesa:
+        multiplexed: False
+        persistence: False
+  - reg:
+      name: memMapVersion
+      description: 'Memory Map Version\ndec2hex(20121120)'
+      width: 32
+      type: unsigned
+      access: ro
+      address: next
+      x-gena:
+        gen:
+          const: C_MainFPGA_MemMapVersion
+      x-fesa:
+        multiplexed: False
+        persistence: False
+  - reg:
+      name: designerID
+      description: 'Firmware Designer ID\nPacked Baudot Hardware (MS) + Firmware (LS) Designer name'
+      width: 32
+      access: ro
+      address: next
+      x-fesa:
+        multiplexed: False
+        persistence: False
+      children:
+      - field:
+          name: hwDesigner
+          description: Hardware designer ID
+          range: 31-16
+          x-gena:
+            gen:
+              const: John
+      - field:
+          name: fwDesigner
+          description: Firmware designer ID
+          range: 15-0
+          x-gena:
+            gen:
+              const: John

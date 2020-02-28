@@ -12,7 +12,7 @@ memory-map:
       description: Syscon reset register
       width: 32
       access: rw
-      address: 0x00000000
+      address: 0x0
       children:
       - field:
           name: TRIG
@@ -39,7 +39,7 @@ memory-map:
       description: GPIO Set/Readback Register
       width: 32
       access: rw
-      address: 0x00000004
+      address: 0x4
       children:
       - field:
           name: led_stat
@@ -197,7 +197,7 @@ memory-map:
       description: GPIO Clear Register
       width: 32
       access: wo
-      address: 0x00000008
+      address: 0x8
       children:
       - field:
           name: led_stat
@@ -278,7 +278,7 @@ memory-map:
       description: Hardware Feature Register
       width: 32
       access: ro
-      address: 0x0000000c
+      address: 0xc
       children:
       - field:
           name: MEMSIZE
@@ -295,7 +295,7 @@ memory-map:
       description: Hardware Info Register
       width: 32
       access: ro
-      address: 0x00000010
+      address: 0x10
       children:
       - field:
           name: NAME
@@ -311,7 +311,7 @@ memory-map:
       description: Timer Control Register
       width: 32
       access: rw
-      address: 0x00000014
+      address: 0x14
       children:
       - field:
           name: TDIV
@@ -340,7 +340,7 @@ memory-map:
       description: Timer Counter Value Register
       width: 32
       access: ro
-      address: 0x00000018
+      address: 0x18
       x-wbgen:
         access_bus: READ_ONLY
         access_dev: WRITE_ONLY
@@ -351,7 +351,7 @@ memory-map:
       description: "User Diag: version register"
       width: 32
       access: ro
-      address: 0x0000001c
+      address: 0x1c
       children:
       - field:
           name: VER
@@ -374,7 +374,7 @@ memory-map:
       description: "User Diag: number of words"
       width: 32
       access: ro
-      address: 0x00000020
+      address: 0x20
       children:
       - field:
           name: RW
@@ -397,7 +397,7 @@ memory-map:
       description: "User Diag: Control Register"
       width: 32
       access: rw
-      address: 0x00000024
+      address: 0x24
       children:
       - field:
           name: ADR
@@ -424,7 +424,7 @@ memory-map:
       description: "User Diag: data to read/write"
       width: 32
       access: rw
-      address: 0x00000028
+      address: 0x28
       x-wbgen:
         access_bus: READ_WRITE
         access_dev: READ_WRITE
@@ -438,7 +438,7 @@ memory-map:
       description: "WRPC Diag: ctrl"
       width: 32
       access: rw
-      address: 0x0000002c
+      address: 0x2c
       children:
       - field:
           name: DATA_VALID
@@ -466,7 +466,7 @@ memory-map:
       description: "WRPC Diag: servo status"
       width: 32
       access: rw
-      address: 0x00000030
+      address: 0x30
       children:
       - field:
           name: wr_mode
@@ -498,7 +498,7 @@ memory-map:
       description: "WRPC Diag: Port status"
       width: 32
       access: rw
-      address: 0x00000034
+      address: 0x34
       children:
       - field:
           name: link
@@ -527,7 +527,7 @@ memory-map:
       description: "WRPC Diag: PTP state"
       width: 32
       access: rw
-      address: 0x00000038
+      address: 0x38
       children:
       - field:
           name: ptpstate
@@ -556,7 +556,7 @@ memory-map:
       description: "WRPC Diag: AUX state"
       width: 32
       access: rw
-      address: 0x0000003c
+      address: 0x3c
       children:
       - field:
           name: aux
@@ -576,7 +576,7 @@ memory-map:
       comment: Number of transmitted PTP Frames
       width: 32
       access: rw
-      address: 0x00000040
+      address: 0x40
       x-wbgen:
         access_bus: READ_WRITE
         access_dev: READ_ONLY
@@ -588,7 +588,7 @@ memory-map:
       comment: Number of received PTP Frames
       width: 32
       access: rw
-      address: 0x00000044
+      address: 0x44
       x-wbgen:
         access_bus: READ_WRITE
         access_dev: READ_ONLY
@@ -600,7 +600,7 @@ memory-map:
       comment: Local Time expressed in seconds since epoch (TAI)
       width: 32
       access: rw
-      address: 0x00000048
+      address: 0x48
       x-wbgen:
         access_bus: READ_WRITE
         access_dev: READ_ONLY
@@ -612,7 +612,7 @@ memory-map:
       comment: Local Time expressed in seconds since epoch (TAI)
       width: 32
       access: rw
-      address: 0x0000004c
+      address: 0x4c
       x-wbgen:
         access_bus: READ_WRITE
         access_dev: READ_ONLY
@@ -624,7 +624,7 @@ memory-map:
       comment: Nanoseconds part of the Local Time expressed in seconds since epoch (TAI)
       width: 32
       access: rw
-      address: 0x00000050
+      address: 0x50
       x-wbgen:
         access_bus: READ_WRITE
         access_dev: READ_ONLY
@@ -635,7 +635,7 @@ memory-map:
       description: "WRPC Diag: Round trip (mu) [msb of ps]"
       width: 32
       access: rw
-      address: 0x00000054
+      address: 0x54
       x-wbgen:
         access_bus: READ_WRITE
         access_dev: READ_ONLY
@@ -646,7 +646,7 @@ memory-map:
       description: "WRPC Diag: Round trip (mu) [lsb of ps]"
       width: 32
       access: rw
-      address: 0x00000058
+      address: 0x58
       x-wbgen:
         access_bus: READ_WRITE
         access_dev: READ_ONLY
@@ -657,7 +657,7 @@ memory-map:
       description: "WRPC Diag: Master-slave delay (dms) [msb of ps]"
       width: 32
       access: rw
-      address: 0x0000005c
+      address: 0x5c
       x-wbgen:
         access_bus: READ_WRITE
         access_dev: READ_ONLY
@@ -668,7 +668,7 @@ memory-map:
       description: "WRPC Diag: Master-slave delay (dms) [lsb of ps]"
       width: 32
       access: rw
-      address: 0x00000060
+      address: 0x60
       x-wbgen:
         access_bus: READ_WRITE
         access_dev: READ_ONLY
@@ -679,7 +679,7 @@ memory-map:
       description: "WRPC Diag: Total link asymmetry [ps]"
       width: 32
       access: rw
-      address: 0x00000064
+      address: 0x64
       x-wbgen:
         access_bus: READ_WRITE
         access_dev: READ_ONLY
@@ -690,7 +690,7 @@ memory-map:
       description: "WRPC Diag: Clock offset (cko) [ps]"
       width: 32
       access: rw
-      address: 0x00000068
+      address: 0x68
       x-wbgen:
         access_bus: READ_WRITE
         access_dev: READ_ONLY
@@ -701,7 +701,7 @@ memory-map:
       description: "WRPC Diag: Phase setpoint (setp) [ps]"
       width: 32
       access: rw
-      address: 0x0000006c
+      address: 0x6c
       x-wbgen:
         access_bus: READ_WRITE
         access_dev: READ_ONLY
@@ -712,7 +712,7 @@ memory-map:
       description: "WRPC Diag: Update counter (ucnt)"
       width: 32
       access: rw
-      address: 0x00000070
+      address: 0x70
       x-wbgen:
         access_bus: READ_WRITE
         access_dev: READ_ONLY
@@ -723,7 +723,7 @@ memory-map:
       description: "WRPC Diag: Board temperature [C degree]"
       width: 32
       access: rw
-      address: 0x00000074
+      address: 0x74
       x-wbgen:
         access_bus: READ_WRITE
         access_dev: READ_ONLY

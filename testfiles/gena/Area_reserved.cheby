@@ -16,28 +16,28 @@ memory-map:
     x-map-info: 1.0.0
     x-wbgen: 1.0.0
   children:
-    - reg:
-        name: test1
-        width: 32
-        access: rw
-        address: 0x0
-        x-fesa:
-          multiplexed: False
-          persistence: True
-    - block:
-        name: area
-        address: next
-        size: 512k
-        x-gena:
-          reserved: True
-        children:
-          - reg:
-              name: test2
-              width: 32
-              access: rw
-              address: 0x0
-              x-gena:
-                rmw: True
-              x-fesa:
-                multiplexed: False
-                persistence: True
+  - reg:
+      name: test1
+      width: 32
+      access: rw
+      address: 0x0
+      x-fesa:
+        multiplexed: False
+        persistence: True
+  - block:
+      name: area
+      address: next
+      size: 512k
+      x-gena:
+        reserved: True
+      children:
+      - reg:
+          name: test2
+          width: 32
+          access: rw
+          address: 0x0
+          x-gena:
+            rmw: True
+          x-fesa:
+            multiplexed: False
+            persistence: True

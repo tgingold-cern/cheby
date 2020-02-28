@@ -16,262 +16,262 @@ memory-map:
     x-map-info: 1.0.0
     x-wbgen: 1.0.0
   children:
-    - reg:
-        name: test1
-        width: 16
-        access: rw
-        address: 0x0
-        x-gena:
-          code-fields:
+  - reg:
+      name: test1
+      width: 16
+      access: rw
+      address: 0x0
+      x-gena:
+        code-fields:
+        - code-field:
+            code: 0
+            name: hello
+        - code-field:
+            code: 1
+            name: World
+        rmw: True
+      x-fesa:
+        multiplexed: False
+        persistence: True
+  - reg:
+      name: test2
+      width: 32
+      access: rw
+      address: next
+      x-fesa:
+        multiplexed: False
+        persistence: True
+      children:
+      - field:
+          name: msBit
+          range: 31
+          preset: 0x1
+          x-gena:
+            auto-clear: 1
+            code-fields:
             - code-field:
                 code: 0
                 name: hello
             - code-field:
                 code: 1
-                name: World
-          rmw: True
-        x-fesa:
-          multiplexed: False
-          persistence: True
-    - reg:
-        name: test2
-        width: 32
-        access: rw
-        address: next
-        x-fesa:
-          multiplexed: False
-          persistence: True
-        children:
-          - field:
-              name: msBit
-              range: 31
-              preset: 0x1
-              x-gena:
-                auto-clear: 1
-                code-fields:
-                  - code-field:
-                      code: 0
-                      name: hello
-                  - code-field:
-                      code: 1
-                      name: world
-          - field:
-              name: msReg
-              range: 25-22
-              preset: 0xf
-              x-gena:
-                auto-clear: 0xf
-                code-fields:
-                  - code-field:
-                      code: 0
-                      name: hello
-                  - code-field:
-                      code: 1
-                      name: world
-          - field:
-              name: boundryReg
-              range: 17-14
-              preset: 0xf
-              x-gena:
-                auto-clear: 0xf
-          - field:
-              name: isReg
-              range: 9-6
-              preset: 0xf
-              x-gena:
-                auto-clear: 0xf
-          - field:
-              name: lsBit
-              range: 0
-              preset: 0x1
-              x-gena:
-                auto-clear: 1
-    - reg:
-        name: test3
-        width: 16
-        access: rw
-        address: next
-        x-fesa:
-          multiplexed: False
-          persistence: True
-    - reg:
-        name: test4
-        width: 32
-        access: rw
-        address: next
-        x-gena:
-          auto-clear: 0xffff
-        x-fesa:
-          multiplexed: False
-          persistence: True
-        children:
-          - field:
-              name: msBit
-              range: 31
-              preset: 0x0
-              x-gena:
-                auto-clear: 0
-                code-fields:
-                  - code-field:
-                      code: 0
-                      name: hello
-                  - code-field:
-                      code: 1
-                      name: world
-          - field:
-              name: msReg
-              range: 25-22
-              preset: 0x0
-              x-gena:
-                auto-clear: 0x0
-                code-fields:
-                  - code-field:
-                      code: 0
-                      name: hello
-                  - code-field:
-                      code: 1
-                      name: world
-          - field:
-              name: boundryReg
-              range: 17-14
-              preset: 0x0
-              x-gena:
-                auto-clear: 0x0
-          - field:
-              name: isReg
-              range: 9-6
-              preset: 0x0
-              x-gena:
-                auto-clear: 0x0
-          - field:
-              name: lsBit
-              range: 0
-              preset: 0x0
-              x-gena:
-                auto-clear: 0
-    - reg:
-        name: test5
-        width: 16
-        access: wo
-        address: next
-        x-fesa:
-          multiplexed: False
-          persistence: True
-    - reg:
-        name: test6
-        width: 32
-        access: wo
-        address: next
-        x-gena:
-          auto-clear: 0x0
-        x-fesa:
-          multiplexed: False
-          persistence: True
-        children:
-          - field:
-              name: msBit
-              range: 31
-              preset: 0x1
-              x-gena:
-                auto-clear: 1
-                code-fields:
-                  - code-field:
-                      code: 0
-                      name: hello
-                  - code-field:
-                      code: 1
-                      name: world
-          - field:
-              name: msReg
-              range: 25-22
-              preset: 0xf
-              x-gena:
-                auto-clear: 0xf
-                code-fields:
-                  - code-field:
-                      code: 0
-                      name: hello
-                  - code-field:
-                      code: 1
-                      name: world
-          - field:
-              name: boundryReg
-              range: 17-14
-              preset: 0xf
-              x-gena:
-                auto-clear: 0xf
-          - field:
-              name: isReg
-              range: 9-6
-              preset: 0xf
-              x-gena:
-                auto-clear: 0xf
-          - field:
-              name: lsBit
-              range: 0
-              preset: 0x1
-              x-gena:
-                auto-clear: 1
-    - reg:
-        name: test7
-        width: 16
-        access: ro
-        address: next
-        x-fesa:
-          multiplexed: False
-          persistence: True
-    - reg:
-        name: test8
-        width: 32
-        access: ro
-        address: next
-        x-gena:
-          auto-clear: 0xffffffff
-        x-fesa:
-          multiplexed: False
-          persistence: True
-        children:
-          - field:
-              name: msBit
-              range: 31
-              preset: 0x0
-              x-gena:
-                auto-clear: 0
-                code-fields:
-                  - code-field:
-                      code: 0
-                      name: hello
-                  - code-field:
-                      code: 1
-                      name: world
-          - field:
-              name: msReg
-              range: 25-22
-              preset: 0x0
-              x-gena:
-                auto-clear: 0x0
-                code-fields:
-                  - code-field:
-                      code: 0
-                      name: hello
-                  - code-field:
-                      code: 1
-                      name: world
-          - field:
-              name: boundryReg
-              range: 17-14
-              preset: 0x0
-              x-gena:
-                auto-clear: 0x0
-          - field:
-              name: isReg
-              range: 9-6
-              preset: 0x0
-              x-gena:
-                auto-clear: 0x0
-          - field:
-              name: lsBit
-              range: 0
-              preset: 0x0
-              x-gena:
-                auto-clear: 0
+                name: world
+      - field:
+          name: msReg
+          range: 25-22
+          preset: 0xf
+          x-gena:
+            auto-clear: 0xf
+            code-fields:
+            - code-field:
+                code: 0
+                name: hello
+            - code-field:
+                code: 1
+                name: world
+      - field:
+          name: boundryReg
+          range: 17-14
+          preset: 0xf
+          x-gena:
+            auto-clear: 0xf
+      - field:
+          name: isReg
+          range: 9-6
+          preset: 0xf
+          x-gena:
+            auto-clear: 0xf
+      - field:
+          name: lsBit
+          range: 0
+          preset: 0x1
+          x-gena:
+            auto-clear: 1
+  - reg:
+      name: test3
+      width: 16
+      access: rw
+      address: next
+      x-fesa:
+        multiplexed: False
+        persistence: True
+  - reg:
+      name: test4
+      width: 32
+      access: rw
+      address: next
+      x-gena:
+        auto-clear: 0xffff
+      x-fesa:
+        multiplexed: False
+        persistence: True
+      children:
+      - field:
+          name: msBit
+          range: 31
+          preset: 0x0
+          x-gena:
+            auto-clear: 0
+            code-fields:
+            - code-field:
+                code: 0
+                name: hello
+            - code-field:
+                code: 1
+                name: world
+      - field:
+          name: msReg
+          range: 25-22
+          preset: 0x0
+          x-gena:
+            auto-clear: 0x0
+            code-fields:
+            - code-field:
+                code: 0
+                name: hello
+            - code-field:
+                code: 1
+                name: world
+      - field:
+          name: boundryReg
+          range: 17-14
+          preset: 0x0
+          x-gena:
+            auto-clear: 0x0
+      - field:
+          name: isReg
+          range: 9-6
+          preset: 0x0
+          x-gena:
+            auto-clear: 0x0
+      - field:
+          name: lsBit
+          range: 0
+          preset: 0x0
+          x-gena:
+            auto-clear: 0
+  - reg:
+      name: test5
+      width: 16
+      access: wo
+      address: next
+      x-fesa:
+        multiplexed: False
+        persistence: True
+  - reg:
+      name: test6
+      width: 32
+      access: wo
+      address: next
+      x-gena:
+        auto-clear: 0x0
+      x-fesa:
+        multiplexed: False
+        persistence: True
+      children:
+      - field:
+          name: msBit
+          range: 31
+          preset: 0x1
+          x-gena:
+            auto-clear: 1
+            code-fields:
+            - code-field:
+                code: 0
+                name: hello
+            - code-field:
+                code: 1
+                name: world
+      - field:
+          name: msReg
+          range: 25-22
+          preset: 0xf
+          x-gena:
+            auto-clear: 0xf
+            code-fields:
+            - code-field:
+                code: 0
+                name: hello
+            - code-field:
+                code: 1
+                name: world
+      - field:
+          name: boundryReg
+          range: 17-14
+          preset: 0xf
+          x-gena:
+            auto-clear: 0xf
+      - field:
+          name: isReg
+          range: 9-6
+          preset: 0xf
+          x-gena:
+            auto-clear: 0xf
+      - field:
+          name: lsBit
+          range: 0
+          preset: 0x1
+          x-gena:
+            auto-clear: 1
+  - reg:
+      name: test7
+      width: 16
+      access: ro
+      address: next
+      x-fesa:
+        multiplexed: False
+        persistence: True
+  - reg:
+      name: test8
+      width: 32
+      access: ro
+      address: next
+      x-gena:
+        auto-clear: 0xffffffff
+      x-fesa:
+        multiplexed: False
+        persistence: True
+      children:
+      - field:
+          name: msBit
+          range: 31
+          preset: 0x0
+          x-gena:
+            auto-clear: 0
+            code-fields:
+            - code-field:
+                code: 0
+                name: hello
+            - code-field:
+                code: 1
+                name: world
+      - field:
+          name: msReg
+          range: 25-22
+          preset: 0x0
+          x-gena:
+            auto-clear: 0x0
+            code-fields:
+            - code-field:
+                code: 0
+                name: hello
+            - code-field:
+                code: 1
+                name: world
+      - field:
+          name: boundryReg
+          range: 17-14
+          preset: 0x0
+          x-gena:
+            auto-clear: 0x0
+      - field:
+          name: isReg
+          range: 9-6
+          preset: 0x0
+          x-gena:
+            auto-clear: 0x0
+      - field:
+          name: lsBit
+          range: 0
+          preset: 0x0
+          x-gena:
+            auto-clear: 0

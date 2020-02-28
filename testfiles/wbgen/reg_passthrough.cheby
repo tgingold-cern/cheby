@@ -12,7 +12,7 @@ memory-map:
       comment: Register 1 has two fields
       width: 32
       access: wo
-      address: 0x00000000
+      address: 0x0
       children:
       - field:
           name: reset
@@ -34,7 +34,7 @@ memory-map:
       comment: Register 2
       width: 32
       access: wo
-      address: 0x00000004
+      address: 0x4
       children:
       - field:
           name: reset

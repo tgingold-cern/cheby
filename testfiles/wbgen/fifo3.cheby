@@ -7,7 +7,7 @@ memory-map:
   children:
   - block:
       name: fifo2
-      address: 0x00000000
+      address: 0x0
       size: 8
       description: fifo2
       align: False
@@ -23,7 +23,7 @@ memory-map:
           description: FIFO 'fifo2' data output register 0
           width: 32
           access: ro
-          address: 0x00000000
+          address: 0x0
           children:
           - field:
               name: val
@@ -42,7 +42,7 @@ memory-map:
           description: FIFO 'fifo2' control/status register
           width: 32
           access: ro
-          address: 0x00000004
+          address: 0x4
           x-wbgen:
             kind: fifocs
           children:

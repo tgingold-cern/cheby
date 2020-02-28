@@ -16,25 +16,25 @@ memory-map:
     x-map-info: 1.0.0
     x-wbgen: 1.0.0
   children:
-    - reg:
-        name: test1
-        width: 16
-        access: ro
-        address: 0x0
-        x-gena:
-          gen:
-            read-strobe: True
-        x-fesa:
-          multiplexed: False
-          persistence: True
-    - reg:
-        name: test2
-        width: 32
-        access: ro
-        address: next
-        x-gena:
-          gen:
-            read-strobe: True
-        x-fesa:
-          multiplexed: False
-          persistence: True
+  - reg:
+      name: test1
+      width: 16
+      access: ro
+      address: 0x0
+      x-gena:
+        gen:
+          read-strobe: True
+      x-fesa:
+        multiplexed: False
+        persistence: True
+  - reg:
+      name: test2
+      width: 32
+      access: ro
+      address: next
+      x-gena:
+        gen:
+          read-strobe: True
+      x-fesa:
+        multiplexed: False
+        persistence: True

@@ -16,46 +16,46 @@ memory-map:
     x-map-info: 1.0.0
     x-wbgen: 1.0.0
   children:
-    - block:
-        name: area
-        address: next
-        size: 512k
-        x-gena:
-          reserved: False
-        children:
-          - memory:
+  - block:
+      name: area
+      address: next
+      size: 512k
+      x-gena:
+        reserved: False
+      children:
+      - memory:
+          name: mem1
+          address: next
+          memsize: 1k
+          x-fesa:
+            multiplexed: False
+            persistence: True
+          children:
+          - reg:
               name: mem1
-              address: next
-              memsize: 1k
-              x-fesa:
-                multiplexed: False
-                persistence: True
-              children:
-                - reg:
-                    name: mem1
-                    width: 32
-                    access: rw
-          - memory:
+              width: 32
+              access: rw
+      - memory:
+          name: mem2
+          address: next
+          memsize: 1k
+          x-fesa:
+            multiplexed: False
+            persistence: True
+          children:
+          - reg:
               name: mem2
-              address: next
-              memsize: 1k
-              x-fesa:
-                multiplexed: False
-                persistence: True
-              children:
-                - reg:
-                    name: mem2
-                    width: 32
-                    access: wo
-          - memory:
+              width: 32
+              access: wo
+      - memory:
+          name: mem3
+          address: next
+          memsize: 1k
+          x-fesa:
+            multiplexed: False
+            persistence: True
+          children:
+          - reg:
               name: mem3
-              address: next
-              memsize: 1k
-              x-fesa:
-                multiplexed: False
-                persistence: True
-              children:
-                - reg:
-                    name: mem3
-                    width: 32
-                    access: ro
+              width: 32
+              access: ro

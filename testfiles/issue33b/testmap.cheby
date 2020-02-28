@@ -19,20 +19,20 @@ memory-map:
     x-map-info: 1.0.0
     x-wbgen: 1.0.0
   children:
-    - reg:
-        name: reg1
-        width: 16
-        access: rw
-        address: next
-        x-fesa:
-          multiplexed: True
-          persistence: True
-        children:
-          - field:
-              name: sfield
-              range: 3-0
-              preset: 0x0
-          - field:
-              name: sfield1
-              range: 8-4
-              preset: 0x8
+  - reg:
+      name: reg1
+      width: 16
+      access: rw
+      address: next
+      x-fesa:
+        multiplexed: True
+        persistence: True
+      children:
+      - field:
+          name: sfield
+          range: 3-0
+          preset: 0x0
+      - field:
+          name: sfield1
+          range: 8-4
+          preset: 0x8

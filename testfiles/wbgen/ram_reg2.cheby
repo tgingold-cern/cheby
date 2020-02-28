@@ -11,7 +11,7 @@ memory-map:
       comment: Register 1 has two fields
       width: 32
       access: rw
-      address: 0x00000000
+      address: 0x0
       children:
       - field:
           name: enable
@@ -28,7 +28,7 @@ memory-map:
       comment: Register 2 has two fields
       width: 32
       access: rw
-      address: 0x00000004
+      address: 0x4
       children:
       - field:
           name: enable
@@ -41,7 +41,7 @@ memory-map:
             type: BIT
   - memory:
       name: ch1
-      address: 0x00002000
+      address: 0x2000
       memsize: 8192
       description: Channel 1
       x-wbgen:

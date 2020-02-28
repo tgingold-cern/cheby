@@ -16,26 +16,26 @@ memory-map:
     x-map-info: 1.0.0
     x-wbgen: 1.0.0
   children:
-    - reg:
-        name: test2
-        width: 16
-        access: ro
-        address: next
-        x-fesa:
-          multiplexed: False
-          persistence: True
-    - reg:
-        name: test3
-        width: 8
-        access: ro
-        address: next
-        x-fesa:
-          multiplexed: False
-          persistence: True
-        children:
-          - field:
-              name: hi
-              range: 5
-          - field:
-              name: lo
-              range: 3
+  - reg:
+      name: test2
+      width: 16
+      access: ro
+      address: next
+      x-fesa:
+        multiplexed: False
+        persistence: True
+  - reg:
+      name: test3
+      width: 8
+      access: ro
+      address: next
+      x-fesa:
+        multiplexed: False
+        persistence: True
+      children:
+      - field:
+          name: hi
+          range: 5
+      - field:
+          name: lo
+          range: 3

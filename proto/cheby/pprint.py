@@ -15,7 +15,7 @@ class PrettyPrinter(tree.Visitor):
     def pp_list(self, name):
         self.pp_indent()
         self.pp_raw(name + ':\n')
-        self.indent.append(' ' * len(self.indent[-1]) + '  - ')
+        self.indent.append(' ' * len(self.indent[-1]) + '- ')
 
     def pp_endlist(self):
         self.indent.pop()
