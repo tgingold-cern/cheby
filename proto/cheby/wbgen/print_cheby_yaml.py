@@ -69,7 +69,7 @@ class Writer_YAML(object):
             return
         if isinstance(val, bool) \
            or val == 'true' or val == 'false' or val == '':
-            self.wattr_yaml(name, '"{}"'.format(val))
+            self.wattr_yaml(name, "'{}'".format(val))
         elif ((len(val) > 0 and (val[0] == ' '
                                  or val[-1] == ' '
                                  or ':' in val))

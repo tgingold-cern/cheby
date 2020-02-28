@@ -24,5 +24,5 @@ memory-map:
           x-wbgen:
             access_bus: READ_ONLY
             access_dev: WRITE_ONLY
-            ack_read: "true"
+            ack_read: 'true'
             type: BIT
