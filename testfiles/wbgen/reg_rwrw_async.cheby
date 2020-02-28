@@ -13,6 +13,8 @@ memory-map:
       width: 32
       access: rw
       address: 0x0
+      x-hdl:
+        write-strobe: True
       children:
       - field:
           name: reset
@@ -25,5 +27,3 @@ memory-map:
             clock: clk1
             load: LOAD_EXT
             type: SLV
-      x-hdl:
-        write-strobe: True

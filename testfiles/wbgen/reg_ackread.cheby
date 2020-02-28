@@ -13,6 +13,8 @@ memory-map:
       width: 32
       access: ro
       address: 0x0
+      x-hdl:
+        read-strobe: True
       children:
       - field:
           name: reset
@@ -24,5 +26,3 @@ memory-map:
             access_dev: WRITE_ONLY
             ack_read: "true"
             type: BIT
-      x-hdl:
-        read-strobe: True

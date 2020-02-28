@@ -13,6 +13,8 @@ memory-map:
       width: 32
       access: rw
       address: 0x0
+      x-hdl:
+        write-strobe: True
       children:
       - field:
           name: TRIG
@@ -32,14 +34,14 @@ memory-map:
             access_bus: READ_WRITE
             access_dev: READ_ONLY
             type: BIT
-      x-hdl:
-        write-strobe: True
   - reg:
       name: GPSR
       description: GPIO Set/Readback Register
       width: 32
       access: rw
       address: 0x4
+      x-hdl:
+        write-strobe: True
       children:
       - field:
           name: led_stat
@@ -190,8 +192,6 @@ memory-map:
             access_dev: WRITE_ONLY
             load: LOAD_EXT
             type: BIT
-      x-hdl:
-        write-strobe: True
   - reg:
       name: GPCR
       description: GPIO Clear Register
@@ -398,6 +398,8 @@ memory-map:
       width: 32
       access: rw
       address: 0x24
+      x-hdl:
+        write-strobe: True
       children:
       - field:
           name: ADR
@@ -417,22 +419,20 @@ memory-map:
             access_dev: READ_ONLY
             size: 1
             type: BIT
-      x-hdl:
-        write-strobe: True
   - reg:
       name: DIAG_DAT
       description: "User Diag: data to read/write"
       width: 32
       access: rw
       address: 0x28
+      x-hdl:
+        write-strobe: True
       x-wbgen:
         access_bus: READ_WRITE
         access_dev: READ_WRITE
         load: LOAD_EXT
         field_description: Data
         type: SLV
-      x-hdl:
-        write-strobe: True
   - reg:
       name: WDIAG_CTRL
       description: "WRPC Diag: ctrl"

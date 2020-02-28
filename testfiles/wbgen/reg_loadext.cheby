@@ -13,6 +13,8 @@ memory-map:
       width: 32
       access: rw
       address: 0x0
+      x-hdl:
+        write-strobe: True
       children:
       - field:
           name: reset
@@ -24,5 +26,3 @@ memory-map:
             access_dev: READ_WRITE
             load: LOAD_EXT
             type: BIT
-      x-hdl:
-        write-strobe: True

@@ -13,6 +13,8 @@ memory-map:
       width: 32
       access: wo
       address: 0x0
+      x-hdl:
+        write-strobe: True
       children:
       - field:
           name: reset
@@ -27,5 +29,3 @@ memory-map:
             type: PASS_THROUGH
           x-hdl:
             type: wire
-      x-hdl:
-        write-strobe: True
