@@ -1,6 +1,6 @@
 memory-map:
-  bus: wb-32-be
   name: pt
+  bus: wb-32-be
   description: register constant
   comment: |
     A simple passthrough register

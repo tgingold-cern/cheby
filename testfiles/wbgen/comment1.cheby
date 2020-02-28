@@ -1,6 +1,6 @@
 memory-map:
-  bus: wb-32-be
   name: regf
+  bus: wb-32-be
   description: comment
   comment: |
     A simple register

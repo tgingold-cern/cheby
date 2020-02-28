@@ -321,8 +321,8 @@ class Writer_YAML(object):
     def write_top(self, n):
         self.write_pre_comment(n.pre_comment)
         self.wseq('memory-map')
-        self.wattr_str("bus", 'wb-32-be')
         self.wattr_str("name", n.prefix if n.prefix else n.hdl_prefix)
+        self.wattr_str("bus", 'wb-32-be')
         self.wattr_str("description", n.name)
         self.write_comment(n.desc)
         self.wseq("x-wbgen")

@@ -1,6 +1,6 @@
 memory-map:
-  bus: wb-32-be
   name: ram2
+  bus: wb-32-be
   description: Ram 2
   x-wbgen:
     hdl_entity: ram2

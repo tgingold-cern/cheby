@@ -1,6 +1,6 @@
 memory-map:
-  bus: wb-32-be
   name: wb_freq_multi_count_csr
+  bus: wb-32-be
   description: Frequency Multi Counter registers
   comment: |
     Wishbone slave for Frequency Multi Counters

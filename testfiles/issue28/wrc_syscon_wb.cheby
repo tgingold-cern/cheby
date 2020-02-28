@@ -1,7 +1,7 @@
 #  -*- Mode: LUA; tab-width: 2 -*-
 memory-map:
-  bus: wb-32-be
   name: sysc
+  bus: wb-32-be
   description: WR Core System Controller
   comment: |
     

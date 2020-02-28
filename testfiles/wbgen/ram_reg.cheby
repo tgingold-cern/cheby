@@ -1,6 +1,6 @@
 memory-map:
-  bus: wb-32-be
   name: ramreg
+  bus: wb-32-be
   description: Ram Reg
   x-wbgen:
     hdl_entity: ramreg

@@ -1,6 +1,6 @@
 memory-map:
-  bus: wb-32-be
   name: fifo
+  bus: wb-32-be
   description: FIFO async
   x-wbgen:
     hdl_entity: fifoasync
