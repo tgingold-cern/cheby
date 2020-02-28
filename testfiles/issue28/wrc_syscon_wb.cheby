@@ -1,18 +1,18 @@
 #  -*- Mode: LUA; tab-width: 2 -*-
 memory-map:
   name: sysc
-  bus: wb-32-be
   description: WR Core System Controller
   comment: 
+  bus: wb-32-be
   x-wbgen:
     hdl_entity: wrc_syscon_wb
   children:
   - reg:
       name: RSTR
-      address: 0x00000000
+      description: Syscon reset register
       width: 32
       access: rw
-      description: Syscon reset register
+      address: 0x00000000
       children:
       - field:
           name: TRIG
@@ -36,10 +36,10 @@ memory-map:
         write-strobe: True
   - reg:
       name: GPSR
-      address: 0x00000004
+      description: GPIO Set/Readback Register
       width: 32
       access: rw
-      description: GPIO Set/Readback Register
+      address: 0x00000004
       children:
       - field:
           name: led_stat
@@ -194,10 +194,10 @@ memory-map:
         write-strobe: True
   - reg:
       name: GPCR
-      address: 0x00000008
+      description: GPIO Clear Register
       width: 32
       access: wo
-      description: GPIO Clear Register
+      address: 0x00000008
       children:
       - field:
           name: led_stat
@@ -275,10 +275,10 @@ memory-map:
             type: MONOSTABLE
   - reg:
       name: HWFR
-      address: 0x0000000c
+      description: Hardware Feature Register
       width: 32
       access: ro
-      description: Hardware Feature Register
+      address: 0x0000000c
       children:
       - field:
           name: MEMSIZE
@@ -292,10 +292,10 @@ memory-map:
             access_dev: WRITE_ONLY
   - reg:
       name: HWIR
-      address: 0x00000010
+      description: Hardware Info Register
       width: 32
       access: ro
-      description: Hardware Info Register
+      address: 0x00000010
       children:
       - field:
           name: NAME
@@ -308,10 +308,10 @@ memory-map:
             access_dev: WRITE_ONLY
   - reg:
       name: TCR
-      address: 0x00000014
+      description: Timer Control Register
       width: 32
       access: rw
-      description: Timer Control Register
+      address: 0x00000014
       children:
       - field:
           name: TDIV
@@ -337,10 +337,10 @@ memory-map:
             access_dev: READ_ONLY
   - reg:
       name: TVR
-      address: 0x00000018
+      description: Timer Counter Value Register
       width: 32
       access: ro
-      description: Timer Counter Value Register
+      address: 0x00000018
       x-wbgen:
         type: SLV
         access_bus: READ_ONLY
@@ -348,10 +348,10 @@ memory-map:
         field_description: Timer Counter Value
   - reg:
       name: DIAG_INFO
-      address: 0x0000001c
+      description: "User Diag: version register"
       width: 32
       access: ro
-      description: "User Diag: version register"
+      address: 0x0000001c
       children:
       - field:
           name: VER
@@ -371,10 +371,10 @@ memory-map:
             access_dev: WRITE_ONLY
   - reg:
       name: DIAG_NW
-      address: 0x00000020
+      description: "User Diag: number of words"
       width: 32
       access: ro
-      description: "User Diag: number of words"
+      address: 0x00000020
       children:
       - field:
           name: RW
@@ -394,10 +394,10 @@ memory-map:
             access_dev: WRITE_ONLY
   - reg:
       name: DIAG_CR
-      address: 0x00000024
+      description: "User Diag: Control Register"
       width: 32
       access: rw
-      description: "User Diag: Control Register"
+      address: 0x00000024
       children:
       - field:
           name: ADR
@@ -421,10 +421,10 @@ memory-map:
         write-strobe: True
   - reg:
       name: DIAG_DAT
-      address: 0x00000028
+      description: "User Diag: data to read/write"
       width: 32
       access: rw
-      description: "User Diag: data to read/write"
+      address: 0x00000028
       x-wbgen:
         type: SLV
         access_bus: READ_WRITE
@@ -435,10 +435,10 @@ memory-map:
         write-strobe: True
   - reg:
       name: WDIAG_CTRL
-      address: 0x0000002c
+      description: "WRPC Diag: ctrl"
       width: 32
       access: rw
-      description: "WRPC Diag: ctrl"
+      address: 0x0000002c
       children:
       - field:
           name: DATA_VALID
@@ -463,10 +463,10 @@ memory-map:
             access_dev: WRITE_ONLY
   - reg:
       name: WDIAG_SSTAT
-      address: 0x00000030
+      description: "WRPC Diag: servo status"
       width: 32
       access: rw
-      description: "WRPC Diag: servo status"
+      address: 0x00000030
       children:
       - field:
           name: wr_mode
@@ -495,10 +495,10 @@ memory-map:
             access_dev: READ_ONLY
   - reg:
       name: WDIAG_PSTAT
-      address: 0x00000034
+      description: "WRPC Diag: Port status"
       width: 32
       access: rw
-      description: "WRPC Diag: Port status"
+      address: 0x00000034
       children:
       - field:
           name: link
@@ -524,10 +524,10 @@ memory-map:
             access_dev: READ_ONLY
   - reg:
       name: WDIAG_PTPSTAT
-      address: 0x00000038
+      description: "WRPC Diag: PTP state"
       width: 32
       access: rw
-      description: "WRPC Diag: PTP state"
+      address: 0x00000038
       children:
       - field:
           name: ptpstate
@@ -553,10 +553,10 @@ memory-map:
             access_dev: READ_ONLY
   - reg:
       name: WDIAG_ASTAT
-      address: 0x0000003c
+      description: "WRPC Diag: AUX state"
       width: 32
       access: rw
-      description: "WRPC Diag: AUX state"
+      address: 0x0000003c
       children:
       - field:
           name: aux
@@ -572,11 +572,11 @@ memory-map:
             access_dev: READ_ONLY
   - reg:
       name: WDIAG_TXFCNT
-      address: 0x00000040
-      width: 32
-      access: rw
       description: "WRPC Diag: Tx PTP Frame cnts"
       comment: Number of transmitted PTP Frames
+      width: 32
+      access: rw
+      address: 0x00000040
       x-wbgen:
         type: SLV
         access_bus: READ_WRITE
@@ -584,11 +584,11 @@ memory-map:
         field_description: Data
   - reg:
       name: WDIAG_RXFCNT
-      address: 0x00000044
-      width: 32
-      access: rw
       description: "WRPC Diag: Rx PTP Frame cnts"
       comment: Number of received PTP Frames
+      width: 32
+      access: rw
+      address: 0x00000044
       x-wbgen:
         type: SLV
         access_bus: READ_WRITE
@@ -596,11 +596,11 @@ memory-map:
         field_description: Data
   - reg:
       name: WDIAG_SEC_MSB
-      address: 0x00000048
-      width: 32
-      access: rw
       description: "WRPC Diag:local time [msb of s]"
       comment: Local Time expressed in seconds since epoch (TAI)
+      width: 32
+      access: rw
+      address: 0x00000048
       x-wbgen:
         type: SLV
         access_bus: READ_WRITE
@@ -608,11 +608,11 @@ memory-map:
         field_description: Data
   - reg:
       name: WDIAG_SEC_LSB
-      address: 0x0000004c
-      width: 32
-      access: rw
       description: "WRPC Diag: local time [lsb of s]"
       comment: Local Time expressed in seconds since epoch (TAI)
+      width: 32
+      access: rw
+      address: 0x0000004c
       x-wbgen:
         type: SLV
         access_bus: READ_WRITE
@@ -620,11 +620,11 @@ memory-map:
         field_description: Data
   - reg:
       name: WDIAG_NS
-      address: 0x00000050
-      width: 32
-      access: rw
       description: "WRPC Diag: local time [ns]"
       comment: Nanoseconds part of the Local Time expressed in seconds since epoch (TAI)
+      width: 32
+      access: rw
+      address: 0x00000050
       x-wbgen:
         type: SLV
         access_bus: READ_WRITE
@@ -632,10 +632,10 @@ memory-map:
         field_description: Data
   - reg:
       name: WDIAG_MU_MSB
-      address: 0x00000054
+      description: "WRPC Diag: Round trip (mu) [msb of ps]"
       width: 32
       access: rw
-      description: "WRPC Diag: Round trip (mu) [msb of ps]"
+      address: 0x00000054
       x-wbgen:
         type: SLV
         access_bus: READ_WRITE
@@ -643,10 +643,10 @@ memory-map:
         field_description: Data
   - reg:
       name: WDIAG_MU_LSB
-      address: 0x00000058
+      description: "WRPC Diag: Round trip (mu) [lsb of ps]"
       width: 32
       access: rw
-      description: "WRPC Diag: Round trip (mu) [lsb of ps]"
+      address: 0x00000058
       x-wbgen:
         type: SLV
         access_bus: READ_WRITE
@@ -654,10 +654,10 @@ memory-map:
         field_description: Data
   - reg:
       name: WDIAG_DMS_MSB
-      address: 0x0000005c
+      description: "WRPC Diag: Master-slave delay (dms) [msb of ps]"
       width: 32
       access: rw
-      description: "WRPC Diag: Master-slave delay (dms) [msb of ps]"
+      address: 0x0000005c
       x-wbgen:
         type: SLV
         access_bus: READ_WRITE
@@ -665,10 +665,10 @@ memory-map:
         field_description: Data
   - reg:
       name: WDIAG_DMS_LSB
-      address: 0x00000060
+      description: "WRPC Diag: Master-slave delay (dms) [lsb of ps]"
       width: 32
       access: rw
-      description: "WRPC Diag: Master-slave delay (dms) [lsb of ps]"
+      address: 0x00000060
       x-wbgen:
         type: SLV
         access_bus: READ_WRITE
@@ -676,10 +676,10 @@ memory-map:
         field_description: Data
   - reg:
       name: WDIAG_ASYM
-      address: 0x00000064
+      description: "WRPC Diag: Total link asymmetry [ps]"
       width: 32
       access: rw
-      description: "WRPC Diag: Total link asymmetry [ps]"
+      address: 0x00000064
       x-wbgen:
         type: SLV
         access_bus: READ_WRITE
@@ -687,10 +687,10 @@ memory-map:
         field_description: Data
   - reg:
       name: WDIAG_CKO
-      address: 0x00000068
+      description: "WRPC Diag: Clock offset (cko) [ps]"
       width: 32
       access: rw
-      description: "WRPC Diag: Clock offset (cko) [ps]"
+      address: 0x00000068
       x-wbgen:
         type: SLV
         access_bus: READ_WRITE
@@ -698,10 +698,10 @@ memory-map:
         field_description: Data
   - reg:
       name: WDIAG_SETP
-      address: 0x0000006c
+      description: "WRPC Diag: Phase setpoint (setp) [ps]"
       width: 32
       access: rw
-      description: "WRPC Diag: Phase setpoint (setp) [ps]"
+      address: 0x0000006c
       x-wbgen:
         type: SLV
         access_bus: READ_WRITE
@@ -709,10 +709,10 @@ memory-map:
         field_description: Data
   - reg:
       name: WDIAG_UCNT
-      address: 0x00000070
+      description: "WRPC Diag: Update counter (ucnt)"
       width: 32
       access: rw
-      description: "WRPC Diag: Update counter (ucnt)"
+      address: 0x00000070
       x-wbgen:
         type: SLV
         access_bus: READ_WRITE
@@ -720,10 +720,10 @@ memory-map:
         field_description: Data
   - reg:
       name: WDIAG_TEMP
-      address: 0x00000074
+      description: "WRPC Diag: Board temperature [C degree]"
       width: 32
       access: rw
-      description: "WRPC Diag: Board temperature [C degree]"
+      address: 0x00000074
       x-wbgen:
         type: SLV
         access_bus: READ_WRITE

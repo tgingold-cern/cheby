@@ -1,17 +1,17 @@
 memory-map:
   name: ram1
-  bus: wb-32-be
   description: Ram with clock
+  bus: wb-32-be
   x-wbgen:
     hdl_entity: ramclk
   children:
   - reg:
       name: R1
-      address: 0x00000000
-      width: 32
-      access: rw
       description: Register 1
       comment: Register 1 has two fields
+      width: 32
+      access: rw
+      address: 0x00000000
       children:
       - field:
           name: enable

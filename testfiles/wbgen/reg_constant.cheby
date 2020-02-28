@@ -1,18 +1,18 @@
 memory-map:
   name: pt
-  bus: wb-32-be
   description: register constant
   comment: A simple passthrough register
+  bus: wb-32-be
   x-wbgen:
     hdl_entity: rcst
   children:
   - reg:
       name: R1
-      address: 0x00000000
-      width: 32
-      access: ro
       description: Register 1
       comment: Register 1 has two fields
+      width: 32
+      access: ro
+      address: 0x00000000
       children:
       - field:
           name: ver

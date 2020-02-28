@@ -1,7 +1,7 @@
 memory-map:
   name: fifo
-  bus: wb-32-be
   description: FIFO 3
+  bus: wb-32-be
   x-wbgen:
     hdl_entity: fifo3
   children:
@@ -20,10 +20,10 @@ memory-map:
       children:
       - reg:
           name: fifo2_r0
-          address: 0x00000000
+          description: FIFO 'fifo2' data output register 0
           width: 32
           access: ro
-          description: FIFO 'fifo2' data output register 0
+          address: 0x00000000
           children:
           - field:
               name: val
@@ -39,10 +39,10 @@ memory-map:
                 type: SLV
       - reg:
           name: fifo2_csr
-          address: 0x00000004
+          description: FIFO 'fifo2' control/status register
           width: 32
           access: ro
-          description: FIFO 'fifo2' control/status register
+          address: 0x00000004
           x-wbgen:
             kind: fifocs
           children:

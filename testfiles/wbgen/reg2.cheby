@@ -1,18 +1,18 @@
 memory-map:
   name: reg2
-  bus: wb-32-be
   description: register test 2
   comment: A simple register
+  bus: wb-32-be
   x-wbgen:
     hdl_entity: reg2
   children:
   - reg:
       name: R2
-      address: 0x00000000
-      width: 32
-      access: rw
       description: Register 2
       comment: Register 2 has two fields
+      width: 32
+      access: rw
+      address: 0x00000000
       children:
       - field:
           name: reset

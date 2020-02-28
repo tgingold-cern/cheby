@@ -1,7 +1,7 @@
 memory-map:
   name: ram1
-  bus: wb-32-be
   description: Ram 1
+  bus: wb-32-be
   x-wbgen:
     hdl_entity: ram1
   children:

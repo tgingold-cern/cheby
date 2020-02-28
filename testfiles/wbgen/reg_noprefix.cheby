@@ -1,18 +1,18 @@
 memory-map:
   name: regf
-  bus: wb-32-be
   description: register test w/o prefix
   comment: A simple register
+  bus: wb-32-be
   x-wbgen:
     hdl_entity: regf
   children:
   - reg:
       name: R1
-      address: 0x00000000
-      width: 32
-      access: rw
       description: Register 1
       comment: Register 1 has two fields
+      width: 32
+      access: rw
+      address: 0x00000000
       x-wbgen:
         type: SLV
         access_bus: READ_WRITE

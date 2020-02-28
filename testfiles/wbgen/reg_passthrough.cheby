@@ -1,18 +1,18 @@
 memory-map:
   name: pt
-  bus: wb-32-be
   description: register passthrough
   comment: A simple passthrough register
+  bus: wb-32-be
   x-wbgen:
     hdl_entity: pt
   children:
   - reg:
       name: R1
-      address: 0x00000000
-      width: 32
-      access: wo
       description: Register 1
       comment: Register 1 has two fields
+      width: 32
+      access: wo
+      address: 0x00000000
       children:
       - field:
           name: reset
@@ -30,11 +30,11 @@ memory-map:
         write-strobe: True
   - reg:
       name: R2
-      address: 0x00000004
-      width: 32
-      access: wo
       description: Register 2
       comment: Register 2
+      width: 32
+      access: wo
+      address: 0x00000004
       children:
       - field:
           name: reset

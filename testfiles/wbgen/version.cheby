@@ -1,18 +1,18 @@
 memory-map:
   name: ver_reg
-  bus: wb-32-be
   description: version test 1
   comment: A simple register
+  bus: wb-32-be
   x-wbgen:
     hdl_entity: ver_reg
     version: 2
   children:
   - reg:
       name: VER
-      address: 0x00000000
+      description: Version register
       width: 32
       access: rw
-      description: Version register
+      address: 0x00000000
       children:
       - field:
           name: ID
@@ -25,11 +25,11 @@ memory-map:
             access_dev: READ_ONLY
   - reg:
       name: R1
-      address: 0x00000004
-      width: 32
-      access: rw
       description: Register 1
       comment: Register 1 has one fields
+      width: 32
+      access: rw
+      address: 0x00000004
       children:
       - field:
           name: reset
