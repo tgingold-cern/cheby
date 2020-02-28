@@ -82,13 +82,16 @@ def pprint_extension(pp, name, n):
         pp.pp_bool(name, n)
     elif isinstance(n, int):
         pp.pp_int(name, n)
+    elif n is None:
+        pass
     else:
-        raise AssertionError(n)
+        raise AssertionError("unhandled type {} for {}".format(type(n), name))
 
 
 def pprint_extensions(pp, n):
     # Display known extensions.
     for name in ['x-gena',
+                 'x-wbgen',
                  'x-hdl',
                  'x-fesa',
                  'x-driver-edge',
