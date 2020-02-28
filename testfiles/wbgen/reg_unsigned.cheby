@@ -16,10 +16,10 @@ memory-map:
       children:
       - field:
           name: val
-          range: 3-0
           description: Value
           comment: Value of reg
+          range: 3-0
           x-wbgen:
-            type: UNSIGNED
             access_bus: READ_ONLY
             access_dev: WRITE_ONLY
+            type: UNSIGNED

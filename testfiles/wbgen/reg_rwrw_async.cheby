@@ -16,14 +16,14 @@ memory-map:
       children:
       - field:
           name: reset
-          range: 1-0
           description: Reset bit
           comment: 1 to reset
+          range: 1-0
           x-wbgen:
-            type: SLV
             access_bus: READ_WRITE
             access_dev: READ_WRITE
             clock: clk1
             load: LOAD_EXT
+            type: SLV
       x-hdl:
         write-strobe: True

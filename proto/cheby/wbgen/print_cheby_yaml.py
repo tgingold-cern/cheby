@@ -126,7 +126,6 @@ class Writer_YAML(object):
             # Use preset to store CONSTANT value
             self.wattr_num("preset", n.value)
         self.wseq("x-wbgen")
-        self.wattr_str("type", n.typ)
         if isinstance(parent, tree.FifoCSReg):
             self.wattr_str("kind", n.kind)
         elif not isinstance(parent, tree.AnyFifoReg):
@@ -142,7 +141,9 @@ class Writer_YAML(object):
         if n.prefix is None:
             self.wattr_str("field_description", n.name)
             self.write_comment(n.desc, "field_comment")
+        self.wattr_str("type", n.typ)
         self.weseq()
+
         if n.typ == 'PASS_THROUGH':
             self.wseq("x-hdl")
             self.wattr_str("type", "wire")
@@ -156,14 +157,14 @@ class Writer_YAML(object):
         else:
             name = 'value'  # parent.prefix
         self.wattr_str("name", name)
+        self.wattr_str("description", n.name)
+        self.write_comment(n.desc)
         if n.bit_len != 1:
             self.wattr_str("range",
                            "{}-{}".format(n.bit_offset + n.bit_len - 1,
                                           n.bit_offset))
         else:
             self.wattr_num("range", n.bit_offset)
-        self.wattr_str("description", n.name)
-        self.write_comment(n.desc)
         self.write_field_content(n, parent)
         self.weseq()
 

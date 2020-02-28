@@ -16,19 +16,19 @@ memory-map:
       children:
       - field:
           name: reset
-          range: 0
           description: Reset bit
           comment: 1 to reset
+          range: 0
           x-wbgen:
-            type: BIT
             access_bus: READ_WRITE
             access_dev: READ_ONLY
+            type: BIT
       - field:
           name: mode
-          range: 3-1
           description: Mode
           comment: Set device mode
+          range: 3-1
           x-wbgen:
-            type: SLV
             access_bus: READ_WRITE
             access_dev: READ_ONLY
+            type: SLV

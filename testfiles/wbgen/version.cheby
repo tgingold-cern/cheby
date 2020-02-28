@@ -16,13 +16,13 @@ memory-map:
       children:
       - field:
           name: ID
-          range: 31-0
           description: Version identifier
+          range: 31-0
           preset: 2
           x-wbgen:
-            type: SLV
             access_bus: READ_WRITE
             access_dev: READ_ONLY
+            type: SLV
   - reg:
       name: R1
       description: Register 1
@@ -33,10 +33,10 @@ memory-map:
       children:
       - field:
           name: reset
-          range: 0
           description: Reset bit
           comment: 1 to reset
+          range: 0
           x-wbgen:
-            type: BIT
             access_bus: READ_WRITE
             access_dev: READ_ONLY
+            type: BIT

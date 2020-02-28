@@ -16,11 +16,11 @@ memory-map:
       children:
       - field:
           name: reset
-          range: 2-0
           description: Reset bit
           comment: 1 to reset
+          range: 2-0
           x-wbgen:
-            type: SLV
             access_bus: READ_WRITE
             access_dev: READ_ONLY
             clock: clk1
+            type: SLV

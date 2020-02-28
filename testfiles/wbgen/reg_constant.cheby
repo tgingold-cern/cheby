@@ -16,11 +16,11 @@ memory-map:
       children:
       - field:
           name: ver
-          range: 7-0
           description: version
           comment: current version
+          range: 7-0
           preset: 19
           x-wbgen:
-            type: CONSTANT
             access_bus: READ_ONLY
             access_dev: WRITE_ONLY
+            type: CONSTANT

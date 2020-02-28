@@ -26,8 +26,8 @@ memory-map:
           children:
           - field:
               name: val
-              range: 15-0
               description: value
+              range: 15-0
               x-wbgen:
                 type: SLV
       - reg:
@@ -41,9 +41,9 @@ memory-map:
           children:
           - field:
               name: count
-              range: 7-0
               description: FIFO counter
               comment: |
                 Number of data records currently being stored in FIFO 'fifo1'
+              range: 7-0
               x-wbgen:
                 kind: count

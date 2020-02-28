@@ -16,8 +16,8 @@ memory-map:
       children:
       - field:
           name: reset
-          range: 0
           description: Reset bit
           comment: 1 to reset
+          range: 0
           x-wbgen:
             type: MONOSTABLE

@@ -16,10 +16,10 @@ memory-map:
       children:
       - field:
           name: value
-          range: 3-0
           description: Value reg
+          range: 3-0
           x-wbgen:
-            type: SLV
             access_bus: READ_WRITE
             access_dev: READ_ONLY
             field_description: Value reg
+            type: SLV

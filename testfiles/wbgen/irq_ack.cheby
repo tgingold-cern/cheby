@@ -16,22 +16,22 @@ memory-map:
       children:
       - field:
           name: reset
-          range: 0
           description: Reset bit
           comment: 1 to reset
+          range: 0
           x-wbgen:
-            type: BIT
             access_bus: READ_WRITE
             access_dev: READ_ONLY
+            type: BIT
       - field:
           name: mode
-          range: 3-1
           description: Mode
           comment: Set device mode
+          range: 3-1
           x-wbgen:
-            type: SLV
             access_bus: READ_WRITE
             access_dev: READ_ONLY
+            type: SLV
   - block:
       name: eic
       address: 0x00000020
@@ -57,14 +57,14 @@ memory-map:
           children:
           - field:
               name: int1
-              range: 0
               description: Interrupt 1
               comment: |
                 write 1: disable interrupt 'Interrupt 1'
                 write 0: no effect
+              range: 0
               x-wbgen:
-                type: BIT
                 access_bus: WRITE_ONLY
+                type: BIT
       - reg:
           name: eic_ier
           description: Interrupt enable register
@@ -75,14 +75,14 @@ memory-map:
           children:
           - field:
               name: int1
-              range: 0
               description: Interrupt 1
               comment: |
                 write 1: enable interrupt 'Interrupt 1'
                 write 0: no effect
+              range: 0
               x-wbgen:
-                type: BIT
                 access_bus: WRITE_ONLY
+                type: BIT
       - reg:
           name: eic_imr
           description: Interrupt mask register
@@ -93,14 +93,14 @@ memory-map:
           children:
           - field:
               name: int1
-              range: 0
               description: Interrupt 1
               comment: |
                 read 1: interrupt 'Interrupt 1' is enabled
                 read 0: interrupt 'Interrupt 1' is disabled
+              range: 0
               x-wbgen:
-                type: BIT
                 access_bus: READ_ONLY
+                type: BIT
       - reg:
           name: eic_isr
           description: Interrupt status register
@@ -111,13 +111,13 @@ memory-map:
           children:
           - field:
               name: int1
-              range: 0
               description: Interrupt 1
               comment: |
                 read 1: interrupt 'Interrupt 1' is pending
                 read 0: interrupt not pending
                 write 1: clear interrupt 'Interrupt 1'
                 write 0: no effect
+              range: 0
               x-wbgen:
-                type: BIT
                 access_bus: READ_WRITE
+                type: BIT

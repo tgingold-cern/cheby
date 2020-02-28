@@ -26,8 +26,8 @@ memory-map:
           children:
           - field:
               name: val
-              range: 15-0
               description: value
+              range: 15-0
               x-wbgen:
                 type: SLV
       - reg:
@@ -41,11 +41,11 @@ memory-map:
           children:
           - field:
               name: clear_bus
-              range: 18
               description: FIFO clear
               comment: |
                 write 1: clears FIFO 'fifo bus clear
                 write 0: no effect
+              range: 18
               x-wbgen:
-                type: BIT
                 kind: clear_bus
+                type: BIT

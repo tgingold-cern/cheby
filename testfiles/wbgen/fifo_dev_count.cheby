@@ -26,8 +26,8 @@ memory-map:
           children:
           - field:
               name: val
-              range: 15-0
               description: value
+              range: 15-0
               x-wbgen:
                 type: SLV
       - reg:
@@ -41,11 +41,11 @@ memory-map:
           children:
           - field:
               name: empty
-              range: 17
               description: FIFO empty flag
               comment: |
                 1: FIFO 'fifo1' is empty
                 0: FIFO is not empty
+              range: 17
               x-wbgen:
-                type: BIT
                 kind: empty
+                type: BIT

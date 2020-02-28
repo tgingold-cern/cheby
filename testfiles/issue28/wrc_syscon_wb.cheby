@@ -16,22 +16,22 @@ memory-map:
       children:
       - field:
           name: TRIG
-          range: 27-0
           description: Reset trigger
           comment: Write 0xdeadbee latch the state of RSTR.RST to the reset line of the LM32 CPU.
+          range: 27-0
           x-wbgen:
             type: PASS_THROUGH
           x-hdl:
             type: wire
       - field:
           name: RST
-          range: 28
           description: Reset line state value
           comment: State of the reset line
+          range: 28
           x-wbgen:
-            type: BIT
             access_bus: READ_WRITE
             access_dev: READ_ONLY
+            type: BIT
       x-hdl:
         write-strobe: True
   - reg:
@@ -43,153 +43,153 @@ memory-map:
       children:
       - field:
           name: led_stat
-          range: 0
           description: Status LED
           comment: |
             Write 1: turn on the Status LED
+          range: 0
           x-wbgen:
             type: MONOSTABLE
       - field:
           name: led_link
-          range: 1
           description: Link LED
           comment: |
             Write 1: turn on the Link LED
+          range: 1
           x-wbgen:
             type: MONOSTABLE
       - field:
           name: fmc_scl
-          range: 2
           description: FMC I2C bitbanged SCL
           comment: |
             write 1: Set FMC SCL line to 1 (pullup)
             read : returns the current status of the SCL line.
+          range: 2
           x-wbgen:
-            type: BIT
             access_bus: READ_WRITE
             access_dev: READ_WRITE
             load: LOAD_EXT
+            type: BIT
       - field:
           name: fmc_sda
-          range: 3
           description: FMC I2C bitbanged SDA
           comment: |
             write 1: Set FMC SDA line to 1 (pullup)
             read : returns the current status of the SCL line.
+          range: 3
           x-wbgen:
-            type: BIT
             access_bus: READ_WRITE
             access_dev: READ_WRITE
             load: LOAD_EXT
+            type: BIT
       - field:
           name: Net_RST
-          range: 4
           description: Network AP reset
           comment: |
             write 1: resets the networking subsystem
+          range: 4
           x-wbgen:
             type: MONOSTABLE
       - field:
           name: Btn1
-          range: 5
           description: SPEC Pushbutton 1 state
           comment: |
             read : returns the state of the Button 1 on the SPEC board
+          range: 5
           x-wbgen:
-            type: BIT
             access_bus: READ_ONLY
             access_dev: WRITE_ONLY
+            type: BIT
       - field:
           name: Btn2
-          range: 6
           description: SPEC Pushbutton 2 state
           comment: |
             read : returns the state of the Button 2 on the SPEC board
+          range: 6
           x-wbgen:
-            type: BIT
             access_bus: READ_ONLY
             access_dev: WRITE_ONLY
+            type: BIT
       - field:
           name: sfp_det
-          range: 7
           description: SFP detect (MOD_DEF0 signal)
           comment: |
             read : returns the state of the SFP's MOD_DEF0 line
+          range: 7
           x-wbgen:
-            type: BIT
             access_bus: READ_ONLY
             access_dev: WRITE_ONLY
+            type: BIT
       - field:
           name: sfp_scl
-          range: 8
           description: SFP I2C bitbanged SCL
           comment: |
             write 1: Set SFP SCL line to 1 (pullup)
             read : returns the current status of the SCL line.
+          range: 8
           x-wbgen:
-            type: BIT
             access_bus: READ_WRITE
             access_dev: READ_WRITE
             load: LOAD_EXT
+            type: BIT
       - field:
           name: sfp_sda
-          range: 9
           description: SFP I2C bitbanged SDA
           comment: |
             write 1: Set SFP SDA line to 1 (pullup)
             read : returns the current status of the SCL line.
+          range: 9
           x-wbgen:
-            type: BIT
             access_bus: READ_WRITE
             access_dev: READ_WRITE
             load: LOAD_EXT
+            type: BIT
       - field:
           name: spi_sclk
-          range: 10
           description: SPI bitbanged SCLK
           comment: |
             write 1: drive SPI CLK to 1
             read: always 0
+          range: 10
           x-wbgen:
-            type: BIT
             access_bus: READ_WRITE
             access_dev: READ_WRITE
             load: LOAD_EXT
+            type: BIT
       - field:
           name: spi_ncs
-          range: 11
           description: SPI bitbanged NCS
           comment: |
             write 1: drive SPI NCS to 1
             read: always 0
+          range: 11
           x-wbgen:
-            type: BIT
             access_bus: READ_WRITE
             access_dev: READ_WRITE
             load: LOAD_EXT
+            type: BIT
       - field:
           name: spi_mosi
-          range: 12
           description: SPI bitbanged MOSI
           comment: |
             write 1: drive SPI MOSI line to 1
             read: always 0
+          range: 12
           x-wbgen:
-            type: BIT
             access_bus: READ_WRITE
             access_dev: READ_WRITE
             load: LOAD_EXT
+            type: BIT
       - field:
           name: spi_miso
-          range: 13
           description: SPI bitbanged MISO
           comment: |
             read: current state of SPI MISO line
+          range: 13
           x-wbgen:
-            type: BIT
             access_bus: READ_ONLY
             access_dev: WRITE_ONLY
             load: LOAD_EXT
+            type: BIT
       x-hdl:
         write-strobe: True
   - reg:
@@ -201,76 +201,76 @@ memory-map:
       children:
       - field:
           name: led_stat
-          range: 0
           description: Status LED
           comment: |
             Write 1: turn on the Status LED
+          range: 0
           x-wbgen:
             type: MONOSTABLE
       - field:
           name: led_link
-          range: 1
           description: Link LED
           comment: |
             Write 1: turn on the Link LED
+          range: 1
           x-wbgen:
             type: MONOSTABLE
       - field:
           name: fmc_scl
-          range: 2
           description: FMC I2C bitbanged SCL
           comment: |
             write 1: Set FMC SCL line to 1 (pullup)
             read : returns the current status of the SCL line.
+          range: 2
           x-wbgen:
             type: MONOSTABLE
       - field:
           name: fmc_sda
-          range: 3
           description: FMC I2C bitbanged SDA
           comment: |
             write 1: Set FMC SDA line to 1 (pullup)
             read : returns the current status of the SCL line.
+          range: 3
           x-wbgen:
             type: MONOSTABLE
       - field:
           name: sfp_scl
-          range: 8
           description: SFP I2C bitbanged SCL
           comment: |
             write 1: Set SFP SCL line to 0.
+          range: 8
           x-wbgen:
             type: MONOSTABLE
       - field:
           name: sfp_sda
-          range: 9
           description: FMC I2C bitbanged SDA
           comment: |
             write 1: Set SFP SDA line to 0.
+          range: 9
           x-wbgen:
             type: MONOSTABLE
       - field:
           name: spi_sclk
-          range: 10
           description: SPI bitbanged SCLK
           comment: |
             write 1: Set SPI CLK line to 0.
+          range: 10
           x-wbgen:
             type: MONOSTABLE
       - field:
           name: spi_cs
-          range: 11
           description: SPI bitbanged CS
           comment: |
             write 1: Set SPI CS line to 0
+          range: 11
           x-wbgen:
             type: MONOSTABLE
       - field:
           name: spi_mosi
-          range: 12
           description: SPI bitbanged MOSI
           comment: |
             write 1: Set SPI MOSI line to 0.
+          range: 12
           x-wbgen:
             type: MONOSTABLE
   - reg:
@@ -282,14 +282,14 @@ memory-map:
       children:
       - field:
           name: MEMSIZE
-          range: 3-0
           description: Memory size
           comment: |
             Size of installed memory: 0 = 64 kB ... 0xf = 1024 kB
+          range: 3-0
           x-wbgen:
-            type: SLV
             access_bus: READ_ONLY
             access_dev: WRITE_ONLY
+            type: SLV
   - reg:
       name: HWIR
       description: Hardware Info Register
@@ -299,13 +299,13 @@ memory-map:
       children:
       - field:
           name: NAME
-          range: 31-0
           description: Board name
           comment: 4-letter name of the board
+          range: 31-0
           x-wbgen:
-            type: SLV
             access_bus: READ_ONLY
             access_dev: WRITE_ONLY
+            type: SLV
   - reg:
       name: TCR
       description: Timer Control Register
@@ -315,26 +315,26 @@ memory-map:
       children:
       - field:
           name: TDIV
-          range: 11-0
           description: Timer Divider
           comment: |
             Division for obtain 1 millisecond ticks from the system clock:
             <b>f_tick = f_clk_sys / (TDIV * 256)</b>
+          range: 11-0
           x-wbgen:
-            type: SLV
             access_bus: READ_ONLY
             access_dev: WRITE_ONLY
+            type: SLV
       - field:
           name: ENABLE
-          range: 31
           description: Timer Enable
           comment: |
             write 1: enable timer
             write 0: disable timer
+          range: 31
           x-wbgen:
-            type: BIT
             access_bus: READ_WRITE
             access_dev: READ_ONLY
+            type: BIT
   - reg:
       name: TVR
       description: Timer Counter Value Register
@@ -342,10 +342,10 @@ memory-map:
       access: ro
       address: 0x00000018
       x-wbgen:
-        type: SLV
         access_bus: READ_ONLY
         access_dev: WRITE_ONLY
         field_description: Timer Counter Value
+        type: SLV
   - reg:
       name: DIAG_INFO
       description: "User Diag: version register"
@@ -355,20 +355,20 @@ memory-map:
       children:
       - field:
           name: VER
-          range: 15-0
           description: Ver
+          range: 15-0
           x-wbgen:
-            type: SLV
             access_bus: READ_ONLY
             access_dev: WRITE_ONLY
+            type: SLV
       - field:
           name: ID
-          range: 31-16
           description: Id
+          range: 31-16
           x-wbgen:
-            type: SLV
             access_bus: READ_ONLY
             access_dev: WRITE_ONLY
+            type: SLV
   - reg:
       name: DIAG_NW
       description: "User Diag: number of words"
@@ -378,20 +378,20 @@ memory-map:
       children:
       - field:
           name: RW
-          range: 15-0
           description: Read/write words
+          range: 15-0
           x-wbgen:
-            type: SLV
             access_bus: READ_ONLY
             access_dev: WRITE_ONLY
+            type: SLV
       - field:
           name: RO
-          range: 31-16
           description: Read-only words
+          range: 31-16
           x-wbgen:
-            type: SLV
             access_bus: READ_ONLY
             access_dev: WRITE_ONLY
+            type: SLV
   - reg:
       name: DIAG_CR
       description: "User Diag: Control Register"
@@ -401,22 +401,22 @@ memory-map:
       children:
       - field:
           name: ADR
-          range: 15-0
           description: Address
+          range: 15-0
           x-wbgen:
-            type: SLV
             access_bus: READ_WRITE
             access_dev: READ_WRITE
             load: LOAD_EXT
+            type: SLV
       - field:
           name: RW
-          range: 31
           description: R/W
+          range: 31
           x-wbgen:
-            type: BIT
             access_bus: READ_WRITE
             access_dev: READ_ONLY
             size: 1
+            type: BIT
       x-hdl:
         write-strobe: True
   - reg:
@@ -426,11 +426,11 @@ memory-map:
       access: rw
       address: 0x00000028
       x-wbgen:
-        type: SLV
         access_bus: READ_WRITE
         access_dev: READ_WRITE
         load: LOAD_EXT
         field_description: Data
+        type: SLV
       x-hdl:
         write-strobe: True
   - reg:
@@ -442,25 +442,25 @@ memory-map:
       children:
       - field:
           name: DATA_VALID
-          range: 0
           description: WR DIAG data valid
           comment: |
             0: valid
             1: transcient
+          range: 0
           x-wbgen:
-            type: BIT
             access_bus: READ_WRITE
             access_dev: READ_ONLY
+            type: BIT
       - field:
           name: DATA_SNAPSHOT
-          range: 8
           description: WR DIAG data snapshot
           comment: |
             1: snapshot data (data in registers will not change aveter VALID becomes true)
+          range: 8
           x-wbgen:
-            type: BIT
             access_bus: READ_ONLY
             access_dev: WRITE_ONLY
+            type: BIT
   - reg:
       name: WDIAG_SSTAT
       description: "WRPC Diag: servo status"
@@ -470,17 +470,16 @@ memory-map:
       children:
       - field:
           name: wr_mode
-          range: 0
           description: WR valid
           comment: |
             0: not valid\1:valid
+          range: 0
           x-wbgen:
-            type: BIT
             access_bus: READ_WRITE
             access_dev: READ_ONLY
+            type: BIT
       - field:
           name: servostate
-          range: 11-8
           description: Servo State
           comment: |
             0: Uninitialized
@@ -489,10 +488,11 @@ memory-map:
             3: SYNC_PHASE
             4: TRACK_PHASE
             5: WAIT_OFFSET_STABLE
+          range: 11-8
           x-wbgen:
-            type: SLV
             access_bus: READ_WRITE
             access_dev: READ_ONLY
+            type: SLV
   - reg:
       name: WDIAG_PSTAT
       description: "WRPC Diag: Port status"
@@ -502,26 +502,26 @@ memory-map:
       children:
       - field:
           name: link
-          range: 0
           description: Link Status
           comment: |
             0: link down
             1: link up
+          range: 0
           x-wbgen:
-            type: BIT
             access_bus: READ_WRITE
             access_dev: READ_ONLY
+            type: BIT
       - field:
           name: locked
-          range: 1
           description: PLL Locked
           comment: |
             0: not locked
             1: locked
+          range: 1
           x-wbgen:
-            type: BIT
             access_bus: READ_WRITE
             access_dev: READ_ONLY
+            type: BIT
   - reg:
       name: WDIAG_PTPSTAT
       description: "WRPC Diag: PTP state"
@@ -531,7 +531,6 @@ memory-map:
       children:
       - field:
           name: ptpstate
-          range: 7-0
           description: PTP State
           comment: |
             0: NONE
@@ -547,10 +546,11 @@ memory-map:
             100-116: WR STATES
             see: ppsi/proto-ext-whiterabbit/wr-constants.h
             ppsi/include/ppsi/ieee1588_types.h
+          range: 7-0
           x-wbgen:
-            type: SLV
             access_bus: READ_WRITE
             access_dev: READ_ONLY
+            type: SLV
   - reg:
       name: WDIAG_ASTAT
       description: "WRPC Diag: AUX state"
@@ -560,16 +560,16 @@ memory-map:
       children:
       - field:
           name: aux
-          range: 7-0
           description: AUX channel
           comment: |
             A vector of bits, one bit per channel
             0: not valid
             1:valid
+          range: 7-0
           x-wbgen:
-            type: SLV
             access_bus: READ_WRITE
             access_dev: READ_ONLY
+            type: SLV
   - reg:
       name: WDIAG_TXFCNT
       description: "WRPC Diag: Tx PTP Frame cnts"
@@ -578,10 +578,10 @@ memory-map:
       access: rw
       address: 0x00000040
       x-wbgen:
-        type: SLV
         access_bus: READ_WRITE
         access_dev: READ_ONLY
         field_description: Data
+        type: SLV
   - reg:
       name: WDIAG_RXFCNT
       description: "WRPC Diag: Rx PTP Frame cnts"
@@ -590,10 +590,10 @@ memory-map:
       access: rw
       address: 0x00000044
       x-wbgen:
-        type: SLV
         access_bus: READ_WRITE
         access_dev: READ_ONLY
         field_description: Data
+        type: SLV
   - reg:
       name: WDIAG_SEC_MSB
       description: "WRPC Diag:local time [msb of s]"
@@ -602,10 +602,10 @@ memory-map:
       access: rw
       address: 0x00000048
       x-wbgen:
-        type: SLV
         access_bus: READ_WRITE
         access_dev: READ_ONLY
         field_description: Data
+        type: SLV
   - reg:
       name: WDIAG_SEC_LSB
       description: "WRPC Diag: local time [lsb of s]"
@@ -614,10 +614,10 @@ memory-map:
       access: rw
       address: 0x0000004c
       x-wbgen:
-        type: SLV
         access_bus: READ_WRITE
         access_dev: READ_ONLY
         field_description: Data
+        type: SLV
   - reg:
       name: WDIAG_NS
       description: "WRPC Diag: local time [ns]"
@@ -626,10 +626,10 @@ memory-map:
       access: rw
       address: 0x00000050
       x-wbgen:
-        type: SLV
         access_bus: READ_WRITE
         access_dev: READ_ONLY
         field_description: Data
+        type: SLV
   - reg:
       name: WDIAG_MU_MSB
       description: "WRPC Diag: Round trip (mu) [msb of ps]"
@@ -637,10 +637,10 @@ memory-map:
       access: rw
       address: 0x00000054
       x-wbgen:
-        type: SLV
         access_bus: READ_WRITE
         access_dev: READ_ONLY
         field_description: Data
+        type: SLV
   - reg:
       name: WDIAG_MU_LSB
       description: "WRPC Diag: Round trip (mu) [lsb of ps]"
@@ -648,10 +648,10 @@ memory-map:
       access: rw
       address: 0x00000058
       x-wbgen:
-        type: SLV
         access_bus: READ_WRITE
         access_dev: READ_ONLY
         field_description: Data
+        type: SLV
   - reg:
       name: WDIAG_DMS_MSB
       description: "WRPC Diag: Master-slave delay (dms) [msb of ps]"
@@ -659,10 +659,10 @@ memory-map:
       access: rw
       address: 0x0000005c
       x-wbgen:
-        type: SLV
         access_bus: READ_WRITE
         access_dev: READ_ONLY
         field_description: Data
+        type: SLV
   - reg:
       name: WDIAG_DMS_LSB
       description: "WRPC Diag: Master-slave delay (dms) [lsb of ps]"
@@ -670,10 +670,10 @@ memory-map:
       access: rw
       address: 0x00000060
       x-wbgen:
-        type: SLV
         access_bus: READ_WRITE
         access_dev: READ_ONLY
         field_description: Data
+        type: SLV
   - reg:
       name: WDIAG_ASYM
       description: "WRPC Diag: Total link asymmetry [ps]"
@@ -681,10 +681,10 @@ memory-map:
       access: rw
       address: 0x00000064
       x-wbgen:
-        type: SLV
         access_bus: READ_WRITE
         access_dev: READ_ONLY
         field_description: Data
+        type: SLV
   - reg:
       name: WDIAG_CKO
       description: "WRPC Diag: Clock offset (cko) [ps]"
@@ -692,10 +692,10 @@ memory-map:
       access: rw
       address: 0x00000068
       x-wbgen:
-        type: SLV
         access_bus: READ_WRITE
         access_dev: READ_ONLY
         field_description: Data
+        type: SLV
   - reg:
       name: WDIAG_SETP
       description: "WRPC Diag: Phase setpoint (setp) [ps]"
@@ -703,10 +703,10 @@ memory-map:
       access: rw
       address: 0x0000006c
       x-wbgen:
-        type: SLV
         access_bus: READ_WRITE
         access_dev: READ_ONLY
         field_description: Data
+        type: SLV
   - reg:
       name: WDIAG_UCNT
       description: "WRPC Diag: Update counter (ucnt)"
@@ -714,10 +714,10 @@ memory-map:
       access: rw
       address: 0x00000070
       x-wbgen:
-        type: SLV
         access_bus: READ_WRITE
         access_dev: READ_ONLY
         field_description: Data
+        type: SLV
   - reg:
       name: WDIAG_TEMP
       description: "WRPC Diag: Board temperature [C degree]"
@@ -725,7 +725,7 @@ memory-map:
       access: rw
       address: 0x00000074
       x-wbgen:
-        type: SLV
         access_bus: READ_WRITE
         access_dev: READ_ONLY
         field_description: Data
+        type: SLV

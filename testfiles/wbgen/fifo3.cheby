@@ -27,14 +27,14 @@ memory-map:
           children:
           - field:
               name: val
-              range: 7-0
               description: value
+              range: 7-0
               x-wbgen:
                 type: SLV
           - field:
               name: val2
-              range: 14-8
               description: value2
+              range: 14-8
               x-wbgen:
                 type: SLV
       - reg:
@@ -48,11 +48,11 @@ memory-map:
           children:
           - field:
               name: full
-              range: 16
               description: FIFO full flag
               comment: |
                 1: FIFO 'fifo2' is full
                 0: FIFO is not full
+              range: 16
               x-wbgen:
-                type: BIT
                 kind: full
+                type: BIT

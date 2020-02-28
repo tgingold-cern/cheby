@@ -15,13 +15,13 @@ memory-map:
       children:
       - field:
           name: enable
-          range: 0
           description: Enable
           comment: 1 to enable device
+          range: 0
           x-wbgen:
-            type: BIT
             access_bus: READ_WRITE
             access_dev: READ_ONLY
+            type: BIT
   - reg:
       name: R2
       description: Register 2
@@ -32,13 +32,13 @@ memory-map:
       children:
       - field:
           name: enable
-          range: 0
           description: Enable
           comment: 1 to enable device
+          range: 0
           x-wbgen:
-            type: BIT
             access_bus: READ_WRITE
             access_dev: READ_ONLY
+            type: BIT
   - memory:
       name: ch1
       address: 0x00002000

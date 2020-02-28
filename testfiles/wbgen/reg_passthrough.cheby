@@ -16,14 +16,14 @@ memory-map:
       children:
       - field:
           name: reset
-          range: 0
           description: Reset bit
           comment: 1 to reset
+          range: 0
           x-wbgen:
-            type: PASS_THROUGH
             access_bus: WRITE_ONLY
             access_dev: READ_ONLY
             size: 1
+            type: PASS_THROUGH
           x-hdl:
             type: wire
       x-hdl:
@@ -38,14 +38,14 @@ memory-map:
       children:
       - field:
           name: reset
-          range: 0
           description: Reset bit
           comment: 1 to reset
+          range: 0
           x-wbgen:
-            type: PASS_THROUGH
             access_bus: WRITE_ONLY
             access_dev: READ_ONLY
             size: 1
+            type: PASS_THROUGH
           x-hdl:
             type: wire
       x-hdl:

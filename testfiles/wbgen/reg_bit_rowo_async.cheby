@@ -16,11 +16,11 @@ memory-map:
       children:
       - field:
           name: reset
-          range: 0
           description: Reset bit
           comment: 1 to reset
+          range: 0
           x-wbgen:
-            type: BIT
             access_bus: READ_ONLY
             access_dev: WRITE_ONLY
             clock: clk1
+            type: BIT

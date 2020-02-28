@@ -16,7 +16,7 @@ memory-map:
       access: rw
       address: 0x00000000
       x-wbgen:
-        type: SLV
         access_bus: READ_WRITE
         access_dev: READ_ONLY
         field_description: Value reg
+        type: SLV
