@@ -99,13 +99,20 @@ class Writer_YAML(object):
         self.wattr_num("address", "0x{:x}".format(
                        (addr - self.block_addr[-1]) * layout.DATA_BYTES))
 
+    trans = {"'": "''", "\n": r"\n", "\\": r"\\"}
+
     def write_comment(self, txt, name='comment'):
         if txt is None:
             return
         self.windent()
         if self.strict:
-            s = ''.join({"\n": r'\n', "\\": "\\\\"}.get(c, c) for c in txt)
-            self.w('{}: "{}"\n'.format(name, s))
+            if any(c in txt for c in "'[]\n:\\") or txt.startswith('-'):
+                s = "'" + ''.join([self.trans.get(c, c) for c in txt]) + "'"
+            elif txt.lower() in ['on', 'off', 'false', 'true', 'yes', 'no']:
+                s = "'" + s + "'"
+            else:
+                s = txt
+            self.w('{}: {}\n'.format(name, s))
         else:
             txt = txt.rstrip()
             if any(c in txt for c in "'[]\n:") or txt.startswith('-'):

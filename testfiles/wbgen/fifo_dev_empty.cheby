@@ -42,9 +42,7 @@ memory-map:
           - field:
               name: empty
               description: FIFO empty flag
-              comment: |
-                1: FIFO 'fifo1' is empty
-                0: FIFO is not empty
+              comment: '1: FIFO ''fifo1'' is empty\n0: FIFO is not empty'
               range: 17
               x-wbgen:
                 kind: empty

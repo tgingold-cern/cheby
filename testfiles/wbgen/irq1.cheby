@@ -57,9 +57,7 @@ memory-map:
           - field:
               name: int1
               description: Interrupt 1
-              comment: |
-                write 1: disable interrupt 'Interrupt 1'
-                write 0: no effect
+              comment: 'write 1: disable interrupt ''Interrupt 1''\nwrite 0: no effect'
               range: 0
               x-wbgen:
                 access_bus: WRITE_ONLY
@@ -75,9 +73,7 @@ memory-map:
           - field:
               name: int1
               description: Interrupt 1
-              comment: |
-                write 1: enable interrupt 'Interrupt 1'
-                write 0: no effect
+              comment: 'write 1: enable interrupt ''Interrupt 1''\nwrite 0: no effect'
               range: 0
               x-wbgen:
                 access_bus: WRITE_ONLY
@@ -93,9 +89,7 @@ memory-map:
           - field:
               name: int1
               description: Interrupt 1
-              comment: |
-                read 1: interrupt 'Interrupt 1' is enabled
-                read 0: interrupt 'Interrupt 1' is disabled
+              comment: 'read 1: interrupt ''Interrupt 1'' is enabled\nread 0: interrupt ''Interrupt 1'' is disabled'
               range: 0
               x-wbgen:
                 access_bus: READ_ONLY
@@ -111,11 +105,7 @@ memory-map:
           - field:
               name: int1
               description: Interrupt 1
-              comment: |
-                read 1: interrupt 'Interrupt 1' is pending
-                read 0: interrupt not pending
-                write 1: clear interrupt 'Interrupt 1'
-                write 0: no effect
+              comment: 'read 1: interrupt ''Interrupt 1'' is pending\nread 0: interrupt not pending\nwrite 1: clear interrupt ''Interrupt 1''\nwrite 0: no effect'
               range: 0
               x-wbgen:
                 access_bus: READ_WRITE

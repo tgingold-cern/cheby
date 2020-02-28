@@ -46,25 +46,21 @@ memory-map:
       - field:
           name: led_stat
           description: Status LED
-          comment: |
-            Write 1: turn on the Status LED
+          comment: 'Write 1: turn on the Status LED'
           range: 0
           x-wbgen:
             type: MONOSTABLE
       - field:
           name: led_link
           description: Link LED
-          comment: |
-            Write 1: turn on the Link LED
+          comment: 'Write 1: turn on the Link LED'
           range: 1
           x-wbgen:
             type: MONOSTABLE
       - field:
           name: fmc_scl
           description: FMC I2C bitbanged SCL
-          comment: |
-            write 1: Set FMC SCL line to 1 (pullup)
-            read : returns the current status of the SCL line.
+          comment: 'write 1: Set FMC SCL line to 1 (pullup)\n                        read : returns the current status of the SCL line.'
           range: 2
           x-wbgen:
             access_bus: READ_WRITE
@@ -74,9 +70,7 @@ memory-map:
       - field:
           name: fmc_sda
           description: FMC I2C bitbanged SDA
-          comment: |
-            write 1: Set FMC SDA line to 1 (pullup)
-            read : returns the current status of the SCL line.
+          comment: 'write 1: Set FMC SDA line to 1 (pullup)\n                        read : returns the current status of the SCL line.'
           range: 3
           x-wbgen:
             access_bus: READ_WRITE
@@ -86,16 +80,14 @@ memory-map:
       - field:
           name: Net_RST
           description: Network AP reset
-          comment: |
-            write 1: resets the networking subsystem
+          comment: 'write 1: resets the networking subsystem'
           range: 4
           x-wbgen:
             type: MONOSTABLE
       - field:
           name: Btn1
           description: SPEC Pushbutton 1 state
-          comment: |
-            read : returns the state of the Button 1 on the SPEC board
+          comment: 'read : returns the state of the Button 1 on the SPEC board'
           range: 5
           x-wbgen:
             access_bus: READ_ONLY
@@ -104,8 +96,7 @@ memory-map:
       - field:
           name: Btn2
           description: SPEC Pushbutton 2 state
-          comment: |
-            read : returns the state of the Button 2 on the SPEC board
+          comment: 'read : returns the state of the Button 2 on the SPEC board'
           range: 6
           x-wbgen:
             access_bus: READ_ONLY
@@ -114,8 +105,7 @@ memory-map:
       - field:
           name: sfp_det
           description: SFP detect (MOD_DEF0 signal)
-          comment: |
-            read : returns the state of the SFP's MOD_DEF0 line
+          comment: 'read : returns the state of the SFP''s MOD_DEF0 line'
           range: 7
           x-wbgen:
             access_bus: READ_ONLY
@@ -124,9 +114,7 @@ memory-map:
       - field:
           name: sfp_scl
           description: SFP I2C bitbanged SCL
-          comment: |
-            write 1: Set SFP SCL line to 1 (pullup)
-            read : returns the current status of the SCL line.
+          comment: 'write 1: Set SFP SCL line to 1 (pullup)\n                        read : returns the current status of the SCL line.'
           range: 8
           x-wbgen:
             access_bus: READ_WRITE
@@ -136,9 +124,7 @@ memory-map:
       - field:
           name: sfp_sda
           description: SFP I2C bitbanged SDA
-          comment: |
-            write 1: Set SFP SDA line to 1 (pullup)
-            read : returns the current status of the SCL line.
+          comment: 'write 1: Set SFP SDA line to 1 (pullup)\n                        read : returns the current status of the SCL line.'
           range: 9
           x-wbgen:
             access_bus: READ_WRITE
@@ -148,9 +134,7 @@ memory-map:
       - field:
           name: spi_sclk
           description: SPI bitbanged SCLK
-          comment: |
-            write 1: drive SPI CLK to 1
-            read: always 0
+          comment: 'write 1: drive SPI CLK to 1\n                       read: always 0'
           range: 10
           x-wbgen:
             access_bus: READ_WRITE
@@ -160,9 +144,7 @@ memory-map:
       - field:
           name: spi_ncs
           description: SPI bitbanged NCS
-          comment: |
-            write 1: drive SPI NCS to 1
-            read: always 0
+          comment: 'write 1: drive SPI NCS to 1\n                       read: always 0'
           range: 11
           x-wbgen:
             access_bus: READ_WRITE
@@ -172,9 +154,7 @@ memory-map:
       - field:
           name: spi_mosi
           description: SPI bitbanged MOSI
-          comment: |
-            write 1: drive SPI MOSI line to 1
-            read: always 0
+          comment: 'write 1: drive SPI MOSI line to 1\n                       read: always 0'
           range: 12
           x-wbgen:
             access_bus: READ_WRITE
@@ -184,8 +164,7 @@ memory-map:
       - field:
           name: spi_miso
           description: SPI bitbanged MISO
-          comment: |
-            read: current state of SPI MISO line
+          comment: 'read: current state of SPI MISO line'
           range: 13
           x-wbgen:
             access_bus: READ_ONLY
@@ -202,74 +181,63 @@ memory-map:
       - field:
           name: led_stat
           description: Status LED
-          comment: |
-            Write 1: turn on the Status LED
+          comment: 'Write 1: turn on the Status LED'
           range: 0
           x-wbgen:
             type: MONOSTABLE
       - field:
           name: led_link
           description: Link LED
-          comment: |
-            Write 1: turn on the Link LED
+          comment: 'Write 1: turn on the Link LED'
           range: 1
           x-wbgen:
             type: MONOSTABLE
       - field:
           name: fmc_scl
           description: FMC I2C bitbanged SCL
-          comment: |
-            write 1: Set FMC SCL line to 1 (pullup)
-            read : returns the current status of the SCL line.
+          comment: 'write 1: Set FMC SCL line to 1 (pullup)\n                        read : returns the current status of the SCL line.'
           range: 2
           x-wbgen:
             type: MONOSTABLE
       - field:
           name: fmc_sda
           description: FMC I2C bitbanged SDA
-          comment: |
-            write 1: Set FMC SDA line to 1 (pullup)
-            read : returns the current status of the SCL line.
+          comment: 'write 1: Set FMC SDA line to 1 (pullup)\n                        read : returns the current status of the SCL line.'
           range: 3
           x-wbgen:
             type: MONOSTABLE
       - field:
           name: sfp_scl
           description: SFP I2C bitbanged SCL
-          comment: |
-            write 1: Set SFP SCL line to 0.
+          comment: 'write 1: Set SFP SCL line to 0.'
           range: 8
           x-wbgen:
             type: MONOSTABLE
       - field:
           name: sfp_sda
           description: FMC I2C bitbanged SDA
-          comment: |
-            write 1: Set SFP SDA line to 0.
+          comment: 'write 1: Set SFP SDA line to 0.'
           range: 9
           x-wbgen:
             type: MONOSTABLE
       - field:
           name: spi_sclk
           description: SPI bitbanged SCLK
-          comment: |
-            write 1: Set SPI CLK line to 0.
+          comment: 'write 1: Set SPI CLK line to 0.'
           range: 10
           x-wbgen:
             type: MONOSTABLE
       - field:
           name: spi_cs
           description: SPI bitbanged CS
-          comment: |
-            write 1: Set SPI CS line to 0
+          comment: 'write 1: Set SPI CS line to 0'
           range: 11
           x-wbgen:
             type: MONOSTABLE
       - field:
           name: spi_mosi
           description: SPI bitbanged MOSI
-          comment: |
-            write 1: Set SPI MOSI line to 0.
+          comment: 'write 1: Set SPI MOSI line to 0.'
           range: 12
           x-wbgen:
             type: MONOSTABLE
@@ -283,8 +251,7 @@ memory-map:
       - field:
           name: MEMSIZE
           description: Memory size
-          comment: |
-            Size of installed memory: 0 = 64 kB ... 0xf = 1024 kB
+          comment: 'Size of installed memory: 0 = 64 kB ... 0xf = 1024 kB'
           range: 3-0
           x-wbgen:
             access_bus: READ_ONLY
@@ -316,9 +283,7 @@ memory-map:
       - field:
           name: TDIV
           description: Timer Divider
-          comment: |
-            Division for obtain 1 millisecond ticks from the system clock:
-            <b>f_tick = f_clk_sys / (TDIV * 256)</b>
+          comment: 'Division for obtain 1 millisecond ticks from the system clock: \n                        <b>f_tick = f_clk_sys / (TDIV * 256)</b>'
           range: 11-0
           x-wbgen:
             access_bus: READ_ONLY
@@ -327,9 +292,7 @@ memory-map:
       - field:
           name: ENABLE
           description: Timer Enable
-          comment: |
-            write 1: enable timer
-            write 0: disable timer
+          comment: 'write 1: enable timer\n                        write 0: disable timer'
           range: 31
           x-wbgen:
             access_bus: READ_WRITE
@@ -443,9 +406,7 @@ memory-map:
       - field:
           name: DATA_VALID
           description: WR DIAG data valid
-          comment: |
-            0: valid
-            1: transcient
+          comment: '0: valid\n                     1: transcient'
           range: 0
           x-wbgen:
             access_bus: READ_WRITE
@@ -454,8 +415,7 @@ memory-map:
       - field:
           name: DATA_SNAPSHOT
           description: WR DIAG data snapshot
-          comment: |
-            1: snapshot data (data in registers will not change aveter VALID becomes true)
+          comment: '1: snapshot data (data in registers will not change aveter VALID becomes true)'
           range: 8
           x-wbgen:
             access_bus: READ_ONLY
@@ -471,8 +431,7 @@ memory-map:
       - field:
           name: wr_mode
           description: WR valid
-          comment: |
-            0: not valid\1:valid
+          comment: '0: not valid\\1:valid'
           range: 0
           x-wbgen:
             access_bus: READ_WRITE
@@ -481,13 +440,7 @@ memory-map:
       - field:
           name: servostate
           description: Servo State
-          comment: |
-            0: Uninitialized
-            1: SYNC_NSEC
-            2: SYNC_TAI
-            3: SYNC_PHASE
-            4: TRACK_PHASE
-            5: WAIT_OFFSET_STABLE
+          comment: '0: Uninitialized\n                     1: SYNC_NSEC\n                     2: SYNC_TAI\n                     3: SYNC_PHASE\n                     4: TRACK_PHASE\n                     5: WAIT_OFFSET_STABLE'
           range: 11-8
           x-wbgen:
             access_bus: READ_WRITE
@@ -503,9 +456,7 @@ memory-map:
       - field:
           name: link
           description: Link Status
-          comment: |
-            0: link down
-            1: link up
+          comment: '0: link down\n                     1: link up'
           range: 0
           x-wbgen:
             access_bus: READ_WRITE
@@ -514,9 +465,7 @@ memory-map:
       - field:
           name: locked
           description: PLL Locked
-          comment: |
-            0: not locked
-            1: locked
+          comment: '0: not locked\n                     1: locked'
           range: 1
           x-wbgen:
             access_bus: READ_WRITE
@@ -532,20 +481,7 @@ memory-map:
       - field:
           name: ptpstate
           description: PTP State
-          comment: |
-            0: NONE
-            1: PPS_INITIALIZING
-            2: PPS_FAULTY
-            3: disabled
-            4: PPS_LISTENING
-            5: PPS_PRE_MASTER
-            6: PPS_MASTER
-            7: PPS_PASSIVE
-            8: PPS_UNCALIBRATED
-            9: PPS_SLAVE
-            100-116: WR STATES
-            see: ppsi/proto-ext-whiterabbit/wr-constants.h
-            ppsi/include/ppsi/ieee1588_types.h
+          comment: '0: NONE\n                     1: PPS_INITIALIZING\n                     2: PPS_FAULTY\n                     3: disabled\n                     4: PPS_LISTENING\n                     5: PPS_PRE_MASTER\n                     6: PPS_MASTER\n                     7: PPS_PASSIVE\n                     8: PPS_UNCALIBRATED\n                     9: PPS_SLAVE\n                     100-116: WR STATES\n                     see: ppsi/proto-ext-whiterabbit/wr-constants.h\n                          ppsi/include/ppsi/ieee1588_types.h'
           range: 7-0
           x-wbgen:
             access_bus: READ_WRITE
@@ -561,10 +497,7 @@ memory-map:
       - field:
           name: aux
           description: AUX channel
-          comment: |
-            A vector of bits, one bit per channel
-            0: not valid
-            1:valid
+          comment: 'A vector of bits, one bit per channel\n                     0: not valid\n                     1:valid'
           range: 7-0
           x-wbgen:
             access_bus: READ_WRITE

@@ -42,9 +42,7 @@ memory-map:
           - field:
               name: full
               description: FIFO full flag
-              comment: |
-                1: FIFO 'fifo1' is full
-                0: FIFO is not full
+              comment: '1: FIFO ''fifo1'' is full\n0: FIFO is not full'
               range: 16
               x-wbgen:
                 kind: full

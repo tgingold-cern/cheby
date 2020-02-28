@@ -19,7 +19,7 @@ def convert(stream, filename):
 
     cheby.wbgen.expand_reg.expand(t)
     cheby.wbgen.layout.layout(t)
-    cheby.wbgen.print_cheby_yaml.print_cheby(stream, t, False)
+    cheby.wbgen.print_cheby_yaml.print_cheby(stream, t, True)
 
 
 def main():

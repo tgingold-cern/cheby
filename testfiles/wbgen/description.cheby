@@ -1,9 +1,7 @@
 memory-map:
   name: regf
   description: description with a newline
-  comment: |
-    A simple register, but
-    with a newline.
+  comment: 'A simple register, but \n with a newline.'
   bus: wb-32-be
   x-wbgen:
     hdl_entity: regf

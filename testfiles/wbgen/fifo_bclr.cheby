@@ -42,9 +42,7 @@ memory-map:
           - field:
               name: clear_bus
               description: FIFO clear
-              comment: |
-                write 1: clears FIFO 'fifo bus clear
-                write 0: no effect
+              comment: 'write 1: clears FIFO ''fifo bus clear\nwrite 0: no effect'
               range: 18
               x-wbgen:
                 kind: clear_bus
