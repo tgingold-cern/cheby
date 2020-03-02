@@ -1,0 +1,17 @@
+memory-map:
+  bus: cern-be-vme-32
+  name: m1
+  children:
+    - reg:
+        name: r1
+        width: 32
+        access: rw
+        preset: 0xff
+        children:
+          - field:
+              name: f1
+              range: 3-0
+    - reg:
+        name: r2
+        width: 32
+        access: rw

@@ -165,7 +165,7 @@ def test_layout():
               'layout/err_enum_name.cheby', 'layout/err_enum_invalid.cheby',
               'layout/err_enum_width.cheby',
               'issue14/test-err.cheby',
-              'issue57/m1.cheby']:
+              'issue57/m1.cheby', 'issue71/m1.cheby']:
         if verbose:
             print('test layout: {}'.format(f))
         t = parse_ok(srcdir + f)
