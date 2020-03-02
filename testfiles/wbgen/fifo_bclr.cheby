@@ -19,7 +19,7 @@ memory-map:
       children:
       - reg:
           name: fifo_bclr_r0
-          description: FIFO 'fifo bus clear' data input register 0
+          description: 'FIFO ''fifo bus clear'' data input register 0'
           width: 32
           access: wo
           address: 0x0
@@ -32,7 +32,7 @@ memory-map:
                 type: SLV
       - reg:
           name: fifo_bclr_csr
-          description: FIFO 'fifo bus clear' control/status register
+          description: 'FIFO ''fifo bus clear'' control/status register'
           width: 32
           access: wo
           address: 0x4

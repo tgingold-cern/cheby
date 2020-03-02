@@ -20,7 +20,7 @@ memory-map:
       children:
       - reg:
           name: fifo1_r0
-          description: FIFO 'fifo1' data input register 0
+          description: 'FIFO ''fifo1'' data input register 0'
           width: 32
           access: wo
           address: 0x0
@@ -33,7 +33,7 @@ memory-map:
                 type: SLV
       - reg:
           name: fifo1_csr
-          description: FIFO 'fifo1' control/status register
+          description: 'FIFO ''fifo1'' control/status register'
           width: 32
           access: ro
           address: 0x4

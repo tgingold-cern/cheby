@@ -63,20 +63,24 @@ class Writer_YAML(object):
         self.windent()
         self.w('{}: {}\n'.format(name, val))
 
+    trans = {"'": "''", "\n": r"\n", "\\": r"\\"}
+
+    def quote_str(self, txt):
+        if any(c in txt for c in "'[]\n:\\") or txt.startswith('-'):
+            return "'" + ''.join([self.trans.get(c, c) for c in txt]) + "'"
+        elif txt.lower() in ['on', 'off', 'false', 'true', 'yes', 'no']:
+            return "'" + txt + "'"
+        else:
+            return txt
+
     def wattr_str(self, name, val):
         """Write attribute (only if not None)."""
         if val is None:
             return
-        if isinstance(val, bool) \
-           or val == 'true' or val == 'false' or val == '':
+        if isinstance(val, bool):
             self.wattr_yaml(name, "'{}'".format(val))
-        elif ((len(val) > 0 and (val[0] == ' '
-                                 or val[-1] == ' '
-                                 or ':' in val))
-              or val.isdigit()):
-            self.wattr_yaml(name, '"' + val + '"')
         else:
-            self.wattr_yaml(name, val)
+            self.wattr_yaml(name, self.quote_str(val))
 
     def wattr_bool(self, name, val):
         if val is None:
@@ -99,20 +103,12 @@ class Writer_YAML(object):
         self.wattr_num("address", "0x{:x}".format(
                        (addr - self.block_addr[-1]) * layout.DATA_BYTES))
 
-    trans = {"'": "''", "\n": r"\n", "\\": r"\\"}
-
     def write_comment(self, txt, name='comment'):
         if txt is None:
             return
         self.windent()
         if self.strict:
-            if any(c in txt for c in "'[]\n:\\") or txt.startswith('-'):
-                s = "'" + ''.join([self.trans.get(c, c) for c in txt]) + "'"
-            elif txt.lower() in ['on', 'off', 'false', 'true', 'yes', 'no']:
-                s = "'" + s + "'"
-            else:
-                s = txt
-            self.w('{}: {}\n'.format(name, s))
+            self.w('{}: {}\n'.format(name, self.quote_str(txt)))
         else:
             txt = txt.rstrip()
             if any(c in txt for c in "'[]\n:") or txt.startswith('-'):
@@ -217,9 +213,9 @@ class Writer_YAML(object):
         if wr_strobe or rd_strobe:
             self.wseq("x-hdl")
             if wr_strobe:
-                self.wattr_str("write-strobe", "True")
+                self.wattr_bool("write-strobe", True)
             if rd_strobe:
-                self.wattr_str("read-strobe", "True")
+                self.wattr_bool("read-strobe", True)
             self.weseq()
         if len(n.fields) == 1 \
            and n.fields[0].prefix is None \
@@ -245,7 +241,7 @@ class Writer_YAML(object):
         self.wattr_num("size", len(n.regs) * layout.DATA_BYTES)
         self.wattr_str("description", n.name)
         self.write_comment(n.desc)
-        self.wattr_str("align", 'False')
+        self.wattr_bool("align", False)
 
         self.wseq("x-wbgen")
         self.wattr_str("kind", "fifo")
@@ -253,11 +249,11 @@ class Writer_YAML(object):
         self.wattr_num("depth", n.size)
         self.wattr_str("clock", n.clock)
         if 'FIFO_FULL' in n.flags_dev:
-            self.wattr_str("wire_full", 'True')
+            self.wattr_bool("wire_full", True)
         if 'FIFO_EMPTY' in n.flags_dev:
-            self.wattr_str("wire_empty", 'True')
+            self.wattr_bool("wire_empty", True)
         if 'FIFO_COUNT' in n.flags_dev:
-            self.wattr_str("wire_count", 'True')
+            self.wattr_bool("wire_count", True)
         self.wattr_str("optional", n.optional)
         self.weseq()
 
@@ -303,7 +299,7 @@ class Writer_YAML(object):
         self.wseq("block")
         self.wattr_str("name", "eic")
         self.write_address(addr)
-        self.wattr_str("align", 'False')
+        self.wattr_bool("align", False)
 
         self.wseq("x-wbgen")
         self.wattr_str("kind", 'irq')

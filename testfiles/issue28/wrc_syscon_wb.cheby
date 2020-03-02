@@ -311,7 +311,7 @@ memory-map:
         type: SLV
   - reg:
       name: DIAG_INFO
-      description: "User Diag: version register"
+      description: 'User Diag: version register'
       width: 32
       access: ro
       address: 0x1c
@@ -334,7 +334,7 @@ memory-map:
             type: SLV
   - reg:
       name: DIAG_NW
-      description: "User Diag: number of words"
+      description: 'User Diag: number of words'
       width: 32
       access: ro
       address: 0x20
@@ -357,7 +357,7 @@ memory-map:
             type: SLV
   - reg:
       name: DIAG_CR
-      description: "User Diag: Control Register"
+      description: 'User Diag: Control Register'
       width: 32
       access: rw
       address: 0x24
@@ -384,7 +384,7 @@ memory-map:
             type: BIT
   - reg:
       name: DIAG_DAT
-      description: "User Diag: data to read/write"
+      description: 'User Diag: data to read/write'
       width: 32
       access: rw
       address: 0x28
@@ -398,7 +398,7 @@ memory-map:
         type: SLV
   - reg:
       name: WDIAG_CTRL
-      description: "WRPC Diag: ctrl"
+      description: 'WRPC Diag: ctrl'
       width: 32
       access: rw
       address: 0x2c
@@ -423,7 +423,7 @@ memory-map:
             type: BIT
   - reg:
       name: WDIAG_SSTAT
-      description: "WRPC Diag: servo status"
+      description: 'WRPC Diag: servo status'
       width: 32
       access: rw
       address: 0x30
@@ -448,7 +448,7 @@ memory-map:
             type: SLV
   - reg:
       name: WDIAG_PSTAT
-      description: "WRPC Diag: Port status"
+      description: 'WRPC Diag: Port status'
       width: 32
       access: rw
       address: 0x34
@@ -473,7 +473,7 @@ memory-map:
             type: BIT
   - reg:
       name: WDIAG_PTPSTAT
-      description: "WRPC Diag: PTP state"
+      description: 'WRPC Diag: PTP state'
       width: 32
       access: rw
       address: 0x38
@@ -489,7 +489,7 @@ memory-map:
             type: SLV
   - reg:
       name: WDIAG_ASTAT
-      description: "WRPC Diag: AUX state"
+      description: 'WRPC Diag: AUX state'
       width: 32
       access: rw
       address: 0x3c
@@ -505,7 +505,7 @@ memory-map:
             type: SLV
   - reg:
       name: WDIAG_TXFCNT
-      description: "WRPC Diag: Tx PTP Frame cnts"
+      description: 'WRPC Diag: Tx PTP Frame cnts'
       comment: Number of transmitted PTP Frames
       width: 32
       access: rw
@@ -517,7 +517,7 @@ memory-map:
         type: SLV
   - reg:
       name: WDIAG_RXFCNT
-      description: "WRPC Diag: Rx PTP Frame cnts"
+      description: 'WRPC Diag: Rx PTP Frame cnts'
       comment: Number of received PTP Frames
       width: 32
       access: rw
@@ -529,7 +529,7 @@ memory-map:
         type: SLV
   - reg:
       name: WDIAG_SEC_MSB
-      description: "WRPC Diag:local time [msb of s]"
+      description: 'WRPC Diag:local time [msb of s]'
       comment: Local Time expressed in seconds since epoch (TAI)
       width: 32
       access: rw
@@ -541,7 +541,7 @@ memory-map:
         type: SLV
   - reg:
       name: WDIAG_SEC_LSB
-      description: "WRPC Diag: local time [lsb of s]"
+      description: 'WRPC Diag: local time [lsb of s]'
       comment: Local Time expressed in seconds since epoch (TAI)
       width: 32
       access: rw
@@ -553,7 +553,7 @@ memory-map:
         type: SLV
   - reg:
       name: WDIAG_NS
-      description: "WRPC Diag: local time [ns]"
+      description: 'WRPC Diag: local time [ns]'
       comment: Nanoseconds part of the Local Time expressed in seconds since epoch (TAI)
       width: 32
       access: rw
@@ -565,7 +565,7 @@ memory-map:
         type: SLV
   - reg:
       name: WDIAG_MU_MSB
-      description: "WRPC Diag: Round trip (mu) [msb of ps]"
+      description: 'WRPC Diag: Round trip (mu) [msb of ps]'
       width: 32
       access: rw
       address: 0x54
@@ -576,7 +576,7 @@ memory-map:
         type: SLV
   - reg:
       name: WDIAG_MU_LSB
-      description: "WRPC Diag: Round trip (mu) [lsb of ps]"
+      description: 'WRPC Diag: Round trip (mu) [lsb of ps]'
       width: 32
       access: rw
       address: 0x58
@@ -587,7 +587,7 @@ memory-map:
         type: SLV
   - reg:
       name: WDIAG_DMS_MSB
-      description: "WRPC Diag: Master-slave delay (dms) [msb of ps]"
+      description: 'WRPC Diag: Master-slave delay (dms) [msb of ps]'
       width: 32
       access: rw
       address: 0x5c
@@ -598,7 +598,7 @@ memory-map:
         type: SLV
   - reg:
       name: WDIAG_DMS_LSB
-      description: "WRPC Diag: Master-slave delay (dms) [lsb of ps]"
+      description: 'WRPC Diag: Master-slave delay (dms) [lsb of ps]'
       width: 32
       access: rw
       address: 0x60
@@ -609,7 +609,7 @@ memory-map:
         type: SLV
   - reg:
       name: WDIAG_ASYM
-      description: "WRPC Diag: Total link asymmetry [ps]"
+      description: 'WRPC Diag: Total link asymmetry [ps]'
       width: 32
       access: rw
       address: 0x64
@@ -620,7 +620,7 @@ memory-map:
         type: SLV
   - reg:
       name: WDIAG_CKO
-      description: "WRPC Diag: Clock offset (cko) [ps]"
+      description: 'WRPC Diag: Clock offset (cko) [ps]'
       width: 32
       access: rw
       address: 0x68
@@ -631,7 +631,7 @@ memory-map:
         type: SLV
   - reg:
       name: WDIAG_SETP
-      description: "WRPC Diag: Phase setpoint (setp) [ps]"
+      description: 'WRPC Diag: Phase setpoint (setp) [ps]'
       width: 32
       access: rw
       address: 0x6c
@@ -642,7 +642,7 @@ memory-map:
         type: SLV
   - reg:
       name: WDIAG_UCNT
-      description: "WRPC Diag: Update counter (ucnt)"
+      description: 'WRPC Diag: Update counter (ucnt)'
       width: 32
       access: rw
       address: 0x70
@@ -653,7 +653,7 @@ memory-map:
         type: SLV
   - reg:
       name: WDIAG_TEMP
-      description: "WRPC Diag: Board temperature [C degree]"
+      description: 'WRPC Diag: Board temperature [C degree]'
       width: 32
       access: rw
       address: 0x74
