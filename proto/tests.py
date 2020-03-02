@@ -83,7 +83,7 @@ def parse_err(f):
 
 def test_parser():
     global nbr_tests
-    for f in ['demo.yaml', 'features/simple_reg1.cheby', 'features/simple_reg2.cheby',
+    for f in ['demo.cheby', 'features/simple_reg1.cheby', 'features/simple_reg2.cheby',
               'features/block1.cheby', 'features/submap2.cheby', 'features/submap3.cheby',
               'features/block4.cheby', 'parser/extension1.cheby']:
         if verbose:
@@ -124,7 +124,7 @@ def layout_err(t):
 def test_layout():
     global nbr_tests
     hfiles = []
-    for f in ['demo.yaml', 'features/block1.cheby', 'features/array1.cheby', 'features/array2.cheby',
+    for f in ['demo.cheby', 'features/block1.cheby', 'features/array1.cheby', 'features/array2.cheby',
               'bug-gen-c/fids-errmiss.cheby',
               'bug-gen-c-02/mbox_regs.cheby',
               'bug-gen-c-02/fip_urv_regs.cheby']:
@@ -177,7 +177,7 @@ def test_layout():
 def test_print():
     global nbr_tests
     fd = write_null()
-    for f in ['demo.yaml', 'features/reg_value1.cheby', 'features/reg_value2.cheby',
+    for f in ['demo.cheby', 'features/reg_value1.cheby', 'features/reg_value2.cheby',
               'features/reg_value3.cheby', 'demo_all.cheby', 'features/semver1.cheby',
               'issue55/modulation.cheby']:
         t = parse_ok(srcdir + f)
@@ -349,7 +349,7 @@ def test_self():
     test((lambda: parse_err(srcdir + 'features/simple_reg1.cheby')), "parse_err")
     t = parse_ok(srcdir + 'layout/err_bus_name.cheby')
     test((lambda: layout_ok(t)), "layout_ok")
-    t = parse_ok(srcdir + 'demo.yaml')
+    t = parse_ok(srcdir + 'demo.cheby')
     test((lambda: layout_err(t)), "layout_err")
 
 
