@@ -8,6 +8,8 @@ import cheby.wbgen.field_layout
 import cheby.wbgen.layout
 import cheby.wbgen.expand_reg
 import cheby.wbgen.print_cheby_yaml
+import cheby.wbgen.gen_cheby
+import cheby.pprint
 
 
 def convert(stream, filename):
@@ -19,7 +21,11 @@ def convert(stream, filename):
 
     cheby.wbgen.expand_reg.expand(t)
     cheby.wbgen.layout.layout(t)
-    cheby.wbgen.print_cheby_yaml.print_cheby(stream, t, True)
+    if True:
+        r = cheby.wbgen.gen_cheby.gen_root(t)
+        cheby.pprint.pprint_cheby(stream, r)
+    else:
+        cheby.wbgen.print_cheby_yaml.print_cheby(stream, t, True)
 
 
 def main():

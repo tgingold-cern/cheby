@@ -134,16 +134,16 @@ class Writer_YAML(object):
         elif not isinstance(parent, tree.AnyFifoReg):
             self.wattr_str("access_bus", n.access_bus)
             self.wattr_str("access_dev", n.access_dev)
-        self.wattr_str("clock", n.clock)
-        self.wattr_str("load", n.load)
         self.wattr_str("ack_read", n.ack_read)
+        self.wattr_str("clock", n.clock)
+        if n.prefix is None:
+            self.wattr_str("field_description", n.name)
+            self.write_comment(n.desc, "field_comment")
+        self.wattr_str("load", n.load)
         if n.size is not None and n.size == 1:
             # Explicit the size (range is a single value, so there is no
             # difference with no size)
             self.wattr_num("size", 1)
-        if n.prefix is None:
-            self.wattr_str("field_description", n.name)
-            self.write_comment(n.desc, "field_comment")
         self.wattr_str("type", n.typ)
         self.weseq()
 

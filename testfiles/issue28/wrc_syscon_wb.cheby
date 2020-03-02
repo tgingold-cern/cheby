@@ -1,4 +1,3 @@
-#  -*- Mode: LUA; tab-width: 2 -*-
 memory-map:
   name: sysc
   description: WR Core System Controller
@@ -388,14 +387,14 @@ memory-map:
       width: 32
       access: rw
       address: 0x28
-      x-hdl:
-        write-strobe: True
       x-wbgen:
         access_bus: READ_WRITE
         access_dev: READ_WRITE
-        load: LOAD_EXT
         field_description: Data
+        load: LOAD_EXT
         type: SLV
+      x-hdl:
+        write-strobe: True
   - reg:
       name: WDIAG_CTRL
       description: 'WRPC Diag: ctrl'
@@ -431,7 +430,7 @@ memory-map:
       - field:
           name: wr_mode
           description: WR valid
-          comment: '0: not valid\\1:valid'
+          comment: '0: not valid\1:valid'
           range: 0
           x-wbgen:
             access_bus: READ_WRITE
