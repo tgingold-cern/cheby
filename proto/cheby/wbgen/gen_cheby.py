@@ -2,6 +2,7 @@ import sys
 import cheby.wbgen.tree as wbtree
 import cheby.wbgen.layout as layout
 import cheby.tree as tree
+from cheby.schemas_version import VERSIONS
 
 def write_field_content(res, n, parent):
     if n.reset_value is not None:
@@ -201,6 +202,7 @@ def gen_root(n):
     res.name = n.prefix if n.prefix else n.hdl_prefix
     res.description = n.name
     res.comment = n.desc
+    res.schema_version = VERSIONS
     res.x_wbgen = {"hdl_entity": n.hdl_entity,
                    "hdl_prefix": n.hdl_prefix,
                    "c_prefix": n.c_prefix,
