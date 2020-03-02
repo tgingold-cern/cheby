@@ -1,0 +1,31 @@
+memory-map:
+  bus: wb-32-be
+  name: m1
+  children:
+    - memory:
+        name: m0
+        memsize: 4k
+        interface: cern-be-vme-16
+        children:
+          - reg:
+              name: r1
+              width: 16
+              access: rw
+    - memory:
+        name: m1
+        memsize: 4k
+        interface: cern-be-vme-32
+        children:
+          - reg:
+              name: r1
+              width: 32
+              access: ro
+    - memory:
+        name: m2
+        memsize: 4k
+        interface: cern-be-vme-32
+        children:
+          - reg:
+              name: r1
+              width: 64
+              access: rw
