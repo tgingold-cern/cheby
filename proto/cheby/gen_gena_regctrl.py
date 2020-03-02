@@ -528,20 +528,22 @@ def gen_hdl_wrseldec(root, module, isigs, area, pfx, wrseldec):
     proc = HDLComb()
     proc.name = '{}WrSelDec'.format(pfx)
     bus_addr = root.h_bus['adrw']
-    proc.sensitivity.append(bus_addr)
     for r in wrseldec:
         for i in reversed(range(r.c_nwords)):
             proc.stmts.append(HDLAssign(r.h_wrsel[i], bit_0))
-    sw = HDLSwitch(HDLSlice(bus_addr,
-                            root.c_addr_word_bits,
-                            ilog2(area.c_size) - root.c_addr_word_bits))
+    if bus_addr is not None:
+        proc.sensitivity.append(bus_addr)
+        sw = HDLSwitch(HDLSlice(bus_addr,
+                                root.c_addr_word_bits,
+                                ilog2(area.c_size) - root.c_addr_word_bits))
     if isinstance(area, (tree.Block, tree.Submap)):
         stmt = gen_hdl_area_decode(root, module, area, bus_addr)
         stmt.then_stmts.append(sw)
         stmt.else_stmts.append(HDLAssign(isigs.Loc_CRegWrOK, bit_0))
         proc.stmts.append(stmt)
     else:
-        proc.stmts.append(sw)
+        if bus_addr is not None:
+            proc.stmts.append(sw)
     for reg in wrseldec:
         if reg.h_has_mux:
             proc.sensitivity.append(reg.h_regok)
@@ -549,13 +551,18 @@ def gen_hdl_wrseldec(root, module, isigs, area, pfx, wrseldec):
         else:
             regok = bit_1
         for i in reversed(range(reg.c_nwords)):
-            ch = HDLChoiceExpr(reg.h_gena_regaddr[i])
-            ch.stmts.append(HDLAssign(reg.h_wrsel[i], bit_1))
-            ch.stmts.append(HDLAssign(isigs.Loc_CRegWrOK, regok))
-            sw.choices.append(ch)
-    ch = HDLChoiceDefault()
-    ch.stmts.append(HDLAssign(isigs.Loc_CRegWrOK, bit_0))
-    sw.choices.append(ch)
+            if bus_addr is not None:
+                ch = HDLChoiceExpr(reg.h_gena_regaddr[i])
+                sw.choices.append(ch)
+                stmts = ch.stmts
+            else:
+                stmts = proc.stmts
+            stmts.append(HDLAssign(reg.h_wrsel[i], bit_1))
+            stmts.append(HDLAssign(isigs.Loc_CRegWrOK, regok))
+    if bus_addr is not None:
+        ch = HDLChoiceDefault()
+        ch.stmts.append(HDLAssign(isigs.Loc_CRegWrOK, bit_0))
+        sw.choices.append(ch)
     module.stmts.append(proc)
     module.stmts.append(HDLComment(None))
 
@@ -564,10 +571,11 @@ def gen_hdl_cregrdmux(root, module, isigs, area, pfx, wrseldec):
     proc = HDLComb()
     proc.name = '{}CRegRdMux'.format(pfx)
     bus_addr = root.h_bus['adrr']
-    proc.sensitivity.append(bus_addr)
-    sw = HDLSwitch(HDLSlice(bus_addr,
-                            root.c_addr_word_bits,
-                            ilog2(area.c_size) - root.c_addr_word_bits))
+    if bus_addr is not None:
+        proc.sensitivity.append(bus_addr)
+        sw = HDLSwitch(HDLSlice(bus_addr,
+                                root.c_addr_word_bits,
+                                ilog2(area.c_size) - root.c_addr_word_bits))
     if isinstance(area, (tree.Block, tree.Submap)):
         stmt = gen_hdl_area_decode(root, module, area, bus_addr)
         stmt.then_stmts.append(sw)
@@ -576,14 +584,14 @@ def gen_hdl_cregrdmux(root, module, isigs, area, pfx, wrseldec):
         stmt.else_stmts.append(HDLAssign(isigs.Loc_CRegRdOK, bit_0))
         proc.stmts.append(stmt)
     else:
-        proc.stmts.append(sw)
+        if bus_addr is not None:
+            proc.stmts.append(sw)
     regok_sensitivity = []
     for reg in wrseldec:
         if reg.h_loc:
             # NOTE: not needed for WO registers!
             proc.sensitivity.append(reg.h_loc)
         for i in reversed(range(reg.c_nwords)):
-            ch = HDLChoiceExpr(reg.h_gena_regaddr[i])
             if reg.access == 'wo':
                 val = HDLReplicate(bit_0, None)
                 ok = bit_0
@@ -599,14 +607,20 @@ def gen_hdl_cregrdmux(root, module, isigs, area, pfx, wrseldec):
                     ok = reg.h_regok
                 else:
                     ok = bit_1
-            ch.stmts.append(HDLAssign(isigs.Loc_CRegRdData, val))
-            ch.stmts.append(HDLAssign(isigs.Loc_CRegRdOK, ok))
-            sw.choices.append(ch)
-    ch = HDLChoiceDefault()
-    ch.stmts.append(HDLAssign(isigs.Loc_CRegRdData, HDLReplicate(bit_0, None)))
-    ch.stmts.append(HDLAssign(isigs.Loc_CRegRdOK, bit_0))
+            if bus_addr is not None:
+                ch = HDLChoiceExpr(reg.h_gena_regaddr[i])
+                sw.choices.append(ch)
+                stmts = ch.stmts
+            else:
+                stmts = proc.stmts
+            stmts.append(HDLAssign(isigs.Loc_CRegRdData, val))
+            stmts.append(HDLAssign(isigs.Loc_CRegRdOK, ok))
+    if bus_addr is not None:
+        ch = HDLChoiceDefault()
+        ch.stmts.append(HDLAssign(isigs.Loc_CRegRdData, HDLReplicate(bit_0, None)))
+        ch.stmts.append(HDLAssign(isigs.Loc_CRegRdOK, bit_0))
+        sw.choices.append(ch)
     proc.sensitivity.extend(regok_sensitivity)
-    sw.choices.append(ch)
     module.stmts.append(proc)
     module.stmts.append(HDLComment(None))
 
