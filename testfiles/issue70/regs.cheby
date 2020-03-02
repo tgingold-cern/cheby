@@ -1,0 +1,26 @@
+memory-map:
+  name: regs
+  bus: cern-be-vme-err-32
+  size: 1024k
+  x-gena:
+    map-version: 20161101
+  x-map-info:
+    ident: 0xff
+  schema-version:
+    core: 2.0.0
+    x-conversions: 1.0.0
+    x-driver-edge: 1.0.0
+    x-fesa: 2.0.0
+    x-gena: 1.0.0
+    x-hdl: 1.0.0
+    x-map-info: 1.0.0
+    x-wbgen: 1.0.0
+  children:
+  - reg:
+      name: test1
+      width: 32
+      access: rw
+      address: next
+      x-fesa:
+        multiplexed: False
+        persistence: True
