@@ -950,6 +950,10 @@ def process_file(filename):
         error("error: unknown tag '{}'".format(
             e.msg))
         raise
+    except UnknownValue as e:
+        error("error: unknown value '{}' for tag '{}'".format(
+            e.val, e.name))
+        raise
     if not flag_quiet:
         if flag_out_file:
             new_filename = os.path.splitext(filename)[0] + '.cheby'
