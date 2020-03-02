@@ -247,10 +247,10 @@ def layout_reg(lo, n):
         # This register has fields.
         if n.preset is not None:
             raise LayoutException(
-                n, "preset is not allowed for register with fields")
+                n, "preset is not allowed for register {} with fields".format(n.get_path()))
         if n.constant is not None:
             raise LayoutException(
-                n, "constant is not allowed for register with fields")
+                n, "constant is not allowed for register {} with fields".format(n.get_path()))
         if n.type is None:
             n.c_type = 'unsigned'
         else:
