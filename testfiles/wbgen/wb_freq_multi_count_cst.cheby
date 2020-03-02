@@ -8,13 +8,13 @@ memory-map:
   children:
   - memory:
       name: frequency
+      description: Frequency RAM
       address: 0x0
       memsize: 128
-      description: Frequency RAM
       x-wbgen:
-        kind: ram
         access_dev: READ_WRITE
         byte_select: False
+        kind: ram
       children:
       - reg:
           name: data

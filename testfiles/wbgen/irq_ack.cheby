@@ -37,15 +37,15 @@ memory-map:
       address: 0x20
       align: False
       x-wbgen:
-        kind: irq
         irqs:
         - irq:
-            name: int1
-            trigger: LEVEL_0
-            pos: 1
             ack_line: True
-            description: Interrupt 1
             comment: Interrupt #1
+            description: Interrupt 1
+            name: int1
+            pos: 1
+            trigger: LEVEL_0
+        kind: irq
       children:
       - reg:
           name: eic_idr

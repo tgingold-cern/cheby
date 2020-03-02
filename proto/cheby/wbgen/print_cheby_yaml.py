@@ -237,24 +237,24 @@ class Writer_YAML(object):
         addr = n.regs[0].addr_base
         self.wseq("block")
         self.wattr_str("name", n.prefix)
-        self.write_address(addr)
-        self.wattr_num("size", len(n.regs) * layout.DATA_BYTES)
         self.wattr_str("description", n.name)
         self.write_comment(n.desc)
+        self.write_address(addr)
         self.wattr_bool("align", False)
+        self.wattr_num("size", len(n.regs) * layout.DATA_BYTES)
 
         self.wseq("x-wbgen")
-        self.wattr_str("kind", "fifo")
-        self.wattr_str("direction", n.direction)
-        self.wattr_num("depth", n.size)
         self.wattr_str("clock", n.clock)
-        if 'FIFO_FULL' in n.flags_dev:
-            self.wattr_bool("wire_full", True)
-        if 'FIFO_EMPTY' in n.flags_dev:
-            self.wattr_bool("wire_empty", True)
+        self.wattr_num("depth", n.size)
+        self.wattr_str("direction", n.direction)
+        self.wattr_str("kind", "fifo")
+        self.wattr_str("optional", n.optional)
         if 'FIFO_COUNT' in n.flags_dev:
             self.wattr_bool("wire_count", True)
-        self.wattr_str("optional", n.optional)
+        if 'FIFO_EMPTY' in n.flags_dev:
+            self.wattr_bool("wire_empty", True)
+        if 'FIFO_FULL' in n.flags_dev:
+            self.wattr_bool("wire_full", True)
         self.weseq()
 
         self.wlist("children")
@@ -271,16 +271,16 @@ class Writer_YAML(object):
         addr = n.addr_base
         self.wseq("memory")
         self.wattr_str("name", n.prefix)
-        self.write_address(addr)
-        self.wattr_num("memsize", n.size * n.width // 8)
         self.wattr_str("description", n.name)
         self.write_comment(n.desc)
+        self.write_address(addr)
+        self.wattr_num("memsize", n.size * n.width // 8)
 
         self.wseq("x-wbgen")
-        self.wattr_str("kind", 'ram')
         self.wattr_str("access_dev", n.access_dev)
-        self.wattr_str("clock", n.clock)
         self.wattr_bool("byte_select", n.byte_select)
+        self.wattr_str("clock", n.clock)
+        self.wattr_str("kind", 'ram')
         self.weseq()
 
         self.wlist("children")
@@ -302,19 +302,19 @@ class Writer_YAML(object):
         self.wattr_bool("align", False)
 
         self.wseq("x-wbgen")
-        self.wattr_str("kind", 'irq')
         self.wlist("irqs")
         for irq, pos in irqs:
             self.wseq("irq")
-            self.wattr_str("name", irq.prefix)
-            self.wattr_str("trigger", irq.trigger)
-            self.wattr_num("pos", pos)
             self.wattr_bool("ack_line", irq.ack_line)
-            self.wattr_bool("mask_line", irq.mask_line)
-            self.wattr_str("description", irq.name)
             self.write_comment(irq.desc)
+            self.wattr_str("description", irq.name)
+            self.wattr_bool("mask_line", irq.mask_line)
+            self.wattr_str("name", irq.prefix)
+            self.wattr_num("pos", pos)
+            self.wattr_str("trigger", irq.trigger)
             self.weseq()
         self.welist()
+        self.wattr_str("kind", 'irq')
         self.weseq()
 
         self.wlist("children")

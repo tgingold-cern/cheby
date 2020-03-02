@@ -24,13 +24,13 @@ memory-map:
             type: BIT
   - memory:
       name: ch1
+      description: Channel 1
       address: 0x2000
       memsize: 8192
-      description: Channel 1
       x-wbgen:
-        kind: ram
         access_dev: READ_WRITE
         byte_select: True
+        kind: ram
       children:
       - reg:
           name: data

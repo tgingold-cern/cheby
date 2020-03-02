@@ -7,16 +7,16 @@ memory-map:
   children:
   - block:
       name: fifo1
-      address: 0x0
-      size: 8
       description: fifo1
+      address: 0x0
       align: False
+      size: 8
       x-wbgen:
-        kind: fifo
-        direction: BUS_TO_CORE
         depth: 256
-        wire_empty: True
+        direction: BUS_TO_CORE
+        kind: fifo
         optional: debug
+        wire_empty: True
       children:
       - reg:
           name: fifo1_r0

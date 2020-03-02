@@ -7,14 +7,14 @@ memory-map:
   children:
   - block:
       name: fifo_bclr
-      address: 0x0
-      size: 8
       description: fifo bus clear
+      address: 0x0
       align: False
+      size: 8
       x-wbgen:
-        kind: fifo
-        direction: BUS_TO_CORE
         depth: 256
+        direction: BUS_TO_CORE
+        kind: fifo
         wire_full: True
       children:
       - reg:

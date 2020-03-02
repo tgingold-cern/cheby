@@ -7,12 +7,12 @@ memory-map:
   children:
   - memory:
       name: ch1
+      description: Channel 1
       address: 0x0
       memsize: 8192
-      description: Channel 1
       x-wbgen:
-        kind: ram
         access_dev: READ_ONLY
+        kind: ram
       children:
       - reg:
           name: data
