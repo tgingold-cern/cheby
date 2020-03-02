@@ -135,6 +135,9 @@ Attribute 'x-hdl:block_prefix' has been renamed 'x-hdl:block-prefix'. Likewise
 Name collisions are now reported (instead of being generated in the
 hdl file) (issue #65).
 
+Improve error message for incorrect preset attribute on a register
+when a field is present (issue #71).
+
 ## Version 1.3
 
 Add x-hdl:port to specify how ports are generated for registers (issue#11)
