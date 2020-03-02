@@ -147,25 +147,26 @@ def test_layout():
         nbr_tests += 1
     for f in hfiles:
         os.remove(f)
-    for f in ['layout/err_bus_name.yaml',
-              'layout/err_reg_addr1.yaml', 'layout/err_reg_addr2.yaml',
-              'layout/err_reg_width1.yaml',
-              'layout/err_reg_type1.yaml', 'layout/err_reg_type2.yaml',
-              'layout/err_reg_type3.yaml',
-              'layout/err_field1.yaml', 'layout/err_field2.yaml', 'layout/err_field3.yaml',
-              'layout/err_field4.yaml', 'layout/err_field5.yaml', 'layout/err_field6.yaml',
-              'layout/err_field_name1.yaml', 'layout/err_field_name2.yaml',
-              'layout/err_reg_name1.yaml', 'layout/err_reg_name2.yaml',
-              'layout/err_reg_acc1.yaml', 'layout/err_reg_acc2.yaml',
-              'layout/err_field_preset1.yaml',
-              'layout/err_noelements.yaml',
-              'layout/err_arr1.yaml', 'layout/err_arr2.yaml',
-              'layout/err_block_size1.yaml',
-              'layout/err_presets2.cheby',
-              'layout/err_enum_name.cheby', 'layout/err_enum_invalid.cheby',
-              'layout/err_enum_width.cheby',
-              'issue14/test-err.cheby',
-              'issue57/m1.cheby', 'issue71/m1.cheby']:
+    for f in ['layout/err_bus_name',
+              'layout/err_reg_addr1', 'layout/err_reg_addr2',
+              'layout/err_reg_width1',
+              'layout/err_reg_type1', 'layout/err_reg_type2',
+              'layout/err_reg_type3',
+              'layout/err_field1', 'layout/err_field2', 'layout/err_field3',
+              'layout/err_field4', 'layout/err_field5', 'layout/err_field6',
+              'layout/err_field_name1', 'layout/err_field_name2',
+              'layout/err_reg_name1', 'layout/err_reg_name2',
+              'layout/err_reg_acc1', 'layout/err_reg_acc2',
+              'layout/err_field_preset1',
+              'layout/err_noelements',
+              'layout/err_arr1', 'layout/err_arr2',
+              'layout/err_block_size1',
+              'layout/err_presets2',
+              'layout/err_enum_name', 'layout/err_enum_invalid',
+              'layout/err_enum_width',
+              'issue14/test-err',
+              'issue57/m1', 'issue71/m1']:
+        f += '.cheby'
         if verbose:
             print('test layout: {}'.format(f))
         t = parse_ok(srcdir + f)
@@ -346,7 +347,7 @@ def test_self():
             error("self-test error for {}".format(func_name))
     test((lambda: parse_ok(srcdir + 'error1.yaml')), "parse_ok")
     test((lambda: parse_err(srcdir + 'features/simple_reg1.cheby')), "parse_err")
-    t = parse_ok(srcdir + 'layout/err_bus_name.yaml')
+    t = parse_ok(srcdir + 'layout/err_bus_name.cheby')
     test((lambda: layout_ok(t)), "layout_ok")
     t = parse_ok(srcdir + 'demo.yaml')
     test((lambda: layout_err(t)), "layout_err")
