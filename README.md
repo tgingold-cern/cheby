@@ -117,7 +117,7 @@ Emit warnings when 'x-hdl:busgroup' is ignored.  (issue#60)
 For wbgen2cheby, WRITE_READ access is handled like
 READ_WRITE (issue #63).
 
-Styles 'vhdl-ohwr' and 'vhdl-orig' have been added for `--consts-style'.
+Styles 'vhdl-ohwr' and 'vhdl-orig' have been added for `--consts-style`.
 
 'x-hdl:type: or-clr-out' has been added.  It behaves like 'or-clr' and
 also outputs the current value.
@@ -140,6 +140,9 @@ when a field is present (issue #71).
 
 Fix crash for `--gen-gena-regctrl` if the address space is only one
 register (issue #70).
+
+A warning is now emitted if 'x-gena:resize' is present on a register
+with fields, as it is useless (issue #69).
 
 ## Version 1.3
 
