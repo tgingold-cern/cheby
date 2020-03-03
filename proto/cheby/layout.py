@@ -251,6 +251,8 @@ def layout_reg(lo, n):
         if n.constant is not None:
             raise LayoutException(
                 n, "constant is not allowed for register {} with fields".format(n.get_path()))
+        if resize is not None:
+            warning(n, "x-gena:resize is ignored for register {} with fields".format(n.get_path()))
         if n.type is None:
             n.c_type = 'unsigned'
         else:
