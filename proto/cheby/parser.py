@@ -388,6 +388,7 @@ def parse_yaml(filename):
         elif k == 'word-endian':
             res.word_endian = read_text(res, k, v)
         elif k == 'version':
+            warning(res, 'memory-map:version is deprecated')
             res.version = read_text(res, k, v)
         elif k == 'schema-version':
             res.schema_version = v
