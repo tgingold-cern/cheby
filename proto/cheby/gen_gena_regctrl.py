@@ -1,5 +1,5 @@
 import types
-from cheby.layout import ilog2
+from cheby.layout import ilog2, LayoutException
 import cheby.tree as tree
 from cheby.hdltree import (HDLComponent, HDLComponentSpec,
                            HDLSignal, HDLPort, HDLParam,
@@ -1376,6 +1376,9 @@ def gen_hdl_misc_root(root, module, isigs):
 
 def gen_gena_regctrl(root, use_common_visual):
     root.hdl_module_name = root.name
+    if not root.bus.startswith('cern-be-vme-'):
+        raise LayoutException(
+            root, 'bus must be cern-be-vme-xx for --gen-gena-regctrl')
     module = gen_hdl.gen_hdl_header(root)
     module.name = 'RegCtrl_{}'.format(root.name)
     if not root.h_bussplit:
