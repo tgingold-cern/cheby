@@ -1,0 +1,16 @@
+memory-map:
+  bus: cern-be-vme-32
+  name: yesnocodefieldbug
+  children:
+    - reg:
+        name: r1
+        width: 32
+        access: rw
+        x-gena:
+          code-fields:
+            - code-field:
+                name: yes
+                code: 1
+            - code-field:
+                name: no
+                code: 0
