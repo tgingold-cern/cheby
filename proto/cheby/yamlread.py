@@ -13,9 +13,7 @@ class MySafeConstructor(SafeConstructor):
     # Only handle true/false as boolean.
     bool_values = {
         'true':     True,
-        'false':    False,
-        'yes': True,
-        'no': True
+        'false':    False
     }
 
     # Create new method handle boolean logic

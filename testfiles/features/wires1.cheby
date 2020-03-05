@@ -9,8 +9,8 @@ memory-map:
         access: rw
         type: unsigned
         x-hdl:
-          read-strobe: yes
-          write-strobe: yes
+          read-strobe: true
+          write-strobe: true
     - reg:
         name: wires
         width: 32
@@ -18,7 +18,7 @@ memory-map:
         type: unsigned
         x-hdl:
           type: wire
-          read-strobe: yes
+          read-strobe: true
     - reg:
         name: acks
         width: 32
@@ -26,7 +26,7 @@ memory-map:
         type: unsigned
         x-hdl:
           type: wire
-          read-strobe: yes
-          write-strobe: yes
-          read-ack: yes
-          write-ack: yes
+          read-strobe: true
+          write-strobe: true
+          read-ack: true
+          write-ack: true
