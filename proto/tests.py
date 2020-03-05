@@ -167,7 +167,7 @@ def test_layout():
               'layout/err_enum_name', 'layout/err_enum_invalid',
               'layout/err_enum_width',
               'issue14/test-err',
-              'issue57/m1', 'issue71/m1']:
+              'issue57/m1', 'issue71/m1', 'features/enums3']:
         f += '.cheby'
         if verbose:
             print('test layout: {}'.format(f))
@@ -313,7 +313,7 @@ def test_hdl_ref():
               'issue45/test8', 'issue45/test16',
               'features/wires1', 'features/semver1', 'features/semver2',
               'features/mapinfo2',
-              'features/enums1', 'features/enums2', 'features/enums3',
+              'features/enums1', 'features/enums2',
               'features/orclrout_rw',
               'features/blkprefix1', 'features/blkprefix2',
               'features/regprefix1', 'features/regprefix2',

@@ -576,6 +576,10 @@ def layout_enums(root):
                 e, "duplicate enum name {}".format(e.name))
         else:
             root.c_enums_dict[e.name] = e
+        if e.width is None:
+            # Could be commented out to automatically size enums.
+            raise LayoutException(
+                e, "'width' required for enum {}".format(e.name))
         e.c_width = e.width or 1
         for lit in e.children:
             if lit.value < 0:
