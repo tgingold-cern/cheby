@@ -1,4 +1,5 @@
 from cheby.layout import ilog2
+from cheby.parser import (read_text, read_int)
 import cheby.tree as tree
 from cheby.hdltree import (HDLPackage, HDLComment, HDLConstant,
                            HDLHexConst, HDLBinConst)
@@ -150,8 +151,10 @@ def gen_code_fields(n, root, decls):
     def gen_one_cf(codes, pfx, sz, lo_idx=0):
         for cf in codes:
             cf = cf['code-field']
-            cst = HDLConstant(pfx + '_' + cf['name'], sz, lo_idx=lo_idx,
-                              value=HDLBinConst(cf['code'], sz))
+            name = read_text(n, 'code-field:name', cf['name'])
+            val = read_int(n, 'code-field:code', cf['code'])
+            cst = HDLConstant(pfx + '_' + name, sz, lo_idx=lo_idx,
+                              value=HDLBinConst(val, sz))
             decls.append(cst)
 
     def gen_path(e):
