@@ -144,6 +144,12 @@ register (issue #70).
 A warning is now emitted if 'x-gena:resize' is present on a register
 with fields, as it is useless (issue #69).
 
+Only 'true' and 'false' (without the quote) are now considered as boolean
+in the YAML file.  'yes' and 'no' aren't anymore (issue #73).
+
+The error message for incorrect type on gena codefields has been improved
+(issue #73).
+
 ## Version 1.3
 
 Add x-hdl:port to specify how ports are generated for registers (issue#11)
