@@ -273,7 +273,7 @@ def conv_codefields(parent, el, width):
             adjust_common(val)
             res.children.append(val)
     root.x_enums.append(res)
-    parent.type = "enum.{}".format(res.name)
+    parent.x_enums = {'name': res.name}
 
 def conv_constant(parent, el):
     cv = parent.x_driver_edge.get('constant-value', [])

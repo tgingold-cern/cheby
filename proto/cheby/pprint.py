@@ -95,11 +95,13 @@ def pprint_extensions(pp, n):
                  'x-hdl',
                  'x-fesa',
                  'x-driver-edge',
+                 'x-enums',
                  'x-conversions',
                  'x-map-info',
                  'schema-version']:
         attr = name.replace('-', '_')
-        if hasattr(n, attr):
+        # Note: root.x-enums is displayed separately.
+        if hasattr(n, attr) and not (name == 'x-enums' and isinstance(n, tree.Root)):
             pprint_extension(pp, name, getattr(n, attr))
 
 
