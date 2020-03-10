@@ -124,6 +124,7 @@ def pprint_named(pp, n):
 def pprint_field(pp, n):
     pp.pp_obj('field')
     pprint_named(pp, n)
+    pp.pp_str('type', n.type)
     if n.hi is None:
         pp.pp_str('range', "{}".format(n.lo))
     else:

@@ -237,6 +237,7 @@ def adjust_common_dict(n):
 
 
 def conv_codefield(parent, el):
+    """Convert code-field as x-gena:code-field"""
     if not flag_enums:
         cf = parent.x_gena.get('code-field', [])
         cf.append({f: el.attrib[f] for f in ['name', 'code', 'description', 'comment', 'note'] if f in el.attrib})
@@ -244,6 +245,7 @@ def conv_codefield(parent, el):
 
 
 def conv_codefields(parent, el, width):
+    """Convert code-field as x-enum"""
     if not flag_enums:
         return
     if not any([child.tag == 'code-field' for child in el]):
@@ -271,6 +273,7 @@ def conv_codefields(parent, el, width):
             adjust_common(val)
             res.children.append(val)
     root.x_enums.append(res)
+    parent.type = "enum.{}".format(res.name)
 
 def conv_constant(parent, el):
     cv = parent.x_driver_edge.get('constant-value', [])
