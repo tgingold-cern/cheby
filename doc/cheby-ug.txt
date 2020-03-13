@@ -232,7 +232,8 @@ attribute is the name of the port.
 `reg-prefix`:: If false, discard register prefix and every prefix before
 register.  This creates shorter names.
 
-`block-prefix`:: If false, discard block prefix.
+`block-prefix`:: If false, discard block prefix, in order to create shorter
+names.
 
 `pipeline`:: Finely define the pipelining.  In case of timing closure issues,
 you can set this value to "all".  Possible values are "rd-in", "rd-out",
@@ -411,6 +412,9 @@ to specify an address or an alignment.
 It is possible to reserve space at the end of a block with the `size`
 attribute.  It specifies the size (in bytes) of the block. The suffixes k, M
 and G are allowed.
+
+The `block-prefix` and `reg-prefix` attributes are available within `x-hdl`,
+to control name generation.
 
 Example of a block:
 

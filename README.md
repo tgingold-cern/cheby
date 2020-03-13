@@ -150,6 +150,9 @@ in the YAML file.  'yes' and 'no' aren't anymore (issue #73).
 The error message for incorrect type on gena codefields has been improved
 (issue #73).
 
+It is now possible to use 'x-hdl:block-prefix' and 'x-hdl:reg-prefix' on
+block nodes.
+
 ## Version 1.3
 
 Add x-hdl:port to specify how ports are generated for registers (issue#11)
