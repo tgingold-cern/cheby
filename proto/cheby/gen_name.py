@@ -63,10 +63,18 @@ def gen_name_root(root):
     ctxt.reg_prefix = root.get_extension('x_hdl', 'reg-prefix')
     if ctxt.reg_prefix is None:
         # Backward compatibility
-        ctxt.reg_prefix = root.get_extension('x_hdl', 'reg_prefix', True)
+        ctxt.reg_prefix = root.get_extension('x_hdl', 'reg_prefix', None)
+        if ctxt.reg_prefix is not None:
+            parser.warning(root, "reg_prefix is deprecated, use 'reg-prefix' instead")
+        else:
+            ctxt.reg_prefix = True
     ctxt.blk_prefix = root.get_extension('x_hdl', 'block-prefix')
     if ctxt.blk_prefix is None:
         # Backward compatibility
-        ctxt.blk_prefix = root.get_extension('x_hdl', 'block_prefix', True)
+        ctxt.blk_prefix = root.get_extension('x_hdl', 'block_prefix', None)
+        if ctxt.blk_prefix is not None:
+            parser.warning(root, "block_prefix is deprecated, use 'block-prefix' instead")
+        else:
+            ctxt.blk_prefix = True
     prefix = None
     gen_name_children(root.children, prefix, ctxt)
