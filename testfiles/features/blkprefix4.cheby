@@ -1,0 +1,23 @@
+memory-map:
+  bus: wb-32-be
+  name: blkprefix4
+  x-hdl:
+    block-prefix: False
+  children:
+  - reg:
+      name: r5
+      width: 32
+      access: rw
+  - block:
+      name: blk
+      x-hdl:
+        block-prefix: True
+      children:
+      - submap:
+          name: sub1
+          filename: blkprefix4_1.cheby
+          include: True
+      - submap:
+          name: sub2
+          filename: blkprefix4_1.cheby
+          include: True

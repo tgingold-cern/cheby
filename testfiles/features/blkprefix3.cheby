@@ -1,0 +1,45 @@
+memory-map:
+  bus: wb-32-be
+  name: blkprefix3
+  children:
+  - block:
+      name: b1
+      x-hdl:
+        block-prefix: False
+      children:
+      - reg:
+          name: r2
+          width: 32
+          access: rw
+          children:
+          - field:
+              name: f1
+              range: 2-0
+          - field:
+              name: f2
+              range: 4
+      - block:
+          name: b11
+          children:
+          - reg:
+              name: r3
+              width: 32
+              access: rw
+              children:
+              - field:
+                  name: f1
+                  range: 2-0
+              - field:
+                  name: f2
+                  range: 4
+  - block:
+      name: b2
+      children:
+      - reg:
+          name: r3
+          width: 32
+          access: rw
+          children:
+          - field:
+              name: f1
+              range: 2-0
