@@ -4,8 +4,9 @@ import cheby.parser as parser
 
 class Context(object):
     def __init__(self):
-        self.reg_prefix = False
-        self.blk_prefix = False
+        self.reg_prefix = True
+        self.blk_prefix = True
+        self.stack = []     # stack of saved states
         self.names = {}
 
     def set_field_name(self, field, name):
@@ -15,6 +16,12 @@ class Context(object):
                          self.names[name].get_path(), field.get_path(), name))
         self.names[name] = field
         field.c_name = name
+
+    def push(self):
+        self.stack.append((self.reg_prefix, self.blk_prefix))
+
+    def pop(self):
+        self.reg_prefix, self.blk_prefix = self.stack.pop()
 
 
 def concat(l, r):
@@ -32,8 +39,29 @@ def concat_if(prefix, suffix, cond):
         return prefix
 
 
-def gen_name_children(children, prefix, ctxt):
-    for n in children:
+def gen_name_children(parent, prefix, ctxt):
+    ctxt.push()
+
+    # Prefix control
+    rpfx = parent.get_extension('x_hdl', 'reg-prefix')
+    if rpfx is None:
+        # Backward compatibility
+        rpfx = parent.get_extension('x_hdl', 'reg_prefix', None)
+        if rpfx is not None:
+            parser.warning(parent, "reg_prefix is deprecated, use 'reg-prefix' instead")
+    if rpfx is not None:
+        ctxt.reg_prefix = rpfx
+
+    bpfx = parent.get_extension('x_hdl', 'block-prefix')
+    if bpfx is None:
+        # Backward compatibility
+        bpfx = parent.get_extension('x_hdl', 'block_prefix', None)
+        if bpfx is not None:
+            parser.warning(parent, "block_prefix is deprecated, use 'block-prefix' instead")
+    if bpfx is not None:
+        ctxt.blk_prefix = bpfx
+
+    for n in parent.children:
         n.c_name = concat(prefix, n.name)
         if isinstance(n, tree.Reg):
             nprefix = concat_if(prefix, n.name, ctxt.reg_prefix)
@@ -51,30 +79,15 @@ def gen_name_children(children, prefix, ctxt):
             nprefix = n.c_name if ctxt.blk_prefix else prefix
             if isinstance(n, tree.Submap):
                 if n.filename is not None:
-                    gen_name_children(n.c_submap.children, nprefix, ctxt)
+                    gen_name_children(n.c_submap, nprefix, ctxt)
             else:
-                gen_name_children(n.children, nprefix, ctxt)
+                gen_name_children(n, nprefix, ctxt)
         else:
             raise AssertionError(n)
+    ctxt.pop()
 
 
 def gen_name_root(root):
     ctxt = Context()
-    ctxt.reg_prefix = root.get_extension('x_hdl', 'reg-prefix')
-    if ctxt.reg_prefix is None:
-        # Backward compatibility
-        ctxt.reg_prefix = root.get_extension('x_hdl', 'reg_prefix', None)
-        if ctxt.reg_prefix is not None:
-            parser.warning(root, "reg_prefix is deprecated, use 'reg-prefix' instead")
-        else:
-            ctxt.reg_prefix = True
-    ctxt.blk_prefix = root.get_extension('x_hdl', 'block-prefix')
-    if ctxt.blk_prefix is None:
-        # Backward compatibility
-        ctxt.blk_prefix = root.get_extension('x_hdl', 'block_prefix', None)
-        if ctxt.blk_prefix is not None:
-            parser.warning(root, "block_prefix is deprecated, use 'block-prefix' instead")
-        else:
-            ctxt.blk_prefix = True
     prefix = None
-    gen_name_children(root.children, prefix, ctxt)
+    gen_name_children(root, prefix, ctxt)

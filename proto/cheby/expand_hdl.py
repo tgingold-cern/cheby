@@ -138,6 +138,16 @@ def expand_pipeline(n, v):
         res.update(vals[e])
     return sorted(list(res))
 
+
+def expand_x_hdl_block(n, dct):
+    for k, _ in dct.items():
+        if k in ('reg-prefix', 'block-prefix'):
+            pass
+        else:
+            parser.error("unhandled '{}' in x-hdl of {}".format(
+                         k, n.get_path()))
+
+
 def expand_x_hdl_root(n, dct):
     n.hdl_pipeline = ['wr-in', 'rd-out']
     for k, v in dct.items():
@@ -180,6 +190,8 @@ def expand_x_hdl(n):
         expand_x_hdl_root(n, x_hdl)
     elif isinstance(n, tree.Submap):
         expand_x_hdl_submap(n, x_hdl)
+    elif isinstance(n, tree.Block):
+        expand_x_hdl_block(n, x_hdl)
     else:
         if x_hdl:
             parser.error("no x-hdl attributes allowed for {}".format(
