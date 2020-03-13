@@ -1,5 +1,5 @@
 from cheby.layout import ilog2
-from cheby.parser import (read_text, read_int)
+from cheby.parser import (read_text, read_int, warning)
 import cheby.tree as tree
 from cheby.hdltree import (HDLPackage, HDLComment, HDLConstant,
                            HDLHexConst, HDLBinConst)
@@ -89,7 +89,11 @@ def compute_preset(reg):
     res = get_gena(reg, 'holes-preset', None)
     if res is None:
         # Backward compatibility.
-        res = get_gena(reg, 'preset', 0)
+        res = get_gena(reg, 'preset', None)
+        if res is None:
+            res = 0
+        else:
+            warning(reg, "x-gena:preset for {} is deprecated".format(reg.get_path()))
     for f in reg.children:
         v = f.c_preset
         if v is not None:
