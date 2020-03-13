@@ -39,9 +39,15 @@ def generate_verilog_type(p):
 
 
 def generate_decl_comment(fd, comment, indent):
-    if comment:
-        windent(fd, indent)
-        wln(fd, "// {}".format(comment))
+    if comment is None:
+        return
+    # Reindent comment.
+    for l in comment.split('\n'):
+        if l == '':
+            wln(fd)
+        else:
+            windent(fd, indent)
+            wln(fd, "// {}".format(l))
 
 
 def generate_port(fd, p, indent):
