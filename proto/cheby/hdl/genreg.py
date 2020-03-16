@@ -157,7 +157,7 @@ class GenFieldAutoclear(GenFieldBase):
             lo, w = self.extract_reg_bounds(off)
             strobe = self.reg.h_gen.strobe_index(off, self.reg.h_wreq)
             if self.field.c_rwidth > 1:
-                strobe = HDLReplicate(strobe, self.field.c_rwidth, False)
+                strobe = HDLReplicate(strobe, w, False)
             dat = HDLAnd(self.extract_dat2(ibus.wr_dat, self.field.lo + lo - off, w), strobe)
             stmts.append(HDLAssign(self.extract_reg2(self.field.h_oport, lo, w), dat))
 
