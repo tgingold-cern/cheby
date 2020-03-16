@@ -153,6 +153,9 @@ The error message for incorrect type on gena codefields has been improved
 It is now possible to use 'x-hdl:block-prefix' and 'x-hdl:reg-prefix' on
 block nodes.
 
+Incorrect HDL generation for larger than word register with autoclear
+fixed (issue #75).
+
 ## Version 1.3
 
 Add x-hdl:port to specify how ports are generated for registers (issue#11)

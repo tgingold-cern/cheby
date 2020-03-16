@@ -1,0 +1,10 @@
+memory-map:
+  bus: cern-be-vme-32
+  name: m1
+  children:
+    - reg:
+        name: r1
+        width: 64
+        access: rw
+        x-hdl:
+          type: autoclear
