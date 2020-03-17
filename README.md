@@ -156,6 +156,8 @@ block nodes.
 Incorrect HDL generation for larger than word register with autoclear
 fixed (issue #75).
 
+Fix name generation for register without field when reg-prefix is False.
+
 ## Version 1.3
 
 Add x-hdl:port to specify how ports are generated for registers (issue#11)

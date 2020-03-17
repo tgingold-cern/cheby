@@ -1,0 +1,22 @@
+memory-map:
+  bus: wb-32-be
+  name: regprefix3
+  x-hdl:
+    reg-prefix: false
+  children:
+    - block:
+       size: 32
+       name: blk1
+       children:
+       - reg:
+           name: r1
+           width: 32
+           access: rw
+       - reg:
+           name: r2
+           width: 32
+           access: rw
+    - reg:
+        name: r3
+        width: 32
+        access: rw
