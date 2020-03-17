@@ -67,7 +67,10 @@ def gen_name_children(parent, prefix, ctxt):
             nprefix = concat_if(prefix, n.name, ctxt.reg_prefix)
             for f in n.children:
                 if isinstance(f, tree.FieldReg):
-                    cname = nprefix if nprefix else n.name
+                    # If the register is the field, then reg-prefix does not
+                    # apply.
+                    assert f.name is None
+                    cname = concat(prefix, n.name)
                 elif f.name == '':
                     # Handle anonymous field.  Only one such field is allowed.
                     assert len(n.children) == 1
