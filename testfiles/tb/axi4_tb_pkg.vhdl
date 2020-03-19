@@ -158,6 +158,7 @@ package body axi4_tb_pkg is
       addr         : in  std_logic_vector(31 downto 0);
       data         : out std_logic_vector(datalen - 1 downto 0))
   is
+    variable ardone : boolean := False;
   begin
     -- Read request.
     wait until rising_edge(clk_i);
@@ -173,13 +174,15 @@ package body axi4_tb_pkg is
       -- Clear valid signal when acked
       if bus_i.arready = '1' then
         bus_o.arvalid <= '0';
+        ardone := True;
       end if;
 
       exit when bus_i.rvalid = '1';
 
       wait until rising_edge(clk_i);
     end loop;
-
+    assert ardone report "missing arready" severity error;
+    
     bus_o.rready <= '0';
 
     -- Done. Check for errors

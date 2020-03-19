@@ -49,7 +49,11 @@ end test;
 architecture syn of test is
   signal wr_req                         : std_logic;
   signal wr_ack_int                     : std_logic;
-  signal axi_wip                        : std_logic;
+  signal wr_wdata                       : std_logic_vector(31 downto 0);
+  signal wr_wstrb                       : std_logic_vector(3 downto 0);
+  signal wr_awaddr                      : std_logic_vector(4 downto 2);
+  signal axi_wset                       : std_logic;
+  signal axi_awset                      : std_logic;
   signal axi_wdone                      : std_logic;
   signal rd_req                         : std_logic;
   signal rd_ack_int                     : std_logic;
@@ -71,18 +75,37 @@ architecture syn of test is
 begin
 
   -- AW, W and B channels
-  wr_req <= (awvalid and wvalid) and not axi_wip;
-  awready <= axi_wip and wr_ack_int;
-  wready <= axi_wip and wr_ack_int;
   bvalid <= axi_wdone;
+  wready <= not axi_wset;
+  awready <= not axi_awset;
   process (aclk) begin
     if rising_edge(aclk) then
       if areset_n = '0' then
-        axi_wip <= '0';
+        axi_wset <= '0';
+        axi_awset <= '0';
+        wr_req <= '0';
         axi_wdone <= '0';
       else
-        axi_wip <= (awvalid and wvalid) and not axi_wdone;
-        axi_wdone <= wr_ack_int or (axi_wdone and not bready);
+        wr_req <= '0';
+        if wvalid = '1' and axi_wset = '0' then
+          wr_wdata <= wdata;
+          wr_wstrb <= wstrb;
+          axi_wset <= '1';
+          wr_req <= axi_awset;
+        end if;
+        if awvalid = '1' and axi_awset = '0' then
+          wr_awaddr <= awaddr;
+          axi_awset <= '1';
+          wr_req <= axi_wset or wvalid;
+        end if;
+        if (axi_wdone and bready) = '1' then
+          axi_wset <= '0';
+          axi_awset <= '0';
+          axi_wdone <= '0';
+        end if;
+        if wr_ack_int = '1' then
+          axi_wdone <= '1';
+        end if;
       end if;
     end if;
   end process;
@@ -90,7 +113,7 @@ begin
 
   -- AR and R channels
   rd_req <= arvalid and not axi_rip;
-  arready <= axi_rip and rd_ack_int;
+  arready <= rd_ack_int;
   rvalid <= axi_rdone;
   process (aclk) begin
     if rising_edge(aclk) then
@@ -119,9 +142,9 @@ begin
         rd_ack_int <= rd_ack_d0;
         dato <= rd_dat_d0;
         wr_req_d0 <= wr_req;
-        wr_adr_d0 <= awaddr;
-        wr_dat_d0 <= wdata;
-        wr_sel_d0 <= wstrb;
+        wr_adr_d0 <= wr_awaddr;
+        wr_dat_d0 <= wr_wdata;
+        wr_sel_d0 <= wr_wstrb;
       end if;
     end if;
   end process;
