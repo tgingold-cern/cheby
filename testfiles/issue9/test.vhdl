@@ -47,13 +47,13 @@ entity test is
 end test;
 
 architecture syn of test is
-  signal rd_req                         : std_logic;
   signal wr_req                         : std_logic;
-  signal rd_ack_int                     : std_logic;
   signal wr_ack_int                     : std_logic;
-  signal dato                           : std_logic_vector(31 downto 0);
   signal axi_wip                        : std_logic;
   signal axi_wdone                      : std_logic;
+  signal rd_req                         : std_logic;
+  signal rd_ack_int                     : std_logic;
+  signal dato                           : std_logic_vector(31 downto 0);
   signal axi_rip                        : std_logic;
   signal axi_rdone                      : std_logic;
   signal register1_reg                  : std_logic_vector(31 downto 0);

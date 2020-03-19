@@ -44,45 +44,13 @@ class AXI4LiteBus(BusGen):
             build_port("rdata", data_bits, dir=out),
             build_port("rresp", 2, dir=out)]
 
-    def expand_bus(self, root, module, ibus):
-        """Create AXI4-Lite interface for the design."""
-        if root.get_extension('x_hdl', 'busgroup'):
-            parser.warning(root, "busgroup on '{}' is ignored for axi4-lite".format(
-                root.get_path()))
-        bus = [('clk', HDLPort("aclk")),
-               ('rst', HDLPort("areset_n"))]
-        bus.extend(self.gen_axi4lite_bus(
-            lambda n, sz, lo=0, dir='IN': (n, HDLPort(n, size=sz,
-                                                      lo_idx=lo, dir=dir)),
-            root.c_addr_bits, root.c_addr_word_bits, root.c_word_bits, False))
-        add_bus(root, module, bus)
-        root.h_bussplit = True
-        ibus.addr_size = root.c_addr_bits
-        ibus.addr_low = root.c_addr_word_bits
-        ibus.data_size = root.c_word_bits
-        ibus.rst = root.h_bus['rst']
-        ibus.clk = root.h_bus['clk']
-
-        # The most important points about AXI4 are in A3.2.1:
-        # * A source is not permitted to wait until READY is asserted
-        #   before asserting VALID.
-        # * Once VALID is asserted it must remain assert until the handshake
-        #   occurs
-        #
-        # All the replies must be registered, because they may not be acknowledged
-        # immediately, and they must be 'sent' after the request has be
-        # acknowledged.  This concerns RVALID, RDATA, BVALID.
-        # Internal signals and bus protocol
-        ibus.rd_req = module.new_HDLSignal('rd_req')       # Read access
+    def expand_bus_w(self, root, module, ibus):
+        """Sub-routine of expand_bus: the write part"""
         ibus.wr_req = module.new_HDLSignal('wr_req')       # Write access
-        ibus.rd_ack = module.new_HDLSignal('rd_ack_int')   # Ack for read
         ibus.wr_ack = module.new_HDLSignal('wr_ack_int')   # Ack for write
         ibus.wr_dat = root.h_bus['wdata']
         ibus.wr_sel = root.h_bus['wstrb']
-        ibus.rd_dat = module.new_HDLSignal('dato', root.c_word_bits)
         ibus.wr_adr = root.h_bus['awaddr']
-        ibus.rd_adr = root.h_bus['araddr']
-
         # For the write accesses:
         # The W and AW channels are handled together: the write strobe is
         # generated when both AWVALID and WVALID are set.
@@ -120,6 +88,12 @@ class AXI4LiteBus(BusGen):
         module.stmts.append(proc)
         module.stmts.append(HDLAssign(root.h_bus['bresp'], HDLConst(0, 2)))
 
+    def expand_bus_r(self, root, module, ibus):
+        """Sub-routine of expand_bus: the read part"""
+        ibus.rd_req = module.new_HDLSignal('rd_req')       # Read access
+        ibus.rd_ack = module.new_HDLSignal('rd_ack_int')   # Ack for read
+        ibus.rd_dat = module.new_HDLSignal('dato', root.c_word_bits)
+        ibus.rd_adr = root.h_bus['araddr']
         # For the read accesses:
         # The read strobe is generated when ARVALID is set.
         # ARREADY is asserted on the ack.
@@ -154,6 +128,38 @@ class AXI4LiteBus(BusGen):
                       HDLOr(ibus.rd_ack, HDLParen(HDLAnd(axi_rdone, HDLNot(root.h_bus['rready']))))))
         module.stmts.append(proc)
         module.stmts.append(HDLAssign(root.h_bus['rresp'], HDLConst(0, 2)))
+
+    def expand_bus(self, root, module, ibus):
+        """Create AXI4-Lite interface for the design."""
+        if root.get_extension('x_hdl', 'busgroup'):
+            parser.warning(root, "busgroup on '{}' is ignored for axi4-lite".format(
+                root.get_path()))
+        bus = [('clk', HDLPort("aclk")),
+               ('rst', HDLPort("areset_n"))]
+        bus.extend(self.gen_axi4lite_bus(
+            lambda n, sz, lo=0, dir='IN': (n, HDLPort(n, size=sz,
+                                                      lo_idx=lo, dir=dir)),
+            root.c_addr_bits, root.c_addr_word_bits, root.c_word_bits, False))
+        add_bus(root, module, bus)
+        root.h_bussplit = True
+        ibus.addr_size = root.c_addr_bits
+        ibus.addr_low = root.c_addr_word_bits
+        ibus.data_size = root.c_word_bits
+        ibus.rst = root.h_bus['rst']
+        ibus.clk = root.h_bus['clk']
+
+        # The most important points about AXI4 are in A3.2.1:
+        # * A source is not permitted to wait until READY is asserted
+        #   before asserting VALID.
+        # * Once VALID is asserted it must remain assert until the handshake
+        #   occurs
+        #
+        # All the replies must be registered, because they may not be acknowledged
+        # immediately, and they must be 'sent' after the request has be
+        # acknowledged.  This concerns RVALID, RDATA, BVALID.
+        # Internal signals and bus protocol
+        self.expand_bus_w(root, module, ibus)
+        self.expand_bus_r(root, module, ibus)
 
     def gen_bus_slave(self, root, module, prefix, n, busgroup):
         if busgroup:
