@@ -1,0 +1,9 @@
+memory-map:
+  bus: wb-32-be
+  name: err_submap_align2
+  description: No alignment in submap
+  children:
+    - submap:
+        name: sub0
+        filename: submap_3.cheby
+        align: False

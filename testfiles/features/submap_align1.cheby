@@ -1,0 +1,14 @@
+memory-map:
+  bus: wb-32-be
+  name: submap_align1
+  description: No alignment in submap
+  children:
+    - submap:
+        name: sub0
+        filename: submap_3.cheby
+        include: True
+        align: False
+    - reg:
+        name: reg3
+        access: rw
+        width: 32

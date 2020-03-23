@@ -158,6 +158,9 @@ fixed (issue #75).
 
 Fix name generation for register without field when reg-prefix is False.
 
+Fix crash on 'align' for 'submap'; it is allowed only for included
+submaps (issue #76).
+
 ## Version 1.3
 
 Add x-hdl:port to specify how ports are generated for registers (issue#11)

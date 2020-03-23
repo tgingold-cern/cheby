@@ -1,0 +1,10 @@
+memory-map:
+  bus: wb-32-be
+  name: err_submap_align1
+  description: No alignment in submap
+  children:
+    - submap:
+        name: sub0
+        interface: wb-32-be
+        size: 12
+        align: False

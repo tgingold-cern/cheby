@@ -1,0 +1,17 @@
+memory-map:
+  bus: wb-32-be
+  name: submap_3
+  description: Submap to be used for tests
+  children:
+    - reg:
+        name: reg0
+        access: rw
+        width: 32
+    - reg:
+        name: reg1
+        access: rw
+        width: 32
+    - reg:
+        name: reg2
+        access: rw
+        width: 32

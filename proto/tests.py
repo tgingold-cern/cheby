@@ -166,6 +166,8 @@ def test_layout():
               'layout/err_presets2',
               'layout/err_enum_name', 'layout/err_enum_invalid',
               'layout/err_enum_width',
+              'layout/err_submap_align1', 'layout/err_submap_align2',
+              'layout/err_submap_size1',
               'issue14/test-err',
               'issue57/m1', 'issue71/m1', 'features/enums3']:
         f += '.cheby'
@@ -227,6 +229,7 @@ def test_hdl():
               'features/reg_value1', 'features/reg_value2', 'features/reg_value3',
               'features/field_value1', 'features/field_value2',
               'features/field_range1',
+              'features/submap_align1',
               'wb_slave_vic',
               '../examples/svec-leds/leds',
               'inter-mt/mt_cpu_xb',
