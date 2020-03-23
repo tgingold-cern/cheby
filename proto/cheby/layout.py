@@ -379,6 +379,9 @@ def layout_submap(lo, n):
         if n.include is not None:
             raise LayoutException(
                 n, "use of 'include' is not allowed when 'filename' is not present")
+        if n.align is False:
+            raise LayoutException(
+                n, "use of 'align' is not allowed in a generic submap")
         n.c_size = n.size_val
         n.c_interface = n.interface
     else:
@@ -389,6 +392,7 @@ def layout_submap(lo, n):
         layout_cheby_memmap(submap)
         n.c_submap = submap
         n.c_size = n.c_submap.c_size
+        n.c_align = n.c_submap.c_align
         if n.interface == 'include':
             warning(n, "use of 'interface: include' is deprecated (for '{}')".format (n.get_path()))
             warning(n, "use 'include: True' instead")
@@ -412,6 +416,11 @@ def layout_submap(lo, n):
                 raise LayoutException(
                     n, "cannot include submap '{}' with word endianness != 'none'".format(
                         n.get_path()))
+        else:
+            if n.align is False:
+                raise LayoutException(
+                    n, "use of 'align' is not allowed in a non-include submap")
+
     n.c_addr_bits = ilog2(n.c_size) - lo.root.c_addr_word_bits
     n.c_width = lo.word_size * tree.BYTE_SIZE
     align_block(n)
