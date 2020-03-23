@@ -30,7 +30,7 @@ flag_out_file = False
 flag_quiet = False
 
 # If code-fields are converted to enumerations.
-flag_enums = False
+flag_enums = True
 
 class AppException(Exception):
     "Exception defined for the application"
@@ -988,10 +988,10 @@ def main():
                          help="keep holes-preset attributes")
     aparser.add_argument('-r', '--recursive', action='store_true',
                          help="Recursively parse submaps, works only with -f (--out_file)")
-    aparser.add_argument('--enums', action='store_true', default=False,
-                         help='Use enumeration for code-fields')
+    aparser.add_argument('--enums', action='store_true', default=True,
+                         help='Use enumeration for code-fields (default)')
     aparser.add_argument('--no-enums', action='store_false', dest='enums',
-                         help='Do not use enumeration for code-fields but x-gena extensions (default)')
+                         help='Do not use enumeration for code-fields but x-gena extensions')
 
     args = aparser.parse_args()
     flag_ignore = args.ignore

@@ -24,7 +24,6 @@ package MemMap_codeFields is
   constant C_PSM_codeFields_area1_myRegister : std_logic_vector(15 downto 0) := "0000000000000000";-- : Value : X"0000"
 
   -- CODE FIELDS
-  constant C_Code_codeFields_area1_myRegister_problematicCodeField : std_logic_vector(15 downto 0) := "0000000000000000";
   -- Memory Data : Area area1
   -- Submap Addresses : Area area1
   -- Register Addresses : Area area2
@@ -37,7 +36,6 @@ package MemMap_codeFields is
   constant C_PSM_codeFields_area2_myRegister : std_logic_vector(15 downto 0) := "0000000000000000";-- : Value : X"0000"
 
   -- CODE FIELDS
-  constant C_Code_codeFields_area2_myRegister_problematicCodeField : std_logic_vector(15 downto 0) := "0000000000000000";
   -- Memory Data : Area area2
   -- Submap Addresses : Area area2
   -- Register Addresses : Memory Map
@@ -49,4 +47,8 @@ package MemMap_codeFields is
   -- CODE FIELDS
   -- Memory Data : Memory Map
   -- Submap Addresses : Memory Map
+
+  -- ENUMERATIONS
+  constant C_Code_area1_myRegister_problematicCodeField : std_logic_vector(15 downto 0) := "0000000000000000";
+  constant C_Code_area2_myRegister_problematicCodeField : std_logic_vector(15 downto 0) := "0000000000000000";
 end MemMap_codeFields;

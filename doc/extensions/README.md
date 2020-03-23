@@ -5,7 +5,9 @@
 ## x-fesa:
 ### 1.0.0 -> 2.0.0
 * split persistence=PPM/Fesa/None to persistence=true/false and multiplexed=true/false
-
+## x-gena:
+### 1.0.0 -> 2.0.0
+* replace code-fields with x-enums extension
 
 
 # Extensions Docmentation
@@ -137,6 +139,23 @@ Each bar needs to have a (unique) name and (unique) number according to the PCI 
 ## x-devicetree
 
 ## x-interrupts
+
+## x-enums
+Enumerations - reusable replacement of x-gena/code-fields. Each enumeration must have:
+* name
+* width
+* (optional) description
+* (optional) comment
+* items (as children)
+
+Enumerations are defined under a memory-map element as its children. 
+They can be referenced (used) by reg and field nodes, using x-enums/name attribute.
+
+Each enumeration item contains:
+* name
+* value
+* (optional) description
+* (optional) comment
 
 # Deprecated extensions
 

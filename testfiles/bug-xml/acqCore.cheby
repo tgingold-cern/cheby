@@ -3,6 +3,63 @@ memory-map:
   description: Acquisition IP core memory map
   bus: cern-be-vme-err-32
   size: 1k
+  x-enums:
+  - enum:
+      name: acqControl_decimation
+      width: 3
+      children:
+      - item:
+          name: noDecimation
+          description: no decimation
+          value: 0
+      - item:
+          name: peakDetection
+          description: peak detection mode
+          value: 1
+      - item:
+          name: horizDecimation
+          description: horizontal decimation
+          value: 2
+      - item:
+          name: vertDecimation
+          description: vertical decimation without horizontal decimation
+          value: 3
+      - item:
+          name: vertDecimationWithHoriz
+          description: vertical decimation with horizontal decimation
+          value: 4
+  - enum:
+      name: acqStatus_mode
+      width: 2
+      children:
+      - item:
+          name: noAcqDSP
+          description: no acqDSP block is present
+          value: 0
+      - item:
+          name: acqDSP
+          description: acqDSP is present without vertical decimation
+          value: 1
+      - item:
+          name: acqDSPWithVert
+          description: acqDSP is present with vertical decimation
+          value: 2
+  - enum:
+      name: acqStatus_format
+      width: 2
+      children:
+      - item:
+          name: signedFormat
+          description: signed
+          value: 0
+      - item:
+          name: unsignedFormat
+          description: unsigned
+          value: 1
+      - item:
+          name: floatFormat
+          description: float
+          value: 2
   x-gena:
     map-version: 20191120
   x-driver-edge:
@@ -14,8 +71,9 @@ memory-map:
     core: 2.0.0
     x-conversions: 1.0.0
     x-driver-edge: 1.0.0
+    x-enums: 1.0.0
     x-fesa: 2.0.0
-    x-gena: 1.0.0
+    x-gena: 2.0.0
     x-hdl: 1.0.0
     x-map-info: 1.0.0
     x-wbgen: 1.0.0
@@ -164,28 +222,8 @@ memory-map:
           name: decimation
           description: select the decimation mode (only if acqDSP block is instantiated)
           range: 5-3
-          x-gena:
-            code-fields:
-            - code-field:
-                code: 0
-                description: no decimation
-                name: noDecimation
-            - code-field:
-                code: 1
-                description: peak detection mode
-                name: peakDetection
-            - code-field:
-                code: 2
-                description: horizontal decimation
-                name: horizDecimation
-            - code-field:
-                code: 3
-                description: vertical decimation without horizontal decimation
-                name: vertDecimation
-            - code-field:
-                code: 4
-                description: vertical decimation with horizontal decimation
-                name: vertDecimationWithHoriz
+          x-enums:
+            name: acqControl_decimation
   - reg:
       name: acqStatus
       description: Acquisition status
@@ -218,39 +256,14 @@ memory-map:
           name: mode
           description: acqDSP instantation configuration
           range: 1-0
-          x-gena:
-            code-fields:
-            - code-field:
-                code: 0
-                description: no acqDSP block is present
-                name: noAcqDSP
-            - code-field:
-                code: 1
-                description: acqDSP is present without vertical decimation
-                name: acqDSP
-            - code-field:
-                code: 2
-                description: acqDSP is present with vertical decimation
-                name: acqDSPWithVert
+          x-enums:
+            name: acqStatus_mode
       - field:
           name: format
           description: Data format
           range: 3-2
-          x-gena:
-            code-fields:
-            - code-field:
-                code: 0
-                description: signed
-                name: signedFormat
-            - code-field:
-                code: 1
-                comment: 
-                description: unsigned
-                name: unsignedFormat
-            - code-field:
-                code: 2
-                description: float
-                name: floatFormat
+          x-enums:
+            name: acqStatus_format
       - field:
           name: busy
           description: The channel is acquiring data
