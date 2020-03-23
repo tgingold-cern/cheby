@@ -2,6 +2,97 @@ memory-map:
   name: cregsRegs
   bus: cern-be-vme-16
   size: 1024k
+  x-enums:
+  - enum:
+      name: test1
+      width: 8
+      children:
+      - item:
+          name: hello
+          value: 0
+      - item:
+          name: World
+          value: 1
+  - enum:
+      name: test2_msBit
+      width: 1
+      children:
+      - item:
+          name: hello
+          value: 0
+      - item:
+          name: world
+          value: 1
+  - enum:
+      name: test2_msReg
+      width: 4
+      children:
+      - item:
+          name: hello
+          value: 0
+      - item:
+          name: world
+          value: 1
+  - enum:
+      name: test4_msBit
+      width: 1
+      children:
+      - item:
+          name: hello
+          value: 0
+      - item:
+          name: world
+          value: 1
+  - enum:
+      name: test4_msReg
+      width: 4
+      children:
+      - item:
+          name: hello
+          value: 0
+      - item:
+          name: world
+          value: 1
+  - enum:
+      name: test6_msBit
+      width: 1
+      children:
+      - item:
+          name: hello
+          value: 0
+      - item:
+          name: world
+          value: 1
+  - enum:
+      name: test6_msReg
+      width: 4
+      children:
+      - item:
+          name: hello
+          value: 0
+      - item:
+          name: world
+          value: 1
+  - enum:
+      name: test8_msBit
+      width: 1
+      children:
+      - item:
+          name: hello
+          value: 0
+      - item:
+          name: world
+          value: 1
+  - enum:
+      name: test8_msReg
+      width: 4
+      children:
+      - item:
+          name: hello
+          value: 0
+      - item:
+          name: world
+          value: 1
   x-gena:
     map-version: 20161031
   x-map-info:
@@ -10,8 +101,9 @@ memory-map:
     core: 2.0.0
     x-conversions: 1.0.0
     x-driver-edge: 1.0.0
+    x-enums: 1.0.0
     x-fesa: 2.0.0
-    x-gena: 1.0.0
+    x-gena: 2.0.0
     x-hdl: 1.0.0
     x-map-info: 1.0.0
     x-wbgen: 1.0.0
@@ -22,17 +114,12 @@ memory-map:
       access: rw
       address: 0x0
       x-gena:
-        code-fields:
-        - code-field:
-            code: 0
-            name: hello
-        - code-field:
-            code: 1
-            name: World
         rmw: True
       x-fesa:
         multiplexed: False
         persistence: True
+      x-enums:
+        name: test1
   - reg:
       name: test2
       width: 32
@@ -48,26 +135,16 @@ memory-map:
           preset: 0x1
           x-gena:
             auto-clear: 1
-            code-fields:
-            - code-field:
-                code: 0
-                name: hello
-            - code-field:
-                code: 1
-                name: world
+          x-enums:
+            name: test2_msBit
       - field:
           name: msReg
           range: 25-22
           preset: 0xf
           x-gena:
             auto-clear: 0xf
-            code-fields:
-            - code-field:
-                code: 0
-                name: hello
-            - code-field:
-                code: 1
-                name: world
+          x-enums:
+            name: test2_msReg
       - field:
           name: boundryReg
           range: 17-14
@@ -111,26 +188,16 @@ memory-map:
           preset: 0x0
           x-gena:
             auto-clear: 0
-            code-fields:
-            - code-field:
-                code: 0
-                name: hello
-            - code-field:
-                code: 1
-                name: world
+          x-enums:
+            name: test4_msBit
       - field:
           name: msReg
           range: 25-22
           preset: 0x0
           x-gena:
             auto-clear: 0x0
-            code-fields:
-            - code-field:
-                code: 0
-                name: hello
-            - code-field:
-                code: 1
-                name: world
+          x-enums:
+            name: test4_msReg
       - field:
           name: boundryReg
           range: 17-14
@@ -174,26 +241,16 @@ memory-map:
           preset: 0x1
           x-gena:
             auto-clear: 1
-            code-fields:
-            - code-field:
-                code: 0
-                name: hello
-            - code-field:
-                code: 1
-                name: world
+          x-enums:
+            name: test6_msBit
       - field:
           name: msReg
           range: 25-22
           preset: 0xf
           x-gena:
             auto-clear: 0xf
-            code-fields:
-            - code-field:
-                code: 0
-                name: hello
-            - code-field:
-                code: 1
-                name: world
+          x-enums:
+            name: test6_msReg
       - field:
           name: boundryReg
           range: 17-14
@@ -237,26 +294,16 @@ memory-map:
           preset: 0x0
           x-gena:
             auto-clear: 0
-            code-fields:
-            - code-field:
-                code: 0
-                name: hello
-            - code-field:
-                code: 1
-                name: world
+          x-enums:
+            name: test8_msBit
       - field:
           name: msReg
           range: 25-22
           preset: 0x0
           x-gena:
             auto-clear: 0x0
-            code-fields:
-            - code-field:
-                code: 0
-                name: hello
-            - code-field:
-                code: 1
-                name: world
+          x-enums:
+            name: test8_msReg
       - field:
           name: boundryReg
           range: 17-14

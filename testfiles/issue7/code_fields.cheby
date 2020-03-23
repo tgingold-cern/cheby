@@ -2,6 +2,21 @@ memory-map:
   name: codeFields
   bus: cern-be-vme-16
   size: 16k
+  x-enums:
+  - enum:
+      name: area1_myRegister
+      width: 16
+      children:
+      - item:
+          name: problematicCodeField
+          value: 0
+  - enum:
+      name: area2_myRegister
+      width: 16
+      children:
+      - item:
+          name: problematicCodeField
+          value: 0
   x-gena:
     map-version: 20190204
   x-driver-edge:
@@ -13,8 +28,9 @@ memory-map:
     core: 2.0.0
     x-conversions: 1.0.0
     x-driver-edge: 1.0.0
+    x-enums: 1.0.0
     x-fesa: 2.0.0
-    x-gena: 1.0.0
+    x-gena: 2.0.0
     x-hdl: 1.0.0
     x-map-info: 1.0.0
     x-wbgen: 1.0.0
@@ -31,14 +47,11 @@ memory-map:
           width: 16
           access: rw
           address: next
-          x-gena:
-            code-fields:
-            - code-field:
-                code: 0
-                name: problematicCodeField
           x-fesa:
             multiplexed: False
             persistence: True
+          x-enums:
+            name: area1_myRegister
   - block:
       name: area2
       address: next
@@ -51,11 +64,8 @@ memory-map:
           width: 16
           access: rw
           address: next
-          x-gena:
-            code-fields:
-            - code-field:
-                code: 0
-                name: problematicCodeField
           x-fesa:
             multiplexed: False
             persistence: True
+          x-enums:
+            name: area2_myRegister

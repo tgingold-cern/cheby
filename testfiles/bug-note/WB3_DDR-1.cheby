@@ -3,6 +3,45 @@ memory-map:
   description: DDR
   bus: cern-be-vme-err-32
   size: 256k
+  x-enums:
+  - enum:
+      name: acqMethod
+      width: 32
+      children:
+      - item:
+          name: standard
+          value: 0
+      - item:
+          name: Advanced
+          value: 1
+  - enum:
+      name: bufferWriteSrcSel
+      width: 32
+      children:
+      - item:
+          name: bfieldRaw
+          value: 0
+      - item:
+          name: bdotRaw
+          value: 1
+      - item:
+          name: frev
+          value: 2
+      - item:
+          name: bfieldWR
+          value: 3
+      - item:
+          name: bfieldUpDw
+          value: 4
+      - item:
+          name: bfieldDiff
+          value: 5
+      - item:
+          name: dacDpllHpll
+          value: 6
+      - item:
+          name: wrRxLatency
+          value: 7
   x-gena:
     map-version: 20160114
   x-driver-edge:
@@ -15,8 +54,9 @@ memory-map:
     core: 2.0.0
     x-conversions: 1.0.0
     x-driver-edge: 1.0.0
+    x-enums: 1.0.0
     x-fesa: 2.0.0
-    x-gena: 1.0.0
+    x-gena: 2.0.0
     x-hdl: 1.0.0
     x-map-info: 1.0.0
     x-wbgen: 1.0.0
@@ -125,52 +165,23 @@ memory-map:
       access: rw
       address: next
       x-gena:
-        code-fields:
-        - code-field:
-            code: 0
-            name: standard
-        - code-field:
-            code: 1
-            name: Advanced
         gen:
           mux: acqBufSel.channelSelect
       x-fesa:
         multiplexed: False
         persistence: False
+      x-enums:
+        name: acqMethod
   - reg:
       name: bufferWriteSrcSel
       width: 32
       access: rw
       address: next
-      x-gena:
-        code-fields:
-        - code-field:
-            code: 0
-            name: bfieldRaw
-        - code-field:
-            code: 1
-            name: bdotRaw
-        - code-field:
-            code: 2
-            name: frev
-        - code-field:
-            code: 3
-            name: bfieldWR
-        - code-field:
-            code: 4
-            name: bfieldUpDw
-        - code-field:
-            code: 5
-            name: bfieldDiff
-        - code-field:
-            code: 6
-            name: dacDpllHpll
-        - code-field:
-            code: 7
-            name: wrRxLatency
       x-fesa:
         multiplexed: False
         persistence: True
+      x-enums:
+        name: bufferWriteSrcSel
   - reg:
       name: acqStrobeRateReducerByN
       width: 32
