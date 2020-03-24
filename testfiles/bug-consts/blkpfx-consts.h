@@ -1,0 +1,2 @@
+#define BLKPFX_SIZE 4
+#define ADDR_BLKPFX_REG1 0x0UL

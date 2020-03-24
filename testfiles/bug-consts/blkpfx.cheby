@@ -1,0 +1,14 @@
+memory-map:
+    bus: wb-32-be
+    name: blkpfx
+    description: "no const generated for block without prefix"
+    x-hdl:
+        block-prefix: False
+    children:
+    - block:
+       name: blk1
+       children:
+       - reg:
+          name: reg1
+          width: 32
+          access: rw

@@ -1,0 +1,4 @@
+package blkpfx_consts_pkg is
+  constant c_BLKPFX_SIZE : Natural := 4;
+  constant c_BLKPFX_REG1_ADDR : Natural := 16#0#;
+end package blkpfx_consts_pkg;

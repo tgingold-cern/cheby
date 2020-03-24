@@ -608,7 +608,7 @@ def test_wbgen2cheby():
 def test_consts():
     # Generate constants and compare with a baseline.
     global nbr_tests
-    for f in ['demo_all', 'features/semver1', 'features/mapinfo1', 'issue64/simple_reg1']:
+    for f in ['demo_all', 'features/semver1', 'features/mapinfo1', 'issue64/simple_reg1', 'bug-consts/blkpfx']:
         if verbose:
             print('test consts: {}'.format(f))
         cheby_file = srcdir + f + '.cheby'
