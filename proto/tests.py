@@ -197,9 +197,14 @@ def test_print():
 def compare_buffer_and_file(buf, filename):
     # Well, there is certainly a python diff module...
     buf = buf.buffer
-    ref = open(filename, 'r').read()
-    if ref == buf:
-        return True
+    try:
+        ref = open(filename, 'r').read()
+        if ref == buf:
+            return True
+    except:
+        # Usually an IO error.
+        if not flag_regen:
+            raise
     if flag_regen:
         open(filename, 'w').write(buf)
         werr('Regenerate {}'.format(filename))
