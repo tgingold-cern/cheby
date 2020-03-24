@@ -192,9 +192,10 @@ def pconsts_reg(pr, n):
 
 @ConstsVisitor.register(tree.Block)
 def pconsts_block(pr, n):
-    pr.pr_address(n)
-    pr.pr_size(n, n.c_size)
-    pconsts_composite(pr, n)
+    if n._parent.hdl_blk_prefix:
+        pr.pr_address(n)
+        pr.pr_size(n, n.c_size)
+    pconsts_composite_children(pr, n)
 
 
 @ConstsVisitor.register(tree.Submap)
@@ -202,26 +203,25 @@ def pconsts_submap(pr, n):
     pr.pr_address(n)
     pr.pr_size(n, n.c_size)
     # Recurse ?
-    if False and n.filename is not None:
-        pconsts_composite(pr, n.c_submap)
+    if False and (n.filename is not None):
+        pconsts_composite_children(pr, n.c_submap)
 
 
 @ConstsVisitor.register(tree.Memory)
 def pconsts_memory(pr, n):
     pr.pr_address(n)
     pr.pr_size(n, n.c_elsize)
-    pconsts_composite(pr, n)
+    pconsts_composite_children(pr, n)
 
 
 @ConstsVisitor.register(tree.Repeat)
 def pconsts_repeat(pr, n):
     pr.pr_address(n)
     pr.pr_size(n, n.c_elsize)
-    pconsts_composite(pr, n)
+    pconsts_composite_children(pr, n)
 
 
-@ConstsVisitor.register(tree.CompositeNode)
-def pconsts_composite(pr, n):
+def pconsts_composite_children(pr, n):
     for el in n.children:
         pr.visit(el)
 
@@ -236,8 +236,7 @@ def pconsts_root(pr, n):
     if n.ident is not None:
         pr.printer.pr_ident(n, 'IDENT', n.ident)
 
-    for el in n.children:
-        pr.visit(el)
+    pconsts_composite_children(pr, n)
 
 
 def pconsts_for_gen_c(fd, root):

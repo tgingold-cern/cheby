@@ -61,6 +61,10 @@ def gen_name_children(parent, prefix, ctxt):
     if bpfx is not None:
         ctxt.blk_prefix = bpfx
 
+    # Keep the values for --gen-consts.
+    parent.hdl_blk_prefix = ctxt.blk_prefix
+    parent.hdl_reg_prefix = ctxt.reg_prefix
+
     for n in parent.children:
         n.c_name = concat(prefix, n.name)
         if isinstance(n, tree.Reg):
