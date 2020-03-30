@@ -254,19 +254,21 @@ def tree_copy(n, new_parent):
 
 
 def unroll_repeat(n):
-    # Transmute the array to a block with children
+    # Transmute the array to COUNT blocks
     res = tree.Block(n._parent)
     res.name = n.name
-    res.align = False
+    res.align = n.align
     res.c_address = n.c_address
     res.c_size = n.c_size
-    assert len(n.children) == 1
-    el = n.children[0]
     for i in range(n.count):
-        c = tree_copy(el, res)
-        c.name = "{}_{}".format(el.name, i)
-        c.c_address = i * n.c_elsize
-        res.children.append(c)
+        blk = tree.Block(res)
+        blk.name = "{}".format(i)
+        blk.align = n.align
+        blk.c_address = i * n.c_elsize
+        blk.c_size = n.c_elsize
+        blk.children = [tree_copy(el, blk) for el in n.children]
+        layout.build_sorted_children(blk)
+        res.children.append(blk)
     layout.build_sorted_children(res)
     return res
 

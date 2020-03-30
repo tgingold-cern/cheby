@@ -443,9 +443,9 @@ def layout_block(lo, n):
 @Layout.register(tree.Repeat)
 def layout_repeat(lo, n):
     # Sanity check
-    if len(n.children) != 1:
-        raise LayoutException(
-            n, "repeat '{}' must have one element".format(n.get_path()))
+    # if len(n.children) != 1:
+    #    raise LayoutException(
+    #        n, "repeat '{}' must have one element".format(n.get_path()))
     if n.count is None:
         raise LayoutException(
             n, "missing repeat count for {}".format(n.get_path()))
