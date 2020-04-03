@@ -93,6 +93,7 @@ class HDLPortGroup(HDLNode, HDLPortsBase):
         self.comment = None
         self.interface = itf
         self.is_master = is_master
+        self.attributes = {}
 
 
 class HDLInterface(HDLNode, HDLPortsBase):
@@ -115,6 +116,7 @@ class HDLPort(HDLObject):
         super(HDLPort, self).__init__(name, size, lo_idx, typ)
         self.dir = dir
         self.default = default
+        self.attributes = {}
 
 
 class HDLConstant(HDLObject):

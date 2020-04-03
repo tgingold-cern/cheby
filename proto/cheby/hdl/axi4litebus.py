@@ -145,6 +145,12 @@ class AXI4LiteBus(BusGen):
         module.stmts.append(proc)
         module.stmts.append(HDLAssign(root.h_bus['rresp'], HDLConst(0, 2)))
 
+    def add_xilinx_attributes(self, bus):
+        for name, port in bus:
+            if name in ('clk', 'rst'):
+                continue
+            port.attributes['X_INTERFACE_INFO'] = "xilinx.com:interface:aximm:1.0 slave {}".format(name.upper())
+
     def expand_bus(self, root, module, ibus):
         """Create AXI4-Lite interface for the design."""
         if root.get_extension('x_hdl', 'busgroup'):
@@ -156,6 +162,8 @@ class AXI4LiteBus(BusGen):
             lambda n, sz, lo=0, dir='IN': (n, HDLPort(n, size=sz,
                                                       lo_idx=lo, dir=dir)),
             root.c_addr_bits, root.c_addr_word_bits, root.c_word_bits, False))
+        if root.hdl_bus_attribute == 'Xilinx':
+            self.add_xilinx_attributes(bus)
         add_bus(root, module, bus)
         root.h_bussplit = True
         ibus.addr_size = root.c_addr_bits

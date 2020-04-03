@@ -150,11 +150,18 @@ def expand_x_hdl_block(n, dct):
 
 def expand_x_hdl_root(n, dct):
     n.hdl_pipeline = ['wr-in', 'rd-out']
+    n.hdl_bus_attribute = None
     for k, v in dct.items():
         if k in ['busgroup', 'iogroup',
                  'reg_prefix', 'reg-prefix', 'block_prefix', 'block-prefix',
                  'name-suffix']:
             pass
+        elif k == 'bus-attribute':
+            if v in ('Xilinx',):
+                n.hdl_bus_attribute = v
+            else:
+                parser.error("bad value for x-hdl:bus-attribute of root {}".format(
+                             n.get_path()))
         elif k == 'pipeline':
             n.hdl_pipeline = expand_pipeline(n, v)
         else:

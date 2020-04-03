@@ -487,6 +487,21 @@ def print_inters_list(fd, lst, name, indent):
     windent(fd, indent)
     wln(fd, ");")
 
+def print_attributes(fd, ports, indent):
+    attrs = set()
+    for p in ports:
+        attrs.update(p.attributes.keys())
+    for a in sorted(attrs):
+        windent(fd, indent)
+        wln(fd, "attribute {} : string;".format(a))
+        for p in ports:
+            v = p.attributes.get(a)
+            if v is None:
+                continue
+            windent(fd, indent)
+            wln(fd, "attribute {} of {} : signal is".format(a, p.name))
+            windent(fd, indent + 1)
+            wln(fd, "\"{}\";".format(v))
 
 def print_module(fd, module):
     if module.global_decls:
@@ -505,6 +520,7 @@ def print_module(fd, module):
     wln(fd, "entity {} is".format(module.name))
     print_inters_list(fd, module.params, "generic", 1)
     print_inters_list(fd, module.ports, "port", 1)
+    print_attributes(fd, module.ports, 1)
     wln(fd, "end {};".format(module.name))
     wln(fd)
     wln(fd, "architecture syn of {} is".format(module.name))
