@@ -99,6 +99,8 @@ def parse_named(node, key, val):
             node.x_devicetree = val
         elif key == 'x-interrupts':
             node.x_interrupts = val
+        elif key == 'x-enums':
+            node.x_enums = val
         elif key.startswith("x-"):
             # Unkown extension.  This is a warning to allow users to add extensions.
             # But in order to avoid conflicts, they are kindly requested to register the

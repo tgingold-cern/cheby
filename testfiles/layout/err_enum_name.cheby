@@ -32,4 +32,5 @@ memory-map:
           - field:
               name: f1
               range: 7-0
-              type: enum.enum1
+              x-enums:
+                name: enum1

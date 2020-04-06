@@ -96,22 +96,21 @@ def layout_named(n):
             n, "missing name for {}".format(n.get_path()))
 
 
-def check_enum_type(root, n, width):
-    enumname = n.type[5:]
-    en = root.c_enums_dict.get(enumname)
+def check_enum_type(root, name, n, width):
+    en = root.c_enums_dict.get(name)
     if en is None:
         raise LayoutException(
-            n, "enumeration '{}' is not defined".format(enumname))
+            n, "enumeration '{}' is not defined".format(name))
     if en.width is None:
         if en.c_width > width:
             raise LayoutException(
                 n, "width of field {} ({}) is too small for enum {} ({})".format(
-                    n.get_path(), width, enumname, en.c_width))
+                    n.get_path(), width, name, en.c_width))
     else:
         if en.width != width:
             raise LayoutException(
                 n, "width of field {} ({}) doesn't match width of enum {} ({})".format(
-                    n.get_path(), width, enumname, en.width))
+                    n.get_path(), width, name, en.width))
 
 
 def layout_field(root, f, parent, pos):
@@ -164,11 +163,13 @@ def layout_field(root, f, parent, pos):
         f.c_preset = None
     # Check type
     if f.type is None:
-        f.c_type = parent.c_type
+        enum = f.get_extension('x_enums', 'name', None)
+        if enum is not None:
+            check_enum_type(root, enum, f, f.c_rwidth)
+        else:
+            f.c_type = parent.c_type
     else:
-        if f.type.startswith('enum.'):
-            check_enum_type(root, f, f.c_rwidth)
-        elif f.type not in ('signed', 'unsigned'):
+        if f.type not in ('signed', 'unsigned'):
             raise LayoutException(
                 f, "type of field {} must be either 'signed', 'unsigned' or 'enum'".format(
                     f.get_path()))
@@ -323,8 +324,12 @@ def layout_reg(lo, n):
         f.c_iowidth = n.c_iowidth
 
         if n.type is None:
-            # Default is unsigned
-            n.c_type = 'unsigned'
+            enum = n.get_extension('x_enums', 'name', None)
+            if enum is not None:
+                check_enum_type(lo.root, enum, n, f.c_rwidth)
+            else:
+                # Default is unsigned
+                n.c_type = 'unsigned'
         elif n.type in ['signed', 'unsigned']:
             n.c_type = n.type
         elif n.type == 'float':
@@ -333,8 +338,6 @@ def layout_reg(lo, n):
                 raise LayoutException(
                     n, "incorrect width for float register {}".format(
                         n.get_path()))
-        elif n.type.startswith('enum.'):
-            check_enum_type(lo.root, n, n.width)
         else:
             raise LayoutException(
                 n, "incorrect type for register {}".format(n.get_path()))
