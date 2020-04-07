@@ -47,6 +47,32 @@ entity xilinx_attrs is
     subm_rdata_i         : in    std_logic_vector(31 downto 0);
     subm_rresp_i         : in    std_logic_vector(1 downto 0)
   );
+end xilinx_attrs;
+
+architecture syn of xilinx_attrs is
+  signal wr_req                         : std_logic;
+  signal wr_ack_int                     : std_logic;
+  signal wr_wdata                       : std_logic_vector(31 downto 0);
+  signal wr_wstrb                       : std_logic_vector(3 downto 0);
+  signal wr_awaddr                      : std_logic_vector(2 downto 2);
+  signal axi_wset                       : std_logic;
+  signal axi_awset                      : std_logic;
+  signal axi_wdone                      : std_logic;
+  signal rd_req                         : std_logic;
+  signal rd_ack_int                     : std_logic;
+  signal dato                           : std_logic_vector(31 downto 0);
+  signal axi_rip                        : std_logic;
+  signal axi_rdone                      : std_logic;
+  signal subm_aw_val                    : std_logic;
+  signal subm_w_val                     : std_logic;
+  signal subm_rd                        : std_logic;
+  signal subm_wr                        : std_logic;
+  signal rd_ack_d0                      : std_logic;
+  signal rd_dat_d0                      : std_logic_vector(31 downto 0);
+  signal wr_req_d0                      : std_logic;
+  signal wr_adr_d0                      : std_logic_vector(2 downto 2);
+  signal wr_dat_d0                      : std_logic_vector(31 downto 0);
+  signal wr_sel_d0                      : std_logic_vector(3 downto 0);
   attribute X_INTERFACE_INFO : string;
   attribute X_INTERFACE_INFO of awvalid : signal is
     "xilinx.com:interface:aximm:1.0 slave AWVALID";
@@ -124,32 +150,6 @@ entity xilinx_attrs is
     "xilinx.com:interface:aximm:1.0 subm RDATA";
   attribute X_INTERFACE_INFO of subm_rresp_i : signal is
     "xilinx.com:interface:aximm:1.0 subm RRESP";
-end xilinx_attrs;
-
-architecture syn of xilinx_attrs is
-  signal wr_req                         : std_logic;
-  signal wr_ack_int                     : std_logic;
-  signal wr_wdata                       : std_logic_vector(31 downto 0);
-  signal wr_wstrb                       : std_logic_vector(3 downto 0);
-  signal wr_awaddr                      : std_logic_vector(2 downto 2);
-  signal axi_wset                       : std_logic;
-  signal axi_awset                      : std_logic;
-  signal axi_wdone                      : std_logic;
-  signal rd_req                         : std_logic;
-  signal rd_ack_int                     : std_logic;
-  signal dato                           : std_logic_vector(31 downto 0);
-  signal axi_rip                        : std_logic;
-  signal axi_rdone                      : std_logic;
-  signal subm_aw_val                    : std_logic;
-  signal subm_w_val                     : std_logic;
-  signal subm_rd                        : std_logic;
-  signal subm_wr                        : std_logic;
-  signal rd_ack_d0                      : std_logic;
-  signal rd_dat_d0                      : std_logic_vector(31 downto 0);
-  signal wr_req_d0                      : std_logic;
-  signal wr_adr_d0                      : std_logic_vector(2 downto 2);
-  signal wr_dat_d0                      : std_logic_vector(31 downto 0);
-  signal wr_sel_d0                      : std_logic_vector(3 downto 0);
 begin
 
   -- AW, W and B channels

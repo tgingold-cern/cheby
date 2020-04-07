@@ -520,7 +520,6 @@ def print_module(fd, module):
     wln(fd, "entity {} is".format(module.name))
     print_inters_list(fd, module.params, "generic", 1)
     print_inters_list(fd, module.ports, "port", 1)
-    print_attributes(fd, module.ports, 1)
     wln(fd, "end {};".format(module.name))
     wln(fd)
     wln(fd, "architecture syn of {} is".format(module.name))
@@ -530,6 +529,9 @@ def print_module(fd, module):
         generate_decl(fd, s, 1)
     if style == 'wbgen':
         wln(fd)
+    # Xilinx needs attribute for the ports in the architecture,
+    # even if this is not allowed by vhdl...
+    print_attributes(fd, module.ports, 1)
     wln(fd, "begin")
     generate_stmts(fd, module.stmts, 1)
     wln(fd, "end syn;")
