@@ -158,6 +158,21 @@ class ConstsPrinterC(ConstsPrinterH):
             self.pr_dec_const(self.pr_name(f) + "_SHIFT", f.lo)
 
 
+class ConstsPrinterPython(ConstsPrinter):
+    def __init__(self, fd, root):
+        super(ConstsPrinterPython, self).__init__(fd, root)
+
+    def pr_const(self, name, val):
+        self.pr_raw("{} = {}\n".format(name, val))
+
+    def pr_hex_const(self, name, val):
+        self.pr_const(name, "0x{:x}".format(val))
+
+    def pr_dec_const(self, name, val):
+        self.pr_const(name, "{}".format(val))
+
+
+
 class ConstsVisitor(tree.Visitor):
     def __init__(self, printer):
         self.printer = printer
@@ -249,7 +264,8 @@ def pconsts_cheby(fd, root, style):
            'vhdl-orig': ConstsPrinterVHDL,
            'vhdl-ohwr': ConstsPrinterVHDLOhwr,
            'vhdl': ConstsPrinterVHDL,
-           'h': ConstsPrinterH}
+           'h': ConstsPrinterH,
+           'python': ConstsPrinterPython}
     pr = ConstsVisitor(cls[style](fd, root))
     pr.pr_header()
     pr.visit(root)
