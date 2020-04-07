@@ -18,7 +18,7 @@ class ConstsPrinter(object):
         pass
 
     def pr_dec_const(self, name, val):
-        pass
+        self.pr_const(name, "{}".format(val))
 
     def pr_name(self, n):
         if n == self.root:
@@ -77,9 +77,6 @@ class ConstsPrinterVerilog(ConstsPrinter):
     def pr_hex_const(self, name, val):
         self.pr_const(name, "'h{:x}".format(val))
 
-    def pr_dec_const(self, name, val):
-        self.pr_const(name, "{}".format(val))
-
 
 class ConstsPrinterVHDL(ConstsPrinter):
     def __init__(self, fd, root):
@@ -94,9 +91,6 @@ class ConstsPrinterVHDL(ConstsPrinter):
 
     def pr_hex_const(self, name, val):
         self.pr_const(name, "16#{:x}#".format(val))
-
-    def pr_dec_const(self, name, val):
-        self.pr_const(name, "{}".format(val))
 
     def pr_field_mask(self, f):
         # Not printed as a mask may overflow a natural.
@@ -131,9 +125,6 @@ class ConstsPrinterH(ConstsPrinter):
         self.pr_const(name,
                       "0x{:x}UL{}".format(val, "L" if val >= 2**32 else ""))
 
-    def pr_dec_const(self, name, val):
-        self.pr_const(name, "{}".format(val))
-
 
 class ConstsPrinterC(ConstsPrinterH):
     "Printer used by gen_c"
@@ -167,10 +158,6 @@ class ConstsPrinterPython(ConstsPrinter):
 
     def pr_hex_const(self, name, val):
         self.pr_const(name, "0x{:x}".format(val))
-
-    def pr_dec_const(self, name, val):
-        self.pr_const(name, "{}".format(val))
-
 
 
 class ConstsVisitor(tree.Visitor):
