@@ -329,7 +329,8 @@ def test_hdl_ref():
               'issue52/hwInfo',
               'bug-gen_wt/m1',
               'issue59/inherit', 'issue64/simple_reg1', 'issue66/m1',
-              'issue44/m1', 'issue75/m1']:
+              'issue44/m1', 'issue75/m1',
+              'features/xilinx_attrs']:
         if verbose:
             print('test hdl with ref: {}'.format(f))
         cheby_file = srcdir + f + '.cheby'

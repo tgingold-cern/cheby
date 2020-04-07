@@ -1,0 +1,9 @@
+memory-map:
+  bus: axi4-lite-32
+  name: xilinx_attrs
+  x-hdl:
+    bus-attribute: Xilinx
+  children:
+  - submap:
+      name: subm
+      filename: xilinx_attrs_sub.cheby

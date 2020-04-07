@@ -1,0 +1,15 @@
+memory-map:
+  bus: axi4-lite-32
+  name: xilinx_attrs_sub
+  description: a single register
+  children:
+    - reg:
+        name: areg1
+        width: 32
+        access: rw
+        type: unsigned
+    - reg:
+        name: areg2
+        width: 32
+        access: rw
+        type: unsigned
