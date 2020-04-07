@@ -145,11 +145,12 @@ class AXI4LiteBus(BusGen):
         module.stmts.append(proc)
         module.stmts.append(HDLAssign(root.h_bus['rresp'], HDLConst(0, 2)))
 
-    def add_xilinx_attributes(self, bus):
+    def add_xilinx_attributes(self, bus, portname):
         for name, port in bus:
             if name in ('clk', 'rst'):
                 continue
-            port.attributes['X_INTERFACE_INFO'] = "xilinx.com:interface:aximm:1.0 slave {}".format(name.upper())
+            port.attributes['X_INTERFACE_INFO'] = "xilinx.com:interface:aximm:1.0 {} {}".format(
+                portname, name.upper())
 
     def expand_bus(self, root, module, ibus):
         """Create AXI4-Lite interface for the design."""
@@ -163,7 +164,7 @@ class AXI4LiteBus(BusGen):
                                                       lo_idx=lo, dir=dir)),
             root.c_addr_bits, root.c_addr_word_bits, root.c_word_bits, False))
         if root.hdl_bus_attribute == 'Xilinx':
-            self.add_xilinx_attributes(bus)
+            self.add_xilinx_attributes(bus, 'slave')
         add_bus(root, module, bus)
         root.h_bussplit = True
         ibus.addr_size = root.c_addr_bits
@@ -194,6 +195,8 @@ class AXI4LiteBus(BusGen):
                 '{}_{}_{}'.format(n.c_name, name, dirname[dir]),
                 size=sz, lo_idx=lo, dir=dir)),
             n.c_addr_bits, root.c_addr_word_bits, root.c_word_bits, True)
+        if root.hdl_bus_attribute == 'Xilinx':
+            self.add_xilinx_attributes(ports, n.c_name)
         n.h_bus = {}
         for name, p in ports:
             n.h_bus[name] = p
