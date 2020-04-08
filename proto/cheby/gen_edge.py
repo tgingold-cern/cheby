@@ -32,10 +32,8 @@ class EncoreBlock(object):
 
     def append_reg(self, reg, offset):
         assert isinstance(reg, tree.Reg)
-        if not reg.has_fields():
-            self.regs.append(EdgeReg(
-                reg.name, reg, offset, 1, None, reg.description))
-        else:
+        self.regs.append(EdgeReg(reg.name, reg, offset, 1, None, reg.description))
+        if reg.has_fields():
             for f in reg.children:
                 if f.hi is None:
                     mask = 1
