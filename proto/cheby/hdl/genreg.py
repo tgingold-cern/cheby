@@ -146,20 +146,23 @@ class GenFieldAutoclear(GenFieldBase):
     def need_oport(self):
         return True
 
+    def need_reg(self):
+        return True
+
     def get_input(self, off):
-        # In case the field appear within an rw register.
+        # In case the field appear within an rw register, always read 0.
         _, w = self.extract_reg_bounds(off)
         return HDLConst(0, w if w != 1 else None)
 
+    def assign_reg(self, then_stmts, else_stmts, off, ibus):
+        lo, w = self.extract_reg_bounds(off)
+        reg = self.extract_reg2(self.field.h_reg, lo, w)
+        dat = self.extract_dat2(ibus.wr_dat, self.field.lo + lo - off, w)
+        then_stmts.append(HDLAssign(reg, dat))
+        else_stmts.append(HDLAssign(reg, HDLConst(0, w if w != 1 else None)))
+
     def connect_output(self, stmts, ibus):
-        # Handle wire fields: create connections between the bus and the outputs.
-        for off in self.get_offset_range():
-            lo, w = self.extract_reg_bounds(off)
-            strobe = self.reg.h_gen.strobe_index(off, self.reg.h_wreq)
-            if self.field.c_rwidth > 1:
-                strobe = HDLReplicate(strobe, w, False)
-            dat = HDLAnd(self.extract_dat2(ibus.wr_dat, self.field.lo + lo - off, w), strobe)
-            stmts.append(HDLAssign(self.extract_reg2(self.field.h_oport, lo, w), dat))
+        stmts.append(HDLAssign(self.field.h_oport, self.field.h_reg))
 
 
 class GenFieldOrClr(GenFieldBase):
