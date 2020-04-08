@@ -120,9 +120,9 @@ begin
     report "Testing register" severity note;
     wait until rising_edge(clk);
 
-    assert reg1_sum = 0 severity error;
+    assert reg1_sum = 16#10# severity error;
     wb_writel (clk, wb_out, wb_in, x"0000_0000", x"0000_1001");
-    assert reg1_sum = x"0000_1001" severity error;
+    assert reg1_sum = x"0000_1011" severity error;
 
     assert reg2_f1_sum = 0 severity error;
     assert reg2_f2_sum = 0 severity error;

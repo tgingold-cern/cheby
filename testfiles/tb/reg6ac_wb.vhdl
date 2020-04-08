@@ -1,4 +1,4 @@
--- Do not edit.  Generated on Thu Mar 19 17:36:07 2020 by gingold
+-- Do not edit.  Generated on Wed Apr 08 10:04:25 2020 by gingold
 -- With Cheby 1.4.dev0 and these options:
 --  --gen-hdl=reg6ac_wb.vhdl -i reg6ac_wb.cheby
 
@@ -46,9 +46,18 @@ architecture syn of reg6ac_wb is
   signal ack_int                        : std_logic;
   signal wb_rip                         : std_logic;
   signal wb_wip                         : std_logic;
+  signal reg1_reg                       : std_logic_vector(31 downto 0);
   signal reg1_wreq                      : std_logic;
+  signal reg1_wack                      : std_logic;
+  signal reg2_f1_reg                    : std_logic;
+  signal reg2_f2_reg                    : std_logic_vector(1 downto 0);
   signal reg2_wreq                      : std_logic;
+  signal reg2_wack                      : std_logic;
+  signal reg3_f1_reg                    : std_logic;
+  signal reg3_f2_reg                    : std_logic_vector(3 downto 0);
+  signal reg3_f3_reg                    : std_logic_vector(3 downto 0);
   signal reg3_wreq                      : std_logic_vector(1 downto 0);
+  signal reg3_wack                      : std_logic_vector(1 downto 0);
   signal rd_ack_d0                      : std_logic;
   signal rd_dat_d0                      : std_logic_vector(31 downto 0);
   signal wr_req_d0                      : std_logic;
@@ -106,19 +115,76 @@ begin
   end process;
 
   -- Register reg1
-  reg1_o <= wr_dat_d0 and (31 downto 0 => reg1_wreq);
+  reg1_o <= reg1_reg;
+  process (clk_i) begin
+    if rising_edge(clk_i) then
+      if rst_n_i = '0' then
+        reg1_reg <= "00000000000000000000000000010000";
+        reg1_wack <= '0';
+      else
+        if reg1_wreq = '1' then
+          reg1_reg <= wr_dat_d0;
+        else
+          reg1_reg <= "00000000000000000000000000000000";
+        end if;
+        reg1_wack <= reg1_wreq;
+      end if;
+    end if;
+  end process;
 
   -- Register reg2
-  reg2_f1_o <= wr_dat_d0(0) and reg2_wreq;
-  reg2_f2_o <= wr_dat_d0(17 downto 16) and (1 downto 0 => reg2_wreq);
+  reg2_f1_o <= reg2_f1_reg;
+  reg2_f2_o <= reg2_f2_reg;
+  process (clk_i) begin
+    if rising_edge(clk_i) then
+      if rst_n_i = '0' then
+        reg2_f1_reg <= '0';
+        reg2_f2_reg <= "00";
+        reg2_wack <= '0';
+      else
+        if reg2_wreq = '1' then
+          reg2_f1_reg <= wr_dat_d0(0);
+          reg2_f2_reg <= wr_dat_d0(17 downto 16);
+        else
+          reg2_f1_reg <= '0';
+          reg2_f2_reg <= "00";
+        end if;
+        reg2_wack <= reg2_wreq;
+      end if;
+    end if;
+  end process;
 
   -- Register reg3
-  reg3_f1_o <= wr_dat_d0(0) and reg3_wreq(0);
-  reg3_f2_o <= wr_dat_d0(23 downto 20) and (3 downto 0 => reg3_wreq(0));
-  reg3_f3_o <= wr_dat_d0(31 downto 28) and (3 downto 0 => reg3_wreq(1));
+  reg3_f1_o <= reg3_f1_reg;
+  reg3_f2_o <= reg3_f2_reg;
+  reg3_f3_o <= reg3_f3_reg;
+  process (clk_i) begin
+    if rising_edge(clk_i) then
+      if rst_n_i = '0' then
+        reg3_f1_reg <= '0';
+        reg3_f2_reg <= "0000";
+        reg3_f3_reg <= "0000";
+        reg3_wack <= (others => '0');
+      else
+        if reg3_wreq(0) = '1' then
+          reg3_f1_reg <= wr_dat_d0(0);
+          reg3_f2_reg <= wr_dat_d0(23 downto 20);
+        else
+          reg3_f1_reg <= '0';
+          reg3_f2_reg <= "0000";
+        end if;
+        if reg3_wreq(1) = '1' then
+          reg3_f3_reg <= wr_dat_d0(31 downto 28);
+        else
+          reg3_f3_reg <= "0000";
+        end if;
+        reg3_wack <= reg3_wreq;
+      end if;
+    end if;
+  end process;
 
   -- Process for write requests.
-  process (wr_adr_d0, wr_req_d0) begin
+  process (wr_adr_d0, wr_req_d0, reg1_wack, reg2_wack, reg3_wack) begin
     reg1_wreq <= '0';
     reg2_wreq <= '0';
     reg3_wreq <= (others => '0');
@@ -128,11 +194,11 @@ begin
       when "0" => 
         -- Reg reg1
         reg1_wreq <= wr_req_d0;
-        wr_ack_int <= wr_req_d0;
+        wr_ack_int <= reg1_wack;
       when "1" => 
         -- Reg reg2
         reg2_wreq <= wr_req_d0;
-        wr_ack_int <= wr_req_d0;
+        wr_ack_int <= reg2_wack;
       when others =>
         wr_ack_int <= wr_req_d0;
       end case;
@@ -141,11 +207,11 @@ begin
       when "0" => 
         -- Reg reg3
         reg3_wreq(1) <= wr_req_d0;
-        wr_ack_int <= wr_req_d0;
+        wr_ack_int <= reg3_wack(1);
       when "1" => 
         -- Reg reg3
         reg3_wreq(0) <= wr_req_d0;
-        wr_ack_int <= wr_req_d0;
+        wr_ack_int <= reg3_wack(0);
       when others =>
         wr_ack_int <= wr_req_d0;
       end case;

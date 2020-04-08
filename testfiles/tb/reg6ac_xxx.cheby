@@ -7,7 +7,7 @@ memory-map:
       name: reg1
       width: 32
       access: wo
-      preset: 0xabcd1234
+      preset: 0x0000010
       x-hdl:
         type: autoclear
   - reg:
