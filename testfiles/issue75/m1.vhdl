@@ -53,6 +53,7 @@ begin
   end process;
 
   -- Register r1
+  r1_o <= r1_reg;
   process (Clk) begin
     if rising_edge(Clk) then
       if rst_n = '0' then
