@@ -30,9 +30,9 @@ class EncoreBlock(object):
         self.block_name = block_name
         self.regs = []
 
-    def append_reg(self, reg, offset):
+    def append_reg(self, reg, name, offset, depth=1):
         assert isinstance(reg, tree.Reg)
-        self.regs.append(EdgeReg(reg.name, reg, offset, 1, None, reg.description))
+        self.regs.append(EdgeReg(name, reg, offset, depth, None, reg.description))
         if reg.has_fields():
             for f in reg.children:
                 if f.hi is None:
@@ -41,7 +41,7 @@ class EncoreBlock(object):
                     mask = (2 << (f.hi - f.lo)) - 1
                 mask = mask << f.lo
                 self.regs.append(EdgeReg(
-                    "{}_{}".format(reg.name, f.name), reg, offset, 1, mask, f.description))
+                    "{}_{}".format(name, f.name), reg, offset, depth, mask, f.description))
 
     def write(self, fd):
         fd.write("block_def_name,    reg_name, rwmode,   offset, dwidth,"
@@ -90,9 +90,9 @@ def p_vme_header(fd, root):
 def p_body(e, b, n, offset):
     for el in n.children:
         if isinstance(el, tree.Reg):
-            b.append_reg(el, offset)
+            b.append_reg(el, el.name, offset)
         elif isinstance(el, tree.Memory):
-            b.append_reg(el.children[0], offset)
+            b.append_reg(el.children[0], el.name, offset + el.c_abs_addr, el.c_depth)
         elif isinstance(el, tree.Repeat):
             b2 = EncoreBlock(el.name)
             p_body(e, b2, el, 0)
