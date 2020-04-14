@@ -64,7 +64,7 @@ class GenMemory(ElGen):
         mem = self.n
         self.module.stmts.append(HDLComment('Memory {}'.format(mem.c_name)))
         if self.root.h_ram is None:
-            self.module.deps.append(('work', 'wbgen2_pkg'))
+            self.module.deps.append(('work', 'cheby_pkg'))
             self.root.h_ram = True
 
         if ibus.wr_adr != ibus.rd_adr and any([r.access in ['wo', 'rw'] for r in mem.children]):
@@ -110,13 +110,13 @@ class GenMemory(ElGen):
     def gen_processes_reg(self, ibus, reg):
         mem = reg._parent
         # Instantiate the ram.
-        inst = HDLInstance(reg.c_name + "_raminst", "wbgen2_dpssram")
+        inst = HDLInstance(reg.c_name + "_raminst", "cheby_dpssram")
         self.module.stmts.append(inst)
         inst.params.append(("g_data_width", HDLNumber(reg.c_rwidth)))
         inst.params.append(("g_size", HDLNumber(1 << mem.h_addr_width)))
         inst.params.append(("g_addr_width", HDLNumber(mem.h_addr_width)))
-        inst.params.append(("g_dual_clock", HDLBool(False)))
-        inst.params.append(("g_use_bwsel", HDLBool(ibus.wr_sel is not None)))
+        inst.params.append(("g_dual_clock", bit_0))
+        inst.params.append(("g_use_bwsel", bit_1 if ibus.wr_sel is not None else bit_0))
         inst.conns.append(("clk_a_i", self.root.h_bus['clk']))
         inst.conns.append(("clk_b_i", self.root.h_bus['clk']))
         if mem.h_adr_int is not None:
