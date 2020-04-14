@@ -283,11 +283,15 @@ The following attributes under `x-hdl` are supported:
 
 `write-strobe`:: True to generate an additional signal that is
 asserted when the register is written by the host.  The name of the
-signal is '_wr_o' appended to the name of the register.
+signal is '_wr_o' appended to the name of the register.  The strobe
+signal is asserted for one cycle when a write request for this
+register is detected.  If there are some outputs of `type:reg`, then
+the pulse is generated one cycle before the outputs are updated.
 
 `read-strobe`:: True to generate an additional signal that is asserted
 when the register is read by the host.  The name of the signal is
-'_rd_o' appended to the name of the register.
+'_rd_o' appended to the name of the register.  The strobe signal is
+asserted for one cycle.
 
 `write-ack`:: True to generate an additional signal for the write ack.  The
 user must assert this signal for one cycle to acknowledge the write.  It
