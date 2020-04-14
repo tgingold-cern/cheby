@@ -167,6 +167,10 @@ The behaviour of `x-hdl:autoclear` has changed: the output is now
 delayed by 1 cycle to be aligned with other potential register fields
 in the same register.
 
+For internal rams, cheby now instantiate `cheby_dpssram` instead of
+`wbgen2_dpssram`.  This improves verilog support.  A definition of
+`cheby_dpssram` and `cheby_pkg` is provided in general_cores.
+
 ## Version 1.3
 
 Add x-hdl:port to specify how ports are generated for registers (issue#11)
