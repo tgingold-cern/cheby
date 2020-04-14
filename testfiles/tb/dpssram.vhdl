@@ -2,14 +2,14 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-entity wbgen2_dpssram is
+entity cheby_dpssram is
 
   generic (
     g_data_width : natural := 32;
     g_size       : natural := 1024;
     g_addr_width : natural := 10;
-    g_dual_clock : boolean := true;
-    g_use_bwsel  : boolean := true);
+    g_dual_clock : std_logic := '1';
+    g_use_bwsel  : std_logic := '1');
 
   port (
     clk_a_i : in std_logic;
@@ -33,10 +33,10 @@ entity wbgen2_dpssram is
     wr_a_i : in std_logic;
     wr_b_i : in std_logic
     );
-end wbgen2_dpssram;
+end cheby_dpssram;
 
 
-architecture behav of wbgen2_dpssram is
+architecture behav of cheby_dpssram is
 begin
   process is
     subtype word_t is std_logic_vector(g_data_width - 1 downto 0);

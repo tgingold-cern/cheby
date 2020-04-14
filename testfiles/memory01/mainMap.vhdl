@@ -1,7 +1,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-use work.wbgen2_pkg.all;
+use work.cheby_pkg.all;
 
 entity mainMap is
   port (
@@ -60,13 +60,13 @@ begin
   end process;
 
   -- Memory acqVP
-  acqVP_value_raminst: wbgen2_dpssram
+  acqVP_value_raminst: cheby_dpssram
     generic map (
       g_data_width         => 16,
       g_size               => 512,
       g_addr_width         => 9,
-      g_dual_clock         => false,
-      g_use_bwsel          => false
+      g_dual_clock         => '0',
+      g_use_bwsel          => '0'
     )
     port map (
       clk_a_i              => Clk,

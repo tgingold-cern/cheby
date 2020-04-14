@@ -1,4 +1,4 @@
--- Do not edit.  Generated on Thu Mar 19 17:36:22 2020 by gingold
+-- Do not edit.  Generated on Tue Apr 14 11:43:16 2020 by gingold
 -- With Cheby 1.4.dev0 and these options:
 --  --gen-hdl=all1_cernbe.vhdl -i all1_cernbe.cheby
 
@@ -6,7 +6,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-use work.wbgen2_pkg.all;
+use work.cheby_pkg.all;
 
 entity all1_cernbe is
   port (
@@ -188,13 +188,13 @@ begin
   end process;
 
   -- Memory ram1
-  ram1_val_raminst: wbgen2_dpssram
+  ram1_val_raminst: cheby_dpssram
     generic map (
       g_data_width         => 32,
       g_size               => 8,
       g_addr_width         => 3,
-      g_dual_clock         => false,
-      g_use_bwsel          => false
+      g_dual_clock         => '0',
+      g_use_bwsel          => '0'
     )
     port map (
       clk_a_i              => Clk,
@@ -225,13 +225,13 @@ begin
   ram1_val_ext_wr <= '0';
 
   -- Memory ram_ro
-  ram_ro_val_raminst: wbgen2_dpssram
+  ram_ro_val_raminst: cheby_dpssram
     generic map (
       g_data_width         => 32,
       g_size               => 8,
       g_addr_width         => 3,
-      g_dual_clock         => false,
-      g_use_bwsel          => false
+      g_dual_clock         => '0',
+      g_use_bwsel          => '0'
     )
     port map (
       clk_a_i              => Clk,

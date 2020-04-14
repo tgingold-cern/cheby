@@ -9,7 +9,7 @@ set -e
 build_infra()
 {
  $GHDL -a $GHDL_FLAGS wishbone_pkg.vhd
- $GHDL -a $GHDL_FLAGS wbgen2_pkg.vhd
+ $GHDL -a $GHDL_FLAGS cheby_pkg.vhd
  $GHDL -a $GHDL_FLAGS axi4_tb_pkg.vhdl
  $GHDL -a $GHDL_FLAGS wb_tb_pkg.vhdl
  $GHDL -a $GHDL_FLAGS cernbe_tb_pkg.vhdl
