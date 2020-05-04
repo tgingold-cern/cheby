@@ -1,0 +1,17 @@
+memory-map:
+  bus: axi4-lite-32
+  name: sreg
+  description: a single register
+  x-hdl:
+    bus-granularity: word
+  children:
+    - reg:
+        name: areg
+        width: 32
+        access: rw
+        type: unsigned
+    - reg:
+        name: breg
+        width: 32
+        access: rw
+        type: unsigned
