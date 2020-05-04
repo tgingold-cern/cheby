@@ -159,10 +159,16 @@ class AXI4LiteBus(BusGen):
                 root.get_path()))
         bus = [('clk', HDLPort("aclk")),
                ('rst', HDLPort("areset_n"))]
+        if root.hdl_bus_byte_granularity:
+            addr_lo = 0
+            addr_wd = root.c_addr_bits + root.c_addr_word_bits
+        else:
+            addr_lo = root.c_addr_word_bits
+            addr_wd = root.c_addr_bits
         bus.extend(self.gen_axi4lite_bus(
             lambda n, sz, lo=0, dir='IN': (n, HDLPort(n, size=sz,
                                                       lo_idx=lo, dir=dir)),
-            root.c_addr_bits, root.c_addr_word_bits, root.c_word_bits, False))
+            addr_wd, addr_lo, root.c_word_bits, False))
         if root.hdl_bus_attribute == 'Xilinx':
             self.add_xilinx_attributes(bus, 'slave')
         add_bus(root, module, bus)
