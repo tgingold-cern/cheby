@@ -167,13 +167,13 @@ class WBBus(BusGen):
         module.stmts.append(HDLComment('WB decode signals'))
         self.add_decode_wb(root, module, ibus, busgroup is True)
 
-    def gen_bus_slave(self, root, module, prefix, n, busgroup):
+    def gen_bus_slave(self, root, module, prefix, n, opts):
         comment = '\n' + (n.comment or n.description or 'WB bus {}'.format(n.name))
-        n.h_busgroup = busgroup
+        n.h_busgroup = opts.busgroup
         n.h_bus = self.gen_wishbone(
             module, module, n.c_name,
             n.c_addr_bits, root.c_addr_word_bits, root.c_word_bits,
-            comment, True, busgroup is True)
+            comment, True, opts.busgroup)
         # Internal signals
         # Enable (set by decoding logic)
         n.h_re = module.new_HDLSignal(prefix + 're')

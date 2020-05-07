@@ -97,9 +97,9 @@ class CERNBEBus(BusGen):
 
             self.add_decode_cern_be_vme(root, module, ibus)
 
-    def gen_bus_slave(self, root, module, prefix, n, busgroup):
+    def gen_bus_slave(self, root, module, prefix, n, opts):
         """Create an interface to a slave (Add declarations)"""
-        if busgroup:
+        if opts.busgroup:
             parser.warning(root, "busgroup on '{}' is ignored fpr cern-be-vme".format(
                 root.get_path()))
         ports = self.gen_cern_bus(

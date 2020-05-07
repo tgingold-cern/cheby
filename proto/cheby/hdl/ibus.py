@@ -1,4 +1,4 @@
-from cheby.hdltree import (HDLAssign, HDLSync, HDLComment,
+from cheby.hdltree import (HDLAssign, HDLSync, HDLComment, HDLSlice,
                            bit_0)
 import cheby.tree as tree
 from cheby.hdl.globals import gconfig
@@ -16,6 +16,13 @@ class Ibus(object):
         self.data_size = None
         self.addr_size = None
         self.addr_low = None
+        # External size.  There might be some extra unused bits for address.
+        # The default rule is to restrict the address bus to only the used bits.
+        # In particular, sub-word address bits are not used.
+        # At worst, there is no address bus (if there is only one addressable word).
+        # But for compatibility reasons, a user may prefer to have 0-based address bus.
+        # If not None, the lowest address bit of the external bus is stored in addr_low_extern.
+        self.addr_low_extern = None
         # Read signals (in and out)
         self.rd_req = None
         self.rd_ack = None
@@ -28,6 +35,7 @@ class Ibus(object):
         self.wr_adr = None
         self.wr_sel = None
 
+
     def pipeline(self, root, module, conds, suffix):
         """Create a new ibus by adding registers to self according to :param conds:
            :param suffix: is used to create signals name.
@@ -36,6 +44,9 @@ class Ibus(object):
             # No pipelining.
             return self
         res = Ibus()
+        res.addr_size = self.addr_size
+        res.data_size = self.data_size
+        res.addr_low = self.addr_low
         names = []
         c_ri = 'rd-in' in conds
         names.extend([('rd_req', c_ri, 'i', None, None),

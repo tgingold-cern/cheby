@@ -1,15 +1,15 @@
 from cheby.hdl.elgen import ElGen
 from cheby.hdltree import (HDLComment)
-from cheby.hdl.buses import name_to_busgen
+from cheby.hdl.buses import name_to_busgen, BusOptions
 
 
 class GenInterface(ElGen):
     def gen_ports(self):
         # Generic submap.
         n = self.n
-        busgroup = n.get_extension('x_hdl', 'busgroup')
+        opts = BusOptions(n, self.root)
         n.h_busgen = name_to_busgen(n.interface)
-        n.h_busgen.gen_bus_slave(self.root, self.module, n.c_name + '_', n, busgroup)
+        n.h_busgen.gen_bus_slave(self.root, self.module, n.c_name + '_', n, opts)
 
     def gen_processes(self, ibus):
         n = self.n

@@ -10,6 +10,7 @@ import cheby.tree as tree
 import cheby.parser as parser
 from cheby.hdl.globals import gconfig, dirname
 from cheby.hdl.ibus import add_bus
+import cheby.hdl.buses as buses
 
 
 class AXI4LiteBus(BusGen):
@@ -44,7 +45,7 @@ class AXI4LiteBus(BusGen):
             build_port("rdata", data_bits, dir=out),
             build_port("rresp", 2, dir=out)]
 
-    def expand_bus_w(self, root, module, ibus):
+    def expand_bus_w(self, root, module, ibus, opts):
         """Sub-routine of expand_bus: the write part"""
         ibus.wr_req = module.new_HDLSignal('wr_req')       # Write access
         ibus.wr_ack = module.new_HDLSignal('wr_ack_int')   # Ack for write
@@ -81,7 +82,7 @@ class AXI4LiteBus(BusGen):
         # Load awaddr (and acknowledge the AW request)
         proc_if = HDLIfElse(HDLAnd(HDLEq(root.h_bus['awvalid'], bit_1),
                                    HDLEq(axi_awset, bit_0)))
-        proc_if.then_stmts.append(HDLAssign(ibus.wr_adr, root.h_bus['awaddr']))
+        proc_if.then_stmts.append(HDLAssign(ibus.wr_adr, opts.resize_addr_in(root.h_bus['awaddr'], ibus)))
         proc_if.then_stmts.append(HDLAssign(axi_awset, bit_1))
         proc_if.then_stmts.append(HDLAssign(ibus.wr_req, HDLOr(axi_wset, root.h_bus['wvalid'])))  # Start if W set 
         proc_if.else_stmts = None
@@ -104,18 +105,19 @@ class AXI4LiteBus(BusGen):
         module.stmts.append(proc)
         module.stmts.append(HDLAssign(root.h_bus['bresp'], HDLConst(0, 2)))
 
-    def expand_bus_r(self, root, module, ibus):
+    def expand_bus_r(self, root, module, ibus, opts):
         """Sub-routine of expand_bus: the read part"""
+        module.stmts.append(HDLComment("AR and R channels"))
         ibus.rd_req = module.new_HDLSignal('rd_req')       # Read access
         ibus.rd_ack = module.new_HDLSignal('rd_ack_int')   # Ack for read
         ibus.rd_dat = module.new_HDLSignal('dato', root.c_word_bits)
-        ibus.rd_adr = root.h_bus['araddr']
+        ibus.rd_adr = opts.new_resizer_addr_in(module, root.h_bus['araddr'], ibus, 'rd_addr')
+
         # For the read accesses:
         # The read strobe is generated when ARVALID is set.
         # ARREADY is asserted on the ack.
         # RVALID is asserted the next cycle, until RREADY is asserted.
         # As RDATA must be stable until RREADY is asserted, they are registered.
-        module.stmts.append(HDLComment("AR and R channels"))
         axi_rip = module.new_HDLSignal('axi_rip')
         axi_rdone = module.new_HDLSignal('axi_rdone')
         r_start = root.h_bus['arvalid']
@@ -148,33 +150,38 @@ class AXI4LiteBus(BusGen):
     def add_xilinx_attributes(self, bus, portname):
         for name, port in bus:
             if name in ('clk', 'rst'):
-                continue
+                continue 
             port.attributes['X_INTERFACE_INFO'] = "xilinx.com:interface:aximm:1.0 {} {}".format(
                 portname, name.upper())
 
+    def expand_opts(self, opts):
+        if opts.busgroup:
+            parser.warning(opts.bus, "busgroup on '{}' is ignored for axi4-lite".format(
+                opts.bus.get_path()))
+        if opts.hdl_bus_byte_granularity:
+            opts.addr_lo = 0
+            opts.addr_wd = opts.bus.c_addr_bits + opts.root.c_addr_word_bits
+        else:
+            opts.addr_lo = opts.root.c_addr_word_bits
+            opts.addr_wd = opts.bus.c_addr_bits
+
     def expand_bus(self, root, module, ibus):
         """Create AXI4-Lite interface for the design."""
-        if root.get_extension('x_hdl', 'busgroup'):
-            parser.warning(root, "busgroup on '{}' is ignored for axi4-lite".format(
-                root.get_path()))
+        opts = buses.BusOptions(root, root)
+        self.expand_opts(opts)
         bus = [('clk', HDLPort("aclk")),
                ('rst', HDLPort("areset_n"))]
-        if root.hdl_bus_byte_granularity:
-            addr_lo = 0
-            addr_wd = root.c_addr_bits + root.c_addr_word_bits
-        else:
-            addr_lo = root.c_addr_word_bits
-            addr_wd = root.c_addr_bits
         bus.extend(self.gen_axi4lite_bus(
             lambda n, sz, lo=0, dir='IN': (n, HDLPort(n, size=sz,
                                                       lo_idx=lo, dir=dir)),
-            addr_wd, addr_lo, root.c_word_bits, False))
+            opts.addr_wd, opts.addr_lo, root.c_word_bits, False))
         if root.hdl_bus_attribute == 'Xilinx':
             self.add_xilinx_attributes(bus, 'slave')
         add_bus(root, module, bus)
         root.h_bussplit = True
         ibus.addr_size = root.c_addr_bits
         ibus.addr_low = root.c_addr_word_bits
+        ibus.addr_low_extern = opts.addr_lo
         ibus.data_size = root.c_word_bits
         ibus.rst = root.h_bus['rst']
         ibus.clk = root.h_bus['clk']
@@ -189,20 +196,19 @@ class AXI4LiteBus(BusGen):
         # immediately, and they must be 'sent' after the request has be
         # acknowledged.  This concerns RVALID, RDATA, BVALID.
         # Internal signals and bus protocol
-        self.expand_bus_w(root, module, ibus)
-        self.expand_bus_r(root, module, ibus)
+        self.expand_bus_w(root, module, ibus, opts)
+        self.expand_bus_r(root, module, ibus, opts)
 
-    def gen_bus_slave(self, root, module, prefix, n, busgroup):
-        if busgroup:
-            parser.warning(root, "busgroup on '{}' is ignored for axi4-lite".format(
-                root.get_path()))
+    def gen_bus_slave(self, root, module, prefix, n, opts):
+        self.expand_opts(opts)
         ports = self.gen_axi4lite_bus(
             lambda name, sz=None, lo=0, dir='IN': (name, module.add_port(
                 '{}_{}_{}'.format(n.c_name, name, dirname[dir]),
                 size=sz, lo_idx=lo, dir=dir)),
-            n.c_addr_bits, root.c_addr_word_bits, root.c_word_bits, True)
+            opts.addr_wd, opts.addr_lo, root.c_word_bits, True)
         if root.hdl_bus_attribute == 'Xilinx':
             self.add_xilinx_attributes(ports, n.c_name)
+        n.h_bus_opts = opts
         n.h_bus = {}
         for name, p in ports:
             n.h_bus[name] = p
@@ -220,7 +226,7 @@ class AXI4LiteBus(BusGen):
         stmts.append(HDLAssign(n.h_bus['awvalid'], n.h_aw_val))
         stmts.append(HDLAssign(
             n.h_bus['awaddr'],
-            HDLSlice(ibus.wr_adr, root.c_addr_word_bits, n.c_addr_bits)))
+            n.h_bus_opts.resize_addr_out(HDLSlice(ibus.wr_adr, root.c_addr_word_bits, n.c_addr_bits), ibus)))
         stmts.append(HDLAssign(n.h_bus['awprot'], HDLBinConst(0, 3)))
         stmts.append(HDLAssign(n.h_bus['wvalid'], n.h_w_val))
         stmts.append(HDLAssign(n.h_bus['wdata'], ibus.wr_dat))
@@ -230,7 +236,7 @@ class AXI4LiteBus(BusGen):
         stmts.append(HDLAssign(n.h_bus['arvalid'], n.h_rd))
         stmts.append(HDLAssign(
             n.h_bus['araddr'],
-            HDLSlice(ibus.rd_adr, root.c_addr_word_bits, n.c_addr_bits)))
+            n.h_bus_opts.resize_addr_out(HDLSlice(ibus.rd_adr, root.c_addr_word_bits, n.c_addr_bits), ibus)))
         stmts.append(HDLAssign(n.h_bus['arprot'], HDLBinConst(0, 3)))
 
         # FIXME: rready only available with axi4 root.
