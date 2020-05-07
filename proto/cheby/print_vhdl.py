@@ -122,7 +122,7 @@ def generate_signal(fd, s, indent):
     else:
         typ = "std_logic"
     windent(fd, indent)
-    w(fd, "signal {:<30} : {typ};\n".format(s.name, typ=typ))
+    wln(fd, "signal {:<30} : {typ};".format(s.name, typ=typ))
 
 
 def generate_constant(fd, s, indent):
