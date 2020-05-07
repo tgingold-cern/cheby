@@ -1,0 +1,18 @@
+memory-map:
+  bus: axi4-lite-32
+  name: addrwidth_axi4_sub_GRANULARITY
+  x-hdl:
+    bus-granularity: GRANULARITY
+  children:
+  - reg:
+      name: reg1
+      description: A register
+      preset: 0xaa001111
+      width: 32
+      access: rw
+  - reg:
+      name: reg2
+      description: A register
+      preset: 0xaa001122
+      width: 32
+      access: rw

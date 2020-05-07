@@ -20,6 +20,24 @@ build_infra()
  $GHDL -a $GHDL_FLAGS sram2.vhdl
 }
 
+build_axi4_addrwidth()
+{
+    echo "## Testing AXI4 bus width $1 $2"
+
+    sed -e "s/GRANULARITY/$2/" < addrwidth_axi4_sub_xxx.cheby > addrwidth_axi4_sub_${2}.cheby
+    $CHEBY --gen-hdl=addrwidth_axi4_sub_${2}.vhdl -i addrwidth_axi4_sub_${2}.cheby
+
+    sed -e "s/GRANULARITY/$1/" -e "s/SLAVE/$2/" < addrwidth_axi4_mst_xxx.cheby > addrwidth_axi4_mst_${1}.cheby
+    $CHEBY --gen-hdl=addrwidth_axi4_mst_${1}.vhdl -i addrwidth_axi4_mst_${1}.cheby
+
+    sed -e "s/GRANULARITY/$1/" -e "s/SLAVE/$2/" < addrwidth_axi4_xxx_tb.vhdl > addrwidth_axi4_${1}_tb.vhdl
+
+    $GHDL -a $GHDL_FLAGS addrwidth_axi4_mst_${1}.vhdl
+    $GHDL -a $GHDL_FLAGS addrwidth_axi4_sub_${2}.vhdl
+    $GHDL -a $GHDL_FLAGS addrwidth_axi4_${1}_tb.vhdl
+    $GHDL --elab-run $GHDL_FLAGS addrwidth_axi4_${1}_tb --assert-level=error --wave=addrwidth_axi4_${1}_tb.ghw
+}
+
 build_axi4()
 {
  echo "## Testing AXI4"
@@ -100,6 +118,12 @@ build_wb_reg_orclr()
 }
 
 build_infra
+
+# AXI4 byte/word addresses.
+build_axi4_addrwidth byte byte
+build_axi4_addrwidth word byte
+build_axi4_addrwidth byte word
+
 build_wb_reg_simple
 build_wb_reg
 build_wb_reg_ac
