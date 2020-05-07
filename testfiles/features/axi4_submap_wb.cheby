@@ -1,0 +1,8 @@
+memory-map:
+  bus: wb-32-be
+  name: axi4_submap_wb
+  comment: word - byte submap
+  children:
+  - submap:
+      name: blk
+      filename: axi4_byte.cheby

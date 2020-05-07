@@ -330,7 +330,8 @@ def test_hdl_ref():
               'bug-gen_wt/m1',
               'issue59/inherit', 'issue64/simple_reg1', 'issue66/m1',
               'issue44/m1', 'issue75/m1',
-              'features/xilinx_attrs']:
+              'features/xilinx_attrs',
+              'features/axi4_byte', 'features/axi4_word', 'features/axi4_submap_wb']:
         if verbose:
             print('test hdl with ref: {}'.format(f))
         cheby_file = srcdir + f + '.cheby'
