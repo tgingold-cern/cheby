@@ -38,16 +38,19 @@ class AppException(Exception):
 
 class UnknownAttribute(AppException):
     def __init__(self, msg):
+        super(UnknownAttribute, self).__init__()
         self.msg = msg
 
 
 class UnknownGenAttribute(AppException):
     def __init__(self, msg, n):
+        super(UnknownGenAttribute, self).__init__()
         self.msg = msg
         self.node = n
 
 class ErrorGenAttribute(AppException):
     def __init__(self, n, msg):
+        super(ErrorGenAttribute, self).__init__()
         self.msg = msg
         self.node = n
 
@@ -60,6 +63,7 @@ class UnknownTag(AppException):
 
 class UnknownValue(AppException):
     def __init__(self, name, val):
+        super(UnknownValue, self).__init__()
         self.name = name
         self.val = val
 
@@ -73,6 +77,8 @@ class SyntaxValidator(ast.NodeVisitor):
 
     def __init__(self, convFactorInput):
         self.convFactorInput = convFactorInput
+        self.names = None
+        self.calls = None
 
     def visit_Module(self, node):
         self.names = set()
@@ -95,14 +101,17 @@ class SyntaxValidator(ast.NodeVisitor):
         # Warnings
         for var in rawVariables:
             if var.find("_") in [0, len(var) - 1]:
-                raise Exception("WARNING: variable \"{}\" shoud not contain \"_\" on the begging or end of name!".format(var))
+                raise Exception("WARNING: variable \"{}\" shoud not contain \"_\" on the begging "
+                                "or end of name!".format(var))
 
         for var in allVars:
             if var.find("__") != -1:
-                raise Exception("ERROR: variable \"{}\" shoud not contain multiple \"_\" in name! - conversion failed.".format(var))
+                raise Exception("ERROR: variable \"{}\" shoud not contain multiple \"_\" in name! "
+                                "- conversion failed.".format(var))
 
         # removing constans
-        allVars = [var for var in allVars if all(prefix not in var for prefix in CONST_VAR_PREFIXES)]
+        allVars = [var for var in allVars
+                   if all(prefix not in var for prefix in CONST_VAR_PREFIXES)]
         convertedVars = [(var, var.replace("_", ".")) for var in allVars]
 
         newConvFactorText = self.convFactorInput
@@ -122,11 +131,12 @@ def convFactorSyntaxModifier(convFactorInput):
         validator.visit(ast.parse(convFactorInput))
         return validator.convertVariablesSyntax()
     except Exception as errMsg:
-        raise UnknownValue("Failed to parse conversion factor: {}: {}".format(convFactorInput, errMsg), None)
+        raise UnknownValue("Failed to parse conversion factor: {}: {}".format(
+            convFactorInput, errMsg), None)
 
 
-def error(str):
-    sys.stderr.write(str + '\n')
+def error(s):
+    sys.stderr.write(s + '\n')
 
 
 def warning(s):
@@ -184,9 +194,9 @@ def conv_int(s):
 
 
 def conv_bool(k, s):
-    if s.lower() in ('true'):
+    if s.lower() == 'true':
         return True
-    elif s.lower() in ('false'):
+    elif s.lower() == 'false':
         return False
     else:
         raise UnknownValue(k, s)
@@ -221,7 +231,8 @@ def adjust_common(n):
 
 def adjust_common_dict(n):
     """Merge note to comment/description but for a dict.
-       FIXME: this is almost the same as adjust_common, so is there an easy way to factorize the code ?"""
+       FIXME: this is almost the same as adjust_common, so
+              is there an easy way to factorize the code ?"""
     if 'note' not in n:
         return
     if n['note'] == n.get('description'):
@@ -233,14 +244,15 @@ def adjust_common_dict(n):
             n['comment'] = n['note']
         else:
             n['comment'] += '\n' + n['note']
-    del(n['note'])
+    del n['note']
 
 
 def conv_codefield(parent, el):
     """Convert code-field as x-gena:code-field"""
     if not flag_enums:
         cf = parent.x_gena.get('code-field', [])
-        cf.append({f: el.attrib[f] for f in ['name', 'code', 'description', 'comment', 'note'] if f in el.attrib})
+        cf.append({f: el.attrib[f] for f in ['name', 'code', 'description', 'comment', 'note']
+                   if f in el.attrib})
         parent.x_gena['code-field'] = cf
 
 
@@ -252,10 +264,10 @@ def conv_codefields(parent, el, width):
         return
     res = cheby.tree.EnumDecl(parent)
     name = parent.name
-    root = parent._parent
-    while root._parent is not None:
+    root = parent.parent
+    while root.parent is not None:
         name = root.name + '_' + name
-        root = root._parent
+        root = root.parent
     res.name = name
     res.width = width
     for child in el:
@@ -277,13 +289,15 @@ def conv_codefields(parent, el, width):
 
 def conv_constant(parent, el):
     cv = parent.x_driver_edge.get('constant-value', [])
-    cv.append({f: el.attrib[f] for f in ['name', 'value', 'description', 'comment'] if f in el.attrib})
+    cv.append({f: el.attrib[f] for f in ['name', 'value', 'description', 'comment']
+               if f in el.attrib})
     parent.x_driver_edge['constant-value'] = cv
 
 
 def conv_configuration_val(parent, el):
     cv = parent.x_fesa.get('configuration-value', [])
-    cv.append({f: el.attrib[f] for f in ['name', 'value', 'description', 'comment'] if f in el.attrib})
+    cv.append({f: el.attrib[f] for f in ['name', 'value', 'description', 'comment']
+               if f in el.attrib})
     parent.x_fesa['configuration-value'] = cv
 
 
@@ -546,7 +560,7 @@ def conv_register_data(parent, el):
             if preset != 0:
                 if flag_keep_preset == 'always' \
                    or (flag_keep_preset == 'no-split'
-                       and layout.get_gena_gen(res, 'no-split', False)):
+                           and layout.get_gena_gen(res, 'no-split', False)):
                     res.x_gena['holes-preset'] = "0x{:x}".format(preset)
                 else:
                     sys.stderr.write("warning: discard preset for {}\n".format(res.get_path()))
@@ -700,7 +714,7 @@ def conv_memory_data(parent, el):
     bus_width = parent.get_root().c_word_size * cheby.tree.BYTE_SIZE
     if reg.width < bus_width:
         error('memory data of {} is widened from {} to {}.'.format(
-              res.name, reg.width, bus_width))
+            res.name, reg.width, bus_width))
         reg.width = bus_width
 
     memory_channel = []
@@ -807,8 +821,8 @@ def conv_submap(parent, el):
         try:
             base_path = Path(res.get_root().c_filename).parent
             process_file(base_path / attrs["filename"])
-        except Exception as e:
-            error(f"Failed to parse recursively file: {attrs['filename']} because: {e}")
+        except Exception as excp:
+            error(f"Failed to parse recursively file: {attrs['filename']} because: {excp}")
     res.name = attrs['name']
     res.filename = os.path.splitext(attrs['filename'])[0] + '.cheby'
     res.address = conv_address(attrs['address'])
@@ -969,12 +983,13 @@ def process_file(filename):
 def main():
     global flag_ignore, flag_keep_preset, flag_recurse, flag_out_file, flag_recurse, flag_quiet
     global flag_enums
-    aparser = argparse.ArgumentParser(description='Gena to Cheby converter',
+    aparser = argparse.ArgumentParser(
+        description='Gena to Cheby converter',
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog="Convert the XML input file to cheby YAML file\n"
-             "The result is printed on the standard output\n"
-             "You can then use cheby to generate vhdl:\n"
-             " cheby --gen-gena-regctrl=OUTPUT.vhdl -i INPUT.cheby")
+               "The result is printed on the standard output\n"
+               "You can then use cheby to generate vhdl:\n"
+               " cheby --gen-gena-regctrl=OUTPUT.vhdl -i INPUT.cheby")
     aparser.add_argument('--version', action='version',
                          version='%(prog)s ' + cheby.__version__)
     aparser.add_argument('FILE', nargs='+')

@@ -30,6 +30,7 @@ def get_gena_gen(n, name, default=False):
 
 class GenHDLException(Exception):
     def __init__(self, msg):
+        super(GenHDLException, self).__init__()
         self.msg = msg
 
     def __str__(self):
@@ -57,7 +58,6 @@ class Mux:
     def __init__(self):
         self.codelist = []
         self.sel = None
-    pass
 
 
 def extract_mux(root, mux, reg):
@@ -84,7 +84,7 @@ def extract_mux(root, mux, reg):
     return res
 
 
-def gen_hdl_reg_decls(reg, pfx, root, module, isigs):
+def gen_hdl_reg_decls(reg, pfx, root, module, _isigs):
     # Generate ports for registers
     mode = 'OUT' if reg.access in WRITE_ACCESS else 'IN'
     mux = get_gena_gen(reg, 'mux', None)
@@ -197,9 +197,9 @@ def gen_hdl_reg_decls(reg, pfx, root, module, isigs):
     # Create CtrlReg_x signal (only if not using common visual)
     reg.h_ctrlreg = None
     if (not root.h_common_visual
-        and not srff
-        and reg.access in WRITE_ACCESS
-        and not get_gena_gen(reg, 'ext-creg')):
+            and not srff
+            and reg.access in WRITE_ACCESS
+            and not get_gena_gen(reg, 'ext-creg')):
         reg.h_ctrlreg = []
         for i in range(reg.c_nwords):
             regs = {}
@@ -245,7 +245,7 @@ def gen_hdl_reg_decls(reg, pfx, root, module, isigs):
                 reg.h_wrsel_mux.insert(0, [reg.h_wrsel[0]])
 
 
-def gen_hdl_srff(reg, pfx, root, module, isigs):
+def gen_hdl_srff(reg, pfx, root, module, _isigs):
     "Generate a process for SRFF"
     proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_val=1, rst_sync=True)
     proc.name = 'SRFF_{}{}'.format(pfx, reg.name)
@@ -357,18 +357,18 @@ def gen_hdl_reg_insts(reg, pfx, root, module, isigs):
 def gen_hdl_field(base, field):
     if field.hi is None:
         return (HDLIndex(base, field.lo), None)
-    elif field.lo == 0 and field.hi == field._parent.c_rwidth - 1:
+    elif field.lo == 0 and field.hi == field.parent.c_rwidth - 1:
         return (base, field.c_rwidth)
     else:
         return (HDLSlice(base, field.lo, field.c_rwidth), field.c_rwidth)
 
 
-def gen_hdl_reg_rdmux(reg, pfx, root, module, isigs):
+def gen_hdl_reg_rdmux(reg, pfx, _root, module, _isigs):
     proc = HDLComb()
     proc.name = 'Reg_{}{}_RdMux'.format(pfx, reg.name)
     sel_field = reg.h_mux.sel
-    proc.sensitivity.append(sel_field._parent.h_loc)
-    sel_val, sel_width = gen_hdl_field(sel_field._parent.h_loc, sel_field)
+    proc.sensitivity.append(sel_field.parent.h_loc)
+    sel_val, sel_width = gen_hdl_field(sel_field.parent.h_loc, sel_field)
     sw = HDLSwitch(sel_val)
     proc.stmts.append(sw)
     m = 0
@@ -388,12 +388,12 @@ def gen_hdl_reg_rdmux(reg, pfx, root, module, isigs):
     module.stmts.append(HDLComment(None))
 
 
-def gen_hdl_reg_wrseldec(reg, pfx, root, module, isigs):
+def gen_hdl_reg_wrseldec(reg, pfx, _root, module, _isigs):
     proc = HDLComb()
     proc.name = 'Reg_{}{}_WrSelDec'.format(pfx, reg.name)
     sel_field = reg.h_mux.sel
-    proc.sensitivity.append(sel_field._parent.h_loc)
-    sel_val, sel_width = gen_hdl_field(sel_field._parent.h_loc, sel_field)
+    proc.sensitivity.append(sel_field.parent.h_loc)
+    sel_val, sel_width = gen_hdl_field(sel_field.parent.h_loc, sel_field)
     sw = HDLSwitch(sel_val)
     for i in reversed(range(reg.c_nwords)):
         proc.sensitivity.append(reg.h_wrsel[i])
@@ -431,7 +431,7 @@ def gen_hdl_reg_stmts(reg, pfx, root, module, isigs):
         module.stmts.append(HDLAssign(reg.h_SRFF, reg.h_loc_SRFF))
     if get_gena_gen(reg, 'no-split'):
         for i in range(len(reg.h_mux.codelist)):
-            if reg.access in ('ro'):
+            if reg.access in ('ro',):
                 src = reg.h_port[i]
                 src = gen_reg_resize(reg, src, reg.c_iowidth, reg.c_rwidth)
                 module.stmts.append(HDLAssign(reg.h_loc_mux[i], src))
@@ -446,7 +446,7 @@ def gen_hdl_reg_stmts(reg, pfx, root, module, isigs):
             for i in reversed(range(reg.c_nwords)):
                 module.stmts.append(HDLAssign(reg.h_portsel[i],
                                               reg.h_wrsel[i]))
-    elif reg.access in ('ro'):
+    elif reg.access in ('ro',):
         if reg.h_busout is not None:
             module.stmts.append(HDLAssign(reg.h_busout, reg.h_loc))
 
@@ -639,7 +639,7 @@ def gen_hdl_cregrdmux_dff(root, module, isigs, pfx):
     module.stmts.append(HDLComment(None))
 
 
-def gen_hdl_no_cregrdmux_dff(root, module, isigs):
+def gen_hdl_no_cregrdmux_dff(_root, module, isigs):
     module.stmts.append(HDLAssign(isigs.Loc_CRegRdData,
                                   HDLReplicate(bit_0, None)))
     module.stmts.append(HDLAssign(isigs.Loc_CRegRdOK, bit_0))
@@ -716,7 +716,7 @@ def gen_hdl_regrdmux_dff(root, module, pfx, isigs):
     module.stmts.append(HDLComment(None))
 
 
-def gen_hdl_no_regrdmux(root, module, isigs):
+def gen_hdl_no_regrdmux(_root, module, isigs):
     module.stmts.append(HDLAssign(isigs.Loc_RegRdData, isigs.CRegRdData))
     module.stmts.append(HDLAssign(isigs.Loc_RegRdOK, isigs.CRegRdOK))
     module.stmts.append(HDLComment(None))
@@ -812,12 +812,12 @@ def gen_hdl_ext_bus(n, bwidth, acc, pfx, root, module):
         module.ports.append(n.h_wrerror)
 
 
-def gen_hdl_mem_decls(mem, pfx, root, module, isigs):
+def gen_hdl_mem_decls(mem, pfx, root, module, _isigs):
     data = mem.children[0]
     gen_hdl_ext_bus(mem, data.width, data.access, pfx, root, module)
 
 
-def gen_hdl_reg2locmem_rd(root, module, isigs, stmts):
+def gen_hdl_reg2locmem_rd(root, _module, isigs, stmts):
     stmts.append(HDLAssign(isigs.Loc_MemRdData, isigs.RegRdData))
     stmts.append(HDLAssign(isigs.Loc_MemRdDone, isigs.RegRdDone))
     if root.c_buserr:
@@ -880,7 +880,7 @@ def gen_hdl_no_memrdmux(root, module, isigs):
     module.stmts.append(HDLComment(None))
 
 
-def gen_hdl_locmem2mem_rd(root, module, isigs, stmts):
+def gen_hdl_locmem2mem_rd(root, _module, isigs, stmts):
     stmts.append(HDLAssign(isigs.MemRdData, isigs.Loc_MemRdData))
     stmts.append(HDLAssign(isigs.MemRdDone, isigs.Loc_MemRdDone))
     if root.c_buserr:
@@ -900,7 +900,7 @@ def gen_hdl_no_memrdmux_dff(root, module, isigs):
     module.stmts.append(HDLComment(None))
 
 
-def gen_hdl_reg2locmem_wr(root, module, isigs, stmts):
+def gen_hdl_reg2locmem_wr(root, _module, isigs, stmts):
     stmts.append(HDLAssign(isigs.Loc_MemWrDone, isigs.RegWrDone))
     if root.c_buserr:
         stmts.append(HDLAssign(isigs.Loc_MemWrError, isigs.RegWrError))
@@ -962,7 +962,7 @@ def gen_hdl_no_memwrmux(root, module, isigs):
     module.stmts.append(HDLComment(None))
 
 
-def gen_hdl_locmem2mem_wr(root, module, isigs, stmts):
+def gen_hdl_locmem2mem_wr(root, _module, isigs, stmts):
     stmts.append(HDLAssign(isigs.MemWrDone, isigs.Loc_MemWrDone))
     if root.c_buserr:
         stmts.append(HDLAssign(isigs.MemWrError, isigs.Loc_MemWrError))
@@ -1008,13 +1008,13 @@ def gen_hdl_ext_bus_asgn(n, acc, root, module):
     module.stmts.append(HDLComment(None))
 
 
-def gen_hdl_mem_asgn(root, module, isigs, area, mems):
+def gen_hdl_mem_asgn(root, module, _isigs, _area, mems):
     for m in mems:
         data = m.children[0]
         gen_hdl_ext_bus_asgn(m, data.access, root, module)
 
 
-def gen_hdl_mem2top_rd(root, module, proc, isigs, stmts):
+def gen_hdl_mem2top_rd(root, _module, proc, isigs, stmts):
     stmts.append(HDLAssign(isigs.RdData, isigs.MemRdData))
     stmts.append(HDLAssign(isigs.RdDone, isigs.MemRdDone))
     if root.c_buserr:
@@ -1022,22 +1022,22 @@ def gen_hdl_mem2top_rd(root, module, proc, isigs, stmts):
         stmts.append(HDLAssign(isigs.RdError, isigs.MemRdError))
 
 
-def gen_hdl_mem2top_wr(root, module, proc, isigs, stmts):
+def gen_hdl_mem2top_wr(root, _module, proc, isigs, stmts):
     stmts.append(HDLAssign(isigs.WrDone, isigs.MemWrDone))
     if root.c_buserr:
         proc.sensitivity.append(isigs.MemWrError)
         stmts.append(HDLAssign(isigs.WrError, isigs.MemWrError))
 
 
-def gen_hdl_area_decode(root, module, area, bus_addr):
-    parent_width = ilog2(area._parent.c_size)
+def gen_hdl_area_decode(_root, _module, area, bus_addr):
+    parent_width = ilog2(area.parent.c_size)
     a_width = ilog2(area.c_size)
     cond = HDLEq(HDLSlice(bus_addr, a_width, parent_width - a_width),
                  area.h_gena_area)
     return HDLIfElse(cond)
 
 
-def gen_hdl_areardmux(root, module, isigs, area, areas, pfx):
+def gen_hdl_areardmux(root, module, isigs, _area, areas, pfx):
     proc = HDLComb()
     proc.name = pfx + 'AreaRdMux'
     bus_addr = root.h_bus['adrr']
@@ -1064,7 +1064,7 @@ def gen_hdl_areardmux(root, module, isigs, area, areas, pfx):
     module.stmts.append(HDLComment(None))
 
 
-def gen_hdl_areawrmux(root, module, isigs, area, areas, pfx):
+def gen_hdl_areawrmux(root, module, isigs, _area, areas, pfx):
     proc = HDLComb()
     proc.name = pfx + 'AreaWrMux'
     bus_addr = root.h_bus['adrw']
@@ -1176,7 +1176,7 @@ def gen_hdl_area_decls(area, pfx, root, module, isigs):
                     el.h_isigs = el_isigs
                 else:
                     if isinstance(el, tree.Submap):
-                        assert len(el.children) == 0
+                        assert not el.children
                         el.children = el.c_submap.children
                         lib = get_gena_gen(el.c_submap, 'vhdl-library')
                         if not lib:

@@ -78,7 +78,7 @@ def add_block_decoder(root, stmts, addr, children, hi, func, off):
     stmts.append(sw)
 
     next_base = off
-    while len(children) > 0:
+    while children:
         # Extract the first child.
         first = children.pop(0)
         l = [first]
@@ -96,7 +96,7 @@ def add_block_decoder(root, stmts, addr, children, hi, func, off):
         # Gather other children that are decoded in the same branch (same
         # base address)
         last = first
-        while len(children) > 0:
+        while children:
             el = children[0]
             if (el.c_abs_addr & mask) != base:
                 break
@@ -138,7 +138,7 @@ def gather_leaves(n):
         raise AssertionError
 
 
-def add_decoder(root, stmts, addr, n, func):
+def add_decoder(root, stmts, addr, _n, func):
     """Call :param func: for each element of :param n:.  :param func: can also
        be called with None when a decoder is generated and could handle an
        address that has no corresponding children."""
@@ -219,10 +219,10 @@ def gen_enums(root, module):
         for val in en.children:
             if en.width is None:
                 cst = HDLConstant("C_{}_{}".format(en.name, val.name),
-                    value=HDLNumber(val.value), typ='N')
+                                  value=HDLNumber(val.value), typ='N')
             else:
                 cst = HDLConstant("C_{}_{}".format(en.name, val.name),
-                    size=en.width, value=HDLConst(val.value, en.width))
+                                  size=en.width, value=HDLConst(val.value, en.width))
             decls.append(cst)
 
 

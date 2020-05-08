@@ -16,7 +16,7 @@ def gen_header(root, decls):
         width = root.c_word_size * tree.BYTE_SIZE
         decls.append(HDLComment('Ident Code'))
         decls.append(HDLConstant(cpfx + '_IdentCode', width,
-                     value=HDLHexConst(ident_code, width)))
+                                 value=HDLHexConst(ident_code, width)))
 
     version = get_gena(root, 'map-version')
     if version is not None:
@@ -97,7 +97,8 @@ def compute_preset(reg):
     for f in reg.children:
         v = f.c_preset
         if v is not None:
-            # Note: in the case of holes-preset, we could check that it only defines value for holes.
+            # Note: in the case of holes-preset, we could check that
+            # it only defines value for holes.
             mask = (1 << f.c_rwidth) - 1
             res = (res & ~(mask << f.lo)) | (v << f.lo)
     return res
@@ -111,7 +112,7 @@ def subsuffix(n, num):
         return '_{}'.format(n)
 
 
-def gen_mask(decls, mask, root, reg, pfx):
+def gen_mask(decls, mask, _root, reg, pfx):
     def gen_one_mask(acm, name, w, lo_idx):
         acm &= (1 << w) - 1
         cst = HDLConstant(name, w, lo_idx=lo_idx, value=HDLBinConst(acm, w))
@@ -149,7 +150,7 @@ def gen_reg_psm(n, root, decls, name, pfx):
             e.h_gena_psm = gen_mask(decls, psm, root, e, mpfx)
 
 
-def gen_code_fields(n, root, decls):
+def gen_code_fields(n, _root, decls):
     decls.append(HDLComment('CODE FIELDS'))
 
     def gen_one_cf(codes, pfx, sz, lo_idx=0):
@@ -165,7 +166,7 @@ def gen_code_fields(n, root, decls):
         if isinstance(e, tree.Root):
             return e.name
         else:
-            return gen_path(e._parent) + '_' + e.name
+            return gen_path(e.parent) + '_' + e.name
 
     for e in reversed(n.children):
         if isinstance(e, tree.Reg):
@@ -237,7 +238,7 @@ def gen_areas_address(areas, root, decls):
 
 def gen_enums(root, decls):
     enums = root.x_enums
-    if len(enums) == 0:
+    if not enums:
         return
 
     decls.append(HDLComment('ENUMERATIONS'))

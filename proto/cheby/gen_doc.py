@@ -33,14 +33,14 @@ def build_regdescr_table(reg):
                 j -= 1
             else:
                 # Range of the field
-                if f.hi is None:
+                if field.hi is None:
                     h = 0
                 else:
-                    h = min(f.hi - f.lo, i + j - f.lo)
-                l = max(0, i - f.lo)
+                    h = min(field.hi - field.lo, i + j - field.lo)
+                l = max(0, i - field.lo)
                 length = h - l + 1
-                content = f.name or reg.name
-                if f.hi is not None:
+                content = field.name or reg.name
+                if field.hi is not None:
                     content += "[{}:{}]".format(h, l)
                 col = TableCell(content=content, colspan=length, style="field")
                 j -= length
