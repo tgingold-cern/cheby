@@ -1,9 +1,9 @@
 import yaml
-from yaml.reader import *
-from yaml.scanner import *
-from yaml.parser import *
-from yaml.composer import *
-from yaml.resolver import *
+from yaml.reader import Reader
+from yaml.scanner import Scanner
+from yaml.parser import Parser
+from yaml.composer import Composer
+from yaml.resolver import Resolver
 
 from yaml.constructor import SafeConstructor
 
