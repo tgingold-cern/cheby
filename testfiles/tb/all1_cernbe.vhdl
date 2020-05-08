@@ -1,8 +1,3 @@
--- Do not edit.  Generated on Tue Apr 14 11:43:16 2020 by gingold
--- With Cheby 1.4.dev0 and these options:
---  --gen-hdl=all1_cernbe.vhdl -i all1_cernbe.cheby
-
-
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;

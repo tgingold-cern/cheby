@@ -1,8 +1,3 @@
--- Do not edit.  Generated on Thu Mar 19 17:36:08 2020 by gingold
--- With Cheby 1.4.dev0 and these options:
---  --gen-hdl=reg8orclr_wb.vhdl -i reg8orclr_wb.cheby
-
-
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
