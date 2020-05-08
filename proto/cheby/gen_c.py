@@ -20,9 +20,9 @@ class CPrinter(tree.Visitor):
                        8: 'int64_t'}
         self.ftypes = {4: 'float',
                        8: 'double'}
-        self.access = {'ro': ['__IM',  'volatile const'],
+        self.access = {'ro': ['__IM', 'volatile const'],
                        'rw': ['__IOM', 'volatile'],
-                       'wo': ['__OM',  'volatile']}
+                       'wo': ['__OM', 'volatile']}
 
     def cp_raw(self, s):
         self.buffer += s
@@ -46,7 +46,7 @@ class CPrinter(tree.Visitor):
             self.cp_txt('}} {};'.format(name))
 
     def cp_txt(self, txt):
-        if len(txt):
+        if txt:
             self.cp_raw('{}{}'.format('  ' * self.indent, txt))
         self.cp_raw('\n')
 
@@ -93,7 +93,7 @@ def cprint_children(cp, n, size):
 @CPrinter.register(tree.Reg)
 def cprint_reg(cp, n):
     cp.cp_txt('/* [0x{:x}]: REG ({}) {} */'.format(
-              n.c_address, n.access, n.description or '(no description)'))
+        n.c_address, n.access, n.description or '(no description)'))
     if n.c_type == 'signed':
         typ = cp.stypes[n.c_size]
     elif n.c_type == 'float':
@@ -110,7 +110,7 @@ def cprint_reg(cp, n):
 @CPrinter.register(tree.Block)
 def cprint_block(cp, n):
     cp.cp_txt('/* [0x{:x}]: BLOCK {} */'.format(
-              n.c_address, n.description or '(no description)'))
+        n.c_address, n.description or '(no description)'))
     cp.start_struct(n.name)
     cprint_children(cp, n, n.c_size)
     cp.end_struct(n.name)
@@ -119,7 +119,7 @@ def cprint_block(cp, n):
 @CPrinter.register(tree.Memory)
 def cprint_memory(cp, n):
     cp.cp_txt('/* [0x{:x}]: MEMORY {} */'.format(
-              n.c_address, n.description or '(no description)'))
+        n.c_address, n.description or '(no description)'))
     cp.start_struct(n.name)
     cprint_children(cp, n, n.c_elsize)
     cp.end_struct('{}[{}]'.format(n.name, n.memsize_val // n.c_elsize))
@@ -128,7 +128,7 @@ def cprint_memory(cp, n):
 @CPrinter.register(tree.Repeat)
 def cprint_repeat(cp, n):
     cp.cp_txt('/* [0x{:x}]: REPEAT {} */'.format(
-              n.c_address, n.description or '(no description)'))
+        n.c_address, n.description or '(no description)'))
     cp.start_struct(n.name)
     cprint_children(cp, n, n.c_elsize)
     cp.end_struct('{}[{}]'.format(n.name, n.count))
@@ -137,7 +137,7 @@ def cprint_repeat(cp, n):
 @CPrinter.register(tree.Submap)
 def cprint_submap(cp, n):
     cp.cp_txt('/* [0x{:x}]: SUBMAP {} */'.format(
-              n.c_address, n.description or '(no description)'))
+        n.c_address, n.description or '(no description)'))
     if n.filename is None:
         # Should depend on bus size ?
         if n.c_size % 4 == 0:

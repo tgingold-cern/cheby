@@ -86,6 +86,7 @@ class Layout(tree.Visitor):
 
 class LayoutException(Exception):
     def __init__(self, n, msg):
+        super(LayoutException, self).__init__()
         self.node = n
         self.msg = msg
 
@@ -286,8 +287,8 @@ def layout_reg(lo, n):
         if n.constant == 'version':
             if lo.root.version is None:
                 raise LayoutException(
-                    n, "cannot use 'constant: version' for register {} without a version at the root".format(
-                        n.get_path()))
+                    n, "cannot use 'constant: version' for register {} "
+                    "without a version at the root".format(n.get_path()))
             if n.c_rwidth != 32:
                 raise LayoutException(
                     n, "reg {}: can only use 'preset: version' when width=32".format(
@@ -306,15 +307,15 @@ def layout_reg(lo, n):
             v = lo.root.c_memmap_version
             if v is None:
                 raise LayoutException(
-                    n, "cannot use 'constant: memmap-version' for register {} without x-map-info:memmap-version".format(
-                        n.get_path()))
+                    n, "cannot use 'constant: memmap-version' for register {} "
+                    "without x-map-info:memmap-version".format(n.get_path()))
             f.c_preset = (v[0] << 16) | (v[1] << 8) | v[2]
         elif n.constant == 'map-version':
             v = lo.root.get_extension('x_gena', 'map-version', None)
             if v is None:
                 raise LayoutException(
-                    n, "cannot use 'constant: map-version' for register {} without x-gena:map-version".format(
-                        n.get_path()))
+                    n, "cannot use 'constant: map-version' for register {} "
+                    "without x-gena:map-version".format(n.get_path()))
             f.c_preset = v
         else:
             f.c_preset = n.preset
@@ -347,7 +348,7 @@ def compute_submap_absolute_filename(sm):
     filename = sm.filename
     root = sm
     while not isinstance(root, tree.Root):
-        root = root._parent
+        root = root.parent
     if not os.path.isabs(filename):
         filename = os.path.join(os.path.dirname(root.c_filename), filename)
     return filename
@@ -378,7 +379,8 @@ def layout_submap(lo, n):
                 n, "no interface for generic submap '{}'".format(n.get_path()))
         if n.interface == 'include':
             raise LayoutException(
-                n, "'interface' cannot be 'include' for the generic submap '{}'".format(n.get_path()))
+                n, "'interface' cannot be 'include' for the generic submap '{}'".format(
+                    n.get_path()))
         if n.include is not None:
             raise LayoutException(
                 n, "use of 'include' is not allowed when 'filename' is not present")
@@ -397,7 +399,7 @@ def layout_submap(lo, n):
         n.c_size = n.c_submap.c_size
         n.c_align = n.c_submap.c_align
         if n.interface == 'include':
-            warning(n, "use of 'interface: include' is deprecated (for '{}')".format (n.get_path()))
+            warning(n, "use of 'interface: include' is deprecated (for '{}')".format(n.get_path()))
             warning(n, "use 'include: True' instead")
             n.include = True
             n.interface = None
@@ -410,7 +412,7 @@ def layout_submap(lo, n):
         if n.include is True:
             # Check compatibility of word-endianness.
             if ((lo.root.c_word_endian == 'big' and submap.c_word_endian == 'little')
-                or (lo.root.c_word_endian == 'little' and submap.c_word_endian == 'big')):
+                    or (lo.root.c_word_endian == 'little' and submap.c_word_endian == 'big')):
                 # FIXME: check with 3 levels: big <- none <- little
                 raise LayoutException(
                     n, "cannot include submap '{}' with opposite word endianness".format(
@@ -541,7 +543,7 @@ def layout_composite_children(lo, n):
         last_node = c
 
 
-def layout_composite_size(lo, n):
+def layout_composite_size(_lo, n):
     if n.size_val is not None:
         if n.size_val < n.c_size:
             for c in n.children:
