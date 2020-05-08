@@ -5,12 +5,12 @@ import cheby.hdltree as hdltree
 style = None
 
 
-def w(fd, str):
-    fd.write(str)
+def w(fd, s):
+    fd.write(s)
 
 
-def wln(fd, str=""):
-    w(fd, str)
+def wln(fd, s=""):
+    w(fd, s)
     w(fd, '\n')
 
 
@@ -70,20 +70,20 @@ def generate_port(fd, p, indent):
     generate_decl_comment(fd, p.comment, indent)
     typ = generate_vhdl_type(p)
     if p.dir == 'IN':
-        dir = "in   "
+        iodir = "in   "
     elif p.dir == 'OUT':
-        dir = "out  "
+        iodir = "out  "
     else:
-        dir = "inout"
+        iodir = "inout"
     windent(fd, indent)
-    w(fd, "{:<20} : {dir} {typ}".format(p.name, dir=dir, typ=typ))
+    w(fd, "{:<20} : {iodir} {typ}".format(p.name, iodir=iodir, typ=typ))
     if p.default:
         w(fd, ' := {}'.format(generate_expr(p.default)))
 
 
-def generate_interface_port(fd, itf, dir, indent):
+def generate_interface_port(fd, itf, dirn, indent):
     for p in itf.ports:
-        if p.dir == dir:
+        if p.dir == dirn:
             windent(fd, indent + 1)
             wln(fd, "{:<16} : {};".format(p.name, generate_vhdl_type(p)))
 

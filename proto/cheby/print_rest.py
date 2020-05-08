@@ -5,12 +5,12 @@ import cheby.gen_doc as gen_doc
 #  Ref: https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/#tables
 
 
-def w(fd, str):
-    fd.write(str)
+def w(fd, s):
+    fd.write(s)
 
 
-def wln(fd, str=""):
-    fd.write(str)
+def wln(fd, s=""):
+    fd.write(s)
     fd.write('\n')
 
 
@@ -83,7 +83,10 @@ def print_root(fd, root):
     t = [["HW address", "Type", "Name", "HDL name"]]
     summary = gen_doc.MemmapSummary(root)
     for r in summary.raws:
-        t.append(["{}".format(r.address), "{}".format(r.typ), "{}".format(r.name), "{}".format(r.node.c_name)])
+        t.append(["{}".format(r.address),
+                  "{}".format(r.typ),
+                  "{}".format(r.name),
+                  "{}".format(r.node.c_name)])
     wtable(fd, t)
     wln(fd)
 

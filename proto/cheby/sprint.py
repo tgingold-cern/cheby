@@ -9,8 +9,8 @@ class SimplePrinter(tree.Visitor):
         self.with_fields = with_fields
         self.with_info = with_info
 
-    def sp_raw(self, str):
-        self.fd.write(str)
+    def sp_raw(self, s):
+        self.fd.write(s)
 
     def inc(self):
         self.indent += 1
@@ -26,7 +26,7 @@ class SimplePrinter(tree.Visitor):
 
     def sp_info(self, info):
         self.sp_raw('                       {}{}\n'.format(
-                    '  ' * self.indent, info))
+            '  ' * self.indent, info))
 
     def sp_field(self, f):
         if f.hi is None:

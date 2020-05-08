@@ -113,9 +113,6 @@ class Block(CompositeNode):
     _dispatcher = {}
     NAME = "Block"
 
-    def __init__(self, parent):
-        super(Block, self).__init__(parent)
-
 
 class Submap(CompositeNode):
     _dispatcher = {}

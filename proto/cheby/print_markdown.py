@@ -5,8 +5,8 @@ import cheby.gen_doc as gen_doc
 #  Ref: https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/#tables
 
 
-def wln(fd, str=""):
-    fd.write(str)
+def wln(fd, s=""):
+    fd.write(s)
     fd.write('\n')
 
 
