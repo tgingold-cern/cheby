@@ -158,12 +158,6 @@ class AXI4LiteBus(BusGen):
         if opts.busgroup:
             parser.warning(opts.bus, "busgroup on '{}' is ignored for axi4-lite".format(
                 opts.bus.get_path()))
-        if opts.hdl_bus_byte_granularity:
-            opts.addr_lo = 0
-            opts.addr_wd = opts.bus.c_addr_bits + opts.root.c_addr_word_bits
-        else:
-            opts.addr_lo = opts.root.c_addr_word_bits
-            opts.addr_wd = opts.bus.c_addr_bits
 
     def expand_bus(self, root, module, ibus):
         """Create AXI4-Lite interface for the design."""
@@ -174,14 +168,13 @@ class AXI4LiteBus(BusGen):
         bus.extend(self.gen_axi4lite_bus(
             lambda n, sz, lo=0, dir='IN': (n, HDLPort(n, size=sz,
                                                       lo_idx=lo, dir=dir)),
-            opts.addr_wd, opts.addr_lo, root.c_word_bits, False))
+            opts.addr_wd, opts.addr_low, root.c_word_bits, False))
         if root.hdl_bus_attribute == 'Xilinx':
             self.add_xilinx_attributes(bus, 'slave')
         add_bus(root, module, bus)
         root.h_bussplit = True
         ibus.addr_size = root.c_addr_bits
         ibus.addr_low = root.c_addr_word_bits
-        ibus.addr_low_extern = opts.addr_lo
         ibus.data_size = root.c_word_bits
         ibus.rst = root.h_bus['rst']
         ibus.clk = root.h_bus['clk']
@@ -205,7 +198,7 @@ class AXI4LiteBus(BusGen):
             lambda name, sz=None, lo=0, dir='IN': (name, module.add_port(
                 '{}_{}_{}'.format(n.c_name, name, dirname[dir]),
                 size=sz, lo_idx=lo, dir=dir)),
-            opts.addr_wd, opts.addr_lo, root.c_word_bits, True)
+            opts.addr_wd, opts.addr_low, root.c_word_bits, True)
         if root.hdl_bus_attribute == 'Xilinx':
             self.add_xilinx_attributes(ports, n.c_name)
         n.h_bus_opts = opts

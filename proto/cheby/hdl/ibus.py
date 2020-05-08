@@ -16,13 +16,6 @@ class Ibus(object):
         self.data_size = None
         self.addr_size = None
         self.addr_low = None
-        # External size.  There might be some extra unused bits for address.
-        # The default rule is to restrict the address bus to only the used bits.
-        # In particular, sub-word address bits are not used.
-        # At worst, there is no address bus (if there is only one addressable word).
-        # But for compatibility reasons, a user may prefer to have 0-based address bus.
-        # If not None, the lowest address bit of the external bus is stored in addr_low_extern.
-        self.addr_low_extern = None
         # Read signals (in and out)
         self.rd_req = None
         self.rd_ack = None

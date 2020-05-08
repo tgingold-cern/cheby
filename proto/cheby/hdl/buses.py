@@ -14,20 +14,24 @@ class BusOptions:
         # Extract x-hdl options for :param bus:
         self.busgroup = bus.get_extension('x_hdl', 'busgroup')
 
+        # External size.  There might be some extra unused bits for address.
+        # The default rule is to restrict the address bus to only the used bits.
+        # In particular, sub-word address bits are not used.
+        # At worst, there is no address bus (if there is only one addressable word).
+        # But for compatibility reasons, a user may prefer to have 0-based address bus.
+        # The lowest address bit of the external bus is stored in addr_low.
         gran = bus.get_extension('x_hdl', 'bus-granularity')
-        if gran is None:
-            self.addr_low = root.c_addr_word_bits
-            gran = None
+        if gran is None or gran == 'word':
+            addr_low = root.c_addr_word_bits
+            addr_wd = bus.c_addr_bits
         elif gran == 'byte':
-            self.addr_low = 0
-            gran = True
-        elif gran == 'word':
-            self.addr_low = root.c_addr_word_bits
-            gran = False
+            addr_low = 0
+            addr_wd = bus.c_addr_bits + root.c_addr_word_bits
         else:
             parser.error("bad value for x-hdl:bus-granularity for {}".format(
                 bus.get_path()))
-        self.hdl_bus_byte_granularity = gran
+        self.addr_low = addr_low
+        self.addr_wd = addr_wd
 
     def resize_addr_out(self, addr, ibus):
         if self.addr_low == ibus.addr_low:

@@ -14,6 +14,11 @@ class ConstsPrinter(object):
     def pr_header(self):
         pass
 
+    def pr_const(self, name, val):
+        """Print a constant, :param val: is a string.
+           Must be overriden"""
+        raise Exception
+
     def pr_hex_const(self, name, val):
         pass
 
