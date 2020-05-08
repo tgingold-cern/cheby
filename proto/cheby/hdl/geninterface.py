@@ -1,6 +1,7 @@
 from cheby.hdl.elgen import ElGen
 from cheby.hdltree import (HDLComment)
-from cheby.hdl.buses import name_to_busgen, BusOptions
+from cheby.hdl.buses import name_to_busgen
+from cheby.hdl.busparams import BusOptions
 
 
 class GenInterface(ElGen):

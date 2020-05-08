@@ -1,4 +1,5 @@
-from cheby.hdl.buses import name_to_busgen, BusOptions
+from cheby.hdl.buses import name_to_busgen
+from cheby.hdl.busparams import BusOptions
 from cheby.hdl.geninterface import GenInterface
 
 

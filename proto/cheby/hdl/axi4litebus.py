@@ -10,7 +10,7 @@ import cheby.tree as tree
 import cheby.parser as parser
 from cheby.hdl.globals import gconfig, dirname
 from cheby.hdl.ibus import add_bus
-import cheby.hdl.buses as buses
+from cheby.hdl.busparams import BusOptions
 
 
 class AXI4LiteBus(BusGen):
@@ -165,7 +165,7 @@ class AXI4LiteBus(BusGen):
 
     def expand_bus(self, root, module, ibus):
         """Create AXI4-Lite interface for the design."""
-        opts = buses.BusOptions(root, root)
+        opts = BusOptions(root, root)
         self.expand_opts(opts)
         bus = [('clk', HDLPort("aclk")),
                ('rst', HDLPort("areset_n"))]
