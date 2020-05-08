@@ -1,10 +1,10 @@
-from cheby.hdltree import (HDLAssign, HDLSync, HDLComment, HDLSlice,
+from cheby.hdltree import (HDLAssign, HDLSync, HDLComment,
                            bit_0)
 import cheby.tree as tree
 from cheby.hdl.globals import gconfig
 
 
-class Ibus(object):
+class Ibus:
     """Internal bus.
        This bus is used internally to connect elements.
        This is a very simple bus: A pulse is sent on the *_req wire, and the transaction is finished

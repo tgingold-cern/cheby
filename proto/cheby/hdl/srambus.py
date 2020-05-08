@@ -11,7 +11,7 @@ class SRAMBus(BusGen):
     def __init__(self, name):
         assert name == 'sram'
 
-    def gen_bus_slave(self, root, module, prefix, n, busgroup):
+    def gen_bus_slave(self, root, module, prefix, n, opts):
         n.h_bus = {}
         n.h_bus['adr'] = root.h_ports.add_port(
             prefix + 'addr_o', n.c_addr_bits,
@@ -55,15 +55,17 @@ class SRAMBus(BusGen):
             proc = HDLComb()
             proc.sensitivity.extend([ibus.rd_adr, ibus.wr_adr, n.h_re])
             if_stmt = HDLIfElse(HDLEq(n.h_re, bit_1))
-            if_stmt.then_stmts.append(HDLAssign(n.h_bus['adr'],
-                                      HDLSlice(ibus.rd_adr, root.c_addr_word_bits, n.c_addr_bits)))
-            if_stmt.else_stmts.append(HDLAssign(n.h_bus['adr'],
-                                      HDLSlice(ibus.wr_adr, root.c_addr_word_bits, n.c_addr_bits)))
+            if_stmt.then_stmts.append(
+                HDLAssign(n.h_bus['adr'],
+                          HDLSlice(ibus.rd_adr, root.c_addr_word_bits, n.c_addr_bits)))
+            if_stmt.else_stmts.append(
+                HDLAssign(n.h_bus['adr'],
+                          HDLSlice(ibus.wr_adr, root.c_addr_word_bits, n.c_addr_bits)))
             proc.stmts.append(if_stmt)
             module.stmts.append(proc)
         else:
             stmts.append(HDLAssign(n.h_bus['adr'],
-                         HDLSlice(ibus.rd_adr, root.c_addr_word_bits, n.c_addr_bits)))
+                                   HDLSlice(ibus.rd_adr, root.c_addr_word_bits, n.c_addr_bits)))
 
     def write_bus_slave(self, root, stmts, n, proc, ibus):
         # Immediately ack WR.

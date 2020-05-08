@@ -66,7 +66,8 @@ class CERNBEBus(BusGen):
         bus = [('clk', HDLPort("Clk")),
                ('rst', HDLPort("Rst"))]
         bus.extend(self.gen_cern_bus(
-            lambda n, sz=None, lo=0, dir='IN': HDLPort(n, size=sz, lo_idx=lo, dir=dir) if sz is None or sz > 0 else None,
+            lambda n, sz=None, lo=0, dir='IN':
+            HDLPort(n, size=sz, lo_idx=lo, dir=dir) if sz is None or sz > 0 else None,
             root.c_addr_bits, root.c_addr_word_bits, root.c_word_bits,
             self.split, self.buserr, False))
         add_bus(root, module, bus)

@@ -120,8 +120,8 @@ class WBBus(BusGen):
             port = ports.add_port_group(name, WBBus.wb_itf, is_master)
             port.comment = comment
             res = {}
-            for name, sig in WBBus.wb_ports.items():
-                res[name] = HDLInterfaceSelect(port, sig)
+            for pname, sig in WBBus.wb_ports.items():
+                res[pname] = HDLInterfaceSelect(port, sig)
             if data_bits < 32:
                 res['dato'] = HDLSlice(res['dato'], 0, data_bits)
                 res['dati'] = HDLSlice(res['dati'], 0, data_bits)
@@ -146,7 +146,7 @@ class WBBus(BusGen):
         WBBus.wb_pkg.decls.append(WBBus.wb_itf)
         WBBus.wb_ports = self.gen_wishbone_bus(
             lambda n, sz, lo_idx=0, dir='IN':
-                WBBus.wb_itf.add_port(n, size=sz, lo_idx=lo_idx, dir=dir),
+            WBBus.wb_itf.add_port(n, size=sz, lo_idx=lo_idx, dir=dir),
             32, 0, 32, True)
         return
 
@@ -229,7 +229,8 @@ class WBBus(BusGen):
             # RT is set by RR and cleared by ACK
             proc.sync_stmts.append(
                 HDLAssign(n.h_rt,
-                          HDLAnd(HDLOr(n.h_rt, HDLParen(HDLAnd(n.h_rr, HDLNot(HDLOr(n.h_wr, n.h_tr))))),
+                          HDLAnd(HDLOr(n.h_rt, HDLParen(HDLAnd(n.h_rr,
+                                                               HDLNot(HDLOr(n.h_wr, n.h_tr))))),
                                  HDLNot(n.h_rack))))
         else:
             # RT is set by RE and cleared by ACK.
@@ -251,9 +252,9 @@ class WBBus(BusGen):
             proc.sensitivity.extend([ibus.rd_adr, ibus.wr_adr, n.h_wt])
             if_stmt = HDLIfElse(HDLEq(n.h_wt, bit_1))
             if_stmt.then_stmts.append(HDLAssign(n.h_bus['adr'],
-                                      self.slice_addr(ibus.wr_adr, root, n)))
+                                                self.slice_addr(ibus.wr_adr, root, n)))
             if_stmt.else_stmts.append(HDLAssign(n.h_bus['adr'],
-                                      self.slice_addr(ibus.rd_adr, root, n)))
+                                                self.slice_addr(ibus.rd_adr, root, n)))
             proc.stmts.append(if_stmt)
             stmts.append(proc)
         else:

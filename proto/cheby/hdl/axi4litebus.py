@@ -51,7 +51,8 @@ class AXI4LiteBus(BusGen):
         ibus.wr_ack = module.new_HDLSignal('wr_ack_int')   # Ack for write
         ibus.wr_dat = module.new_HDLSignal('wr_wdata', root.c_word_bits)
         ibus.wr_sel = module.new_HDLSignal('wr_wstrb', root.c_word_bits // tree.BYTE_SIZE)
-        ibus.wr_adr = module.new_HDLSignal('wr_awaddr', root.c_addr_bits, lo_idx=root.c_addr_word_bits)
+        ibus.wr_adr = module.new_HDLSignal('wr_awaddr', root.c_addr_bits,
+                                           lo_idx=root.c_addr_word_bits)
         # For the write accesses:
         # The W and AW channels are handled together: the write strobe is
         # generated when both AWVALID and WVALID are set.
@@ -76,15 +77,17 @@ class AXI4LiteBus(BusGen):
         proc_if.then_stmts.append(HDLAssign(ibus.wr_dat, root.h_bus['wdata']))
         proc_if.then_stmts.append(HDLAssign(ibus.wr_sel, root.h_bus['wstrb']))
         proc_if.then_stmts.append(HDLAssign(axi_wset, bit_1))
-        proc_if.then_stmts.append(HDLAssign(ibus.wr_req, axi_awset))  # Start if AW already set 
+        proc_if.then_stmts.append(HDLAssign(ibus.wr_req, axi_awset))  # Start if AW already set
         proc_if.else_stmts = None
         proc.sync_stmts.append(proc_if)
         # Load awaddr (and acknowledge the AW request)
         proc_if = HDLIfElse(HDLAnd(HDLEq(root.h_bus['awvalid'], bit_1),
                                    HDLEq(axi_awset, bit_0)))
-        proc_if.then_stmts.append(HDLAssign(ibus.wr_adr, opts.resize_addr_in(root.h_bus['awaddr'], ibus)))
+        proc_if.then_stmts.append(HDLAssign(ibus.wr_adr,
+                                            opts.resize_addr_in(root.h_bus['awaddr'], ibus)))
         proc_if.then_stmts.append(HDLAssign(axi_awset, bit_1))
-        proc_if.then_stmts.append(HDLAssign(ibus.wr_req, HDLOr(axi_wset, root.h_bus['wvalid'])))  # Start if W set 
+        proc_if.then_stmts.append(HDLAssign(ibus.wr_req,
+                                            HDLOr(axi_wset, root.h_bus['wvalid'])))  # Start if W
         proc_if.else_stmts = None
         proc.sync_stmts.append(proc_if)
         # Clear 'set' bits at the end of the transaction
@@ -143,14 +146,15 @@ class AXI4LiteBus(BusGen):
         # Set on ack, cleared on rready.
         proc.sync_stmts.append(
             HDLAssign(axi_rdone,
-                      HDLOr(ibus.rd_ack, HDLParen(HDLAnd(axi_rdone, HDLNot(root.h_bus['rready']))))))
+                      HDLOr(ibus.rd_ack, HDLParen(HDLAnd(axi_rdone,
+                                                         HDLNot(root.h_bus['rready']))))))
         module.stmts.append(proc)
         module.stmts.append(HDLAssign(root.h_bus['rresp'], HDLConst(0, 2)))
 
     def add_xilinx_attributes(self, bus, portname):
         for name, port in bus:
             if name in ('clk', 'rst'):
-                continue 
+                continue
             port.attributes['X_INTERFACE_INFO'] = "xilinx.com:interface:aximm:1.0 {} {}".format(
                 portname, name.upper())
 
@@ -219,7 +223,8 @@ class AXI4LiteBus(BusGen):
         stmts.append(HDLAssign(n.h_bus['awvalid'], n.h_aw_val))
         stmts.append(HDLAssign(
             n.h_bus['awaddr'],
-            n.h_bus_opts.resize_addr_out(HDLSlice(ibus.wr_adr, root.c_addr_word_bits, n.c_addr_bits), ibus)))
+            n.h_bus_opts.resize_addr_out(
+                HDLSlice(ibus.wr_adr, root.c_addr_word_bits, n.c_addr_bits), ibus)))
         stmts.append(HDLAssign(n.h_bus['awprot'], HDLBinConst(0, 3)))
         stmts.append(HDLAssign(n.h_bus['wvalid'], n.h_w_val))
         stmts.append(HDLAssign(n.h_bus['wdata'], ibus.wr_dat))
@@ -229,7 +234,8 @@ class AXI4LiteBus(BusGen):
         stmts.append(HDLAssign(n.h_bus['arvalid'], n.h_rd))
         stmts.append(HDLAssign(
             n.h_bus['araddr'],
-            n.h_bus_opts.resize_addr_out(HDLSlice(ibus.rd_adr, root.c_addr_word_bits, n.c_addr_bits), ibus)))
+            n.h_bus_opts.resize_addr_out(
+                HDLSlice(ibus.rd_adr, root.c_addr_word_bits, n.c_addr_bits), ibus)))
         stmts.append(HDLAssign(n.h_bus['arprot'], HDLBinConst(0, 3)))
 
         # FIXME: rready only available with axi4 root.

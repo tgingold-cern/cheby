@@ -1,6 +1,4 @@
 from cheby.hdl.elgen import ElGen
-from cheby.hdltree import (HDLComment)
-from cheby.hdl.buses import name_to_busgen
 from cheby.hdl.genreg import GenReg
 from cheby.hdl.geninterface import GenInterface
 from cheby.hdl.genmemory import GenMemory

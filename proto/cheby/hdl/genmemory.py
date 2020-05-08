@@ -4,7 +4,7 @@ from cheby.hdltree import (HDLComment, HDLComb, HDLSync,
                            HDLEq, HDLOr, HDLAnd, HDLNot,
                            HDLIfElse,
                            HDLAssign, HDLSlice, HDLReplicate, HDLInstance,
-                           HDLNumber, HDLBool, bit_1, bit_0, bit_x)
+                           HDLNumber, bit_1, bit_0, bit_x)
 from cheby.hdl.globals import gconfig
 from cheby.layout import ilog2
 import cheby.tree as tree
@@ -73,8 +73,7 @@ class GenMemory(ElGen):
             mem.h_rr = self.module.new_HDLSignal(mem.c_name + '_rr')
             # Any write request
             mem.h_wreq = self.module.new_HDLSignal(mem.c_name + '_wreq')
-            mem.h_adr_int = self.module.new_HDLSignal(mem.c_name + '_adr_int',
-                                                 mem.h_addr_width)
+            mem.h_adr_int = self.module.new_HDLSignal(mem.c_name + '_adr_int', mem.h_addr_width)
 
             # Create a mux for the ram address
             proc = HDLComb()

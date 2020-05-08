@@ -6,7 +6,7 @@ from cheby.hdltree import (HDLAssign, HDLSync, HDLComment,
                            HDLIfElse,
                            bit_1, bit_0,
                            HDLEq, HDLAnd, HDLOr, HDLNot, HDLParen,
-                           HDLSlice, HDLIndex, HDLReplicate, Slice_or_Index,
+                           HDLIndex, HDLReplicate, Slice_or_Index,
                            HDLConst)
 
 class GenFieldBase(object):
@@ -95,11 +95,11 @@ class GenFieldBase(object):
         """Return the value on a bus read.  Can be larger than a word."""
         raise AssertionError
 
-    def connect_output(self, stmts, ibus):
+    def connect_output(self, stmts, ibus): # pylint: disable=unused-argument
         """Called once for wo/rw registers to connect outputs"""
         return
 
-    def assign_reg(self, then_stmts, else_stmts, off, ibus):
+    def assign_reg(self, then_stmts, else_stmts, off, ibus): # pylint: disable=unused-argument
         """Called if need_reg() was true to connect the register."""
         return
 
@@ -381,7 +381,8 @@ class GenReg(ElGen):
 
             if n.h_has_regs:
                 # Create a process for the DFF.
-                ffproc = HDLSync(self.root.h_bus['clk'], self.root.h_bus['rst'], rst_sync=gconfig.rst_sync)
+                ffproc = HDLSync(self.root.h_bus['clk'], self.root.h_bus['rst'],
+                                 rst_sync=gconfig.rst_sync)
                 self.module.stmts.append(ffproc)
                 # Reset code
                 for f in n.children:
@@ -394,7 +395,7 @@ class GenReg(ElGen):
                     for f in n.children:
                         if f.h_reg is not None and off in f.h_gen.get_offset_range():
                             f.h_gen.assign_reg(wr_if.then_stmts, wr_if.else_stmts, off, ibus)
-                    if len(wr_if.else_stmts) == 0:
+                    if not wr_if.else_stmts:
                         wr_if.else_stmts = None
                     ffproc.sync_stmts.append(wr_if)
 

@@ -1,7 +1,5 @@
 from cheby.hdl.globals import dirname
-from cheby.hdltree import (HDLInterfaceSelect,
-                           bit_0,
-                           HDLIndex, HDLReplicate, Slice_or_Index)
+from cheby.hdltree import HDLInterfaceSelect
 
 
 class ElGen(object):
@@ -21,15 +19,15 @@ class ElGen(object):
     def create_generators(self):
         """Add the object to generate hdl"""
         pass
-    
+
     def gen_port(self, root, module, name, size, dir):
         pass
 
-    def gen_processes(self, root, module, ibus, n):
+    def gen_processes(self, ibus):
         pass
 
-    def gen_read(self, root, s, n, off, ibus, rdproc):
+    def gen_read(self, s, off, ibus, rdproc):
         pass
 
-    def gen_write(self, root, s, n, off, ibus, wrproc):
+    def gen_write(self, s, off, ibus, wrproc):
         pass

@@ -29,7 +29,7 @@ class BusGen(object):
         """Create bus interface for the design."""
         raise AssertionError("Not implemented")
 
-    def gen_bus_slave(self, root, module, prefix, n, busgroup):
+    def gen_bus_slave(self, root, module, prefix, n, opts):
         """Create an interface to a slave (Add declarations)"""
         raise AssertionError("Not implemented")
 
