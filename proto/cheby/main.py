@@ -94,7 +94,7 @@ def decode_args():
     aparser.add_argument('--ff-reset', choices=['sync', 'async'], default='sync',
                          help='select synchronous or asynchronous reset for flip-flops')
     aparser.add_argument('--word-endian', choices=['default', 'big', 'little'], default='default',
-                          help='override the word-endianness in memmory maps')
+                         help='override the word-endianness in memmory maps')
 
     args = aparser.parse_args()
     cheby.hdl.globals.gconfig.rst_sync = (args.ff_reset != 'async')
@@ -117,6 +117,7 @@ class open_filename(object):
 
     def __init__(self, name):
         self.name = name
+        self.fh = None
 
     def __enter__(self):
         if self.name == '-':
@@ -136,9 +137,9 @@ class open_filename(object):
 def gen_comment_header(f, args):
     c = {'vhdl': '--', 'verilog': '//'}[args.hdl]
     f.write("{} Do not edit.  Generated on {date} by {user}\n".format(
-            c, date=time.strftime("%a %b %d %X %Y"), user=getpass.getuser()))
+        c, date=time.strftime("%a %b %d %X %Y"), user=getpass.getuser()))
     f.write("{} With Cheby {} and these options:\n".format(
-            c, cheby.__version__))
+        c, cheby.__version__))
     f.write("{}  {}\n".format(c, " ".join(sys.argv[1:])))
     f.write("\n")
 
@@ -239,8 +240,8 @@ def handle_file(args, filename):
 
 """
                 f.write(header.format(name=t.description, basename=basename,
-                                    date=time.strftime("%a %b %d %X %Y"),
-                                    c=c, l=l, ext=ext))
+                                      date=time.strftime("%a %b %d %X %Y"),
+                                      c=c, l=l, ext=ext))
             print_vhdl.style = 'wbgen'
             print_hdl(f, args.hdl, h)
     if args.gen_hdl is not None:
@@ -249,7 +250,7 @@ def handle_file(args, filename):
             if not args.no_header:
                 gen_comment_header(f, args)
                 if t.version is not None:
-                    f.write("{}\n{} Version: {}\n".format(c, c, t.version))
+                    f.write("{c}\n{c} Version: {ver}\n".format(c=c, ver=t.version))
                 f.write("\n")
             print_hdl(f, args.hdl, h)
 

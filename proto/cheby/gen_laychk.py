@@ -6,8 +6,8 @@ class ChkGen(tree.Visitor):
     def __init__(self, fd):
         self.fd = fd
 
-    def cg_raw(self, str):
-        self.fd.write(str)
+    def cg_raw(self, s):
+        self.fd.write(s)
 
     def cg_assert(self, name, expr):
         self.cg_raw("char assert_{}[({}) ? 1 : -1];\n".format(name, expr))
@@ -21,7 +21,7 @@ class ChkGen(tree.Visitor):
 
 
 @ChkGen.register(tree.Reg)
-def chklayout_reg(cg, n):
+def chklayout_reg(_cg, _n):
     pass
 
 

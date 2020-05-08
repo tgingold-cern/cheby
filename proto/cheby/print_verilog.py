@@ -6,7 +6,7 @@ from cheby.wrutils import w, wln, windent
 style = None
 
 
-def generate_header(fd, module):
+def generate_header(_fd, _module):
     pass
 
 

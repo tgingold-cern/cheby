@@ -1,18 +1,19 @@
-import cheby.tree as tree
 from datetime import datetime
+import cheby.tree as tree
 
 
 def gen_header(fd, name, owner, editor):
-    fd.write(('<?xml version="1.0" encoding="UTF-8"?>\n'
-    '<SILECS-Design silecs-version="SILECS-1.m.p" created="{date}" updated="{date}"\n'
-    '\txmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n'
-    '\txsi:noNamespaceSchemaLocation="../../../.schemas/DesignSchema.xsd">\n'
-    '\t<Information>\n'
-    '\t\t<Owner user-login="{owner}"/>\n'
-    '\t\t<Editor user-login="{editor}"/>\n'
-    '\t</Information>\n'
-    '\t<SILECS-Class name="{name}" version="1.0.0" domain="OPERATIONAL">\n'
-    ).format(name=name, owner=owner, editor=editor, date=datetime.now().strftime('%m/%d/%y')))
+    fd.write(
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<SILECS-Design silecs-version="SILECS-1.m.p" created="{date}" updated="{date}"\n'
+        '\txmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"\n'
+        '\txsi:noNamespaceSchemaLocation="../../../.schemas/DesignSchema.xsd">\n'
+        '\t<Information>\n'
+        '\t\t<Owner user-login="{owner}"/>\n'
+        '\t\t<Editor user-login="{editor}"/>\n'
+        '\t</Information>\n'
+        '\t<SILECS-Class name="{name}" version="1.0.0" domain="OPERATIONAL">\n'.format(
+            name=name, owner=owner, editor=editor, date=datetime.now().strftime('%m/%d/%y')))
 
 
 def gen_block(fd, root, acc, synchro):

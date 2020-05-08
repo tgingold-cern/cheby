@@ -9,16 +9,16 @@ from cheby.wrutils import w, wln
 def wtable(fd, table):
     lens = [len(x) for x in table[0]]
     for j in range(1, len(table)):
-        for i in range(len(lens)):
+        for i, _ in enumerate(lens):
             lens[i] = max(lens[i], len(table[j][i]))
     wln(fd, '+' + ''.join('-' * (l + 2) + '+' for l in lens))
     for l in table:
         cnt = ''
-        for i in range(len(lens)):
+        for i, v in enumerate(lens):
             if l[i] == '\0':
-                cnt += ' ' * (lens[i] + 3)
+                cnt += ' ' * (v + 3)
             else:
-                cnt += '| ' + l[i].ljust(lens[i]) + ' '
+                cnt += '| ' + l[i].ljust(v) + ' '
         wln(fd, cnt + '|')
         wln(fd, '+' + ''.join('-' * (l + 2) + '+' for l in lens))
 

@@ -13,7 +13,7 @@ class Context(object):
         """Set c_name of :param field: to :param name: and detect collisions"""
         if name in self.names:
             parser.error("field '{}' and '{}' have the same name '{}'".format(
-                         self.names[name].get_path(), field.get_path(), name))
+                self.names[name].get_path(), field.get_path(), name))
         self.names[name] = field
         field.c_name = name
 

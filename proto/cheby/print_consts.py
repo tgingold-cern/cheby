@@ -8,8 +8,8 @@ class ConstsPrinter(object):
         self.root = root
         self.pfx = root.name.upper()
 
-    def pr_raw(self, str):
-        self.fd.write(str)
+    def pr_raw(self, s):
+        self.fd.write(s)
 
     def pr_header(self):
         pass
@@ -73,9 +73,6 @@ class ConstsPrinter(object):
 
 
 class ConstsPrinterVerilog(ConstsPrinter):
-    def __init__(self, fd, root):
-        super(ConstsPrinterVerilog, self).__init__(fd, root)
-
     def pr_const(self, name, val):
         self.pr_raw("`define {} {}\n".format(name, val))
 
@@ -120,9 +117,6 @@ class ConstsPrinterVHDLOhwr(ConstsPrinterVHDL):
 
 class ConstsPrinterH(ConstsPrinter):
     "Printer for the C language"
-    def __init__(self, fd, root):
-        super(ConstsPrinterH, self).__init__(fd, root)
-
     def pr_const(self, name, val):
         self.pr_raw("#define {} {}\n".format(name, val))
 
@@ -133,9 +127,6 @@ class ConstsPrinterH(ConstsPrinter):
 
 class ConstsPrinterC(ConstsPrinterH):
     "Printer used by gen_c"
-    def __init__(self, fd, root):
-        super(ConstsPrinterC, self).__init__(fd, root)
-
     def pr_size(self, n, sz):
         self.pr_dec_const(self.pr_name(n) + "_SIZE", sz)
 
@@ -155,9 +146,6 @@ class ConstsPrinterC(ConstsPrinterH):
 
 
 class ConstsPrinterPython(ConstsPrinter):
-    def __init__(self, fd, root):
-        super(ConstsPrinterPython, self).__init__(fd, root)
-
     def pr_const(self, name, val):
         self.pr_raw("{} = {}\n".format(name, val))
 
@@ -199,7 +187,7 @@ def pconsts_reg(pr, n):
 
 @ConstsVisitor.register(tree.Block)
 def pconsts_block(pr, n):
-    if n._parent.hdl_blk_prefix:
+    if n.parent.hdl_blk_prefix:
         pr.pr_address(n)
         pr.pr_size(n, n.c_size)
     pconsts_composite_children(pr, n)

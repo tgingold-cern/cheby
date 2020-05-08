@@ -1,16 +1,8 @@
 import cheby.tree as tree
 import cheby.hdltree as hdltree
 import cheby.gen_doc as gen_doc
-from cheby.gen_wbgen_hdl import get_hdl_prefix, get_hdl_entity
-
-
-def w(fd, str):
-    fd.write(str)
-
-
-def wln(fd, str=""):
-    fd.write(str)
-    fd.write('\n')
+from cheby.gen_wbgen_hdl import get_hdl_entity
+from cheby.wrutils import w, wln
 
 
 def print_port_name(p):
@@ -82,7 +74,7 @@ def print_symbol_table(left, right):
     return res
 
 
-def print_regdescr_reg(periph, raw, num):
+def print_regdescr_reg(_periph, raw, num):
     r = raw.node
     res = '''<a name="{name}"></a>
 <h3><a name="sect_3_{n}">2.{n}. {name}</a></h3>
@@ -140,7 +132,7 @@ def print_regdescr(periph, raws):
     return res
 
 
-def print_summary_html(periph, summary):
+def print_summary_html(_periph, summary):
     "HTML formatter for memmap_summary"
     res = '<h3><a name="sect_1_0">1. Memory map summary</a></h3>\n'
     res += '''<table cellpadding=2 cellspacing=0 border=0>

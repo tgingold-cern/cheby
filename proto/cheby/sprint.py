@@ -36,7 +36,7 @@ class SimplePrinter(tree.Visitor):
         name = f.name
         if name is None:
             assert isinstance(f, tree.FieldReg)
-            name = f._parent.name
+            name = f.parent.name
         self.sp_raw(' {}\n'.format(name))
 
 
