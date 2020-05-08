@@ -1,21 +1,9 @@
 """Generate Verilog from HDL tree"""
 
 import cheby.hdltree as hdltree
+from cheby.wrutils import w, wln, windent
 
 style = None
-
-
-def w(fd, s):
-    fd.write(s)
-
-
-def wln(fd, s=""):
-    w(fd, s)
-    w(fd, '\n')
-
-
-def windent(fd, indent):
-    w(fd, '  ' * indent)
 
 
 def generate_header(fd, module):

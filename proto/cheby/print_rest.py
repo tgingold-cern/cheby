@@ -1,17 +1,9 @@
 import cheby.tree as tree
 import cheby.gen_doc as gen_doc
+from cheby.wrutils import w, wln
 
 #  Generate markdown (asciidoc variant)
 #  Ref: https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/#tables
-
-
-def w(fd, s):
-    fd.write(s)
-
-
-def wln(fd, s=""):
-    fd.write(s)
-    fd.write('\n')
 
 
 def wtable(fd, table):
