@@ -6,8 +6,8 @@ class PrettyPrinter(tree.Visitor):
         self.fd = fd
         self.indent = ['']
 
-    def pp_raw(self, str):
-        self.fd.write(str)
+    def pp_raw(self, s):
+        self.fd.write(s)
 
     def pp_indent(self):
         self.pp_raw(self.indent[-1])
@@ -58,7 +58,7 @@ class PrettyPrinter(tree.Visitor):
 
 def pprint_extension(pp, name, n):
     if isinstance(n, dict):
-        if len(n) == 0:
+        if not n:
             # Discard empty dict.
             return
         if all([isinstance(el, dict) and not el for el in n.values()]):
@@ -70,7 +70,7 @@ def pprint_extension(pp, name, n):
             pprint_extension(pp, k, v)
         pp.pp_endobj()
     elif isinstance(n, list):
-        if len (n) == 0:
+        if not n:
             return
         pp.pp_list(name + 's')
         for e in n:
@@ -219,7 +219,7 @@ def pprint_composite_tail(pp, n):
 
 
 def pprint_enums(pp, n):
-    if len(n.x_enums) == 0:
+    if not n.x_enums:
         return
     pp.pp_list('x-enums')
     for en in n.x_enums:

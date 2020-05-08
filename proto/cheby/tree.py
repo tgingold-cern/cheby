@@ -21,6 +21,10 @@ class Node(object):
     def __init__(self, parent):
         self._parent = parent
 
+    @property
+    def parent(self):
+        return self._parent
+
     def visit(self, name, *args, **kwargs):
         return self._dispatcher[name](*args, **kwargs)
 

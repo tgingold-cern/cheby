@@ -106,7 +106,8 @@ def parse_named(node, key, val):
             # But in order to avoid conflicts, they are kindly requested to register the
             #  extension name.
             warning(node, "unknown extension name '{}'".format(key))
-            warning(node, "please register the extension on https://gitlab.cern.ch/cohtdrivers/cheby")
+            warning(node, "please register the extension on "
+                          "https://gitlab.cern.ch/cohtdrivers/cheby")
             return True
         else:
             return False
@@ -137,7 +138,7 @@ def parse_children(node, val):
                 ch = parse_repeat(node, v)
             else:
                 error("unhandled '{}' in children of {}".format(
-                      k, node.get_path()))
+                    k, node.get_path()))
             node.children.append(ch)
 
 
@@ -203,7 +204,7 @@ def parse_reg(parent, el):
                         ch = parse_field(res, v1)
                     else:
                         error("unhandled '{}' in {}/children".format(
-                              k1, parent.get_path()))
+                            k1, parent.get_path()))
                     res.children.append(ch)
         else:
             error("unhandled '{}' in reg {}".format(k, res.get_path()))

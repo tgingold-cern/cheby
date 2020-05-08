@@ -1,7 +1,7 @@
+import copy
 import cheby.parser as parser
 import cheby.tree as tree
 import cheby.layout as layout
-import copy
 
 # Decoce x-hdl extensions.
 
@@ -34,8 +34,9 @@ def expand_x_hdl_reg(n, dct):
                 parser.error("incorrect value for 'port' in x-hdl of {}".format(
                     n.get_path()))
             if not n.has_fields():
-                parser.warning(n, "'port' in x-hdl of register '{}' without fields is useless".format(
-                    n.get_path()))
+                parser.warning(
+                    n, "'port' in x-hdl of register '{}' without fields is useless".format(
+                        n.get_path()))
         elif not n.has_fields():
             # x-hdl can also be used for the implicit field.
             expand_x_hdl_field_kv(n.children[0], n, k, v)
@@ -44,19 +45,19 @@ def expand_x_hdl_reg(n, dct):
             n.hdl_type = expand_x_hdl_field_type(n, v)
         else:
             parser.error("unhandled '{}' in x-hdl of reg {}".format(
-                         k, n.get_path()))
+                k, n.get_path()))
 
     if not n.has_fields():
         expand_x_hdl_field_validate(n.children[0])
 
-    
+
 def init_x_hdl_field(f):
     "Set default values for x-hdl attributes of a field"
-    if f._parent.hdl_type is not None:
-        f.hdl_type = f._parent.hdl_type
-    elif f._parent.constant is not None:
+    if f.parent.hdl_type is not None:
+        f.hdl_type = f.parent.hdl_type
+    elif f.parent.constant is not None:
         f.hdl_type = 'const'
-    elif f._parent.access == 'ro':
+    elif f.parent.access == 'ro':
         f.hdl_type = 'wire'
     else:
         f.hdl_type = 'reg'
@@ -84,7 +85,7 @@ def expand_x_hdl_field_kv(f, n, k, v):
 def expand_x_hdl_field_validate(f):
     # Validate x-hdl attributes
     if f.hdl_type == 'const':
-        if f._parent.access == 'wo':
+        if f.parent.access == 'wo':
             parser.error("{}: 'const' x-hdl.type not allowed for 'wo' access".format(
                 f.get_path()))
         if f.c_preset is None:
@@ -92,14 +93,14 @@ def expand_x_hdl_field_validate(f):
             parser.error("{}: 'const' x-hdl.type requires a 'preset' value".format(
                 f.get_path()))
     if f.hdl_type == 'autoclear':
-        if f._parent.access == 'ro':
+        if f.parent.access == 'ro':
             parser.error("{}: 'autoclear' x-hdl.type not allowed for 'ro' access".format(
                 f.get_path()))
     if f.hdl_type == 'or-clr':
-        if f._parent.access != 'rw':
+        if f.parent.access != 'rw':
             parser.error("{}: 'or-clr' x-hdl.type requires 'rw' access".format(
                 f.get_path()))
-        
+
 
 def expand_x_hdl_field(f, n, dct):
     "Decode all x-hdl attributes for a field"
@@ -107,7 +108,7 @@ def expand_x_hdl_field(f, n, dct):
 
     for k, v in dct.items():
         expand_x_hdl_field_kv(f, n, k, v)
-    
+
     expand_x_hdl_field_validate(f)
 
 def expand_pipeline(n, v):
@@ -126,13 +127,13 @@ def expand_pipeline(n, v):
     for e in els:
         if e not in vals:
             parser.error("unhandled '{}' in x-hdl/pipeline of {}".format(
-                         e, n.get_path()))
+                e, n.get_path()))
     # Compute res.
     res = set()
     if 'none' in els:
         if len(els) != 1:
             parser.error("'none' can only be alone in x-hdl/pipeline of {}".format(
-                         n.get_path()))
+                n.get_path()))
         return []
     for e in els:
         res.update(vals[e])
@@ -145,7 +146,7 @@ def expand_x_hdl_block(n, dct):
             pass
         else:
             parser.error("unhandled '{}' in x-hdl of {}".format(
-                         k, n.get_path()))
+                k, n.get_path()))
 
 
 def expand_x_hdl_root(n, dct):
@@ -161,7 +162,7 @@ def expand_x_hdl_root(n, dct):
                 n.hdl_bus_attribute = v
             else:
                 parser.error("bad value for x-hdl:bus-attribute of root {}".format(
-                             n.get_path()))
+                    n.get_path()))
         elif k == 'bus-granularity':
             if v not in ('byte', 'word'):
                 parser.error("bad value for x-hdl:bus-granularity for {}".format(
@@ -170,7 +171,7 @@ def expand_x_hdl_root(n, dct):
             n.hdl_pipeline = expand_pipeline(n, v)
         else:
             parser.error("unhandled '{}' in x-hdl of root {}".format(
-                         k, n.get_path()))
+                k, n.get_path()))
     # Set name of the module.
     suffix = dct.get('name-suffix', '')
     n.hdl_module_name = n.name + suffix
@@ -183,18 +184,19 @@ def expand_x_hdl_submap(n, dct):
                 parser.warning(n, "x-hdl:busgroup for included submap '{}' is ignored".format(
                     n.get_path()))
             elif n.filename:
-                parser.warning(n, "x-hdl:busgroup for submap '{}' is ignored (defined by the file)".format(
-                    n.get_path()))
+                parser.warning(
+                    n, "x-hdl:busgroup for submap '{}' is ignored (defined by the file)".format(
+                        n.get_path()))
         else:
             parser.error("unhandled '{}' in x-hdl of {}".format(
-                         k, n.get_path()))
+                k, n.get_path()))
 
 
 def expand_x_hdl(n):
     "Decode x-hdl extensions"
     x_hdl = getattr(n, 'x_hdl', {})
     if isinstance(n, tree.Field):
-        expand_x_hdl_field(n, n._parent, x_hdl)
+        expand_x_hdl_field(n, n.parent, x_hdl)
     elif isinstance(n, tree.Reg):
         expand_x_hdl_reg(n, x_hdl)
     elif isinstance(n, tree.Root):
@@ -266,7 +268,7 @@ def tree_copy(n, new_parent):
 
 def unroll_repeat(n):
     # Transmute the array to COUNT blocks
-    res = tree.Block(n._parent)
+    res = tree.Block(n.parent)
     res.name = n.name
     res.align = n.align
     res.c_address = n.c_address
