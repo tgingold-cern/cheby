@@ -508,7 +508,7 @@ def conv_register_data(parent, el):
             if v != '-':
                 res.x_fesa[k] = v
         elif k in ['max-val', 'min-val']:
-            res.x_driver_edge[k] = v
+            res.x_driver_edge[k] = int(v)
         else:
             raise UnknownAttribute(k)
     adjust_common(res)

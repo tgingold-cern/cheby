@@ -39,7 +39,7 @@ memory-map:
         unit: ns
       x-driver-edge:
         max-val: 37845885
-        min-val: '-37845885'
+        min-val: -37845885
       x-conversions:
         read: val/577.5/pow(2.0, 4.0)
         write: val*577.5*pow(2.0, 4.0)
@@ -56,7 +56,7 @@ memory-map:
         unit: deg
       x-driver-edge:
         max-val: 32767
-        min-val: '-32768'
+        min-val: -32768
       x-conversions:
         read: val/pow(2.0, 15.0)*180.0
         write: val/180.0*pow(2.0, 15.0)
@@ -81,7 +81,7 @@ memory-map:
         persistence: True
       x-driver-edge:
         max-val: 32767
-        min-val: '-32768'
+        min-val: -32768
       x-conversions:
         read: val/pow(2.0, 14.0)
         write: val*pow(2.0, 14.0)
