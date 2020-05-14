@@ -171,6 +171,8 @@ For internal rams, cheby now instantiate `cheby_dpssram` instead of
 `wbgen2_dpssram`.  This improves verilog support.  A definition of
 `cheby_dpssram` and `cheby_pkg` is provided in general_cores.
 
+Add attribute `x-hdl:bus-granularity` for memory-map.
+
 ## Version 1.3
 
 Add x-hdl:port to specify how ports are generated for registers (issue#11)
