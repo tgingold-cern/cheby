@@ -83,8 +83,9 @@ class AXI4LiteBus(BusGen):
         # Load awaddr (and acknowledge the AW request)
         proc_if = HDLIfElse(HDLAnd(HDLEq(root.h_bus['awvalid'], bit_1),
                                    HDLEq(axi_awset, bit_0)))
-        proc_if.then_stmts.append(HDLAssign(ibus.wr_adr,
-                                            opts.resize_addr_in(root.h_bus['awaddr'], ibus)))
+        if root.h_bus['awaddr'] is not None:
+            proc_if.then_stmts.append(HDLAssign(ibus.wr_adr,
+                                                opts.resize_addr_in(root.h_bus['awaddr'], ibus)))
         proc_if.then_stmts.append(HDLAssign(axi_awset, bit_1))
         proc_if.then_stmts.append(HDLAssign(ibus.wr_req,
                                             HDLOr(axi_wset, root.h_bus['wvalid'])))  # Start if W
@@ -114,7 +115,8 @@ class AXI4LiteBus(BusGen):
         ibus.rd_req = module.new_HDLSignal('rd_req')       # Read access
         ibus.rd_ack = module.new_HDLSignal('rd_ack_int')   # Ack for read
         ibus.rd_dat = module.new_HDLSignal('dato', root.c_word_bits)
-        ibus.rd_adr = opts.new_resizer_addr_in(module, root.h_bus['araddr'], ibus, 'rd_addr')
+        if root.h_bus['araddr'] is not None:
+            ibus.rd_adr = opts.new_resizer_addr_in(module, root.h_bus['araddr'], ibus, 'rd_addr')
 
         # For the read accesses:
         # The read strobe is generated when ARVALID is set.
@@ -170,8 +172,8 @@ class AXI4LiteBus(BusGen):
         bus = [('clk', HDLPort("aclk")),
                ('rst', HDLPort("areset_n"))]
         bus.extend(self.gen_axi4lite_bus(
-            lambda n, sz, lo=0, dir='IN': (n, HDLPort(n, size=sz,
-                                                      lo_idx=lo, dir=dir)),
+            lambda n, sz, lo=0, dir='IN':
+                (n, None if sz == 0 else HDLPort(n, size=sz,lo_idx=lo, dir=dir)),
             opts.addr_wd, opts.addr_low, root.c_word_bits, False))
         if root.hdl_bus_attribute == 'Xilinx':
             self.add_xilinx_attributes(bus, 'slave')
