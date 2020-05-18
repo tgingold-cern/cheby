@@ -173,6 +173,8 @@ For internal rams, cheby now instantiate `cheby_dpssram` instead of
 
 Add attribute `x-hdl:bus-granularity` for memory-map.
 
+Do not emit axi4-lite address bus if address lines are not used (issue#77)
+
 ## Version 1.3
 
 Add x-hdl:port to specify how ports are generated for registers (issue#11)
