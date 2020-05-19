@@ -333,7 +333,7 @@ def test_hdl_ref():
               'features/xilinx_attrs',
               'features/axi4_byte', 'features/axi4_word', 'features/axi4_submap_wb',
               'issue77/m1', 'issue77/m2', 'issue77/m3',
-              'issue77/s1', 'issue77/s2', 'issue77/s3']:
+              'issue77/s1', 'issue77/s2', 'issue77/s3', 'issue77/s4']:
         if verbose:
             print('test hdl with ref: {}'.format(f))
         cheby_file = srcdir + f + '.cheby'
