@@ -104,16 +104,22 @@ class CERNBEBus(BusGen):
             parser.warning(root, "busgroup on '{}' is ignored fpr cern-be-vme".format(
                 root.get_path()))
         ports = self.gen_cern_bus(
-            lambda name, sz=None, lo=0, dir='IN': module.add_port(
-                '{}_{}_{}'.format(n.c_name, name, dirname[dir]),
-                size=sz, lo_idx=lo, dir=dir),
+            lambda name, sz=None, lo=0, dir='IN':
+                 None if sz == 0 else module.add_port(
+                    '{}_{}_{}'.format(n.c_name, name, dirname[dir]),
+                    size=sz, lo_idx=lo, dir=dir),
             n.c_addr_bits, root.c_addr_word_bits, root.c_word_bits,
             self.split, self.buserr, True)
         n.h_bus = {}
         for name, p in ports:
             n.h_bus[name] = p
+        # Add the comment.  Not that simple as the first port of the bus depends on
+        # split or not split, address or no address.
         comment = '\n' + (n.comment or n.description or 'CERN-BE bus {}'.format(n.name))
-        n.h_bus['adrr' if self.split else 'adr'].comment = comment
+        first = 'adrr' if self.split else 'adr'
+        if n.h_bus[first] is None:
+            first = 'dato'
+        n.h_bus[first].comment = comment
         if root.h_bussplit:
             # Request signals
             n.h_wr = module.new_HDLSignal(prefix + 'wr')
@@ -180,7 +186,8 @@ class CERNBEBus(BusGen):
                 HDLAssign(n.h_ws,
                           HDLAnd(n.h_wr, HDLNot(HDLOr(n.h_rt, n.h_wt)))))
             # Mux for addresses.
-            self.gen_adr_mux(root, module, n, ibus)
+            if ibus.rd_adr is not None:
+                self.gen_adr_mux(root, module, n, ibus)
         elif ibus.rd_adr != ibus.wr_adr:
             # Asymetric pipelining: add a mux to select the address.
             n.h_ws = module.new_HDLSignal(n.c_name + '_ws')

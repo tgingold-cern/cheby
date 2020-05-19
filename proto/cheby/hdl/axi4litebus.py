@@ -201,9 +201,10 @@ class AXI4LiteBus(BusGen):
     def gen_bus_slave(self, root, module, prefix, n, opts):
         self.expand_opts(opts)
         ports = self.gen_axi4lite_bus(
-            lambda name, sz=None, lo=0, dir='IN': (name, module.add_port(
-                '{}_{}_{}'.format(n.c_name, name, dirname[dir]),
-                size=sz, lo_idx=lo, dir=dir)),
+            lambda name, sz=None, lo=0, dir='IN':
+                (name, None if sz == 0 else module.add_port(
+                    '{}_{}_{}'.format(n.c_name, name, dirname[dir]),
+                    size=sz, lo_idx=lo, dir=dir)),
             opts.addr_wd, opts.addr_low, root.c_word_bits, True)
         if root.hdl_bus_attribute == 'Xilinx':
             self.add_xilinx_attributes(ports, n.c_name)
@@ -223,10 +224,11 @@ class AXI4LiteBus(BusGen):
     def wire_bus_slave(self, root, module, n, ibus):
         stmts = module.stmts
         stmts.append(HDLAssign(n.h_bus['awvalid'], n.h_aw_val))
-        stmts.append(HDLAssign(
-            n.h_bus['awaddr'],
-            n.h_bus_opts.resize_addr_out(
-                HDLSlice(ibus.wr_adr, root.c_addr_word_bits, n.c_addr_bits), ibus)))
+        if n.h_bus['awaddr'] is not None:
+            stmts.append(HDLAssign(
+                n.h_bus['awaddr'],
+                n.h_bus_opts.resize_addr_out(
+                    HDLSlice(ibus.wr_adr, root.c_addr_word_bits, n.c_addr_bits), ibus)))
         stmts.append(HDLAssign(n.h_bus['awprot'], HDLBinConst(0, 3)))
         stmts.append(HDLAssign(n.h_bus['wvalid'], n.h_w_val))
         stmts.append(HDLAssign(n.h_bus['wdata'], ibus.wr_dat))
@@ -234,10 +236,11 @@ class AXI4LiteBus(BusGen):
         stmts.append(HDLAssign(n.h_bus['bready'], bit_1))
 
         stmts.append(HDLAssign(n.h_bus['arvalid'], n.h_rd))
-        stmts.append(HDLAssign(
-            n.h_bus['araddr'],
-            n.h_bus_opts.resize_addr_out(
-                HDLSlice(ibus.rd_adr, root.c_addr_word_bits, n.c_addr_bits), ibus)))
+        if n.h_bus['araddr'] is not None:
+            stmts.append(HDLAssign(
+                n.h_bus['araddr'],
+                n.h_bus_opts.resize_addr_out(
+                    HDLSlice(ibus.rd_adr, root.c_addr_word_bits, n.c_addr_bits), ibus)))
         stmts.append(HDLAssign(n.h_bus['arprot'], HDLBinConst(0, 3)))
 
         # FIXME: rready only available with axi4 root.

@@ -246,20 +246,21 @@ class WBBus(BusGen):
         stmts.append(HDLAssign(n.h_bus['stb'], n.h_tr))
         stmts.append(HDLAssign(n.h_wack, HDLAnd(n.h_bus['ack'], n.h_wt)))
         stmts.append(HDLAssign(n.h_rack, HDLAnd(n.h_bus['ack'], n.h_rt)))
-        if root.h_bussplit:
-            # WB adr mux
-            proc = HDLComb()
-            proc.sensitivity.extend([ibus.rd_adr, ibus.wr_adr, n.h_wt])
-            if_stmt = HDLIfElse(HDLEq(n.h_wt, bit_1))
-            if_stmt.then_stmts.append(HDLAssign(n.h_bus['adr'],
-                                                self.slice_addr(ibus.wr_adr, root, n)))
-            if_stmt.else_stmts.append(HDLAssign(n.h_bus['adr'],
-                                                self.slice_addr(ibus.rd_adr, root, n)))
-            proc.stmts.append(if_stmt)
-            stmts.append(proc)
-        else:
-            stmts.append(HDLAssign(n.h_bus['adr'],
-                                   self.slice_addr(ibus.rd_adr, root, n)))
+        if ibus.rd_adr is not None:
+            if root.h_bussplit:
+                # WB adr mux
+                proc = HDLComb()
+                proc.sensitivity.extend([ibus.rd_adr, ibus.wr_adr, n.h_wt])
+                if_stmt = HDLIfElse(HDLEq(n.h_wt, bit_1))
+                if_stmt.then_stmts.append(HDLAssign(n.h_bus['adr'],
+                                                    self.slice_addr(ibus.wr_adr, root, n)))
+                if_stmt.else_stmts.append(HDLAssign(n.h_bus['adr'],
+                                                    self.slice_addr(ibus.rd_adr, root, n)))
+                proc.stmts.append(if_stmt)
+                stmts.append(proc)
+            else:
+                stmts.append(HDLAssign(n.h_bus['adr'],
+                                    self.slice_addr(ibus.rd_adr, root, n)))
         stmts.append(HDLAssign(n.h_bus['sel'], ibus.wr_sel or HDLReplicate(bit_1, 4)))
         stmts.append(HDLAssign(n.h_bus['we'], n.h_wt))
         stmts.append(HDLAssign(n.h_bus['dati'], ibus.wr_dat))
