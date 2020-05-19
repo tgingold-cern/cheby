@@ -246,7 +246,7 @@ class WBBus(BusGen):
         stmts.append(HDLAssign(n.h_bus['stb'], n.h_tr))
         stmts.append(HDLAssign(n.h_wack, HDLAnd(n.h_bus['ack'], n.h_wt)))
         stmts.append(HDLAssign(n.h_rack, HDLAnd(n.h_bus['ack'], n.h_rt)))
-        if ibus.rd_adr is not None:
+        if n.h_bus['adr'] is not None:
             if root.h_bussplit:
                 # WB adr mux
                 proc = HDLComb()
