@@ -44,14 +44,15 @@ class WBBus(BusGen):
         ibus.rd_dat = root.h_bus['dato']
         ibus.wr_dat = root.h_bus['dati']
         ibus.wr_sel = root.h_bus['sel']
-        if busgroup:
-            addr = module.new_HDLSignal('adr_int', ibus.addr_size, lo_idx=ibus.addr_low)
-            module.stmts.append(
-                HDLAssign(addr, HDLSlice(root.h_bus['adr'], ibus.addr_low, ibus.addr_size)))
-        else:
-            addr = root.h_bus['adr']
-        ibus.rd_adr = addr
-        ibus.wr_adr = addr
+        if ibus.addr_size > 0:
+            if busgroup:
+                addr = module.new_HDLSignal('adr_int', ibus.addr_size, lo_idx=ibus.addr_low)
+                module.stmts.append(
+                    HDLAssign(addr, HDLSlice(root.h_bus['adr'], ibus.addr_low, ibus.addr_size)))
+            else:
+                addr = root.h_bus['adr']
+            ibus.rd_adr = addr
+            ibus.wr_adr = addr
         ibus.rd_req = module.new_HDLSignal('rd_req_int')    # Read access
         ibus.wr_req = module.new_HDLSignal('wr_req_int')    # Write access
         ibus.rd_ack = module.new_HDLSignal('rd_ack_int')    # Ack for read
