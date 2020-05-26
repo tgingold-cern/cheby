@@ -175,6 +175,8 @@ Add attribute `x-hdl:bus-granularity` for memory-map.
 
 Do not emit axi4-lite address bus if address lines are not used (issue#77)
 
+Generate enums in constants (issue#78)
+
 ## Version 1.3
 
 Add x-hdl:port to specify how ports are generated for registers (issue#11)
