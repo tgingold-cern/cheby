@@ -68,6 +68,9 @@ class ConstsPrinter(object):
         self.pr_field_offset(f)
         self.pr_field_mask(f)
 
+    def pr_enum(self, name, val, wd):
+        self.pr_hex_const(name, val)
+
     def pr_trailer(self):
         pass
 
@@ -79,6 +82,9 @@ class ConstsPrinterVerilog(ConstsPrinter):
     def pr_hex_const(self, name, val):
         self.pr_const(name, "'h{:x}".format(val))
 
+    def pr_enum(self, name, val, wd):
+        self.pr_const (name, "{}'h{:x}".format(wd, val))
+
 
 class ConstsPrinterVHDL(ConstsPrinter):
     def __init__(self, fd, root):
@@ -86,6 +92,11 @@ class ConstsPrinterVHDL(ConstsPrinter):
         self.pkg_name = root.hdl_module_name + '_Consts'
 
     def pr_header(self):
+        # Enums use std_logic_vector.
+        if self.root.x_enums:
+            self.pr_raw("library ieee;\n")
+            self.pr_raw("use ieee.std_logic_1164.all;\n")
+            self.pr_raw("\n")
         self.pr_raw("package {} is\n".format(self.pkg_name))
 
     def pr_const(self, name, val):
@@ -97,6 +108,9 @@ class ConstsPrinterVHDL(ConstsPrinter):
     def pr_field_mask(self, f):
         # Not printed as a mask may overflow a natural.
         pass
+
+    def pr_enum(self, name, val, wd):
+        self.pr_raw ("  constant {} : std_logic_vector ({} downto 0) := \"{:0{wd}b}\";\n".format(name, wd - 1, val, wd=wd))
 
     def pr_trailer(self):
         self.pr_raw("end package {};\n".format(self.pkg_name))
@@ -221,6 +235,12 @@ def pconsts_composite_children(pr, n):
         pr.visit(el)
 
 
+def pconsts_enums(pr, root):
+    for en in root.x_enums:
+        #  pr.comment("Enumeration {}".format(en.name))
+        for val in en.children:
+            pr.printer.pr_enum("C_{}_{}".format(en.name, val.name), val.value, en.width)
+
 @ConstsVisitor.register(tree.Root)
 def pconsts_root(pr, n):
     pr.printer.pr_size(n, n.c_size)
@@ -230,9 +250,8 @@ def pconsts_root(pr, n):
         pr.printer.pr_version(n, 'MEMMAP_VERSION', n.c_memmap_version)
     if n.ident is not None:
         pr.printer.pr_ident(n, 'IDENT', n.ident)
-
     pconsts_composite_children(pr, n)
-
+    pconsts_enums(pr, n)
 
 def pconsts_for_gen_c(fd, root):
     pr = ConstsVisitor(ConstsPrinterC(fd, root))

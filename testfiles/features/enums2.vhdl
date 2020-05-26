@@ -2,22 +2,6 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-package enums2_pkg is
-
-  -- Enumeration enum1
-  constant C_enum1_hello : std_logic_vector(7 downto 0) := "00000000";
-  constant C_enum1_World : std_logic_vector(7 downto 0) := "00000001";
-
-  -- Enumeration enum2
-  constant C_enum2_hello : std_logic_vector(0 downto 0) := "0";
-  constant C_enum2_world : std_logic_vector(0 downto 0) := "1";
-end enums2_pkg;
-
-library ieee;
-use ieee.std_logic_1164.all;
-use ieee.numeric_std.all;
-use work.enums2_pkg.all;
-
 entity enums2 is
   port (
     rst_n_i              : in    std_logic;

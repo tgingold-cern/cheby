@@ -237,7 +237,8 @@ def generate_hdl(root):
     root.h_gen = GenBlock(root, module, root)
     root.h_gen.create_generators()
 
-    gen_enums(root, module)
+    if False:
+        gen_enums(root, module)
 
     # Add ports
     iogroup = root.get_extension('x_hdl', 'iogroup')
