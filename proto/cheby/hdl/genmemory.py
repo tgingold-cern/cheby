@@ -200,4 +200,5 @@ class GenMemory(ElGen):
         if r.access in ['rw', 'wo']:
             wrproc.stmts.append(HDLAssign(r.h_sig_wr, bit_0))
             s.append(HDLAssign(r.h_sig_wr, ibus.wr_req))
-            s.append(HDLAssign(ibus.wr_ack, ibus.wr_req))
+        # Always ack the request, even if ignored.
+        s.append(HDLAssign(ibus.wr_ack, ibus.wr_req))
