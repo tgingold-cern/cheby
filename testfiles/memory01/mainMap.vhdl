@@ -99,8 +99,9 @@ begin
   acqVP_value_ext_rd <= '0';
 
   -- Process for write requests.
-  process () begin
+  process (wr_req_d0) begin
     -- Memory acqVP
+    wr_ack_int <= wr_req_d0;
   end process;
 
   -- Process for read requests.
