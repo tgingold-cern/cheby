@@ -1,0 +1,53 @@
+memory-map:
+    name: csr
+    description: Control & Status Registers
+    bus: wb-32-be
+    children:
+    - reg:
+        name: ident
+        description: Board identifier
+        width: 64
+        access: ro
+        type: unsigned
+    - reg:
+        name: version
+        description: Firmware version
+        width: 32
+        access: ro
+        type: unsigned
+    - reg:
+        name: cal_ctrl
+        description: Calibrator control bits
+        width: 32
+        access: rw
+        children:
+        - field:
+            name: cal_sel
+            description: 'Calibrator/ADC select: 00=C1/A1, 01=C2/A2, 10=C1+2/A1, 11=C1+2/A2'
+            range: 1-0
+    - submap:
+        name: i2c_master
+        description: OpenCores I2C Master
+        size: 0x20
+        interface: wb-32-be
+    - memory:
+        name: adc_offs
+        description: ADC offset data
+        address: 0x4000
+        memsize: 16384
+        children:
+        - reg:
+            name: data
+            width: 32
+            access: ro
+    - memory:
+        name: adc_meas
+        description: ADC measurement data
+        address: 0x8000
+        memsize: 16384
+        children:
+        - reg:
+            name: data
+            width: 32
+            access: ro
+
