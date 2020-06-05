@@ -250,25 +250,25 @@ class GenReg(ElGen):
 
         # Write strobe
         if n.hdl_write_strobe:
-            n.h_wreq_port = self.add_module_port(n.c_name + '_wr', size=sz, dir='OUT')
+            n.h_wreq_port = self.add_module_port(n.c_name + '_wr_o', size=sz, dir='OUT')
         else:
             n.h_wreq_port = None
 
         # Read strobe
         if n.hdl_read_strobe:
-            n.h_rreq_port = self.add_module_port(n.c_name + '_rd', size=sz, dir='OUT')
+            n.h_rreq_port = self.add_module_port(n.c_name + '_rd_o', size=sz, dir='OUT')
         else:
             n.h_rreq_port = None
 
         # Write ack
         if n.hdl_write_ack:
-            n.h_wack_port = self.add_module_port(n.c_name + '_wack', size=sz, dir='IN')
+            n.h_wack_port = self.add_module_port(n.c_name + '_wack_i', size=sz, dir='IN')
         else:
             n.h_wack_port = None
 
         # Read ack
         if n.hdl_read_ack:
-            n.h_rack_port = self.add_module_port(n.c_name + '_rack', size=sz, dir='IN')
+            n.h_rack_port = self.add_module_port(n.c_name + '_rack_i', size=sz, dir='IN')
         else:
             n.h_rack_port = None
 
@@ -336,13 +336,13 @@ class GenReg(ElGen):
                 if n.hdl_port == 'reg':
                     # One port used for all fields.
                     if iport is None:
-                        iport = self.add_module_port(n.c_name, n.width, dir='IN')
+                        iport = self.add_module_port(n.c_name + '_i', n.width, dir='IN')
                         iport.comment = comment
                         comment = None
                     f.h_iport = Slice_or_Index(iport, f.lo, w)
                 else:
                     # One port per field.
-                    f.h_iport = self.add_module_port(f.c_name, w, dir='IN')
+                    f.h_iport = self.add_module_port(f.c_name + '_i', w, dir='IN')
                     f.h_iport.comment = comment
                     comment = None
             else:
@@ -353,13 +353,13 @@ class GenReg(ElGen):
                 if n.hdl_port == 'reg':
                     # One port used for all fields.
                     if oport is None:
-                        oport = self.add_module_port(n.c_name, n.width, dir='OUT')
+                        oport = self.add_module_port(n.c_name + '_o', n.width, dir='OUT')
                         oport.comment = comment
                         comment = None
                     f.h_oport = Slice_or_Index(oport, f.lo, w)
                 else:
                     # One port per field.
-                    f.h_oport = self.add_module_port(f.c_name, w, dir='OUT')
+                    f.h_oport = self.add_module_port(f.c_name + '_o', w, dir='OUT')
                     f.h_oport.comment = comment
                     comment = None
             else:

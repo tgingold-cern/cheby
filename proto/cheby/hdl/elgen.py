@@ -11,7 +11,7 @@ class ElGen(object):
     def add_module_port(self, name, size, dir):
         "Utility function to easily add a port to :param module:"
         if self.root.h_itf is None:
-            return self.module.add_port(name + '_' + dirname[dir], size, dir=dir)
+            return self.module.add_port(name, size, dir=dir)
         else:
             p = self.root.h_itf.add_port(name, size, dir=dir)
             return HDLInterfaceSelect(self.root.h_ports, p)

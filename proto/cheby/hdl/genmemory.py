@@ -18,7 +18,7 @@ class GenMemory(ElGen):
         mem = self.n
         # Compute width, and create address port.
         mem.h_addr_width = ilog2(mem.c_depth)
-        mem.h_addr = self.add_module_port(mem.c_name + '_adr', mem.h_addr_width, 'IN')
+        mem.h_addr = self.add_module_port(mem.c_name + '_adr_i', mem.h_addr_width, 'IN')
         mem.h_addr.comment = '\n' + "RAM port for {}".format(mem.c_name)
 
         for c in mem.children:
@@ -36,11 +36,11 @@ class GenMemory(ElGen):
         """
         # Create ports for external access to the RAM.
         if reg.access == 'ro':
-            reg.h_wr = self.add_module_port(reg.c_name + '_we', None, 'IN')
-            reg.h_dat = self.add_module_port(reg.c_name + '_dat', reg.c_rwidth, 'IN')
+            reg.h_wr = self.add_module_port(reg.c_name + '_we_i', None, 'IN')
+            reg.h_dat = self.add_module_port(reg.c_name + '_dat_i', reg.c_rwidth, 'IN')
         else:
-            reg.h_rd = self.add_module_port(reg.c_name + '_rd', None, 'IN')
-            reg.h_dat = self.add_module_port(reg.c_name + '_dat', reg.c_rwidth, 'OUT')
+            reg.h_rd = self.add_module_port(reg.c_name + '_rd_i', None, 'IN')
+            reg.h_dat = self.add_module_port(reg.c_name + '_dat_o', reg.c_rwidth, 'OUT')
 
         if reg.access == 'ro':
             # External port is WO
