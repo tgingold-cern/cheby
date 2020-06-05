@@ -14,6 +14,7 @@ def expand_x_hdl_reg(n, dct):
     n.hdl_read_ack = False
     n.hdl_port = 'field'
     n.hdl_type = None
+    n.hdl_port_name = None
 
     if not n.has_fields():
         # x-hdl can also be used for the implicit field.
@@ -37,6 +38,8 @@ def expand_x_hdl_reg(n, dct):
                 parser.warning(
                     n, "'port' in x-hdl of register '{}' without fields is useless".format(
                         n.get_path()))
+        elif k == 'port_name':
+            n.hdl_port_name = v
         elif not n.has_fields():
             # x-hdl can also be used for the implicit field.
             expand_x_hdl_field_kv(n.children[0], n, k, v)
@@ -47,12 +50,18 @@ def expand_x_hdl_reg(n, dct):
             parser.error("unhandled '{}' in x-hdl of reg {}".format(
                 k, n.get_path()))
 
+    if n.hdl_port == 'field' and n.hdl_port_name is not None and n.has_fields():
+        parser.warning(
+            n, "'port_name' in x-hdl of register '{}' is useless".format(
+                n.get_path()))
+
     if not n.has_fields():
         expand_x_hdl_field_validate(n.children[0])
 
 
 def init_x_hdl_field(f):
     "Set default values for x-hdl attributes of a field"
+    f.hdl_port_name = None
     if f.parent.hdl_type is not None:
         f.hdl_type = f.parent.hdl_type
     elif f.parent.constant is not None:
@@ -75,9 +84,10 @@ def expand_x_hdl_field_type(n, v):
 
 def expand_x_hdl_field_kv(f, n, k, v):
     "Decode one x-hdl attribute for a field"
-
     if k == 'type':
         f.hdl_type = expand_x_hdl_field_type(n, v)
+    elif k == 'port_name':
+        f.hdl_port_name = v
     else:
         parser.error("unhandled '{}' in x-hdl of field {}".format(
             k, n.get_path()))

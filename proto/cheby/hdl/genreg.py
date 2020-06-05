@@ -300,6 +300,17 @@ class GenReg(ElGen):
         else:
             n.h_wreq = None
 
+    def get_port_name(self, n, suffix, both):
+        """Return the name of the port for node :param n: (a reg or a field)
+        :param suffix: is append if the name is not specified with x-hdl:port_name
+        attribute or if :param both: is True"""
+        if isinstance(n, tree.FieldReg):
+            n = n._parent
+        name = n.hdl_port_name or n.c_name
+        if n.hdl_port_name is None or both:
+            name += suffix
+        return name
+
     def gen_ports(self):
         """Add ports and wires for register or fields of :param n:
            :field h_reg: the register.
@@ -331,35 +342,42 @@ class GenReg(ElGen):
                 if pcomment is not None:
                     comment = pcomment if comment is None else comment + '\n' + pcomment
 
+            need_iport = f.h_gen.need_iport()
+            need_oport = f.h_gen.need_oport()
+
             # Input
-            if f.h_gen.need_iport():
+            if need_iport:
                 if n.hdl_port == 'reg':
                     # One port used for all fields.
                     if iport is None:
-                        iport = self.add_module_port(n.c_name + '_i', n.width, dir='IN')
+                        name = self.get_port_name(n, '_i', need_oport)
+                        iport = self.add_module_port(name, n.width, dir='IN')
                         iport.comment = comment
                         comment = None
                     f.h_iport = Slice_or_Index(iport, f.lo, w)
                 else:
                     # One port per field.
-                    f.h_iport = self.add_module_port(f.c_name + '_i', w, dir='IN')
+                    name = self.get_port_name(f, '_i', need_oport)
+                    f.h_iport = self.add_module_port(name, w, dir='IN')
                     f.h_iport.comment = comment
                     comment = None
             else:
                 f.h_iport = None
 
             # Output
-            if f.h_gen.need_oport():
+            if need_oport:
                 if n.hdl_port == 'reg':
                     # One port used for all fields.
                     if oport is None:
-                        oport = self.add_module_port(n.c_name + '_o', n.width, dir='OUT')
+                        name = self.get_port_name(n, '_o', need_iport)
+                        oport = self.add_module_port(name, n.width, dir='OUT')
                         oport.comment = comment
                         comment = None
                     f.h_oport = Slice_or_Index(oport, f.lo, w)
                 else:
                     # One port per field.
-                    f.h_oport = self.add_module_port(f.c_name + '_o', w, dir='OUT')
+                    name = self.get_port_name(f, '_o', need_iport)
+                    f.h_oport = self.add_module_port(name, w, dir='OUT')
                     f.h_oport.comment = comment
                     comment = None
             else:
