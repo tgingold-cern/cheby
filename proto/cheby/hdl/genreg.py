@@ -241,6 +241,16 @@ class GenReg(ElGen):
         else:
             return HDLIndex(lhs, off // self.root.c_word_bits)
 
+    def get_port_name(self, n, suffix, both):
+        """Return the name of the port for node :param n: (a reg or a field)
+        :param suffix: is append if the name is not specified with x-hdl:port_name
+        attribute or if :param both: is True"""
+        if isinstance(n, tree.FieldReg):
+            n = n._parent
+        name = n.hdl_port_name or n.c_name
+        if n.hdl_port_name is None or both:
+            name += suffix
+        return name
 
     def gen_ack_strobe_ports(self):
         n = self.n
@@ -250,25 +260,29 @@ class GenReg(ElGen):
 
         # Write strobe
         if n.hdl_write_strobe:
-            n.h_wreq_port = self.add_module_port(n.c_name + '_wr_o', size=sz, dir='OUT')
+            n.h_wreq_port = self.add_module_port(
+                self.get_port_name(n, '_wr_o', True), size=sz, dir='OUT')
         else:
             n.h_wreq_port = None
 
         # Read strobe
         if n.hdl_read_strobe:
-            n.h_rreq_port = self.add_module_port(n.c_name + '_rd_o', size=sz, dir='OUT')
+            n.h_rreq_port = self.add_module_port(
+                self.get_port_name(n, '_rd_o', True), size=sz, dir='OUT')
         else:
             n.h_rreq_port = None
 
         # Write ack
         if n.hdl_write_ack:
-            n.h_wack_port = self.add_module_port(n.c_name + '_wack_i', size=sz, dir='IN')
+            n.h_wack_port = self.add_module_port(
+                self.get_port_name(n, '_wack_i', True), size=sz, dir='IN')
         else:
             n.h_wack_port = None
 
         # Read ack
         if n.hdl_read_ack:
-            n.h_rack_port = self.add_module_port(n.c_name + '_rack_i', size=sz, dir='IN')
+            n.h_rack_port = self.add_module_port(
+                self.get_port_name(n, '_rack_i', True), size=sz, dir='IN')
         else:
             n.h_rack_port = None
 
@@ -299,17 +313,6 @@ class GenReg(ElGen):
                 n.h_wack = self.module.new_HDLSignal(n.c_name + '_wack', sz)
         else:
             n.h_wreq = None
-
-    def get_port_name(self, n, suffix, both):
-        """Return the name of the port for node :param n: (a reg or a field)
-        :param suffix: is append if the name is not specified with x-hdl:port_name
-        attribute or if :param both: is True"""
-        if isinstance(n, tree.FieldReg):
-            n = n._parent
-        name = n.hdl_port_name or n.c_name
-        if n.hdl_port_name is None or both:
-            name += suffix
-        return name
 
     def gen_ports(self):
         """Add ports and wires for register or fields of :param n:
