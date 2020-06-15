@@ -217,6 +217,7 @@ class AXI4LiteBus(BusGen):
         # Internal signals: valid signals.
         n.h_aw_val = module.new_HDLSignal(prefix + 'aw_val')
         n.h_w_val = module.new_HDLSignal(prefix + 'w_val')
+        n.h_ar_val = module.new_HDLSignal(prefix + 'ar_val')
         # Internal request signals from address decoders
         n.h_rd = module.new_HDLSignal(prefix + 'rd')
         n.h_wr = module.new_HDLSignal(prefix + 'wr')
@@ -235,7 +236,7 @@ class AXI4LiteBus(BusGen):
         stmts.append(HDLAssign(n.h_bus['wstrb'], ibus.wr_sel or HDLReplicate(bit_1, 4)))
         stmts.append(HDLAssign(n.h_bus['bready'], bit_1))
 
-        stmts.append(HDLAssign(n.h_bus['arvalid'], n.h_rd))
+        stmts.append(HDLAssign(n.h_bus['arvalid'], n.h_ar_val))
         if n.h_bus['araddr'] is not None:
             stmts.append(HDLAssign(
                 n.h_bus['araddr'],
@@ -250,15 +251,15 @@ class AXI4LiteBus(BusGen):
         # Machine state for valid/ready AW and W channels
         # Set valid on request, clear valid on ready.
         # Set done on ready, clear done on ack.
-        for x_val, ready in [
-                (n.h_aw_val, n.h_bus['awready']),
-                (n.h_w_val, n.h_bus['wready'])]:
+        for x_val, req, ready in [
+                (n.h_aw_val, n.h_wr, n.h_bus['awready']),
+                (n.h_w_val, n.h_wr, n.h_bus['wready']),
+                (n.h_ar_val, n.h_rd, n.h_bus['arready'])]:
             proc.rst_stmts.append(HDLAssign(x_val, bit_0))
             proc.sync_stmts.append(HDLAssign(x_val, bit_0))
             # VALID is set on WR, cleared by READY.
             proc.sync_stmts.append(
-                HDLAssign(x_val,
-                          HDLOr(n.h_wr, HDLParen(HDLAnd(x_val, HDLNot(ready))))))
+                HDLAssign(x_val, HDLOr(req, HDLParen(HDLAnd(x_val, HDLNot(ready))))))
         stmts.append(proc)
 
     def write_bus_slave(self, root, stmts, n, proc, ibus):
