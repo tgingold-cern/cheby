@@ -183,23 +183,23 @@ begin
     wwo_st_wreq <= '0';
     wwo_sa_wreq <= '0';
     case wr_adr_d0(4 downto 2) is
-    when "000" => 
+    when "000" =>
       -- Reg rwo
       rwo_wreq <= wr_req_d0;
       wr_ack_int <= rwo_wack;
-    when "001" => 
+    when "001" =>
       -- Reg rwo_st
       rwo_st_wreq <= wr_req_d0;
       wr_ack_int <= rwo_st_wack;
-    when "010" => 
+    when "010" =>
       -- Reg rwo_sa
       rwo_sa_wreq <= wr_req_d0;
       wr_ack_int <= rwo_sa_wack_i;
-    when "011" => 
+    when "011" =>
       -- Reg wwo_st
       wwo_st_wreq <= wr_req_d0;
       wr_ack_int <= wr_req_d0;
-    when "100" => 
+    when "100" =>
       -- Reg wwo_sa
       wwo_sa_wreq <= wr_req_d0;
       wr_ack_int <= wwo_sa_wack_i;
@@ -213,19 +213,19 @@ begin
     -- By default ack read requests
     rd_dat_d0 <= (others => 'X');
     case wb_adr_i(4 downto 2) is
-    when "000" => 
+    when "000" =>
       -- Reg rwo
       rd_ack_d0 <= rd_req_int;
-    when "001" => 
+    when "001" =>
       -- Reg rwo_st
       rd_ack_d0 <= rd_req_int;
-    when "010" => 
+    when "010" =>
       -- Reg rwo_sa
       rd_ack_d0 <= rd_req_int;
-    when "011" => 
+    when "011" =>
       -- Reg wwo_st
       rd_ack_d0 <= rd_req_int;
-    when "100" => 
+    when "100" =>
       -- Reg wwo_sa
       rd_ack_d0 <= rd_req_int;
     when others =>

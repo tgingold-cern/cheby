@@ -124,11 +124,11 @@ begin
   process (wr_adr_d0, wr_req_d0, frrw_wack) begin
     frrw_wreq <= (others => '0');
     case wr_adr_d0(2 downto 2) is
-    when "0" => 
+    when "0" =>
       -- Reg frrw
       frrw_wreq(1) <= wr_req_d0;
       wr_ack_int <= frrw_wack(1);
-    when "1" => 
+    when "1" =>
       -- Reg frrw
       frrw_wreq(0) <= wr_req_d0;
       wr_ack_int <= frrw_wack(0);
@@ -142,12 +142,12 @@ begin
     -- By default ack read requests
     rd_dat_d0 <= (others => 'X');
     case wb_adr_i(2 downto 2) is
-    when "0" => 
+    when "0" =>
       -- Reg frrw
       rd_ack_d0 <= rd_req_int;
       rd_dat_d0(7 downto 0) <= frrw_f2_reg(15 downto 8);
       rd_dat_d0(31 downto 8) <= frrw_f3_reg;
-    when "1" => 
+    when "1" =>
       -- Reg frrw
       rd_ack_d0 <= rd_req_int;
       rd_dat_d0(11 downto 0) <= frrw_f1_reg;

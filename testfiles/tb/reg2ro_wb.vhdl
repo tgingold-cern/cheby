@@ -113,16 +113,16 @@ begin
   -- Process for write requests.
   process (wr_adr_d0, wr_req_d0) begin
     case wr_adr_d0(3 downto 2) is
-    when "00" => 
+    when "00" =>
       -- Reg wro
       wr_ack_int <= wr_req_d0;
-    when "01" => 
+    when "01" =>
       -- Reg wro_st
       wr_ack_int <= wr_req_d0;
-    when "10" => 
+    when "10" =>
       -- Reg wro_sa
       wr_ack_int <= wr_req_d0;
-    when "11" => 
+    when "11" =>
       -- Reg wro_sa2
       wr_ack_int <= wr_req_d0;
     when others =>
@@ -138,21 +138,21 @@ begin
     wro_sa_rd_o <= '0';
     wro_sa2_rd_o <= '0';
     case wb_adr_i(3 downto 2) is
-    when "00" => 
+    when "00" =>
       -- Reg wro
       rd_ack_d0 <= rd_req_int;
       rd_dat_d0 <= wro_i;
-    when "01" => 
+    when "01" =>
       -- Reg wro_st
       wro_st_rd_o <= rd_req_int;
       rd_ack_d0 <= rd_req_int;
       rd_dat_d0 <= wro_st_i;
-    when "10" => 
+    when "10" =>
       -- Reg wro_sa
       wro_sa_rd_o <= rd_req_int;
       rd_ack_d0 <= wro_sa_rack_i;
       rd_dat_d0 <= wro_sa_i;
-    when "11" => 
+    when "11" =>
       -- Reg wro_sa2
       wro_sa2_rd_o <= rd_req_int;
       rd_ack_d0 <= wro_sa2_rack_i;

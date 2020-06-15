@@ -313,11 +313,8 @@ begin
         sub2_axi4_w_val <= '0';
         sub2_axi4_ar_val <= '0';
       else
-        sub2_axi4_aw_val <= '0';
         sub2_axi4_aw_val <= sub2_axi4_wr or (sub2_axi4_aw_val and not sub2_axi4_awready_i);
-        sub2_axi4_w_val <= '0';
         sub2_axi4_w_val <= sub2_axi4_wr or (sub2_axi4_w_val and not sub2_axi4_wready_i);
-        sub2_axi4_ar_val <= '0';
         sub2_axi4_ar_val <= sub2_axi4_rd or (sub2_axi4_ar_val and not sub2_axi4_arready_i);
       end if;
     end if;
@@ -337,44 +334,44 @@ begin
     sub2_axi4_wr <= '0';
     sub3_cernbe_VMEWrMem_o <= '0';
     case rd_adr_d0(13 downto 12) is
-    when "00" => 
+    when "00" =>
       case rd_adr_d0(11 downto 5) is
-      when "0000000" => 
+      when "0000000" =>
         case rd_adr_d0(4 downto 2) is
-        when "000" => 
+        when "000" =>
           -- Reg reg1
           reg1_wreq <= wr_req_d0;
           wr_ack_d0 <= reg1_wack;
-        when "001" => 
+        when "001" =>
           -- Reg reg2
           reg2_wreq <= wr_req_d0;
           wr_ack_d0 <= reg2_wack;
         when others =>
           wr_ack_d0 <= wr_req_d0;
         end case;
-      when "0000001" => 
+      when "0000001" =>
         -- Memory ram1
         ram1_val_int_wr <= wr_req_d0;
         wr_ack_d0 <= wr_req_d0;
-      when "0000010" => 
+      when "0000010" =>
         -- Memory ram_ro
         wr_ack_d0 <= wr_req_d0;
-      when "0000011" => 
+      when "0000011" =>
         -- Memory ram2
         ram2_wr_o <= wr_req_d0;
         wr_ack_d0 <= wr_req_d0;
       when others =>
         wr_ack_d0 <= wr_req_d0;
       end case;
-    when "01" => 
+    when "01" =>
       -- Submap sub1_wb
       sub1_wb_we <= wr_req_d0;
       wr_ack_d0 <= sub1_wb_wack;
-    when "10" => 
+    when "10" =>
       -- Submap sub2_axi4
       sub2_axi4_wr <= wr_req_d0;
       wr_ack_d0 <= sub2_axi4_bvalid_i;
-    when "11" => 
+    when "11" =>
       -- Submap sub3_cernbe
       sub3_cernbe_VMEWrMem_o <= wr_req_d0;
       wr_ack_d0 <= sub3_cernbe_VMEWrDone_i;
@@ -394,32 +391,32 @@ begin
     sub2_axi4_rd <= '0';
     sub3_cernbe_VMERdMem_o <= '0';
     case rd_adr_d0(13 downto 12) is
-    when "00" => 
+    when "00" =>
       case rd_adr_d0(11 downto 5) is
-      when "0000000" => 
+      when "0000000" =>
         case rd_adr_d0(4 downto 2) is
-        when "000" => 
+        when "000" =>
           -- Reg reg1
           rd_ack_d0 <= rd_req_d0;
           rd_dat_d0 <= reg1_reg;
-        when "001" => 
+        when "001" =>
           -- Reg reg2
           rd_ack_d0 <= rd_req_d0;
           rd_dat_d0 <= reg2_reg;
         when others =>
           rd_ack_d0 <= rd_req_d0;
         end case;
-      when "0000001" => 
+      when "0000001" =>
         -- Memory ram1
         rd_dat_d0 <= ram1_val_int_dato;
         ram1_val_rreq <= rd_req_d0;
         rd_ack_d0 <= ram1_val_rack;
-      when "0000010" => 
+      when "0000010" =>
         -- Memory ram_ro
         rd_dat_d0 <= ram_ro_val_int_dato;
         ram_ro_val_rreq <= rd_req_d0;
         rd_ack_d0 <= ram_ro_val_rack;
-      when "0000011" => 
+      when "0000011" =>
         -- Memory ram2
         rd_dat_d0 <= ram2_data_i;
         rd_ack_d0 <= ram2_rack;
@@ -427,17 +424,17 @@ begin
       when others =>
         rd_ack_d0 <= rd_req_d0;
       end case;
-    when "01" => 
+    when "01" =>
       -- Submap sub1_wb
       sub1_wb_re <= rd_req_d0;
       rd_dat_d0 <= sub1_wb_dat_i;
       rd_ack_d0 <= sub1_wb_rack;
-    when "10" => 
+    when "10" =>
       -- Submap sub2_axi4
       sub2_axi4_rd <= rd_req_d0;
       rd_dat_d0 <= sub2_axi4_rdata_i;
       rd_ack_d0 <= sub2_axi4_rvalid_i;
-    when "11" => 
+    when "11" =>
       -- Submap sub3_cernbe
       sub3_cernbe_VMERdMem_o <= rd_req_d0;
       rd_dat_d0 <= sub3_cernbe_VMERdData_i;

@@ -191,7 +191,7 @@ begin
   bresp <= "00";
 
   -- AR and R channels
-  rd_req <= arvalid and not axi_rip;
+  rd_req <= arvalid and not (axi_rip or axi_rdone);
   arready <= rd_ack_int;
   rvalid <= axi_rdone;
   process (aclk) begin
@@ -239,7 +239,7 @@ begin
   subm_arvalid_o <= subm_ar_val;
   subm_araddr_o <= araddr(2 downto 2);
   subm_arprot_o <= "000";
-  subm_rready_o <= rready;
+  subm_rready_o <= '1';
   process (aclk) begin
     if rising_edge(aclk) then
       if areset_n = '0' then

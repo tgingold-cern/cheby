@@ -96,34 +96,34 @@ begin
   -- Process for write requests.
   process (wr_adr_d0, wr_req_d0) begin
     case wr_adr_d0(4 downto 3) is
-    when "00" => 
+    when "00" =>
       case wr_adr_d0(2 downto 2) is
-      when "0" => 
+      when "0" =>
         -- Reg reg1
         wr_ack_int <= wr_req_d0;
-      when "1" => 
+      when "1" =>
         -- Reg reg2
         wr_ack_int <= wr_req_d0;
       when others =>
         wr_ack_int <= wr_req_d0;
       end case;
-    when "01" => 
+    when "01" =>
       case wr_adr_d0(2 downto 2) is
-      when "0" => 
+      when "0" =>
         -- Reg reg3
         wr_ack_int <= wr_req_d0;
-      when "1" => 
+      when "1" =>
         -- Reg reg3
         wr_ack_int <= wr_req_d0;
       when others =>
         wr_ack_int <= wr_req_d0;
       end case;
-    when "10" => 
+    when "10" =>
       case wr_adr_d0(2 downto 2) is
-      when "0" => 
+      when "0" =>
         -- Reg reg4
         wr_ack_int <= wr_req_d0;
-      when "1" => 
+      when "1" =>
         -- Reg reg4
         wr_ack_int <= wr_req_d0;
       when others =>
@@ -139,13 +139,13 @@ begin
     -- By default ack read requests
     rd_dat_d0 <= (others => 'X');
     case wb_adr_i(4 downto 3) is
-    when "00" => 
+    when "00" =>
       case wb_adr_i(2 downto 2) is
-      when "0" => 
+      when "0" =>
         -- Reg reg1
         rd_ack_d0 <= rd_req_int;
         rd_dat_d0 <= "10101011110011010001001000110100";
-      when "1" => 
+      when "1" =>
         -- Reg reg2
         rd_ack_d0 <= rd_req_int;
         rd_dat_d0(0) <= '1';
@@ -155,15 +155,15 @@ begin
       when others =>
         rd_ack_d0 <= rd_req_int;
       end case;
-    when "01" => 
+    when "01" =>
       case wb_adr_i(2 downto 2) is
-      when "0" => 
+      when "0" =>
         -- Reg reg3
         rd_ack_d0 <= rd_req_int;
         rd_dat_d0(8 downto 0) <= "011001011";
         rd_dat_d0(27 downto 9) <= (others => '0');
         rd_dat_d0(31 downto 28) <= "1010";
-      when "1" => 
+      when "1" =>
         -- Reg reg3
         rd_ack_d0 <= rd_req_int;
         rd_dat_d0(0) <= '1';
@@ -173,13 +173,13 @@ begin
       when others =>
         rd_ack_d0 <= rd_req_int;
       end case;
-    when "10" => 
+    when "10" =>
       case wb_adr_i(2 downto 2) is
-      when "0" => 
+      when "0" =>
         -- Reg reg4
         rd_ack_d0 <= rd_req_int;
         rd_dat_d0 <= "10101011110011010001001000110100";
-      when "1" => 
+      when "1" =>
         -- Reg reg4
         rd_ack_d0 <= rd_req_int;
         rd_dat_d0 <= "01010110011110001001000011101111";

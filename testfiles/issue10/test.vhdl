@@ -112,7 +112,7 @@ begin
   bresp <= "00";
 
   -- AR and R channels
-  rd_req <= arvalid and not axi_rip;
+  rd_req <= arvalid and not (axi_rip or axi_rdone);
   arready <= rd_ack_int;
   rvalid <= axi_rdone;
   process (aclk) begin

@@ -287,47 +287,47 @@ begin
     wrw_rws_ra_wreq <= '0';
     wrw_rws_rwa_wreq <= '0';
     case wr_adr_d0(5 downto 2) is
-    when "0000" => 
+    when "0000" =>
       -- Reg rrw
       rrw_wreq <= wr_req_d0;
       wr_ack_int <= rrw_wack;
-    when "0001" => 
+    when "0001" =>
       -- Reg rrw_rs
       rrw_rs_wreq <= wr_req_d0;
       wr_ack_int <= rrw_rs_wack;
-    when "0010" => 
+    when "0010" =>
       -- Reg rrw_ws
       rrw_ws_wreq <= wr_req_d0;
       wr_ack_int <= rrw_ws_wack;
-    when "0011" => 
+    when "0011" =>
       -- Reg rrw_rws
       rrw_rws_wreq <= wr_req_d0;
       wr_ack_int <= rrw_rws_wack;
-    when "0100" => 
+    when "0100" =>
       -- Reg rrw_ws_wa
       rrw_ws_wa_wreq <= wr_req_d0;
       wr_ack_int <= rrw_ws_wa_wack_i;
-    when "0101" => 
+    when "0101" =>
       -- Reg wrw_ws
       wrw_ws_wreq <= wr_req_d0;
       wr_ack_int <= wr_req_d0;
-    when "0110" => 
+    when "0110" =>
       -- Reg wrw_rws
       wrw_rws_wreq <= wr_req_d0;
       wr_ack_int <= wr_req_d0;
-    when "0111" => 
+    when "0111" =>
       -- Reg wrw_ws_wa
       wrw_ws_wa_wreq <= wr_req_d0;
       wr_ack_int <= wrw_ws_wa_wack_i;
-    when "1000" => 
+    when "1000" =>
       -- Reg wrw_rws_wa
       wrw_rws_wa_wreq <= wr_req_d0;
       wr_ack_int <= wrw_rws_wa_wack_i;
-    when "1001" => 
+    when "1001" =>
       -- Reg wrw_rws_ra
       wrw_rws_ra_wreq <= wr_req_d0;
       wr_ack_int <= wr_req_d0;
-    when "1010" => 
+    when "1010" =>
       -- Reg wrw_rws_rwa
       wrw_rws_rwa_wreq <= wr_req_d0;
       wr_ack_int <= wrw_rws_rwa_wack_i;
@@ -347,52 +347,52 @@ begin
     wrw_rws_ra_rd_o <= '0';
     wrw_rws_rwa_rd_o <= '0';
     case wb_adr_i(5 downto 2) is
-    when "0000" => 
+    when "0000" =>
       -- Reg rrw
       rd_ack_d0 <= rd_req_int;
       rd_dat_d0 <= rrw_reg;
-    when "0001" => 
+    when "0001" =>
       -- Reg rrw_rs
       rrw_rs_rd_o <= rd_req_int;
       rd_ack_d0 <= rd_req_int;
       rd_dat_d0 <= rrw_rs_reg;
-    when "0010" => 
+    when "0010" =>
       -- Reg rrw_ws
       rd_ack_d0 <= rd_req_int;
       rd_dat_d0 <= rrw_ws_reg;
-    when "0011" => 
+    when "0011" =>
       -- Reg rrw_rws
       rrw_rws_rd_o <= rd_req_int;
       rd_ack_d0 <= rd_req_int;
       rd_dat_d0 <= rrw_rws_reg;
-    when "0100" => 
+    when "0100" =>
       -- Reg rrw_ws_wa
       rd_ack_d0 <= rd_req_int;
       rd_dat_d0 <= rrw_ws_wa_reg;
-    when "0101" => 
+    when "0101" =>
       -- Reg wrw_ws
       rd_ack_d0 <= rd_req_int;
       rd_dat_d0 <= wrw_ws_i;
-    when "0110" => 
+    when "0110" =>
       -- Reg wrw_rws
       wrw_rws_rd_o <= rd_req_int;
       rd_ack_d0 <= rd_req_int;
       rd_dat_d0 <= wrw_rws_i;
-    when "0111" => 
+    when "0111" =>
       -- Reg wrw_ws_wa
       rd_ack_d0 <= rd_req_int;
       rd_dat_d0 <= wrw_ws_wa_i;
-    when "1000" => 
+    when "1000" =>
       -- Reg wrw_rws_wa
       wrw_rws_wa_rd_o <= rd_req_int;
       rd_ack_d0 <= rd_req_int;
       rd_dat_d0 <= wrw_rws_wa_i;
-    when "1001" => 
+    when "1001" =>
       -- Reg wrw_rws_ra
       wrw_rws_ra_rd_o <= rd_req_int;
       rd_ack_d0 <= wrw_rws_ra_rack_i;
       rd_dat_d0 <= wrw_rws_ra_i;
-    when "1010" => 
+    when "1010" =>
       -- Reg wrw_rws_rwa
       wrw_rws_rwa_rd_o <= rd_req_int;
       rd_ack_d0 <= wrw_rws_rwa_rack_i;

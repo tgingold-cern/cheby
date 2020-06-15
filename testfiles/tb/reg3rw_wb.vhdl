@@ -268,65 +268,65 @@ begin
     frrw_rws_wreq <= (others => '0');
     frrw_rws_rwa_wreq <= (others => '0');
     case wr_adr_d0(5 downto 3) is
-    when "000" => 
+    when "000" =>
       case wr_adr_d0(2 downto 2) is
-      when "0" => 
+      when "0" =>
         -- Reg rrw
         rrw_wreq(1) <= wr_req_d0;
         wr_ack_int <= rrw_wack(1);
-      when "1" => 
+      when "1" =>
         -- Reg rrw
         rrw_wreq(0) <= wr_req_d0;
         wr_ack_int <= rrw_wack(0);
       when others =>
         wr_ack_int <= wr_req_d0;
       end case;
-    when "001" => 
+    when "001" =>
       case wr_adr_d0(2 downto 2) is
-      when "0" => 
+      when "0" =>
         -- Reg frrw
         frrw_wreq(1) <= wr_req_d0;
         wr_ack_int <= frrw_wack(1);
-      when "1" => 
+      when "1" =>
         -- Reg frrw
         frrw_wreq(0) <= wr_req_d0;
         wr_ack_int <= frrw_wack(0);
       when others =>
         wr_ack_int <= wr_req_d0;
       end case;
-    when "010" => 
+    when "010" =>
       case wr_adr_d0(2 downto 2) is
-      when "0" => 
+      when "0" =>
         -- Reg frrw_ws
         frrw_ws_wreq(1) <= wr_req_d0;
         wr_ack_int <= frrw_ws_wack(1);
-      when "1" => 
+      when "1" =>
         -- Reg frrw_ws
         frrw_ws_wreq(0) <= wr_req_d0;
         wr_ack_int <= frrw_ws_wack(0);
       when others =>
         wr_ack_int <= wr_req_d0;
       end case;
-    when "011" => 
+    when "011" =>
       case wr_adr_d0(2 downto 2) is
-      when "0" => 
+      when "0" =>
         -- Reg frrw_rws
         frrw_rws_wreq(1) <= wr_req_d0;
         wr_ack_int <= frrw_rws_wack(1);
-      when "1" => 
+      when "1" =>
         -- Reg frrw_rws
         frrw_rws_wreq(0) <= wr_req_d0;
         wr_ack_int <= frrw_rws_wack(0);
       when others =>
         wr_ack_int <= wr_req_d0;
       end case;
-    when "100" => 
+    when "100" =>
       case wr_adr_d0(2 downto 2) is
-      when "0" => 
+      when "0" =>
         -- Reg frrw_rws_rwa
         frrw_rws_rwa_wreq(1) <= wr_req_d0;
         wr_ack_int <= frrw_rws_rwa_wack_i(1);
-      when "1" => 
+      when "1" =>
         -- Reg frrw_rws_rwa
         frrw_rws_rwa_wreq(0) <= wr_req_d0;
         wr_ack_int <= frrw_rws_rwa_wack_i(0);
@@ -345,27 +345,27 @@ begin
     frrw_rws_rd_o <= (others => '0');
     frrw_rws_rwa_rd_o <= (others => '0');
     case wb_adr_i(5 downto 3) is
-    when "000" => 
+    when "000" =>
       case wb_adr_i(2 downto 2) is
-      when "0" => 
+      when "0" =>
         -- Reg rrw
         rd_ack_d0 <= rd_req_int;
         rd_dat_d0 <= rrw_reg(63 downto 32);
-      when "1" => 
+      when "1" =>
         -- Reg rrw
         rd_ack_d0 <= rd_req_int;
         rd_dat_d0 <= rrw_reg(31 downto 0);
       when others =>
         rd_ack_d0 <= rd_req_int;
       end case;
-    when "001" => 
+    when "001" =>
       case wb_adr_i(2 downto 2) is
-      when "0" => 
+      when "0" =>
         -- Reg frrw
         rd_ack_d0 <= rd_req_int;
         rd_dat_d0(7 downto 0) <= frrw_f2_reg(15 downto 8);
         rd_dat_d0(31 downto 8) <= frrw_f3_reg;
-      when "1" => 
+      when "1" =>
         -- Reg frrw
         rd_ack_d0 <= rd_req_int;
         rd_dat_d0(11 downto 0) <= frrw_f1_reg;
@@ -374,14 +374,14 @@ begin
       when others =>
         rd_ack_d0 <= rd_req_int;
       end case;
-    when "010" => 
+    when "010" =>
       case wb_adr_i(2 downto 2) is
-      when "0" => 
+      when "0" =>
         -- Reg frrw_ws
         rd_ack_d0 <= rd_req_int;
         rd_dat_d0(7 downto 0) <= frrw_ws_f2_reg(15 downto 8);
         rd_dat_d0(31 downto 8) <= frrw_ws_f3_reg;
-      when "1" => 
+      when "1" =>
         -- Reg frrw_ws
         rd_ack_d0 <= rd_req_int;
         rd_dat_d0(11 downto 0) <= frrw_ws_f1_reg;
@@ -390,15 +390,15 @@ begin
       when others =>
         rd_ack_d0 <= rd_req_int;
       end case;
-    when "011" => 
+    when "011" =>
       case wb_adr_i(2 downto 2) is
-      when "0" => 
+      when "0" =>
         -- Reg frrw_rws
         frrw_rws_rd_o(1) <= rd_req_int;
         rd_ack_d0 <= rd_req_int;
         rd_dat_d0(7 downto 0) <= frrw_rws_f2_reg(15 downto 8);
         rd_dat_d0(31 downto 8) <= frrw_rws_f3_reg;
-      when "1" => 
+      when "1" =>
         -- Reg frrw_rws
         frrw_rws_rd_o(0) <= rd_req_int;
         rd_ack_d0 <= rd_req_int;
@@ -408,15 +408,15 @@ begin
       when others =>
         rd_ack_d0 <= rd_req_int;
       end case;
-    when "100" => 
+    when "100" =>
       case wb_adr_i(2 downto 2) is
-      when "0" => 
+      when "0" =>
         -- Reg frrw_rws_rwa
         frrw_rws_rwa_rd_o(1) <= rd_req_int;
         rd_ack_d0 <= frrw_rws_rwa_rack_i(1);
         rd_dat_d0(7 downto 0) <= frrw_rws_rwa_f2_reg(15 downto 8);
         rd_dat_d0(31 downto 8) <= frrw_rws_rwa_f3_reg;
-      when "1" => 
+      when "1" =>
         -- Reg frrw_rws_rwa
         frrw_rws_rwa_rd_o(0) <= rd_req_int;
         rd_ack_d0 <= frrw_rws_rwa_rack_i(0);

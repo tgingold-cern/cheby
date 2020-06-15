@@ -102,7 +102,7 @@ begin
 
   -- AR and R channels
   rd_addr <= araddr(2 downto 2);
-  rd_req <= arvalid and not axi_rip;
+  rd_req <= arvalid and not (axi_rip or axi_rdone);
   arready <= rd_ack_int;
   rvalid <= axi_rdone;
   process (aclk) begin
