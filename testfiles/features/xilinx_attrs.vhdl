@@ -65,6 +65,7 @@ architecture syn of xilinx_attrs is
   signal axi_rdone                      : std_logic;
   signal subm_aw_val                    : std_logic;
   signal subm_w_val                     : std_logic;
+  signal subm_ar_val                    : std_logic;
   signal subm_rd                        : std_logic;
   signal subm_wr                        : std_logic;
   signal rd_ack_d0                      : std_logic;
@@ -235,7 +236,7 @@ begin
   subm_wdata_o <= wr_dat_d0;
   subm_wstrb_o <= wr_sel_d0;
   subm_bready_o <= '1';
-  subm_arvalid_o <= subm_rd;
+  subm_arvalid_o <= subm_ar_val;
   subm_araddr_o <= araddr(2 downto 2);
   subm_arprot_o <= "000";
   subm_rready_o <= rready;
@@ -244,11 +245,14 @@ begin
       if areset_n = '0' then
         subm_aw_val <= '0';
         subm_w_val <= '0';
+        subm_ar_val <= '0';
       else
         subm_aw_val <= '0';
         subm_aw_val <= subm_wr or (subm_aw_val and not subm_awready_i);
         subm_w_val <= '0';
         subm_w_val <= subm_wr or (subm_w_val and not subm_wready_i);
+        subm_ar_val <= '0';
+        subm_ar_val <= subm_rd or (subm_ar_val and not subm_arready_i);
       end if;
     end if;
   end process;

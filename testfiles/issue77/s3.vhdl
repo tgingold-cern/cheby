@@ -61,6 +61,7 @@ architecture syn of s3 is
   signal axi_rdone                      : std_logic;
   signal sub_aw_val                     : std_logic;
   signal sub_w_val                      : std_logic;
+  signal sub_ar_val                     : std_logic;
   signal sub_rd                         : std_logic;
   signal sub_wr                         : std_logic;
   signal rd_ack_d0                      : std_logic;
@@ -150,7 +151,7 @@ begin
   sub_wdata_o <= wr_dat_d0;
   sub_wstrb_o <= wr_sel_d0;
   sub_bready_o <= '1';
-  sub_arvalid_o <= sub_rd;
+  sub_arvalid_o <= sub_ar_val;
   sub_arprot_o <= "000";
   sub_rready_o <= rready;
   process (aclk) begin
@@ -158,11 +159,14 @@ begin
       if areset_n = '0' then
         sub_aw_val <= '0';
         sub_w_val <= '0';
+        sub_ar_val <= '0';
       else
         sub_aw_val <= '0';
         sub_aw_val <= sub_wr or (sub_aw_val and not sub_awready_i);
         sub_w_val <= '0';
         sub_w_val <= sub_wr or (sub_w_val and not sub_wready_i);
+        sub_ar_val <= '0';
+        sub_ar_val <= sub_rd or (sub_ar_val and not sub_arready_i);
       end if;
     end if;
   end process;

@@ -140,6 +140,7 @@ architecture syn of all1_axi4 is
   signal sub1_wb_rr                     : std_logic;
   signal sub2_axi4_aw_val               : std_logic;
   signal sub2_axi4_w_val                : std_logic;
+  signal sub2_axi4_ar_val               : std_logic;
   signal sub2_axi4_rd                   : std_logic;
   signal sub2_axi4_wr                   : std_logic;
   signal sub3_cernbe_wr                 : std_logic;
@@ -434,7 +435,7 @@ begin
   sub2_axi4_wdata_o <= wr_dat_d0;
   sub2_axi4_wstrb_o <= wr_sel_d0;
   sub2_axi4_bready_o <= '1';
-  sub2_axi4_arvalid_o <= sub2_axi4_rd;
+  sub2_axi4_arvalid_o <= sub2_axi4_ar_val;
   sub2_axi4_araddr_o <= rd_adr_d0(11 downto 2);
   sub2_axi4_arprot_o <= "000";
   sub2_axi4_rready_o <= rready;
@@ -443,11 +444,14 @@ begin
       if areset_n = '0' then
         sub2_axi4_aw_val <= '0';
         sub2_axi4_w_val <= '0';
+        sub2_axi4_ar_val <= '0';
       else
         sub2_axi4_aw_val <= '0';
         sub2_axi4_aw_val <= sub2_axi4_wr or (sub2_axi4_aw_val and not sub2_axi4_awready_i);
         sub2_axi4_w_val <= '0';
         sub2_axi4_w_val <= sub2_axi4_wr or (sub2_axi4_w_val and not sub2_axi4_wready_i);
+        sub2_axi4_ar_val <= '0';
+        sub2_axi4_ar_val <= sub2_axi4_rd or (sub2_axi4_ar_val and not sub2_axi4_arready_i);
       end if;
     end if;
   end process;
@@ -511,6 +515,7 @@ begin
         wr_ack_d0 <= wr_req_d0;
       when "0000010" => 
         -- Memory ram_ro
+        wr_ack_d0 <= wr_req_d0;
       when "0000011" => 
         -- Memory ram2
         ram2_wr_o <= ram2_we;

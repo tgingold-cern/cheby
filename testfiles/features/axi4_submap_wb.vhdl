@@ -52,6 +52,7 @@ architecture syn of axi4_submap_wb is
   signal wb_wip                         : std_logic;
   signal blk_aw_val                     : std_logic;
   signal blk_w_val                      : std_logic;
+  signal blk_ar_val                     : std_logic;
   signal blk_rd                         : std_logic;
   signal blk_wr                         : std_logic;
   signal rd_ack_d0                      : std_logic;
@@ -118,7 +119,7 @@ begin
   blk_wdata_o <= wr_dat_d0;
   blk_wstrb_o <= wr_sel_d0;
   blk_bready_o <= '1';
-  blk_arvalid_o <= blk_rd;
+  blk_arvalid_o <= blk_ar_val;
   blk_araddr_o <= wb_adr_i(2 downto 2) & "00";
   blk_arprot_o <= "000";
   blk_rready_o <= '1';
@@ -127,11 +128,14 @@ begin
       if rst_n_i = '0' then
         blk_aw_val <= '0';
         blk_w_val <= '0';
+        blk_ar_val <= '0';
       else
         blk_aw_val <= '0';
         blk_aw_val <= blk_wr or (blk_aw_val and not blk_awready_i);
         blk_w_val <= '0';
         blk_w_val <= blk_wr or (blk_w_val and not blk_wready_i);
+        blk_ar_val <= '0';
+        blk_ar_val <= blk_rd or (blk_ar_val and not blk_arready_i);
       end if;
     end if;
   end process;
