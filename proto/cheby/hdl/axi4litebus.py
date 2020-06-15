@@ -256,8 +256,7 @@ class AXI4LiteBus(BusGen):
                 (n.h_w_val, n.h_wr, n.h_bus['wready']),
                 (n.h_ar_val, n.h_rd, n.h_bus['arready'])]:
             proc.rst_stmts.append(HDLAssign(x_val, bit_0))
-            proc.sync_stmts.append(HDLAssign(x_val, bit_0))
-            # VALID is set on WR, cleared by READY.
+            # VALID is set on REQ, cleared by READY.
             proc.sync_stmts.append(
                 HDLAssign(x_val, HDLOr(req, HDLParen(HDLAnd(x_val, HDLNot(ready))))))
         stmts.append(proc)
