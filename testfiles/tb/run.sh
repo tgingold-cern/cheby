@@ -117,6 +117,16 @@ build_wb_reg_orclr()
     build_wb_any reg8orclr
 }
 
+build_all2()
+{
+    $CHEBY --no-header --gen-hdl=sub2_axi4.vhdl -i sub2_axi4.cheby
+    $CHEBY --no-header --gen-hdl=all2_axi4.vhdl -i all2_axi4.cheby
+    $GHDL -a $GHDL_FLAGS sub2_axi4.vhdl
+    $GHDL -a $GHDL_FLAGS all2_axi4.vhdl
+    $GHDL -a $GHDL_FLAGS all2_axi4_tb.vhdl
+    $GHDL --elab-run $GHDL_FLAGS all2_axi4_tb --assert-level=error --wave=all2_axi4_tb.ghw
+}
+
 build_infra
 
 # AXI4 byte/word addresses.
@@ -146,5 +156,7 @@ do
     build_axi4
     build_cernbe
 done
+
+build_all2
 
 echo "SUCCESS"

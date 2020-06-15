@@ -1,0 +1,27 @@
+memory-map:
+  bus: axi4-lite-32
+  name: sub2_axi4
+  x-hdl:
+    busgroup: True
+  children:
+  - reg:
+      name: reg1
+      description: A register
+      type: unsigned
+      width: 32
+      access: rw
+      preset: 0x12350000
+  - reg:
+      name: reg2
+      type: unsigned
+      width: 32
+      access: rw
+      preset: 0x12340002
+  - memory:
+      name: ram1
+      memsize: 32
+      children:
+      - reg:
+          name: val
+          access: rw
+          width: 32
