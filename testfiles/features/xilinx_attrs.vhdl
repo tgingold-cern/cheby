@@ -247,11 +247,8 @@ begin
         subm_w_val <= '0';
         subm_ar_val <= '0';
       else
-        subm_aw_val <= '0';
         subm_aw_val <= subm_wr or (subm_aw_val and not subm_awready_i);
-        subm_w_val <= '0';
         subm_w_val <= subm_wr or (subm_w_val and not subm_wready_i);
-        subm_ar_val <= '0';
         subm_ar_val <= subm_rd or (subm_ar_val and not subm_arready_i);
       end if;
     end if;

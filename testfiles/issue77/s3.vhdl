@@ -161,11 +161,8 @@ begin
         sub_w_val <= '0';
         sub_ar_val <= '0';
       else
-        sub_aw_val <= '0';
         sub_aw_val <= sub_wr or (sub_aw_val and not sub_awready_i);
-        sub_w_val <= '0';
         sub_w_val <= sub_wr or (sub_w_val and not sub_wready_i);
-        sub_ar_val <= '0';
         sub_ar_val <= sub_rd or (sub_ar_val and not sub_arready_i);
       end if;
     end if;

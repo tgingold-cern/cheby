@@ -130,11 +130,8 @@ begin
         blk_w_val <= '0';
         blk_ar_val <= '0';
       else
-        blk_aw_val <= '0';
         blk_aw_val <= blk_wr or (blk_aw_val and not blk_awready_i);
-        blk_w_val <= '0';
         blk_w_val <= blk_wr or (blk_w_val and not blk_wready_i);
-        blk_ar_val <= '0';
         blk_ar_val <= blk_rd or (blk_ar_val and not blk_arready_i);
       end if;
     end if;
