@@ -268,27 +268,27 @@ begin
     cal_ctrl_wreq <= '0';
     i2c_master_we <= '0';
     case wr_adr_d0(15 downto 14) is
-    when "00" => 
+    when "00" =>
       case wr_adr_d0(13 downto 5) is
-      when "000000000" => 
+      when "000000000" =>
         case wr_adr_d0(4 downto 3) is
-        when "00" => 
+        when "00" =>
           case wr_adr_d0(2 downto 2) is
-          when "0" => 
+          when "0" =>
             -- Reg ident
             wr_ack_int <= wr_req_d0;
-          when "1" => 
+          when "1" =>
             -- Reg ident
             wr_ack_int <= wr_req_d0;
           when others =>
             wr_ack_int <= wr_req_d0;
           end case;
-        when "01" => 
+        when "01" =>
           case wr_adr_d0(2 downto 2) is
-          when "0" => 
+          when "0" =>
             -- Reg version
             wr_ack_int <= wr_req_d0;
-          when "1" => 
+          when "1" =>
             -- Reg cal_ctrl
             cal_ctrl_wreq <= wr_req_d0;
             wr_ack_int <= cal_ctrl_wack;
@@ -298,17 +298,17 @@ begin
         when others =>
           wr_ack_int <= wr_req_d0;
         end case;
-      when "000000001" => 
+      when "000000001" =>
         -- Submap i2c_master
         i2c_master_we <= wr_req_d0;
         wr_ack_int <= i2c_master_wack;
       when others =>
         wr_ack_int <= wr_req_d0;
       end case;
-    when "01" => 
+    when "01" =>
       -- Memory adc_offs
       wr_ack_int <= wr_req_d0;
-    when "10" => 
+    when "10" =>
       -- Memory adc_meas
       wr_ack_int <= wr_req_d0;
     when others =>
@@ -324,30 +324,30 @@ begin
     adc_offs_data_rreq <= '0';
     adc_meas_data_rreq <= '0';
     case wb_adr_i(15 downto 14) is
-    when "00" => 
+    when "00" =>
       case wb_adr_i(13 downto 5) is
-      when "000000000" => 
+      when "000000000" =>
         case wb_adr_i(4 downto 3) is
-        when "00" => 
+        when "00" =>
           case wb_adr_i(2 downto 2) is
-          when "0" => 
+          when "0" =>
             -- Reg ident
             rd_ack_d0 <= rd_req_int;
             rd_dat_d0 <= ident_i(63 downto 32);
-          when "1" => 
+          when "1" =>
             -- Reg ident
             rd_ack_d0 <= rd_req_int;
             rd_dat_d0 <= ident_i(31 downto 0);
           when others =>
             rd_ack_d0 <= rd_req_int;
           end case;
-        when "01" => 
+        when "01" =>
           case wb_adr_i(2 downto 2) is
-          when "0" => 
+          when "0" =>
             -- Reg version
             rd_ack_d0 <= rd_req_int;
             rd_dat_d0 <= version_i;
-          when "1" => 
+          when "1" =>
             -- Reg cal_ctrl
             rd_ack_d0 <= rd_req_int;
             rd_dat_d0(1 downto 0) <= cal_ctrl_cal_sel_reg;
@@ -358,7 +358,7 @@ begin
         when others =>
           rd_ack_d0 <= rd_req_int;
         end case;
-      when "000000001" => 
+      when "000000001" =>
         -- Submap i2c_master
         i2c_master_re <= rd_req_int;
         rd_dat_d0 <= i2c_master_dat_i;
@@ -366,12 +366,12 @@ begin
       when others =>
         rd_ack_d0 <= rd_req_int;
       end case;
-    when "01" => 
+    when "01" =>
       -- Memory adc_offs
       rd_dat_d0 <= adc_offs_data_int_dato;
       adc_offs_data_rreq <= rd_req_int;
       rd_ack_d0 <= adc_offs_data_rack;
-    when "10" => 
+    when "10" =>
       -- Memory adc_meas
       rd_dat_d0 <= adc_meas_data_int_dato;
       adc_meas_data_rreq <= rd_req_int;

@@ -96,41 +96,41 @@ begin
   process (wr_adr_d0, wr_req_d0, echo_wack) begin
     echo_wreq <= (others => '0');
     case wr_adr_d0(4 downto 1) is
-    when "0000" => 
+    when "0000" =>
       -- Reg stdVersion
       wr_ack_int <= wr_req_d0;
-    when "0001" => 
+    when "0001" =>
       -- Reg stdVersion
       wr_ack_int <= wr_req_d0;
-    when "0010" => 
+    when "0010" =>
       -- Reg serialNumber
       wr_ack_int <= wr_req_d0;
-    when "0011" => 
+    when "0011" =>
       -- Reg serialNumber
       wr_ack_int <= wr_req_d0;
-    when "0100" => 
+    when "0100" =>
       -- Reg serialNumber
       wr_ack_int <= wr_req_d0;
-    when "0101" => 
+    when "0101" =>
       -- Reg serialNumber
       wr_ack_int <= wr_req_d0;
-    when "0110" => 
+    when "0110" =>
       -- Reg firmwareVersion
       wr_ack_int <= wr_req_d0;
-    when "0111" => 
+    when "0111" =>
       -- Reg firmwareVersion
       wr_ack_int <= wr_req_d0;
-    when "1000" => 
+    when "1000" =>
       -- Reg memMapVersion
       wr_ack_int <= wr_req_d0;
-    when "1001" => 
+    when "1001" =>
       -- Reg memMapVersion
       wr_ack_int <= wr_req_d0;
-    when "1010" => 
+    when "1010" =>
       -- Reg echo
       echo_wreq(1) <= wr_req_d0;
       wr_ack_int <= echo_wack(1);
-    when "1011" => 
+    when "1011" =>
       -- Reg echo
       echo_wreq(0) <= wr_req_d0;
       wr_ack_int <= echo_wack(0);
@@ -144,57 +144,57 @@ begin
     -- By default ack read requests
     rd_dat_d0 <= (others => 'X');
     case VMEAddr(4 downto 1) is
-    when "0000" => 
+    when "0000" =>
       -- Reg stdVersion
       rd_ack_d0 <= VMERdMem;
       rd_dat_d0(7 downto 0) <= "00000001";
       rd_dat_d0(15 downto 8) <= (others => '0');
-    when "0001" => 
+    when "0001" =>
       -- Reg stdVersion
       rd_ack_d0 <= VMERdMem;
       rd_dat_d0(7 downto 0) <= "00000000";
       rd_dat_d0(15 downto 8) <= "00000000";
-    when "0010" => 
+    when "0010" =>
       -- Reg serialNumber
       rd_ack_d0 <= VMERdMem;
       rd_dat_d0 <= serialNumber_i(63 downto 48);
-    when "0011" => 
+    when "0011" =>
       -- Reg serialNumber
       rd_ack_d0 <= VMERdMem;
       rd_dat_d0 <= serialNumber_i(47 downto 32);
-    when "0100" => 
+    when "0100" =>
       -- Reg serialNumber
       rd_ack_d0 <= VMERdMem;
       rd_dat_d0 <= serialNumber_i(31 downto 16);
-    when "0101" => 
+    when "0101" =>
       -- Reg serialNumber
       rd_ack_d0 <= VMERdMem;
       rd_dat_d0 <= serialNumber_i(15 downto 0);
-    when "0110" => 
+    when "0110" =>
       -- Reg firmwareVersion
       rd_ack_d0 <= VMERdMem;
       rd_dat_d0(7 downto 0) <= firmwareVersion_major_i;
       rd_dat_d0(15 downto 8) <= (others => '0');
-    when "0111" => 
+    when "0111" =>
       -- Reg firmwareVersion
       rd_ack_d0 <= VMERdMem;
       rd_dat_d0(7 downto 0) <= firmwareVersion_patch_i;
       rd_dat_d0(15 downto 8) <= firmwareVersion_minor_i;
-    when "1000" => 
+    when "1000" =>
       -- Reg memMapVersion
       rd_ack_d0 <= VMERdMem;
       rd_dat_d0(7 downto 0) <= memMapVersion_major_i;
       rd_dat_d0(15 downto 8) <= (others => '0');
-    when "1001" => 
+    when "1001" =>
       -- Reg memMapVersion
       rd_ack_d0 <= VMERdMem;
       rd_dat_d0(7 downto 0) <= memMapVersion_patch_i;
       rd_dat_d0(15 downto 8) <= memMapVersion_minor_i;
-    when "1010" => 
+    when "1010" =>
       -- Reg echo
       rd_ack_d0 <= VMERdMem;
       rd_dat_d0(15 downto 0) <= (others => '0');
-    when "1011" => 
+    when "1011" =>
       -- Reg echo
       rd_ack_d0 <= VMERdMem;
       rd_dat_d0(7 downto 0) <= echo_echo_reg;

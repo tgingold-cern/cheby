@@ -181,16 +181,16 @@ begin
     WrSel_test5_1 <= '0';
     WrSel_test5_0 <= '0';
     case VMEAddr(19 downto 2) is
-    when C_Reg_cregs_wrstrobe_test1 => 
+    when C_Reg_cregs_wrstrobe_test1 =>
       WrSel_test1 <= '1';
       Loc_CRegWrOK <= '1';
-    when C_Reg_cregs_wrstrobe_test3 => 
+    when C_Reg_cregs_wrstrobe_test3 =>
       WrSel_test3 <= '1';
       Loc_CRegWrOK <= '1';
-    when C_Reg_cregs_wrstrobe_test5_1 => 
+    when C_Reg_cregs_wrstrobe_test5_1 =>
       WrSel_test5_1 <= '1';
       Loc_CRegWrOK <= '1';
-    when C_Reg_cregs_wrstrobe_test5_0 => 
+    when C_Reg_cregs_wrstrobe_test5_0 =>
       WrSel_test5_0 <= '1';
       Loc_CRegWrOK <= '1';
     when others =>
@@ -200,16 +200,16 @@ begin
 
   CRegRdMux: process (VMEAddr, Loc_test1, Loc_test3, Loc_test5) begin
     case VMEAddr(19 downto 2) is
-    when C_Reg_cregs_wrstrobe_test1 => 
+    when C_Reg_cregs_wrstrobe_test1 =>
       Loc_CRegRdData <= std_logic_vector(resize(unsigned(Loc_test1(15 downto 0)), 32));
       Loc_CRegRdOK <= '1';
-    when C_Reg_cregs_wrstrobe_test3 => 
+    when C_Reg_cregs_wrstrobe_test3 =>
       Loc_CRegRdData <= Loc_test3(31 downto 0);
       Loc_CRegRdOK <= '1';
-    when C_Reg_cregs_wrstrobe_test5_1 => 
+    when C_Reg_cregs_wrstrobe_test5_1 =>
       Loc_CRegRdData <= (others => '0');
       Loc_CRegRdOK <= '0';
-    when C_Reg_cregs_wrstrobe_test5_0 => 
+    when C_Reg_cregs_wrstrobe_test5_0 =>
       Loc_CRegRdData <= (others => '0');
       Loc_CRegRdOK <= '0';
     when others =>

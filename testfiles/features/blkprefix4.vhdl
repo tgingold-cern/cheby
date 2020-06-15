@@ -249,31 +249,31 @@ begin
     sub2_b1_r2_wreq <= '0';
     sub2_b2_r3_wreq <= '0';
     case wr_adr_d0(5 downto 2) is
-    when "0000" => 
+    when "0000" =>
       -- Reg r5
       r5_wreq <= wr_req_d0;
       wr_ack_int <= r5_wack;
-    when "1000" => 
+    when "1000" =>
       -- Reg sub1_r1
       sub1_r1_wreq <= wr_req_d0;
       wr_ack_int <= sub1_r1_wack;
-    when "1001" => 
+    when "1001" =>
       -- Reg sub1_b1_r2
       sub1_b1_r2_wreq <= wr_req_d0;
       wr_ack_int <= sub1_b1_r2_wack;
-    when "1010" => 
+    when "1010" =>
       -- Reg sub1_b2_r3
       sub1_b2_r3_wreq <= wr_req_d0;
       wr_ack_int <= sub1_b2_r3_wack;
-    when "1100" => 
+    when "1100" =>
       -- Reg sub2_r1
       sub2_r1_wreq <= wr_req_d0;
       wr_ack_int <= sub2_r1_wack;
-    when "1101" => 
+    when "1101" =>
       -- Reg sub2_b1_r2
       sub2_b1_r2_wreq <= wr_req_d0;
       wr_ack_int <= sub2_b1_r2_wack;
-    when "1110" => 
+    when "1110" =>
       -- Reg sub2_b2_r3
       sub2_b2_r3_wreq <= wr_req_d0;
       wr_ack_int <= sub2_b2_r3_wack;
@@ -287,31 +287,31 @@ begin
     -- By default ack read requests
     rd_dat_d0 <= (others => 'X');
     case wb_adr_i(5 downto 2) is
-    when "0000" => 
+    when "0000" =>
       -- Reg r5
       rd_ack_d0 <= rd_req_int;
       rd_dat_d0 <= r5_reg;
-    when "1000" => 
+    when "1000" =>
       -- Reg sub1_r1
       rd_ack_d0 <= rd_req_int;
       rd_dat_d0 <= sub1_r1_reg;
-    when "1001" => 
+    when "1001" =>
       -- Reg sub1_b1_r2
       rd_ack_d0 <= rd_req_int;
       rd_dat_d0 <= sub1_b1_r2_reg;
-    when "1010" => 
+    when "1010" =>
       -- Reg sub1_b2_r3
       rd_ack_d0 <= rd_req_int;
       rd_dat_d0 <= sub1_b2_r3_reg;
-    when "1100" => 
+    when "1100" =>
       -- Reg sub2_r1
       rd_ack_d0 <= rd_req_int;
       rd_dat_d0 <= sub2_r1_reg;
-    when "1101" => 
+    when "1101" =>
       -- Reg sub2_b1_r2
       rd_ack_d0 <= rd_req_int;
       rd_dat_d0 <= sub2_b1_r2_reg;
-    when "1110" => 
+    when "1110" =>
       -- Reg sub2_b2_r3
       rd_ack_d0 <= rd_req_int;
       rd_dat_d0 <= sub2_b2_r3_reg;

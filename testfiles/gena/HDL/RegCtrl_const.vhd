@@ -77,13 +77,13 @@ begin
 
   RegRdMux: process (VMEAddr, CRegRdData, CRegRdOK, Loc_firmwareVersion, Loc_memMapVersion, Loc_designerID) begin
     case VMEAddr(17 downto 2) is
-    when C_Reg_const_firmwareVersion => 
+    when C_Reg_const_firmwareVersion =>
       Loc_RegRdData <= Loc_firmwareVersion(31 downto 0);
       Loc_RegRdOK <= '1';
-    when C_Reg_const_memMapVersion => 
+    when C_Reg_const_memMapVersion =>
       Loc_RegRdData <= Loc_memMapVersion(31 downto 0);
       Loc_RegRdOK <= '1';
-    when C_Reg_const_designerID => 
+    when C_Reg_const_designerID =>
       Loc_RegRdData <= Loc_designerID(31 downto 0);
       Loc_RegRdOK <= '1';
     when others =>

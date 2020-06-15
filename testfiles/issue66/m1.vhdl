@@ -97,11 +97,11 @@ begin
     r1_wreq <= '0';
     r2_wreq <= '0';
     case wr_adr_d0(19 downto 2) is
-    when "000000000000000000" => 
+    when "000000000000000000" =>
       -- Reg r1
       r1_wreq <= wr_req_d0;
       wr_ack_int <= r1_wack;
-    when "000000000000000001" => 
+    when "000000000000000001" =>
       -- Reg r2
       r2_wreq <= wr_req_d0;
       wr_ack_int <= r2_wack;
@@ -115,12 +115,12 @@ begin
     -- By default ack read requests
     rd_dat_d0 <= (others => 'X');
     case VMEAddr(19 downto 2) is
-    when "000000000000000000" => 
+    when "000000000000000000" =>
       -- Reg r1
       rd_ack_d0 <= VMERdMem;
       rd_dat_d0(7 downto 0) <= r1_reg;
       rd_dat_d0(31 downto 8) <= (others => '0');
-    when "000000000000000001" => 
+    when "000000000000000001" =>
       -- Reg r2
       rd_ack_d0 <= VMERdMem;
       rd_dat_d0(15 downto 0) <= r2_reg;

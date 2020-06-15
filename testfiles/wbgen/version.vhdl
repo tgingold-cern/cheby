@@ -67,14 +67,14 @@ begin
       else
         if ((wb_cyc_i = '1') and (wb_stb_i = '1')) then
           case rwaddr_reg(0) is
-          when '0' => 
+          when '0' =>
             if (wb_we_i = '1') then
               ver_reg_ver_id_int <= wrdata_reg(31 downto 0);
             end if;
             rddata_reg(31 downto 0) <= ver_reg_ver_id_int;
             ack_sreg(0) <= '1';
             ack_in_progress <= '1';
-          when '1' => 
+          when '1' =>
             if (wb_we_i = '1') then
               ver_reg_r1_reset_int <= wrdata_reg(0);
             end if;

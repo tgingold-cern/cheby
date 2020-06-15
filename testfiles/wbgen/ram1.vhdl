@@ -69,7 +69,7 @@ begin
       else
         if ((wb_cyc_i = '1') and (wb_stb_i = '1')) then
           case rwaddr_reg(10 downto 11) is
-          when "" => 
+          when "" =>
             if (rd_int = '1') then
               ack_sreg(0) <= '1';
             else
@@ -91,7 +91,7 @@ begin
   process (rddata_reg, rwaddr_reg, ram1_ch1_rddata_int, wb_adr_i  )
   begin
     case rwaddr_reg(10 downto 11) is
-    when "" => 
+    when "" =>
       wb_dat_o(31 downto 0) <= ram1_ch1_rddata_int;
     when others =>
       wb_dat_o <= rddata_reg;

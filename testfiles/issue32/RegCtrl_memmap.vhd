@@ -84,10 +84,10 @@ begin
     WrSel_reg1_1 <= '0';
     WrSel_reg1_0 <= '0';
     case VMEAddr(1 downto 1) is
-    when C_Reg_memmap_reg1_1 => 
+    when C_Reg_memmap_reg1_1 =>
       WrSel_reg1_1 <= '1';
       Loc_CRegWrOK <= '1';
-    when C_Reg_memmap_reg1_0 => 
+    when C_Reg_memmap_reg1_0 =>
       WrSel_reg1_0 <= '1';
       Loc_CRegWrOK <= '1';
     when others =>
@@ -97,10 +97,10 @@ begin
 
   CRegRdMux: process (VMEAddr, Loc_reg1) begin
     case VMEAddr(1 downto 1) is
-    when C_Reg_memmap_reg1_1 => 
+    when C_Reg_memmap_reg1_1 =>
       Loc_CRegRdData <= Loc_reg1(31 downto 16);
       Loc_CRegRdOK <= '1';
-    when C_Reg_memmap_reg1_0 => 
+    when C_Reg_memmap_reg1_0 =>
       Loc_CRegRdData <= Loc_reg1(15 downto 0);
       Loc_CRegRdOK <= '1';
     when others =>

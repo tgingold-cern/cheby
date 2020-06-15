@@ -174,10 +174,10 @@ begin
 
   Reg_muxedRegRO_RdMux: process (Loc_regSel, Loc_muxedRegRO_channel0, Loc_muxedRegRO_channel1) begin
     case Loc_regSel(15) is
-    when '0' => 
+    when '0' =>
       Loc_muxedRegRO <= Loc_muxedRegRO_channel0;
       RegOK_muxedRegRO <= '1';
-    when '1' => 
+    when '1' =>
       Loc_muxedRegRO <= Loc_muxedRegRO_channel1;
       RegOK_muxedRegRO <= '1';
     when others =>
@@ -195,10 +195,10 @@ begin
     WrSel_muxedRegRW_channel0_0 <= '0';
     WrSel_muxedRegRW_channel1_0 <= '0';
     case Loc_regSel(15) is
-    when '0' => 
+    when '0' =>
       WrSel_muxedRegRW_channel0_1 <= WrSel_muxedRegRW_1;
       WrSel_muxedRegRW_channel0_0 <= WrSel_muxedRegRW_0;
-    when '1' => 
+    when '1' =>
       WrSel_muxedRegRW_channel1_1 <= WrSel_muxedRegRW_1;
       WrSel_muxedRegRW_channel1_0 <= WrSel_muxedRegRW_0;
     when others =>
@@ -207,10 +207,10 @@ begin
 
   Reg_muxedRegRW_RdMux: process (Loc_regSel, Loc_muxedRegRW_channel0, Loc_muxedRegRW_channel1) begin
     case Loc_regSel(15) is
-    when '0' => 
+    when '0' =>
       Loc_muxedRegRW <= Loc_muxedRegRW_channel0;
       RegOK_muxedRegRW <= '1';
-    when '1' => 
+    when '1' =>
       Loc_muxedRegRW <= Loc_muxedRegRW_channel1;
       RegOK_muxedRegRW <= '1';
     when others =>
@@ -227,13 +227,13 @@ begin
     WrSel_muxedRegRW_0 <= '0';
     WrSel_regSel <= '0';
     case VMEAddr(19 downto 1) is
-    when C_Reg_muxed2_muxedRegRW_1 => 
+    when C_Reg_muxed2_muxedRegRW_1 =>
       WrSel_muxedRegRW_1 <= '1';
       Loc_CRegWrOK <= RegOK_muxedRegRW;
-    when C_Reg_muxed2_muxedRegRW_0 => 
+    when C_Reg_muxed2_muxedRegRW_0 =>
       WrSel_muxedRegRW_0 <= '1';
       Loc_CRegWrOK <= RegOK_muxedRegRW;
-    when C_Reg_muxed2_regSel => 
+    when C_Reg_muxed2_regSel =>
       WrSel_regSel <= '1';
       Loc_CRegWrOK <= '1';
     when others =>
@@ -243,13 +243,13 @@ begin
 
   CRegRdMux: process (VMEAddr, Loc_muxedRegRW, Loc_regSel, RegOK_muxedRegRW) begin
     case VMEAddr(19 downto 1) is
-    when C_Reg_muxed2_muxedRegRW_1 => 
+    when C_Reg_muxed2_muxedRegRW_1 =>
       Loc_CRegRdData <= Loc_muxedRegRW(31 downto 16);
       Loc_CRegRdOK <= RegOK_muxedRegRW;
-    when C_Reg_muxed2_muxedRegRW_0 => 
+    when C_Reg_muxed2_muxedRegRW_0 =>
       Loc_CRegRdData <= Loc_muxedRegRW(15 downto 0);
       Loc_CRegRdOK <= RegOK_muxedRegRW;
-    when C_Reg_muxed2_regSel => 
+    when C_Reg_muxed2_regSel =>
       Loc_CRegRdData <= Loc_regSel(15 downto 0);
       Loc_CRegRdOK <= '1';
     when others =>
@@ -268,10 +268,10 @@ begin
 
   RegRdMux: process (VMEAddr, CRegRdData, CRegRdOK, Loc_muxedRegRO, RegOK_muxedRegRO) begin
     case VMEAddr(19 downto 1) is
-    when C_Reg_muxed2_muxedRegRO_1 => 
+    when C_Reg_muxed2_muxedRegRO_1 =>
       Loc_RegRdData <= Loc_muxedRegRO(31 downto 16);
       Loc_RegRdOK <= RegOK_muxedRegRO;
-    when C_Reg_muxed2_muxedRegRO_0 => 
+    when C_Reg_muxed2_muxedRegRO_0 =>
       Loc_RegRdData <= Loc_muxedRegRO(15 downto 0);
       Loc_RegRdOK <= RegOK_muxedRegRO;
     when others =>

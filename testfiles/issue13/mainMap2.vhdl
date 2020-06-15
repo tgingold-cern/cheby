@@ -119,11 +119,11 @@ begin
     subMap1_VMEWrMem_o <= '0';
     subMap2_VMEWrMem_o <= '0';
     case wr_adr_d0(14 downto 13) is
-    when "00" => 
+    when "00" =>
       -- Submap subMap1
       subMap1_VMEWrMem_o <= wr_req_d0;
       wr_ack_int <= subMap1_VMEWrDone_i;
-    when "01" => 
+    when "01" =>
       -- Submap subMap2
       subMap2_VMEWrMem_o <= wr_req_d0;
       wr_ack_int <= subMap2_VMEWrDone_i;
@@ -139,12 +139,12 @@ begin
     subMap1_VMERdMem_o <= '0';
     subMap2_VMERdMem_o <= '0';
     case VMEAddr(14 downto 13) is
-    when "00" => 
+    when "00" =>
       -- Submap subMap1
       subMap1_VMERdMem_o <= VMERdMem;
       rd_dat_d0 <= subMap1_VMERdData_i;
       rd_ack_d0 <= subMap1_VMERdDone_i;
-    when "01" => 
+    when "01" =>
       -- Submap subMap2
       subMap2_VMERdMem_o <= VMERdMem;
       rd_dat_d0 <= subMap2_VMERdData_i;

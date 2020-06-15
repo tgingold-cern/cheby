@@ -184,15 +184,15 @@ begin
     m1_VMEWrMem_o <= '0';
     m2_VMEWrMem_o <= '0';
     case wr_adr_d0(14 downto 13) is
-    when "00" => 
+    when "00" =>
       -- Memory m0
       m0_VMEWrMem_o <= wr_req_d0;
       wr_ack_int <= m0_VMEWrDone_i;
-    when "01" => 
+    when "01" =>
       -- Memory m1
       m1_VMEWrMem_o <= wr_req_d0;
       wr_ack_int <= m1_VMEWrDone_i;
-    when "10" => 
+    when "10" =>
       -- Memory m2
       m2_VMEWrMem_o <= wr_req_d0;
       wr_ack_int <= m2_VMEWrDone_i;
@@ -209,17 +209,17 @@ begin
     m1_VMERdMem_o <= '0';
     m2_VMERdMem_o <= '0';
     case wb_adr_i(14 downto 13) is
-    when "00" => 
+    when "00" =>
       -- Memory m0
       m0_VMERdMem_o <= rd_req_int;
       rd_dat_d0 <= m0_VMERdData_i;
       rd_ack_d0 <= m0_VMERdDone_i;
-    when "01" => 
+    when "01" =>
       -- Memory m1
       m1_VMERdMem_o <= rd_req_int;
       rd_dat_d0 <= m1_VMERdData_i;
       rd_ack_d0 <= m1_VMERdDone_i;
-    when "10" => 
+    when "10" =>
       -- Memory m2
       m2_VMERdMem_o <= rd_req_int;
       rd_dat_d0 <= m2_VMERdData_i;

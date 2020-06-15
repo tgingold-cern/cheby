@@ -72,7 +72,7 @@ begin
       else
         if ((wb_cyc_i = '1') and (wb_stb_i = '1')) then
           case rwaddr_reg(0) is
-          when '0' => 
+          when '0' =>
             if (wb_we_i = '1') then
               fifo_fifo1_in_int(15 downto 0) <= wrdata_reg(15 downto 0);
               fifo_fifo1_wrreq_int <= '1';
@@ -111,7 +111,7 @@ begin
             rddata_reg(31) <= 'X';
             ack_sreg(0) <= '1';
             ack_in_progress <= '1';
-          when '1' => 
+          when '1' =>
             if (wb_we_i = '1') then
             end if;
             rddata_reg(17) <= fifo_fifo1_empty_int;

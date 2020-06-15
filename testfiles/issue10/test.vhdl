@@ -193,34 +193,34 @@ begin
     register1_wreq <= (others => '0');
     block1_register3_wreq <= '0';
     case wr_adr_d0(4 downto 3) is
-    when "00" => 
+    when "00" =>
       case wr_adr_d0(2 downto 2) is
-      when "0" => 
+      when "0" =>
         -- Reg register1
         register1_wreq(0) <= wr_req_d0;
         wr_ack_int <= register1_wack(0);
-      when "1" => 
+      when "1" =>
         -- Reg register1
         register1_wreq(1) <= wr_req_d0;
         wr_ack_int <= register1_wack(1);
       when others =>
         wr_ack_int <= wr_req_d0;
       end case;
-    when "10" => 
+    when "10" =>
       case wr_adr_d0(2 downto 2) is
-      when "0" => 
+      when "0" =>
         -- Reg block1_register2
         wr_ack_int <= wr_req_d0;
-      when "1" => 
+      when "1" =>
         -- Reg block1_register3
         block1_register3_wreq <= wr_req_d0;
         wr_ack_int <= block1_register3_wack;
       when others =>
         wr_ack_int <= wr_req_d0;
       end case;
-    when "11" => 
+    when "11" =>
       case wr_adr_d0(2 downto 2) is
-      when "0" => 
+      when "0" =>
         -- Reg block1_block2_register4
         wr_ack_int <= wr_req_d0;
       when others =>
@@ -236,35 +236,35 @@ begin
     -- By default ack read requests
     rd_dat_d0 <= (others => 'X');
     case araddr(4 downto 3) is
-    when "00" => 
+    when "00" =>
       case araddr(2 downto 2) is
-      when "0" => 
+      when "0" =>
         -- Reg register1
         rd_ack_d0 <= rd_req;
-      when "1" => 
+      when "1" =>
         -- Reg register1
         rd_ack_d0 <= rd_req;
       when others =>
         rd_ack_d0 <= rd_req;
       end case;
-    when "10" => 
+    when "10" =>
       case araddr(2 downto 2) is
-      when "0" => 
+      when "0" =>
         -- Reg block1_register2
         rd_ack_d0 <= rd_req;
         rd_dat_d0(0) <= block1_register2_field1_i;
         rd_dat_d0(3 downto 1) <= block1_register2_field2_i;
         rd_dat_d0(31 downto 4) <= (others => '0');
-      when "1" => 
+      when "1" =>
         -- Reg block1_register3
         rd_ack_d0 <= rd_req;
         rd_dat_d0 <= block1_register3_reg;
       when others =>
         rd_ack_d0 <= rd_req;
       end case;
-    when "11" => 
+    when "11" =>
       case araddr(2 downto 2) is
-      when "0" => 
+      when "0" =>
         -- Reg block1_block2_register4
         rd_ack_d0 <= rd_req;
         rd_dat_d0(0) <= block1_block2_register4_field3_i;

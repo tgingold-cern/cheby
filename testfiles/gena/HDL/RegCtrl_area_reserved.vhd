@@ -96,7 +96,7 @@ begin
   WrSelDec: process (VMEAddr) begin
     WrSel_test1 <= '0';
     case VMEAddr(19 downto 2) is
-    when C_Reg_area_reserved_test1 => 
+    when C_Reg_area_reserved_test1 =>
       WrSel_test1 <= '1';
       Loc_CRegWrOK <= '1';
     when others =>
@@ -106,7 +106,7 @@ begin
 
   CRegRdMux: process (VMEAddr, Loc_test1) begin
     case VMEAddr(19 downto 2) is
-    when C_Reg_area_reserved_test1 => 
+    when C_Reg_area_reserved_test1 =>
       Loc_CRegRdData <= Loc_test1(31 downto 0);
       Loc_CRegRdOK <= '1';
     when others =>

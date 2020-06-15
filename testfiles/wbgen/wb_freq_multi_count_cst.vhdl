@@ -73,7 +73,7 @@ begin
       else
         if ((wb_cyc_i = '1') and (wb_stb_i = '1')) then
           case rwaddr_reg(4 downto 5) is
-          when "" => 
+          when "" =>
             if (rd_int = '1') then
               ack_sreg(0) <= '1';
             else
@@ -95,7 +95,7 @@ begin
   process (rddata_reg, rwaddr_reg, wb_freq_multi_count_csr_frequency_rddata_int, wb_adr_i  )
   begin
     case rwaddr_reg(4 downto 5) is
-    when "" => 
+    when "" =>
       wb_dat_o(31 downto 0) <= wb_freq_multi_count_csr_frequency_rddata_int;
     when others =>
       wb_dat_o <= rddata_reg;

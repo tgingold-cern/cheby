@@ -302,7 +302,7 @@ def generate_seq(fd, s, level):
         for c in s.choices:
             w(fd, indent)
             if isinstance(c, hdltree.HDLChoiceExpr):
-                wln(fd, "when {} => ".format(generate_expr(c.expr)))
+                wln(fd, "when {} =>".format(generate_expr(c.expr)))
             elif isinstance(c, hdltree.HDLChoiceDefault):
                 wln(fd, "when others =>")
             for s1 in c.stmts:

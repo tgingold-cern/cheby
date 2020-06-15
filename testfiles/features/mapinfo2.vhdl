@@ -78,14 +78,14 @@ begin
   process (wr_adr_d0, wr_req_d0, test1_wack) begin
     test1_wreq <= '0';
     case wr_adr_d0(19 downto 2) is
-    when "000000000000000000" => 
+    when "000000000000000000" =>
       -- Reg test1
       test1_wreq <= wr_req_d0;
       wr_ack_int <= test1_wack;
-    when "000000000000000001" => 
+    when "000000000000000001" =>
       -- Reg mapver
       wr_ack_int <= wr_req_d0;
-    when "000000000000000010" => 
+    when "000000000000000010" =>
       -- Reg icode
       wr_ack_int <= wr_req_d0;
     when others =>
@@ -98,15 +98,15 @@ begin
     -- By default ack read requests
     rd_dat_d0 <= (others => 'X');
     case VMEAddr(19 downto 2) is
-    when "000000000000000000" => 
+    when "000000000000000000" =>
       -- Reg test1
       rd_ack_d0 <= VMERdMem;
       rd_dat_d0 <= test1_reg;
-    when "000000000000000001" => 
+    when "000000000000000001" =>
       -- Reg mapver
       rd_ack_d0 <= VMERdMem;
       rd_dat_d0 <= "00000000000000010000001000000011";
-    when "000000000000000010" => 
+    when "000000000000000010" =>
       -- Reg icode
       rd_ack_d0 <= VMERdMem;
       rd_dat_d0 <= "00000000000000000000000000010001";

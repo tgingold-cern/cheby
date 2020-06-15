@@ -190,18 +190,18 @@ begin
     register1_wreq <= '0';
     block1_register3_wreq <= '0';
     case wr_adr_d0(4 downto 2) is
-    when "000" => 
+    when "000" =>
       -- Reg register1
       register1_wreq <= wr_req_d0;
       wr_ack_int <= register1_wack;
-    when "100" => 
+    when "100" =>
       -- Reg block1_register2
       wr_ack_int <= wr_req_d0;
-    when "101" => 
+    when "101" =>
       -- Reg block1_register3
       block1_register3_wreq <= wr_req_d0;
       wr_ack_int <= block1_register3_wack;
-    when "110" => 
+    when "110" =>
       -- Reg block1_block2_register4
       wr_ack_int <= wr_req_d0;
     when others =>
@@ -214,20 +214,20 @@ begin
     -- By default ack read requests
     rd_dat_d0 <= (others => 'X');
     case araddr(4 downto 2) is
-    when "000" => 
+    when "000" =>
       -- Reg register1
       rd_ack_d0 <= rd_req;
-    when "100" => 
+    when "100" =>
       -- Reg block1_register2
       rd_ack_d0 <= rd_req;
       rd_dat_d0(0) <= block1_register2_field1_i;
       rd_dat_d0(3 downto 1) <= block1_register2_field2_i;
       rd_dat_d0(31 downto 4) <= (others => '0');
-    when "101" => 
+    when "101" =>
       -- Reg block1_register3
       rd_ack_d0 <= rd_req;
       rd_dat_d0 <= block1_register3_reg;
-    when "110" => 
+    when "110" =>
       -- Reg block1_block2_register4
       rd_ack_d0 <= rd_req;
       rd_dat_d0(0) <= block1_block2_register4_field3_i;

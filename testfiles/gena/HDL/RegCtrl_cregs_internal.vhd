@@ -200,19 +200,19 @@ begin
     WrSel_test5 <= '0';
     WrSel_test6 <= '0';
     case VMEAddr(19 downto 2) is
-    when C_Reg_cregs_internal_test1 => 
+    when C_Reg_cregs_internal_test1 =>
       WrSel_test1 <= '1';
       Loc_CRegWrOK <= '1';
-    when C_Reg_cregs_internal_test3 => 
+    when C_Reg_cregs_internal_test3 =>
       WrSel_test3 <= '1';
       Loc_CRegWrOK <= '1';
-    when C_Reg_cregs_internal_test4 => 
+    when C_Reg_cregs_internal_test4 =>
       WrSel_test4 <= '1';
       Loc_CRegWrOK <= '1';
-    when C_Reg_cregs_internal_test5 => 
+    when C_Reg_cregs_internal_test5 =>
       WrSel_test5 <= '1';
       Loc_CRegWrOK <= '1';
-    when C_Reg_cregs_internal_test6 => 
+    when C_Reg_cregs_internal_test6 =>
       WrSel_test6 <= '1';
       Loc_CRegWrOK <= '1';
     when others =>
@@ -222,19 +222,19 @@ begin
 
   CRegRdMux: process (VMEAddr, Loc_test1, Loc_test3, Loc_test4, Loc_test5, Loc_test6) begin
     case VMEAddr(19 downto 2) is
-    when C_Reg_cregs_internal_test1 => 
+    when C_Reg_cregs_internal_test1 =>
       Loc_CRegRdData <= std_logic_vector(resize(unsigned(Loc_test1(15 downto 0)), 32));
       Loc_CRegRdOK <= '1';
-    when C_Reg_cregs_internal_test3 => 
+    when C_Reg_cregs_internal_test3 =>
       Loc_CRegRdData <= Loc_test3(31 downto 0);
       Loc_CRegRdOK <= '1';
-    when C_Reg_cregs_internal_test4 => 
+    when C_Reg_cregs_internal_test4 =>
       Loc_CRegRdData <= Loc_test4(31 downto 0);
       Loc_CRegRdOK <= '1';
-    when C_Reg_cregs_internal_test5 => 
+    when C_Reg_cregs_internal_test5 =>
       Loc_CRegRdData <= (others => '0');
       Loc_CRegRdOK <= '0';
-    when C_Reg_cregs_internal_test6 => 
+    when C_Reg_cregs_internal_test6 =>
       Loc_CRegRdData <= (others => '0');
       Loc_CRegRdOK <= '0';
     when others =>
@@ -253,10 +253,10 @@ begin
 
   RegRdMux: process (VMEAddr, CRegRdData, CRegRdOK, Loc_test7, Loc_test8) begin
     case VMEAddr(19 downto 2) is
-    when C_Reg_cregs_internal_test7 => 
+    when C_Reg_cregs_internal_test7 =>
       Loc_RegRdData <= Loc_test7(31 downto 0);
       Loc_RegRdOK <= '1';
-    when C_Reg_cregs_internal_test8 => 
+    when C_Reg_cregs_internal_test8 =>
       Loc_RegRdData <= Loc_test8(31 downto 0);
       Loc_RegRdOK <= '1';
     when others =>

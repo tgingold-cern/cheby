@@ -205,22 +205,22 @@ begin
     WrSel_test6_1 <= '0';
     WrSel_test6_0 <= '0';
     case VMEAddr(19 downto 2) is
-    when C_Reg_cregs_extacm_test3 => 
+    when C_Reg_cregs_extacm_test3 =>
       WrSel_test3 <= '1';
       Loc_CRegWrOK <= '1';
-    when C_Reg_cregs_extacm_test4_1 => 
+    when C_Reg_cregs_extacm_test4_1 =>
       WrSel_test4_1 <= '1';
       Loc_CRegWrOK <= '1';
-    when C_Reg_cregs_extacm_test4_0 => 
+    when C_Reg_cregs_extacm_test4_0 =>
       WrSel_test4_0 <= '1';
       Loc_CRegWrOK <= '1';
-    when C_Reg_cregs_extacm_test5 => 
+    when C_Reg_cregs_extacm_test5 =>
       WrSel_test5 <= '1';
       Loc_CRegWrOK <= '1';
-    when C_Reg_cregs_extacm_test6_1 => 
+    when C_Reg_cregs_extacm_test6_1 =>
       WrSel_test6_1 <= '1';
       Loc_CRegWrOK <= '1';
-    when C_Reg_cregs_extacm_test6_0 => 
+    when C_Reg_cregs_extacm_test6_0 =>
       WrSel_test6_0 <= '1';
       Loc_CRegWrOK <= '1';
     when others =>
@@ -230,22 +230,22 @@ begin
 
   CRegRdMux: process (VMEAddr, Loc_test3, Loc_test4, Loc_test5, Loc_test6) begin
     case VMEAddr(19 downto 2) is
-    when C_Reg_cregs_extacm_test3 => 
+    when C_Reg_cregs_extacm_test3 =>
       Loc_CRegRdData <= Loc_test3(31 downto 0);
       Loc_CRegRdOK <= '1';
-    when C_Reg_cregs_extacm_test4_1 => 
+    when C_Reg_cregs_extacm_test4_1 =>
       Loc_CRegRdData <= Loc_test4(63 downto 32);
       Loc_CRegRdOK <= '1';
-    when C_Reg_cregs_extacm_test4_0 => 
+    when C_Reg_cregs_extacm_test4_0 =>
       Loc_CRegRdData <= Loc_test4(31 downto 0);
       Loc_CRegRdOK <= '1';
-    when C_Reg_cregs_extacm_test5 => 
+    when C_Reg_cregs_extacm_test5 =>
       Loc_CRegRdData <= (others => '0');
       Loc_CRegRdOK <= '0';
-    when C_Reg_cregs_extacm_test6_1 => 
+    when C_Reg_cregs_extacm_test6_1 =>
       Loc_CRegRdData <= (others => '0');
       Loc_CRegRdOK <= '0';
-    when C_Reg_cregs_extacm_test6_0 => 
+    when C_Reg_cregs_extacm_test6_0 =>
       Loc_CRegRdData <= (others => '0');
       Loc_CRegRdOK <= '0';
     when others =>
@@ -264,13 +264,13 @@ begin
 
   RegRdMux: process (VMEAddr, CRegRdData, CRegRdOK, Loc_test1, Loc_test2) begin
     case VMEAddr(19 downto 2) is
-    when C_Reg_cregs_extacm_test1 => 
+    when C_Reg_cregs_extacm_test1 =>
       Loc_RegRdData <= Loc_test1(31 downto 0);
       Loc_RegRdOK <= '1';
-    when C_Reg_cregs_extacm_test2_1 => 
+    when C_Reg_cregs_extacm_test2_1 =>
       Loc_RegRdData <= Loc_test2(63 downto 32);
       Loc_RegRdOK <= '1';
-    when C_Reg_cregs_extacm_test2_0 => 
+    when C_Reg_cregs_extacm_test2_0 =>
       Loc_RegRdData <= Loc_test2(31 downto 0);
       Loc_RegRdOK <= '1';
     when others =>

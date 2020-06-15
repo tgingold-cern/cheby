@@ -75,15 +75,15 @@ begin
     RdSel_test2_1 <= '0';
     RdSel_test2_0 <= '0';
     case VMEAddr(19 downto 1) is
-    when C_Reg_regs_rdstrobe_test1 => 
+    when C_Reg_regs_rdstrobe_test1 =>
       Loc_RegRdData <= Loc_test1(15 downto 0);
       Loc_RegRdOK <= '1';
       RdSel_test1 <= '1';
-    when C_Reg_regs_rdstrobe_test2_1 => 
+    when C_Reg_regs_rdstrobe_test2_1 =>
       Loc_RegRdData <= Loc_test2(31 downto 16);
       Loc_RegRdOK <= '1';
       RdSel_test2_1 <= '1';
-    when C_Reg_regs_rdstrobe_test2_0 => 
+    when C_Reg_regs_rdstrobe_test2_0 =>
       Loc_RegRdData <= Loc_test2(15 downto 0);
       Loc_RegRdOK <= '1';
       RdSel_test2_0 <= '1';

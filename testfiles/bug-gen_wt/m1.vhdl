@@ -104,11 +104,11 @@ begin
     r1_wreq <= '0';
     sm2_VMEWrMem_o <= '0';
     case wr_adr_d0(2 downto 2) is
-    when "0" => 
+    when "0" =>
       -- Reg r1
       r1_wreq <= wr_req_d0;
       wr_ack_int <= r1_wack;
-    when "1" => 
+    when "1" =>
       -- Submap sm2
       sm2_VMEWrMem_o <= wr_req_d0;
       wr_ack_int <= sm2_VMEWrDone_i;
@@ -123,11 +123,11 @@ begin
     rd_dat_d0 <= (others => 'X');
     sm2_VMERdMem_o <= '0';
     case VMEAddr(2 downto 2) is
-    when "0" => 
+    when "0" =>
       -- Reg r1
       rd_ack_d0 <= VMERdMem;
       rd_dat_d0 <= r1_reg;
-    when "1" => 
+    when "1" =>
       -- Submap sm2
       sm2_VMERdMem_o <= VMERdMem;
       rd_dat_d0 <= sm2_VMERdData_i;

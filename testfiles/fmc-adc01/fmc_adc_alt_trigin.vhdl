@@ -104,29 +104,29 @@ begin
   process (wr_adr_d0, wr_req_d0) begin
     ctrl_wreq <= '0';
     case wr_adr_d0(4 downto 3) is
-    when "00" => 
+    when "00" =>
       case wr_adr_d0(2 downto 2) is
-      when "0" => 
+      when "0" =>
         -- Reg ctrl
         ctrl_wreq <= wr_req_d0;
         wr_ack_int <= wr_req_d0;
       when others =>
         wr_ack_int <= wr_req_d0;
       end case;
-    when "01" => 
+    when "01" =>
       case wr_adr_d0(2 downto 2) is
-      when "0" => 
+      when "0" =>
         -- Reg seconds
         wr_ack_int <= wr_req_d0;
-      when "1" => 
+      when "1" =>
         -- Reg seconds
         wr_ack_int <= wr_req_d0;
       when others =>
         wr_ack_int <= wr_req_d0;
       end case;
-    when "10" => 
+    when "10" =>
       case wr_adr_d0(2 downto 2) is
-      when "0" => 
+      when "0" =>
         -- Reg cycles
         wr_ack_int <= wr_req_d0;
       when others =>
@@ -142,9 +142,9 @@ begin
     -- By default ack read requests
     rd_dat_d0 <= (others => 'X');
     case adr_int(4 downto 3) is
-    when "00" => 
+    when "00" =>
       case adr_int(2 downto 2) is
-      when "0" => 
+      when "0" =>
         -- Reg ctrl
         rd_ack_d0 <= rd_req_int;
         rd_dat_d0(0) <= '0';
@@ -153,22 +153,22 @@ begin
       when others =>
         rd_ack_d0 <= rd_req_int;
       end case;
-    when "01" => 
+    when "01" =>
       case adr_int(2 downto 2) is
-      when "0" => 
+      when "0" =>
         -- Reg seconds
         rd_ack_d0 <= rd_req_int;
         rd_dat_d0 <= seconds_i(63 downto 32);
-      when "1" => 
+      when "1" =>
         -- Reg seconds
         rd_ack_d0 <= rd_req_int;
         rd_dat_d0 <= seconds_i(31 downto 0);
       when others =>
         rd_ack_d0 <= rd_req_int;
       end case;
-    when "10" => 
+    when "10" =>
       case adr_int(2 downto 2) is
-      when "0" => 
+      when "0" =>
         -- Reg cycles
         rd_ack_d0 <= rd_req_int;
         rd_dat_d0 <= cycles_i;

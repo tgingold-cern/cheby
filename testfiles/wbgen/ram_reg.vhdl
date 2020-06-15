@@ -73,7 +73,7 @@ begin
       else
         if ((wb_cyc_i = '1') and (wb_stb_i = '1')) then
           case rwaddr_reg(11) is
-          when '0' => 
+          when '0' =>
             if (wb_we_i = '1') then
               ramreg_r1_enable_int <= wrdata_reg(0);
             end if;
@@ -111,7 +111,7 @@ begin
             rddata_reg(31) <= 'X';
             ack_sreg(0) <= '1';
             ack_in_progress <= '1';
-          when '1' => 
+          when '1' =>
             if (rd_int = '1') then
               ack_sreg(0) <= '1';
             else
@@ -133,7 +133,7 @@ begin
   process (rddata_reg, rwaddr_reg, ramreg_ch1_rddata_int, wb_adr_i  )
   begin
     case rwaddr_reg(11) is
-    when '1' => 
+    when '1' =>
       wb_dat_o(31 downto 0) <= ramreg_ch1_rddata_int;
     when others =>
       wb_dat_o <= rddata_reg;

@@ -87,21 +87,21 @@ begin
       else
         if ((wb_cyc_i = '1') and (wb_stb_i = '1')) then
           case rwaddr_reg(12 downto 11) is
-          when "00" => 
+          when "00" =>
             if (rd_int = '1') then
               ack_sreg(0) <= '1';
             else
               ack_sreg(0) <= '1';
             end if;
             ack_in_progress <= '1';
-          when "01" => 
+          when "01" =>
             if (rd_int = '1') then
               ack_sreg(0) <= '1';
             else
               ack_sreg(0) <= '1';
             end if;
             ack_in_progress <= '1';
-          when "10" => 
+          when "10" =>
             if (rd_int = '1') then
               ack_sreg(0) <= '1';
             else
@@ -123,11 +123,11 @@ begin
   process (rddata_reg, rwaddr_reg, ram2_ch1_rddata_int, ram2_ch2_rddata_int, ram2_ch3_rddata_int, wb_adr_i  )
   begin
     case rwaddr_reg(12 downto 11) is
-    when "00" => 
+    when "00" =>
       wb_dat_o(31 downto 0) <= ram2_ch1_rddata_int;
-    when "01" => 
+    when "01" =>
       wb_dat_o(31 downto 0) <= ram2_ch2_rddata_int;
-    when "10" => 
+    when "10" =>
       wb_dat_o(31 downto 0) <= ram2_ch3_rddata_int;
     when others =>
       wb_dat_o <= rddata_reg;

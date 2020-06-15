@@ -112,10 +112,10 @@ begin
     WrSel_test1_1 <= '0';
     WrSel_test1_0 <= '0';
     case VMEAddr(19 downto 1) is
-    when C_Reg_area_extarea_test1_1 => 
+    when C_Reg_area_extarea_test1_1 =>
       WrSel_test1_1 <= '1';
       Loc_CRegWrOK <= '1';
-    when C_Reg_area_extarea_test1_0 => 
+    when C_Reg_area_extarea_test1_0 =>
       WrSel_test1_0 <= '1';
       Loc_CRegWrOK <= '1';
     when others =>
@@ -125,10 +125,10 @@ begin
 
   CRegRdMux: process (VMEAddr, Loc_test1) begin
     case VMEAddr(19 downto 1) is
-    when C_Reg_area_extarea_test1_1 => 
+    when C_Reg_area_extarea_test1_1 =>
       Loc_CRegRdData <= std_logic_vector(resize(unsigned(Loc_test1(15 downto 8)), 16));
       Loc_CRegRdOK <= '1';
-    when C_Reg_area_extarea_test1_0 => 
+    when C_Reg_area_extarea_test1_0 =>
       Loc_CRegRdData <= std_logic_vector(resize(unsigned(Loc_test1(7 downto 0)), 16));
       Loc_CRegRdOK <= '1';
     when others =>

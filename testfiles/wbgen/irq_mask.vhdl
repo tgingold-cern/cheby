@@ -87,7 +87,7 @@ begin
       else
         if ((wb_cyc_i = '1') and (wb_stb_i = '1')) then
           case rwaddr_reg(3 downto 0) is
-          when "0000" => 
+          when "0000" =>
             if (wb_we_i = '1') then
               irq1_r1_reset_int <= wrdata_reg(0);
               irq1_r1_mode_int <= wrdata_reg(3 downto 1);
@@ -124,7 +124,7 @@ begin
             rddata_reg(31) <= 'X';
             ack_sreg(0) <= '1';
             ack_in_progress <= '1';
-          when "1000" => 
+          when "1000" =>
             if (wb_we_i = '1') then
               eic_idr_write_int <= '1';
             end if;
@@ -162,7 +162,7 @@ begin
             rddata_reg(31) <= 'X';
             ack_sreg(0) <= '1';
             ack_in_progress <= '1';
-          when "1001" => 
+          when "1001" =>
             if (wb_we_i = '1') then
               eic_ier_write_int <= '1';
             end if;
@@ -200,7 +200,7 @@ begin
             rddata_reg(31) <= 'X';
             ack_sreg(0) <= '1';
             ack_in_progress <= '1';
-          when "1010" => 
+          when "1010" =>
             if (wb_we_i = '1') then
             end if;
             rddata_reg(0) <= eic_imr_int(0);
@@ -237,7 +237,7 @@ begin
             rddata_reg(31) <= 'X';
             ack_sreg(0) <= '1';
             ack_in_progress <= '1';
-          when "1011" => 
+          when "1011" =>
             if (wb_we_i = '1') then
               eic_isr_write_int <= '1';
             end if;

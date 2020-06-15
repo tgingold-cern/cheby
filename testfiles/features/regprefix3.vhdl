@@ -157,15 +157,15 @@ begin
     blk1_r2_wreq <= '0';
     r3_wreq <= '0';
     case wr_adr_d0(5 downto 2) is
-    when "0000" => 
+    when "0000" =>
       -- Reg blk1_r1
       blk1_r1_wreq <= wr_req_d0;
       wr_ack_int <= blk1_r1_wack;
-    when "0001" => 
+    when "0001" =>
       -- Reg blk1_r2
       blk1_r2_wreq <= wr_req_d0;
       wr_ack_int <= blk1_r2_wack;
-    when "1000" => 
+    when "1000" =>
       -- Reg r3
       r3_wreq <= wr_req_d0;
       wr_ack_int <= r3_wack;
@@ -179,15 +179,15 @@ begin
     -- By default ack read requests
     rd_dat_d0 <= (others => 'X');
     case wb_adr_i(5 downto 2) is
-    when "0000" => 
+    when "0000" =>
       -- Reg blk1_r1
       rd_ack_d0 <= rd_req_int;
       rd_dat_d0 <= blk1_r1_reg;
-    when "0001" => 
+    when "0001" =>
       -- Reg blk1_r2
       rd_ack_d0 <= rd_req_int;
       rd_dat_d0 <= blk1_r2_reg;
-    when "1000" => 
+    when "1000" =>
       -- Reg r3
       rd_ack_d0 <= rd_req_int;
       rd_dat_d0 <= r3_reg;

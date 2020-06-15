@@ -138,15 +138,15 @@ begin
     wires_wreq <= '0';
     acks_wreq <= '0';
     case wr_adr_d0(3 downto 2) is
-    when "00" => 
+    when "00" =>
       -- Reg strobe
       strobe_wreq <= wr_req_d0;
       wr_ack_int <= strobe_wack;
-    when "01" => 
+    when "01" =>
       -- Reg wires
       wires_wreq <= wr_req_d0;
       wr_ack_int <= wr_req_d0;
-    when "10" => 
+    when "10" =>
       -- Reg acks
       acks_wreq <= wr_req_d0;
       wr_ack_int <= acks_wack_i;
@@ -163,17 +163,17 @@ begin
     wires_rd_o <= '0';
     acks_rd_o <= '0';
     case wb_adr_i(3 downto 2) is
-    when "00" => 
+    when "00" =>
       -- Reg strobe
       strobe_rd_o <= rd_req_int;
       rd_ack_d0 <= rd_req_int;
       rd_dat_d0 <= strobe_reg;
-    when "01" => 
+    when "01" =>
       -- Reg wires
       wires_rd_o <= rd_req_int;
       rd_ack_d0 <= rd_req_int;
       rd_dat_d0 <= wires_i;
-    when "10" => 
+    when "10" =>
       -- Reg acks
       acks_rd_o <= rd_req_int;
       rd_ack_d0 <= acks_rack_i;

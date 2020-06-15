@@ -314,22 +314,22 @@ begin
     WrSel_submap1_test6 <= '0';
     if VMEAddr(19 downto 10) = C_Submap_submap_internal_submap1 then
       case VMEAddr(9 downto 2) is
-      when C_Reg_incCRegs_test1 => 
+      when C_Reg_incCRegs_test1 =>
         WrSel_submap1_test1 <= '1';
         Loc_submap1_CRegWrOK <= '1';
-      when C_Reg_incCRegs_test2 => 
+      when C_Reg_incCRegs_test2 =>
         WrSel_submap1_test2 <= '1';
         Loc_submap1_CRegWrOK <= '1';
-      when C_Reg_incCRegs_test3 => 
+      when C_Reg_incCRegs_test3 =>
         WrSel_submap1_test3 <= '1';
         Loc_submap1_CRegWrOK <= '1';
-      when C_Reg_incCRegs_test4 => 
+      when C_Reg_incCRegs_test4 =>
         WrSel_submap1_test4 <= '1';
         Loc_submap1_CRegWrOK <= '1';
-      when C_Reg_incCRegs_test5 => 
+      when C_Reg_incCRegs_test5 =>
         WrSel_submap1_test5 <= '1';
         Loc_submap1_CRegWrOK <= '1';
-      when C_Reg_incCRegs_test6 => 
+      when C_Reg_incCRegs_test6 =>
         WrSel_submap1_test6 <= '1';
         Loc_submap1_CRegWrOK <= '1';
       when others =>
@@ -343,22 +343,22 @@ begin
   submap1_CRegRdMux: process (VMEAddr, Loc_submap1_test1, Loc_submap1_test2, Loc_submap1_test3, Loc_submap1_test4, Loc_submap1_test5, Loc_submap1_test6) begin
     if VMEAddr(19 downto 10) = C_Submap_submap_internal_submap1 then
       case VMEAddr(9 downto 2) is
-      when C_Reg_incCRegs_test1 => 
+      when C_Reg_incCRegs_test1 =>
         Loc_submap1_CRegRdData <= std_logic_vector(resize(unsigned(Loc_submap1_test1(15 downto 0)), 32));
         Loc_submap1_CRegRdOK <= '1';
-      when C_Reg_incCRegs_test2 => 
+      when C_Reg_incCRegs_test2 =>
         Loc_submap1_CRegRdData <= std_logic_vector(resize(unsigned(Loc_submap1_test2(15 downto 0)), 32));
         Loc_submap1_CRegRdOK <= '1';
-      when C_Reg_incCRegs_test3 => 
+      when C_Reg_incCRegs_test3 =>
         Loc_submap1_CRegRdData <= Loc_submap1_test3(31 downto 0);
         Loc_submap1_CRegRdOK <= '1';
-      when C_Reg_incCRegs_test4 => 
+      when C_Reg_incCRegs_test4 =>
         Loc_submap1_CRegRdData <= Loc_submap1_test4(31 downto 0);
         Loc_submap1_CRegRdOK <= '1';
-      when C_Reg_incCRegs_test5 => 
+      when C_Reg_incCRegs_test5 =>
         Loc_submap1_CRegRdData <= (others => '0');
         Loc_submap1_CRegRdOK <= '0';
-      when C_Reg_incCRegs_test6 => 
+      when C_Reg_incCRegs_test6 =>
         Loc_submap1_CRegRdData <= (others => '0');
         Loc_submap1_CRegRdOK <= '0';
       when others =>
@@ -382,10 +382,10 @@ begin
   submap1_RegRdMux: process (VMEAddr, submap1_CRegRdData, submap1_CRegRdOK, Loc_submap1_test7, Loc_submap1_test8) begin
     if VMEAddr(19 downto 10) = C_Submap_submap_internal_submap1 then
       case VMEAddr(9 downto 2) is
-      when C_Reg_incCRegs_test7 => 
+      when C_Reg_incCRegs_test7 =>
         Loc_submap1_RegRdData <= Loc_submap1_test7(31 downto 0);
         Loc_submap1_RegRdOK <= '1';
-      when C_Reg_incCRegs_test8 => 
+      when C_Reg_incCRegs_test8 =>
         Loc_submap1_RegRdData <= Loc_submap1_test8(31 downto 0);
         Loc_submap1_RegRdOK <= '1';
       when others =>

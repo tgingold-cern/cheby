@@ -163,7 +163,7 @@ begin
     WrSel_area2_myRegister <= '0';
     if VMEAddr(13 downto 10) = C_Area_codeFields_area2 then
       case VMEAddr(9 downto 1) is
-      when C_Reg_codeFields_area2_myRegister => 
+      when C_Reg_codeFields_area2_myRegister =>
         WrSel_area2_myRegister <= '1';
         Loc_area2_CRegWrOK <= '1';
       when others =>
@@ -177,7 +177,7 @@ begin
   area2_CRegRdMux: process (VMEAddr, Loc_area2_myRegister) begin
     if VMEAddr(13 downto 10) = C_Area_codeFields_area2 then
       case VMEAddr(9 downto 1) is
-      when C_Reg_codeFields_area2_myRegister => 
+      when C_Reg_codeFields_area2_myRegister =>
         Loc_area2_CRegRdData <= Loc_area2_myRegister(15 downto 0);
         Loc_area2_CRegRdOK <= '1';
       when others =>
@@ -242,7 +242,7 @@ begin
     WrSel_area1_myRegister <= '0';
     if VMEAddr(13 downto 10) = C_Area_codeFields_area1 then
       case VMEAddr(9 downto 1) is
-      when C_Reg_codeFields_area1_myRegister => 
+      when C_Reg_codeFields_area1_myRegister =>
         WrSel_area1_myRegister <= '1';
         Loc_area1_CRegWrOK <= '1';
       when others =>
@@ -256,7 +256,7 @@ begin
   area1_CRegRdMux: process (VMEAddr, Loc_area1_myRegister) begin
     if VMEAddr(13 downto 10) = C_Area_codeFields_area1 then
       case VMEAddr(9 downto 1) is
-      when C_Reg_codeFields_area1_myRegister => 
+      when C_Reg_codeFields_area1_myRegister =>
         Loc_area1_CRegRdData <= Loc_area1_myRegister(15 downto 0);
         Loc_area1_CRegRdOK <= '1';
       when others =>

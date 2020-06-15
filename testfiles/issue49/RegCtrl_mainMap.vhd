@@ -200,7 +200,7 @@ begin
     WrSel_ssmap2_b1_r1 <= '0';
     if VMEAddr(1 downto 2) = C_Area_ssmap_b1 then
       case VMEAddr(1 downto 2) is
-      when C_Reg_ssmap_b1_r1 => 
+      when C_Reg_ssmap_b1_r1 =>
         WrSel_ssmap2_b1_r1 <= '1';
         Loc_ssmap2_b1_CRegWrOK <= '1';
       when others =>
@@ -214,7 +214,7 @@ begin
   ssmap2_b1_CRegRdMux: process (VMEAddr, Loc_ssmap2_b1_r1) begin
     if VMEAddr(1 downto 2) = C_Area_ssmap_b1 then
       case VMEAddr(1 downto 2) is
-      when C_Reg_ssmap_b1_r1 => 
+      when C_Reg_ssmap_b1_r1 =>
         Loc_ssmap2_b1_CRegRdData <= Loc_ssmap2_b1_r1(31 downto 0);
         Loc_ssmap2_b1_CRegRdOK <= '1';
       when others =>

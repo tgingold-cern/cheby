@@ -165,32 +165,32 @@ begin
   process (wr_adr_d0, wr_req_d0, ctrl_wack) begin
     ctrl_wreq <= '0';
     case wr_adr_d0(4 downto 3) is
-    when "00" => 
+    when "00" =>
       case wr_adr_d0(2 downto 2) is
-      when "0" => 
+      when "0" =>
         -- Reg status
         wr_ack_int <= wr_req_d0;
-      when "1" => 
+      when "1" =>
         -- Reg ctrl
         ctrl_wreq <= wr_req_d0;
         wr_ack_int <= ctrl_wack;
       when others =>
         wr_ack_int <= wr_req_d0;
       end case;
-    when "01" => 
+    when "01" =>
       case wr_adr_d0(2 downto 2) is
-      when "0" => 
+      when "0" =>
         -- Reg ts_mask_sec
         wr_ack_int <= wr_req_d0;
-      when "1" => 
+      when "1" =>
         -- Reg ts_mask_sec
         wr_ack_int <= wr_req_d0;
       when others =>
         wr_ack_int <= wr_req_d0;
       end case;
-    when "10" => 
+    when "10" =>
       case wr_adr_d0(2 downto 2) is
-      when "0" => 
+      when "0" =>
         -- Reg ts_cycles
         wr_ack_int <= wr_req_d0;
       when others =>
@@ -207,9 +207,9 @@ begin
     rd_dat_d0 <= (others => 'X');
     ts_cycles_rd_o <= '0';
     case adr_int(4 downto 3) is
-    when "00" => 
+    when "00" =>
       case adr_int(2 downto 2) is
-      when "0" => 
+      when "0" =>
         -- Reg status
         rd_ack_d0 <= rd_req_int;
         rd_dat_d0(0) <= wr_enable_i;
@@ -218,7 +218,7 @@ begin
         rd_dat_d0(7 downto 3) <= (others => '0');
         rd_dat_d0(8) <= ts_present_i;
         rd_dat_d0(31 downto 9) <= (others => '0');
-      when "1" => 
+      when "1" =>
         -- Reg ctrl
         rd_ack_d0 <= rd_req_int;
         rd_dat_d0(0) <= ch1_enable_reg;
@@ -231,9 +231,9 @@ begin
       when others =>
         rd_ack_d0 <= rd_req_int;
       end case;
-    when "01" => 
+    when "01" =>
       case adr_int(2 downto 2) is
-      when "0" => 
+      when "0" =>
         -- Reg ts_mask_sec
         rd_ack_d0 <= rd_req_int;
         rd_dat_d0(7 downto 0) <= ts_sec_i(39 downto 32);
@@ -245,16 +245,16 @@ begin
         rd_dat_d0(23 downto 20) <= (others => '0');
         rd_dat_d0(24) <= ext_mask_i;
         rd_dat_d0(31 downto 25) <= (others => '0');
-      when "1" => 
+      when "1" =>
         -- Reg ts_mask_sec
         rd_ack_d0 <= rd_req_int;
         rd_dat_d0 <= ts_sec_i(31 downto 0);
       when others =>
         rd_ack_d0 <= rd_req_int;
       end case;
-    when "10" => 
+    when "10" =>
       case adr_int(2 downto 2) is
-      when "0" => 
+      when "0" =>
         -- Reg ts_cycles
         ts_cycles_rd_o <= rd_req_int;
         rd_ack_d0 <= rd_req_int;

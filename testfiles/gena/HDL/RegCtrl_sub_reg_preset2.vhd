@@ -72,7 +72,7 @@ begin
 
   RegRdMux: process (VMEAddr, CRegRdData, CRegRdOK, Loc_test1) begin
     case VMEAddr(19 downto 2) is
-    when C_Reg_sub_reg_preset2_test1 => 
+    when C_Reg_sub_reg_preset2_test1 =>
       Loc_RegRdData <= Loc_test1(31 downto 0);
       Loc_RegRdOK <= '1';
     when others =>

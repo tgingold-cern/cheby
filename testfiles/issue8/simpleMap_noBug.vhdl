@@ -59,19 +59,19 @@ begin
   -- Process for write requests.
   process (wr_adr_d0, wr_req_d0) begin
     case wr_adr_d0(19 downto 1) is
-    when "0000000000000000000" => 
+    when "0000000000000000000" =>
       -- Reg largeReg
       wr_ack_int <= wr_req_d0;
-    when "0000000000000000001" => 
+    when "0000000000000000001" =>
       -- Reg largeReg
       wr_ack_int <= wr_req_d0;
-    when "0000000000000000010" => 
+    when "0000000000000000010" =>
       -- Reg largeReg
       wr_ack_int <= wr_req_d0;
-    when "0000000000000000011" => 
+    when "0000000000000000011" =>
       -- Reg largeReg
       wr_ack_int <= wr_req_d0;
-    when "0000000000000000100" => 
+    when "0000000000000000100" =>
       -- Reg smallReg
       wr_ack_int <= wr_req_d0;
     when others =>
@@ -84,23 +84,23 @@ begin
     -- By default ack read requests
     rd_dat_d0 <= (others => 'X');
     case VMEAddr(19 downto 1) is
-    when "0000000000000000000" => 
+    when "0000000000000000000" =>
       -- Reg largeReg
       rd_ack_d0 <= VMERdMem;
       rd_dat_d0 <= largeReg_i(63 downto 48);
-    when "0000000000000000001" => 
+    when "0000000000000000001" =>
       -- Reg largeReg
       rd_ack_d0 <= VMERdMem;
       rd_dat_d0 <= largeReg_i(47 downto 32);
-    when "0000000000000000010" => 
+    when "0000000000000000010" =>
       -- Reg largeReg
       rd_ack_d0 <= VMERdMem;
       rd_dat_d0 <= largeReg_i(31 downto 16);
-    when "0000000000000000011" => 
+    when "0000000000000000011" =>
       -- Reg largeReg
       rd_ack_d0 <= VMERdMem;
       rd_dat_d0 <= largeReg_i(15 downto 0);
-    when "0000000000000000100" => 
+    when "0000000000000000100" =>
       -- Reg smallReg
       rd_ack_d0 <= VMERdMem;
       rd_dat_d0 <= smallReg_i;

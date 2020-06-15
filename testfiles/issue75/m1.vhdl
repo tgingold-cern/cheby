@@ -79,11 +79,11 @@ begin
   process (wr_adr_d0, wr_req_d0, r1_wack) begin
     r1_wreq <= (others => '0');
     case wr_adr_d0(2 downto 2) is
-    when "0" => 
+    when "0" =>
       -- Reg r1
       r1_wreq(1) <= wr_req_d0;
       wr_ack_int <= r1_wack(1);
-    when "1" => 
+    when "1" =>
       -- Reg r1
       r1_wreq(0) <= wr_req_d0;
       wr_ack_int <= r1_wack(0);
@@ -97,11 +97,11 @@ begin
     -- By default ack read requests
     rd_dat_d0 <= (others => 'X');
     case VMEAddr(2 downto 2) is
-    when "0" => 
+    when "0" =>
       -- Reg r1
       rd_ack_d0 <= VMERdMem;
       rd_dat_d0 <= "00000000000000000000000000000000";
-    when "1" => 
+    when "1" =>
       -- Reg r1
       rd_ack_d0 <= VMERdMem;
       rd_dat_d0 <= "00000000000000000000000000000000";

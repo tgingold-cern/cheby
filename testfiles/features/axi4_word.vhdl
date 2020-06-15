@@ -174,11 +174,11 @@ begin
     areg_wreq <= '0';
     breg_wreq <= '0';
     case wr_adr_d0(2 downto 2) is
-    when "0" => 
+    when "0" =>
       -- Reg areg
       areg_wreq <= wr_req_d0;
       wr_ack_int <= areg_wack;
-    when "1" => 
+    when "1" =>
       -- Reg breg
       breg_wreq <= wr_req_d0;
       wr_ack_int <= breg_wack;
@@ -192,11 +192,11 @@ begin
     -- By default ack read requests
     rd_dat_d0 <= (others => 'X');
     case araddr(2 downto 2) is
-    when "0" => 
+    when "0" =>
       -- Reg areg
       rd_ack_d0 <= rd_req;
       rd_dat_d0 <= areg_reg;
-    when "1" => 
+    when "1" =>
       -- Reg breg
       rd_ack_d0 <= rd_req;
       rd_dat_d0 <= breg_reg;

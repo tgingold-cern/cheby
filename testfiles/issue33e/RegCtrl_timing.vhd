@@ -88,10 +88,10 @@ begin
     WrSel_r1 <= '0';
     WrSel_r2 <= '0';
     case VMEAddr(7 downto 1) is
-    when C_Reg_timing_r1 => 
+    when C_Reg_timing_r1 =>
       WrSel_r1 <= '1';
       Loc_CRegWrOK <= '1';
-    when C_Reg_timing_r2 => 
+    when C_Reg_timing_r2 =>
       WrSel_r2 <= '1';
       Loc_CRegWrOK <= '1';
     when others =>
@@ -101,10 +101,10 @@ begin
 
   CRegRdMux: process (VMEAddr, Loc_r1, Loc_r2) begin
     case VMEAddr(7 downto 1) is
-    when C_Reg_timing_r1 => 
+    when C_Reg_timing_r1 =>
       Loc_CRegRdData <= Loc_r1(15 downto 0);
       Loc_CRegRdOK <= '1';
-    when C_Reg_timing_r2 => 
+    when C_Reg_timing_r2 =>
       Loc_CRegRdData <= Loc_r2(15 downto 0);
       Loc_CRegRdOK <= '1';
     when others =>

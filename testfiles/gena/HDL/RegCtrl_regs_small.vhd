@@ -68,10 +68,10 @@ begin
 
   RegRdMux: process (VMEAddr, CRegRdData, CRegRdOK, Loc_test2, Loc_test3) begin
     case VMEAddr(19 downto 1) is
-    when C_Reg_regs_small_test2 => 
+    when C_Reg_regs_small_test2 =>
       Loc_RegRdData <= Loc_test2(15 downto 0);
       Loc_RegRdOK <= '1';
-    when C_Reg_regs_small_test3 => 
+    when C_Reg_regs_small_test3 =>
       Loc_RegRdData <= std_logic_vector(resize(unsigned(Loc_test3(7 downto 0)), 8));
       Loc_RegRdOK <= '1';
     when others =>

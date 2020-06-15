@@ -322,7 +322,7 @@ begin
       else
         if ((wb_cyc_i = '1') and (wb_stb_i = '1')) then
           case rwaddr_reg(4 downto 0) is
-          when "00000" => 
+          when "00000" =>
             if (wb_we_i = '1') then
               sysc_rstr_trig_wr_o <= '1';
               sysc_rstr_rst_int <= wrdata_reg(28);
@@ -361,7 +361,7 @@ begin
             rddata_reg(31) <= 'X';
             ack_sreg(0) <= '1';
             ack_in_progress <= '1';
-          when "00001" => 
+          when "00001" =>
             if (wb_we_i = '1') then
               sysc_gpsr_led_stat_int <= wrdata_reg(0);
               sysc_gpsr_led_link_int <= wrdata_reg(1);
@@ -408,7 +408,7 @@ begin
             rddata_reg(31) <= 'X';
             ack_sreg(2) <= '1';
             ack_in_progress <= '1';
-          when "00010" => 
+          when "00010" =>
             if (wb_we_i = '1') then
               sysc_gpcr_led_stat_int <= wrdata_reg(0);
               sysc_gpcr_led_link_int <= wrdata_reg(1);
@@ -463,7 +463,7 @@ begin
             rddata_reg(31) <= 'X';
             ack_sreg(2) <= '1';
             ack_in_progress <= '1';
-          when "00011" => 
+          when "00011" =>
             if (wb_we_i = '1') then
             end if;
             rddata_reg(3 downto 0) <= sysc_hwfr_memsize_i;
@@ -497,13 +497,13 @@ begin
             rddata_reg(31) <= 'X';
             ack_sreg(0) <= '1';
             ack_in_progress <= '1';
-          when "00100" => 
+          when "00100" =>
             if (wb_we_i = '1') then
             end if;
             rddata_reg(31 downto 0) <= sysc_hwir_name_i;
             ack_sreg(0) <= '1';
             ack_in_progress <= '1';
-          when "00101" => 
+          when "00101" =>
             if (wb_we_i = '1') then
               sysc_tcr_enable_int <= wrdata_reg(31);
             end if;
@@ -530,27 +530,27 @@ begin
             rddata_reg(30) <= 'X';
             ack_sreg(0) <= '1';
             ack_in_progress <= '1';
-          when "00110" => 
+          when "00110" =>
             if (wb_we_i = '1') then
             end if;
             rddata_reg(31 downto 0) <= sysc_tvr_i;
             ack_sreg(0) <= '1';
             ack_in_progress <= '1';
-          when "00111" => 
+          when "00111" =>
             if (wb_we_i = '1') then
             end if;
             rddata_reg(15 downto 0) <= sysc_diag_info_ver_i;
             rddata_reg(31 downto 16) <= sysc_diag_info_id_i;
             ack_sreg(0) <= '1';
             ack_in_progress <= '1';
-          when "01000" => 
+          when "01000" =>
             if (wb_we_i = '1') then
             end if;
             rddata_reg(15 downto 0) <= sysc_diag_nw_rw_i;
             rddata_reg(31 downto 16) <= sysc_diag_nw_ro_i;
             ack_sreg(0) <= '1';
             ack_in_progress <= '1';
-          when "01001" => 
+          when "01001" =>
             if (wb_we_i = '1') then
               sysc_diag_cr_adr_load_o <= '1';
               sysc_diag_cr_rw_int <= wrdata_reg(31);
@@ -574,14 +574,14 @@ begin
             rddata_reg(30) <= 'X';
             ack_sreg(0) <= '1';
             ack_in_progress <= '1';
-          when "01010" => 
+          when "01010" =>
             if (wb_we_i = '1') then
               sysc_diag_dat_load_o <= '1';
             end if;
             rddata_reg(31 downto 0) <= sysc_diag_dat_i;
             ack_sreg(0) <= '1';
             ack_in_progress <= '1';
-          when "01011" => 
+          when "01011" =>
             if (wb_we_i = '1') then
               sysc_wdiag_ctrl_data_valid_int <= wrdata_reg(0);
             end if;
@@ -619,7 +619,7 @@ begin
             rddata_reg(31) <= 'X';
             ack_sreg(0) <= '1';
             ack_in_progress <= '1';
-          when "01100" => 
+          when "01100" =>
             if (wb_we_i = '1') then
               sysc_wdiag_sstat_wr_mode_int <= wrdata_reg(0);
               sysc_wdiag_sstat_servostate_int <= wrdata_reg(11 downto 8);
@@ -655,7 +655,7 @@ begin
             rddata_reg(31) <= 'X';
             ack_sreg(0) <= '1';
             ack_in_progress <= '1';
-          when "01101" => 
+          when "01101" =>
             if (wb_we_i = '1') then
               sysc_wdiag_pstat_link_int <= wrdata_reg(0);
               sysc_wdiag_pstat_locked_int <= wrdata_reg(1);
@@ -694,7 +694,7 @@ begin
             rddata_reg(31) <= 'X';
             ack_sreg(0) <= '1';
             ack_in_progress <= '1';
-          when "01110" => 
+          when "01110" =>
             if (wb_we_i = '1') then
               sysc_wdiag_ptpstat_ptpstate_int <= wrdata_reg(7 downto 0);
             end if;
@@ -725,7 +725,7 @@ begin
             rddata_reg(31) <= 'X';
             ack_sreg(0) <= '1';
             ack_in_progress <= '1';
-          when "01111" => 
+          when "01111" =>
             if (wb_we_i = '1') then
               sysc_wdiag_astat_aux_int <= wrdata_reg(7 downto 0);
             end if;
@@ -756,98 +756,98 @@ begin
             rddata_reg(31) <= 'X';
             ack_sreg(0) <= '1';
             ack_in_progress <= '1';
-          when "10000" => 
+          when "10000" =>
             if (wb_we_i = '1') then
               sysc_wdiag_txfcnt_int <= wrdata_reg(31 downto 0);
             end if;
             rddata_reg(31 downto 0) <= sysc_wdiag_txfcnt_int;
             ack_sreg(0) <= '1';
             ack_in_progress <= '1';
-          when "10001" => 
+          when "10001" =>
             if (wb_we_i = '1') then
               sysc_wdiag_rxfcnt_int <= wrdata_reg(31 downto 0);
             end if;
             rddata_reg(31 downto 0) <= sysc_wdiag_rxfcnt_int;
             ack_sreg(0) <= '1';
             ack_in_progress <= '1';
-          when "10010" => 
+          when "10010" =>
             if (wb_we_i = '1') then
               sysc_wdiag_sec_msb_int <= wrdata_reg(31 downto 0);
             end if;
             rddata_reg(31 downto 0) <= sysc_wdiag_sec_msb_int;
             ack_sreg(0) <= '1';
             ack_in_progress <= '1';
-          when "10011" => 
+          when "10011" =>
             if (wb_we_i = '1') then
               sysc_wdiag_sec_lsb_int <= wrdata_reg(31 downto 0);
             end if;
             rddata_reg(31 downto 0) <= sysc_wdiag_sec_lsb_int;
             ack_sreg(0) <= '1';
             ack_in_progress <= '1';
-          when "10100" => 
+          when "10100" =>
             if (wb_we_i = '1') then
               sysc_wdiag_ns_int <= wrdata_reg(31 downto 0);
             end if;
             rddata_reg(31 downto 0) <= sysc_wdiag_ns_int;
             ack_sreg(0) <= '1';
             ack_in_progress <= '1';
-          when "10101" => 
+          when "10101" =>
             if (wb_we_i = '1') then
               sysc_wdiag_mu_msb_int <= wrdata_reg(31 downto 0);
             end if;
             rddata_reg(31 downto 0) <= sysc_wdiag_mu_msb_int;
             ack_sreg(0) <= '1';
             ack_in_progress <= '1';
-          when "10110" => 
+          when "10110" =>
             if (wb_we_i = '1') then
               sysc_wdiag_mu_lsb_int <= wrdata_reg(31 downto 0);
             end if;
             rddata_reg(31 downto 0) <= sysc_wdiag_mu_lsb_int;
             ack_sreg(0) <= '1';
             ack_in_progress <= '1';
-          when "10111" => 
+          when "10111" =>
             if (wb_we_i = '1') then
               sysc_wdiag_dms_msb_int <= wrdata_reg(31 downto 0);
             end if;
             rddata_reg(31 downto 0) <= sysc_wdiag_dms_msb_int;
             ack_sreg(0) <= '1';
             ack_in_progress <= '1';
-          when "11000" => 
+          when "11000" =>
             if (wb_we_i = '1') then
               sysc_wdiag_dms_lsb_int <= wrdata_reg(31 downto 0);
             end if;
             rddata_reg(31 downto 0) <= sysc_wdiag_dms_lsb_int;
             ack_sreg(0) <= '1';
             ack_in_progress <= '1';
-          when "11001" => 
+          when "11001" =>
             if (wb_we_i = '1') then
               sysc_wdiag_asym_int <= wrdata_reg(31 downto 0);
             end if;
             rddata_reg(31 downto 0) <= sysc_wdiag_asym_int;
             ack_sreg(0) <= '1';
             ack_in_progress <= '1';
-          when "11010" => 
+          when "11010" =>
             if (wb_we_i = '1') then
               sysc_wdiag_cko_int <= wrdata_reg(31 downto 0);
             end if;
             rddata_reg(31 downto 0) <= sysc_wdiag_cko_int;
             ack_sreg(0) <= '1';
             ack_in_progress <= '1';
-          when "11011" => 
+          when "11011" =>
             if (wb_we_i = '1') then
               sysc_wdiag_setp_int <= wrdata_reg(31 downto 0);
             end if;
             rddata_reg(31 downto 0) <= sysc_wdiag_setp_int;
             ack_sreg(0) <= '1';
             ack_in_progress <= '1';
-          when "11100" => 
+          when "11100" =>
             if (wb_we_i = '1') then
               sysc_wdiag_ucnt_int <= wrdata_reg(31 downto 0);
             end if;
             rddata_reg(31 downto 0) <= sysc_wdiag_ucnt_int;
             ack_sreg(0) <= '1';
             ack_in_progress <= '1';
-          when "11101" => 
+          when "11101" =>
             if (wb_we_i = '1') then
               sysc_wdiag_temp_int <= wrdata_reg(31 downto 0);
             end if;
