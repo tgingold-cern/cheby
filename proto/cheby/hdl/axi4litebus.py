@@ -119,16 +119,20 @@ class AXI4LiteBus(BusGen):
             ibus.rd_adr = opts.new_resizer_addr_in(module, root.h_bus['araddr'], ibus, 'rd_addr')
 
         # For the read accesses:
-        # The read strobe is generated when ARVALID is set.
+        # The read strobe is generated when ARVALID is set and no cycle transaction in
+        #  progress.
         # ARREADY is asserted on the ack.
         # RVALID is asserted the next cycle, until RREADY is asserted.
         # As RDATA must be stable until RREADY is asserted, they are registered.
+        # AXI_RIP is set when read in progress.  Set at start, cleared on internal bus ack.
+        # AXI_RDONE is set on ack and cleared when master has read the data.
         axi_rip = module.new_HDLSignal('axi_rip')
         axi_rdone = module.new_HDLSignal('axi_rdone')
         r_start = root.h_bus['arvalid']
         # Send a pulse to the slave at the start of a transaction.
         module.stmts.append(
-            HDLAssign(ibus.rd_req, HDLAnd(r_start, HDLNot(axi_rip))))
+            HDLAssign(ibus.rd_req, HDLAnd(r_start,
+                                          HDLNot(HDLParen(HDLOr(axi_rip, axi_rdone))))))
         module.stmts.append(
             HDLAssign(root.h_bus['arready'], ibus.rd_ack))
         module.stmts.append(HDLAssign(root.h_bus['rvalid'], axi_rdone))
@@ -243,10 +247,8 @@ class AXI4LiteBus(BusGen):
                 n.h_bus_opts.resize_addr_out(
                     HDLSlice(ibus.rd_adr, root.c_addr_word_bits, n.c_addr_bits), ibus)))
         stmts.append(HDLAssign(n.h_bus['arprot'], HDLBinConst(0, 3)))
+        stmts.append(HDLAssign(n.h_bus['rready'], bit_1))
 
-        # FIXME: rready only available with axi4 root.
-        stmts.append(HDLAssign(n.h_bus['rready'],
-                               root.h_bus.get('rready', bit_1)))
         proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_sync=gconfig.rst_sync)
         # Machine state for valid/ready AW and W channels
         # Set valid on request, clear valid on ready.
