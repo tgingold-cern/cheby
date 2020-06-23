@@ -227,7 +227,5 @@ def pprint_root(fd, root):
 
 
 def pprint(fd, n):
-    if isinstance(n, tree.Root):
-        pprint_root(fd, n)
-    else:
-        raise AssertionError
+    assert isinstance(n, tree.Root)
+    pprint_root(fd, n)

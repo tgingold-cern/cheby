@@ -85,6 +85,6 @@ class MemmapSummary(object):
                     self.gen_raws(n.c_submap, name + '.', addr_pfx, n_addr)
             elif isinstance(n, tree.Memory):
                 self.raws.append(SummaryRaw(rng, 'MEMORY', name, n, n_addr))
-                self.gen_raws(n, name + '.', addr_pfx + ' +', 0)
+                self.gen_raws(n, name + '.', addr_pfx + ' +', n_addr)
             else:
                 assert False, "MemmapSummary: unhandled tree node {}".format(n)
