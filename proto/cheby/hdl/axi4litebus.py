@@ -49,46 +49,46 @@ class AXI4LiteBus(BusGen):
         """Sub-routine of expand_bus: the write part"""
         ibus.wr_req = module.new_HDLSignal('wr_req')       # Write access
         ibus.wr_ack = module.new_HDLSignal('wr_ack_int')   # Ack for write
-        ibus.wr_dat = module.new_HDLSignal('wr_wdata', root.c_word_bits)
-        ibus.wr_sel = module.new_HDLSignal('wr_wstrb', root.c_word_bits // tree.BYTE_SIZE)
         ibus.wr_adr = module.new_HDLSignal('wr_awaddr', root.c_addr_bits,
                                            lo_idx=root.c_addr_word_bits)
+        ibus.wr_dat = module.new_HDLSignal('wr_wdata', root.c_word_bits)
+        ibus.wr_sel = module.new_HDLSignal('wr_wstrb', root.c_word_bits // tree.BYTE_SIZE)
         # For the write accesses:
-        # The W and AW channels are handled together: the write strobe is
-        # generated when both AWVALID and WVALID are set.
-        # AWREADY and WREADY are asserted on the ack.
-        # BVALID is asserted the next cycle, until BREADY is asserted.
+        # AWREADY and WREADY default to asserted and are deasserted one cycle after AWVALID and
+        # WVALID are set, respectively. AWADDR, WDATA and WSEL are registred at the same time.
+        # The write strobe is generated when both channels received a transaction.
+        # BVALID is asserted on ack, until BREADY is asserted.
         module.stmts.append(HDLComment("AW, W and B channels"))
-        axi_wset = module.new_HDLSignal('axi_wset')
         axi_awset = module.new_HDLSignal('axi_awset')
+        axi_wset = module.new_HDLSignal('axi_wset')
         axi_wdone = module.new_HDLSignal('axi_wdone')
-        module.stmts.append(HDLAssign(root.h_bus['bvalid'], axi_wdone))
-        module.stmts.append(HDLAssign(root.h_bus['wready'], HDLNot(axi_wset)))
         module.stmts.append(HDLAssign(root.h_bus['awready'], HDLNot(axi_awset)))
+        module.stmts.append(HDLAssign(root.h_bus['wready'], HDLNot(axi_wset)))
+        module.stmts.append(HDLAssign(root.h_bus['bvalid'], axi_wdone))
         proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_sync=gconfig.rst_sync)
-        proc.rst_stmts.append(HDLAssign(axi_wset, bit_0))
-        proc.rst_stmts.append(HDLAssign(axi_awset, bit_0))
         proc.rst_stmts.append(HDLAssign(ibus.wr_req, bit_0))
+        proc.rst_stmts.append(HDLAssign(axi_awset, bit_0))
+        proc.rst_stmts.append(HDLAssign(axi_wset, bit_0))
         proc.rst_stmts.append(HDLAssign(axi_wdone, bit_0))
         proc.sync_stmts.append(HDLAssign(ibus.wr_req, bit_0))
-        # Load wdata+wsel (and acknowledge the W request)
+        # Load AWADDR (and acknowledge the AW request)
+        proc_if = HDLIfElse(HDLAnd(HDLEq(root.h_bus['awvalid'], bit_1),
+                                   HDLEq(axi_awset, bit_0)))
+        if root.h_bus['awaddr'] is not None:
+            proc_if.then_stmts.append(
+                HDLAssign(ibus.wr_adr, opts.resize_addr_in(root.h_bus['awaddr'], ibus)))
+        proc_if.then_stmts.append(HDLAssign(axi_awset, bit_1))
+        proc_if.then_stmts.append(HDLAssign(ibus.wr_req, axi_wset))  # Start if W already set
+        proc_if.else_stmts = None
+        proc.sync_stmts.append(proc_if)
+        # Load WDATA and WSEL (and acknowledge the W request)
         proc_if = HDLIfElse(HDLAnd(HDLEq(root.h_bus['wvalid'], bit_1),
                                    HDLEq(axi_wset, bit_0)))
         proc_if.then_stmts.append(HDLAssign(ibus.wr_dat, root.h_bus['wdata']))
         proc_if.then_stmts.append(HDLAssign(ibus.wr_sel, root.h_bus['wstrb']))
         proc_if.then_stmts.append(HDLAssign(axi_wset, bit_1))
-        proc_if.then_stmts.append(HDLAssign(ibus.wr_req, axi_awset))  # Start if AW already set
-        proc_if.else_stmts = None
-        proc.sync_stmts.append(proc_if)
-        # Load awaddr (and acknowledge the AW request)
-        proc_if = HDLIfElse(HDLAnd(HDLEq(root.h_bus['awvalid'], bit_1),
-                                   HDLEq(axi_awset, bit_0)))
-        if root.h_bus['awaddr'] is not None:
-            proc_if.then_stmts.append(HDLAssign(ibus.wr_adr,
-                                                opts.resize_addr_in(root.h_bus['awaddr'], ibus)))
-        proc_if.then_stmts.append(HDLAssign(axi_awset, bit_1))
-        proc_if.then_stmts.append(HDLAssign(ibus.wr_req,
-                                            HDLOr(axi_wset, root.h_bus['wvalid'])))  # Start if W
+        proc_if.then_stmts.append(
+            HDLAssign(ibus.wr_req, HDLOr(axi_awset, root.h_bus['awvalid'])))  # Start if AW
         proc_if.else_stmts = None
         proc.sync_stmts.append(proc_if)
         # Clear 'set' bits at the end of the transaction
@@ -99,13 +99,11 @@ class AXI4LiteBus(BusGen):
         proc_if.else_stmts = None
         proc.sync_stmts.append(proc_if)
         # WDONE indicates that the write is done on the slave part (so waiting to
-        # be acknowledged by the master.)
-        # WDONE is set on ack, cleared on BREADY.
+        # be acknowledged by the master). WDONE is set on ack, cleared on BREADY.
         proc_if = HDLIfElse(HDLEq(ibus.wr_ack, bit_1))
         proc_if.then_stmts.append(HDLAssign(axi_wdone, bit_1))
         proc_if.else_stmts = None
         proc.sync_stmts.append(proc_if)
-        #
         module.stmts.append(proc)
         module.stmts.append(HDLAssign(root.h_bus['bresp'], HDLConst(0, 2)))
 
