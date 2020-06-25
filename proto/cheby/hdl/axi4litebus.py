@@ -109,49 +109,51 @@ class AXI4LiteBus(BusGen):
 
     def expand_bus_r(self, root, module, ibus, opts):
         """Sub-routine of expand_bus: the read part"""
-        module.stmts.append(HDLComment("AR and R channels"))
         ibus.rd_req = module.new_HDLSignal('rd_req')       # Read access
         ibus.rd_ack = module.new_HDLSignal('rd_ack_int')   # Ack for read
-        ibus.rd_dat = module.new_HDLSignal('dato', root.c_word_bits)
-        if root.h_bus['araddr'] is not None:
-            ibus.rd_adr = opts.new_resizer_addr_in(module, root.h_bus['araddr'], ibus, 'rd_addr')
-
+        ibus.rd_adr = module.new_HDLSignal('rd_araddr', root.c_addr_bits,
+                                           lo_idx=root.c_addr_word_bits)
+        ibus.rd_dat = module.new_HDLSignal('rd_rdata', root.c_word_bits)
         # For the read accesses:
-        # The read strobe is generated when ARVALID is set and no cycle transaction in
-        #  progress.
-        # ARREADY is asserted on the ack.
-        # RVALID is asserted the next cycle, until RREADY is asserted.
-        # As RDATA must be stable until RREADY is asserted, they are registered.
-        # AXI_RIP is set when read in progress.  Set at start, cleared on internal bus ack.
-        # AXI_RDONE is set on ack and cleared when master has read the data.
-        axi_rip = module.new_HDLSignal('axi_rip')
+        # ARREADY defaults to asserted and is deasserted one cycle after ARVALID is set.
+        # ARADDR is registred at the same time and the read strobe is generated.
+        # RVALID is asserted on ack, until RREADY is asserted.
+        # As RDATA must be stable until RREADY is asserted, it is registered.
+        module.stmts.append(HDLComment("AR and R channels"))
+        axi_arset = module.new_HDLSignal('axi_arset')
         axi_rdone = module.new_HDLSignal('axi_rdone')
-        r_start = root.h_bus['arvalid']
-        # Send a pulse to the slave at the start of a transaction.
-        module.stmts.append(
-            HDLAssign(ibus.rd_req, HDLAnd(r_start,
-                                          HDLNot(HDLParen(HDLOr(axi_rip, axi_rdone))))))
-        module.stmts.append(
-            HDLAssign(root.h_bus['arready'], ibus.rd_ack))
+        module.stmts.append(HDLAssign(root.h_bus['arready'], HDLNot(axi_arset)))
         module.stmts.append(HDLAssign(root.h_bus['rvalid'], axi_rdone))
         proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_sync=gconfig.rst_sync)
-        proc.rst_stmts.append(HDLAssign(axi_rip, bit_0))
+        proc.rst_stmts.append(HDLAssign(ibus.rd_req, bit_0))
+        proc.rst_stmts.append(HDLAssign(axi_arset, bit_0))
         proc.rst_stmts.append(HDLAssign(axi_rdone, bit_0))
         proc.rst_stmts.append(
-            HDLAssign(root.h_bus['rdata'],
-                      HDLReplicate(bit_0, root.c_addr_bits)))
-        # Read In Progress is set during the whole read transaction.
-        proc.sync_stmts.append(
-            HDLAssign(axi_rip, HDLAnd(r_start, HDLNot(axi_rdone))))
+            HDLAssign(root.h_bus['rdata'], HDLReplicate(bit_0, root.c_addr_bits)))
+        proc.sync_stmts.append(HDLAssign(ibus.rd_req, bit_0))
+        # Load ARADDR (and acknowledge the AR request)
+        proc_if = HDLIfElse(HDLAnd(HDLEq(root.h_bus['arvalid'], bit_1),
+                                   HDLEq(axi_arset, bit_0)))
+        if root.h_bus['araddr'] is not None:
+            proc_if.then_stmts.append(HDLAssign(ibus.rd_adr,
+                                                opts.resize_addr_in(root.h_bus['araddr'], ibus)))
+        proc_if.then_stmts.append(HDLAssign(axi_arset, bit_1))
+        proc_if.then_stmts.append(HDLAssign(ibus.rd_req, bit_1))
+        proc_if.else_stmts = None
+        proc.sync_stmts.append(proc_if)
+        # Clear 'set' bit at the end of the transaction
+        proc_if = HDLIfElse(HDLEq(HDLParen(HDLAnd(axi_rdone, root.h_bus['rready'])), bit_1))
+        proc_if.then_stmts.append(HDLAssign(axi_arset, bit_0))
+        proc_if.then_stmts.append(HDLAssign(axi_rdone, bit_0))
+        proc_if.else_stmts = None
+        proc.sync_stmts.append(proc_if)
+        # RDONE indicates that the read is done on the slave part (so waiting to
+        # be acknowledged by the master). RDONE is set on ack, cleared on RREADY.
         proc_if = HDLIfElse(HDLEq(ibus.rd_ack, bit_1))
+        proc_if.then_stmts.append(HDLAssign(axi_rdone, bit_1))
         proc_if.then_stmts.append(HDLAssign(root.h_bus['rdata'], ibus.rd_dat))
         proc_if.else_stmts = None
         proc.sync_stmts.append(proc_if)
-        # Set on ack, cleared on rready.
-        proc.sync_stmts.append(
-            HDLAssign(axi_rdone,
-                      HDLOr(ibus.rd_ack, HDLParen(HDLAnd(axi_rdone,
-                                                         HDLNot(root.h_bus['rready']))))))
         module.stmts.append(proc)
         module.stmts.append(HDLAssign(root.h_bus['rresp'], HDLConst(0, 2)))
 
