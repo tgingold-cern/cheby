@@ -47,12 +47,12 @@ class AXI4LiteBus(BusGen):
 
     def expand_bus_w(self, root, module, ibus, opts):
         """Sub-routine of expand_bus: the write part"""
-        ibus.wr_req = module.new_HDLSignal('wr_req')       # Write access
-        ibus.wr_ack = module.new_HDLSignal('wr_ack_int')   # Ack for write
-        ibus.wr_adr = module.new_HDLSignal('wr_awaddr', root.c_addr_bits,
+        ibus.wr_req = module.new_HDLSignal('wr_req')  # Write access
+        ibus.wr_ack = module.new_HDLSignal('wr_ack')  # Ack for write
+        ibus.wr_adr = module.new_HDLSignal('wr_addr', root.c_addr_bits,
                                            lo_idx=root.c_addr_word_bits)
-        ibus.wr_dat = module.new_HDLSignal('wr_wdata', root.c_word_bits)
-        ibus.wr_sel = module.new_HDLSignal('wr_wstrb', root.c_word_bits // tree.BYTE_SIZE)
+        ibus.wr_dat = module.new_HDLSignal('wr_data', root.c_word_bits)
+        ibus.wr_sel = module.new_HDLSignal('wr_strb', root.c_word_bits // tree.BYTE_SIZE)
         # For the write accesses:
         # AWREADY and WREADY default to asserted and are deasserted one cycle after AWVALID and
         # WVALID are set, respectively. AWADDR, WDATA and WSEL are registred at the same time.
@@ -109,11 +109,11 @@ class AXI4LiteBus(BusGen):
 
     def expand_bus_r(self, root, module, ibus, opts):
         """Sub-routine of expand_bus: the read part"""
-        ibus.rd_req = module.new_HDLSignal('rd_req')       # Read access
-        ibus.rd_ack = module.new_HDLSignal('rd_ack_int')   # Ack for read
-        ibus.rd_adr = module.new_HDLSignal('rd_araddr', root.c_addr_bits,
+        ibus.rd_req = module.new_HDLSignal('rd_req')  # Read access
+        ibus.rd_ack = module.new_HDLSignal('rd_ack')  # Ack for read
+        ibus.rd_adr = module.new_HDLSignal('rd_addr', root.c_addr_bits,
                                            lo_idx=root.c_addr_word_bits)
-        ibus.rd_dat = module.new_HDLSignal('rd_rdata', root.c_word_bits)
+        ibus.rd_dat = module.new_HDLSignal('rd_data', root.c_word_bits)
         # For the read accesses:
         # ARREADY defaults to asserted and is deasserted one cycle after ARVALID is set.
         # ARADDR is registred at the same time and the read strobe is generated.
