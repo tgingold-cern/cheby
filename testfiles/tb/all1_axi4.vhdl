@@ -96,17 +96,18 @@ end all1_axi4;
 
 architecture syn of all1_axi4 is
   signal wr_req                         : std_logic;
-  signal wr_ack_int                     : std_logic;
-  signal wr_wdata                       : std_logic_vector(31 downto 0);
-  signal wr_wstrb                       : std_logic_vector(3 downto 0);
-  signal wr_awaddr                      : std_logic_vector(13 downto 2);
-  signal axi_wset                       : std_logic;
+  signal wr_ack                         : std_logic;
+  signal wr_addr                        : std_logic_vector(13 downto 2);
+  signal wr_data                        : std_logic_vector(31 downto 0);
+  signal wr_strb                        : std_logic_vector(3 downto 0);
   signal axi_awset                      : std_logic;
+  signal axi_wset                       : std_logic;
   signal axi_wdone                      : std_logic;
   signal rd_req                         : std_logic;
-  signal rd_ack_int                     : std_logic;
-  signal dato                           : std_logic_vector(31 downto 0);
-  signal axi_rip                        : std_logic;
+  signal rd_ack                         : std_logic;
+  signal rd_addr                        : std_logic_vector(13 downto 2);
+  signal rd_data                        : std_logic_vector(31 downto 0);
+  signal axi_arset                      : std_logic;
   signal axi_rdone                      : std_logic;
   signal reg1_reg                       : std_logic_vector(31 downto 0);
   signal reg1_wreq                      : std_logic;
@@ -169,35 +170,35 @@ architecture syn of all1_axi4 is
 begin
 
   -- AW, W and B channels
-  bvalid <= axi_wdone;
-  wready <= not axi_wset;
   awready <= not axi_awset;
+  wready <= not axi_wset;
+  bvalid <= axi_wdone;
   process (aclk) begin
     if rising_edge(aclk) then
       if areset_n = '0' then
-        axi_wset <= '0';
-        axi_awset <= '0';
         wr_req <= '0';
+        axi_awset <= '0';
+        axi_wset <= '0';
         axi_wdone <= '0';
       else
         wr_req <= '0';
-        if wvalid = '1' and axi_wset = '0' then
-          wr_wdata <= wdata;
-          wr_wstrb <= wstrb;
-          axi_wset <= '1';
-          wr_req <= axi_awset;
-        end if;
         if awvalid = '1' and axi_awset = '0' then
-          wr_awaddr <= awaddr;
+          wr_addr <= awaddr;
           axi_awset <= '1';
-          wr_req <= axi_wset or wvalid;
+          wr_req <= axi_wset;
+        end if;
+        if wvalid = '1' and axi_wset = '0' then
+          wr_data <= wdata;
+          wr_strb <= wstrb;
+          axi_wset <= '1';
+          wr_req <= axi_awset or awvalid;
         end if;
         if (axi_wdone and bready) = '1' then
           axi_wset <= '0';
           axi_awset <= '0';
           axi_wdone <= '0';
         end if;
-        if wr_ack_int = '1' then
+        if wr_ack = '1' then
           axi_wdone <= '1';
         end if;
       end if;
@@ -206,21 +207,30 @@ begin
   bresp <= "00";
 
   -- AR and R channels
-  rd_req <= arvalid and not (axi_rip or axi_rdone);
-  arready <= rd_ack_int;
+  arready <= not axi_arset;
   rvalid <= axi_rdone;
   process (aclk) begin
     if rising_edge(aclk) then
       if areset_n = '0' then
-        axi_rip <= '0';
+        rd_req <= '0';
+        axi_arset <= '0';
         axi_rdone <= '0';
         rdata <= (others => '0');
       else
-        axi_rip <= arvalid and not axi_rdone;
-        if rd_ack_int = '1' then
-          rdata <= dato;
+        rd_req <= '0';
+        if arvalid = '1' and axi_arset = '0' then
+          rd_addr <= araddr;
+          axi_arset <= '1';
+          rd_req <= '1';
         end if;
-        axi_rdone <= rd_ack_int or (axi_rdone and not rready);
+        if (axi_rdone and rready) = '1' then
+          axi_arset <= '0';
+          axi_rdone <= '0';
+        end if;
+        if rd_ack = '1' then
+          axi_rdone <= '1';
+          rdata <= rd_data;
+        end if;
       end if;
     end if;
   end process;
@@ -231,19 +241,19 @@ begin
     if rising_edge(aclk) then
       if areset_n = '0' then
         rd_req_d0 <= '0';
-        rd_ack_int <= '0';
+        rd_ack <= '0';
         wr_req_d0 <= '0';
-        wr_ack_int <= '0';
+        wr_ack <= '0';
       else
         rd_req_d0 <= rd_req;
-        rd_adr_d0 <= araddr;
-        rd_ack_int <= rd_ack_d0;
-        dato <= rd_dat_d0;
+        rd_adr_d0 <= rd_addr;
+        rd_ack <= rd_ack_d0;
+        rd_data <= rd_dat_d0;
         wr_req_d0 <= wr_req;
-        wr_adr_d0 <= wr_awaddr;
-        wr_dat_d0 <= wr_wdata;
-        wr_sel_d0 <= wr_wstrb;
-        wr_ack_int <= wr_ack_d0;
+        wr_adr_d0 <= wr_addr;
+        wr_dat_d0 <= wr_data;
+        wr_sel_d0 <= wr_strb;
+        wr_ack <= wr_ack_d0;
       end if;
     end if;
   end process;
