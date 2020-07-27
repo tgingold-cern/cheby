@@ -437,11 +437,13 @@ def layout_block(lo, n):
         layout_composite_children(lo, n)
         layout_composite_size(lo, n)
     else:
+        # No children.  Set size and alignment
         if n.size_val is None:
             raise LayoutException(
                 n, "no size for empty block '{}'".format(n.get_path()))
         else:
             n.c_size = n.size_val
+        n.c_align = lo.word_size
     align_block(n)
 
 
