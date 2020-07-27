@@ -7,6 +7,7 @@ set -e
 . /acc/local/share/python/L867/setup.sh
 python -V
 
+# Check the variable is set
 [ x"$CI_COMMIT_SHORT_SHA" != x ] || exit 1
 
 localdir=/opt/home/cheby
@@ -24,9 +25,14 @@ python3 ./setup.py install --prefix $destdir
 cd $base_destdir
 ln -sfn cheby-$suffix cheby-latest
 
+# Remove the old version, unless it is the same as the current one
+# (could happen when re-running CI/CD: there is no new version and
+#  the current one shouldn't be removed).
 if [ -f last ]; then
     old=$(cat last)
-    rm -rf ./cheby-$old
+    if [ "$old" != "$suffix" ] then
+       rm -rf ./cheby-$old
+    fi
 fi
 echo $suffix > last
 
