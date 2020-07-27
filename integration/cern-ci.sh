@@ -30,7 +30,7 @@ ln -sfn cheby-$suffix cheby-latest
 #  the current one shouldn't be removed).
 if [ -f last ]; then
     old=$(cat last)
-    if [ "$old" != "$suffix" ] then
+    if [ "$old" != "$suffix" ]; then
        rm -rf ./cheby-$old
     fi
 fi
