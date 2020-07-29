@@ -483,19 +483,15 @@ def layout_memory(lo, n):
         n.memsize_val = n.c_depth * n.c_elsize
     # Align to power of 2.
     n.c_elsize = round_pow2(n.c_elsize)
+    # Compute the depth.
     if n.memsize_val % n.c_elsize != 0:
         raise LayoutException(
             n, "memory memsize '{}' is not a multiple of the element")
-    if n.c_elsize > lo.root.c_word_size:
-        # If the data size is larger than the word, the word will still
-        # be used as data input.  So reduce the width, that will increase
-        # the depth.
-        n.c_elsize = lo.root.c_word_size
-    # Compute the depth.
     n.c_depth = n.memsize_val // n.c_elsize
     # Now, possibly increase the size if the element size was smaller than
     # the word size.  This doesn't change the depth.
     n.c_elsize = align(n.c_elsize, n.c_align)
+    # Compute the memory size and its alignment.
     n.c_size = n.c_depth * n.c_elsize
     n.c_align = round_pow2(n.c_size)
     layout_composite_size(lo, n)
