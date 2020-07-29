@@ -1,0 +1,26 @@
+memory-map:
+  bus: wb-32-be
+  name: mem64ro
+  description: An example of a cheby memory map
+  children:
+    - reg:
+        name: regA
+        description: The first register (with some fields)
+        width: 32
+        access: rw
+        children:
+          - field:
+              name: field0
+              description: 1-bit field
+              range: 1
+    - memory:
+        name: DdrCapturesIndex
+        description: "Stores page indices for separate captures"
+        memsize: 512
+        align: True
+        children:
+        - reg:
+              description: "Stores page indices for separate captures"
+              name: DdrCaptures
+              access: ro
+              width: 64
