@@ -181,6 +181,8 @@ Always ack writes to read-only memories (issue#79)
 
 Fix crash on empty but sized blocks (issue#82)
 
+Add suppot for multi-word memories.
+
 ## Version 1.3
 
 Add x-hdl:port to specify how ports are generated for registers (issue#11)
