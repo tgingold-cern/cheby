@@ -105,9 +105,10 @@ class Root(CompositeNode):
         self.x_enums = []
         self.schema_version = {}
         # Computed variables
-        self.c_word_size = None  # Word size in bytes
-        self.c_filename = None  # Filename for the tree.
-        self.c_word_endian = None  # word endianness ('any', 'little', 'big')
+        self.c_word_size = None       # Word size in bytes
+        self.c_addr_word_bits = None  # log2(c_word_size)
+        self.c_filename = None        # Filename for the tree.
+        self.c_word_endian = None     # word endianness ('any', 'little', 'big')
         self.c_version = None
         self.c_memmap_version = None
         self.c_enums_dict = {}      # Dictionnary from enum name to enum node.
