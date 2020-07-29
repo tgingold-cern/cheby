@@ -151,7 +151,8 @@ class HDLAssign(HDLStmt):
     def __init__(self, target, expr):
         super(HDLAssign, self).__init__()
         assert target is not None
-        assert expr is not None
+        assert isinstance(target, (HDLExpr, HDLObject, HDLInterfaceSelect))
+        assert isinstance(expr, (HDLExpr, HDLObject, HDLInterfaceSelect))
         self.target = target
         self.expr = expr
 
@@ -360,6 +361,8 @@ class HDLBinary(HDLExpr):
         super(HDLBinary, self).__init__()
         assert left is not None
         assert right is not None
+        assert isinstance(left, (HDLExpr, HDLObject, HDLInterfaceSelect)), left
+        assert isinstance(right, (HDLExpr, HDLObject, HDLInterfaceSelect)), right
         self.left = left
         self.right = right
 
