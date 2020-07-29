@@ -26,13 +26,10 @@ architecture syn of mainMap is
   signal rst_n                          : std_logic;
   signal rd_ack_int                     : std_logic;
   signal wr_ack_int                     : std_logic;
-  signal acqVP_value_int_dati           : std_logic_vector(15 downto 0);
   signal acqVP_value_int_dato           : std_logic_vector(15 downto 0);
   signal acqVP_value_ext_dat            : std_logic_vector(15 downto 0);
   signal acqVP_value_rreq               : std_logic;
   signal acqVP_value_rack               : std_logic;
-  signal acqVP_value_int_wr             : std_logic;
-  signal acqVP_value_ext_rd             : std_logic;
   signal rd_ack_d0                      : std_logic;
   signal rd_dat_d0                      : std_logic_vector(31 downto 0);
   signal wr_req_d0                      : std_logic;
@@ -73,15 +70,15 @@ begin
       clk_b_i              => Clk,
       addr_a_i             => VMEAddr(10 downto 2),
       bwsel_a_i            => (others => '1'),
-      data_a_i             => acqVP_value_int_dati,
+      data_a_i             => (others => 'X'),
       data_a_o             => acqVP_value_int_dato,
       rd_a_i               => acqVP_value_rreq,
-      wr_a_i               => acqVP_value_int_wr,
+      wr_a_i               => '0',
       addr_b_i             => acqVP_adr_i,
       bwsel_b_i            => (others => '1'),
       data_b_i             => acqVP_value_dat_i,
       data_b_o             => acqVP_value_ext_dat,
-      rd_b_i               => acqVP_value_ext_rd,
+      rd_b_i               => '0',
       wr_b_i               => acqVP_value_we_i
     );
   
@@ -94,9 +91,6 @@ begin
       end if;
     end if;
   end process;
-  acqVP_value_int_wr <= '0';
-  acqVP_value_int_dati <= (others => 'X');
-  acqVP_value_ext_rd <= '0';
 
   -- Process for write requests.
   process (wr_req_d0) begin

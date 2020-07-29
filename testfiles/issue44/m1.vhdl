@@ -8,7 +8,7 @@ entity m1 is
     clk_i                : in    std_logic;
     wb_cyc_i             : in    std_logic;
     wb_stb_i             : in    std_logic;
-    wb_adr_i             : in    std_logic_vector(14 downto 2);
+    wb_adr_i             : in    std_logic_vector(13 downto 2);
     wb_sel_i             : in    std_logic_vector(3 downto 0);
     wb_we_i              : in    std_logic;
     wb_dat_i             : in    std_logic_vector(31 downto 0);
@@ -37,7 +37,7 @@ entity m1 is
     m1_VMEWrDone_i       : in    std_logic;
 
     -- CERN-BE bus m2
-    m2_VMEAddr_o         : out   std_logic_vector(11 downto 2);
+    m2_VMEAddr_o         : out   std_logic_vector(10 downto 2);
     m2_VMERdData_i       : in    std_logic_vector(31 downto 0);
     m2_VMEWrData_o       : out   std_logic_vector(31 downto 0);
     m2_VMERdMem_o        : out   std_logic;
@@ -59,7 +59,7 @@ architecture syn of m1 is
   signal rd_ack_d0                      : std_logic;
   signal rd_dat_d0                      : std_logic_vector(31 downto 0);
   signal wr_req_d0                      : std_logic;
-  signal wr_adr_d0                      : std_logic_vector(14 downto 2);
+  signal wr_adr_d0                      : std_logic_vector(13 downto 2);
   signal wr_dat_d0                      : std_logic_vector(31 downto 0);
   signal wr_sel_d0                      : std_logic_vector(3 downto 0);
   signal m0_ws                          : std_logic;
@@ -172,9 +172,9 @@ begin
   m2_ws <= wr_req_d0 or (m2_wt and not rd_req_int);
   process (wb_adr_i, wr_adr_d0, m2_wt, m2_ws) begin
     if (m2_ws or m2_wt) = '1' then
-      m2_VMEAddr_o <= wr_adr_d0(11 downto 2);
+      m2_VMEAddr_o <= wr_adr_d0(10 downto 2);
     else
-      m2_VMEAddr_o <= wb_adr_i(11 downto 2);
+      m2_VMEAddr_o <= wb_adr_i(10 downto 2);
     end if;
   end process;
 
@@ -183,19 +183,24 @@ begin
     m0_VMEWrMem_o <= '0';
     m1_VMEWrMem_o <= '0';
     m2_VMEWrMem_o <= '0';
-    case wr_adr_d0(14 downto 13) is
-    when "00" =>
+    case wr_adr_d0(13 downto 13) is
+    when "0" =>
       -- Memory m0
       m0_VMEWrMem_o <= wr_req_d0;
       wr_ack_int <= m0_VMEWrDone_i;
-    when "01" =>
-      -- Memory m1
-      m1_VMEWrMem_o <= wr_req_d0;
-      wr_ack_int <= m1_VMEWrDone_i;
-    when "10" =>
-      -- Memory m2
-      m2_VMEWrMem_o <= wr_req_d0;
-      wr_ack_int <= m2_VMEWrDone_i;
+    when "1" =>
+      case wr_adr_d0(12 downto 12) is
+      when "0" =>
+        -- Memory m1
+        m1_VMEWrMem_o <= wr_req_d0;
+        wr_ack_int <= m1_VMEWrDone_i;
+      when "1" =>
+        -- Memory m2
+        m2_VMEWrMem_o <= wr_req_d0;
+        wr_ack_int <= m2_VMEWrDone_i;
+      when others =>
+        wr_ack_int <= wr_req_d0;
+      end case;
     when others =>
       wr_ack_int <= wr_req_d0;
     end case;
@@ -208,22 +213,27 @@ begin
     m0_VMERdMem_o <= '0';
     m1_VMERdMem_o <= '0';
     m2_VMERdMem_o <= '0';
-    case wb_adr_i(14 downto 13) is
-    when "00" =>
+    case wb_adr_i(13 downto 13) is
+    when "0" =>
       -- Memory m0
       m0_VMERdMem_o <= rd_req_int;
       rd_dat_d0 <= m0_VMERdData_i;
       rd_ack_d0 <= m0_VMERdDone_i;
-    when "01" =>
-      -- Memory m1
-      m1_VMERdMem_o <= rd_req_int;
-      rd_dat_d0 <= m1_VMERdData_i;
-      rd_ack_d0 <= m1_VMERdDone_i;
-    when "10" =>
-      -- Memory m2
-      m2_VMERdMem_o <= rd_req_int;
-      rd_dat_d0 <= m2_VMERdData_i;
-      rd_ack_d0 <= m2_VMERdDone_i;
+    when "1" =>
+      case wb_adr_i(12 downto 12) is
+      when "0" =>
+        -- Memory m1
+        m1_VMERdMem_o <= rd_req_int;
+        rd_dat_d0 <= m1_VMERdData_i;
+        rd_ack_d0 <= m1_VMERdDone_i;
+      when "1" =>
+        -- Memory m2
+        m2_VMERdMem_o <= rd_req_int;
+        rd_dat_d0 <= m2_VMERdData_i;
+        rd_ack_d0 <= m2_VMERdDone_i;
+      when others =>
+        rd_ack_d0 <= rd_req_int;
+      end case;
     when others =>
       rd_ack_d0 <= rd_req_int;
     end case;

@@ -73,20 +73,14 @@ architecture syn of csr is
   signal i2c_master_tr                  : std_logic;
   signal i2c_master_wack                : std_logic;
   signal i2c_master_rack                : std_logic;
-  signal adc_offs_data_int_dati         : std_logic_vector(31 downto 0);
   signal adc_offs_data_int_dato         : std_logic_vector(31 downto 0);
   signal adc_offs_data_ext_dat          : std_logic_vector(31 downto 0);
   signal adc_offs_data_rreq             : std_logic;
   signal adc_offs_data_rack             : std_logic;
-  signal adc_offs_data_int_wr           : std_logic;
-  signal adc_offs_data_ext_rd           : std_logic;
-  signal adc_meas_data_int_dati         : std_logic_vector(31 downto 0);
   signal adc_meas_data_int_dato         : std_logic_vector(31 downto 0);
   signal adc_meas_data_ext_dat          : std_logic_vector(31 downto 0);
   signal adc_meas_data_rreq             : std_logic;
   signal adc_meas_data_rack             : std_logic;
-  signal adc_meas_data_int_wr           : std_logic;
-  signal adc_meas_data_ext_rd           : std_logic;
   signal rd_ack_d0                      : std_logic;
   signal rd_dat_d0                      : std_logic_vector(31 downto 0);
   signal wr_req_d0                      : std_logic;
@@ -199,15 +193,15 @@ begin
       clk_b_i              => clk_i,
       addr_a_i             => wb_adr_i(13 downto 2),
       bwsel_a_i            => wr_sel_d0,
-      data_a_i             => adc_offs_data_int_dati,
+      data_a_i             => (others => 'X'),
       data_a_o             => adc_offs_data_int_dato,
       rd_a_i               => adc_offs_data_rreq,
-      wr_a_i               => adc_offs_data_int_wr,
+      wr_a_i               => '0',
       addr_b_i             => adc_offs_adr_i,
       bwsel_b_i            => (others => '1'),
       data_b_i             => adc_offs_data_dat_i,
       data_b_o             => adc_offs_data_ext_dat,
-      rd_b_i               => adc_offs_data_ext_rd,
+      rd_b_i               => '0',
       wr_b_i               => adc_offs_data_we_i
     );
   
@@ -220,9 +214,6 @@ begin
       end if;
     end if;
   end process;
-  adc_offs_data_int_wr <= '0';
-  adc_offs_data_int_dati <= (others => 'X');
-  adc_offs_data_ext_rd <= '0';
 
   -- Memory adc_meas
   adc_meas_data_raminst: cheby_dpssram
@@ -238,15 +229,15 @@ begin
       clk_b_i              => clk_i,
       addr_a_i             => wb_adr_i(13 downto 2),
       bwsel_a_i            => wr_sel_d0,
-      data_a_i             => adc_meas_data_int_dati,
+      data_a_i             => (others => 'X'),
       data_a_o             => adc_meas_data_int_dato,
       rd_a_i               => adc_meas_data_rreq,
-      wr_a_i               => adc_meas_data_int_wr,
+      wr_a_i               => '0',
       addr_b_i             => adc_meas_adr_i,
       bwsel_b_i            => (others => '1'),
       data_b_i             => adc_meas_data_dat_i,
       data_b_o             => adc_meas_data_ext_dat,
-      rd_b_i               => adc_meas_data_ext_rd,
+      rd_b_i               => '0',
       wr_b_i               => adc_meas_data_we_i
     );
   
@@ -259,9 +250,6 @@ begin
       end if;
     end if;
   end process;
-  adc_meas_data_int_wr <= '0';
-  adc_meas_data_int_dati <= (others => 'X');
-  adc_meas_data_ext_rd <= '0';
 
   -- Process for write requests.
   process (wr_adr_d0, wr_req_d0, cal_ctrl_wack, i2c_master_wack) begin
