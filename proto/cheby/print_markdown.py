@@ -40,7 +40,7 @@ def print_reg(fd, r, abs_addr):
 
 def print_root(fd, root):
     wln(fd, "== Memory map summary")
-    wln(fd, root.description)
+    wln(fd, root.description or '(no description)')
     wln(fd)
     if root.version is not None:
         wln(fd, "version: {}".format(root.version))
