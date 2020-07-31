@@ -326,6 +326,7 @@ def test_hdl_ref():
               'features/blkprefix1', 'features/blkprefix2', 'features/blkprefix3',
               'features/blkprefix4',
               'features/regprefix1', 'features/regprefix2', 'features/regprefix3',
+              'features/mem64ro', 'features/mem64rodual',
               'issue52/hwInfo',
               'bug-gen_wt/m1',
               'issue59/inherit', 'issue64/simple_reg1', 'issue66/m1',

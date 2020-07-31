@@ -1,0 +1,18 @@
+memory-map:
+  bus: wb-32-be
+  name: mem64rodual
+  description: An example of a cheby memory map
+  children:
+    - memory:
+        name: DdrCapturesIndex
+        description: "Stores page indices for separate captures"
+        memsize: 512
+        align: True
+        children:
+        - reg:
+              description: "Stores page indices for separate captures"
+              name: DdrCaptures
+              access: ro
+              width: 64
+        x-hdl:
+          dual-clock: True
