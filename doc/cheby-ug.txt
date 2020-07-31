@@ -454,6 +454,9 @@ Unless the attribute 'interface' is present, the memory is automatically
 instantiated.  Otherwise the attribute specifies the type of bus, like
 for an external submap.
 
+If the `dual-clock` attribute of `x-hdl` is set to True, the external memory
+port is clocked by an external input.
+
 Example of a ram:
 
 [source]
