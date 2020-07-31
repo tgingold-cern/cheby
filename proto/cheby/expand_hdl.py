@@ -159,6 +159,19 @@ def expand_x_hdl_block(n, dct):
                 k, n.get_path()))
 
 
+def expand_x_hdl_memory(n, dct):
+    n.hdl_dual_clock = False
+    for k, v in dct.items():
+        if k == 'dual-clock':
+            n.hdl_dual_clock = parser.read_bool(n, k, v)
+            if n.interface is not None:
+                parser.error("'dual-clock' incompatible with 'interface' for memory {}".format(
+                    n.get_path()))
+        else:
+            parser.error("unhandled '{}' in x-hdl of {}".format(
+                k, n.get_path()))
+
+
 def expand_x_hdl_root(n, dct):
     n.hdl_pipeline = ['wr-in', 'rd-out']
     n.hdl_bus_attribute = None
@@ -215,6 +228,8 @@ def expand_x_hdl(n):
         expand_x_hdl_submap(n, x_hdl)
     elif isinstance(n, tree.Block):
         expand_x_hdl_block(n, x_hdl)
+    elif isinstance(n, tree.Memory):
+        expand_x_hdl_memory(n, x_hdl)
     else:
         if x_hdl:
             parser.error("no x-hdl attributes allowed for {}".format(

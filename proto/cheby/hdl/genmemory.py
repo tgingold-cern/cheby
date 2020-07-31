@@ -22,7 +22,8 @@ class GenMemory(ElGen):
         mem.h_addr_off = ilog2(mem.c_elsize)
         mem.h_ext_addr = self.add_module_port(mem.c_name + '_adr_i', mem.h_addr_width, 'IN')
         mem.h_ext_addr.comment = '\n' + "RAM port for {}".format(mem.c_name)
-
+        if mem.hdl_dual_clock:
+            mem.h_ext_clk = self.add_module_port(mem.c_name + '_clk_i', None, 'IN')
         for c in mem.children:
             assert isinstance(c, tree.Reg)
             self.gen_ports_reg(c)
@@ -120,10 +121,10 @@ class GenMemory(ElGen):
             inst.params.append(("g_data_width", HDLNumber(wd)))
             inst.params.append(("g_size", HDLNumber(1 << mem.h_addr_width)))
             inst.params.append(("g_addr_width", HDLNumber(mem.h_addr_width)))
-            inst.params.append(("g_dual_clock", bit_0))
+            inst.params.append(("g_dual_clock", bit_1 if mem.hdl_dual_clock else bit_0))
             inst.params.append(("g_use_bwsel", bit_1 if ibus.wr_sel is not None else bit_0))
             inst.conns.append(("clk_a_i", self.root.h_bus['clk']))
-            inst.conns.append(("clk_b_i", self.root.h_bus['clk']))
+            inst.conns.append(("clk_b_i", mem.h_ext_clk if mem.hdl_dual_clock else self.root.h_bus['clk']))
             if mem.h_adr_int is not None:
                 adr_int = mem.h_adr_int
             else:
