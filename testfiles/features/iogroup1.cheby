@@ -1,0 +1,33 @@
+memory-map:
+  bus: wb-32-be
+  name: iogroup1
+  description: Few registers to test iogroup
+  x-hdl:
+    iogroup: ios
+  children:
+    - reg:
+        name: areg1
+        width: 32
+        access: rw
+        type: unsigned
+    - reg:
+        name: areg2
+        width: 32
+        access: ro
+    - reg:
+        name: areg3
+        width: 32
+        access: wo
+        type: unsigned
+        x-hdl:
+          write-strobe: True
+    - reg:
+        name: areg4
+        width: 32
+        access: rw
+        x-hdl:
+          type: wire
+          write-strobe: True
+          read-strobe: True
+          write-ack: True
+          read-ack: True
