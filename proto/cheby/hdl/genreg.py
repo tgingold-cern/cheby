@@ -241,15 +241,16 @@ class GenReg(ElGen):
         else:
             return HDLIndex(lhs, off // self.root.c_word_bits)
 
-    def get_port_name(self, n, suffix, both):
+    def get_port_name(self, n, name_sfx, dir_sfx, both):
         """Return the name of the port for node :param n: (a reg or a field)
         :param suffix: is append if the name is not specified with x-hdl:port_name
         attribute or if :param both: is True"""
         if isinstance(n, tree.FieldReg):
             n = n._parent
         name = n.hdl_port_name or n.c_name
-        if n.hdl_port_name is None or both:
-            name += suffix
+        name += name_sfx
+        if (n.hdl_port_name is None or both) and self.root.h_itf is None:
+            name += '_' + dir_sfx
         return name
 
     def gen_ack_strobe_ports(self):
@@ -261,28 +262,28 @@ class GenReg(ElGen):
         # Write strobe
         if n.hdl_write_strobe:
             n.h_wreq_port = self.add_module_port(
-                self.get_port_name(n, '_wr_o', True), size=sz, dir='OUT')
+                self.get_port_name(n, '_wr', 'o', True), size=sz, dir='OUT')
         else:
             n.h_wreq_port = None
 
         # Read strobe
         if n.hdl_read_strobe:
             n.h_rreq_port = self.add_module_port(
-                self.get_port_name(n, '_rd_o', True), size=sz, dir='OUT')
+                self.get_port_name(n, '_rd', 'o', True), size=sz, dir='OUT')
         else:
             n.h_rreq_port = None
 
         # Write ack
         if n.hdl_write_ack:
             n.h_wack_port = self.add_module_port(
-                self.get_port_name(n, '_wack_i', True), size=sz, dir='IN')
+                self.get_port_name(n, '_wack', 'i', True), size=sz, dir='IN')
         else:
             n.h_wack_port = None
 
         # Read ack
         if n.hdl_read_ack:
             n.h_rack_port = self.add_module_port(
-                self.get_port_name(n, '_rack_i', True), size=sz, dir='IN')
+                self.get_port_name(n, '_rack', 'i', True), size=sz, dir='IN')
         else:
             n.h_rack_port = None
 
@@ -353,14 +354,14 @@ class GenReg(ElGen):
                 if n.hdl_port == 'reg':
                     # One port used for all fields.
                     if iport is None:
-                        name = self.get_port_name(n, '_i', need_oport)
+                        name = self.get_port_name(n, '', 'i', need_oport)
                         iport = self.add_module_port(name, n.width, dir='IN')
                         iport.comment = comment
                         comment = None
                     f.h_iport = Slice_or_Index(iport, f.lo, w)
                 else:
                     # One port per field.
-                    name = self.get_port_name(f, '_i', need_oport)
+                    name = self.get_port_name(f, '', 'i', need_oport)
                     f.h_iport = self.add_module_port(name, w, dir='IN')
                     f.h_iport.comment = comment
                     comment = None
@@ -372,14 +373,14 @@ class GenReg(ElGen):
                 if n.hdl_port == 'reg':
                     # One port used for all fields.
                     if oport is None:
-                        name = self.get_port_name(n, '_o', need_iport)
+                        name = self.get_port_name(n, '', 'o', need_iport)
                         oport = self.add_module_port(name, n.width, dir='OUT')
                         oport.comment = comment
                         comment = None
                     f.h_oport = Slice_or_Index(oport, f.lo, w)
                 else:
                     # One port per field.
-                    name = self.get_port_name(f, '_o', need_iport)
+                    name = self.get_port_name(f, '', 'o', need_iport)
                     f.h_oport = self.add_module_port(name, w, dir='OUT')
                     f.h_oport.comment = comment
                     comment = None
