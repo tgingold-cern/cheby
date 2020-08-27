@@ -182,8 +182,18 @@ def handle_file(args, filename):
     if args.gen_edge is not None:
         with open_filename(args.gen_edge) as f:
             gen_edge.generate_edge(f, t)
+    # Generate names for C code (but do not expand)
+    gen_name.gen_name_root(t)
+    if args.gen_c is not None:
+        with open_filename(args.gen_c) as f:
+            gen_c.gen_c_cheby(f, t, args.c_style)
+    if args.gen_c_check_layout is not None:
+        with open_filename(args.gen_c_check_layout) as f:
+            gen_laychk.gen_chklayout_cheby(f, t)
     # Decode x-hdl, unroll
     expand_hdl.expand_hdl(t)
+    # Regenerate names after unrolling.
+    gen_name.gen_name_root(t)
     if args.print_simple_expanded is not None:
         with open_filename(args.print_simple_expanded) as f:
             sprint.sprint_cheby(f, t, True)
@@ -198,7 +208,6 @@ def handle_file(args, filename):
             if not args.no_header:
                 gen_comment_header(f, args)
             print_vhdl.print_vhdl(f, h)
-    gen_name.gen_name_root(t)
     if args.gen_doc is not None:
         with open_filename(args.gen_doc) as f:
             if args.doc == 'html':
@@ -209,12 +218,6 @@ def handle_file(args, filename):
                 print_rest.print_rest(f, t)
             else:
                 raise AssertionError('unknown doc format {}'.format(args.doc))
-    if args.gen_c is not None:
-        with open_filename(args.gen_c) as f:
-            gen_c.gen_c_cheby(f, t, args.c_style)
-    if args.gen_c_check_layout is not None:
-        with open_filename(args.gen_c_check_layout) as f:
-            gen_laychk.gen_chklayout_cheby(f, t)
     if args.gen_consts is not None:
         with open_filename(args.gen_consts) as f:
             print_consts.pconsts_cheby(f, t, args.consts_style)
