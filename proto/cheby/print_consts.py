@@ -142,7 +142,10 @@ class ConstsPrinterH(ConstsPrinter):
 class ConstsPrinterC(ConstsPrinterH):
     "Printer used by gen_c"
     def pr_size(self, n, sz):
-        self.pr_dec_const(self.pr_name(n) + "_SIZE", sz)
+        cmt = "0x{:x}".format(sz)
+        if sz >= 1024 and (sz % 1024) == 0:
+            cmt += " = {}KB".format(sz // 1024)
+        self.pr_raw("#define {} {} /* {} */\n".format(self.pr_name(n) + "_SIZE", sz, cmt))
 
     def pr_address(self, n):
         self.pr_raw('\n')
