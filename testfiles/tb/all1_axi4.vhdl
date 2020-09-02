@@ -120,14 +120,10 @@ architecture syn of all1_axi4 is
   signal ram1_val_rreq                  : std_logic;
   signal ram1_val_rack                  : std_logic;
   signal ram1_val_int_wr                : std_logic;
-  signal ram1_val_ext_wr                : std_logic;
-  signal ram_ro_val_int_dati            : std_logic_vector(31 downto 0);
   signal ram_ro_val_int_dato            : std_logic_vector(31 downto 0);
   signal ram_ro_val_ext_dat             : std_logic_vector(31 downto 0);
   signal ram_ro_val_rreq                : std_logic;
   signal ram_ro_val_rack                : std_logic;
-  signal ram_ro_val_int_wr              : std_logic;
-  signal ram_ro_val_ext_rd              : std_logic;
   signal ram2_rack                      : std_logic;
   signal ram2_re                        : std_logic;
   signal sub1_wb_re                     : std_logic;
@@ -323,7 +319,7 @@ begin
       data_b_i             => ram1_val_ext_dat,
       data_b_o             => ram1_val_dat_o,
       rd_b_i               => ram1_val_rd_i,
-      wr_b_i               => ram1_val_ext_wr
+      wr_b_i               => '0'
     );
   
   process (aclk) begin
@@ -335,7 +331,6 @@ begin
       end if;
     end if;
   end process;
-  ram1_val_ext_wr <= '0';
 
   -- Memory ram_ro
   ram_ro_val_raminst: cheby_dpssram
@@ -351,15 +346,15 @@ begin
       clk_b_i              => aclk,
       addr_a_i             => rd_adr_d0(4 downto 2),
       bwsel_a_i            => wr_sel_d0,
-      data_a_i             => ram_ro_val_int_dati,
+      data_a_i             => (others => 'X'),
       data_a_o             => ram_ro_val_int_dato,
       rd_a_i               => ram_ro_val_rreq,
-      wr_a_i               => ram_ro_val_int_wr,
+      wr_a_i               => '0',
       addr_b_i             => ram_ro_adr_i,
       bwsel_b_i            => (others => '1'),
       data_b_i             => ram_ro_val_dat_i,
       data_b_o             => ram_ro_val_ext_dat,
-      rd_b_i               => ram_ro_val_ext_rd,
+      rd_b_i               => '0',
       wr_b_i               => ram_ro_val_we_i
     );
   
@@ -372,9 +367,6 @@ begin
       end if;
     end if;
   end process;
-  ram_ro_val_int_wr <= '0';
-  ram_ro_val_int_dati <= (others => 'X');
-  ram_ro_val_ext_rd <= '0';
 
   -- Interface ram2
   process (aclk) begin

@@ -66,7 +66,6 @@ architecture syn of sub2_axi4 is
   signal ram1_val_rreq                  : std_logic;
   signal ram1_val_rack                  : std_logic;
   signal ram1_val_int_wr                : std_logic;
-  signal ram1_val_ext_wr                : std_logic;
   signal rd_ack_d0                      : std_logic;
   signal rd_dat_d0                      : std_logic_vector(31 downto 0);
   signal wr_req_d0                      : std_logic;
@@ -228,7 +227,7 @@ begin
       data_b_i             => ram1_val_ext_dat,
       data_b_o             => ram1_val_dat_o,
       rd_b_i               => ram1_val_rd_i,
-      wr_b_i               => ram1_val_ext_wr
+      wr_b_i               => '0'
     );
   
   process (aclk) begin
@@ -240,7 +239,6 @@ begin
       end if;
     end if;
   end process;
-  ram1_val_ext_wr <= '0';
 
   -- Process for write requests.
   process (wr_adr_d0, wr_req_d0, reg1_wack, reg2_wack) begin
