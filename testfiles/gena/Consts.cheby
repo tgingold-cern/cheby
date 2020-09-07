@@ -5,8 +5,7 @@ memory-map:
   size: 256k
   x-gena:
     gen:
-      packages:
-      - package: my_lib.my_pkg
+      package: my_lib.my_pkg
     map-version: 20190607
   x-driver-edge:
     equipment-code: PX-ALGCA
