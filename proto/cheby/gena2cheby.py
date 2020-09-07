@@ -280,6 +280,8 @@ def conv_codefields(parent, el, width):
                     val.name = v
                 elif k == 'code':
                     val.value = conv_int(v)
+                elif k == 'comment-encoding':
+                    pass
                 else:
                     raise UnknownAttribute(k)
             adjust_common(val)
