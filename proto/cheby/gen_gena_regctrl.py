@@ -1391,9 +1391,12 @@ def gen_gena_regctrl(root, use_common_visual):
         module.libraries.append('CommonVisual')
 
     # Extra on x-gen.packages
-    pkgs = get_gena_gen(root, 'packages', [])
+    pkgs = get_gena_gen(root, 'package', "")
+    pkgs = pkgs.split(";")
     for name in pkgs:
-        module.deps.append(name['package'].split('.'))
+        if name == "":
+            continue
+        module.deps.append(name.split('.'))
 
     # Depends on MemMap.
     lib = get_gena_gen(root, 'vhdl-library', 'work')
