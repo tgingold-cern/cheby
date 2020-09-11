@@ -198,6 +198,9 @@ def parse_reg(parent, el):
         elif k == 'address':
             res.address = read_address(res, k, v)
         elif k == 'children':
+            if not isinstance(v, list):
+                error("attribute {}/children must be a list".format(
+                    res.get_path()))
             for f in v:
                 for k1, v1 in f.items():
                     if k1 == 'field':
