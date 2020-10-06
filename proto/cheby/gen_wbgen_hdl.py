@@ -1282,7 +1282,7 @@ def layout_wbgen(root):
     # Split the address space into blocks (of equal length). One block
     # for registers (if any) and one block per ram
     block_size = max(reg_len, max_ram_size)
-    assert block_size > 0, "there must be at least one reg or one ram"
+    assert block_size > 0, "there must be at least one reg or one ram in {}".format(root.description)
     # Round to a power of 2.
     root.h_blk_bits = ilog2(block_size)
     root.h_reg_bits = 0 if reg_len == 0 else ilog2(reg_len)
