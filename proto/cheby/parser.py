@@ -5,7 +5,12 @@ import cheby.tree as tree
 
 class ParseException(Exception):
     """Exception raised in case of parse error"""
-    pass
+    def __init__(self, msg):
+        super(ParseException, self).__init__()
+        self.msg = msg
+
+    def __str__(self):
+        return "parse error: {}".format(self.msg)
 
 
 def error(msg):

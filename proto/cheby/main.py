@@ -289,11 +289,10 @@ def main():
     try:
         handle_file(args, f)
     except cheby.parser.ParseException as e:
-        sys.stderr.write("{}:parse error: {}\n".format(f, e))
+        sys.stderr.write("{}:{}\n".format(f, e))
         sys.exit(2)
     except layout.LayoutException as e:
-        sys.stderr.write("{}:layout error: {}\n".format(
-            e.node.get_root().c_filename, e.msg))
+        sys.stderr.write(str(e))
         sys.exit(2)
 
 

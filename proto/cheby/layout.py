@@ -90,6 +90,10 @@ class LayoutException(Exception):
         self.node = n
         self.msg = msg
 
+    def __str__(self):
+        return "{}:layout error: {}".format(
+            self.node.get_root().c_filename, self.msg)
+
 
 def layout_named(n):
     if n.name is None:
