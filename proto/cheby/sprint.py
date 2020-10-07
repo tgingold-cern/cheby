@@ -101,7 +101,7 @@ def sprint_composite(sp, n):
 def sprint_root(sp, n):
     sp.sp_name('root', n)
     if sp.with_info:
-        sp.sp_info('[bits: word: {}, addr_word: {}, addr: {}]'.format(
+        sp.sp_info('[word_bits: {}, addr_word_bits: {}, addr_bits: {}]'.format(
             n.c_word_bits, n.c_addr_word_bits, n.c_addr_bits))
     sprint_composite(sp, n)
 
