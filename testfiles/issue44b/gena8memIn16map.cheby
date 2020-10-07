@@ -1,0 +1,22 @@
+memory-map:
+  bus: cern-be-vme-16
+  name: gena8memIn16Map
+  schema-version:
+    core: 2.0.0
+    x-hdl: 1.0.0
+    x-wbgen: 1.0.0
+    x-fesa: 2.0.0
+    x-driver-edge: 1.0.0
+    x-gena: 2.0.0
+    x-conversions: 1.0.0
+    x-map-info: 1.0.0
+    x-enums: 1.0.0
+  children:
+    - memory:
+        name: m1
+        memsize: 4k
+        children:
+          - reg:
+              name: r1
+              width: 8
+              access: rw

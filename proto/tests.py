@@ -69,8 +69,8 @@ class write_buffer(object):
 def parse_ok(f):
     try:
         return parser.parse_yaml(f)
-    except parser.ParseException:
-        error('unexpected parse error for {}'.format(f))
+    except parser.ParseException as e:
+        error('unexpected parse error for {}: {}'.format(f, e))
 
 
 def parse_err(f):
@@ -302,7 +302,17 @@ def test_hdl_err():
         expand_hdl.expand_hdl(t)
         gen_name_err(t)
         nbr_tests += 1
-
+    # Error in gen-gena-regctrl
+    for f in ['issue44b/gena8memIn16map', 'issue44b/gena16memIn32map']:
+        t = parse_ok(srcdir + f + '.cheby')
+        layout_ok(t)
+        gen_gena_memmap.gen_gena_memmap(t)
+        try:
+            gen_gena_regctrl.gen_gena_regctrl(t, True)
+            error('gen regctrl error expected for {}'.format(f))
+        except layout.LayoutException as e:
+            assert(str(e) != '')
+        nbr_tests += 1
 
 def test_hdl_ref():
     # Generate vhdl and compare with a baseline.

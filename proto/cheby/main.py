@@ -292,7 +292,7 @@ def main():
         sys.stderr.write("{}:{}\n".format(f, e))
         sys.exit(2)
     except layout.LayoutException as e:
-        sys.stderr.write(str(e))
+        sys.stderr.write(str(e) + '\n')
         sys.exit(2)
 
 
