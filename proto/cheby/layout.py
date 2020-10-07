@@ -491,12 +491,15 @@ def layout_memory(lo, n):
     if n.memsize_val % n.c_elsize != 0:
         raise LayoutException(
             n, "memory memsize '{}' is not a multiple of the element")
+    if n.c_elsize <= lo.root.c_word_size:
+        # Element size is smaller than the word size.  So part of the word is
+        # simply discarded/wasted.
+        pass
+    else:
+        # Element size is lager than the word size.  Cap to the word size.
+        n.c_elsize = lo.root.c_word_size
     n.c_depth = n.memsize_val // n.c_elsize
-    # Now, possibly increase the size if the element size was smaller than
-    # the word size.  This doesn't change the depth.
-    n.c_elsize = align(n.c_elsize, n.c_align)
-    # Compute the memory size and its alignment.
-    n.c_size = n.c_depth * n.c_elsize
+    n.c_size = n.c_depth * lo.root.c_word_size
     n.c_align = round_pow2(n.c_size)
     layout_composite_size(lo, n)
     align_block(n)

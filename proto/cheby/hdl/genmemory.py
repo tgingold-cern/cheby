@@ -19,7 +19,9 @@ class GenMemory(ElGen):
         mem = self.n
         # Compute width, and create address port.
         mem.h_addr_width = ilog2(mem.c_depth)
-        mem.h_addr_off = ilog2(mem.c_elsize)
+        # As there is no sub-word accesses, the address offset must be at
+        # least c_addr_word_bits.
+        mem.h_addr_off = max(ilog2(mem.c_elsize), self.root.c_addr_word_bits)
         mem.h_ext_addr = self.add_module_port(mem.c_name + '_adr_i', mem.h_addr_width, 'IN')
         mem.h_ext_addr.comment = '\n' + "RAM port for {}".format(mem.c_name)
         if mem.hdl_dual_clock:
