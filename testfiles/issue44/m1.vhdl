@@ -37,7 +37,7 @@ entity m1 is
     m1_VMEWrDone_i       : in    std_logic;
 
     -- CERN-BE bus m2
-    m2_VMEAddr_o         : out   std_logic_vector(10 downto 2);
+    m2_VMEAddr_o         : out   std_logic_vector(11 downto 2);
     m2_VMERdData_i       : in    std_logic_vector(31 downto 0);
     m2_VMEWrData_o       : out   std_logic_vector(31 downto 0);
     m2_VMERdMem_o        : out   std_logic;
@@ -172,9 +172,9 @@ begin
   m2_ws <= wr_req_d0 or (m2_wt and not rd_req_int);
   process (wb_adr_i, wr_adr_d0, m2_wt, m2_ws) begin
     if (m2_ws or m2_wt) = '1' then
-      m2_VMEAddr_o <= wr_adr_d0(10 downto 2);
+      m2_VMEAddr_o <= wr_adr_d0(11 downto 2);
     else
-      m2_VMEAddr_o <= wb_adr_i(10 downto 2);
+      m2_VMEAddr_o <= wb_adr_i(11 downto 2);
     end if;
   end process;
 

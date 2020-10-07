@@ -20,7 +20,7 @@ entity mem64rodual is
     wb_dat_o             : out   std_logic_vector(31 downto 0);
 
     -- RAM port for DdrCapturesIndex
-    DdrCapturesIndex_adr_i : in    std_logic_vector(5 downto 0);
+    DdrCapturesIndex_adr_i : in    std_logic_vector(6 downto 0);
     DdrCapturesIndex_clk_i : in    std_logic;
     DdrCapturesIndex_DdrCaptures_we_i : in    std_logic;
     DdrCapturesIndex_DdrCaptures_dat_i : in    std_logic_vector(63 downto 0)
@@ -104,15 +104,15 @@ begin
   DdrCapturesIndex_DdrCaptures_raminst0: cheby_dpssram
     generic map (
       g_data_width         => 32,
-      g_size               => 64,
-      g_addr_width         => 6,
+      g_size               => 128,
+      g_addr_width         => 7,
       g_dual_clock         => '1',
       g_use_bwsel          => '1'
     )
     port map (
       clk_a_i              => clk_i,
       clk_b_i              => DdrCapturesIndex_clk_i,
-      addr_a_i             => wb_adr_i(8 downto 3),
+      addr_a_i             => wb_adr_i(8 downto 2),
       bwsel_a_i            => wr_sel_d0,
       data_a_i             => (others => 'X'),
       data_a_o             => DdrCapturesIndex_DdrCaptures_int_dato0,
@@ -129,15 +129,15 @@ begin
   DdrCapturesIndex_DdrCaptures_raminst1: cheby_dpssram
     generic map (
       g_data_width         => 32,
-      g_size               => 64,
-      g_addr_width         => 6,
+      g_size               => 128,
+      g_addr_width         => 7,
       g_dual_clock         => '1',
       g_use_bwsel          => '1'
     )
     port map (
       clk_a_i              => clk_i,
       clk_b_i              => DdrCapturesIndex_clk_i,
-      addr_a_i             => wb_adr_i(8 downto 3),
+      addr_a_i             => wb_adr_i(8 downto 2),
       bwsel_a_i            => wr_sel_d0,
       data_a_i             => (others => 'X'),
       data_a_o             => DdrCapturesIndex_DdrCaptures_int_dato1,
