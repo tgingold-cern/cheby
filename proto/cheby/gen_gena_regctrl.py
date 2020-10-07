@@ -1011,6 +1011,9 @@ def gen_hdl_ext_bus_asgn(n, acc, root, module):
 def gen_hdl_mem_asgn(root, module, _isigs, _area, mems):
     for m in mems:
         data = m.children[0]
+        if data.c_rwidth < root.c_word_bits:
+            raise LayoutException(m, "incorrect memory width for {}".format(
+                m.get_path()))
         gen_hdl_ext_bus_asgn(m, data.access, root, module)
 
 
