@@ -806,7 +806,7 @@ def conv_submap(parent, el):
                     raise UnknownGenAttribute(e, res)
             res.x_gena['gen'] = xg
         elif k in ['ro2wo', 'access-mode-flip']:
-            res.x_gena[k] = v
+            res.x_gena[k] = conv_bool(k, v)
         else:
             raise UnknownAttribute(k)
     adjust_common(res)
