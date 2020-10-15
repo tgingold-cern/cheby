@@ -58,6 +58,13 @@ class CERNBEBus(BusGen):
                         ('wrerr', build_port('VMEWrError', dir=out))])
         return bus
 
+    def add_xilinx_attributes(self, bus, portname):
+        for name, port in bus:
+            if name in ('clk', 'rst'):
+                continue
+            port.attributes['X_INTERFACE_INFO'] = "cern.ch:interface:cheburashka:1.0 {} {}".format(
+                portname, name.upper())
+
     def expand_bus(self, root, module, ibus):
         """Create CERN-BE interface."""
         if root.get_extension('x_hdl', 'busgroup'):
@@ -70,6 +77,8 @@ class CERNBEBus(BusGen):
             HDLPort(n, size=sz, lo_idx=lo, dir=dir) if sz is None or sz > 0 else None,
             root.c_addr_bits, root.c_addr_word_bits, root.c_word_bits,
             self.split, self.buserr, False))
+        if root.hdl_bus_attribute == 'Xilinx':
+            self.add_xilinx_attributes(bus, 'slave')
         add_bus(root, module, bus)
         root.h_bussplit = self.split
 
@@ -110,6 +119,8 @@ class CERNBEBus(BusGen):
                     size=sz, lo_idx=lo, dir=dir),
             n.c_addr_bits, root.c_addr_word_bits, root.c_word_bits,
             self.split, self.buserr, True)
+        if root.hdl_bus_attribute == 'Xilinx':
+            self.add_xilinx_attributes(ports, n.c_name)
         n.h_bus = {}
         for name, p in ports:
             n.h_bus[name] = p
