@@ -342,7 +342,7 @@ def test_hdl_ref():
               'bug-gen_wt/m1',
               'issue59/inherit', 'issue64/simple_reg1', 'issue66/m1',
               'issue44/m1', 'issue75/m1',
-              'features/xilinx_attrs',
+              'features/xilinx_attrs', 'features/xilinx_attrs_cern',
               'features/axi4_byte', 'features/axi4_word', 'features/axi4_submap_wb',
               'issue77/m1', 'issue77/m2', 'issue77/m3',
               'issue77/s1', 'issue77/s2', 'issue77/s3', 'issue77/s4',

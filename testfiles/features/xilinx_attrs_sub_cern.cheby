@@ -1,0 +1,15 @@
+memory-map:
+  bus: cern-be-vme-32
+  name: xilinx_attrs_sub_cern
+  description: a single register
+  children:
+    - reg:
+        name: areg1
+        width: 32
+        access: rw
+        type: unsigned
+    - reg:
+        name: areg2
+        width: 32
+        access: rw
+        type: unsigned
