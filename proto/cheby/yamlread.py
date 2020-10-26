@@ -7,6 +7,16 @@ from yaml.resolver import Resolver
 
 from yaml.constructor import SafeConstructor
 
+class ScanException(Exception):
+    """Exception raised in case of yaml error"""
+    def __init__(self, msg):
+        super(ScanException, self).__init__()
+        self.msg = msg
+
+    def __str__(self):
+        return "YAML error: {}".format(self.msg)
+
+
 # Create custom safe constructor class that inherits from SafeConstructor
 class MySafeConstructor(SafeConstructor):
 
@@ -38,4 +48,7 @@ class MySafeLoader(Reader, Scanner, Parser, Composer, MySafeConstructor, Resolve
 
 
 def load(raw):
-    return yaml.load(raw, Loader=MySafeLoader)
+    try:
+        return yaml.load(raw, Loader=MySafeLoader)
+    except yaml.scanner.ScannerError as e:
+        raise ScanException(e)

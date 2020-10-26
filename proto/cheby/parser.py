@@ -10,11 +10,11 @@ class ParseException(Exception):
         self.msg = msg
 
     def __str__(self):
-        return "parse error: {}".format(self.msg)
+        return self.msg
 
 
 def error(msg):
-    raise ParseException(msg)
+    raise ParseException("parse error: {}".format(msg))
 
 def warning(n, msg):
     sys.stderr.write("{}:warning: {}\n".format(n.get_root().c_filename, msg))
@@ -373,7 +373,9 @@ def parse_yaml(filename):
     try:
         el = yamlread.load(open(filename))
     except IOError as e:
-        error("cannot open {}: {}".format(filename, e))
+        raise ParseException(str(e))
+    except yamlread.ScanException as e:
+        raise ParseException(str(e))
 
     if not isinstance(el, dict):
         error("open error: {}: bad format (not yaml)".format(filename))
