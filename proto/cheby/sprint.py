@@ -1,6 +1,15 @@
 import cheby.tree as tree
 
 
+def pr_memsize(val):
+    if val % 1024 == 0:
+        val //= 1024
+        if val % 1024 == 0:
+            val //= 1024
+            return "{}M".format(val)
+        return "{}K".format(val)
+    return "{}".format(val)
+
 class SimplePrinter(tree.Visitor):
     def __init__(self, fd, with_fields, with_info):
         self.fd = fd
@@ -45,7 +54,7 @@ def sprint_reg(sp, n):
     sp.sp_name('reg', n)
     if sp.with_info:
         sp.sp_info('[al: {}, sz: {}, addr: {:08x}, abs_addr: {:08x}]'.format(
-            n.c_align, n.c_size, n.c_address, sp.base_addr + n.c_address))
+            pr_memsize(n.c_align), pr_memsize(n.c_size), n.c_address, sp.base_addr + n.c_address))
     if sp.with_fields:
         for f in n.children:
             sp.sp_field(f)
