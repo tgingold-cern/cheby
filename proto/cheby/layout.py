@@ -64,12 +64,9 @@ class Layout(tree.Visitor):
         super(Layout, self).__init__()
         self.root = root
         self.address = 0
-        self.word_size = root.c_word_size
-        self.align_reg = True
 
     def duplicate(self):
         res = Layout(self.root)
-        res.align_reg = self.align_reg
         return res
 
     def compute_address(self, n):
@@ -201,7 +198,7 @@ def layout_reg(lo, n):
         raise LayoutException(
             n, "incorrect access for register {}".format(n.get_path()))
     n.c_size = n.width // tree.BYTE_SIZE
-    word_bits = lo.word_size * tree.BYTE_SIZE
+    word_bits = lo.root.c_word_size * tree.BYTE_SIZE
     n.c_nwords = (n.width + word_bits - 1) // word_bits
     if n.c_nwords > 1 and lo.root.c_word_endian == 'none':
         raise LayoutException(
@@ -242,12 +239,12 @@ def layout_reg(lo, n):
             n.c_iowidth = n.width
         else:
             n.c_iowidth = resize
-    if lo.align_reg:
+    if lo.root.c_align_reg:
         # A register is aligned at least on a word and always naturally
         # aligned.
-        n.c_align = align(n.c_size, lo.word_size)
+        n.c_align = align(n.c_size, lo.root.c_word_size)
     else:
-        n.c_align = lo.word_size
+        n.c_align = lo.root.c_word_size
     names = set()
     if n.children:
         # This register has fields.
@@ -431,7 +428,7 @@ def layout_submap(lo, n):
                     n, "use of 'align' is not allowed in a non-include submap")
 
     n.c_addr_bits = ilog2(n.c_size) - lo.root.c_addr_word_bits
-    n.c_width = lo.word_size * tree.BYTE_SIZE
+    n.c_width = lo.root.c_word_size * tree.BYTE_SIZE
     align_block(n)
 
 
@@ -447,7 +444,7 @@ def layout_block(lo, n):
                 n, "no size for empty block '{}'".format(n.get_path()))
         else:
             n.c_size = n.size_val
-        n.c_align = lo.word_size
+        n.c_align = lo.root.c_word_size
     align_block(n)
 
 
@@ -560,14 +557,32 @@ def layout_composite_size(_lo, n):
         n.c_size = n.size_val
 
 
+def layout_hierarchy(lo, n):
+    """Common code for a root or an address space"""
+    if not n.children and n.size_val is None:
+        raise LayoutException(
+            n, "empty description '{}' must have a size".format(n.name))
+    n.c_address = 0
+    layout_composite_children(lo, n)
+    layout_composite_size(lo, n)
+    # Number of bits for the address ports (exluding sub-word bits)
+    n.c_addr_bits = ilog2(n.c_size) - n.c_addr_word_bits
+
+
+@Layout.register(tree.AddressSpace)
+def layout_address_space(lo, n):
+    # Copy bus from the root
+    root = lo.root
+    n.c_word_bits = root.c_word_bits
+    n.c_addr_word_bits = root.c_addr_word_bits
+    layout_hierarchy(lo, n)
+
+
 @Layout.register(tree.Root)
 def layout_root(lo, root):
-    if not root.children and root.size_val is None:
-        raise LayoutException(
-            root, "empty description '{}' must have a size".format(root.name))
-    root.c_address = 0
-    layout_composite_children(lo, root)
-    layout_composite_size(lo, root)
+    # A root is considered as an address space
+    assert not root.address_spaces
+    layout_hierarchy(lo, root)
 
 
 def layout_semantic_version(n, val):
@@ -616,8 +631,9 @@ def layout_enums(root):
                         lit, "value is too large (needs a size of {})".format(lit_width))
 
 
-def layout_cheby_memmap(root):
-    flag_align_reg = True
+def layout_bus(root):
+    """Extract size/align from a bus"""
+    root.c_align_reg = True
     root.c_buserr = False
     if root.bus is None or root.bus == 'wb-32-be':
         root.c_word_size = 4
@@ -659,7 +675,7 @@ def layout_cheby_memmap(root):
         else:
             raise LayoutException(
                 root, "unknown bus size '{}'".format(root.bus))
-        flag_align_reg = False
+        root.c_align_reg = False
     else:
         raise LayoutException(root, "unknown bus '{}'".format(root.bus))
 
@@ -673,6 +689,16 @@ def layout_cheby_memmap(root):
     if word_endianness != 'default':
         root.c_word_endian = word_endianness
 
+    # Number of bits in the address used by a word
+    root.c_addr_word_bits = ilog2(root.c_word_size)
+    # Number of bits in a word
+    root.c_word_bits = root.c_word_size * tree.BYTE_SIZE
+
+
+def layout_memmap_root(root):
+    """Layout a memmap or a submap but not its children"""
+    layout_bus(root)
+
     # version
     root.c_version = layout_semantic_version(root, root.version)
 
@@ -682,17 +708,15 @@ def layout_cheby_memmap(root):
     # x-enums
     layout_enums(root)
 
-    # Number of bits in the address used by a word
-    root.c_addr_word_bits = ilog2(root.c_word_size)
-    # Number of bits in a word
-    root.c_word_bits = root.c_word_size * tree.BYTE_SIZE
 
+def layout_cheby_memmap(root):
+    """Layout a memmap or a submap"""
+    layout_memmap_root(root)
+
+    # A normal map/submap
+    assert not root.address_spaces
     lo = Layout(root)
-    lo.align_reg = flag_align_reg
     lo.visit(root)
-
-    # Number of bits for the address ports (exluding sub-word bits)
-    root.c_addr_bits = ilog2(root.c_size) - root.c_addr_word_bits
 
 
 def set_abs_address(n, base_addr):
@@ -707,7 +731,7 @@ def set_abs_address(n, base_addr):
         # Still relative, but need to set c_abs_addr
         for e in n.children:
             set_abs_address(e, 0)
-    elif isinstance(n, (tree.Root, tree.Block)):
+    elif isinstance(n, (tree.Root, tree.Block, tree.AddressSpace)):
         for e in n.children:
             set_abs_address(e, n.c_abs_addr)
     else:
@@ -715,5 +739,28 @@ def set_abs_address(n, base_addr):
 
 
 def layout_cheby(n):
-    layout_cheby_memmap(n)
-    set_abs_address(n, 0)
+    """Layout the root memmap"""
+    if not n.address_spaces:
+        # No address space, use a default one
+        layout_cheby_memmap(n)
+        set_abs_address(n, 0)
+    else:
+        # At least one address space, none selected
+        layout_memmap_root(n)
+        n.c_address_spaces_map = {s.name: s for s in n.address_spaces}
+        # Move root children to spaces
+        for c in n.children:
+            if not isinstance(c, tree.Submap):
+                raise LayoutException(c, "only submaps are allowed in memmap with address spaces")
+            if c.address_space is None:
+                raise LayoutException(c, "missing address-space")
+            if c.address_space not in n.c_address_spaces_map:
+                raise LayoutException(c, "address space {} was not declared".format(c.address_space))
+            space = n.c_address_spaces_map[c.address_space]
+            space.children.append(c)
+        # Root children are now spaces
+        n.children = n.address_spaces
+        for space in n.address_spaces:
+            lo = Layout(n)
+            lo.visit(space)
+            set_abs_address(space, 0)

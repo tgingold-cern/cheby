@@ -90,11 +90,20 @@ def sprint_repeat(sp, n):
 
 @SimplePrinter.register(tree.CompositeNode)
 def sprint_composite(sp, n):
-    sp.sp_info("[al: {}, sz: {}] ".format(n.c_align, n.c_size))
+    sp.sp_info("[al: {}, sz: {}] ".format(pr_memsize(n.c_align), pr_memsize(n.c_size)))
     sp.inc()
     for el in n.c_sorted_children:
         sp.visit(el)
     sp.dec()
+
+
+@SimplePrinter.register(tree.AddressSpace)
+def sprint_address_space(sp, n):
+    sp.sp_name('address space', n)
+    if sp.with_info:
+        sp.sp_info('[word_bits: {}, addr_word_bits: {}, addr_bits: {}]'.format(
+            n.c_word_bits, n.c_addr_word_bits, n.c_addr_bits))
+    sprint_composite(sp, n)
 
 
 @SimplePrinter.register(tree.Root)
@@ -108,4 +117,8 @@ def sprint_root(sp, n):
 
 def sprint_cheby(fd, root, with_fields=True, with_verbose=False):
     sp = SimplePrinter(fd, with_fields, with_verbose)
-    sp.visit(root)
+    if root.address_spaces:
+        for space in root.children:
+            sp.visit(space)
+    else:
+        sp.visit(root)

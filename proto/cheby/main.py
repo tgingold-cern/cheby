@@ -95,6 +95,8 @@ def decode_args():
                          help='select synchronous or asynchronous reset for flip-flops')
     aparser.add_argument('--word-endian', choices=['default', 'big', 'little'], default='default',
                          help='override the word-endianness in memmory maps')
+    aparser.add_argument('--address-space',
+                         help='specify address space for --gen-hdl')
 
     args = aparser.parse_args()
     cheby.hdl.globals.gconfig.rst_sync = (args.ff_reset != 'async')
@@ -248,7 +250,20 @@ def handle_file(args, filename):
             print_vhdl.style = 'wbgen'
             print_hdl(f, args.hdl, h)
     if args.gen_hdl is not None:
-        h = gen_hdl.generate_hdl(t)
+        if t.address_spaces is None:
+            if not (args.address_space is None):
+                sys.stderr.write('error: --address-space not allowed (no address space)\n')
+                sys.exit(2)
+            top = t
+        else:
+            if args.address_space is None:
+                sys.stderr.write('error: --address-space required\n')
+                sys.exit(2)
+            top = t.c_address_spaces_map.get(args.address_space)
+            if top is None:
+                sys.stderr.write('error: no address space "{}"\n'.format(args.address_space))
+                sys.exit(2)
+        h = gen_hdl.generate_hdl(top)
         with open_filename(args.gen_hdl) as f:
             if not args.no_header:
                 gen_comment_header(f, args)

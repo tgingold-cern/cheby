@@ -102,6 +102,7 @@ class Root(CompositeNode):
         self.version = None        # Semantic version (as a string)
         self.ident = None          # x-map-info:ident
         self.memmap_version = None # x-map-info:memmap-version
+        self.address_spaces = []
         self.x_enums = []
         self.schema_version = {}
         # Computed variables
@@ -112,6 +113,7 @@ class Root(CompositeNode):
         self.c_version = None
         self.c_memmap_version = None
         self.c_enums_dict = {}      # Dictionnary from enum name to enum node.
+        self.c_address_spaces_map = {}
 
 
 class Block(CompositeNode):
@@ -128,6 +130,7 @@ class Submap(CompositeNode):
         self.filename = None
         self.interface = None
         self.include = None
+        self.address_space = None
         # Computed variables
         self.c_submap = None
 
@@ -220,6 +223,16 @@ class EnumDecl(CompositeNode):
         self.c_width = None     # computed width.
         # children are EnumVal.
 
+
+class AddressSpace(CompositeNode):
+    def __init__(self, parent):
+        super(AddressSpace, self).__init__(parent)
+        # Children are nodes
+
+class AddressSpaces(CompositeNode):
+    def __init__(self, parent):
+        super(AddressSpaces, self).__init__(parent)
+        # children are AddressSpace
 
 
 class Visitor(object):

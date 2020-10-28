@@ -326,7 +326,22 @@ def unroll_repeats(n):
     raise AssertionError
 
 
-def expand_hdl(root):
+def expand_memmap_hdl(root):
     expand_x_hdl(root)
     unroll_repeats(root)
+    # Set again the absolute address, as new nodes may have been added (by unroll)
     layout.set_abs_address(root, 0)
+
+
+def expand_hdl(root):
+    if root.address_spaces:
+        x_hdl = getattr(root, 'x_hdl', {})
+        expand_x_hdl_root(root, x_hdl)
+        for c in root.children:
+            expand_memmap_hdl(c)
+            c.hdl_module_name = root.hdl_module_name
+            c.hdl_bus_attribute = root.hdl_bus_attribute
+            c.hdl_pipeline = root.hdl_pipeline
+            c.bus = root.bus
+    else:
+        expand_memmap_hdl(root)

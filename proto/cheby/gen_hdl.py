@@ -129,7 +129,7 @@ def gather_leaves(n):
             return [n]
     elif isinstance(n, tree.Memory):
         return [n]
-    elif isinstance(n, (tree.Root, tree.Block)):
+    elif isinstance(n, (tree.Root, tree.Block, tree.AddressSpace)):
         r = []
         for e in n.children:
             r.extend(gather_leaves(e))
