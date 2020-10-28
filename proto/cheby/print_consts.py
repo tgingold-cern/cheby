@@ -233,6 +233,11 @@ def pconsts_repeat(pr, n):
     pconsts_composite_children(pr, n)
 
 
+@ConstsVisitor.register(tree.AddressSpace)
+def pconsts_address_space(pr, n):
+    pconsts_composite_children(pr, n)
+
+
 def pconsts_composite_children(pr, n):
     for el in n.children:
         pr.visit(el)
@@ -246,7 +251,8 @@ def pconsts_enums(pr, root):
 
 @ConstsVisitor.register(tree.Root)
 def pconsts_root(pr, n):
-    pr.printer.pr_size(n, n.c_size)
+    if not n.address_spaces:
+        pr.printer.pr_size(n, n.c_size)
     if n.version is not None:
         pr.printer.pr_version(n, 'VERSION', n.c_version)
     if n.c_memmap_version is not None:
