@@ -136,7 +136,7 @@ def test_layout():
         layout_ok(t)
         hname = t.name + '.h'
         cname = t.name + '.c'
-        gen_name.gen_name_root(t)
+        gen_name.gen_name_memmap(t)
         with open(hname, 'w') as fd:
             gen_c.gen_c_cheby(fd, t, 'neutral')
             gen_c.gen_c_cheby(fd, t, 'arm')
@@ -189,7 +189,7 @@ def test_print():
         layout_ok(t)
         pprint.pprint_cheby(fd, t)
         sprint.sprint_cheby(fd, t)
-        gen_name.gen_name_root(t)
+        gen_name.gen_name_memmap(t)
         gen_c.gen_c_cheby(fd, t, 'neutral')
         nbr_tests += 1
 
@@ -257,7 +257,7 @@ def test_hdl():
         t = parse_ok(srcdir + f + '.cheby')
         layout_ok(t)
         expand_hdl.expand_hdl(t)
-        gen_name.gen_name_root(t)
+        gen_name.gen_name_memmap(t)
         h = gen_hdl.generate_hdl(t)
         print_vhdl.print_vhdl(fd, h)
         nbr_tests += 1
@@ -273,7 +273,7 @@ def expand_hdl_err(t):
 
 def gen_name_err(t):
     try:
-        gen_name.gen_name_root(t)
+        gen_name.gen_name_memmap(t)
     except parser.ParseException:
         return
     error('hdl error expected for {}'.format(t.name))
@@ -291,7 +291,7 @@ def test_hdl_err():
         t = parse_ok(srcdir + f + '.cheby')
         layout_ok(t)
         expand_hdl_err(t)
-        gen_name.gen_name_root(t)
+        gen_name.gen_name_memmap(t)
         nbr_tests += 1
     # Error in gen_name
     for f in ['issue65/m1']:
@@ -355,7 +355,7 @@ def test_hdl_ref():
         t = parse_ok(cheby_file)
         layout_ok(t)
         expand_hdl.expand_hdl(t)
-        gen_name.gen_name_root(t)
+        gen_name.gen_name_memmap(t)
         h = gen_hdl.generate_hdl(t)
         buf = write_buffer()
         print_vhdl.print_vhdl(buf, h)
@@ -373,7 +373,7 @@ def test_issue84():
     t = parse_ok(cheby_file)
     layout_ok(t)
     expand_hdl.expand_hdl(t)
-    gen_name.gen_name_root(t)
+    gen_name.gen_name_memmap(t)
     h = gen_hdl.generate_hdl(t.c_address_spaces_map['bar0'])
     buf = write_buffer()
     print_vhdl.print_vhdl(buf, h)
@@ -661,7 +661,7 @@ def test_consts():
         t = parse_ok(cheby_file)
         layout_ok(t)
         expand_hdl.expand_hdl(t)
-        gen_name.gen_name_root(t)
+        gen_name.gen_name_memmap(t)
 
         for file, style in [(verilog_file, 'verilog'),
                             (vhdl_file, 'vhdl'), (vhdl_ohwr_file, 'vhdl-ohwr'),
@@ -686,7 +686,7 @@ def test_doc():
         t = parse_ok(cheby_file)
         layout_ok(t)
         expand_hdl.expand_hdl(t)
-        gen_name.gen_name_root(t)
+        gen_name.gen_name_memmap(t)
 
         for file, pprint, style in [
                 (html_file, print_html.pprint, 'html'),

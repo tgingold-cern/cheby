@@ -94,7 +94,15 @@ def gen_name_children(parent, prefix, ctxt):
     ctxt.pop()
 
 
-def gen_name_root(root):
+def gen_name_hierarchy(n):
     ctxt = Context()
     prefix = None
-    gen_name_children(root, prefix, ctxt)
+    gen_name_children(n, prefix, ctxt)
+
+
+def gen_name_memmap(root):
+    if root.address_spaces:
+        for a in root.address_spaces:
+            gen_name_hierarchy(a)
+    else:
+        gen_name_hierarchy(root)
