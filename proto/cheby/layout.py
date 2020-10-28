@@ -92,7 +92,7 @@ class LayoutException(Exception):
             self.node.get_root().c_filename, self.msg)
 
 
-def layout_named(n):
+def layout_check_name(n):
     if n.name is None:
         raise LayoutException(
             n, "missing name for {}".format(n.get_path()))
@@ -116,7 +116,7 @@ def check_enum_type(root, name, n, width):
 
 
 def layout_field(root, f, parent, pos):
-    layout_named(f)
+    layout_check_name(f)
     # Check range is present
     if f.lo is None:
         raise LayoutException(
@@ -189,7 +189,7 @@ def layout_reg(lo, n):
     elif n.width not in [8, 16, 32, 64]:
         raise LayoutException(
             n, "incorrect width for register {}".format(n.get_path()))
-    layout_named(n)
+    layout_check_name(n)
     # Check access
     if n.access is None:
         raise LayoutException(
@@ -510,7 +510,7 @@ def build_sorted_fields(n):
     n.c_sorted_fields = sorted(n.children, key=(lambda x: x.lo))
 
 def layout_composite_children(lo, n):
-    layout_named(n)
+    layout_check_name(n)
 
     # Check each child has a unique name.
     names = set()
@@ -526,11 +526,11 @@ def layout_composite_children(lo, n):
     for c in n.children:
         lo1.visit(c)
         max_align = max(max_align, c.c_align)
+    n.c_align = max_align
     n.c_size = 0
     for c in n.children:
         lo1.compute_address(c)
         n.c_size = max(n.c_size, c.c_address + c.c_size)
-    n.c_align = max_align
     # Keep children in order.
     build_sorted_children(n)
     # Check for no-overlap.
@@ -539,7 +539,7 @@ def layout_composite_children(lo, n):
     for c in n.c_sorted_children:
         if c.c_address < last_addr:
             raise LayoutException(
-                c, "element {} overlap {}".format(
+                c, "element {} overlaps {}".format(
                     c.get_path(), last_node.get_path()))
         last_addr = c.c_address + c.c_size
         last_node = c
