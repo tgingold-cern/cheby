@@ -1,0 +1,73 @@
+memory-map:
+  name: app
+  description: SPS TWC200 Cavity Control application submaps
+  comment: SIS-8300-KU
+  bus: axi4-lite-32
+  size: 0x80000
+  word-endian: little
+  schema-version:
+    core: 2.0.0
+    x-gena: 2.0.0
+    x-hdl: 1.0.0
+    x-fesa: 2.0.0
+    x-driver-edge: 1.0.0
+    x-conversions: 1.0.0
+    x-wbgen: 1.0.0
+    x-map-info: 1.0.0
+    x-enums: 1.0.0
+  x-map-info:
+    memmap-version: 1.0.0
+  x-hdl:
+    name-suffix: _regs
+    bus-granularity: byte
+    bus-attribute: Xilinx
+  children:
+#    - submap:
+#        name: cavityLoops
+#        address: 0x0
+#        filename: ../IPCores/SPSOneTurnFeedback/MemMap/cavityLoops.cheby
+#        include: false
+#        x-driver-edge:
+#          generate-separate-library: true
+    - submap:
+        name: modulation
+        filename: modulation.cheby
+        include: false
+        address: next
+        x-driver-edge:
+          generate-separate-library: true
+#   - submap:
+#       name: timingGen
+#       address: next
+#       filename: ../IPCores/timingGen/MemMap/timingGen.cheby
+#       include: false
+#       x-driver-edge:
+#         generate-separate-library: true
+#   - submap:
+#       name: fgc
+#       address: next
+#       filename: ../IPCores/FGC/MemMap/FGC.cheby
+#       include: false
+#       x-driver-edge:
+#         generate-separate-library: true
+#   - submap:
+#       name: acqCoreExt
+#       address: next
+#       filename: ../IPCores/acqCore/MemMap/acqCore.cheby
+#       include: false
+#       x-driver-edge:
+#         generate-separate-library: true
+#   - submap:
+#       name: acqCoreInt
+#       address: next
+#       filename: ../IPCores/acqCore/MemMap/acqCore.cheby
+#       include: false
+#       x-driver-edge:
+#         generate-separate-library: true
+#   - submap:
+#       name: rfnco
+#       address: next
+#       filename: ../IPCores/RFNCO/MemMap/RFNCO.cheby
+#       include: false
+#       x-driver-edge:
+#         generate-separate-library: true

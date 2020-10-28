@@ -1,0 +1,220 @@
+memory-map:
+  name: modulation
+  bus: axi4-lite-32
+  size: 1k
+  word-endian: little
+  x-driver-edge:
+    module-type: RF_CAV_LOOP_MOD
+  x-map-info:
+    ident: 0xff
+    memmap-version: 1.0.0
+  schema-version:
+    core: 2.0.0
+    x-conversions: 1.0.0
+    x-driver-edge: 1.0.0
+    x-enums: 1.0.0
+    x-fesa: 2.0.0
+    x-gena: 2.0.0
+    x-hdl: 1.0.0
+    x-map-info: 1.0.0
+    x-wbgen: 1.0.0
+  x-hdl:
+    name-suffix: _regs
+    bus-attribute: Xilinx
+  children:
+    - submap:
+        name: ipInfo
+        filename: stdInfo/ipInfo.cheby
+        address: 0x0
+        include: true
+    - reg:
+        name: control
+        width: 32
+        access: rw
+        address: next
+        x-gena:
+          rmw: True
+        x-fesa:
+          multiplexed: false
+          persistence: false
+        children:
+          - field:
+              name: useTestSignal
+              description: Use DDS generated test signal instead of ADC input as demodulation input
+              comment: Test signal is synthezied with additional internal DDS, test signals frequency given by ftw_RF.
+              range: 0
+          - field:
+              name: useImpulse
+              description: Use impulse instead of demodulation output
+              range: 1
+          - field:
+              name: useStaticSignal
+              description: Use static signal from register instead of demodulation output
+              range: 2
+          - field:
+              name: bypassDemod
+              description: Bypass demodulator
+              range: 5
+          - field:
+              name: bypassMod
+              description: Bypass modulator
+              range: 6
+          - field:
+              name: wrInputsValid
+              description: transmit WR frame
+              range: 7
+              x-hdl:
+                type: autoclear
+          - field:
+              name: wrInputsValidLatch
+              description: transmit WR no autoclear
+              range: 11
+          - field:
+              name: wrResetNCO
+              description: activate WR frame control bit
+              range: 8
+          - field:
+              name: wrResetSlip
+              description: activate WR frame control bit
+              range: 9
+          - field:
+              name: wrRresetFSK
+              description: activate WR frame control bit
+              range: 10
+          - field:
+              name: rate
+              range: 14-12
+          - field:
+              name: clearBPLatches
+              range: 15
+              x-hdl:
+                type: autoclear
+    - block:
+        name: testSignal
+        address: next
+        size: 16
+        x-gena:
+          reserved: False
+        children:
+          - reg:
+              name: amplitude
+              description: Amplitude for the test signal
+              width: 16
+              type: unsigned
+              access: rw
+              address: next
+              x-fesa:
+                multiplexed: False
+                persistence: False
+              x-driver-edge:
+                max-val: 65536
+                min-val: 0
+              x-conversions:
+                read: val / pow(2.0,16.0)
+                write: val * pow(2.0,16.0)
+          - reg:
+              name: ftw
+              description: FTW of the test signal (frequency relative to fs)
+              width: 64
+              type: unsigned
+              access: rw
+              address: next
+              x-fesa:
+                multiplexed: False
+                persistence: True
+              x-driver-edge:
+                max-val: 281474976710656
+                min-val: 0
+              x-conversions:
+                read: val / pow(2.0,48.0)
+                write: val * pow(2.0,48.0)
+    - block:
+        name: staticSignal
+        address: next
+        size: 16
+        x-gena:
+          reserved: False
+        children:
+          - reg:
+              name: i
+              description: Constant to be used as OTF input for channel I
+              width: 16
+              type: signed
+              access: rw
+              address: next
+              x-fesa:
+                multiplexed: False
+                persistence: False
+              x-driver-edge:
+                max-val: 32767
+                min-val: -32768
+              x-conversions:
+                read: val / pow(2.0,15.0)
+                write: val * pow(2.0,15.0)
+          - reg:
+              name: q
+              description: Constant to be used as OTF input for channel Q
+              width: 16
+              type: signed
+              access: rw
+              address: next
+              x-fesa:
+                multiplexed: False
+                persistence: False
+              x-driver-edge:
+                max-val: 32767
+                min-val: -32768
+              x-conversions:
+                read: val / pow(2.0,15.0)
+                write: val * pow(2.0,15.0)
+    - reg:
+        name: ftwH1main
+        width: 64
+        access: rw
+        address: next
+        x-fesa:
+          multiplexed: false
+          persistence: false
+          generate: false
+    - reg:
+        name: ftwH1on
+        width: 64
+        access: rw
+        address: next
+        x-fesa:
+          multiplexed: false
+          persistence: false
+          generate: false
+    - reg:
+        name: dftwH1slip0
+        width: 32
+        access: rw
+        address: next
+        x-fesa:
+          multiplexed: false
+          persistence: false
+          generate: false
+    - reg:
+        name: dftwH1slip1
+        width: 32
+        access: rw
+        address: next
+        x-fesa:
+          multiplexed: false
+          persistence: false
+          generate: false
+    - reg:
+        name: latches
+        width: 32
+        access: rw
+        address: next
+        x-fesa:
+          multiplexed: false
+          persistence: false
+          generate: false
+        children:
+          - field:
+              name: backplane
+              range: 7-0
+              x-hdl:
+                type: or-clr

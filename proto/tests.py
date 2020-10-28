@@ -363,6 +363,23 @@ def test_hdl_ref():
             error('vhdl generation error for {}'.format(f))
         nbr_tests += 1
 
+def test_issue84():
+    global nbr_tests
+    f = 'issue84/sps200CavityControl'
+    if verbose:
+        print('test hdl with ref: {}'.format(f))
+    cheby_file = srcdir + f + '.cheby'
+    vhdl_file = srcdir + f + '.vhdl'
+    t = parse_ok(cheby_file)
+    layout_ok(t)
+    expand_hdl.expand_hdl(t)
+    gen_name.gen_name_root(t)
+    h = gen_hdl.generate_hdl(t.c_address_spaces_map['bar0'])
+    buf = write_buffer()
+    print_vhdl.print_vhdl(buf, h)
+    if not compare_buffer_and_file(buf, vhdl_file):
+        error('vhdl generation error for {}'.format(f))
+    nbr_tests += 1
 
 def test_self():
     """Auto-test"""
@@ -721,6 +738,7 @@ def main():
         test_hdl()
         test_hdl_err()
         test_hdl_ref()
+        test_issue84()
         test_gena()
         test_gena_regctrl_err()
         test_gena2cheby()

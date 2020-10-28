@@ -1,0 +1,117 @@
+memory-map:
+  name: sps200CavityControl
+  description: Memory Map for SPS TWC200 Cavity Control
+  comment: SIS-8300-KU
+  bus: axi4-lite-32
+  size: 0x41000000
+  word-endian: little
+  address-spaces:
+  - address-space:
+     name: bar0
+     description: Cheburashka Memory Map containing all the IP cores register
+#  - address-space:
+#     name: bar2
+#     description: DDR bypassing DMA
+  - address-space:
+     name: bar4
+     description: DDR with DMA support
+  x-driver-edge:
+    equipment-code: SP-ALCCB
+    module-type: RF_SPS200_LOOPS
+    bus-type: PCI
+    endianness: little
+    board-type: SIS83000
+    dma-mode: EDGE_DMA
+    default-pci-bar-name: bar0
+    driver-version: 2.0.0
+    description: SIS8300-KU module running the SPS 200 cavity controller
+    pci-device-info:
+      vendor-id: 0x10DC
+      device-id: 0x01AF
+    pci-bars:
+      - pci-bar:
+          name: bar0
+          number: 0
+          description: Cheburashka Memory Map containing all the IP cores register
+      - pci-bar:
+          name: bar2
+          number: 2
+          description: DDR bypassing DMA
+      - pci-bar:
+          name: bar4
+          number: 4
+          description: DDR with DMA support
+    ip-core-descriptions:
+      - ip-core-description:
+          name: xilinx
+          version: rel20180420
+          capabilities: DMA
+          args: pool=1
+  schema-version:
+    core: 2.0.0
+    x-gena: 2.0.0
+    x-hdl: 1.0.0
+    x-fesa: 2.0.0
+    x-driver-edge: 1.0.0
+    x-conversions: 1.0.0
+    x-wbgen: 1.0.0
+    x-map-info: 1.0.0
+    x-enums: 1.0.0
+  x-map-info:
+    ident: 0x53
+    memmap-version: 1.0.0
+  x-hdl:
+    name-suffix: _regs
+  children:
+    - submap:
+        name: hwInfo
+        address: 0x00
+        filename: ./stdInfo/hwInfo.cheby
+        include: false
+        address-space: bar0
+        x-driver-edge:
+          pci-bar-name: bar0
+          generate-separate-library: true
+#    - submap:
+#        name: sis8300ku
+#        address: 0x80000
+#        filename: ../IPCores/sis8300ku/MemMap/sis8300ku.cheby
+#        include: false
+#        x-driver-edge:
+#          pci-bar-name: bar0
+#          generate-separate-library: true
+#        x-hdl:
+#          busgroup: true
+    - submap:
+        name: app
+        filename: app.cheby
+        include: false
+        address: 0x100000
+        address-space: bar0
+        x-driver-edge:
+          pci-bar-name: bar0
+    - submap:
+        name: fgc_ddr
+        filename: fgc_ddr.cheby
+        address: 0x0
+        include: false
+        address-space: bar4
+        x-driver-edge:
+          pci-bar-name: bar4
+          generate-separate-library: true
+    - submap:
+        name: acq_ddr
+        filename: acq_ddr.cheby
+        address: 0x20000000
+        address-space: bar4
+        x-driver-edge:
+          pci-bar-name: bar4
+          generate-separate-library: true
+    - submap:
+        name: acq_ram
+        filename: acq_RAM.cheby
+        address: 0x80000000
+        address-space: bar4
+        x-driver-edge:
+          pci-bar-name: bar4
+          generate-separate-library: true
