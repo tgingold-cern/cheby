@@ -27,46 +27,46 @@ entity sps200CavityControl_regs is
     rresp                : out   std_logic_vector(1 downto 0);
 
     -- AXI-4 lite bus hwInfo
-    bar0_hwInfo_awvalid_o : out   std_logic;
-    bar0_hwInfo_awready_i : in    std_logic;
-    bar0_hwInfo_awaddr_o : out   std_logic_vector(4 downto 0);
-    bar0_hwInfo_awprot_o : out   std_logic_vector(2 downto 0);
-    bar0_hwInfo_wvalid_o : out   std_logic;
-    bar0_hwInfo_wready_i : in    std_logic;
-    bar0_hwInfo_wdata_o  : out   std_logic_vector(31 downto 0);
-    bar0_hwInfo_wstrb_o  : out   std_logic_vector(3 downto 0);
-    bar0_hwInfo_bvalid_i : in    std_logic;
-    bar0_hwInfo_bready_o : out   std_logic;
-    bar0_hwInfo_bresp_i  : in    std_logic_vector(1 downto 0);
-    bar0_hwInfo_arvalid_o : out   std_logic;
-    bar0_hwInfo_arready_i : in    std_logic;
-    bar0_hwInfo_araddr_o : out   std_logic_vector(4 downto 0);
-    bar0_hwInfo_arprot_o : out   std_logic_vector(2 downto 0);
-    bar0_hwInfo_rvalid_i : in    std_logic;
-    bar0_hwInfo_rready_o : out   std_logic;
-    bar0_hwInfo_rdata_i  : in    std_logic_vector(31 downto 0);
-    bar0_hwInfo_rresp_i  : in    std_logic_vector(1 downto 0);
+    hwInfo_awvalid_o     : out   std_logic;
+    hwInfo_awready_i     : in    std_logic;
+    hwInfo_awaddr_o      : out   std_logic_vector(4 downto 0);
+    hwInfo_awprot_o      : out   std_logic_vector(2 downto 0);
+    hwInfo_wvalid_o      : out   std_logic;
+    hwInfo_wready_i      : in    std_logic;
+    hwInfo_wdata_o       : out   std_logic_vector(31 downto 0);
+    hwInfo_wstrb_o       : out   std_logic_vector(3 downto 0);
+    hwInfo_bvalid_i      : in    std_logic;
+    hwInfo_bready_o      : out   std_logic;
+    hwInfo_bresp_i       : in    std_logic_vector(1 downto 0);
+    hwInfo_arvalid_o     : out   std_logic;
+    hwInfo_arready_i     : in    std_logic;
+    hwInfo_araddr_o      : out   std_logic_vector(4 downto 0);
+    hwInfo_arprot_o      : out   std_logic_vector(2 downto 0);
+    hwInfo_rvalid_i      : in    std_logic;
+    hwInfo_rready_o      : out   std_logic;
+    hwInfo_rdata_i       : in    std_logic_vector(31 downto 0);
+    hwInfo_rresp_i       : in    std_logic_vector(1 downto 0);
 
     -- AXI-4 lite bus app
-    bar0_app_awvalid_o   : out   std_logic;
-    bar0_app_awready_i   : in    std_logic;
-    bar0_app_awaddr_o    : out   std_logic_vector(18 downto 0);
-    bar0_app_awprot_o    : out   std_logic_vector(2 downto 0);
-    bar0_app_wvalid_o    : out   std_logic;
-    bar0_app_wready_i    : in    std_logic;
-    bar0_app_wdata_o     : out   std_logic_vector(31 downto 0);
-    bar0_app_wstrb_o     : out   std_logic_vector(3 downto 0);
-    bar0_app_bvalid_i    : in    std_logic;
-    bar0_app_bready_o    : out   std_logic;
-    bar0_app_bresp_i     : in    std_logic_vector(1 downto 0);
-    bar0_app_arvalid_o   : out   std_logic;
-    bar0_app_arready_i   : in    std_logic;
-    bar0_app_araddr_o    : out   std_logic_vector(18 downto 0);
-    bar0_app_arprot_o    : out   std_logic_vector(2 downto 0);
-    bar0_app_rvalid_i    : in    std_logic;
-    bar0_app_rready_o    : out   std_logic;
-    bar0_app_rdata_i     : in    std_logic_vector(31 downto 0);
-    bar0_app_rresp_i     : in    std_logic_vector(1 downto 0)
+    app_awvalid_o        : out   std_logic;
+    app_awready_i        : in    std_logic;
+    app_awaddr_o         : out   std_logic_vector(18 downto 0);
+    app_awprot_o         : out   std_logic_vector(2 downto 0);
+    app_wvalid_o         : out   std_logic;
+    app_wready_i         : in    std_logic;
+    app_wdata_o          : out   std_logic_vector(31 downto 0);
+    app_wstrb_o          : out   std_logic_vector(3 downto 0);
+    app_bvalid_i         : in    std_logic;
+    app_bready_o         : out   std_logic;
+    app_bresp_i          : in    std_logic_vector(1 downto 0);
+    app_arvalid_o        : out   std_logic;
+    app_arready_i        : in    std_logic;
+    app_araddr_o         : out   std_logic_vector(18 downto 0);
+    app_arprot_o         : out   std_logic_vector(2 downto 0);
+    app_rvalid_i         : in    std_logic;
+    app_rready_o         : out   std_logic;
+    app_rdata_i          : in    std_logic_vector(31 downto 0);
+    app_rresp_i          : in    std_logic_vector(1 downto 0)
   );
 end sps200CavityControl_regs;
 
@@ -85,16 +85,16 @@ architecture syn of sps200CavityControl_regs is
   signal rd_data                        : std_logic_vector(31 downto 0);
   signal axi_arset                      : std_logic;
   signal axi_rdone                      : std_logic;
-  signal bar0_hwInfo_aw_val             : std_logic;
-  signal bar0_hwInfo_w_val              : std_logic;
-  signal bar0_hwInfo_ar_val             : std_logic;
-  signal bar0_hwInfo_rd                 : std_logic;
-  signal bar0_hwInfo_wr                 : std_logic;
-  signal bar0_app_aw_val                : std_logic;
-  signal bar0_app_w_val                 : std_logic;
-  signal bar0_app_ar_val                : std_logic;
-  signal bar0_app_rd                    : std_logic;
-  signal bar0_app_wr                    : std_logic;
+  signal hwInfo_aw_val                  : std_logic;
+  signal hwInfo_w_val                   : std_logic;
+  signal hwInfo_ar_val                  : std_logic;
+  signal hwInfo_rd                      : std_logic;
+  signal hwInfo_wr                      : std_logic;
+  signal app_aw_val                     : std_logic;
+  signal app_w_val                      : std_logic;
+  signal app_ar_val                     : std_logic;
+  signal app_rd                         : std_logic;
+  signal app_wr                         : std_logic;
   signal rd_ack_d0                      : std_logic;
   signal rd_dat_d0                      : std_logic_vector(31 downto 0);
   signal wr_req_d0                      : std_logic;
@@ -187,93 +187,93 @@ begin
     end if;
   end process;
 
-  -- Interface bar0_hwInfo
-  bar0_hwInfo_awvalid_o <= bar0_hwInfo_aw_val;
-  bar0_hwInfo_awaddr_o <= wr_adr_d0(4 downto 2) & "00";
-  bar0_hwInfo_awprot_o <= "000";
-  bar0_hwInfo_wvalid_o <= bar0_hwInfo_w_val;
-  bar0_hwInfo_wdata_o <= wr_dat_d0;
-  bar0_hwInfo_wstrb_o <= wr_sel_d0;
-  bar0_hwInfo_bready_o <= '1';
-  bar0_hwInfo_arvalid_o <= bar0_hwInfo_ar_val;
-  bar0_hwInfo_araddr_o <= rd_addr(4 downto 2) & "00";
-  bar0_hwInfo_arprot_o <= "000";
-  bar0_hwInfo_rready_o <= '1';
+  -- Interface hwInfo
+  hwInfo_awvalid_o <= hwInfo_aw_val;
+  hwInfo_awaddr_o <= wr_adr_d0(4 downto 2) & "00";
+  hwInfo_awprot_o <= "000";
+  hwInfo_wvalid_o <= hwInfo_w_val;
+  hwInfo_wdata_o <= wr_dat_d0;
+  hwInfo_wstrb_o <= wr_sel_d0;
+  hwInfo_bready_o <= '1';
+  hwInfo_arvalid_o <= hwInfo_ar_val;
+  hwInfo_araddr_o <= rd_addr(4 downto 2) & "00";
+  hwInfo_arprot_o <= "000";
+  hwInfo_rready_o <= '1';
   process (aclk) begin
     if rising_edge(aclk) then
       if areset_n = '0' then
-        bar0_hwInfo_aw_val <= '0';
-        bar0_hwInfo_w_val <= '0';
-        bar0_hwInfo_ar_val <= '0';
+        hwInfo_aw_val <= '0';
+        hwInfo_w_val <= '0';
+        hwInfo_ar_val <= '0';
       else
-        bar0_hwInfo_aw_val <= bar0_hwInfo_wr or (bar0_hwInfo_aw_val and not bar0_hwInfo_awready_i);
-        bar0_hwInfo_w_val <= bar0_hwInfo_wr or (bar0_hwInfo_w_val and not bar0_hwInfo_wready_i);
-        bar0_hwInfo_ar_val <= bar0_hwInfo_rd or (bar0_hwInfo_ar_val and not bar0_hwInfo_arready_i);
+        hwInfo_aw_val <= hwInfo_wr or (hwInfo_aw_val and not hwInfo_awready_i);
+        hwInfo_w_val <= hwInfo_wr or (hwInfo_w_val and not hwInfo_wready_i);
+        hwInfo_ar_val <= hwInfo_rd or (hwInfo_ar_val and not hwInfo_arready_i);
       end if;
     end if;
   end process;
 
-  -- Interface bar0_app
-  bar0_app_awvalid_o <= bar0_app_aw_val;
-  bar0_app_awaddr_o <= wr_adr_d0(18 downto 2) & "00";
-  bar0_app_awprot_o <= "000";
-  bar0_app_wvalid_o <= bar0_app_w_val;
-  bar0_app_wdata_o <= wr_dat_d0;
-  bar0_app_wstrb_o <= wr_sel_d0;
-  bar0_app_bready_o <= '1';
-  bar0_app_arvalid_o <= bar0_app_ar_val;
-  bar0_app_araddr_o <= rd_addr(18 downto 2) & "00";
-  bar0_app_arprot_o <= "000";
-  bar0_app_rready_o <= '1';
+  -- Interface app
+  app_awvalid_o <= app_aw_val;
+  app_awaddr_o <= wr_adr_d0(18 downto 2) & "00";
+  app_awprot_o <= "000";
+  app_wvalid_o <= app_w_val;
+  app_wdata_o <= wr_dat_d0;
+  app_wstrb_o <= wr_sel_d0;
+  app_bready_o <= '1';
+  app_arvalid_o <= app_ar_val;
+  app_araddr_o <= rd_addr(18 downto 2) & "00";
+  app_arprot_o <= "000";
+  app_rready_o <= '1';
   process (aclk) begin
     if rising_edge(aclk) then
       if areset_n = '0' then
-        bar0_app_aw_val <= '0';
-        bar0_app_w_val <= '0';
-        bar0_app_ar_val <= '0';
+        app_aw_val <= '0';
+        app_w_val <= '0';
+        app_ar_val <= '0';
       else
-        bar0_app_aw_val <= bar0_app_wr or (bar0_app_aw_val and not bar0_app_awready_i);
-        bar0_app_w_val <= bar0_app_wr or (bar0_app_w_val and not bar0_app_wready_i);
-        bar0_app_ar_val <= bar0_app_rd or (bar0_app_ar_val and not bar0_app_arready_i);
+        app_aw_val <= app_wr or (app_aw_val and not app_awready_i);
+        app_w_val <= app_wr or (app_w_val and not app_wready_i);
+        app_ar_val <= app_rd or (app_ar_val and not app_arready_i);
       end if;
     end if;
   end process;
 
   -- Process for write requests.
-  process (wr_adr_d0, wr_req_d0, bar0_hwInfo_bvalid_i, bar0_app_bvalid_i) begin
-    bar0_hwInfo_wr <= '0';
-    bar0_app_wr <= '0';
+  process (wr_adr_d0, wr_req_d0, hwInfo_bvalid_i, app_bvalid_i) begin
+    hwInfo_wr <= '0';
+    app_wr <= '0';
     case wr_adr_d0(20 downto 19) is
     when "00" =>
-      -- Submap bar0_hwInfo
-      bar0_hwInfo_wr <= wr_req_d0;
-      wr_ack <= bar0_hwInfo_bvalid_i;
+      -- Submap hwInfo
+      hwInfo_wr <= wr_req_d0;
+      wr_ack <= hwInfo_bvalid_i;
     when "10" =>
-      -- Submap bar0_app
-      bar0_app_wr <= wr_req_d0;
-      wr_ack <= bar0_app_bvalid_i;
+      -- Submap app
+      app_wr <= wr_req_d0;
+      wr_ack <= app_bvalid_i;
     when others =>
       wr_ack <= wr_req_d0;
     end case;
   end process;
 
   -- Process for read requests.
-  process (rd_addr, rd_req, bar0_hwInfo_rdata_i, bar0_hwInfo_rvalid_i, bar0_app_rdata_i, bar0_app_rvalid_i) begin
+  process (rd_addr, rd_req, hwInfo_rdata_i, hwInfo_rvalid_i, app_rdata_i, app_rvalid_i) begin
     -- By default ack read requests
     rd_dat_d0 <= (others => 'X');
-    bar0_hwInfo_rd <= '0';
-    bar0_app_rd <= '0';
+    hwInfo_rd <= '0';
+    app_rd <= '0';
     case rd_addr(20 downto 19) is
     when "00" =>
-      -- Submap bar0_hwInfo
-      bar0_hwInfo_rd <= rd_req;
-      rd_dat_d0 <= bar0_hwInfo_rdata_i;
-      rd_ack_d0 <= bar0_hwInfo_rvalid_i;
+      -- Submap hwInfo
+      hwInfo_rd <= rd_req;
+      rd_dat_d0 <= hwInfo_rdata_i;
+      rd_ack_d0 <= hwInfo_rvalid_i;
     when "10" =>
-      -- Submap bar0_app
-      bar0_app_rd <= rd_req;
-      rd_dat_d0 <= bar0_app_rdata_i;
-      rd_ack_d0 <= bar0_app_rvalid_i;
+      -- Submap app
+      app_rd <= rd_req;
+      rd_dat_d0 <= app_rdata_i;
+      rd_ack_d0 <= app_rvalid_i;
     when others =>
       rd_ack_d0 <= rd_req;
     end case;
