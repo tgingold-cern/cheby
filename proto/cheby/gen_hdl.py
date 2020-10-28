@@ -135,7 +135,7 @@ def gather_leaves(n):
             r.extend(gather_leaves(e))
         return r
     else:
-        raise AssertionError
+        raise AssertionError(n)
 
 
 def add_decoder(root, stmts, addr, _n, func):
