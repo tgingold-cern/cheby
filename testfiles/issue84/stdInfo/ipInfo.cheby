@@ -1,0 +1,146 @@
+memory-map:
+  name: ipInfo
+  bus: wb-32-be
+  description: IP identification and control registers
+  word-endian: little
+  schema-version:
+    core: 2.0.0
+    x-gena: 2.0.0
+    x-hdl: 1.0.0
+    x-fesa: 2.0.0
+    x-driver-edge: 1.0.0
+    x-conversions: 1.0.0
+    x-wbgen: 1.0.0
+    x-map-info: 1.0.0
+    x-enums: 1.0.0
+  x-driver-edge:
+    module-type: RF_IPINFO
+  x-hdl:
+    name-suffix: _regs
+    busgroup: true
+  x-enums:
+    - enum:
+        name: echo
+        width: 32
+        children:
+          - item:
+              name: unreachable
+              value: 0xFF
+              description: Most likely to happen if the board is not even reachable
+          - item:
+              name: initialized
+              value: 0x80
+              description: Initialization finished successfully
+          - item:
+              name: initializing
+              value: 0x40
+              description: Initialization in progress
+          - item:
+              name: error
+              value: 0xC0
+              description: Signalize error during initialization
+          - item:
+              name: uninitialized
+              value: 0x00
+              description: Board communication seems to work but not initialized yet
+  children:
+    - reg:
+        name: stdVersion
+        width: 32
+        access: ro
+        address: 0x0
+        x-fesa:
+          multiplexed: false
+        children:
+          - field:
+              name: major
+              description: Major version indicating incompatible changes
+              range: 23-16
+              preset: 2
+              x-hdl:
+                type: const
+          - field:
+              description: Minor version indicating feature enhancements
+              name: minor
+              range: 15-8
+              preset: 0
+              x-hdl:
+                type: const
+          - field:
+              description: Patch indicating bug fixes
+              name: patch
+              range: 7-0
+              preset: 0
+              x-hdl:
+                type: const
+    - reg:
+        name: ident
+        description: IP Ident code
+        width: 32
+        access: ro
+        address: 0x4
+        x-fesa:
+          multiplexed: false
+    - reg:
+        name: firmwareVersion
+        description: Firmware Version
+        width: 32
+        access: ro
+        address: 0x8
+        x-hdl:
+          port: reg
+        x-fesa:
+          multiplexed: false
+        children:
+          - field:
+              name: major
+              description: Major version indicating incompatible changes
+              range: 23-16
+          - field:
+              description: Minor version indicating feature enhancements
+              name: minor
+              range: 15-8
+          - field:
+              description: Patch indicating bug fixes
+              name: patch
+              range: 7-0
+    - reg:
+        name: memMapVersion
+        description: Memory Map Version
+        width: 32
+        access: ro
+        address: 0xc
+        x-hdl:
+          port: reg
+        x-fesa:
+          multiplexed: false
+        children:
+          - field:
+              name: major
+              description: Major version indicating incompatible changes
+              range: 23-16
+          - field:
+              description: Minor version indicating feature enhancements
+              name: minor
+              range: 15-8
+          - field:
+              description: Patch indicating bug fixes
+              name: patch
+              range: 7-0
+    - reg:
+        name: echo
+        description: Echo register. This version of the standard foresees only 8bits linked to real memory
+        width: 32
+        access: rw
+        address: 0x10
+        comment: "Register used solely by software. No interaction with the firmware foreseen.\nThe idea is to use this register as \"flag\" in the hardware to remember your actions from the software side.\n\nReading 0xFF often happens when the board is not even reachable (i.e. bus problems on VME)\n\nOn the other hand if the board is reachable the usual state of flipflops are 0x00. Thus this would indicate that no initialization has been attempted yet.\n\nAt start of your software (FESA class) you should set the value 0x40 indicating that initialization is in progress. \nThis is important for you to later one check if you can read this value back before finally setting it to 0x80 (the value previously used with Cheburashka).\n\nIf your initialization failed but you want to continue anyway you should set the register to 0xC0 to indicate this error \n\nThis register is in particular useful if you have several entities interacting with the hardware. In this case several bits could be assigned to this entities (bits 5..0) to signalize that they have done there part successful and a main entity checks all the expected bits."
+        x-enums:
+          name: echo
+        x-fesa:
+          persistence: false
+          multiplexed: false
+        children:
+          - field:
+              name: echo
+              description: This version of the standard foresees only 8bits linked to real memory
+              range: 7-0
