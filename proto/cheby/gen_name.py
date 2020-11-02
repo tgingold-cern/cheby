@@ -101,8 +101,8 @@ def gen_name_hierarchy(n):
 
 
 def gen_name_memmap(root):
-    if root.address_spaces:
-        for a in root.address_spaces:
+    if root.c_address_spaces_map:
+        for a in root.children:
             gen_name_hierarchy(a)
     else:
         gen_name_hierarchy(root)

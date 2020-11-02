@@ -141,6 +141,8 @@ def parse_children(node, val):
                 ch = parse_memory(node, v)
             elif k == 'repeat':
                 ch = parse_repeat(node, v)
+            elif k == 'address-space':
+                ch = parse_address_space(node, v)
             else:
                 error("unhandled '{}' in children of {}".format(
                     k, node.get_path()))
@@ -316,6 +318,21 @@ def parse_memory(parent, el):
     return res
 
 
+def parse_address_space(parent, el):
+    if not isinstance(el, dict):
+        error("address-space {} must be a dictionnary".format(parent.get_path()))
+    res = tree.AddressSpace(parent)
+    parse_name(res, el)
+    for k, v in el.items():
+        if parse_composite(res, k, v):
+            pass
+        else:
+            error("unhandled '{}' in address-spaces:address-space".format(k))
+    if not isinstance(parent, tree.Root):
+        error("address-space {} can only appear in a root".format(res.get_path()))
+    return res
+
+
 def parse_map_info(root, el):
     if not isinstance(el, dict):
         error("x-map-info {} must be a dictionnary".format(root.get_path()))
@@ -348,6 +365,7 @@ def parse_enums_values(decl, el):
                 error("unhandled '{}' in x-enums:enum {} item {}".format(decl.name, val.name, k))
         decl.children.append(res)
 
+
 def parse_enums(root, enums):
     if not isinstance(enums, list):
         error("x-enums must be a list (of enum)")
@@ -369,6 +387,7 @@ def parse_enums(root, enums):
             else:
                 error("unhandled '{}' in x-enums:enum".format(k))
         root.x_enums.append(res)
+
 
 def parse_address_spaces(root, spaces):
     if not isinstance(spaces, list):

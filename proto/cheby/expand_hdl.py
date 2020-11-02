@@ -334,7 +334,7 @@ def expand_memmap_hdl(root):
 
 
 def expand_hdl(root):
-    if root.address_spaces:
+    if root.c_address_spaces_map:
         x_hdl = getattr(root, 'x_hdl', {})
         expand_x_hdl_root(root, x_hdl)
         for c in root.children:

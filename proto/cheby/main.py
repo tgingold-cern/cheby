@@ -250,7 +250,7 @@ def handle_file(args, filename):
             print_vhdl.style = 'wbgen'
             print_hdl(f, args.hdl, h)
     if args.gen_hdl is not None:
-        if not t.address_spaces:
+        if not t.c_address_spaces_map:
             if not (args.address_space is None):
                 sys.stderr.write('error: --address-space not allowed (no address space)\n')
                 sys.exit(2)

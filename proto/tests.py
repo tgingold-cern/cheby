@@ -365,21 +365,21 @@ def test_hdl_ref():
 
 def test_issue84():
     global nbr_tests
-    f = 'issue84/sps200CavityControl'
-    if verbose:
-        print('test hdl with ref: {}'.format(f))
-    cheby_file = srcdir + f + '.cheby'
-    vhdl_file = srcdir + f + '.vhdl'
-    t = parse_ok(cheby_file)
-    layout_ok(t)
-    expand_hdl.expand_hdl(t)
-    gen_name.gen_name_memmap(t)
-    h = gen_hdl.generate_hdl(t.c_address_spaces_map['bar0'])
-    buf = write_buffer()
-    print_vhdl.print_vhdl(buf, h)
-    if not compare_buffer_and_file(buf, vhdl_file):
-        error('vhdl generation error for {}'.format(f))
-    nbr_tests += 1
+    for f in ['issue84/sps200CavityControl', 'issue84/sps200CavityControl_as']:
+        if verbose:
+            print('test hdl with ref: {}'.format(f))
+        cheby_file = srcdir + f + '.cheby'
+        vhdl_file = srcdir + f + '.vhdl'
+        t = parse_ok(cheby_file)
+        layout_ok(t)
+        expand_hdl.expand_hdl(t)
+        gen_name.gen_name_memmap(t)
+        h = gen_hdl.generate_hdl(t.c_address_spaces_map['bar0'])
+        buf = write_buffer()
+        print_vhdl.print_vhdl(buf, h)
+        if not compare_buffer_and_file(buf, vhdl_file):
+            error('vhdl generation error for {}'.format(f))
+        nbr_tests += 1
 
 def test_self():
     """Auto-test"""

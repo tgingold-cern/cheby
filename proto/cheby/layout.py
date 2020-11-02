@@ -740,11 +740,18 @@ def set_abs_address(n, base_addr):
 
 def layout_cheby(n):
     """Layout the root memmap"""
-    if not n.address_spaces:
-        # No address space, use a default one
-        layout_cheby_memmap(n)
-        set_abs_address(n, 0)
-    else:
+    if any([isinstance(c, tree.AddressSpace) for c in n.children]):
+        if n.address_spaces:
+            raise LayoutException(n, "address-spaces not allowed when root has address-space")
+        n.c_address_spaces_map = {s.name: s for s in n.children}
+        layout_memmap_root(n)
+        for space in n.children:
+            if not isinstance(space, tree.AddressSpace):
+                raise LayoutException(space, "either all root children must be address-space or none")
+            lo = Layout(n)
+            lo.visit(space)
+            set_abs_address(space, 0)
+    elif n.address_spaces:
         # At least one address space, none selected
         layout_memmap_root(n)
         n.c_address_spaces_map = {s.name: s for s in n.address_spaces}
@@ -764,3 +771,7 @@ def layout_cheby(n):
             lo = Layout(n)
             lo.visit(space)
             set_abs_address(space, 0)
+    else:
+        # No address space, use a default one
+        layout_cheby_memmap(n)
+        set_abs_address(n, 0)
