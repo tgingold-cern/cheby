@@ -92,10 +92,8 @@ architecture syn of qsm_regs is
   signal regs_1_control_read_delay_reg  : std_logic_vector(9 downto 0);
   signal regs_1_control_wreq            : std_logic;
   signal regs_1_control_wack            : std_logic;
-  signal memory_0_mem_readout_re        : std_logic;
   signal memory_0_mem_readout_rack      : std_logic;
   signal memory_0_mem_readout_re        : std_logic;
-  signal memory_1_mem_readout_re        : std_logic;
   signal memory_1_mem_readout_rack      : std_logic;
   signal memory_1_mem_readout_re        : std_logic;
   signal rd_ack_d0                      : std_logic;

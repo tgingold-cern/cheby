@@ -28,7 +28,6 @@ architecture syn of sramrw is
   signal ack_int                        : std_logic;
   signal wb_rip                         : std_logic;
   signal wb_wip                         : std_logic;
-  signal mymem_re                       : std_logic;
   signal mymem_rack                     : std_logic;
   signal mymem_re                       : std_logic;
   signal rd_ack_d0                      : std_logic;
