@@ -188,6 +188,8 @@ Add `dual-clock` attribute for memories.
 Add support for x-hdl/bus-attribute=Xilinx on axi4-lite and cern-be-vme
 buses (issue#83)
 
+Handle memories smaller than the bus size for sram bus (issue#87)
+
 ## Version 1.3
 
 Add x-hdl:port to specify how ports are generated for registers (issue#11)
