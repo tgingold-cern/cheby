@@ -61,14 +61,10 @@ entity qsm_regs is
     -- SRAM bus mem_readout
     memory_0_mem_readout_addr_o : out   std_logic_vector(8 downto 2);
     memory_0_mem_readout_data_i : in    std_logic_vector(15 downto 0);
-    memory_0_mem_readout_data_o : out   std_logic_vector(15 downto 0);
-    memory_0_mem_readout_wr_o : out   std_logic;
 
     -- SRAM bus mem_readout
     memory_1_mem_readout_addr_o : out   std_logic_vector(8 downto 2);
-    memory_1_mem_readout_data_i : in    std_logic_vector(15 downto 0);
-    memory_1_mem_readout_data_o : out   std_logic_vector(15 downto 0);
-    memory_1_mem_readout_wr_o : out   std_logic
+    memory_1_mem_readout_data_i : in    std_logic_vector(15 downto 0)
   );
 end qsm_regs;
 
@@ -96,8 +92,10 @@ architecture syn of qsm_regs is
   signal regs_1_control_read_delay_reg  : std_logic_vector(9 downto 0);
   signal regs_1_control_wreq            : std_logic;
   signal regs_1_control_wack            : std_logic;
+  signal memory_0_mem_readout_re        : std_logic;
   signal memory_0_mem_readout_rack      : std_logic;
   signal memory_0_mem_readout_re        : std_logic;
+  signal memory_1_mem_readout_re        : std_logic;
   signal memory_1_mem_readout_rack      : std_logic;
   signal memory_1_mem_readout_re        : std_logic;
   signal rd_ack_d0                      : std_logic;
@@ -106,10 +104,6 @@ architecture syn of qsm_regs is
   signal wr_adr_d0                      : std_logic_vector(10 downto 2);
   signal wr_dat_d0                      : std_logic_vector(31 downto 0);
   signal wr_sel_d0                      : std_logic_vector(3 downto 0);
-  signal memory_0_mem_readout_wp        : std_logic;
-  signal memory_0_mem_readout_we        : std_logic;
-  signal memory_1_mem_readout_wp        : std_logic;
-  signal memory_1_mem_readout_we        : std_logic;
 begin
 
   -- WB decode signals
@@ -237,24 +231,7 @@ begin
       end if;
     end if;
   end process;
-  memory_0_mem_readout_data_o <= wr_dat_d0(15 downto 0);
-  process (clk_i) begin
-    if rising_edge(clk_i) then
-      if rst_n_i = '0' then
-        memory_0_mem_readout_wp <= '0';
-      else
-        memory_0_mem_readout_wp <= (wr_req_d0 or memory_0_mem_readout_wp) and rd_req_int;
-      end if;
-    end if;
-  end process;
-  memory_0_mem_readout_we <= (wr_req_d0 or memory_0_mem_readout_wp) and not rd_req_int;
-  process (adr_int, wr_adr_d0, memory_0_mem_readout_re) begin
-    if memory_0_mem_readout_re = '1' then
-      memory_0_mem_readout_addr_o <= adr_int(8 downto 2);
-    else
-      memory_0_mem_readout_addr_o <= wr_adr_d0(8 downto 2);
-    end if;
-  end process;
+  memory_0_mem_readout_addr_o <= adr_int(8 downto 2);
 
   -- Interface memory_1_mem_readout
   process (clk_i) begin
@@ -266,31 +243,12 @@ begin
       end if;
     end if;
   end process;
-  memory_1_mem_readout_data_o <= wr_dat_d0(15 downto 0);
-  process (clk_i) begin
-    if rising_edge(clk_i) then
-      if rst_n_i = '0' then
-        memory_1_mem_readout_wp <= '0';
-      else
-        memory_1_mem_readout_wp <= (wr_req_d0 or memory_1_mem_readout_wp) and rd_req_int;
-      end if;
-    end if;
-  end process;
-  memory_1_mem_readout_we <= (wr_req_d0 or memory_1_mem_readout_wp) and not rd_req_int;
-  process (adr_int, wr_adr_d0, memory_1_mem_readout_re) begin
-    if memory_1_mem_readout_re = '1' then
-      memory_1_mem_readout_addr_o <= adr_int(8 downto 2);
-    else
-      memory_1_mem_readout_addr_o <= wr_adr_d0(8 downto 2);
-    end if;
-  end process;
+  memory_1_mem_readout_addr_o <= adr_int(8 downto 2);
 
   -- Process for write requests.
-  process (wr_adr_d0, wr_req_d0, regs_0_control_wack, regs_1_control_wack, memory_0_mem_readout_we, memory_1_mem_readout_we) begin
+  process (wr_adr_d0, wr_req_d0, regs_0_control_wack, regs_1_control_wack) begin
     regs_0_control_wreq <= '0';
     regs_1_control_wreq <= '0';
-    memory_0_mem_readout_wr_o <= '0';
-    memory_1_mem_readout_wr_o <= '0';
     case wr_adr_d0(10 downto 9) is
     when "00" =>
       case wr_adr_d0(8 downto 2) is
@@ -313,12 +271,8 @@ begin
       end case;
     when "10" =>
       -- Memory memory_0_mem_readout
-      memory_0_mem_readout_wr_o <= memory_0_mem_readout_we;
-      wr_ack_int <= memory_0_mem_readout_we;
     when "11" =>
       -- Memory memory_1_mem_readout
-      memory_1_mem_readout_wr_o <= memory_1_mem_readout_we;
-      wr_ack_int <= memory_1_mem_readout_we;
     when others =>
       wr_ack_int <= wr_req_d0;
     end case;
