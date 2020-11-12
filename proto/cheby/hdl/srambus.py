@@ -22,7 +22,8 @@ class SRAMBus(BusGen):
         if n.c_bus_access in ('ro', 'rw'):
             n.h_bus['dati'] = root.h_ports.add_port(
                 prefix + 'data_i', n.c_width, dir='IN')
-            # Internal signal
+            # Internal signals
+            n.h_rack = module.new_HDLSignal(prefix + 'rack')
             n.h_re = module.new_HDLSignal(prefix + 're')
 
         if n.c_bus_access in ('wo', 'rw'):
@@ -30,10 +31,6 @@ class SRAMBus(BusGen):
                 prefix + 'data_o', n.c_width, dir='OUT')
             n.h_bus['wr'] = root.h_ports.add_port(
                 prefix + 'wr_o', dir='OUT')
-
-        # Internal signals
-        n.h_rack = module.new_HDLSignal(prefix + 'rack')
-        n.h_re = module.new_HDLSignal(prefix + 're')
 
     def gen_slice(self, root, dat, wd):
         if wd < root.c_word_size * tree.BYTE_SIZE:
