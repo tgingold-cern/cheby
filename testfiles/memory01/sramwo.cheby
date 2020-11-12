@@ -1,0 +1,16 @@
+memory-map:
+  bus: wb-32-be
+  name: sramwo
+  description: WO sram
+  x-hdl:
+    busgroup: True
+  children:
+  - memory:
+      name: mymem
+      memsize: 256
+      interface: sram
+      children:
+        - reg:
+            name: value
+            access: wo
+            width: 32

@@ -325,6 +325,7 @@ def test_hdl_ref():
               'issue11/test_port1_field',
               'issue11/test_port2_reg', 'issue11/test_port2_wire',
               'issue13/mainMap2', 'memory01/mainMap',
+              'memory01/sramro', 'memory01/sramwo', 'memory01/sramrw',
               'issue39/addressingMemory',
               'issue40/bugConstraints',
               'issue41/bugBlockFields',
