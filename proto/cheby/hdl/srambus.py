@@ -88,7 +88,7 @@ class SRAMBus(BusGen):
         if n.c_bus_access in ('wo', 'rw'):
             # Immediately ack WR.
             proc.stmts.append(HDLAssign(n.h_bus['wr'], bit_0))
-            if ibus.rd_adr != ibus.wr_adr:
+            if n.c_bus_access == 'rw' and ibus.rd_adr != ibus.wr_adr:
                 wr = n.h_we
             else:
                 wr = ibus.wr_req
