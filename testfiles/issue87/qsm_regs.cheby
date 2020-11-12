@@ -1,0 +1,89 @@
+memory-map:
+  bus: wb-32-be
+  name: qsm_regs
+  description: QSPI register/memory bank
+  x-hdl:
+    busgroup: True
+  children:
+    - repeat:
+        name: regs
+        count: 2
+        align: False
+        children:
+          - reg:
+              name: control
+              description: Control register
+              width: 32
+              access: rw
+              type: unsigned
+              children:
+                - field:
+                    name: reset
+                    description: Send the Reset state to DIM
+                    range: 0
+                    preset: 0
+                    x-hdl:
+                      type: autoclear
+                - field:
+                    name: trig
+                    description: Trigger DIM readout
+                    range: 1
+                    preset: 0
+                    x-hdl:
+                      type: autoclear
+                - field:
+                    name: last_reg_adr
+                    description: Address of last DIM register (number of registers - 1)
+                    range: 5-2
+                    preset: 0
+                - field:
+                    name: max_dim_no
+                    description: Maximum number of devices present on line
+                    range: 9-6
+                    preset: 0
+                - field:
+                    name: read_delay
+                    description: Delay between consecutive register reads in microseconds (usually 512 us)
+                    range: 19-10
+                    preset: 0
+          - reg:
+              name: status
+              description: Status register
+              type: unsigned
+              width: 32
+              access: ro
+              children:
+                - field:
+                    name: busy
+                    description: QSPI master is busy (either in RESET or READOUT)
+                    range: 0
+                - field:
+                    name: done
+                    description: QSPI master has finished DIM readout
+                    range: 1
+                - field:
+                    name: err_many
+                    description: Too many devices on DIM line (more than set by 'max_dim_no' register)
+                    range: 2
+                - field:
+                    name: err_fb
+                    description: Detected error on QSPI fb line
+                    range: 3
+                - field:
+                    name: dim_count
+                    description: Detected number of DIM devices (can be lower than 'max_dim_no')
+                    range: 7-4
+    - repeat:
+        name: memory
+        count: 2
+        children:
+        - memory:
+            name: mem_readout
+            memsize: 256
+            interface: sram
+            description: QSPI A readout memory
+            children:
+              - reg:
+                  name: value
+                  access: ro
+                  width: 16
