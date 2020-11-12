@@ -5,6 +5,7 @@ from cheby.hdltree import (HDLAssign, HDLSync, HDLComb,
                            HDLSlice)
 from cheby.hdl.busgen import BusGen
 from cheby.hdl.globals import gconfig
+import cheby.tree as tree
 
 
 class SRAMBus(BusGen):
@@ -30,6 +31,11 @@ class SRAMBus(BusGen):
         n.h_rack = module.new_HDLSignal(prefix + 'rack')
         n.h_re = module.new_HDLSignal(prefix + 're')
 
+    def gen_slice(self, root, dat, wd):
+        if wd < root.c_word_size * tree.BYTE_SIZE:
+            dat = HDLSlice(dat, 0, wd)
+        return dat
+
     def wire_bus_slave(self, root, module, n, ibus):
         stmts = module.stmts
         # Acknowledge: delay rack by one cycle.
@@ -37,7 +43,7 @@ class SRAMBus(BusGen):
         proc.rst_stmts.append(HDLAssign(n.h_rack, bit_0))
         proc.sync_stmts.append(HDLAssign(n.h_rack, HDLAnd(n.h_re, HDLNot(n.h_rack))))
         stmts.append(proc)
-        stmts.append(HDLAssign(n.h_bus['dato'], ibus.wr_dat))
+        stmts.append(HDLAssign(n.h_bus['dato'], self.gen_slice(root, ibus.wr_dat, n.c_width)))
         if ibus.rd_adr != ibus.wr_adr:
             # Asymetric pipelining: add a mux to select the address.
             n.h_wp = module.new_HDLSignal(n.c_name + '_wp')
@@ -79,7 +85,7 @@ class SRAMBus(BusGen):
         proc.sensitivity.append(wr)
 
     def read_bus_slave(self, root, stmts, n, proc, ibus, rd_data):
-        stmts.append(HDLAssign(rd_data, n.h_bus['dati']))
+        stmts.append(HDLAssign(self.gen_slice(root, rd_data, n.c_width), n.h_bus['dati']))
         stmts.append(HDLAssign(ibus.rd_ack, n.h_rack))
         proc.stmts.append(HDLAssign(n.h_re, bit_0))
         stmts.append(HDLAssign(n.h_re, ibus.rd_req))
