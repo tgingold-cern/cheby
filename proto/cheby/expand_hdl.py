@@ -298,12 +298,14 @@ def unroll_repeat(n):
     res.align = n.align
     res.c_address = n.c_address
     res.c_size = n.c_size
+    res.c_align = n.c_align
     for i in range(n.count):
         blk = tree.Block(res)
         blk.name = "{}".format(i)
         blk.align = n.align
         blk.c_address = i * n.c_elsize
         blk.c_size = n.c_elsize
+        blk.c_align = n.c_align
         blk.children = [tree_copy(el, blk) for el in n.children]
         layout.build_sorted_children(blk)
         res.children.append(blk)
