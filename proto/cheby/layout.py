@@ -476,6 +476,8 @@ def layout_memory(lo, n):
     # Layout the children and use the size of the children as element size.
     layout_composite_children(lo, n)
     n.c_elsize = n.c_size
+    n.c_mem_access = n.children[0].access
+    assert n.c_mem_access in ('ro', 'rw', 'wo')
     if n.memsize_val is None:
         if n.c_depth is None:
             raise LayoutException(

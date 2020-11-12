@@ -17,13 +17,17 @@ class GenBlock(ElGen):
                     # Inline
                     n.h_gen = GenBlock(self.root, self.module, n.c_submap)
                 elif n.filename is None:
+                    # A pure interface
+                    n.c_bus_access = 'rw'
                     n.h_gen = GenInterface(self.root, self.module, n)
                 else:
+                    # A submap defined in a file
                     n.h_gen = GenSubmap(self.root, self.module, n)
             elif isinstance(n, tree.Memory):
                 if n.interface is not None:
                     n.c_addr_bits = ilog2(n.c_depth)
                     n.c_width = n.c_elsize * tree.BYTE_SIZE
+                    n.c_bus_access = n.c_mem_access
                     n.h_gen = GenInterface(self.root, self.module, n)
                 else:
                     n.h_gen = GenMemory(self.root, self.module, n)
