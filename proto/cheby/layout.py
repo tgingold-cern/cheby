@@ -490,15 +490,22 @@ def layout_memory(lo, n):
     if n.memsize_val % n.c_elsize != 0:
         raise LayoutException(
             n, "memory memsize '{}' is not a multiple of the element")
+    if n.interface is None:
+        # If there is no interface, then the memory is internal and one port will be exposed
+        # to the user.  The width of it is defined by the element size, and the depth derives
+        # from size and width.
+        # Note: If the width is smaller than the bus word size, part of the bus is ignored.
+        #  If the width is larger, there will be multiple rams (of this depth).
+        n.c_depth = n.memsize_val // n.c_elsize
+    else:
+        # If there is an interface, the width is the min of the element size and bus size.
+        n.c_depth = n.memsize_val // min(lo.root.c_word_size, n.c_elsize)
     if n.c_elsize <= lo.root.c_word_size:
         # Element size is smaller than the word size.  So part of the word is
         # simply discarded/wasted.
-        pass
+        n.c_size = n.c_depth * lo.root.c_word_size
     else:
-        # Element size is lager than the word size.  Cap to the word size.
-        n.c_elsize = lo.root.c_word_size
-    n.c_depth = n.memsize_val // n.c_elsize
-    n.c_size = n.c_depth * lo.root.c_word_size
+        n.c_size = n.memsize_val
     n.c_align = round_pow2(n.c_size)
     layout_composite_size(lo, n)
     align_block(n)
