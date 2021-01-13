@@ -56,7 +56,7 @@ class Ibus:
         c_wo = 'wr-out' in conds
         names.extend([('wr_ack', c_wo, 'o', None, None)])
         module.stmts.append(HDLComment("pipelining for {}".format('+'.join(conds))))
-        proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'],
+        proc = HDLSync(root.h_bus['clk'], root.h_bus['brst'],
                        rst_sync=gconfig.rst_sync)
         for n, c, d, sz, lo in names:
             if n == 'wr_adr' and copy_wa:

@@ -65,7 +65,7 @@ class AXI4LiteBus(BusGen):
         module.stmts.append(HDLAssign(root.h_bus['awready'], HDLNot(axi_awset)))
         module.stmts.append(HDLAssign(root.h_bus['wready'], HDLNot(axi_wset)))
         module.stmts.append(HDLAssign(root.h_bus['bvalid'], axi_wdone))
-        proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_sync=gconfig.rst_sync)
+        proc = HDLSync(root.h_bus['clk'], root.h_bus['brst'], rst_sync=gconfig.rst_sync)
         proc.rst_stmts.append(HDLAssign(ibus.wr_req, bit_0))
         proc.rst_stmts.append(HDLAssign(axi_awset, bit_0))
         proc.rst_stmts.append(HDLAssign(axi_wset, bit_0))
@@ -124,7 +124,7 @@ class AXI4LiteBus(BusGen):
         axi_rdone = module.new_HDLSignal('axi_rdone')
         module.stmts.append(HDLAssign(root.h_bus['arready'], HDLNot(axi_arset)))
         module.stmts.append(HDLAssign(root.h_bus['rvalid'], axi_rdone))
-        proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_sync=gconfig.rst_sync)
+        proc = HDLSync(root.h_bus['clk'], root.h_bus['brst'], rst_sync=gconfig.rst_sync)
         proc.rst_stmts.append(HDLAssign(ibus.rd_req, bit_0))
         proc.rst_stmts.append(HDLAssign(axi_arset, bit_0))
         proc.rst_stmts.append(HDLAssign(axi_rdone, bit_0))
@@ -159,7 +159,7 @@ class AXI4LiteBus(BusGen):
 
     def add_xilinx_attributes(self, bus, portname):
         for name, port in bus:
-            if name in ('clk', 'rst'):
+            if name in ('clk', 'brst'):
                 continue
             port.attributes['X_INTERFACE_INFO'] = "xilinx.com:interface:aximm:1.0 {} {}".format(
                 portname, name.upper())
@@ -174,7 +174,7 @@ class AXI4LiteBus(BusGen):
         opts = BusOptions(root, root)
         self.expand_opts(opts)
         bus = [('clk', HDLPort("aclk")),
-               ('rst', HDLPort("areset_n"))]
+               ('brst', HDLPort("areset_n"))]
         bus.extend(self.gen_axi4lite_bus(
             lambda n, sz, lo=0, dir='IN':
                 (n, None if sz == 0 else HDLPort(n, size=sz,lo_idx=lo, dir=dir)),
@@ -186,7 +186,7 @@ class AXI4LiteBus(BusGen):
         ibus.addr_size = root.c_addr_bits
         ibus.addr_low = root.c_addr_word_bits
         ibus.data_size = root.c_word_bits
-        ibus.rst = root.h_bus['rst']
+        ibus.rst = root.h_bus['brst']
         ibus.clk = root.h_bus['clk']
 
         # The most important points about AXI4 are in A3.2.1:
@@ -249,7 +249,7 @@ class AXI4LiteBus(BusGen):
         stmts.append(HDLAssign(n.h_bus['arprot'], HDLBinConst(0, 3)))
         stmts.append(HDLAssign(n.h_bus['rready'], bit_1))
 
-        proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_sync=gconfig.rst_sync)
+        proc = HDLSync(root.h_bus['clk'], root.h_bus['brst'], rst_sync=gconfig.rst_sync)
         # Machine state for valid/ready AW and W channels
         # Set valid on request, clear valid on ready.
         # Set done on ready, clear done on ack.

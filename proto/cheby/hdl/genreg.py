@@ -403,7 +403,7 @@ class GenReg(ElGen):
 
             if n.h_has_regs:
                 # Create a process for the DFF.
-                ffproc = HDLSync(self.root.h_bus['clk'], self.root.h_bus['rst'],
+                ffproc = HDLSync(self.root.h_bus['clk'], self.root.h_bus['vrst'],
                                  rst_sync=gconfig.rst_sync)
                 self.module.stmts.append(ffproc)
                 # Reset code

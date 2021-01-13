@@ -60,7 +60,7 @@ class CERNBEBus(BusGen):
 
     def add_xilinx_attributes(self, bus, portname):
         for name, port in bus:
-            if name in ('clk', 'rst'):
+            if name in ('clk', 'brst'):
                 continue
             port.attributes['X_INTERFACE_INFO'] = "cern.ch:interface:cheburashka:1.0 {} {}".format(
                 portname, name.upper())
@@ -71,7 +71,7 @@ class CERNBEBus(BusGen):
             parser.warning(root, "busgroup on '{}' is ignored for cern-be-vme".format(
                 root.get_path()))
         bus = [('clk', HDLPort("Clk")),
-               ('rst', HDLPort("Rst"))]
+               ('brst', HDLPort("Rst"))]
         bus.extend(self.gen_cern_bus(
             lambda n, sz=None, lo=0, dir='IN':
             HDLPort(n, size=sz, lo_idx=lo, dir=dir) if sz is None or sz > 0 else None,
@@ -86,15 +86,15 @@ class CERNBEBus(BusGen):
         # Kludge: not reverted for gen_gena_regctrl...
         if ibus is not None:
             rstn = module.new_HDLSignal('rst_n')
-            module.stmts.append(HDLAssign(rstn, HDLNot(root.h_bus['rst'])))
-            root.h_bus['rst'] = rstn
+            module.stmts.append(HDLAssign(rstn, HDLNot(root.h_bus['brst'])))
+            root.h_bus['brst'] = rstn
 
         if ibus is not None:
             ibus.addr_size = root.c_addr_bits
             ibus.addr_low = root.c_addr_word_bits
             ibus.data_size = root.c_word_bits
             ibus.clk = root.h_bus['clk']
-            ibus.rst = root.h_bus['rst']
+            ibus.rst = root.h_bus['brst']
             ibus.rd_dat = root.h_bus['dato']
             ibus.wr_dat = root.h_bus['dati']
 
@@ -165,7 +165,7 @@ class CERNBEBus(BusGen):
 
         if root.h_bussplit:
             # Handle read requests.
-            proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_sync=gconfig.rst_sync)
+            proc = HDLSync(root.h_bus['clk'], root.h_bus['brst'], rst_sync=gconfig.rst_sync)
             # Write requests set on WE, clear by RdDone
             proc.sync_stmts.append(
                 HDLAssign(n.h_wr,
@@ -203,7 +203,7 @@ class CERNBEBus(BusGen):
             # Asymetric pipelining: add a mux to select the address.
             n.h_ws = module.new_HDLSignal(n.c_name + '_ws')
             n.h_wt = module.new_HDLSignal(n.c_name + '_wt')
-            proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_sync=gconfig.rst_sync)
+            proc = HDLSync(root.h_bus['clk'], root.h_bus['brst'], rst_sync=gconfig.rst_sync)
             proc.sync_stmts.append(
                 HDLAssign(n.h_wt,
                           HDLAnd(HDLOr(n.h_wt, n.h_ws), HDLNot(n.h_bus['wack']))))

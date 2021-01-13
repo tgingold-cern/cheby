@@ -234,6 +234,8 @@ def generate_hdl(root):
 
     module = gen_hdl_header(root, ibus)
 
+    root.h_bus['vrst'] = root.h_bus['brst']
+
     root.h_gen = GenBlock(root, module, root)
     root.h_gen.create_generators()
 

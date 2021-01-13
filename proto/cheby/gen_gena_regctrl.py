@@ -247,7 +247,7 @@ def gen_hdl_reg_decls(reg, pfx, root, module, _isigs):
 
 def gen_hdl_srff(reg, pfx, root, module, _isigs):
     "Generate a process for SRFF"
-    proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_val=1, rst_sync=True)
+    proc = HDLSync(root.h_bus['clk'], root.h_bus['vrst'], rst_val=1, rst_sync=True)
     proc.name = 'SRFF_{}{}'.format(pfx, reg.name)
     proc.rst_stmts.append(HDLAssign(reg.h_loc_SRFF,
                                     HDLReplicate(bit_0, reg.c_rwidth)))
@@ -264,7 +264,7 @@ def gen_hdl_srff(reg, pfx, root, module, _isigs):
 def gen_hdl_rmw_ctrl_reg(reg, root, module, kind,
                          i, suff, inst_name, sel, acm, loc):
     "Generate a process for CtrlReg or RMWReg"
-    proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_val=1, rst_sync=True)
+    proc = HDLSync(root.h_bus['clk'], root.h_bus['vrst'], rst_val=1, rst_sync=True)
     proc.name = inst_name
     ctrlreg = reg.h_ctrlreg[i][suff]
     proc.rst_stmts.append(HDLAssign(ctrlreg, reg.h_gena_psm[i]))
@@ -299,7 +299,7 @@ def gen_hdl_reg_insts(reg, pfx, root, module, isigs):
             inst.params = [('N', HDLNumber(reg.c_rwidth))]
             inst.conns = [
                 ('Clk', root.h_bus['clk']),
-                ('Rst', root.h_bus['rst']),
+                ('Rst', root.h_bus['vrst']),
                 ('Set', reg.h_loc),
                 ('Clr', reg.h_ClrSRFF),
                 ('Q', reg.h_loc_SRFF)]
@@ -341,7 +341,7 @@ def gen_hdl_reg_insts(reg, pfx, root, module, isigs):
                     ('VMEWrData', HDLSlice(root.h_bus['dati'], 0,
                                            reg.c_mwidth // reg.c_nwords)),
                     ('Clk', root.h_bus['clk']),
-                    ('Rst', root.h_bus['rst']),
+                    ('Rst', root.h_bus['vrst']),
                     ('WriteMem', root.h_bus['wr']),
                     ('CRegSel', sel),
                     ('AutoClrMsk', acm),
@@ -1384,6 +1384,7 @@ def gen_gena_regctrl(root, use_common_visual):
             root, 'bus must be cern-be-vme-xx for --gen-gena-regctrl')
     root.hdl_bus_attribute = None
     module = gen_hdl.gen_hdl_header(root)
+    root.h_bus['vrst'] = root.h_bus['brst']
     module.name = 'RegCtrl_{}'.format(root.name)
     if not root.h_bussplit:
         root.h_bus['adrr'] = root.h_bus['adr']

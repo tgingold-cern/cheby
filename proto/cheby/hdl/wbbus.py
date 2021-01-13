@@ -26,7 +26,7 @@ class WBBus(BusGen):
         # Add an in progress 'wb_Xip' signal that is set on a strobe
         # and cleared on the ack.
         wb_xip = module.new_HDLSignal('wb_{}ip'.format(pfx))
-        proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'],
+        proc = HDLSync(root.h_bus['clk'], root.h_bus['brst'],
                        rst_sync=gconfig.rst_sync)
         proc.rst_stmts.append(HDLAssign(wb_xip, bit_0))
         proc.sync_stmts.append(HDLAssign(
@@ -40,7 +40,7 @@ class WBBus(BusGen):
         ibus.addr_low = root.c_addr_word_bits
         ibus.data_size = root.c_word_bits
         ibus.clk = root.h_bus['clk']
-        ibus.rst = root.h_bus['rst']
+        ibus.rst = root.h_bus['brst']
         ibus.rd_dat = root.h_bus['dato']
         ibus.wr_dat = root.h_bus['dati']
         ibus.wr_sel = root.h_bus['sel']
@@ -154,7 +154,7 @@ class WBBus(BusGen):
     def expand_bus(self, root, module, ibus):
         """Create wishbone interface for the design."""
         root.h_bus = {}
-        root.h_bus['rst'] = module.add_port('rst_n_i')
+        root.h_bus['brst'] = module.add_port('rst_n_i')
         root.h_bus['clk'] = module.add_port('clk_i')
 
         busgroup = root.get_extension('x_hdl', 'busgroup')
@@ -208,7 +208,7 @@ class WBBus(BusGen):
     def wire_bus_slave(self, root, module, n, ibus):
         stmts = module.stmts
         stmts.append(HDLAssign(n.h_tr, HDLOr(n.h_wt, n.h_rt)))
-        proc = HDLSync(root.h_bus['clk'], root.h_bus['rst'], rst_sync=gconfig.rst_sync)
+        proc = HDLSync(root.h_bus['clk'], root.h_bus['brst'], rst_sync=gconfig.rst_sync)
         proc.rst_stmts.append(HDLAssign(n.h_rt, bit_0))
         proc.rst_stmts.append(HDLAssign(n.h_wt, bit_0))
         if root.h_bussplit:

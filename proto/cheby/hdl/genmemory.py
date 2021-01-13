@@ -177,7 +177,7 @@ class GenMemory(ElGen):
                 inst.conns.append(("rd_b_i", reg.h_rd))
                 inst.conns.append(("wr_b_i", bit_0))
 
-        proc = HDLSync(self.root.h_bus['clk'], self.root.h_bus['rst'], rst_sync=gconfig.rst_sync)
+        proc = HDLSync(self.root.h_bus['clk'], self.root.h_bus['brst'], rst_sync=gconfig.rst_sync)
         for i in range(reg.c_nwords):
             proc.rst_stmts.append(HDLAssign(reg.h_rack[i], bit_0))
             if self.root.h_bussplit and reg.access in ['rw', 'wo']:
