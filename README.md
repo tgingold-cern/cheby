@@ -194,6 +194,8 @@ Handle ro and wo modes for sram bus (issue#87)
 
 Reduce memory width when element size is larger than bus width.
 
+Fix memory data width mismatch (issue#89)
+
 ## Version 1.3
 
 Add x-hdl:port to specify how ports are generated for registers (issue#11)
