@@ -1,7 +1,7 @@
 import functools
 from cheby.hdl.elgen import ElGen
 from cheby.hdltree import (HDLComment, HDLComb, HDLSync,
-                           HDLEq, HDLOr, HDLAnd, HDLNot,
+                           HDLEq, HDLOr, HDLAnd, HDLNot, HDLConcat,
                            HDLIfElse,
                            HDLSwitch, HDLChoiceExpr, HDLChoiceDefault,
                            HDLAssign, HDLSlice, HDLReplicate, HDLInstance,
@@ -137,7 +137,7 @@ class GenMemory(ElGen):
             bwsel = HDLReplicate(bit_1, wd // tree.BYTE_SIZE)
             inst.conns.append(("bwsel_a_i", ibus.wr_sel or bwsel))
 
-            def gen_slice(sig):
+            def gen_multiword_slice(sig):
                 if not multiword:
                     return sig
                 if self.root.c_word_endian == 'big':
@@ -147,6 +147,12 @@ class GenMemory(ElGen):
                     # Little endian
                     off = i
                 return HDLSlice(sig, off * wd, wd)
+
+            def gen_wordsize_slice(sig):
+                if self.root.c_word_bits > reg.c_rwidth:
+                    return HDLSlice(sig, 0, reg.c_rwidth)
+                else:
+                    return sig
 
             if reg.access == 'ro':
                 # Internal port (RO)
@@ -158,13 +164,13 @@ class GenMemory(ElGen):
                 # External port (WO)
                 inst.conns.append(("addr_b_i", mem.h_ext_addr))
                 inst.conns.append(("bwsel_b_i", bwsel))
-                inst.conns.append(("data_b_i", gen_slice(reg.h_dat)))
+                inst.conns.append(("data_b_i", gen_multiword_slice(reg.h_dat)))
                 inst.conns.append(("data_b_o", reg.h_dat_ign[i]))
                 inst.conns.append(("rd_b_i", bit_0))
                 inst.conns.append(("wr_b_i", reg.h_wr))
             else:
                 # Internal port (RW)
-                inst.conns.append(("data_a_i", ibus.wr_dat))
+                inst.conns.append(("data_a_i", gen_wordsize_slice(ibus.wr_dat)))
                 inst.conns.append(("data_a_o", reg.h_sig_dato[i]))
                 inst.conns.append(("rd_a_i", reg.h_rreq[i]))
                 inst.conns.append(("wr_a_i", reg.h_sig_wr[i]))
@@ -209,7 +215,10 @@ class GenMemory(ElGen):
     def gen_read(self, s, off, ibus, rdproc):
         def gen_read_word(stmt, reg, i):
             # Output ram data
-            stmt.append(HDLAssign(ibus.rd_dat, reg.h_sig_dato[i]))
+            val = reg.h_sig_dato[i]
+            if self.root.c_word_bits > reg.c_rwidth:
+                val = HDLConcat(HDLBinConst(0, self.root.c_word_bits - reg.c_rwidth), val)
+            stmt.append(HDLAssign(ibus.rd_dat, val))
             # Set rd signal to ram: read when there is not WR request,
             # and either a read request or a pending read request.
             if self.root.h_bussplit and reg.access in ['wo', 'rw']:
