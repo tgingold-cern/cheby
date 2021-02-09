@@ -104,7 +104,7 @@ begin
     rd_dat_d0 <= (others => 'X');
     acqVP_value_rreq <= '0';
     -- Memory acqVP
-    rd_dat_d0 <= acqVP_value_int_dato;
+    rd_dat_d0 <= "0000000000000000" & acqVP_value_int_dato;
     acqVP_value_rreq <= VMERdMem;
     rd_ack_d0 <= acqVP_value_rack;
   end process;
