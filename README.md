@@ -196,6 +196,8 @@ Reduce memory width when element size is larger than bus width.
 
 Fix memory data width mismatch (issue#89)
 
+Add 'systemverilog' style to '--gen-consts'.
+
 ## Version 1.3
 
 Add x-hdl:port to specify how ports are generated for registers (issue#11)

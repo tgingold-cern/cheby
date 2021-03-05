@@ -732,9 +732,9 @@ defines the address of the registers, the offset and a mask for each fields.
   $ cheby --consts-style=STYLE --gen-consts -i INPUT.cheby
 ----
 
-The `STYLE` can be either `verilog` or `vhdl`. For vhdl the addresses and the
-offsets are integers, and the mask is not generated (as it would often overflow
-the integer range).
+The `STYLE` can be either `verilog`, `sv`, `h`, `python`, `vhdl`, or `vhdl-ohwr`.
+For vhdl the addresses and the offsets are integers, and the mask is not generated
+(as it would often overflow the integer range).
 
 === Generating SILECS file
 
