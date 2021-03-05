@@ -658,13 +658,14 @@ def test_consts():
         vhdl_file = srcdir + f + '-consts.vhdl'
         vhdl_ohwr_file = srcdir + f + '-consts.vhdl-ohwr'
         verilog_file = srcdir + f + '-consts.v'
+        systemverilog_file = srcdir + f + '-consts.sv'
         c_file = srcdir + f + '-consts.h'
         t = parse_ok(cheby_file)
         layout_ok(t)
         expand_hdl.expand_hdl(t)
         gen_name.gen_name_memmap(t)
 
-        for file, style in [(verilog_file, 'verilog'),
+        for file, style in [(verilog_file, 'verilog'), (systemverilog_file, 'sv'),
                             (vhdl_file, 'vhdl'), (vhdl_ohwr_file, 'vhdl-ohwr'),
                             (c_file, 'h')]:
             buf = write_buffer()
