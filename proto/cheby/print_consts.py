@@ -86,6 +86,27 @@ class ConstsPrinterVerilog(ConstsPrinter):
         self.pr_const (name, "{}'h{:x}".format(wd, val))
 
 
+class ConstsPrinterSystemVerilog(ConstsPrinter):
+    def __init__(self, fd, root):
+        super(ConstsPrinterSystemVerilog, self).__init__(fd, root)
+        self.pkg_name = root.hdl_module_name + '_Consts'
+
+    def pr_header(self):
+        self.pr_raw("package {};\n".format(self.pkg_name))
+
+    def pr_const(self, name, val):
+        self.pr_raw("  localparam {} = {};\n".format(name, val))
+
+    def pr_hex_const(self, name, val):
+        self.pr_const(name, "'h{:x}".format(val))
+
+    def pr_enum(self, name, val, wd):
+        self.pr_const (name, "{}'h{:x}".format(wd, val))
+
+    def pr_trailer(self):
+        self.pr_raw("endpackage\n")
+
+
 class ConstsPrinterVHDL(ConstsPrinter):
     def __init__(self, fd, root):
         super(ConstsPrinterVHDL, self).__init__(fd, root)
@@ -269,6 +290,7 @@ def pconsts_for_gen_c(fd, root):
 
 def pconsts_cheby(fd, root, style):
     cls = {'verilog': ConstsPrinterVerilog,
+           'sv': ConstsPrinterSystemVerilog,
            'vhdl-orig': ConstsPrinterVHDL,
            'vhdl-ohwr': ConstsPrinterVHDLOhwr,
            'vhdl': ConstsPrinterVHDL,
