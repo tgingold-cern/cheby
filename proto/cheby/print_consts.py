@@ -20,7 +20,16 @@ class ConstsPrinter(object):
         raise Exception
 
     def pr_hex_const(self, name, val):
+        "Unsized hex constant"
         pass
+
+    def pr_hex_data(self, name, val, reg):
+        "Hex constant using the width of the data"
+        self.pr_hex_const(name, val)
+
+    def pr_hex_addr(self, name, val):
+        "Hex constant using the width of the address"
+        self.pr_hex_const(name, val)
 
     def pr_dec_const(self, name, val):
         self.pr_const(name, "{}".format(val))
@@ -32,7 +41,7 @@ class ConstsPrinter(object):
             return "{}_{}".format(self.pfx, n.c_name.upper())
 
     def pr_address(self, n):
-        self.pr_hex_const("ADDR_" + self.pr_name(n), n.c_abs_addr)
+        self.pr_hex_addr("ADDR_" + self.pr_name(n), n.c_abs_addr)
 
     def pr_size(self, n, sz):
         self.pr_dec_const(self.pr_name(n) + "_SIZE", sz)
@@ -49,7 +58,7 @@ class ConstsPrinter(object):
             return
         f = n.children[0]
         if f.c_preset is not None:
-            self.pr_hex_const(self.pr_name(n) + '_PRESET', f.c_preset)
+            self.pr_hex_data(self.pr_name(n) + '_PRESET', f.c_preset, n)
 
     def pr_field_offset(self, f):
         self.pr_dec_const(self.pr_name(f) + "_OFFSET", f.lo)
@@ -62,7 +71,7 @@ class ConstsPrinter(object):
         return mask << f.lo
 
     def pr_field_mask(self, f):
-        self.pr_hex_const(self.pr_name(f), self.compute_mask(f))
+        self.pr_hex_data(self.pr_name(f), self.compute_mask(f), f._parent)
 
     def pr_field(self, f):
         self.pr_field_offset(f)
@@ -99,6 +108,9 @@ class ConstsPrinterSystemVerilog(ConstsPrinter):
 
     def pr_hex_const(self, name, val):
         self.pr_const(name, "'h{:x}".format(val))
+
+    def pr_hex_data(self, name, val, reg):
+        self.pr_const(name, "{}'h{:x}".format(reg.width, val))
 
     def pr_enum(self, name, val, wd):
         self.pr_const (name, "{}'h{:x}".format(wd, val))
