@@ -43,6 +43,9 @@ class ConstsPrinter(object):
     def pr_address(self, n):
         self.pr_hex_addr("ADDR_" + self.pr_name(n), n.c_abs_addr)
 
+    def pr_address_mask(self, n):
+        self.pr_hex_addr("ADDR_MASK_" + self.pr_name(n), n.c_abs_addr_mask)
+
     def pr_size(self, n, sz):
         self.pr_dec_const(self.pr_name(n) + "_SIZE", sz)
 
@@ -213,6 +216,9 @@ class ConstsVisitor(tree.Visitor):
     def pr_address(self, n):
         self.printer.pr_address(n)
 
+    def pr_address_mask(self, n):
+        self.printer.pr_address_mask(n)
+
     def pr_size(self, n, sz):
         self.printer.pr_size(n, sz)
 
@@ -246,6 +252,7 @@ def pconsts_block(pr, n):
 @ConstsVisitor.register(tree.Submap)
 def pconsts_submap(pr, n):
     pr.pr_address(n)
+    pr.pr_address_mask(n)
     pr.pr_size(n, n.c_size)
     # Recurse ?
     if False and (n.filename is not None):
