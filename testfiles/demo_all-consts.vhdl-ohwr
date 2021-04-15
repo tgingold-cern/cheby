@@ -17,10 +17,13 @@ package demo_all_consts_pkg is
   constant c_DEMO_ALL_BLOCK1_B1REG1_F1_OFFSET : Natural := 1;
   constant c_DEMO_ALL_BLOCK1_B1REG2_ADDR : Natural := 16#18#;
   constant c_DEMO_ALL_SUB1_ADDR : Natural := 16#20#;
+  constant c_ADDR_MASK_DEMO_ALL_SUB1 : Natural := 16#3ff0#;
   constant c_DEMO_ALL_SUB1_SIZE : Natural := 16;
   constant c_DEMO_ALL_SUB2_ADDR : Natural := 16#30#;
+  constant c_ADDR_MASK_DEMO_ALL_SUB2 : Natural := 16#3ff0#;
   constant c_DEMO_ALL_SUB2_SIZE : Natural := 16;
   constant c_DEMO_ALL_SUB3_ADDR : Natural := 16#1000#;
+  constant c_ADDR_MASK_DEMO_ALL_SUB3 : Natural := 16#3000#;
   constant c_DEMO_ALL_SUB3_SIZE : Natural := 4096;
   constant c_DEMO_ALL_ARR1_ADDR : Natural := 16#2000#;
   constant c_DEMO_ALL_ARR1_SIZE : Natural := 8;
