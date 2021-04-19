@@ -100,6 +100,7 @@ begin
   -- Process for write requests.
   process () begin
     -- Memory mymem
+    wr_ack_int <= '1';
   end process;
 
   -- Process for read requests.

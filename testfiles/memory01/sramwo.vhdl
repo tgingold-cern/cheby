@@ -101,5 +101,6 @@ begin
     -- By default ack read requests
     rd_dat_d0 <= (others => 'X');
     -- Memory mymem
+    rd_ack_d0 <= '1';
   end process;
 end syn;
