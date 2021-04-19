@@ -198,6 +198,8 @@ Fix memory data width mismatch (issue#89)
 
 Add 'systemverilog' style to '--gen-consts'.
 
+Always ack invalid sram bus accesses to avoid latches.
+
 ## Version 1.3
 
 Add x-hdl:port to specify how ports are generated for registers (issue#11)
