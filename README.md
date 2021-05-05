@@ -210,6 +210,9 @@ Add a license file.
 
 Avoid a crash on an empty block (issue#92)
 
+Avoid incorrect generated code for memories whose width is smaller than
+the bus width (issue#90)
+
 ## Version 1.3
 
 Add x-hdl:port to specify how ports are generated for registers (issue#11)
