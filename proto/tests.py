@@ -348,7 +348,8 @@ def test_hdl_ref():
               'issue77/m1', 'issue77/m2', 'issue77/m3',
               'issue77/s1', 'issue77/s2', 'issue77/s3', 'issue77/s4',
               'issue77/s5', 'issue77/s6',
-              'issue79/CSR', 'bug-memory/mem64ro', 'issue87/qsm_regs', 'issue89/map']:
+              'issue79/CSR', 'bug-memory/mem64ro', 'issue87/qsm_regs', 'issue89/map',
+              'issue92/blockInMap']:
         if verbose:
             print('test hdl with ref: {}'.format(f))
         cheby_file = srcdir + f + '.cheby'
