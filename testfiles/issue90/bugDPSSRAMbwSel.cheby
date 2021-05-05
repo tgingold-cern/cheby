@@ -1,0 +1,23 @@
+memory-map:
+  bus: axi4-lite-32
+  name: bugDPSSRAMbwSel
+  size: 1M
+  schema-version:
+    core: ""
+    x-hdl: ""
+    x-wbgen: ""
+    x-fesa: ""
+    x-driver-edge: ""
+    x-gena: ""
+    x-conversions: ""
+    x-map-info: ""
+    x-enums: ""
+  children:
+    - memory:
+        name: mem
+        memsize: 1k
+        children:
+          - reg:
+              name: r1
+              width: 8
+              access: rw
