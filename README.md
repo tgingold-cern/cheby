@@ -208,6 +208,8 @@ Always ack invalid sram bus accesses to avoid latches.
 
 Add a license file.
 
+Avoid a crash on an empty block (issue#92)
+
 ## Version 1.3
 
 Add x-hdl:port to specify how ports are generated for registers (issue#11)
