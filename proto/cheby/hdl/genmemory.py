@@ -135,7 +135,17 @@ class GenMemory(ElGen):
 
             # Use byte select on port A if available.
             bwsel = HDLReplicate(bit_1, wd // tree.BYTE_SIZE)
-            inst.conns.append(("bwsel_a_i", ibus.wr_sel or bwsel))
+            if ibus.wr_sel is not None:
+                # May need to use a slice of bit selects if the RAM width is
+                # smaller than the bus width
+                if wd < self.root.c_word_bits:
+                    bwselw = HDLSlice(ibus.wr_sel, 0, wd // tree.BYTE_SIZE)
+                else:
+                    bwselw = ibus.wr_sel
+            else:
+                bwselw = bwsel
+
+            inst.conns.append(("bwsel_a_i", bwselw))
 
             def gen_multiword_slice(sig):
                 if not multiword:
