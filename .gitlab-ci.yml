@@ -11,6 +11,7 @@ deploy:
     stage: deploy
     only:
     - master
+    - tags
     tags:
     - cheby-cd
     script:
