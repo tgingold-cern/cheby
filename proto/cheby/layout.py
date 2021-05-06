@@ -566,13 +566,6 @@ def layout_composite_size(_lo, n):
         n.c_size = n.size_val
 
 
-def update_composite_addr_mask(_lo, root):
-    # Update mask of valid address bits for address decoder
-    # Possible only after we determine total size of address map
-    for c in root.children:
-        c.c_abs_addr_mask = round_pow2(root.c_size) - c.c_size
-
-
 def layout_hierarchy(lo, n):
     """Common code for a root or an address space"""
     if not n.children and n.size_val is None:
@@ -599,8 +592,6 @@ def layout_root(lo, root):
     # A root is considered as an address space
     assert not root.address_spaces
     layout_hierarchy(lo, root)
-    # Address mask is valid only for root level crossbar
-    update_composite_addr_mask(lo, root)
 
 
 def layout_semantic_version(n, val):
@@ -783,6 +774,7 @@ def layout_cheby(n):
                 raise LayoutException(c, "address space {} was not declared".format(c.address_space))
             space = n.c_address_spaces_map[c.address_space]
             space.children.append(c)
+            c._parent = space
         # Root children are now spaces
         n.children = n.address_spaces
         for space in n.address_spaces:

@@ -1,4 +1,5 @@
 import cheby.tree as tree
+import cheby.layout as layout
 
 
 class ConstsPrinter(object):
@@ -44,7 +45,8 @@ class ConstsPrinter(object):
         self.pr_hex_addr("ADDR_" + self.pr_name(n), n.c_abs_addr)
 
     def pr_address_mask(self, n):
-        self.pr_hex_addr("ADDR_MASK_" + self.pr_name(n), n.c_abs_addr_mask)
+        self.pr_hex_addr("ADDR_MASK_" + self.pr_name(n),
+                         layout.round_pow2(n._parent.c_size) - n.c_size)
 
     def pr_size(self, n, sz):
         self.pr_dec_const(self.pr_name(n) + "_SIZE", sz)
