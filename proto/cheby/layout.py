@@ -660,6 +660,9 @@ def layout_bus(root):
     elif root.bus == 'axi4-lite-32':
         root.c_word_size = 4
         root.c_word_endian = 'little'
+    elif root.bus == 'avalon-lite-32':
+        root.c_word_size = 4
+        root.c_word_endian = 'little'
     elif root.bus.startswith('cern-be-vme-'):
         params = root.bus[12:].split('-')
         root.c_word_endian = 'big'
