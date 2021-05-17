@@ -13,6 +13,7 @@ build_infra()
  $GHDL -a $GHDL_FLAGS axi4_tb_pkg.vhdl
  $GHDL -a $GHDL_FLAGS wb_tb_pkg.vhdl
  $GHDL -a $GHDL_FLAGS cernbe_tb_pkg.vhdl
+ $GHDL -a $GHDL_FLAGS avalon_tb_pkg.vhdl
  $GHDL -a $GHDL_FLAGS dpssram.vhdl
  $GHDL -a $GHDL_FLAGS block1_axi4.vhdl
  $GHDL -a $GHDL_FLAGS block1_wb.vhdl
@@ -69,6 +70,16 @@ build_cernbe()
  $GHDL -a $GHDL_FLAGS all1_cernbe.vhdl
  $GHDL -a $GHDL_FLAGS all1_cernbe_tb.vhdl
  $GHDL --elab-run $GHDL_FLAGS all1_cernbe_tb --assert-level=error --wave=all1_cernbe_tb.ghw
+}
+
+build_avalon()
+{
+    echo "## Testing Avalon (reg2)"
+    sed -e '/bus:/s/BUS/avalon-lite-32/' -e '/name:/s/NAME/avalon/' < reg2_xxx.cheby > reg2_avalon.cheby
+    $CHEBY --no-header --gen-hdl=reg2_avalon.vhdl -i reg2_avalon.cheby
+    $GHDL -a $GHDL_FLAGS reg2_avalon.vhdl
+    $GHDL -a $GHDL_FLAGS reg2_avalon_tb.vhdl
+    $GHDL --elab-run $GHDL_FLAGS reg2_avalon_tb --assert-level=error --wave=reg2_avalon.ghw
 }
 
 build_wb_any()
@@ -128,6 +139,7 @@ build_all2()
 }
 
 build_infra
+build_avalon
 
 # AXI4 byte/word addresses.
 build_axi4_addrwidth byte byte
