@@ -54,18 +54,12 @@ class AvalonBus(BusGen):
         module.stmts.append(HDLAssign(ibus.wr_req, wr_req))
         module.stmts.append(HDLComment(None))
 
-        # Waitrequest
+        # Waitrequest (combinational)
         # Set on rd or wr, cleared on ack
-        wreq_r = module.new_HDLSignal('wreq_int_r')
         wreq = module.new_HDLSignal('wreq_int')
         module.stmts.append(HDLAssign(wreq,
-            HDLAnd(wreq_r, HDLNot(HDLParen(HDLOr(ibus.rd_ack, ibus.wr_ack))))))
-        proc = HDLSync(root.h_bus['clk'], root.h_bus['brst'],
-                       rst_sync=gconfig.rst_sync)
-        proc.rst_stmts.append(HDLAssign(wreq_r, bit_0))
-        proc.sync_stmts.append(HDLAssign(
-            wreq_r, HDLOr(HDLParen(HDLOr(root.h_bus['rd'], root.h_bus['wr'])), wreq)))
-        module.stmts.append(proc)
+            HDLAnd(HDLParen(HDLOr(root.h_bus['rd'], root.h_bus['wr'])),
+                   HDLNot(HDLParen(HDLOr(ibus.rd_ack, ibus.wr_ack))))))
 
         module.stmts.append(HDLAssign(root.h_bus['rack'], ibus.rd_ack))
         module.stmts.append(HDLAssign(root.h_bus['wreq'], wreq))
