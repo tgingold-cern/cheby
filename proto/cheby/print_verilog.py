@@ -196,9 +196,7 @@ def generate_expr(e, prio=-1):
     elif isinstance(e, hdltree.HDLIndex):
         return "{}[{}]".format(generate_expr(e.prefix), e.index)
     elif isinstance(e, hdltree.HDLInterfaceSelect):
-        # is_master means the direction is not reversed.
-        sfx = 'i' if (e.subport.dir == 'IN') == (e.prefix.is_master) else 'o'
-        return "{}_{}.{}".format(e.prefix.name, sfx, e.subport.name)
+        return "{}.{}".format(e.prefix.name, e.subport.name)
     else:
         assert False, "unhandled hdl expr {}".format(e)
 
@@ -324,7 +322,7 @@ def generate_stmts(fd, stmts, indent):
             w(fd, "always @(posedge({})".format(generate_expr(s.clk)))
             if s.rst is not None:
                 assert s.rst_val == 0
-                w(fd, "or negedge({})".format(generate_expr(s.rst)))
+                w(fd, " or negedge({})".format(generate_expr(s.rst)))
             wln(fd, ")")
             wln(fd, sindent + "begin")
             if s.rst is not None:
@@ -385,14 +383,10 @@ def print_inters_list(fd, lst, name, indent):
             generate_param(fd, p, indent + 1)
         elif isinstance(p, hdltree.HDLPortGroup):
             generate_decl_comment(fd, p.comment, indent + 1)
-            group_typename = '{}_{}'.format(
+            group_typename = '{}.{}'.format(
                 p.interface.name, 'master' if p.is_master else 'slave')
             windent(fd, indent + 1)
-            w(fd, "{:<20} : in    {}_in".format(p.name + '_i', group_typename))
-            wln(fd, ";")
-            windent(fd, indent + 1)
-            w(fd, "{:<20} : out   {}_out".format(
-                p.name + '_o', group_typename))
+            w(fd, "{} {}".format(group_typename, p.name))
         else:
             raise AssertionError
     wln(fd)
@@ -408,12 +402,13 @@ def extract_reg_init(decls):
 
 def extract_reg_assign(stmt, is_reg):
     targ = stmt.target
-    while True:
-        if isinstance(targ, hdltree.HDLSlice) \
+    while isinstance(targ, hdltree.HDLSlice) \
            or isinstance(targ, hdltree.HDLIndex):
-            targ = targ.prefix
-        else:
-            break
+        targ = targ.prefix
+    if isinstance(targ, hdltree.HDLInterfaceSelect):
+        return
+    if isinstance(targ, hdltree.HDLInterface):
+        return
     if targ.p_vlg_reg is None:
         targ.p_vlg_reg = is_reg
     elif targ.p_vlg_reg != is_reg:
