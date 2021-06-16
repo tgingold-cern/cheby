@@ -98,6 +98,10 @@ class WBBus(BusGen):
         #  except for system verilog interfaces...
         res = {}
         inp, out = ('IN', 'OUT') if not is_master else ('OUT', 'IN')
+       
+        res['brst'] = build_port('rst_n', None, dir='EXT')
+        res['clk'] = build_port('clk', None, dir='EXT')
+
         res['cyc'] = build_port('cyc', None, dir=inp)
         res['stb'] = build_port('stb', None, dir=inp)
         if addr_bits > 0:
@@ -116,8 +120,8 @@ class WBBus(BusGen):
         return res
 
     def gen_wishbone(self, module, ports, name, addr_bits, lo_addr,
-                     data_bits, comment, is_master, is_bus):
-        if is_bus:
+                     data_bits, comment, is_master, is_group):
+        if is_group:
             if WBBus.wb_pkg is None:
                 self.gen_wishbone_pkg()
                 module.deps.append(('work', 'wishbone_pkg'))
@@ -134,10 +138,13 @@ class WBBus(BusGen):
                 res['sel'] = HDLSlice(res['sel'], 0, data_bits // tree.BYTE_SIZE)
             return res
         else:
+            # Not an interface (ie not a group)
+            # For 'EXT' ports (external ports), do not append prefix and use 'IN' direction.
+            # For masters, do not add 'EXT' ports.
             res = self.gen_wishbone_bus(
                 lambda n, sz, lo_idx=0, dir='IN': ports.add_port(
-                    '{}_{}_{}'.format(name, n, dirname[dir]),
-                    size=sz, lo_idx=lo_idx, dir=dir),
+                    '{}_{}_{}'.format(name, n, dirname[dir]) if dir != 'EXT' else '{}_i'.format(n),
+                    size=sz, lo_idx=lo_idx, dir=dir if dir != 'EXT' else 'IN') if not (dir == 'EXT' and is_master) else None,
                 addr_bits, lo_addr, data_bits, is_master)
             res['cyc'].comment = comment
             return res
@@ -158,8 +165,6 @@ class WBBus(BusGen):
     def expand_bus(self, root, module, ibus):
         """Create wishbone interface for the design."""
         root.h_bus = {}
-        root.h_bus['brst'] = module.add_port('rst_n_i')
-        root.h_bus['clk'] = module.add_port('clk_i')
 
         busgroup = root.get_extension('x_hdl', 'busgroup')
 
@@ -173,6 +178,7 @@ class WBBus(BusGen):
         self.add_decode_wb(root, module, ibus, busgroup is True)
 
     def gen_bus_slave(self, root, module, prefix, n, opts):
+        # Create the bus for a submap or a memory
         comment = '\n' + (n.comment or n.description or 'WB bus {}'.format(n.name))
         n.h_busgroup = opts.busgroup
         n.h_bus = self.gen_wishbone(

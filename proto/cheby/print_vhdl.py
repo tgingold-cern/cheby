@@ -58,7 +58,7 @@ def generate_decl_comment(fd, comment, indent):
 def generate_port(fd, p, indent):
     generate_decl_comment(fd, p.comment, indent)
     typ = generate_vhdl_type(p)
-    if p.dir == 'IN':
+    if p.dir in ('IN', 'EXT'):
         iodir = "in   "
     elif p.dir == 'OUT':
         iodir = "out  "
@@ -238,8 +238,11 @@ def generate_expr(e, prio=-1):
         return "{}({})".format(generate_expr(e.prefix), e.index)
     elif isinstance(e, hdltree.HDLInterfaceSelect):
         # is_master means the direction is not reversed.
-        sfx = 'i' if (e.subport.dir == 'IN') == (e.prefix.is_master) else 'o'
-        return "{}_{}.{}".format(e.prefix.name, sfx, e.subport.name)
+        if e.subport.dir == 'EXT':
+            return "{}_i".format(e.subport.name)
+        else:
+            sfx = 'i' if (e.subport.dir == 'IN') == (e.prefix.is_master) else 'o'
+            return "{}_{}.{}".format(e.prefix.name, sfx, e.subport.name)
     elif isinstance(e, hdltree.HDLExternalName):
         return e.name
     else:
@@ -461,6 +464,15 @@ def print_inters_list(fd, lst, name, indent):
         elif isinstance(p, hdltree.HDLParam):
             generate_param(fd, p, indent + 1)
         elif isinstance(p, hdltree.HDLPortGroup):
+            # External ports of a slave interface become extra normal ports.
+            if not p.is_master:
+                for itfp in p.interface.ports:
+                    if itfp.dir == 'EXT':
+                        typ = generate_vhdl_type(itfp)
+                        windent(fd, indent + 1)
+                        w(fd, "{:<20} : in    {typ}".format(itfp.name + '_i', typ=typ))
+                        wln(fd, ";")
+            # The interface is composed of two records: for the inputs and for the outputs.
             generate_decl_comment(fd, p.comment, indent + 1)
             group_typename = '{}_{}'.format(
                 p.interface.name, 'master' if p.is_master else 'slave')
