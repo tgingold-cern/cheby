@@ -93,6 +93,9 @@ class WBBus(BusGen):
 
     def gen_wishbone_bus(self, build_port, addr_bits, lo_addr,
                          data_bits, is_master):
+        # FIXME: 'dat' is used both as an input and as an output.
+        #  This is not a problem in general as a suffix is appended,
+        #  except for system verilog interfaces...
         res = {}
         inp, out = ('IN', 'OUT') if not is_master else ('OUT', 'IN')
         res['cyc'] = build_port('cyc', None, dir=inp)
@@ -118,9 +121,11 @@ class WBBus(BusGen):
             if WBBus.wb_pkg is None:
                 self.gen_wishbone_pkg()
                 module.deps.append(('work', 'wishbone_pkg'))
-            port = ports.add_port_group(name, WBBus.wb_itf, is_master)
+            # Add the interface modport to the ports
+            port = ports.add_modport(name, WBBus.wb_itf, is_master)
             port.comment = comment
             res = {}
+            # Fill res
             for pname, sig in WBBus.wb_ports.items():
                 res[pname] = HDLInterfaceSelect(port, sig)
             if data_bits < 32:
@@ -140,8 +145,7 @@ class WBBus(BusGen):
     def gen_wishbone_pkg(self):
         """Create the wishbone_pkg package, so that interface can be
         referenced"""
-        if WBBus.wb_pkg is not None:
-            return
+        assert WBBus.wb_pkg is None
         WBBus.wb_pkg = HDLPackage('wishbone_pkg')
         WBBus.wb_itf = HDLInterface('t_wishbone')
         WBBus.wb_pkg.decls.append(WBBus.wb_itf)

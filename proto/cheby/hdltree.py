@@ -26,7 +26,7 @@ class HDLPortsBase(object):
         self.ports.append(res)
         return res
 
-    def add_port_group(self, *args, **kwargs):
+    def add_modport(self, *args, **kwargs):
         res = HDLPortGroup(*args, **kwargs)
         res.parent = self
         self.ports.append(res)

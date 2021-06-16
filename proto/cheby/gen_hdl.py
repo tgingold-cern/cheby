@@ -251,7 +251,7 @@ def generate_hdl(root):
     if iogroup is not None:
         root.h_itf = HDLInterface('t_' + iogroup)
         module.global_decls.append(root.h_itf)
-        grp = module.add_port_group(iogroup, root.h_itf, True)
+        grp = module.add_modport(iogroup, root.h_itf, True)
         grp.comment = 'Wires and registers'
         root.h_ports = grp
     else:

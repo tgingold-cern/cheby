@@ -394,10 +394,26 @@ def print_inters_list(fd, lst, name, indent):
     wln(fd, ");")
 
 
+def rename_interface_port(p):
+    dirname = {'IN': 'i', 'OUT': 'o'}
+    p.name = "{}{}".format(p.name, dirname[p.dir])
+
+
 def extract_reg_init(decls):
     for d in decls:
-        if isinstance(d, hdltree.HDLSignal) or isinstance(d, hdltree.HDLPort):
+        if isinstance(d, (hdltree.HDLSignal, hdltree.HDLPort)):
             d.p_vlg_reg = None
+        elif isinstance(d, hdltree.HDLPortGroup):
+            # Renames ports which have the same name
+            names = {}
+            for p in d.interface.ports:
+                prev = names.get(p.name)
+                if prev is not None:
+                    # This is a duplicate
+                    rename_interface_port(p)
+                    rename_interface_port(prev)
+                else:
+                    names[p.name] = p
 
 
 def extract_reg_assign(stmt, is_reg):
