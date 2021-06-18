@@ -56,6 +56,7 @@ package body avalon_tb_pkg is
       avmm_out.address <= addr;
       avmm_out.byteenable <= "1111";
 
+      --  Wait until the request is accepted
       loop
         wait until rising_edge(clk);
         exit when avmm_in.waitrequest = '0';
@@ -64,6 +65,12 @@ package body avalon_tb_pkg is
       avmm_out.write <= '0';
       avmm_out.writedata <= (others => 'X');
       avmm_out.address <= (others => 'X');
+
+      --  Wait until the bus is free (or until the request has been handled).
+      loop
+        wait until rising_edge(clk);
+        exit when avmm_in.waitrequest = '0';
+      end loop;
     end avmm_writel;
 
     procedure avmm_readl (signal clk     : std_logic;
@@ -79,6 +86,9 @@ package body avalon_tb_pkg is
 
       loop
         wait until rising_edge(clk);
+        if avmm_in.waitrequest = '0' then
+          avmm_out.read <= '0';
+        end if;
         exit when avmm_in.readdatavalid = '1';
       end loop;
 

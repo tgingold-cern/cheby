@@ -75,7 +75,8 @@ build_cernbe()
 build_avalon()
 {
     echo "## Testing Avalon (reg2)"
-    sed -e '/bus:/s/BUS/avalon-lite-32/' -e '/name:/s/NAME/avalon/' < reg2_xxx.cheby > reg2_avalon.cheby
+    sed -e '/bus:/s/BUS/avalon-lite-32/' -e '/name:/s/NAME/avalon/' \
+        -e '/pipeline:/s/none/wr-in,rd-out/' < reg2_xxx.cheby > reg2_avalon.cheby
     $CHEBY --no-header --gen-hdl=reg2_avalon.vhdl -i reg2_avalon.cheby
     $GHDL -a $GHDL_FLAGS reg2_avalon.vhdl
     $GHDL -a $GHDL_FLAGS reg2_avalon_tb.vhdl
