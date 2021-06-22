@@ -124,7 +124,6 @@ def generate_decl(fd, d, indent):
 
 operator = {hdltree.HDLAnd: (' & ', 4),
             hdltree.HDLOr:  (' | ', 3),
-            hdltree.HDLConcat: (' & ', 0),
             hdltree.HDLNot: ('!', 5),
             hdltree.HDLSub: ('-', 1),
             hdltree.HDLMul: ('*', 2),
@@ -133,9 +132,22 @@ operator = {hdltree.HDLAnd: (' & ', 4),
             hdltree.HDLLe:  (' <= ', 5)}
 
 
+def generate_concat_inner(e):
+    assert isinstance(e, hdltree.HDLConcat)
+    # Try to linearize nested concatenations (at least on the lhs)
+    if isinstance(e.left, hdltree.HDLConcat):
+        res = generate_concat_inner(e.left)
+    else:
+        res = generate_expr(e.left)
+    res += ', ' + generate_expr(e.right)
+    return res
+
+
 def generate_expr(e, prio=-1):
     if isinstance(e, hdltree.HDLObject):
         return e.name
+    elif isinstance(e, hdltree.HDLConcat):
+        return '{' + generate_concat_inner(e) + '}'
     elif isinstance(e, hdltree.HDLBinary):
         opname, opprio = operator[type(e)]
         res = ''.join([generate_expr(e.left, opprio),
@@ -155,6 +167,8 @@ def generate_expr(e, prio=-1):
     elif isinstance(e, hdltree.HDLParen):
         return "({})".format(generate_expr(e.expr))
     elif isinstance(e, hdltree.HDLReplicate):
+        if e.expr == hdltree.bit_0:
+            return "{}'b0".format(e.num)
         return "{{{}{{{}}}}}".format(e.num, generate_expr(e.expr))
     elif isinstance(e, hdltree.HDLZext):
         return generate_expr(e.expr)
