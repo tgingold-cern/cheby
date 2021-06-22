@@ -173,7 +173,7 @@ def expand_x_hdl_memory(n, dct):
 
 
 def expand_x_hdl_root(n, dct):
-    n.hdl_pipeline = ['wr-in', 'rd-out']
+    n.hdl_pipeline = None
     n.hdl_bus_attribute = None
     for k, v in dct.items():
         if k in ['busgroup', 'iogroup',
@@ -195,6 +195,14 @@ def expand_x_hdl_root(n, dct):
         else:
             parser.error("unhandled '{}' in x-hdl of root {}".format(
                 k, n.get_path()))
+    # Default pipeline
+    if n.hdl_pipeline is None:
+        if n.bus == 'avalon-lite-32':
+            # No need to pipeline as the avalon interface already inserts a pipeline stage
+            pl = []
+        else:
+            pl = ['wr-in', 'rd-out']
+        n.hdl_pipeline = pl
     # Set name of the module.
     suffix = dct.get('name-suffix', '')
     n.hdl_module_name = n.name + suffix
