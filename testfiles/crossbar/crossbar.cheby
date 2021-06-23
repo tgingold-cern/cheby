@@ -1,0 +1,32 @@
+# NOTE: THE ADDRESSES ARE DESCRIBING VME SPACE, HENCE EACH NEXT
+# ADDRESS IS ADVANCED BY 4. The same counts for size, which is
+# multiplied by 4. Hence capture submap, mapped here as 0x20000 with
+# width of 0x20000 will be mapped in application part into address
+# 0x820000 and total length of 0x20000
+memory-map:
+  bus: wb-32-be
+  name: crossbar_wb
+  x-hdl:
+     busgroup: True
+  children:
+  - submap:
+     name: jesdavalon
+     interface: wb-32-be
+     address: 0x0000
+     size: 0x400
+     x-hdl:
+       busgroup: True
+  - submap:
+     name: i2ctowb
+     interface: wb-32-be
+     address: 0x4000
+     size: 0x4000
+     x-hdl:
+       busgroup: True
+  - submap:
+     name: bran
+     interface: wb-32-be
+     address: 0x20000
+     size: 0x20000
+     x-hdl:
+       busgroup: True

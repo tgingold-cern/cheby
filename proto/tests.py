@@ -11,6 +11,7 @@ import cheby.gen_c as gen_c
 import cheby.gen_name as gen_name
 import cheby.gen_hdl as gen_hdl
 import cheby.print_vhdl as print_vhdl
+import cheby.print_verilog as print_verilog
 import cheby.gen_laychk as gen_laychk
 import cheby.expand_hdl as expand_hdl
 import cheby.gen_gena_memmap as gen_gena_memmap
@@ -363,6 +364,25 @@ def test_hdl_ref():
         print_vhdl.print_vhdl(buf, h)
         if not compare_buffer_and_file(buf, vhdl_file):
             error('vhdl generation error for {}'.format(f))
+        nbr_tests += 1
+
+def test_verilog_ref():
+    # Generate verilog and compare with a baseline.
+    global nbr_tests
+    for f in ['crossbar/crossbar']:
+        if verbose:
+            print('test verilog with ref: {}'.format(f))
+        cheby_file = srcdir + f + '.cheby'
+        vlog_file = srcdir + f + '.v'
+        t = parse_ok(cheby_file)
+        layout_ok(t)
+        expand_hdl.expand_hdl(t)
+        gen_name.gen_name_memmap(t)
+        h = gen_hdl.generate_hdl(t)
+        buf = write_buffer()
+        print_verilog.print_verilog(buf, h)
+        if not compare_buffer_and_file(buf, vlog_file):
+            error('verilog generation error for {}'.format(f))
         nbr_tests += 1
 
 def test_issue84():
@@ -741,6 +761,7 @@ def main():
         test_hdl()
         test_hdl_err()
         test_hdl_ref()
+        test_verilog_ref()
         test_issue84()
         test_gena()
         test_gena_regctrl_err()
