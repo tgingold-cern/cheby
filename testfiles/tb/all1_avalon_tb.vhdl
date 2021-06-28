@@ -1,24 +1,20 @@
-entity all1_wb_tb is
-end all1_wb_tb;
+entity all1_avalon_tb is
+end all1_avalon_tb;
 
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 use work.wishbone_pkg.all;
-use work.wb_tb_pkg.all;
 use work.axi4_tb_pkg.all;
 use work.cernbe_tb_pkg.all;
 use work.avalon_tb_pkg.all;
 
-architecture behav of all1_wb_tb is
-  signal rst_n   : std_logic;
+architecture behav of all1_avalon_tb is
+  signal rst, rst_n   : std_logic;
   signal clk     : std_logic;
-  signal wb_in   : t_wishbone_slave_in;
-  signal wb_out  : t_wishbone_slave_out;
-
-  signal reg1    : std_logic_vector(31 downto 0);
-  signal reg2    : std_logic_vector(31 downto 0);
+  signal av_in   : t_avmm_master_in;
+  signal av_out  : t_avmm_master_out;
 
   signal ram_ro_adr     : std_logic_vector(2 downto 0);
   signal ram_ro_val_we  : std_logic;
@@ -47,7 +43,7 @@ architecture behav of all1_wb_tb is
   signal sub4_in      : t_avmm_master_out;
   signal sub4_out     : t_avmm_master_in;
 
-  signal end_of_test : boolean := false;
+  signal end_of_test : boolean := False;
 begin
   --  Clock and reset
   process
@@ -63,16 +59,20 @@ begin
   end process;
 
   rst_n <= '0' after 0 ns, '1' after 20 ns;
+  rst   <= '1' after 0 ns, '0' after 20 ns;
 
-  dut : entity work.all1_wb
+  dut : entity work.all1_avalon
     port map (
-      rst_n_i    => rst_n,
-      clk_i      => clk,
-      wb_i       => wb_in,
-      wb_o       => wb_out,
-
-      reg1_o     => reg1,
-      reg2_o     => reg2,
+      clk        => clk,
+      reset      => rst,
+      address    => av_out.address(14 downto 2),
+      readdata   => av_in.readdata,
+      writedata  => av_out.writedata,
+      byteenable => av_out.byteenable,
+      read       => av_out.read,
+      write      => av_out.write,
+      readdatavalid => av_in.readdatavalid,
+      waitrequest=> av_in.waitrequest,
 
       ram1_adr_i     => (others => '0'),
       ram1_val_rd_i  => '0',
@@ -200,82 +200,81 @@ begin
       --  The initial value of the memory line depends on the bus.
       --  This is just to test the right model is connected.
       report "Testing " & name & " (read id)" severity note;
-      wb_readl (clk, wb_out, wb_in, addr or x"0000_0000", v);
+      avmm_readl (clk, av_in, av_out, addr or x"0000_0000", v);
       assert v = addr severity error;
 
       report "Testing " & name & " (write)" severity note;
-      wb_writel (clk, wb_out, wb_in, addr or x"0000_0000",
-                 addr or x"9876_0432");
+      avmm_writel (clk, av_in, av_out, addr or x"0000_0000",
+                    addr or x"9876_0432");
 
       --  Test with various ws.
-      wb_writel (clk, wb_out, wb_in, addr or x"0000_0008", x"fd02_02fd");
-      wb_writel (clk, wb_out, wb_in, addr or x"0000_000c", x"fc03_03fc");
-      wb_writel (clk, wb_out, wb_in, addr or x"0000_0010", x"fb04_04fb");
+      avmm_writel (clk, av_in, av_out, addr or x"0000_0008", x"fd02_02fd");
+
+      avmm_writel (clk, av_in, av_out, addr or x"0000_000c", x"fc03_03fc");
+
+      avmm_writel (clk, av_in, av_out, addr or x"0000_0010", x"fb04_04fb");
 
       report "Testing " & name & " (read)" severity note;
-      wb_readl (clk, wb_out, wb_in, addr or x"0000_0004", v);
+      avmm_readl (clk, av_in, av_out, addr or x"0000_0004", v);
       assert v = x"01fe_fe01" severity error;
 
-      wb_readl (clk, wb_out, wb_in, addr or x"0000_0000", v);
+      avmm_readl (clk, av_in, av_out, addr or x"0000_0000", v);
+      wait until rising_edge(clk);
       assert v = (addr or x"9876_0432") severity error;
 
       --  Various ws.
-      wb_readl (clk, wb_out, wb_in, addr or x"0000_0008", v);
+      avmm_readl (clk, av_in, av_out, addr or x"0000_0008", v);
       assert v = x"02fd_fd02" severity error;
 
-      wb_readl (clk, wb_out, wb_in, addr or x"0000_000c", v);
+      avmm_readl (clk, av_in, av_out, addr or x"0000_000c", v);
       assert v = x"03fc_fc03" severity error;
 
-      wb_readl (clk, wb_out, wb_in, addr or x"0000_0010", v);
+      avmm_readl (clk, av_in, av_out, addr or x"0000_0010", v);
       assert v = x"04fb_fb04" severity error;
     end test_bus;
-
     variable v : std_logic_vector(31 downto 0);
   begin
-    wb_init(clk, wb_out, wb_in);
+    avmm_init(clk, av_in, av_out);
 
     --  Wait after reset.
     wait until rising_edge(clk) and rst_n = '1';
 
-    --  Register
+    --  Testing register
     report "Testing register" severity note;
-    wait until rising_edge(clk);
-    wb_readl (clk, wb_out, wb_in, x"0000_0000", v);
+    avmm_readl (clk, av_in, av_out, x"0000_0000", v);
     assert v = x"1234_0000" severity error;
-    assert reg1 = x"1234_0000" severity error;
 
-    wb_readl (clk, wb_out, wb_in, x"0000_0004", v);
-    assert v = x"1234_0002" severity error;
-    assert reg2 = x"1234_0002" severity error;
+    avmm_writel (clk, av_in, av_out, x"0000_0000", x"0000_abcd");
+    avmm_readl (clk, av_in, av_out, x"0000_0000", v);
+    assert v = x"0000_abcd" severity error;
 
-    wb_writel (clk, wb_out, wb_in, x"0000_0000", x"abcd_0001");
-    wait until rising_edge(clk);
-    wb_readl (clk, wb_out, wb_in, x"0000_0000", v);
-    assert v = x"abcd_0001" severity error;
-    wait until rising_edge(clk);
-
-    --  Memory
+    --  Testing memory (rw)
     report "Testing memory (write)" severity note;
-    wb_writel (clk, wb_out, wb_in, x"0000_0024", x"abcd_0203");
-    wait until rising_edge(clk);
+    avmm_writel (clk, av_in, av_out, x"0000_0024", x"abcd_0001");
+    avmm_writel (clk, av_in, av_out, x"0000_002c", x"abcd_0203");
+    
     report "Testing memory (read)" severity note;
-    wb_readl (clk, wb_out, wb_in, x"0000_0024", v);
+    avmm_readl (clk, av_in, av_out, x"0000_0024", v);
+    assert v = x"abcd_0001" severity error;
+
+    avmm_readl (clk, av_in, av_out, x"0000_002c", v);
     assert v = x"abcd_0203" severity error;
 
     --  Testing memory (ro)
     report "Testing memory RO" severity note;
-    wb_readl (clk, wb_out, wb_in, x"0000_0044", v);
+    avmm_readl (clk, av_in, av_out, x"0000_0044", v);
     assert v = x"0100_0000" severity error;
-    wb_readl (clk, wb_out, wb_in, x"0000_004c", v);
+    avmm_readl (clk, av_in, av_out, x"0000_004c", v);
     assert v = x"0300_0000" severity error;
 
-    --  Memory
+    --  Testing memory ram2 (rw)
     report "Testing memory ram2 (write)" severity note;
-    wb_writel (clk, wb_out, wb_in, x"0000_0064", x"abcd_0203");
-    wb_writel (clk, wb_out, wb_in, x"0000_0070", x"def8_0406");
+    avmm_writel (clk, av_in, av_out, x"0000_0074", x"abcd_0001");
+    avmm_writel (clk, av_in, av_out, x"0000_006c", x"abcd_0203");
+    
     report "Testing memory ram2 (read)" severity note;
-    wb_readl (clk, wb_out, wb_in, x"0000_0064", v);
-    assert v = x"abcd_0203" severity error;
+    avmm_readl (clk, av_in, av_out, x"0000_0074", v);
+    assert v = x"abcd_0001" severity error;
 
     --  Testing WB
     test_bus ("wishbone", x"0000_1000");
@@ -291,15 +290,16 @@ begin
 
     wait until rising_edge(clk);
 
-    end_of_test <= true;
     report "end of test" severity note;
+
+    end_of_test <= true;
     wait;
   end process;
 
   --  Watchdog.
   process
   begin
-    wait until end_of_test for 4 us;
+    wait until end_of_test for 6 us;
     assert end_of_test report "timeout" severity failure;
     wait;
   end process;

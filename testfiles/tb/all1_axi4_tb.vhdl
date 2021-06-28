@@ -8,6 +8,7 @@ use ieee.numeric_std.all;
 use work.wishbone_pkg.all;
 use work.axi4_tb_pkg.all;
 use work.cernbe_tb_pkg.all;
+use work.avalon_tb_pkg.all;
 
 architecture behav of all1_axi4_tb is
   signal rst_n   : std_logic;
@@ -40,6 +41,10 @@ architecture behav of all1_axi4_tb is
   signal sub3_in      : t_cernbe_slave_in;
   signal sub3_out     : t_cernbe_slave_out;
 
+  --  For sub4
+  signal sub4_in      : t_avmm_master_out;
+  signal sub4_out     : t_avmm_master_in;
+
   signal end_of_test : boolean := False;
 begin
   --  Clock and reset
@@ -63,7 +68,7 @@ begin
       areset_n   => rst_n,
       awvalid    => wr_out.awvalid,
       awready    => wr_in.awready,
-      awaddr     => wr_out.awaddr(13 downto 2),
+      awaddr     => wr_out.awaddr(14 downto 2),
       awprot     => "010",
       wvalid     => wr_out.wvalid,
       wready     => wr_in.wready,
@@ -74,7 +79,7 @@ begin
       bresp      => wr_in.bresp,
       arvalid    => rd_out.arvalid,
       arready    => rd_in.arready,
-      araddr     => rd_out.araddr(13 downto 2),
+      araddr     => rd_out.araddr(14 downto 2),
       arprot     => "010",
       rvalid     => rd_in.rvalid,
       rready     => rd_out.rready,
@@ -132,7 +137,16 @@ begin
       sub3_cernbe_VMERdMem_o  => sub3_in.VMERdMem,
       sub3_cernbe_VMEWrMem_o  => sub3_in.VMEWrMem,
       sub3_cernbe_VMERdDone_i => sub3_out.VMERdDone,
-      sub3_cernbe_VMEWrDone_i => sub3_out.VMEWrDone
+      sub3_cernbe_VMEWrDone_i => sub3_out.VMEWrDone,
+
+      sub4_avalon_address_o => sub4_in.address(11 downto 2),
+      sub4_avalon_readdata_i => sub4_out.readdata,
+      sub4_avalon_writedata_o => sub4_in.writedata,
+      sub4_avalon_byteenable_o => sub4_in.byteenable,
+      sub4_avalon_read_o  => sub4_in.read,
+      sub4_avalon_write_o => sub4_in.write,
+      sub4_avalon_readdatavalid_i => sub4_out.readdatavalid,
+      sub4_avalon_waitrequest_i => sub4_out.waitrequest
       );
 
   --  WB target
@@ -157,6 +171,13 @@ begin
               rst_n => rst_n,
               bus_in => sub3_in,
               bus_out => sub3_out);
+
+  --  Avalon target
+  b4: entity work.block1_avmm
+    port map (clk => clk,
+              rst_n => rst_n,
+              av_in => sub4_in,
+              av_out => sub4_out);
 
   bram2 : entity work.sram2
     port map (clk_i => clk,
@@ -293,6 +314,9 @@ begin
 
     --  Testing CERNBE
     test_bus ("cernbe", x"0000_3000");
+
+    --  Testing AVALON
+    test_bus ("avalon", x"0000_4000");
 
     wait until rising_edge(clk);
 

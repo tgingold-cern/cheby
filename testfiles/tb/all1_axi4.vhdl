@@ -9,7 +9,7 @@ entity all1_axi4 is
     areset_n             : in    std_logic;
     awvalid              : in    std_logic;
     awready              : out   std_logic;
-    awaddr               : in    std_logic_vector(13 downto 2);
+    awaddr               : in    std_logic_vector(14 downto 2);
     awprot               : in    std_logic_vector(2 downto 0);
     wvalid               : in    std_logic;
     wready               : out   std_logic;
@@ -20,7 +20,7 @@ entity all1_axi4 is
     bresp                : out   std_logic_vector(1 downto 0);
     arvalid              : in    std_logic;
     arready              : out   std_logic;
-    araddr               : in    std_logic_vector(13 downto 2);
+    araddr               : in    std_logic_vector(14 downto 2);
     arprot               : in    std_logic_vector(2 downto 0);
     rvalid               : out   std_logic;
     rready               : in    std_logic;
@@ -90,14 +90,24 @@ entity all1_axi4 is
     sub3_cernbe_VMERdMem_o : out   std_logic;
     sub3_cernbe_VMEWrMem_o : out   std_logic;
     sub3_cernbe_VMERdDone_i : in    std_logic;
-    sub3_cernbe_VMEWrDone_i : in    std_logic
+    sub3_cernbe_VMEWrDone_i : in    std_logic;
+
+    -- An AVALON bus
+    sub4_avalon_address_o : out   std_logic_vector(11 downto 2);
+    sub4_avalon_readdata_i : in    std_logic_vector(31 downto 0);
+    sub4_avalon_writedata_o : out   std_logic_vector(31 downto 0);
+    sub4_avalon_byteenable_o : out   std_logic_vector(3 downto 0);
+    sub4_avalon_read_o   : out   std_logic;
+    sub4_avalon_write_o  : out   std_logic;
+    sub4_avalon_readdatavalid_i : in    std_logic;
+    sub4_avalon_waitrequest_i : in    std_logic
   );
 end all1_axi4;
 
 architecture syn of all1_axi4 is
   signal wr_req                         : std_logic;
   signal wr_ack                         : std_logic;
-  signal wr_addr                        : std_logic_vector(13 downto 2);
+  signal wr_addr                        : std_logic_vector(14 downto 2);
   signal wr_data                        : std_logic_vector(31 downto 0);
   signal wr_strb                        : std_logic_vector(3 downto 0);
   signal axi_awset                      : std_logic;
@@ -105,7 +115,7 @@ architecture syn of all1_axi4 is
   signal axi_wdone                      : std_logic;
   signal rd_req                         : std_logic;
   signal rd_ack                         : std_logic;
-  signal rd_addr                        : std_logic_vector(13 downto 2);
+  signal rd_addr                        : std_logic_vector(14 downto 2);
   signal rd_data                        : std_logic_vector(31 downto 0);
   signal axi_arset                      : std_logic;
   signal axi_rdone                      : std_logic;
@@ -148,12 +158,19 @@ architecture syn of all1_axi4 is
   signal sub3_cernbe_we                 : std_logic;
   signal sub3_cernbe_wt                 : std_logic;
   signal sub3_cernbe_rt                 : std_logic;
+  signal sub4_avalon_re                 : std_logic;
+  signal sub4_avalon_we                 : std_logic;
+  signal sub4_avalon_rr                 : std_logic;
+  signal sub4_avalon_wr                 : std_logic;
+  signal sub4_avalon_rt                 : std_logic;
+  signal sub4_avalon_wp                 : std_logic;
+  signal sub4_avalon_rp                 : std_logic;
   signal rd_req_d0                      : std_logic;
-  signal rd_adr_d0                      : std_logic_vector(13 downto 2);
+  signal rd_adr_d0                      : std_logic_vector(14 downto 2);
   signal rd_ack_d0                      : std_logic;
   signal rd_dat_d0                      : std_logic_vector(31 downto 0);
   signal wr_req_d0                      : std_logic;
-  signal wr_adr_d0                      : std_logic_vector(13 downto 2);
+  signal wr_adr_d0                      : std_logic_vector(14 downto 2);
   signal wr_dat_d0                      : std_logic_vector(31 downto 0);
   signal wr_sel_d0                      : std_logic_vector(3 downto 0);
   signal wr_ack_d0                      : std_logic;
@@ -482,8 +499,38 @@ begin
     end if;
   end process;
 
+  -- Interface sub4_avalon
+  process (aclk) begin
+    if rising_edge(aclk) then
+      if areset_n = '0' then
+        sub4_avalon_rr <= '0';
+        sub4_avalon_wr <= '0';
+        sub4_avalon_wp <= '0';
+        sub4_avalon_rp <= '0';
+        sub4_avalon_rt <= '0';
+      else
+        sub4_avalon_wr <= (sub4_avalon_wr and sub4_avalon_waitrequest_i) or ((sub4_avalon_we or sub4_avalon_wp) and not (sub4_avalon_rr or sub4_avalon_rt));
+        sub4_avalon_wp <= (sub4_avalon_wp or sub4_avalon_we) and (sub4_avalon_rr or sub4_avalon_rt);
+        sub4_avalon_rr <= ((sub4_avalon_re or sub4_avalon_rp) and not (sub4_avalon_we or (sub4_avalon_wr or sub4_avalon_wp))) or (sub4_avalon_rr and (not sub4_avalon_readdatavalid_i and sub4_avalon_waitrequest_i));
+        sub4_avalon_rp <= (sub4_avalon_re or sub4_avalon_rp) and (sub4_avalon_we or (sub4_avalon_wr or sub4_avalon_wp));
+        sub4_avalon_rt <= (sub4_avalon_rr and not (sub4_avalon_readdatavalid_i or sub4_avalon_waitrequest_i)) or (sub4_avalon_rt and not sub4_avalon_readdatavalid_i);
+      end if;
+    end if;
+  end process;
+  process (rd_adr_d0, wr_adr_d0, sub4_avalon_wr) begin
+    if sub4_avalon_wr = '1' then
+      sub4_avalon_address_o <= wr_adr_d0(11 downto 2);
+    else
+      sub4_avalon_address_o <= rd_adr_d0(11 downto 2);
+    end if;
+  end process;
+  sub4_avalon_byteenable_o <= wr_sel_d0;
+  sub4_avalon_write_o <= sub4_avalon_wr;
+  sub4_avalon_read_o <= sub4_avalon_rr;
+  sub4_avalon_writedata_o <= wr_dat_d0;
+
   -- Process for write requests.
-  process (wr_adr_d0, wr_req_d0, reg1_wack, reg2_wack, ram2_we, sub1_wb_wack, sub2_axi4_bvalid_i, sub3_cernbe_ws, sub3_cernbe_VMEWrDone_i) begin
+  process (wr_adr_d0, wr_req_d0, reg1_wack, reg2_wack, ram2_we, sub1_wb_wack, sub2_axi4_bvalid_i, sub3_cernbe_ws, sub3_cernbe_VMEWrDone_i, sub4_avalon_wr, sub4_avalon_waitrequest_i) begin
     reg1_wreq <= '0';
     reg2_wreq <= '0';
     ram1_val_int_wr <= '0';
@@ -492,8 +539,9 @@ begin
     sub2_axi4_wr <= '0';
     sub3_cernbe_VMEWrMem_o <= '0';
     sub3_cernbe_we <= '0';
-    case wr_adr_d0(13 downto 12) is
-    when "00" =>
+    sub4_avalon_we <= '0';
+    case wr_adr_d0(14 downto 12) is
+    when "000" =>
       case wr_adr_d0(11 downto 5) is
       when "0000000" =>
         case wr_adr_d0(4 downto 2) is
@@ -522,26 +570,30 @@ begin
       when others =>
         wr_ack_d0 <= wr_req_d0;
       end case;
-    when "01" =>
+    when "001" =>
       -- Submap sub1_wb
       sub1_wb_we <= wr_req_d0;
       wr_ack_d0 <= sub1_wb_wack;
-    when "10" =>
+    when "010" =>
       -- Submap sub2_axi4
       sub2_axi4_wr <= wr_req_d0;
       wr_ack_d0 <= sub2_axi4_bvalid_i;
-    when "11" =>
+    when "011" =>
       -- Submap sub3_cernbe
       sub3_cernbe_we <= wr_req_d0;
       sub3_cernbe_VMEWrMem_o <= sub3_cernbe_ws;
       wr_ack_d0 <= sub3_cernbe_VMEWrDone_i;
+    when "100" =>
+      -- Submap sub4_avalon
+      sub4_avalon_we <= wr_req_d0;
+      wr_ack_d0 <= sub4_avalon_wr and not sub4_avalon_waitrequest_i;
     when others =>
       wr_ack_d0 <= wr_req_d0;
     end case;
   end process;
 
   -- Process for read requests.
-  process (rd_adr_d0, rd_req_d0, reg1_reg, reg2_reg, ram1_val_int_dato, ram1_wreq, ram1_val_rack, ram_ro_val_int_dato, ram_ro_val_rack, ram2_data_i, ram2_rack, sub1_wb_dat_i, sub1_wb_rack, sub2_axi4_rdata_i, sub2_axi4_rvalid_i, sub3_cernbe_rs, sub3_cernbe_VMERdData_i, sub3_cernbe_VMERdDone_i) begin
+  process (rd_adr_d0, rd_req_d0, reg1_reg, reg2_reg, ram1_val_int_dato, ram1_wreq, ram1_val_rack, ram_ro_val_int_dato, ram_ro_val_rack, ram2_data_i, ram2_rack, sub1_wb_dat_i, sub1_wb_rack, sub2_axi4_rdata_i, sub2_axi4_rvalid_i, sub3_cernbe_rs, sub3_cernbe_VMERdData_i, sub3_cernbe_VMERdDone_i, sub4_avalon_readdata_i, sub4_avalon_readdatavalid_i) begin
     -- By default ack read requests
     rd_dat_d0 <= (others => 'X');
     ram1_val_rreq <= '0';
@@ -551,8 +603,9 @@ begin
     sub2_axi4_rd <= '0';
     sub3_cernbe_VMERdMem_o <= '0';
     sub3_cernbe_re <= '0';
-    case rd_adr_d0(13 downto 12) is
-    when "00" =>
+    sub4_avalon_re <= '0';
+    case rd_adr_d0(14 downto 12) is
+    when "000" =>
       case rd_adr_d0(11 downto 5) is
       when "0000000" =>
         case rd_adr_d0(4 downto 2) is
@@ -585,22 +638,27 @@ begin
       when others =>
         rd_ack_d0 <= rd_req_d0;
       end case;
-    when "01" =>
+    when "001" =>
       -- Submap sub1_wb
       sub1_wb_re <= rd_req_d0;
       rd_dat_d0 <= sub1_wb_dat_i;
       rd_ack_d0 <= sub1_wb_rack;
-    when "10" =>
+    when "010" =>
       -- Submap sub2_axi4
       sub2_axi4_rd <= rd_req_d0;
       rd_dat_d0 <= sub2_axi4_rdata_i;
       rd_ack_d0 <= sub2_axi4_rvalid_i;
-    when "11" =>
+    when "011" =>
       -- Submap sub3_cernbe
       sub3_cernbe_re <= rd_req_d0;
       sub3_cernbe_VMERdMem_o <= sub3_cernbe_rs;
       rd_dat_d0 <= sub3_cernbe_VMERdData_i;
       rd_ack_d0 <= sub3_cernbe_VMERdDone_i;
+    when "100" =>
+      -- Submap sub4_avalon
+      sub4_avalon_re <= rd_req_d0;
+      rd_dat_d0 <= sub4_avalon_readdata_i;
+      rd_ack_d0 <= sub4_avalon_readdatavalid_i;
     when others =>
       rd_ack_d0 <= rd_req_d0;
     end case;

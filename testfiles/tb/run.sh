@@ -18,6 +18,7 @@ build_infra()
  $GHDL -a $GHDL_FLAGS block1_axi4.vhdl
  $GHDL -a $GHDL_FLAGS block1_wb.vhdl
  $GHDL -a $GHDL_FLAGS block1_cernbe.vhdl
+ $GHDL -a $GHDL_FLAGS block1_avmm.vhdl
  $GHDL -a $GHDL_FLAGS sram2.vhdl
 }
 
@@ -74,9 +75,17 @@ build_cernbe()
 
 build_avalon()
 {
-    echo "## Testing Avalon (reg2)"
-    sed -e '/bus:/s/BUS/avalon-lite-32/' -e '/name:/s/NAME/avalon/' \
-        -e '/pipeline:/s/none/wr-in,rd-out/' < reg2_xxx.cheby > reg2_avalon.cheby
+  echo "## Testing Avalon (reg2)"
+
+  sed -e '/bus:/s/BUS/avalon-lite-32/' -e '/name:/s/NAME/avalon/' < all1_BUS.cheby > all1_avalon.cheby
+  $CHEBY --no-header --gen-hdl=all1_avalon.vhdl -i all1_avalon.cheby
+  $GHDL -a $GHDL_FLAGS all1_avalon.vhdl
+  $GHDL -a $GHDL_FLAGS all1_avalon_tb.vhdl
+  $GHDL --elab-run $GHDL_FLAGS all1_avalon_tb --assert-level=error --wave=all1_avalon_tb.ghw
+
+ sed -e '/bus:/s/BUS/avalon-lite-32/' -e '/name:/s/NAME/avalon/' \
+        -e '/pipeline:/d' -e '/^  x-hdl:$/d' \
+          < reg2_xxx.cheby > reg2_avalon.cheby
     $CHEBY --no-header --gen-hdl=reg2_avalon.vhdl -i reg2_avalon.cheby
     $GHDL -a $GHDL_FLAGS reg2_avalon.vhdl
     $GHDL -a $GHDL_FLAGS reg2_avalon_tb.vhdl
@@ -140,7 +149,6 @@ build_all2()
 }
 
 build_infra
-build_avalon
 
 # AXI4 byte/word addresses.
 build_axi4_addrwidth byte byte
@@ -158,6 +166,7 @@ sed -e '/PIPELINE/d' < all1_xxx.cheby > all1_BUS.cheby
 build_wb
 build_axi4
 build_cernbe
+build_avalon
 
 # Test buses with various pipelining.
 for pl in "none" "rd" "wr" "in" "out" "rd-in" "rd-out" "wr-in" "wr-out" \

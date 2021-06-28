@@ -58,3 +58,8 @@ memory-map:
       size: 0x1000
       description: A CERN-BE bus
       interface: cern-be-vme-32
+  - submap:
+      name: sub4_avalon
+      size: 0x1000
+      description: An AVALON bus
+      interface: avalon-lite-32
