@@ -32,20 +32,21 @@ class CERNBEBus(BusGen):
         module.stmts.append(HDLAssign(root.h_bus['wack'], ibus.wr_ack))
 
     def gen_cern_bus(self, build_port, addr_bits, lo_addr, data_bits,
-                     is_split, is_buserr, is_master):
+                     force_addr, is_split, is_buserr, is_master):
         """Create CERN-BE interface."""
         inp, out = ('IN', 'OUT') if not is_master else ('OUT', 'IN')
         bus = []
-        if is_split:
-            bus.extend(
-                [('adrr', build_port("VMERdAddr", addr_bits,
-                                     lo=lo_addr, dir=inp)),
-                 ('adrw', build_port("VMEWrAddr", addr_bits,
-                                     lo=lo_addr, dir=inp))])
-        else:
-            bus.extend(
-                [('adr', build_port("VMEAddr", addr_bits,
-                                    lo=lo_addr, dir=inp))])
+        if force_addr or addr_bits > 0:
+            if is_split:
+                bus.extend(
+                    [('adrr', build_port("VMERdAddr", addr_bits,
+                                         lo=lo_addr, dir=inp)),
+                     ('adrw', build_port("VMEWrAddr", addr_bits,
+                                         lo=lo_addr, dir=inp))])
+            else:
+                bus.extend(
+                    [('adr', build_port("VMEAddr", addr_bits,
+                                        lo=lo_addr, dir=inp))])
         bus.extend(
             [('dato', build_port("VMERdData", data_bits, dir=out)),
              ('dati', build_port("VMEWrData", data_bits, dir=inp)),
@@ -76,7 +77,7 @@ class CERNBEBus(BusGen):
             lambda n, sz=None, lo=0, dir='IN':
             HDLPort(n, size=sz, lo_idx=lo, dir=dir) if sz is None or sz > 0 else None,
             root.c_addr_bits, root.c_addr_word_bits, root.c_word_bits,
-            self.split, self.buserr, False))
+            ibus is None, self.split, self.buserr, False))
         if root.hdl_bus_attribute == 'Xilinx':
             self.add_xilinx_attributes(bus, 'slave')
         add_bus(root, module, bus)
@@ -98,12 +99,13 @@ class CERNBEBus(BusGen):
             ibus.rd_dat = root.h_bus['dato']
             ibus.wr_dat = root.h_bus['dati']
 
-            if self.split:
-                ibus.rd_adr = root.h_bus['adrr']
-                ibus.wr_adr = root.h_bus['adrw']
-            else:
-                ibus.rd_adr = root.h_bus['adr']
-                ibus.wr_adr = root.h_bus['adr']
+            if root.c_addr_bits > 0:
+                if self.split:
+                    ibus.rd_adr = root.h_bus['adrr']
+                    ibus.wr_adr = root.h_bus['adrw']
+                else:
+                    ibus.rd_adr = root.h_bus['adr']
+                    ibus.wr_adr = root.h_bus['adr']
 
             self.add_decode_cern_be_vme(root, module, ibus)
 
@@ -118,7 +120,7 @@ class CERNBEBus(BusGen):
                     '{}_{}_{}'.format(n.c_name, name, dirname[dir]),
                     size=sz, lo_idx=lo, dir=dir),
             n.c_addr_bits, root.c_addr_word_bits, root.c_word_bits,
-            self.split, self.buserr, True)
+            False, self.split, self.buserr, True)
         if root.hdl_bus_attribute == 'Xilinx':
             self.add_xilinx_attributes(ports, n.c_name)
         n.h_bus = {}
@@ -127,8 +129,9 @@ class CERNBEBus(BusGen):
         # Add the comment.  Not that simple as the first port of the bus depends on
         # split or not split, address or no address.
         comment = '\n' + (n.comment or n.description or 'CERN-BE bus {}'.format(n.name))
-        first = 'adrr' if self.split else 'adr'
-        if n.h_bus[first] is None:
+        if n.c_addr_bits > 0:
+            first = 'adrr' if self.split else 'adr'
+        else:
             first = 'dato'
         n.h_bus[first].comment = comment
         if root.h_bussplit:
@@ -213,10 +216,12 @@ class CERNBEBus(BusGen):
                 HDLAssign(n.h_ws,
                           HDLOr(ibus.wr_req, HDLParen(HDLAnd(n.h_wt, HDLNot(ibus.rd_req))))))
             # Mux for addresses.
-            self.gen_adr_mux(root, module, n, ibus)
+            if n.c_addr_bits > 0:
+                self.gen_adr_mux(root, module, n, ibus)
         else:
-            stmts.append(HDLAssign(n.h_bus['adr'],
-                                   HDLSlice(ibus.rd_adr, root.c_addr_word_bits, n.c_addr_bits)))
+            if n.c_addr_bits > 0:
+                stmts.append(HDLAssign(n.h_bus['adr'],
+                                       HDLSlice(ibus.rd_adr, root.c_addr_word_bits, n.c_addr_bits)))
 
     def write_bus_slave(self, root, stmts, n, proc, ibus):
         proc.stmts.append(HDLAssign(n.h_bus['wr'], bit_0))

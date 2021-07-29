@@ -18,7 +18,6 @@ entity m1 is
     r1_o                 : out   std_logic_vector(31 downto 0);
 
     -- CERN-BE bus sm2
-    sm2_VMEAddr_o        : out   std_logic_vector(0 downto 2);
     sm2_VMERdData_i      : in    std_logic_vector(31 downto 0);
     sm2_VMEWrData_o      : out   std_logic_vector(31 downto 0);
     sm2_VMERdMem_o       : out   std_logic;
@@ -91,13 +90,6 @@ begin
     end if;
   end process;
   sm2_ws <= wr_req_d0 or (sm2_wt and not VMERdMem);
-  process (VMEAddr, wr_adr_d0, sm2_wt, sm2_ws) begin
-    if (sm2_ws or sm2_wt) = '1' then
-      sm2_VMEAddr_o <= wr_adr_d0(0 downto 2);
-    else
-      sm2_VMEAddr_o <= VMEAddr(0 downto 2);
-    end if;
-  end process;
 
   -- Process for write requests.
   process (wr_adr_d0, wr_req_d0, r1_wack, sm2_VMEWrDone_i) begin
