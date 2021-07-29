@@ -201,10 +201,16 @@ the HW module.  It can be:
 * wb-32-be: non-pipelined wishbone with 32 bit of data using the big-endian
 convention
 
+* wb-16, wb-32: non-pipelined wishbone using 16 or 32 bit of data and big-endian convention by default
+
 * axi4-lite-32: AIX4 lite bus with 32 bit of data
+
+* avalon-lite-32: AVALON bus with 32 bit of data
 
 * cern-be-vme-SZ: CERN VME-like bus using `SZ` data bit.  `SZ` can be
 8, 16 or 32.
+
+* cern-be-vme-split-SZ: CERN vme-like bus with split read and write address lines
 
 The attribute `word-endian` can be used to specify the word endianness
 (how multi-word registers are laid out in memory).  It is optionnal,
