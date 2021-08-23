@@ -175,8 +175,10 @@ Test register 2
 s| field1
 |===
 
-field1:: Test field 1
-field2:: Test field 2
+field1::
+Test field 1
+field2::
+Test field 2
 
 === block1.register3
 [horizontal]
@@ -317,6 +319,8 @@ Test register 4
 s| field3
 |===
 
-field3:: Test field 3
-field4:: Test field 4
+field3::
+Test field 3
+field4::
+Test field 4
 

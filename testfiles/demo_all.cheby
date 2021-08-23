@@ -24,7 +24,8 @@ memory-map:
               preset: 2
     - reg:
         name: reg1
-        description: a reg without fields
+        comment: reg1 comment
+        description: (reg1 description) a reg without fields
         width: 32
         access: rw
         type: unsigned
