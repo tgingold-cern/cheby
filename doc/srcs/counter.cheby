@@ -5,13 +5,18 @@ memory-map:
   children:
     - reg:
         name: control
-        description: Counter control
+        comment: Counter control
+        description: This register controls the counter activity.
         width: 32
         access: rw
         children:
           - field:
               name: enable
-              description: Set to enable the counter
+              comment: Set to enable the counter
+              description: >
+                If the bit is set, the counter is running.
+
+                If the bit is cleared, the counter is frozen.
               range: 0
     - reg:
         name: value

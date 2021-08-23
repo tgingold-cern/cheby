@@ -27,3 +27,4 @@ $(NAME).pdf: $(NAME).xml
 clean:
 	$(RM) $(NAME).xml $(NAME).pdf
 	$(RM) srcs/counter.vhdl srcs/counter_entity.vhdl srcs/counter.h
+	$(RM) srcs/counter.md srcs/counter-reindent.md
