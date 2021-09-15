@@ -44,6 +44,9 @@ Fix a crash when address lines are not used by cernbus (issue#95)
 
 Improve markdown generation (use both comment and description attributes)
 
+Fix incorrect C struct generation (--gen-c) for unaligned repeat and
+memory blocks (issue#99)
+
 ## Version 1.4
 
 Add x-hdl:pipeline to control pipelining of the root.
