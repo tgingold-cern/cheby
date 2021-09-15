@@ -130,7 +130,7 @@ def test_layout():
               'bug-gen-c/fids-errmiss',
               'bug-gen-c-02/mbox_regs',
               'bug-gen-c-02/fip_urv_regs',
-              'issue99/m1']:
+              'issue99/m1', 'issue99/m2']:
         f += '.cheby'
         if verbose:
             print('test layout: {}'.format(f))
