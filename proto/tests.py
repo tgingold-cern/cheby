@@ -129,7 +129,8 @@ def test_layout():
     for f in ['demo', 'features/block1', 'features/array1', 'features/array2',
               'bug-gen-c/fids-errmiss',
               'bug-gen-c-02/mbox_regs',
-              'bug-gen-c-02/fip_urv_regs']:
+              'bug-gen-c-02/fip_urv_regs',
+              'issue99/m1']:
         f += '.cheby'
         if verbose:
             print('test layout: {}'.format(f))

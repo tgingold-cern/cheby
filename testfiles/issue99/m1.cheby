@@ -1,0 +1,78 @@
+memory-map:
+  bus: axi4-lite-32
+  name: m1
+  schema-version:
+    core: 2.0.0
+    x-hdl: 1.0.0
+    x-wbgen: 1.0.0
+    x-fesa: 2.0.0
+    x-driver-edge: 1.0.0
+    x-gena: 2.0.0
+    x-conversions: 1.0.0
+    x-map-info: 1.0.0
+    x-enums: 1.0.0
+  children:
+    - block:
+        name: b1
+        address: 0x80
+        children:
+          - repeat:
+              name: rp
+              count: 2
+              children:
+                - block:
+                    name: b2
+                    align: true
+                    children:
+                      - reg:
+                          name: r1
+                          width: 32
+                          access: rw
+                      - reg:
+                          name: r2
+                          width: 32
+                          access: rw
+                      - reg:
+                          name: r3
+                          width: 32
+                          access: rw
+    - block:
+        name: b3
+        size: 0x20
+        children:
+          - reg:
+              name: r1
+              width: 8
+              access: rw
+    - block:
+        name: b4
+        address: 0x180
+        children:
+          - repeat:
+              name: rp2
+              count: 2
+              children:
+                - block:
+                    name: b5
+                    align: false
+                    children:
+                      - reg:
+                          name: r1
+                          width: 32
+                          access: rw
+                      - reg:
+                          name: r2
+                          width: 32
+                          access: rw
+                      - reg:
+                          name: r3
+                          width: 32
+                          access: rw
+    - block:
+        name: b6
+        size: 0x20
+        children:
+          - reg:
+              name: r1
+              width: 8
+              access: rw
