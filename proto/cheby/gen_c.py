@@ -84,6 +84,13 @@ def cprint_children(cp, n, size):
             # between the real submap and how much memory is used
             # in this map.
             addr = el.c_address + el.c_submap.c_size
+        elif isinstance(el, tree.Repeat):
+            # There might be a gap between the size of the repeat block,
+            # and the size of the element * count.
+            rep_size = el.c_elsize * el.count
+            addr = el.c_address + rep_size
+            maybe_pad(el.c_size - rep_size)
+            addr = el.c_address + el.c_size
         else:
             addr = el.c_address + el.c_size
     # Last pad
