@@ -317,6 +317,7 @@ def unroll_repeat(n):
         blk.c_size = n.c_elsize
         blk.c_align = n.c_align
         blk.children = [tree_copy(el, blk) for el in n.children]
+        blk.origin = n
         layout.build_sorted_children(blk)
         res.children.append(blk)
     layout.build_sorted_children(res)

@@ -9,13 +9,13 @@ class Context(object):
         self.stack = []     # stack of saved states
         self.names = {}
 
-    def set_field_name(self, field, name):
-        """Set c_name of :param field: to :param name: and detect collisions"""
+    def check_field_name(self, field):
+        """Detect collisions of field names"""
+        name = field.c_name
         if name in self.names:
             parser.error("field '{}' and '{}' have the same name '{}'".format(
                 self.names[name].get_path(), field.get_path(), name))
         self.names[name] = field
-        field.c_name = name
 
     def push(self):
         self.stack.append((self.reg_prefix, self.blk_prefix))
@@ -65,6 +65,10 @@ def gen_name_children(parent, prefix, ctxt):
     parent.hdl_blk_prefix = ctxt.blk_prefix
     parent.hdl_reg_prefix = ctxt.reg_prefix
 
+    if isinstance(parent, tree.Block) and isinstance(parent.origin, tree.Repeat) and not ctxt.blk_prefix:
+        for n in parent.children:
+            n.name += parent.name
+
     for n in parent.children:
         n.c_name = concat(prefix, n.name)
         if isinstance(n, tree.Reg):
@@ -74,14 +78,17 @@ def gen_name_children(parent, prefix, ctxt):
                     # If the register is the field, then reg-prefix does not
                     # apply.
                     assert f.name is None
-                    cname = concat(prefix, n.name)
+                    f.c_name = concat(prefix, n.name)
                 elif f.name == '':
                     # Handle anonymous field.  Only one such field is allowed.
                     assert len(n.children) == 1
-                    cname = nprefix if nprefix else n.c_name
+                    f.c_name = nprefix if nprefix else n.c_name
                 else:
-                    cname = concat(nprefix, f.name)
-                ctxt.set_field_name(f, cname)
+                    f.c_name = concat(nprefix, f.name)
+                if not isinstance(parent, tree.Memory):
+                    # Do no try to detect collisions for fields of a memory: they are not
+                    # exported as ports.
+                    ctxt.check_field_name(f)
         elif isinstance(n, tree.CompositeNode):
             nprefix = n.c_name if ctxt.blk_prefix else prefix
             if isinstance(n, tree.Submap):
