@@ -234,7 +234,7 @@ def expand_x_hdl(n):
         expand_x_hdl_root(n, x_hdl)
     elif isinstance(n, tree.Submap):
         expand_x_hdl_submap(n, x_hdl)
-    elif isinstance(n, tree.Block):
+    elif isinstance(n, (tree.Block, tree.Repeat)):
         expand_x_hdl_block(n, x_hdl)
     elif isinstance(n, tree.Memory):
         expand_x_hdl_memory(n, x_hdl)
@@ -307,6 +307,8 @@ def unroll_repeat(n):
     res.c_address = n.c_address
     res.c_size = n.c_size
     res.c_align = n.c_align
+    if hasattr(n, 'x_hdl'):
+        res.x_hdl = n.x_hdl
     for i in range(n.count):
         blk = tree.Block(res)
         blk.name = "{}".format(i)
