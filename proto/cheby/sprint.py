@@ -62,7 +62,10 @@ def sprint_reg(sp, n):
 
 @SimplePrinter.register(tree.Block)
 def sprint_block(sp, n):
-    sp.sp_name('block', n)
+    if isinstance(n.origin, tree.Repeat):
+        sp.sp_name('block (from repeat)', n)
+    else:
+        sp.sp_name('block', n)
     old_base = sp.base_addr
     sp.base_addr += n.c_address
     sprint_composite(sp, n)
@@ -79,22 +82,23 @@ def sprint_submap(sp, n):
     sp.base_addr = old_base
 
 
-@SimplePrinter.register(tree.Memory)
-def sprint_memory(sp, n):
-    sp.sp_name('memory[{}] of {}'.format(n.c_depth, n.c_elsize), n)
+def sprint_composite_with_base_0(sp, n):
     old_base = sp.base_addr
     sp.base_addr = 0
     sprint_composite(sp, n)
     sp.base_addr = old_base
+
+
+@SimplePrinter.register(tree.Memory)
+def sprint_memory(sp, n):
+    sp.sp_name('memory[{}] of {}'.format(n.c_depth, n.c_elsize), n)
+    sprint_composite_with_base_0(sp, n)
 
 
 @SimplePrinter.register(tree.Repeat)
 def sprint_repeat(sp, n):
     sp.sp_name('repeat[{}] of {}'.format(n.count, n.c_elsize), n)
-    old_base = sp.base_addr
-    sp.base_addr = 0
-    sprint_composite(sp, n)
-    sp.base_addr = old_base
+    sprint_composite_with_base_0(sp, n)
 
 
 @SimplePrinter.register(tree.CompositeNode)
