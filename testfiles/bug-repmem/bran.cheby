@@ -1,0 +1,295 @@
+memory-map:
+    bus: wb-32-be
+    name: bran_wb
+    description: "VFC based wire scanner acquisition for PSB/PS"
+    x-hdl:
+        reg-prefix: False
+        block-prefix: False
+        busgroup: True
+    children:
+        - reg:
+            name: Token
+            description: "Block identifier - returns 0xcafebeef"
+            width: 32
+            access: ro
+        - reg:
+            name: Ctrl
+            description: "Common controls"
+            width: 32
+            access: rw
+            children:
+                - field:
+                    name: Enable
+                    range: 0
+                    description: "1 enables the module"
+                - field:
+                    name: RstBstDesync
+                    range: 1
+                    description: "1 clears BST_desync flag in stat"
+                    x-hdl:
+                      port-name: std_rst_bst_desync
+                      type: autoclear
+                - field:
+                    name: FAReset
+                    range: 2
+                    description: "1 resets the frame aligner"
+                    x-hdl:
+                      port-name: std_reset_alignment
+                      type: autoclear
+                - field:
+                    name: DisableADCStream
+                    range: 4
+                    description: "1 to zeros instead of ADC data"
+                - field:
+                    name: EnableTurnEmulator
+                    range: 6
+                    description: "1 to use internal turn clock emulator"
+                - field:
+                    name: LHCTiming
+                    range: 10
+                    description: "1 uses SFP timing instead of FP trigger"
+                    x-hdl:
+                      port-name: LHC_timing
+                    comment: 'Bit indicates whether turn emulator
+    shall provide LHC or SPS timing. If this bit is set, the turn
+    emulator will provide turn clock once every 3564 bunch
+    clocks. Otherwise the turn emulator will emulate SPS timing with
+    its 924 bunch slots'
+        - reg:
+            name: Stat
+            description: "General status work"
+            width: 32
+            access: ro
+            children:
+                - field:
+                    name: FmcLos
+                    range: 31
+                    description: "1 indicates loss of signal JESD"
+                - field:
+                    name: FmcLol
+                    range: 30
+                    description: "1 indicates loss of lock JESD"
+                - field:
+                    name: SysrefFail
+                    range: 29
+                    description: "1 indicates error of sysref"
+                - field:
+                    name: DCDCSyncEnabled
+                    range: 28
+                    description: "1 indicates DCDC sync is enabled"
+                - field:
+                    name: PatternFail
+                    range: 27
+                    description: "1 indicates ADC pattern check failed"
+                - field:
+                    name: FAInReset
+                    range: 26
+                    description: "1 indicates FA waiting for turn clock"
+                    x-hdl:
+                      port-name: std_fa_in_reset
+                - field:
+                    name: GBTPLLLol
+                    range: 25
+                    description: "1 if GBT PLL is not locked"
+                - field:
+                    name: BSTDesynced
+                    range: 23
+                    description: "1 if BST turn and bunch clock do not  match"
+                    x-hdl:
+                      port-name: std_bst_desynced
+                - field:
+                    name: NoFMCPower
+                    range: 22
+                    description: "1 if FMC is NOT powered"
+                    x-hdl:
+                      port-name: VfmcDisabled_i
+                - field:
+                    name: NoTurnDetected
+                    range: 19
+                    description: "1 if no turn mark arrives to capture block"
+                - field:
+                    name: TurnEmulatorError
+                    range: 18
+                    description: "1 if turn emulator is wrongly setup"
+                - field:
+                    name: TurnEmulatorPLLError
+                    range: 16
+                    description: "1 if turn emulator PLL is not locked"
+                - field:
+                    name: JesdRXNotReady
+                    range: 15-8
+                    description: "1 for each line not ready"
+                - field:
+                    name: VoltageFail
+                    range: 7-0
+                    description: "1 indicates fail of DCDC converter"
+        - reg:
+            name: SysrefTicks
+            description: "Number of ticks detected on sysref clock"
+            width: 32
+            access: ro
+        - reg:
+            name: GWRevision
+            description: "Compilation time of gateware"
+            width: 32
+            access: ro
+        - reg:
+            name: TurnPeriod
+            description: "Turn emulator period in 8ns increments"
+            width: 32
+            access: rw
+            preset: 0x400
+            x-hdl:
+                write-strobe: True
+        - reg:
+            name: TurnLength
+            description: "Turn emulator length in 8ns increments"
+            width: 32
+            access: rw
+            preset: 0x03
+            x-hdl:
+                write-strobe: True
+        - reg:
+            name: TurnsIntercepted
+            description: "Upcounts when turn HW or emulated detected"
+            width: 32
+            access: ro
+            x-hdl:
+              port-name: TurnsIntercepted_b32
+        - reg:
+            name: FmcPower
+            description: "Power control of the FMC mezzanine"
+            width: 32
+            access: rw
+            children:
+                - field:
+                    name: FmcPowerEnable
+                    range: 0
+                    description: "Enables/disables power to FMC"
+                - field:
+                    name: DCDCSyncEnable
+                    range: 1
+                    description: "Enables/disables synchronization of DCDC converters on the IAM"
+        - reg:
+            name: ADCPatternCheckCtrl
+            description: "ADC pattern checher module control"
+            width: 32
+            access: rw
+            children:
+                - field:
+                    name: PatternRst
+                    range: 0
+                    description: "Resets pattern checking"
+        - reg:
+            name: ADCCtrl
+            description: "ADC specific control register"
+            width: 32
+            access: rw
+            children:
+                - field:
+                    name: ADCRst
+                    range: 0
+                    description: "ADC reset control"
+                - field:
+                    name: ADCEnable
+                    range: 1
+                    description: "Enables ADC conversion"
+                - field:
+                    name: ADCManualSync
+                    range: 6
+                    description: "Synchronization signal value"
+                - field:
+                    name: ADCDisableAutoSync
+                    range: 7
+                    description: "1 = sync comes from ADCManualSync"
+        - reg:
+            name: JesdLink
+            description: "JESD204B link interface control"
+            width: 32
+            access: rw
+            children:
+                - field:
+                    name: JesdXcvrRst
+                    range: 0
+                    description: "JESD PHY and MAC reset"
+                - field:
+                    name: JesdLinkRst
+                    range: 2
+                    description: "JESD Link interface reset"
+                - field:
+                    name: JesdPLLRst
+                    range: 4
+                    description: "JESD GBT PLL reset"
+                - field:
+                    name: JesdAvsRst
+                    range: 5
+                    description: "MAC wishbone infterface reset"
+                - field:
+                    name: SixxRst
+                    range: 6
+                    description: "0-1-0 to reset the FMC PLL chip"
+                - field:
+                    name: JesdLinkReady
+                    range: 8
+                    description: "Set link to ready state"
+                - field:
+                    name: JesdEnableSysref
+                    range: 9
+                    description: "Enable/disable JESD sysref signal"
+        - reg:
+            name: AdcSpiWrite
+            description: "ADC SPI write configuration interface"
+            width: 32
+            access: wo
+            x-hdl:
+                write-strobe: True
+        - reg:
+            name: AdcSpiRead
+            description: "ADC SPI read configuration interface"
+            width: 32
+            access: ro
+        - reg:
+            name: SpiStatus
+            description: "SPI status"
+            width: 32
+            access: ro
+            children:
+                - field:
+                    name: AdcSpiBusy
+                    range: 0
+                    description: "1 if SPI sends data to ADC"
+        - reg:
+            name: CummulativeTurns
+            description: "For how many turns to accumulate data"
+            width: 32
+            access: rw
+            x-hdl:
+              port-name: cummulative_turns_b32
+        - reg:
+            name: Debug
+            description: "Master-of-universe-tool"
+            width: 32
+            access: rw
+            children:
+                - field:
+                    name: OverrideTurnEmulatorTiming
+                    range: 0
+                    x-hdl:
+                      port-name: OverrideTurnEmulatorTiming
+        - repeat:
+            name: RawArray
+            count: 4
+            align: True
+            children:
+              - memory:
+                  name: RawData
+                  description: "Per-turn accumulated raw data channel N"
+                  memsize: 262144
+                  align: True
+                  interface: sram
+                  children:
+                    - reg:
+                        description: "Raw data for channel N"
+                        name: RawDataCH
+                        access: ro
+                        width: 32
