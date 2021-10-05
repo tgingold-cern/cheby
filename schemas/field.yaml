@@ -1,0 +1,49 @@
+%YAML 1.2
+---
+$schema: "http://json-schema.org/schema#"
+$id: "http://gitlab.cern.ch/cohtdrivers/cheby/schemas/field.yaml#"
+
+title: jsonschema for the fields within a cheby register definition
+
+definitions:
+  field:
+    type: object
+    description: |
+      There can be several fields in a register, and all of them have the same
+      access right.
+
+    additionalProperties: false
+    required:
+      - name
+      - range
+
+    properties:
+      name:
+        $ref: 'cheby.yaml#/definitions/name'
+      comment:
+        $ref: 'cheby.yaml#/definitions/comment'
+      description:
+        $ref: 'cheby.yaml#/definitions/description'
+      address:
+        $ref: 'cheby.yaml#/definitions/address'
+
+      range:
+        type: [integer, string]
+        pattern: '^\d+-\d+'
+        description: |
+          The range is a single number if the field is 1 bit, or in the form of
+          `lo-hi` where `lo` is the lowest bit and `hi` is the highest bit.
+
+          Bits are numbered using the little endian convention.
+
+      preset:
+        type: integer
+        description: |
+          Initial value of the filed
+
+      x-hdl:
+        $ref: 'x-hdl.yaml#/definitions/x-hdl-field'
+
+      x-wbgen:
+        type: object
+

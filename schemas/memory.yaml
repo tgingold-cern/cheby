@@ -1,0 +1,65 @@
+%YAML 1.2
+---
+$schema: "http://json-schema.org/schema#"
+$id: "http://gitlab.cern.ch/cohtdrivers/cheby/schemas/memory.yaml#"
+
+title: schema definitions for memory nodes
+
+description: |
+  A memory is like a RAM memory except that hardware also has access to it
+  (through a second port, hence the name dual port).
+
+  Memories are used when a certain amount of data has to be transfered or to
+  configure hardware for data transfers (like DMA descriptors).
+  To avoid possible conflicts, memories are usually one direction, the software
+  can read and the hardware can write, or the software can write and the
+  hardwire can read.
+
+definitions:
+  memory:
+    type: object
+    description: |
+      A RAM is represented by an `memory` element with one register as a child.
+
+      Note that the width of the ram (the number of address lines) is computed
+      from the size of the ram and the size of the register.
+
+      Unless the attribute 'interface' is present, the memory is automatically
+      instantiated.
+
+    additionalProperties: false
+    required:
+      - name
+      - memsize
+
+    properties:
+      name:
+        $ref: 'cheby.yaml#/definitions/name'
+      comment:
+        $ref: 'cheby.yaml#/definitions/comment'
+      description:
+        $ref: 'cheby.yaml#/definitions/description'
+      address:
+        $ref: 'cheby.yaml#/definitions/address'
+
+      memsize:
+        $ref: 'cheby.yaml#/definitions/size'
+
+      interface:
+        $ref: 'cheby.yaml#/definitions/bus'
+
+      x-hdl:
+        $ref: 'x-hdl.yaml#/definitions/x-hdl-memory'
+
+      children:
+        type: array
+        description: |
+          List of one register.
+        minItems: 1
+        maxItems: 1
+        items:
+          type: object
+          additionalProperties: false
+          properties:
+            reg:
+              $ref: 'register.yaml#/definitions/register'

@@ -1,0 +1,63 @@
+%YAML 1.2
+---
+$schema: "http://json-schema.org/schema#"
+$id: "http://gitlab.cern.ch/cohtdrivers/cheby/schemas/submap.yaml#"
+
+title: schema definitions for submap nodes
+
+definitions:
+  submap:
+    type: object
+    description: |
+      If the `filename` attribute is not present, then this is a generic
+      submap and a bus port is generated in the HDL.  The size of the submap is
+      required.
+
+      The attribute `interface` specifies which interface is used for the
+      connection.
+
+      If the `filename` attribute is present, the `size` attribute is not
+      allowed as the size of the submap is defined by the memory map given by
+      the file.  If the `include` attribute is present and set to `True`, then
+      the memory map described by the file is included directly, otherwise a bus
+      interface is generated in the HDL.
+
+
+
+    additionalProperties: false
+    required:
+      - name
+
+    properties:
+      name:
+        $ref: 'cheby.yaml#/definitions/name'
+      comment:
+        $ref: 'cheby.yaml#/definitions/comment'
+      description:
+        $ref: 'cheby.yaml#/definitions/description'
+      address:
+        $ref: 'cheby.yaml#/definitions/address'
+
+      size:
+        $ref: 'cheby.yaml#/definitions/size'
+
+      align:
+        type: boolean
+
+      interface:
+        $ref: 'cheby.yaml#/definitions/bus'
+
+      filename:
+        type: string
+        description: |
+          path to file to import as a submap.
+
+    allOf:
+      # if filename not present, size is required
+      - if:
+          properties:
+            filename:
+              const: null
+        then:
+          required:
+            - size

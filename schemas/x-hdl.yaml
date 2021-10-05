@@ -1,0 +1,229 @@
+%YAML 1.2
+---
+$schema: "http://json-schema.org/schema#"
+$id: "http://gitlab.cern.ch/cohtdrivers/cheby/schemas/x-hdl.yaml#"
+
+title: schema for the HDL Cheby extension
+
+definitions:
+  x-hdl-memory-map:
+    type: object
+    additionalProperties: false
+    properties:
+      busgroup:
+        type: boolean
+        description: |
+          Use an input and an output record (in vhdl) for the bus.
+
+      iogroup:
+        type: string
+        description: |
+          Use an input and and output record (in vhdl) for the I/O.
+          This will also generate a package to declare the records.
+          The value of this attribute is the name of the port.
+
+      reg-prefix:
+        type: boolean
+        description: |
+          If false, discard register prefix and every prefix before
+          register.  This creates shorter names.
+
+      block-prefix:
+        type: boolean
+        description: |
+          If false, discard block prefix, in order to create shorter names.
+
+      pipeline:
+        type: string
+        enum:
+          - all
+          - none
+          - rd
+          - wr
+          - in
+          - out
+          - rd-in
+          - rd-out
+          - wr-in
+          - wr-out
+        description: |
+          Finely define the pipelining.
+
+          In case of timing closure issues, this can be set to 'all'.
+          Values starting with 'wr-' act on signals for write commands,
+          while values starting with 'rd-' act on signals for read commands.
+
+          Values ending with '-in' acts on input signals, while values
+          ending with '-out' acts on output signals.
+
+          So for example 'wr-in' adds a registers on input signals for write
+          commands.  It is possible to use a set of values separated by
+          commas.
+
+          default is 'wr-in,rd-out'.
+
+          Aliases are also available
+            * 'wr' is for 'wr-in,wr-out',
+            * 'rd' for 'rd-in,rd-out',
+            * 'in' for 'wr-in,rd-in', and
+            * 'out' for 'wr-out,rd-out'.
+
+          Finally it is possible to use 'none' not to use any pipelining.
+
+          The pipelining is a single barrier of registers inserted on an
+          internal bus, which is created from the external bus.
+
+      name-suffix:
+        type: string
+        description: |
+          The name of the hdl entity or module is by default the name of the
+          memory map.  This attribute adds a suffix to those names.
+
+      bus-granularity:
+        type: string
+        enum:
+          - word
+          - byte
+        description: |
+          Specify the granularity of the addresses.
+
+          If set to `word`, the address bus LSB bits are omitted.
+          So if a word is 4 bytes, the address bus start at bit 2.
+
+          If set to `byte`, the address bus start at 0 (but those extra bits
+          are ignored).
+
+          The default is `word` and this option is currently only supported
+          by the axi4-lite bus and ignored by the other buses.
+
+          The purpose of this option is for compatibility with Xilinx Vivado
+          graphical tools.
+
+  x-hdl-reg:
+    type: object
+    description: |
+      Extension for HDL generation.
+    additionalProperties: false
+    properties:
+      write-strobe:
+        type: boolean
+        description: |
+          True to generate an additional signal that is asserted when the
+          register is written by the host.
+          The name of the signal is '_wr_o' appended to the name of the
+          register.
+          The strobe signal is asserted for one cycle when a write request for
+          this register is detected.
+          If there are some outputs of `type:reg`, then the pulse is generated
+          one cycle before the outputs are updated.
+
+      read-strobe:
+        type: boolean
+        description: |
+          True to generate an additional signal that is asserted when the
+          register is read by the host.
+          The name of the signal is '_rd_o' appended to the name of the
+          register.
+          The strobe signal is asserted for one cycle.
+
+      write-ack:
+        type: boolean
+        description: |
+          True to generate an additional signal for the write ack.
+          The user must assert this signal for one cycle to acknowledge the
+          write.
+          It doesn't make sense to have this signal without the write strobe
+          signal.
+          The name of the signal is '_wack_i' appended to the name of the
+          register.
+
+      read-ack:
+        type: boolean
+        description: |
+          True to generate an additional signal for the read ack.
+          The user must assert this signal for one cycle to acknowledge the
+          read.
+          It doesn't make sense to have this signal without the read strobe
+          signal.
+          The name of the signal is '_rack_i' appended to the name of the
+          register.
+
+      port:
+        type: string
+        enum:
+          - reg
+          - field
+        description: |
+          Defines how ports are created and only when there are fields.
+          When set to `reg`, only one port per direction is created using the
+          size of the register.
+          User has to extract the fields from this port.
+          When set to `field` (the default), ports are created for each field.
+
+      type:
+        type: string
+        enum:
+          - reg
+          - wire
+          - const
+          - autoclear
+          - or-clr
+        description: |
+          Provide a default value for the `type` attribute of fields.
+          A field can overwrite the value.
+
+  x-hdl-field:
+    type: object
+    additionalProperties: false
+    properties:
+      type:
+        type: string
+        enum:
+          - reg
+          - wire
+          - const
+          - autoclear
+          - or-clr
+        description: |
+          * reg:
+            A register is created which can be read or written from the bus.
+            The value of the register is available on the ports.
+
+            This is the default unless register access type is `ro`.
+
+          * wire:
+            No logic is created.
+            In case of read from the bus, the current value on the input ports
+            is returned.  The output ports are directly connected to the data
+            bus.  It doesn't make sense not to also have a strobe port for
+            write.
+
+            This is the default when the access type is `ro`.
+
+          * const:
+            No output available, the value is a constant, set by the `preset`
+            attribute.
+
+          * autoclear:
+            Only for outputs.
+            In case of a write from the bus, the value is set on the output
+            ports for only one clock cycle and then cleared.
+
+          * or-clr:
+            A register is created, and the current value is or-ed with the input
+            port.
+            The register is cleared on a write (when bits are 1).  This allows
+            to capture events.
+
+            Software developers should be careful when using these registers.
+            They should only clear bits that were read as 1; otherwise they
+            could miss events.
+
+  x-hdl-memory:
+    type: object
+    additionalProperties: false
+    properties:
+      dual-clock:
+        type: boolean
+        description: |
+          If true, the external memory port is clocked by an external input.

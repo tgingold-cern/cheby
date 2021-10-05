@@ -1,0 +1,51 @@
+%YAML 1.2
+---
+$schema: "http://json-schema.org/schema#"
+$id: "http://gitlab.cern.ch/cohtdrivers/cheby/schemas/repeat.yaml#"
+
+title: schema definitions for repeat nodes
+
+definitions:
+  repeat:
+    type: object
+    description: |
+      It is possible to replicate elements using repeat.  The number of
+      repetitions is set by the count attribute.
+
+      Be careful that such a repetition can generate a lot of hardware.
+
+    additionalProperties: false
+    required:
+      - name
+      - count
+
+    properties:
+      name:
+        $ref: 'cheby.yaml#/definitions/name'
+      comment:
+        $ref: 'cheby.yaml#/definitions/comment'
+      description:
+        $ref: 'cheby.yaml#/definitions/description'
+      address:
+        $ref: 'cheby.yaml#/definitions/address'
+
+      count:
+        type: integer
+        description: |
+          Number of repetitions to perform.
+
+      align:
+        type: boolean
+
+      children:
+        type: array
+        description: |
+          List of nodes to repeat
+        items:
+          type: object
+          additionalProperties: false
+          properties:
+            reg:
+              $ref: 'register.yaml#/definitions/register'
+            memory:
+              $ref: 'memory.yaml#/definitions/memory'

@@ -4,6 +4,9 @@ import os.path
 import time
 import argparse
 import getpass
+import yaml
+import jsonschema
+import cheby.validate as validate
 import cheby.parser
 import cheby.pprint as pprint
 import cheby.sprint as sprint
@@ -147,6 +150,7 @@ def gen_comment_header(f, args):
 
 
 def handle_file(args, filename):
+    validate.validate(filename, 'cheby.yaml')
     t = cheby.parser.parse_yaml(filename)
 
     layout.layout_cheby(t)

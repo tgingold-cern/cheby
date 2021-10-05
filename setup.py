@@ -25,5 +25,6 @@ setup(
 
     install_requires=[
         'pyyaml',
+        'jsonschema',
     ],
 )

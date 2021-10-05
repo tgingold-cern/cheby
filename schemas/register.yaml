@@ -1,0 +1,120 @@
+%YAML 1.2
+---
+$schema: "http://json-schema.org/schema#"
+$id: "http://gitlab.cern.ch/cohtdrivers/cheby/schemas/register.yaml#"
+
+title: schema definitions for register nodes
+
+definitions:
+  register:
+    type: object
+    description: |
+      A register uses one word of memory (usually 32 bits) or two (so 64 bits),
+      and is divided into fields (a group of bit).
+      Some bits of the registers can be unused.
+
+      The difference between a register and a memory is that hardware has direct
+      access to a register, there are wires between the register and the
+      hardware so as soon as the software writes to a register the hardware
+      'can' see the new value.
+
+      A register is usually read-write meaning that the value of the register is
+      defined by the last write (from the software) and the software always
+      reads the last value.
+
+      A register can also be read-only meaning that the hardware defines the
+      value that is read.
+
+      It is also possible that a read triggers some changes in the hardware.
+
+      Finally a register can be write-only, and usually a write triggers an
+      action.  In that case, a value read has no meaning.
+
+    additionalProperties: false
+    required:
+      - name
+
+    properties:
+      name:
+        $ref: 'cheby.yaml#/definitions/name'
+      comment:
+        $ref: 'cheby.yaml#/definitions/comment'
+      description:
+        $ref: 'cheby.yaml#/definitions/description'
+      address:
+        $ref: 'cheby.yaml#/definitions/address'
+
+      access:
+        type: string
+        enum: [rw, ro, wo]
+        description: |
+          The access mode is defined from the point of view of the software.
+          It slightly change the generated hardware.
+
+            * rw (read/write): This generates flip-flops whose value is directly
+              available to the hardware.  The software can write to modify the
+              value or read the get the current value.  The hardware cannot
+              change the value.
+
+            * wo (write-only): Like `rw`, but the software cannot read the
+              current value.
+
+            * ro (read-only): This creates no hardware but just a port.  The
+              software can read the current value of the port, and cannot modify
+              it.
+
+      type:
+        type: string
+        enum:
+          - unsigned
+          - signed
+          - float
+        description: |
+          the type of a register can be `unsigned` (the default),
+          `signed` or `float`.  The type has no impact on the hardware, but
+          changes the software view.
+
+      preset:
+        type: integer
+        description: |
+          It is possible to define the initial (just after a reset) value of a
+          register using the `preset` attribute.
+          For 32 bit registers, you can also use the map version (set in the
+          root) as the initial value by giving the value `version` to the
+          `preset` attribute.  Bits 0 to 7 are set to the patch level, bits 8 to
+          15 to the minor version and bits 16 to 23 to the major.
+
+          You cannot have both `preset` and `constant` attributes.
+
+      constant:
+        type: integer
+        description: |
+          Using the `constant` attribute, you can also give the value of
+          attributes from the root `x-cern-info` mapping.
+          When the `constant` attribute of a register is set to `map-version`,
+          the value of the register is set to the value of the map-version.
+          Likewise for `ident-code`.
+
+      width:
+        type: integer
+        description: |
+          The size (in bits) of the register can be specified by the `width`
+          attribute.  The size can be larger than a word (but then you have to
+          consider word endianness issues).
+
+      x-hdl:
+        $ref: 'x-hdl.yaml#/definitions/x-hdl-reg'
+
+      x-wbgen:
+        type: object
+
+      children:
+        type: array
+        description: |
+          List of optional fields.
+        items:
+          type: object
+          additionalProperties: false
+          properties:
+            field:
+              $ref: 'field.yaml#/definitions/field'

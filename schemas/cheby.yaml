@@ -1,0 +1,186 @@
+%YAML 1.2
+---
+$schema: "http://json-schema.org/schema#"
+$id: "http://gitlab.cern.ch/cohtdrivers/cheby/schemas/cheby.yaml#"
+
+title: top-level schema for the cheby file format
+
+maintainers:
+  - Tristan Gingold <tristan.gingold@cern.ch>
+  - Liam Beguin <liambeguin@gmail.com>
+
+description: |
+  *Cheby* is both a text description of the interface between hardware and
+  software, and a tool to automatically generate code or documentation from the
+  text files.
+
+  In Cheby, the hardware appears to the software as a block of address in the
+  physical memory space.  There might be other way to interface hardware and
+  software (for example through a standard serial bus like USB or through a
+  network).
+
+  The block of address is named the memory map of the hardware.
+  The memory map is a map between addresses and hardware elements like registers
+  or memories.
+
+  The Cheby file format represent a hierachy of nodes.  A node contains a list
+  of attribute and children.  An attribute is designated by a name and has a
+  value (a string, a boolean or an integer).  The children are nodes, organized
+  as a list.
+
+  The Cheby file format described in this manual is based on YAML, so that there
+  is no new format to invent and many text editors have already support for it.
+  However the file extension is usually `.cheby`.
+
+
+definitions:
+  name:
+    type: string
+    description: |
+      The name of the node.
+      The name is also used to create HDL or C names in general files.
+
+  comment:
+    type: string
+    description: |
+      This should be a short text that explain the purpose of the node.
+      The description is copied into the code (as a comment) to make it more
+      readable.
+      This attribute is not required but it is recommended to always provide it.
+
+  description:
+    type: string
+    description: |
+      This is a longer text that will be copied into the generated
+      documentation.
+
+  address:
+    oneOf:
+      - type: integer
+      - type: string
+        enum:
+          - next
+    description: |
+      An optional byte address relative to the parent.  The address must be
+      correctly aligned.  If not provided or it the value is `next`, then the
+      address is computed using the previous one and the alignment.  It is
+      possible to go backward by providing explicit address (e.g. the first
+      child has address 4 and the second one has address 0), but this is not
+      recommended and be a source of errors (in particular with automatic
+      addresses that are always computed from the previous node).
+
+      Overlapping addresses are detected by the tools.
+
+  bus:
+    type: string
+    enum:
+      # - sram
+      - wb-32-be
+      - axi4-lite-32
+      - cern-be-vme-8
+      - cern-be-vme-16
+      - cern-be-vme-32
+    description: |
+      Bus type used for the interface the CPU with the HW module.
+
+      * wb-32-be:
+          non-pipelined wishbone with 32 bit of data using the big-endian.
+          convention
+
+      * axi4-lite-32: |
+          AIX4 lite bus with 32 bit of data.
+
+      * cern-be-vme-8, cern-be-vme-16, cern-be-vme-32:
+          CERN VME-like bus using SZ data bit.
+          SZ can be the 'bus' attribute specifies which bus will be used to
+          interface the CPU with the HW module.
+
+  size:
+    oneOf:
+      - type: integer
+      - type: string
+        pattern: '^\d*\s*[kMG]?$'
+    description: |
+      Use this attribute to specify the size (in bytes) of the memory space used
+      by this module.
+
+      Allowed sufixes are k, M, and G.
+
+
+properties:
+  memory-map:
+    description: |
+      A cheby file is an associative array named `memory-map`.
+      The only purpose of this name is to easily refuse a random YAML file.
+    additionalProperties: false
+    required:
+      - name
+    properties:
+      name:
+        $ref: '#/definitions/name'
+      comment:
+        $ref: '#/definitions/comment'
+      description:
+        $ref: '#/definitions/description'
+      address:
+        $ref: '#/definitions/address'
+
+      bus:
+        $ref: '#/definitions/bus'
+
+      word-endian:
+        type: string
+        enum:
+          - big
+          - little
+          - none
+        description: |
+          This attribute can be used to specify the word endianness, how
+          multi-word registers are laid out in memory.
+          The default is set according to the bus attribute.
+            * wb-32-be defaults to big
+            * cern-be-vme-SZ defaults to big
+            * axi4-lite-32 defaults to little
+          It is also possible to use `none` to disallow any multi-word
+          registers, and thus having a portable memory map.
+
+      size:
+        $ref: '#definitions/size'
+
+      version:
+        type: string
+        description: |
+          It is possible to specify a semantic version using the `version`
+          attribute.  The version consists of 3 numbers between 0 and 255
+          separated by comma.  The version appears in generated files.
+
+      x-hdl:
+        $ref: 'x-hdl.yaml#/definitions/x-hdl-memory-map'
+
+      x-wbgen:
+        type: object
+
+      children:
+        type: array
+        description: |
+          List of child nodes.
+        items:
+          type: object
+          additionalProperties: false
+          properties:
+            reg:
+              $ref: 'register.yaml#/definitions/register'
+            block:
+              type: object
+              # $ref: 'block.yaml#/definitions/block'
+            memory:
+              $ref: 'memory.yaml#/definitions/memory'
+            repeat:
+              $ref: 'repeat.yaml#/definitions/repeat'
+            submap:
+              $ref: 'submap.yaml#/definitions/submap'
+
+
+additionalProperties: false
+required:
+  - memory-map
