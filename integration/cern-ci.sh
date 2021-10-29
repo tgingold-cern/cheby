@@ -4,7 +4,7 @@
 set -e
 
 # Use the right python tool.
-. /acc/local/share/python/L867/setup.sh
+. /acc/local/share/python/acc-py/base/pro/setup.sh
 python -V
 
 # Check the variable is set
