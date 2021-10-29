@@ -25,7 +25,7 @@ prefix=$destdir/lib/python${pyver}/site-packages/
 mkdir -p $prefix
 
 export PYTHONPATH=$PYTHONPATH:$prefix
-python3 ./setup.py install --prefix $destdir
+pip3 install --prefix $destdir .
 
 # Update cheby-latest link
 cd $base_destdir
