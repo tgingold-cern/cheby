@@ -82,6 +82,8 @@ def decode_args():
                          help='generate Gena RegCtrl file')
     aparser.add_argument('--gen-gena-dsp-map', nargs='?', const='-',
                          help='generate Gena DSP MemMap file')
+    aparser.add_argument('--gen-gena-dsp-h', nargs='?', const='-',
+                         help='generate Gena DSP access header file')
     aparser.add_argument('--gena-common-visual', action='store_true',
                          help='use CommonVisual library in gena code')
     aparser.add_argument('--gen-wbgen-hdl', nargs='?', const='-',
@@ -218,6 +220,11 @@ def handle_file(args, filename):
             if not args.no_header:
                 gen_comment_header(f, args)
             gen_gena_dsp.gen_gena_dsp_map(f, t)
+    if args.gen_gena_dsp_h is not None:
+        with open_filename(args.gen_gena_dsp_h) as f:
+            if not args.no_header:
+                gen_comment_header(f, args)
+            gen_gena_dsp.gen_gena_dsp_h(f, t)
     if args.gen_doc is not None:
         with open_filename(args.gen_doc) as f:
             if args.doc == 'html':
