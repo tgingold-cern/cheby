@@ -484,6 +484,12 @@ def test_gena():
         dspmapfile = srcdir + 'gena/DSP/include/MemMapDSP_' + t.name + '.h'
         if not compare_buffer_and_file(buf, dspmapfile):
             error('gena DSP MemMap generation error for {}'.format(f))
+        # Test DSP access header generation
+        buf = write_buffer()
+        gen_gena_dsp.gen_gena_dsp_h(buf, t)
+        dspmapfile = srcdir + 'gena/DSP/include/vmeacc_' + t.name + '.h'
+        if not compare_buffer_and_file(buf, dspmapfile):
+            error('gena DSP header generation error for {}'.format(f))
         nbr_tests += 1
 
 
