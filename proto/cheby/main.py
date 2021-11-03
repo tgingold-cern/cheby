@@ -20,6 +20,7 @@ import cheby.expand_hdl as expand_hdl
 import cheby.gen_name as gen_name
 import cheby.gen_gena_memmap as gen_gena_memmap
 import cheby.gen_gena_regctrl as gen_gena_regctrl
+import cheby.gen_gena_dsp as gen_gena_dsp
 import cheby.gen_wbgen_hdl as gen_wbgen_hdl
 import cheby.print_html as print_html
 import cheby.print_markdown as print_markdown
@@ -79,6 +80,8 @@ def decode_args():
                          help='generate Gena MemMap file')
     aparser.add_argument('--gen-gena-regctrl', nargs='?', const='-',
                          help='generate Gena RegCtrl file')
+    aparser.add_argument('--gen-gena-dsp-map', nargs='?', const='-',
+                         help='generate Gena DSP MemMap file')
     aparser.add_argument('--gena-common-visual', action='store_true',
                          help='use CommonVisual library in gena code')
     aparser.add_argument('--gen-wbgen-hdl', nargs='?', const='-',
@@ -210,6 +213,11 @@ def handle_file(args, filename):
             if not args.no_header:
                 gen_comment_header(f, args)
             print_vhdl.print_vhdl(f, h)
+    if args.gen_gena_dsp_map is not None:
+        with open_filename(args.gen_gena_dsp_map) as f:
+            if not args.no_header:
+                gen_comment_header(f, args)
+            gen_gena_dsp.gen_gena_dsp_map(f, t)
     if args.gen_doc is not None:
         with open_filename(args.gen_doc) as f:
             if args.doc == 'html':
