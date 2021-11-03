@@ -172,12 +172,7 @@ def hprint_reg(pr, n):
         pr.pr_txt('//not implemented ctype for {}: bit_encoding = {}, el_width = {}'.format(
             name, 'unsigned', n.c_size * tree.BYTE_SIZE))
     else:
-        pr.pr_txt('{} get_{}(void);'.format(typ, name))
-        if not get_gena(n, 'rmw', False) and n.access != 'ro':
-            pr.pr_txt('void set_{}({} val);'.format(name, typ))
-        else:
-            pr.pr_txt('// read-only: {}'.format(name))
-        pr.pr_txt('')
+        hprint_prototype(pr, n, typ, name)
     hprint_enum(pr, n)
     for f in get_ordered_fields(n):
         hprint_field(pr, n, f)
@@ -209,13 +204,6 @@ def hprint_memory(pr, n):
         pr.pr_txt('//not_implemented: {}etter of a memory-data element'.format(c))
 
 
-@Printer.register(tree.Repeat)
-def mprint_repeat(mp, n):
-    mp.mp_txt('/* [0x{:x}]: REPEAT {} */'.format(
-        n.c_address, n.description or '(no description)'))
-    mprint_children(mp, n)
-
-
 @Printer.register(tree.Submap)
 def mprint_submap(mp, n):
     mp.mp_push(n.name, 0)
@@ -230,16 +218,6 @@ def hprint_submap(pr, n):
     pr.pr_pop()
 
 
-@Printer.register(tree.CompositeNode)
-def mprint_composite(mp, n, pfx):
-    mprint_children(mp, n, pfx)
-
-
-@Printer.register(tree.Root)
-def mprint_root(mp, n):
-    mprint_children(mp, n)
-
-
 def gen_gena_dsp_map(fd, root, with_date=True):
     mp = Printer(fd, root)
     if with_date:
@@ -249,7 +227,7 @@ def gen_gena_dsp_map(fd, root, with_date=True):
     if version is not None:
         mp.mp_txt("#define MEMMAP_VERSION (0x{:08X}) // memory map version, format: hex(yyyymmdd)".format(int(version)))
     mp.mp_txt('')
-    mprint_root(mp, root)
+    mprint_children(mp, root)
 
 
 def gen_gena_dsp_h(fd, root):
