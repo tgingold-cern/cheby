@@ -151,6 +151,11 @@ def gen_comment_header(f, args):
     f.write("\n")
 
 
+def gen_comment_header_maybe(f, args):
+    if not args.no_header:
+        gen_comment_header(f, args)
+
+
 def handle_file(args, filename):
     t = cheby.parser.parse_yaml(filename)
 
@@ -171,8 +176,7 @@ def handle_file(args, filename):
     if args.gen_gena_memmap is not None:
         with open_filename(args.gen_gena_memmap) as f:
             h = gen_gena_memmap.gen_gena_memmap(t)
-            if not args.no_header:
-                gen_comment_header(f, args)
+            gen_comment_header_maybe(f, args)
             print_vhdl.print_vhdl(f, h)
     if args.gen_silecs is not None:
         with open_filename(args.gen_silecs) as f:
@@ -212,18 +216,15 @@ def handle_file(args, filename):
             gen_gena_memmap.gen_gena_memmap(t)
         with open_filename(args.gen_gena_regctrl) as f:
             h = gen_gena_regctrl.gen_gena_regctrl(t, args.gena_common_visual)
-            if not args.no_header:
-                gen_comment_header(f, args)
+            gen_comment_header_maybe(f, args)
             print_vhdl.print_vhdl(f, h)
     if args.gen_gena_dsp_map is not None:
         with open_filename(args.gen_gena_dsp_map) as f:
-            if not args.no_header:
-                gen_comment_header(f, args)
+            gen_comment_header_maybe(f, args)
             gen_gena_dsp.gen_gena_dsp_map(f, t)
     if args.gen_gena_dsp_h is not None:
         with open_filename(args.gen_gena_dsp_h) as f:
-            if not args.no_header:
-                gen_comment_header(f, args)
+            gen_comment_header_maybe(f, args)
             gen_gena_dsp.gen_gena_dsp_h(f, t)
     if args.gen_doc is not None:
         with open_filename(args.gen_doc) as f:
