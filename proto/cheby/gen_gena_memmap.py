@@ -30,7 +30,7 @@ def gen_header(root, decls):
     if sem_version is not None:
         # TODO: check format ?
         vers = [int(x) for x in sem_version.split('.')]
-        ver32 = (vers[0] << 20) | (vers[1] << 10) | vers[2]
+        ver32 = (vers[0] << 16) | (vers[1] << 8) | vers[2]
         decls.append(HDLComment('Semantic Memory Map Version'))
         cst = HDLConstant(cpfx + '_SemanticMemMapVersion', 32,
                           value=HDLHexConst(ver32, 32))
