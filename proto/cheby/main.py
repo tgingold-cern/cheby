@@ -86,6 +86,8 @@ def decode_args():
                          help='generate Gena DSP access header file')
     aparser.add_argument('--gen-gena-dsp-c', nargs='?', const='-',
                          help='generate Gena DSP access C file')
+    aparser.add_argument('--gen-gena-dsp', action='store_true',
+                         help='generate Gena DSP files (in DSP/ and DSP/include')
     aparser.add_argument('--gena-common-visual', action='store_true',
                          help='use CommonVisual library in gena code')
     aparser.add_argument('--gen-wbgen-hdl', nargs='?', const='-',
@@ -230,6 +232,17 @@ def handle_file(args, filename):
             gen_gena_dsp.gen_gena_dsp_h(f, t)
     if args.gen_gena_dsp_c is not None:
         with open_filename(args.gen_gena_dsp_c) as f:
+            gen_comment_header_maybe(f, args)
+            gen_gena_dsp.gen_gena_dsp_c(f, t)
+    if args.gen_gena_dsp is not None:
+        os.makedirs("DSP/include", exist_ok=True)
+        with open_filename("DSP/include/MemMapsDSP_{}.h".format(t.name)) as f:
+            gen_comment_header_maybe(f, args)
+            gen_gena_dsp.gen_gena_dsp_map(f, t)
+        with open_filename("DSP/include/vmeacc_{}.h".format(t.name)) as f:
+            gen_comment_header_maybe(f, args)
+            gen_gena_dsp.gen_gena_dsp_h(f, t)
+        with open_filename("DSP/vmeacc_{}.c".format(t.name)) as f:
             gen_comment_header_maybe(f, args)
             gen_gena_dsp.gen_gena_dsp_c(f, t)
     if args.gen_doc is not None:
