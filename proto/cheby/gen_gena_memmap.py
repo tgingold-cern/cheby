@@ -243,7 +243,7 @@ def gen_enums(root, decls):
 
     decls.append(HDLComment('ENUMERATIONS'))
     for en in enums:
-        pfx = 'C_Code_' + en.name
+        pfx = 'C_Code_{}_{}'.format(root.name, en.name)
         wd = en.width
         for val in en.children:
             cst = HDLConstant(pfx + '_' + val.name, wd,
