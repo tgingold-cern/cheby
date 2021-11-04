@@ -49,6 +49,8 @@ memory blocks (issue#99)
 
 Add Gena DSP files generation (switches --gen-gena-dsp*) (issue#100)
 
+Fix Gena codefield/enum names generation (issue#102)
+
 ## Version 1.4
 
 Add x-hdl:pipeline to control pipelining of the root.
