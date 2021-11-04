@@ -234,7 +234,7 @@ def handle_file(args, filename):
         with open_filename(args.gen_gena_dsp_c) as f:
             gen_comment_header_maybe(f, args)
             gen_gena_dsp.gen_gena_dsp_c(f, t)
-    if args.gen_gena_dsp is not None:
+    if args.gen_gena_dsp:
         os.makedirs("DSP/include", exist_ok=True)
         with open_filename("DSP/include/MemMapsDSP_{}.h".format(t.name)) as f:
             gen_comment_header_maybe(f, args)
