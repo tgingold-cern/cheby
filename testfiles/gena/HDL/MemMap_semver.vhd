@@ -11,7 +11,7 @@ package MemMap_semver is
   constant C_semver_MemMapVersion : std_logic_vector(31 downto 0) := X"0133A207";--20161031
 
   -- Semantic Memory Map Version
-  constant C_semver_SemanticMemMapVersion : std_logic_vector(31 downto 0) := X"00100803";--1.2.3
+  constant C_semver_SemanticMemMapVersion : std_logic_vector(31 downto 0) := X"00010203";--1.2.3
   -- Register Addresses : Memory Map
   constant C_Reg_semver_test3 : std_logic_vector(19 downto 2) := "000000000000000000";-- : Word address : 0x00000; Byte Address : 0x00000
 

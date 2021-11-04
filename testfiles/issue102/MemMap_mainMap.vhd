@@ -11,7 +11,7 @@ package MemMap_mainMap is
   constant C_mainMap_MemMapVersion : std_logic_vector(31 downto 0) := X"0134659F";--20211103
 
   -- Semantic Memory Map Version
-  constant C_mainMap_SemanticMemMapVersion : std_logic_vector(31 downto 0) := X"00100000";--1.0.0
+  constant C_mainMap_SemanticMemMapVersion : std_logic_vector(31 downto 0) := X"00010000";--1.0.0
   -- Register Addresses : Memory Map
   constant C_Reg_mainMap_r1 : std_logic_vector(13 downto 2) := "000000000000";-- : Word address : 0x000; Byte Address : 0x0000
 

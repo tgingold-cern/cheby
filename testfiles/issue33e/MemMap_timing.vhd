@@ -11,7 +11,7 @@ package MemMap_timing is
   constant C_timing_MemMapVersion : std_logic_vector(31 downto 0) := X"0133EEE6";--20180710
 
   -- Semantic Memory Map Version
-  constant C_timing_SemanticMemMapVersion : std_logic_vector(31 downto 0) := X"00100401";--1.1.1
+  constant C_timing_SemanticMemMapVersion : std_logic_vector(31 downto 0) := X"00010101";--1.1.1
   -- Register Addresses : Memory Map
   constant C_Reg_timing_r1 : std_logic_vector(7 downto 1) := "0000000";-- : Word address : 0x00; Byte Address : 0x00
   constant C_Reg_timing_r2 : std_logic_vector(7 downto 1) := "0000001";-- : Word address : 0x01; Byte Address : 0x02

@@ -11,7 +11,7 @@ package MemMap_const is
   constant C_const_MemMapVersion : std_logic_vector(31 downto 0) := X"0134158F";--20190607
 
   -- Semantic Memory Map Version
-  constant C_const_SemanticMemMapVersion : std_logic_vector(31 downto 0) := X"00100400";--1.1.0
+  constant C_const_SemanticMemMapVersion : std_logic_vector(31 downto 0) := X"00010100";--1.1.0
   -- Register Addresses : Memory Map
   constant C_Reg_const_firmwareVersion : std_logic_vector(17 downto 2) := "0000000000000000";-- : Word address : 0x0000; Byte Address : 0x00000
   constant C_Reg_const_memMapVersion : std_logic_vector(17 downto 2) := "0000000000000001";-- : Word address : 0x0001; Byte Address : 0x00004
