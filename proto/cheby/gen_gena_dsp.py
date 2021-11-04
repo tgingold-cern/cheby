@@ -32,6 +32,10 @@ class Printer(tree.Visitor):
         self.pr_raw(txt)
         self.pr_raw('\n')
 
+    def pr_children(self, n):
+        for el in n.c_sorted_children:
+            self.visit(el)
+
 
 class MPrinter(Printer):
     def __init__(self, fd, root):
@@ -50,14 +54,9 @@ class HPrinter(Printer):
         super(HPrinter, self).__init__(fd, root)
 
 
-def mprint_children(pr, n):
-    for el in n.c_sorted_children:
-        pr.visit(el)
-
-
-def hprint_children(pr, n):
-    for el in n.c_sorted_children:
-        pr.visit(el)
+class CPrinter(Printer):
+    def __init__(self, fd, root):
+        super(CPrinter, self).__init__(fd, root)
 
 
 def mprint_field(mp, n, f):
@@ -133,6 +132,29 @@ def hprint_field(pr, n, f):
     hprint_enum(pr, f)
 
 
+def cprint_field(pr, n, f):
+    typ = 'unsigned int'
+    name = n.name + '_' + f.name
+    pr.pr_txt('{} get_{}() {{'.format(typ, name))  # TODO: Use (void)
+    pr.pr_txt('\t{}* preg = ({}*){};'.format(typ, typ, n.name))
+    pr.pr_txt('\t{} b_lsb = {};'.format(typ, f.lo))
+    pr.pr_txt('\t{} bval = ( (*preg & {}) >> b_lsb );'.format(typ, name))
+    pr.pr_txt('\treturn bval;')
+    pr.pr_txt('}')
+    if not get_gena(n, 'rmw', False) and n.access != 'ro':
+        pr.pr_txt('void set_{}({} bval) {{'.format(name, typ))
+        pr.pr_txt('\t{}* preg = ({}*){};'.format(typ, typ, n.name))
+        pr.pr_txt('\t{} oldval = *preg;'.format(typ))
+        pr.pr_txt('\t{} b_lsb = {};'.format(typ, f.lo))
+        pr.pr_txt('\t{} newval = (oldval & ~{}) | (bval << b_lsb);'.format(typ, name))
+        pr.pr_txt('\t*preg = newval;')
+        pr.pr_txt('}')
+    else:
+        pr.pr_txt('// read-only: {}'.format(name))
+    pr.pr_txt('')
+    hprint_enum(pr, f)
+
+
 @MPrinter.register(tree.Reg)
 def mprint_reg(mp, n):
     typ = get_ctype(n)
@@ -164,17 +186,49 @@ def hprint_reg(pr, n):
         hprint_field(pr, n, f)
 
 
+@CPrinter.register(tree.Reg)
+def cprint_reg(pr, n):
+    typ = get_ctype(n)
+    name = pr.prefix + n.name
+    if typ is None:
+        pr.pr_txt('//not implemented ctype for {}: bit_encoding = {}, el_width = {}'.format(
+            name, 'unsigned', n.c_size * tree.BYTE_SIZE))
+    else:
+        pr.pr_txt('{} get_{}() {{'.format(typ, name))  # TODO: Use (void)
+        pr.pr_txt('\t{}* preg = ({}*){};'.format(typ, typ, name))
+        pr.pr_txt('\treturn ({}) *preg;'.format(typ))   # TODO: useless cast
+        pr.pr_txt('}')
+        if not get_gena(n, 'rmw', False) and n.access != 'ro':
+            pr.pr_txt('void set_{}({} val) {{'.format(name, typ))
+            pr.pr_txt('\t{}* preg = ({}*){};'.format(typ, typ, name))
+            pr.pr_txt('\t*preg = val;')
+            pr.pr_txt('}')
+        else:
+            pr.pr_txt('// read-only: {}'.format(name))
+        pr.pr_txt('')
+    hprint_enum(pr, n)
+    for f in get_ordered_fields(n):
+        cprint_field(pr, n, f)
+
+
 @MPrinter.register(tree.Block)
 def mprint_block(mp, n):
     mp.pr_push(n.name, n.c_address)
-    mprint_children(mp, n)
+    mp.pr_children(n)
     mp.pr_pop()
 
 
 @HPrinter.register(tree.Block)
 def hprint_block(pr, n):
     pr.pr_push(n.name, n.c_address)
-    hprint_children(pr, n)
+    pr.pr_children(n)
+    pr.pr_pop()
+
+
+@CPrinter.register(tree.Block)
+def cprint_block(pr, n):
+    pr.pr_push(n.name, n.c_address)
+    pr.pr_children(n)
     pr.pr_pop()
 
 
@@ -190,17 +244,30 @@ def hprint_memory(pr, n):
         pr.pr_txt('//not_implemented: {}etter of a memory-data element'.format(c))
 
 
+@CPrinter.register(tree.Memory)
+def cprint_memory(pr, n):
+    for c in ('g', 's'):
+        pr.pr_txt('//not_implemented: {}etter of a memory-data element'.format(c))
+
+
 @MPrinter.register(tree.Submap)
 def mprint_submap(mp, n):
     mp.pr_push(n.name, 0)
-    mprint_children(mp, n.c_submap)
+    mp.pr_children(n.c_submap)
     mp.pr_pop()
 
 
 @HPrinter.register(tree.Submap)
 def hprint_submap(pr, n):
     pr.pr_push(n.name, 0)
-    hprint_children(pr, n.c_submap)
+    pr.pr_children(n.c_submap)
+    pr.pr_pop()
+
+
+@CPrinter.register(tree.Submap)
+def cprint_submap(pr, n):
+    pr.pr_push(n.name, 0)
+    pr.pr_children(n.c_submap)
     pr.pr_pop()
 
 
@@ -213,9 +280,17 @@ def gen_gena_dsp_map(fd, root, with_date=True):
     if version is not None:
         mp.pr_txt("#define MEMMAP_VERSION (0x{:08X}) // memory map version, format: hex(yyyymmdd)".format(int(version)))
     mp.pr_txt('')
-    mprint_children(mp, root)
+    mp.pr_children(root)
 
 
 def gen_gena_dsp_h(fd, root):
     pr = HPrinter(fd, root)
-    hprint_children(pr, root)
+    pr.pr_children(root)
+
+
+def gen_gena_dsp_c(fd, root):
+    pr = CPrinter(fd, root)
+    # TODO: also include .h file
+    pr.pr_txt('#include "include\\MemMapDSP_{}.h"'.format(root.name))
+    pr.pr_txt('')
+    pr.pr_children(root)
