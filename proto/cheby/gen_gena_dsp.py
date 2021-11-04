@@ -36,6 +36,16 @@ class Printer(tree.Visitor):
         for el in n.c_sorted_children:
             self.visit(el)
 
+    def pr_block(self, n):
+        self.pr_push(n.name, n.c_address)
+        self.pr_children(n)
+        self.pr_pop()
+
+    def pr_submap(self, n):
+        self.pr_push(n.name, 0)
+        self.pr_children(n.c_submap)
+        self.pr_pop()
+
 
 class MPrinter(Printer):
     def __init__(self, fd, root):
@@ -211,25 +221,9 @@ def cprint_reg(pr, n):
         cprint_field(pr, n, f)
 
 
-@MPrinter.register(tree.Block)
-def mprint_block(mp, n):
-    mp.pr_push(n.name, n.c_address)
-    mp.pr_children(n)
-    mp.pr_pop()
-
-
-@HPrinter.register(tree.Block)
-def hprint_block(pr, n):
-    pr.pr_push(n.name, n.c_address)
-    pr.pr_children(n)
-    pr.pr_pop()
-
-
-@CPrinter.register(tree.Block)
-def cprint_block(pr, n):
-    pr.pr_push(n.name, n.c_address)
-    pr.pr_children(n)
-    pr.pr_pop()
+@Printer.register(tree.Block)
+def print_block(pr, n):
+    pr.pr_block(n)
 
 
 @MPrinter.register(tree.Memory)
@@ -250,25 +244,9 @@ def cprint_memory(pr, n):
         pr.pr_txt('//not_implemented: {}etter of a memory-data element'.format(c))
 
 
-@MPrinter.register(tree.Submap)
-def mprint_submap(mp, n):
-    mp.pr_push(n.name, 0)
-    mp.pr_children(n.c_submap)
-    mp.pr_pop()
-
-
-@HPrinter.register(tree.Submap)
-def hprint_submap(pr, n):
-    pr.pr_push(n.name, 0)
-    pr.pr_children(n.c_submap)
-    pr.pr_pop()
-
-
-@CPrinter.register(tree.Submap)
-def cprint_submap(pr, n):
-    pr.pr_push(n.name, 0)
-    pr.pr_children(n.c_submap)
-    pr.pr_pop()
+@Printer.register(tree.Submap)
+def print_submap(pr, n):
+    pr.pr_submap(n)
 
 
 def gen_gena_dsp_map(fd, root, with_date=True):

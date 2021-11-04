@@ -26,7 +26,11 @@ class Node(object):
         return self._parent
 
     def visit(self, name, *args, **kwargs):
-        return self._dispatcher[name](*args, **kwargs)
+        for c in name.__mro__:
+            f = self._dispatcher.get(c, None)
+            if f is not None:
+                return f(*args, **kwargs)
+        assert False, "method not found"
 
 
 class NamedNode(Node):
