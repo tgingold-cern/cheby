@@ -56,22 +56,22 @@ package MemMap_cregsRegs is
   -- Submap Addresses : Memory Map
 
   -- ENUMERATIONS
-  constant C_Code_test1_hello : std_logic_vector(7 downto 0) := "00000000";
-  constant C_Code_test1_World : std_logic_vector(7 downto 0) := "00000001";
-  constant C_Code_test2_msBit_hello : std_logic_vector(0 downto 0) := "0";
-  constant C_Code_test2_msBit_world : std_logic_vector(0 downto 0) := "1";
-  constant C_Code_test2_msReg_hello : std_logic_vector(3 downto 0) := "0000";
-  constant C_Code_test2_msReg_world : std_logic_vector(3 downto 0) := "0001";
-  constant C_Code_test4_msBit_hello : std_logic_vector(0 downto 0) := "0";
-  constant C_Code_test4_msBit_world : std_logic_vector(0 downto 0) := "1";
-  constant C_Code_test4_msReg_hello : std_logic_vector(3 downto 0) := "0000";
-  constant C_Code_test4_msReg_world : std_logic_vector(3 downto 0) := "0001";
-  constant C_Code_test6_msBit_hello : std_logic_vector(0 downto 0) := "0";
-  constant C_Code_test6_msBit_world : std_logic_vector(0 downto 0) := "1";
-  constant C_Code_test6_msReg_hello : std_logic_vector(3 downto 0) := "0000";
-  constant C_Code_test6_msReg_world : std_logic_vector(3 downto 0) := "0001";
-  constant C_Code_test8_msBit_hello : std_logic_vector(0 downto 0) := "0";
-  constant C_Code_test8_msBit_world : std_logic_vector(0 downto 0) := "1";
-  constant C_Code_test8_msReg_hello : std_logic_vector(3 downto 0) := "0000";
-  constant C_Code_test8_msReg_world : std_logic_vector(3 downto 0) := "0001";
+  constant C_Code_cregsRegs_test1_hello : std_logic_vector(7 downto 0) := "00000000";
+  constant C_Code_cregsRegs_test1_World : std_logic_vector(7 downto 0) := "00000001";
+  constant C_Code_cregsRegs_test2_msBit_hello : std_logic_vector(0 downto 0) := "0";
+  constant C_Code_cregsRegs_test2_msBit_world : std_logic_vector(0 downto 0) := "1";
+  constant C_Code_cregsRegs_test2_msReg_hello : std_logic_vector(3 downto 0) := "0000";
+  constant C_Code_cregsRegs_test2_msReg_world : std_logic_vector(3 downto 0) := "0001";
+  constant C_Code_cregsRegs_test4_msBit_hello : std_logic_vector(0 downto 0) := "0";
+  constant C_Code_cregsRegs_test4_msBit_world : std_logic_vector(0 downto 0) := "1";
+  constant C_Code_cregsRegs_test4_msReg_hello : std_logic_vector(3 downto 0) := "0000";
+  constant C_Code_cregsRegs_test4_msReg_world : std_logic_vector(3 downto 0) := "0001";
+  constant C_Code_cregsRegs_test6_msBit_hello : std_logic_vector(0 downto 0) := "0";
+  constant C_Code_cregsRegs_test6_msBit_world : std_logic_vector(0 downto 0) := "1";
+  constant C_Code_cregsRegs_test6_msReg_hello : std_logic_vector(3 downto 0) := "0000";
+  constant C_Code_cregsRegs_test6_msReg_world : std_logic_vector(3 downto 0) := "0001";
+  constant C_Code_cregsRegs_test8_msBit_hello : std_logic_vector(0 downto 0) := "0";
+  constant C_Code_cregsRegs_test8_msBit_world : std_logic_vector(0 downto 0) := "1";
+  constant C_Code_cregsRegs_test8_msReg_hello : std_logic_vector(3 downto 0) := "0000";
+  constant C_Code_cregsRegs_test8_msReg_world : std_logic_vector(3 downto 0) := "0001";
 end MemMap_cregsRegs;

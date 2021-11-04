@@ -620,7 +620,7 @@ def test_gena_gen_regressions():
     files = ['issue7/code_fields',
              'issue_gena_rst/CRegs', 'issue_gena_rst/CRegs_srff',
              'issue32/memmap', 'gena2cheby/submap_noinc', 'issue49/mainMap', 'issue33e/timing',
-             'issue68/m1', 'issue70/m3', 'issue69/m1', 'issue73/yesno2']
+             'issue68/m1', 'issue70/m3', 'issue69/m1', 'issue73/yesno2', 'issue102/mainMap']
     for f in files:
         if verbose:
             print('test gena regression: {}'.format(f))

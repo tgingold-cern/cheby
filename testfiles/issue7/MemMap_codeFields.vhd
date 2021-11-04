@@ -49,6 +49,6 @@ package MemMap_codeFields is
   -- Submap Addresses : Memory Map
 
   -- ENUMERATIONS
-  constant C_Code_area1_myRegister_problematicCodeField : std_logic_vector(15 downto 0) := "0000000000000000";
-  constant C_Code_area2_myRegister_problematicCodeField : std_logic_vector(15 downto 0) := "0000000000000000";
+  constant C_Code_codeFields_area1_myRegister_problematicCodeField : std_logic_vector(15 downto 0) := "0000000000000000";
+  constant C_Code_codeFields_area2_myRegister_problematicCodeField : std_logic_vector(15 downto 0) := "0000000000000000";
 end MemMap_codeFields;
