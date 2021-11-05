@@ -22,12 +22,12 @@ from cheby.hdltree import (HDLModule, HDLInterface,
                            HDLConst, HDLNumber)
 import cheby.tree as tree
 import cheby.hdlutils as hdlutils
+import cheby.hdlopt as hdlopt
 from cheby.layout import ilog2
 from cheby.hdl.wbbus import WBBus
 from cheby.hdl.ibus import Ibus
 from cheby.hdl.genblock import GenBlock
 from cheby.hdl.buses import name_to_busgen
-
 
 def add_block_decoder(root, stmts, addr, children, hi, func, off):
     # :param hi: is the highest address bit to be decoded.
@@ -270,5 +270,7 @@ def generate_hdl(root):
     # Address decoders and muxes.
     add_write_mux_process(root, module, ibus)
     add_read_mux_process(root, module, ibus)
+
+    hdlopt.remove_unused(module)
 
     return module

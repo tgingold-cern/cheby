@@ -114,6 +114,7 @@ class HDLPort(HDLObject):
     def __init__(self, name=None, size=None,
                  lo_idx=0, typ='L', dir='IN', default=None):
         super(HDLPort, self).__init__(name, size, lo_idx, typ)
+        assert dir in ('IN', 'OUT', 'EXT')
         self.dir = dir
         self.default = default
         self.attributes = {}
