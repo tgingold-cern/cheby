@@ -175,7 +175,6 @@ architecture syn of all1_axi4 is
   signal wr_sel_d0                      : std_logic_vector(3 downto 0);
   signal wr_ack_d0                      : std_logic;
   signal ram1_wr                        : std_logic;
-  signal ram1_rr                        : std_logic;
   signal ram1_wreq                      : std_logic;
   signal ram1_adr_int                   : std_logic_vector(2 downto 0);
   signal ram2_wp                        : std_logic;
@@ -312,7 +311,6 @@ begin
     end if;
   end process;
   ram1_wreq <= ram1_val_int_wr;
-  ram1_rr <= ram1_val_rreq and not ram1_wreq;
   ram1_wr <= ram1_wreq;
   ram1_val_raminst: cheby_dpssram
     generic map (

@@ -39,7 +39,6 @@ architecture syn of sreg is
   signal wr_ack                         : std_logic;
   signal wr_addr                        : std_logic_vector(2 downto 2);
   signal wr_data                        : std_logic_vector(31 downto 0);
-  signal wr_strb                        : std_logic_vector(3 downto 0);
   signal axi_awset                      : std_logic;
   signal axi_wset                       : std_logic;
   signal axi_wdone                      : std_logic;
@@ -60,7 +59,6 @@ architecture syn of sreg is
   signal wr_req_d0                      : std_logic;
   signal wr_adr_d0                      : std_logic_vector(2 downto 2);
   signal wr_dat_d0                      : std_logic_vector(31 downto 0);
-  signal wr_sel_d0                      : std_logic_vector(3 downto 0);
 begin
 
   -- AW, W and B channels
@@ -83,7 +81,6 @@ begin
         end if;
         if wvalid = '1' and axi_wset = '0' then
           wr_data <= wdata;
-          wr_strb <= wstrb;
           axi_wset <= '1';
           wr_req <= axi_awset or awvalid;
         end if;
@@ -142,7 +139,6 @@ begin
         wr_req_d0 <= wr_req;
         wr_adr_d0 <= wr_addr;
         wr_dat_d0 <= wr_data;
-        wr_sel_d0 <= wr_strb;
       end if;
     end if;
   end process;

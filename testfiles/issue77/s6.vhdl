@@ -31,7 +31,6 @@ architecture syn of s6 is
   signal rd_dat_d0                      : std_logic_vector(31 downto 0);
   signal wr_req_d0                      : std_logic;
   signal wr_dat_d0                      : std_logic_vector(31 downto 0);
-  signal wr_sel_d0                      : std_logic_vector(3 downto 0);
 begin
 
   -- WB decode signals
@@ -76,7 +75,6 @@ begin
         wb_o.dat <= rd_dat_d0;
         wr_req_d0 <= wr_req_int;
         wr_dat_d0 <= wb_i.dat;
-        wr_sel_d0 <= wb_i.sel;
       end if;
     end if;
   end process;

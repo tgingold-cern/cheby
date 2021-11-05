@@ -33,8 +33,6 @@ architecture syn of mainMap is
   signal rd_ack_d0                      : std_logic;
   signal rd_dat_d0                      : std_logic_vector(31 downto 0);
   signal wr_req_d0                      : std_logic;
-  signal wr_adr_d0                      : std_logic_vector(19 downto 2);
-  signal wr_dat_d0                      : std_logic_vector(31 downto 0);
 begin
   rst_n <= not Rst;
   VMERdDone <= rd_ack_int;
@@ -50,8 +48,6 @@ begin
         rd_ack_int <= rd_ack_d0;
         VMERdData <= rd_dat_d0;
         wr_req_d0 <= VMEWrMem;
-        wr_adr_d0 <= VMEAddr;
-        wr_dat_d0 <= VMEWrData;
       end if;
     end if;
   end process;

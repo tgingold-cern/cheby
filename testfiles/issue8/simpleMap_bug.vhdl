@@ -30,7 +30,6 @@ architecture syn of exemple is
   signal rd_dat_d0                      : std_logic_vector(15 downto 0);
   signal wr_req_d0                      : std_logic;
   signal wr_adr_d0                      : std_logic_vector(19 downto 1);
-  signal wr_dat_d0                      : std_logic_vector(15 downto 0);
 begin
   rst_n <= not Rst;
   VMERdDone <= rd_ack_int;
@@ -47,7 +46,6 @@ begin
         VMERdData <= rd_dat_d0;
         wr_req_d0 <= VMEWrMem;
         wr_adr_d0 <= VMEAddr;
-        wr_dat_d0 <= VMEWrData;
       end if;
     end if;
   end process;

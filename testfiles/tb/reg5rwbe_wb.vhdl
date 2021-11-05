@@ -44,7 +44,6 @@ architecture syn of reg5rwbe_wb is
   signal wr_req_d0                      : std_logic;
   signal wr_adr_d0                      : std_logic_vector(2 downto 2);
   signal wr_dat_d0                      : std_logic_vector(31 downto 0);
-  signal wr_sel_d0                      : std_logic_vector(3 downto 0);
 begin
 
   -- WB decode signals
@@ -90,7 +89,6 @@ begin
         wr_req_d0 <= wr_req_int;
         wr_adr_d0 <= wb_adr_i;
         wr_dat_d0 <= wb_dat_i;
-        wr_sel_d0 <= wb_sel_i;
       end if;
     end if;
   end process;

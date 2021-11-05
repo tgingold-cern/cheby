@@ -19,21 +19,15 @@ end sramro;
 architecture syn of sramro is
   signal adr_int                        : std_logic_vector(7 downto 2);
   signal rd_req_int                     : std_logic;
-  signal wr_req_int                     : std_logic;
   signal rd_ack_int                     : std_logic;
   signal wr_ack_int                     : std_logic;
   signal wb_en                          : std_logic;
   signal ack_int                        : std_logic;
   signal wb_rip                         : std_logic;
-  signal wb_wip                         : std_logic;
   signal mymem_rack                     : std_logic;
   signal mymem_re                       : std_logic;
   signal rd_ack_d0                      : std_logic;
   signal rd_dat_d0                      : std_logic_vector(31 downto 0);
-  signal wr_req_d0                      : std_logic;
-  signal wr_adr_d0                      : std_logic_vector(7 downto 2);
-  signal wr_dat_d0                      : std_logic_vector(31 downto 0);
-  signal wr_sel_d0                      : std_logic_vector(3 downto 0);
 begin
 
   -- WB decode signals
@@ -54,13 +48,10 @@ begin
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
-        wb_wip <= '0';
       else
-        wb_wip <= (wb_wip or (wb_en and wb_i.we)) and not wr_ack_int;
       end if;
     end if;
   end process;
-  wr_req_int <= (wb_en and wb_i.we) and not wb_wip;
 
   ack_int <= rd_ack_int or wr_ack_int;
   wb_o.ack <= ack_int;
@@ -73,14 +64,9 @@ begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         rd_ack_int <= '0';
-        wr_req_d0 <= '0';
       else
         rd_ack_int <= rd_ack_d0;
         wb_o.dat <= rd_dat_d0;
-        wr_req_d0 <= wr_req_int;
-        wr_adr_d0 <= adr_int;
-        wr_dat_d0 <= wb_i.dat;
-        wr_sel_d0 <= wb_i.sel;
       end if;
     end if;
   end process;

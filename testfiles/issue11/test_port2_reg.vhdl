@@ -34,8 +34,6 @@ architecture syn of sreg is
   signal rd_ack_d0                      : std_logic;
   signal rd_dat_d0                      : std_logic_vector(31 downto 0);
   signal wr_req_d0                      : std_logic;
-  signal wr_dat_d0                      : std_logic_vector(31 downto 0);
-  signal wr_sel_d0                      : std_logic_vector(3 downto 0);
 begin
 
   -- WB decode signals
@@ -79,8 +77,6 @@ begin
         rd_ack_int <= rd_ack_d0;
         wb_dat_o <= rd_dat_d0;
         wr_req_d0 <= wr_req_int;
-        wr_dat_d0 <= wb_dat_i;
-        wr_sel_d0 <= wb_sel_i;
       end if;
     end if;
   end process;

@@ -37,7 +37,6 @@ architecture syn of map1 is
   signal wr_adr_d0                      : std_logic_vector(7 downto 2);
   signal wr_dat_d0                      : std_logic_vector(31 downto 0);
   signal m1_wr                          : std_logic;
-  signal m1_rr                          : std_logic;
   signal m1_wreq                        : std_logic;
   signal m1_adr_int                     : std_logic_vector(5 downto 0);
 begin
@@ -70,7 +69,6 @@ begin
     end if;
   end process;
   m1_wreq <= m1_r1_int_wr;
-  m1_rr <= m1_r1_rreq and not m1_wreq;
   m1_wr <= m1_wreq;
   m1_r1_raminst: cheby_dpssram
     generic map (

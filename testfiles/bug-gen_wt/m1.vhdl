@@ -39,8 +39,6 @@ architecture syn of m1 is
   signal wr_req_d0                      : std_logic;
   signal wr_adr_d0                      : std_logic_vector(2 downto 2);
   signal wr_dat_d0                      : std_logic_vector(31 downto 0);
-  signal sm2_ws                         : std_logic;
-  signal sm2_wt                         : std_logic;
 begin
   rst_n <= not Rst;
   VMERdDone <= rd_ack_int;
@@ -83,13 +81,10 @@ begin
   process (Clk) begin
     if rising_edge(Clk) then
       if rst_n = '0' then
-        sm2_wt <= '0';
       else
-        sm2_wt <= (sm2_wt or sm2_ws) and not sm2_VMEWrDone_i;
       end if;
     end if;
   end process;
-  sm2_ws <= wr_req_d0 or (sm2_wt and not VMERdMem);
 
   -- Process for write requests.
   process (wr_adr_d0, wr_req_d0, r1_wack, sm2_VMEWrDone_i) begin

@@ -35,7 +35,6 @@ architecture syn of sramrw is
   signal wr_req_d0                      : std_logic;
   signal wr_adr_d0                      : std_logic_vector(7 downto 2);
   signal wr_dat_d0                      : std_logic_vector(31 downto 0);
-  signal wr_sel_d0                      : std_logic_vector(3 downto 0);
   signal mymem_wp                       : std_logic;
   signal mymem_we                       : std_logic;
 begin
@@ -84,7 +83,6 @@ begin
         wr_req_d0 <= wr_req_int;
         wr_adr_d0 <= adr_int;
         wr_dat_d0 <= wb_i.dat;
-        wr_sel_d0 <= wb_i.sel;
       end if;
     end if;
   end process;

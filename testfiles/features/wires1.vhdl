@@ -50,14 +50,12 @@ architecture syn of wires1 is
   signal strobe_reg                     : std_logic_vector(31 downto 0);
   signal strobe_wreq                    : std_logic;
   signal strobe_wack                    : std_logic;
-  signal wires_wreq                     : std_logic;
   signal acks_wreq                      : std_logic;
   signal rd_ack_d0                      : std_logic;
   signal rd_dat_d0                      : std_logic_vector(31 downto 0);
   signal wr_req_d0                      : std_logic;
   signal wr_adr_d0                      : std_logic_vector(3 downto 2);
   signal wr_dat_d0                      : std_logic_vector(31 downto 0);
-  signal wr_sel_d0                      : std_logic_vector(3 downto 0);
 begin
 
   -- WB decode signals
@@ -103,7 +101,6 @@ begin
         wr_req_d0 <= wr_req_int;
         wr_adr_d0 <= wb_adr_i;
         wr_dat_d0 <= wb_dat_i;
-        wr_sel_d0 <= wb_sel_i;
       end if;
     end if;
   end process;
@@ -135,7 +132,6 @@ begin
   -- Process for write requests.
   process (wr_adr_d0, wr_req_d0, strobe_wack, acks_wack_i) begin
     strobe_wreq <= '0';
-    wires_wreq <= '0';
     acks_wreq <= '0';
     case wr_adr_d0(3 downto 2) is
     when "00" =>
@@ -144,7 +140,6 @@ begin
       wr_ack_int <= strobe_wack;
     when "01" =>
       -- Reg wires
-      wires_wreq <= wr_req_d0;
       wr_ack_int <= wr_req_d0;
     when "10" =>
       -- Reg acks

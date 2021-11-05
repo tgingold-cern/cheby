@@ -61,7 +61,6 @@ architecture syn of bugDPSSRAMbwSel is
   signal wr_dat_d0                      : std_logic_vector(31 downto 0);
   signal wr_sel_d0                      : std_logic_vector(3 downto 0);
   signal mem_wr                         : std_logic;
-  signal mem_rr                         : std_logic;
   signal mem_wreq                       : std_logic;
   signal mem_adr_int                    : std_logic_vector(9 downto 0);
 begin
@@ -159,7 +158,6 @@ begin
     end if;
   end process;
   mem_wreq <= mem_r1_int_wr;
-  mem_rr <= mem_r1_rreq and not mem_wreq;
   mem_wr <= mem_wreq;
   mem_r1_raminst: cheby_dpssram
     generic map (
