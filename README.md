@@ -51,6 +51,8 @@ Add Gena DSP files generation (switches --gen-gena-dsp*) (issue#100)
 
 Fix Gena codefield/enum names generation (issue#102)
 
+Unused HDL signals are removed (issue#86)
+
 ## Version 1.4
 
 Add x-hdl:pipeline to control pipelining of the root.
