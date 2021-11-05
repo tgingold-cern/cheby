@@ -45,13 +45,6 @@ begin
   end process;
   rd_req_int <= (wb_en and not wb_i.we) and not wb_rip;
 
-  process (clk_i) begin
-    if rising_edge(clk_i) then
-      if rst_n_i = '0' then
-      else
-      end if;
-    end if;
-  end process;
 
   ack_int <= rd_ack_int or wr_ack_int;
   wb_o.ack <= ack_int;

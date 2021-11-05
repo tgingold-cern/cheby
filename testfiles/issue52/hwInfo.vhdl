@@ -85,8 +85,6 @@ begin
         if echo_wreq(0) = '1' then
           echo_echo_reg <= wr_dat_d0(7 downto 0);
         end if;
-        if echo_wreq(1) = '1' then
-        end if;
         echo_wack <= echo_wreq;
       end if;
     end if;

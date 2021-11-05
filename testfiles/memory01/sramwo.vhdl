@@ -36,13 +36,6 @@ begin
   adr_int <= wb_i.adr(7 downto 2);
   wb_en <= wb_i.cyc and wb_i.stb;
 
-  process (clk_i) begin
-    if rising_edge(clk_i) then
-      if rst_n_i = '0' then
-      else
-      end if;
-    end if;
-  end process;
 
   process (clk_i) begin
     if rising_edge(clk_i) then

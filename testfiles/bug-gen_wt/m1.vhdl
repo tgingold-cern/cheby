@@ -78,13 +78,6 @@ begin
 
   -- Interface sm2
   sm2_VMEWrData_o <= wr_dat_d0;
-  process (Clk) begin
-    if rising_edge(Clk) then
-      if rst_n = '0' then
-      else
-      end if;
-    end if;
-  end process;
 
   -- Process for write requests.
   process (wr_adr_d0, wr_req_d0, r1_wack, sm2_VMEWrDone_i) begin
