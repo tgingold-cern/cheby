@@ -144,9 +144,13 @@ class Unused:
         elif isinstance(t, (hdltree.HDLPortGroup, hdltree.HDLPort)):
             assert t not in self.unused
             return False
+        elif isinstance(t, hdltree.HDLIfElse):
+            return not (t.then_stmts or t.else_stmts)
+        elif isinstance(t, hdltree.HDLSync):
+            return not (t.rst_stmts or t.sync_stmts)
         elif isinstance(t, (hdltree.HDLComment,
-                            hdltree.HDLSync, hdltree.HDLComb, hdltree.HDLInstance,
-                            hdltree.HDLSwitch, hdltree.HDLIfElse, hdltree.HDLChoice)):
+                            hdltree.HDLComb, hdltree.HDLInstance,
+                            hdltree.HDLSwitch, hdltree.HDLChoice)):
             return False
         else:
             assert False, "is_unused: unhandled type {} {}".format(t.__class__, t.name)
@@ -156,10 +160,12 @@ class Unused:
             return
         i = 0
         while i < len(l):
+            # Recurse first
+            self.remove_unused(l[i])
+            # Then remove if possible
             if self.is_unused(l[i]):
                 del l[i]
             else:
-                self.remove_unused(l[i])
                 i += 1
 
     def remove_unused(self, t):
