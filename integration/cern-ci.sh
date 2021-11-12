@@ -4,7 +4,7 @@
 set -e
 
 # Use the right python tool.
-. /acc/local/share/python/acc-py/base/pro/setup.sh
+. /acc/local/share/python/acc-py/setup.sh
 python -V
 pyver=$(python -c 'import sys; print("{}.{}".format(sys.version_info.major, sys.version_info.minor))')
 echo "python version: $pyver"
