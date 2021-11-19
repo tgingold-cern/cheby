@@ -53,6 +53,8 @@ Fix Gena codefield/enum names generation (issue#102)
 
 Unused HDL signals are removed (issue#86)
 
+Use a deterministic order for includes in --gen-c (issue#103)
+
 ## Version 1.4
 
 Add x-hdl:pipeline to control pipelining of the root.
