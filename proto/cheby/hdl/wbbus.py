@@ -144,7 +144,8 @@ class WBBus(BusGen):
             res = self.gen_wishbone_bus(
                 lambda n, sz, lo_idx=0, dir='IN': ports.add_port(
                     '{}_{}_{}'.format(name, n, dirname[dir]) if dir != 'EXT' else '{}_i'.format(n),
-                    size=sz, lo_idx=lo_idx, dir=dir if dir != 'EXT' else 'IN') if not (dir == 'EXT' and is_master) else None,
+                    size=sz, lo_idx=lo_idx,
+                    dir=dir if dir != 'EXT' else 'IN') if not (dir == 'EXT' and is_master) else None,
                 addr_bits, lo_addr, data_bits, is_master)
             res['cyc'].comment = comment
             return res

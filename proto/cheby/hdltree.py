@@ -15,7 +15,7 @@ class HDLUnit(HDLNode):
 
 
 class HDLPortsBase(object):
-    "Base class for a class that has ports"
+    "Base class for a class that has ports (module, interface, portgroup and component)"
     def __init__(self):
         super(HDLPortsBase, self).__init__()
         self.ports = []
@@ -42,9 +42,9 @@ class HDLModule(HDLUnit, HDLPortsBase):
         self.stmts = []
 
     def new_HDLSignal(self, *args, **kwargs):
-        r = HDLSignal(*args, **kwargs)
-        self.decls.append(r)
-        return r
+        sig = HDLSignal(*args, **kwargs)
+        self.decls.append(sig)
+        return sig
 
 
 class HDLPackage(HDLUnit):
@@ -93,6 +93,7 @@ class HDLPortGroup(HDLNode, HDLPortsBase):
         self.comment = None
         self.interface = itf
         self.is_master = is_master
+        self.parent = None
         self.attributes = {}
 
 
@@ -118,6 +119,7 @@ class HDLPort(HDLObject):
         self.dir = dir
         self.default = default
         self.attributes = {}
+        self.parent = None
 
 
 class HDLConstant(HDLObject):
@@ -257,17 +259,14 @@ class HDLConstBase(HDLCst):
 
 class HDLConst(HDLConstBase):
     "Deprecated - binary constant"
-    pass
 
 
 class HDLHexConst(HDLConstBase):
     "Hexadecimal constant.  In VHDL, size must be a multiple of 4."
-    pass
 
 
 class HDLBinConst(HDLConstBase):
     "Binary constant."
-    pass
 
 
 class HDLNumber(HDLCstValue):

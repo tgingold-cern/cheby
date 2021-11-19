@@ -1,5 +1,4 @@
 from cheby.hdltree import (HDLPort,
-                           HDLComment,
                            HDLAssign, HDLSync, HDLComb,
                            HDLIfElse,
                            bit_1, bit_0,
@@ -33,7 +32,7 @@ class AvalonBus(BusGen):
         proc.rst_stmts.append(HDLAssign(wait, bit_0))
         proc.sync_stmts.append(HDLAssign(
             wait, HDLAnd(HDLOr(wait, HDLParen(HDLOr(root.h_bus['rd'], root.h_bus['wr']))),
-                        HDLNot(HDLParen(HDLOr(ibus.rd_ack, ibus.wr_ack))))))
+                         HDLNot(HDLParen(HDLOr(ibus.rd_ack, ibus.wr_ack))))))
         module.stmts.append(proc)
 
         # address: saved on 'read' or 'write' when waitrequest is not set.
@@ -69,15 +68,15 @@ class AvalonBus(BusGen):
         """Create Avalon interface."""
         inp, out = ('IN', 'OUT') if not is_master else ('OUT', 'IN')
         bus = [
-             ('adr', build_port("address", addr_bits,
-                                lo=lo_addr, dir=inp)),
-             ('dato', build_port("readdata", data_bits, dir=out)),
-             ('dati', build_port("writedata", data_bits, dir=inp)),
-             ('be', build_port("byteenable", data_bits // tree.BYTE_SIZE, dir=inp)),
-             ('rd', build_port("read", dir=inp)),
-             ('wr', build_port("write", dir=inp)),
-             ('rack', build_port("readdatavalid", dir=out)),
-             ('wait', build_port("waitrequest", dir=out))]
+            ('adr', build_port("address", addr_bits,
+                               lo=lo_addr, dir=inp)),
+            ('dato', build_port("readdata", data_bits, dir=out)),
+            ('dati', build_port("writedata", data_bits, dir=inp)),
+            ('be', build_port("byteenable", data_bits // tree.BYTE_SIZE, dir=inp)),
+            ('rd', build_port("read", dir=inp)),
+            ('wr', build_port("write", dir=inp)),
+            ('rack', build_port("readdatavalid", dir=out)),
+            ('wait', build_port("waitrequest", dir=out))]
         return bus
 
     def expand_bus(self, root, module, ibus):
@@ -249,7 +248,7 @@ class AvalonBus(BusGen):
                 stmts.append(proc)
             else:
                 stmts.append(HDLAssign(n.h_bus['adr'],
-                                    self.slice_addr(ibus.rd_adr, root, n)))
+                                       self.slice_addr(ibus.rd_adr, root, n)))
         stmts.append(HDLAssign(n.h_bus['be'], ibus.wr_sel or HDLReplicate(bit_1, 4)))
         stmts.append(HDLAssign(n.h_bus['wr'], n.h_wr))
         stmts.append(HDLAssign(n.h_bus['rd'], n.h_rr))
