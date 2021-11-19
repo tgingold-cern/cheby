@@ -1,0 +1,20 @@
+memory-map:
+  bus: wb-32-be
+  name: top
+  description: an example with all the features
+  children:
+    - submap:
+        name: sub1
+        description: A normal submap
+        filename: sub1.cheby
+        include: False
+    - submap:
+        name: sub2
+        description: An included submap
+        filename: sub2.cheby
+        include: True
+    - submap:
+        name: sub3
+        description: An included submap
+        filename: sub3.cheby
+        include: False

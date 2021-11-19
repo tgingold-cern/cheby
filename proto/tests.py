@@ -229,6 +229,22 @@ def compare_buffer_and_file(buf, filename):
     return False
 
 
+def test_genc_ref():
+    global nbr_tests
+    fd = write_null()
+    for f in ['issue103/top']:
+        h_file = srcdir + f + '.h'
+        cheby_file = srcdir + f + '.cheby'
+        t = parse_ok(cheby_file)
+        layout_ok(t)
+        gen_name.gen_name_memmap(t)
+        buf = write_buffer()
+        gen_c.gen_c_cheby(buf, t, 'neutral')
+        if not compare_buffer_and_file(buf, h_file):
+            error('vhdl generation error for {}'.format(f))
+        nbr_tests += 1
+
+
 def test_hdl():
     # Just generate vhdl (without baseline)
     global nbr_tests
@@ -783,6 +799,7 @@ def main():
         test_parser()
         test_layout()
         test_print()
+        test_genc_ref()
         test_hdl()
         test_hdl_err()
         test_hdl_ref()

@@ -1,0 +1,10 @@
+memory-map:
+  bus: wb-32-be
+  name: sub1
+  description: A sub-design 1
+  children:
+    - reg:
+        name: reg1
+        description: a normal reg with some fields
+        width: 32
+        access: rw
