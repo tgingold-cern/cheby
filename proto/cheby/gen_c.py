@@ -185,12 +185,16 @@ def gen_c_cheby(fd, root, style):
     fd.write("#ifndef {}\n".format(csym))
     fd.write("#define {}\n".format(csym))
 
-    submaps = set([n.name for n in cp.submaps])
+    submaps = [n.name for n in cp.submaps]
     if submaps:
         fd.write('\n')
-    for s in submaps:
-        # Note: we assume the filename is the name of the memmap + h
-        fd.write('#include "{}.h"\n'.format(s))
+        # Ideally we want an ordered set.
+        done = set()
+        for s in submaps:
+            if s not in done:
+                done.add(s)
+                # Note: we assume the filename is the name of the memmap + h
+                fd.write('#include "{}.h"\n'.format(s))
 
     if cp.style == 'arm':
         # Add definition of access macros
