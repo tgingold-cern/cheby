@@ -77,23 +77,41 @@ def generate_interface_port(fd, itf, dirn, indent):
             wln(fd, "{:<16} : {};".format(p.name, generate_vhdl_type(p)))
 
 
+def has_in_out(itf, reverse):
+    """Return a tuple of boolean if inputs and outputs are present"""
+    has_input = False
+    has_output = False
+    for p in itf.ports:
+        if p.dir == 'IN':
+            has_input = True
+        elif p.dir == 'OUT':
+            has_output = True
+    if reverse:
+        return (has_output, has_input)
+    else:
+        return (has_input, has_output)
+
 def generate_interface(fd, itf, indent):
+    has_input, has_output = has_in_out(itf, False)
     generate_decl_comment(fd, itf.comment, indent)
-    windent(fd, indent)
-    wln(fd, "type {}_master_out is record".format(itf.name))
-    generate_interface_port(fd, itf, 'OUT', indent)
-    windent(fd, indent)
-    wln(fd, "end record {}_master_out;".format(itf.name))
-    windent(fd, indent)
-    wln(fd, "subtype {0}_slave_in is {0}_master_out;".format(itf.name))
-    wln(fd)
-    windent(fd, indent)
-    wln(fd, "type {}_slave_out is record".format(itf.name))
-    generate_interface_port(fd, itf, 'IN', indent)
-    windent(fd, indent)
-    wln(fd, "end record {}_slave_out;".format(itf.name))
-    windent(fd, indent)
-    wln(fd, "subtype {0}_master_in is {0}_slave_out;".format(itf.name))
+    if has_output:
+        windent(fd, indent)
+        wln(fd, "type {}_master_out is record".format(itf.name))
+        generate_interface_port(fd, itf, 'OUT', indent)
+        windent(fd, indent)
+        wln(fd, "end record {}_master_out;".format(itf.name))
+        windent(fd, indent)
+        wln(fd, "subtype {0}_slave_in is {0}_master_out;".format(itf.name))
+        if has_input:
+            wln(fd)
+    if has_input:
+        windent(fd, indent)
+        wln(fd, "type {}_slave_out is record".format(itf.name))
+        generate_interface_port(fd, itf, 'IN', indent)
+        windent(fd, indent)
+        wln(fd, "end record {}_slave_out;".format(itf.name))
+        windent(fd, indent)
+        wln(fd, "subtype {0}_master_in is {0}_slave_out;".format(itf.name))
 
 
 def generate_param(fd, p, indent):
@@ -476,12 +494,15 @@ def print_inters_list(fd, lst, name, indent):
             generate_decl_comment(fd, p.comment, indent + 1)
             group_typename = '{}_{}'.format(
                 p.interface.name, 'master' if p.is_master else 'slave')
-            windent(fd, indent + 1)
-            w(fd, "{:<20} : in    {}_in".format(p.name + '_i', group_typename))
-            wln(fd, ";")
-            windent(fd, indent + 1)
-            w(fd, "{:<20} : out   {}_out".format(
-                p.name + '_o', group_typename))
+            has_input, has_output = has_in_out(p.interface, not p.is_master)
+            if has_input:
+                windent(fd, indent + 1)
+                w(fd, "{:<20} : in    {}_in".format(p.name + '_i', group_typename))
+                if has_output:
+                    wln(fd, ";")
+            if has_output:
+                windent(fd, indent + 1)
+                w(fd, "{:<20} : out   {}_out".format(p.name + '_o', group_typename))
         else:
             raise AssertionError
     wln(fd)
