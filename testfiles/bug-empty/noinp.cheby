@@ -1,0 +1,18 @@
+memory-map:
+  bus: wb-32-be
+  name: noinp
+  description: only outputs
+  x-hdl:
+    iogroup: noinp_inter
+  children:
+    - reg:
+        name: reg0
+        description: a normal reg
+        width: 32
+        access: wo
+    - reg:
+        name: reg1
+        comment: reg1 comment
+        width: 32
+        access: wo
+        preset: 0x123
