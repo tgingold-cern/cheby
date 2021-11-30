@@ -617,16 +617,16 @@ begin
       end case;
     when "100" =>
       -- Memory RawData0
-      wr_ack_int <= '1';
+      wr_ack_int <= wr_req_d0;
     when "101" =>
       -- Memory RawData1
-      wr_ack_int <= '1';
+      wr_ack_int <= wr_req_d0;
     when "110" =>
       -- Memory RawData2
-      wr_ack_int <= '1';
+      wr_ack_int <= wr_req_d0;
     when "111" =>
       -- Memory RawData3
-      wr_ack_int <= '1';
+      wr_ack_int <= wr_req_d0;
     when others =>
       wr_ack_int <= wr_req_d0;
     end case;

@@ -267,10 +267,10 @@ begin
       end case;
     when "10" =>
       -- Memory memory_0_mem_readout
-      wr_ack_int <= '1';
+      wr_ack_int <= wr_req_d0;
     when "11" =>
       -- Memory memory_1_mem_readout
-      wr_ack_int <= '1';
+      wr_ack_int <= wr_req_d0;
     when others =>
       wr_ack_int <= wr_req_d0;
     end case;

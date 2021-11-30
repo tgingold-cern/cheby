@@ -19,11 +19,13 @@ end sramwo;
 
 architecture syn of sramwo is
   signal adr_int                        : std_logic_vector(7 downto 2);
+  signal rd_req_int                     : std_logic;
   signal wr_req_int                     : std_logic;
   signal rd_ack_int                     : std_logic;
   signal wr_ack_int                     : std_logic;
   signal wb_en                          : std_logic;
   signal ack_int                        : std_logic;
+  signal wb_rip                         : std_logic;
   signal wb_wip                         : std_logic;
   signal rd_ack_d0                      : std_logic;
   signal rd_dat_d0                      : std_logic_vector(31 downto 0);
@@ -36,6 +38,16 @@ begin
   adr_int <= wb_i.adr(7 downto 2);
   wb_en <= wb_i.cyc and wb_i.stb;
 
+  process (clk_i) begin
+    if rising_edge(clk_i) then
+      if rst_n_i = '0' then
+        wb_rip <= '0';
+      else
+        wb_rip <= (wb_rip or (wb_en and not wb_i.we)) and not rd_ack_int;
+      end if;
+    end if;
+  end process;
+  rd_req_int <= (wb_en and not wb_i.we) and not wb_rip;
 
   process (clk_i) begin
     if rising_edge(clk_i) then
@@ -83,10 +95,10 @@ begin
   end process;
 
   -- Process for read requests.
-  process () begin
+  process (rd_req_int) begin
     -- By default ack read requests
     rd_dat_d0 <= (others => 'X');
     -- Memory mymem
-    rd_ack_d0 <= '1';
+    rd_ack_d0 <= rd_req_int;
   end process;
 end syn;
