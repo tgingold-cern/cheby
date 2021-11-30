@@ -169,7 +169,7 @@ module crossbar_wb
   assign bran.dato = wr_dat_d0;
 
   // Process for write requests.
-  always @(wr_adr_d0, wr_req_d0, jesdavalon_wack, i2ctowb_wack, bran_wack) 
+  always @(wr_adr_d0, wr_req_d0, jesdavalon_wack, i2ctowb_wack, bran_wack)
       begin
         jesdavalon_we <= 1'b0;
         i2ctowb_we <= 1'b0;
@@ -204,7 +204,7 @@ module crossbar_wb
       end
 
   // Process for read requests.
-  always @(adr_int, rd_req_int, jesdavalon.dati, jesdavalon_rack, i2ctowb.dati, i2ctowb_rack, bran.dati, bran_rack) 
+  always @(adr_int, rd_req_int, jesdavalon.dati, jesdavalon_rack, i2ctowb.dati, i2ctowb_rack, bran.dati, bran_rack)
       begin
         // By default ack read requests
         rd_dat_d0 <= {32{1'bx}};
