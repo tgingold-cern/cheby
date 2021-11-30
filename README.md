@@ -58,6 +58,8 @@ Use a deterministic order for includes in --gen-c (issue#103)
 Do not print empty records in vhdl (could happen for iogroups without
 inputs or without outputs).
 
+Do not continuously ack wrong sram memory requests.
+
 ## Version 1.4
 
 Add x-hdl:pipeline to control pipelining of the root.
