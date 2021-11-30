@@ -327,7 +327,7 @@ def generate_stmts(fd, stmts, indent):
                 else:
                     w(fd, ", ")
                 w(fd, generate_expr(e))
-            wln(fd, ") ")
+            wln(fd, ")")
             generate_seq_block(fd, s.stmts, indent + 2)
         elif isinstance(s, hdltree.HDLSync):
             w(fd, sindent)
