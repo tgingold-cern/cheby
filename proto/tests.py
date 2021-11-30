@@ -39,8 +39,8 @@ class TestError(Exception):
         self.msg = msg
 
 
-def werr(str):
-    sys.stderr.write(str + '\n')
+def werr(s):
+    sys.stderr.write(s + '\n')
 
 
 def error(msg):
