@@ -286,7 +286,7 @@ def generate_seq(fd, s, level):
         for c in s.choices:
             w(fd, indent)
             if isinstance(c, hdltree.HDLChoiceExpr):
-                wln(fd, "{}: ".format(generate_expr(c.expr)))
+                wln(fd, "{}:".format(generate_expr(c.expr)))
             elif isinstance(c, hdltree.HDLChoiceDefault):
                 wln(fd, "default:")
             generate_seq_block(fd, c.stmts, level + 1)
