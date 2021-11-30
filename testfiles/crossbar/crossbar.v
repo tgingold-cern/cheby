@@ -175,15 +175,15 @@ module crossbar_wb
         i2ctowb_we <= 1'b0;
         bran_we <= 1'b0;
         case (wr_adr_d0[17:17])
-        1'b0: 
+        1'b0:
           case (wr_adr_d0[16:14])
-          3'b000: 
+          3'b000:
             begin
               // Submap jesdavalon
               jesdavalon_we <= wr_req_d0;
               wr_ack_int <= jesdavalon_wack;
             end
-          3'b001: 
+          3'b001:
             begin
               // Submap i2ctowb
               i2ctowb_we <= wr_req_d0;
@@ -192,7 +192,7 @@ module crossbar_wb
           default:
             wr_ack_int <= wr_req_d0;
           endcase
-        1'b1: 
+        1'b1:
           begin
             // Submap bran
             bran_we <= wr_req_d0;
@@ -212,16 +212,16 @@ module crossbar_wb
         i2ctowb_re <= 1'b0;
         bran_re <= 1'b0;
         case (adr_int[17:17])
-        1'b0: 
+        1'b0:
           case (adr_int[16:14])
-          3'b000: 
+          3'b000:
             begin
               // Submap jesdavalon
               jesdavalon_re <= rd_req_int;
               rd_dat_d0 <= jesdavalon.dati;
               rd_ack_d0 <= jesdavalon_rack;
             end
-          3'b001: 
+          3'b001:
             begin
               // Submap i2ctowb
               i2ctowb_re <= rd_req_int;
@@ -231,7 +231,7 @@ module crossbar_wb
           default:
             rd_ack_d0 <= rd_req_int;
           endcase
-        1'b1: 
+        1'b1:
           begin
             // Submap bran
             bran_re <= rd_req_int;
