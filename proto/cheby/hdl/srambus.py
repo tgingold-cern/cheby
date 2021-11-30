@@ -94,7 +94,7 @@ class SRAMBus(BusGen):
             proc.sensitivity.append(wr)
         else:
             # Avoid deadlock (or latches)
-            stmts.append(HDLAssign(ibus.wr_ack, bit_1))
+            stmts.append(HDLAssign(ibus.wr_ack, ibus.wr_req))
 
     def read_bus_slave(self, root, stmts, n, proc, ibus, rd_data):
         if n.c_bus_access in ('ro', 'rw'):
@@ -105,4 +105,4 @@ class SRAMBus(BusGen):
             proc.sensitivity.extend([ibus.rd_req, n.h_bus['dati'], n.h_rack])
         else:
             # Avoid deadlock (or latches)
-            stmts.append(HDLAssign(ibus.rd_ack, bit_1))
+            stmts.append(HDLAssign(ibus.rd_ack, ibus.rd_req))
