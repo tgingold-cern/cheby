@@ -60,6 +60,8 @@ inputs or without outputs).
 
 Do not continuously ack wrong sram memory requests.
 
+Remove a trailing space in verilog generated code.
+
 ## Version 1.4
 
 Add x-hdl:pipeline to control pipelining of the root.
