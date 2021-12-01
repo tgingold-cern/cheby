@@ -691,6 +691,11 @@ being `vhdl`.
   $ cheby --hdl=vhdl --gen-hdl=OUTPUT.vhdl -i INPUT.cheby
 ----
 
+By default, there is a comment header (at the start of the hdl file) with
+the options used to generate the file, the date of generation and the
+author.  You can disable this header generation using `--header=none`
+option.  You can remove the date and author using `--header=commit`.
+
 === Generating EDGE file
 
 You can generate an EDGE block definition (in CSV) with the
