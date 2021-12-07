@@ -155,8 +155,14 @@ def gen_comment_header(f, args):
     f.write("{}  {}\n".format(c, " ".join(sys.argv[1:])))
 
     if args.header == 'full' or args.header is None:
+        # getting username may fail in case of Docker containers,
+        # SystemD dynamic users or sudo
+        try:
+            user = getpass.getuser()
+        except KeyError:
+            user = 'unknown'
         f.write("{} Generated on {date} by {user}\n".format(
-            c, date=time.strftime("%a %b %d %X %Y"), user=getpass.getuser()))
+            c, date=time.strftime("%a %b %d %X %Y"), user=user))
 
     f.write("\n")
 
