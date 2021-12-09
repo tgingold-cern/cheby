@@ -74,7 +74,7 @@ begin
       end if;
     end if;
   end process;
-  acqVP_ws <= wr_req_d0 or (acqVP_wt and not VMERdMem);
+  acqVP_VMEWrMem_o <= acqVP_ws;
   process (VMEAddr, wr_adr_d0, acqVP_wt, acqVP_ws) begin
     if (acqVP_ws or acqVP_wt) = '1' then
       acqVP_VMEAddr_o <= wr_adr_d0(16 downto 1);
@@ -101,12 +101,12 @@ begin
 
   -- Process for write requests.
   process (wr_adr_d0, wr_req_d0, acqVP_VMEWrDone_i, softReset_wack) begin
-    acqVP_VMEWrMem_o <= '0';
+    acqVP_ws <= '0';
     softReset_wreq <= '0';
     case wr_adr_d0(20 downto 20) is
     when "0" =>
       -- Memory acqVP
-      acqVP_VMEWrMem_o <= wr_req_d0;
+      acqVP_ws <= wr_req_d0;
       wr_ack_int <= acqVP_VMEWrDone_i;
     when "1" =>
       case wr_adr_d0(19 downto 1) is

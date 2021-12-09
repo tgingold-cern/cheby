@@ -127,7 +127,7 @@ begin
       end if;
     end if;
   end process;
-  m0_ws <= wr_req_d0 or (m0_wt and not rd_req_int);
+  m0_VMEWrMem_o <= m0_ws;
   process (wb_adr_i, wr_adr_d0, m0_wt, m0_ws) begin
     if (m0_ws or m0_wt) = '1' then
       m0_VMEAddr_o <= wr_adr_d0(12 downto 2);
@@ -147,7 +147,7 @@ begin
       end if;
     end if;
   end process;
-  m1_ws <= wr_req_d0 or (m1_wt and not rd_req_int);
+  m1_VMEWrMem_o <= m1_ws;
   process (wb_adr_i, wr_adr_d0, m1_wt, m1_ws) begin
     if (m1_ws or m1_wt) = '1' then
       m1_VMEAddr_o <= wr_adr_d0(11 downto 2);
@@ -167,7 +167,7 @@ begin
       end if;
     end if;
   end process;
-  m2_ws <= wr_req_d0 or (m2_wt and not rd_req_int);
+  m2_VMEWrMem_o <= m2_ws;
   process (wb_adr_i, wr_adr_d0, m2_wt, m2_ws) begin
     if (m2_ws or m2_wt) = '1' then
       m2_VMEAddr_o <= wr_adr_d0(11 downto 2);
@@ -178,23 +178,23 @@ begin
 
   -- Process for write requests.
   process (wr_adr_d0, wr_req_d0, m0_VMEWrDone_i, m1_VMEWrDone_i, m2_VMEWrDone_i) begin
-    m0_VMEWrMem_o <= '0';
-    m1_VMEWrMem_o <= '0';
-    m2_VMEWrMem_o <= '0';
+    m0_ws <= '0';
+    m1_ws <= '0';
+    m2_ws <= '0';
     case wr_adr_d0(13 downto 13) is
     when "0" =>
       -- Memory m0
-      m0_VMEWrMem_o <= wr_req_d0;
+      m0_ws <= wr_req_d0;
       wr_ack_int <= m0_VMEWrDone_i;
     when "1" =>
       case wr_adr_d0(12 downto 12) is
       when "0" =>
         -- Memory m1
-        m1_VMEWrMem_o <= wr_req_d0;
+        m1_ws <= wr_req_d0;
         wr_ack_int <= m1_VMEWrDone_i;
       when "1" =>
         -- Memory m2
-        m2_VMEWrMem_o <= wr_req_d0;
+        m2_ws <= wr_req_d0;
         wr_ack_int <= m2_VMEWrDone_i;
       when others =>
         wr_ack_int <= wr_req_d0;

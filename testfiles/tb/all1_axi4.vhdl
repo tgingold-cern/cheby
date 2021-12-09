@@ -535,8 +535,8 @@ begin
     ram2_wr_o <= '0';
     sub1_wb_we <= '0';
     sub2_axi4_wr <= '0';
-    sub3_cernbe_VMEWrMem_o <= '0';
     sub3_cernbe_we <= '0';
+    sub3_cernbe_VMEWrMem_o <= '0';
     sub4_avalon_we <= '0';
     case wr_adr_d0(14 downto 12) is
     when "000" =>

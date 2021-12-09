@@ -161,8 +161,8 @@ begin
 
   -- Process for write requests.
   process (wr_req_d0, sub_ws, sub_VMEWrDone_i) begin
-    sub_VMEWrMem_o <= '0';
     sub_we <= '0';
+    sub_VMEWrMem_o <= '0';
     -- Submap sub
     sub_we <= wr_req_d0;
     sub_VMEWrMem_o <= sub_ws;

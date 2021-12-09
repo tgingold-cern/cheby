@@ -85,7 +85,7 @@ begin
       end if;
     end if;
   end process;
-  subMap1_ws <= wr_req_d0 or (subMap1_wt and not VMERdMem);
+  subMap1_VMEWrMem_o <= subMap1_ws;
   process (VMEAddr, wr_adr_d0, subMap1_wt, subMap1_ws) begin
     if (subMap1_ws or subMap1_wt) = '1' then
       subMap1_VMEAddr_o <= wr_adr_d0(12 downto 2);
@@ -105,7 +105,7 @@ begin
       end if;
     end if;
   end process;
-  subMap2_ws <= wr_req_d0 or (subMap2_wt and not VMERdMem);
+  subMap2_VMEWrMem_o <= subMap2_ws;
   process (VMEAddr, wr_adr_d0, subMap2_wt, subMap2_ws) begin
     if (subMap2_ws or subMap2_wt) = '1' then
       subMap2_VMEAddr_o <= wr_adr_d0(12 downto 2);
@@ -116,16 +116,16 @@ begin
 
   -- Process for write requests.
   process (wr_adr_d0, wr_req_d0, subMap1_VMEWrDone_i, subMap2_VMEWrDone_i) begin
-    subMap1_VMEWrMem_o <= '0';
-    subMap2_VMEWrMem_o <= '0';
+    subMap1_ws <= '0';
+    subMap2_ws <= '0';
     case wr_adr_d0(14 downto 13) is
     when "00" =>
       -- Submap subMap1
-      subMap1_VMEWrMem_o <= wr_req_d0;
+      subMap1_ws <= wr_req_d0;
       wr_ack_int <= subMap1_VMEWrDone_i;
     when "01" =>
       -- Submap subMap2
-      subMap2_VMEWrMem_o <= wr_req_d0;
+      subMap2_ws <= wr_req_d0;
       wr_ack_int <= subMap2_VMEWrDone_i;
     when others =>
       wr_ack_int <= wr_req_d0;

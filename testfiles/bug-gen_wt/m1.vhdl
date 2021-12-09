@@ -39,6 +39,7 @@ architecture syn of m1 is
   signal wr_req_d0                      : std_logic;
   signal wr_adr_d0                      : std_logic_vector(2 downto 2);
   signal wr_dat_d0                      : std_logic_vector(31 downto 0);
+  signal sm2_ws                         : std_logic;
 begin
   rst_n <= not Rst;
   VMERdDone <= rd_ack_int;
@@ -78,11 +79,12 @@ begin
 
   -- Interface sm2
   sm2_VMEWrData_o <= wr_dat_d0;
+  sm2_VMEWrMem_o <= sm2_ws;
 
   -- Process for write requests.
   process (wr_adr_d0, wr_req_d0, r1_wack, sm2_VMEWrDone_i) begin
     r1_wreq <= '0';
-    sm2_VMEWrMem_o <= '0';
+    sm2_ws <= '0';
     case wr_adr_d0(2 downto 2) is
     when "0" =>
       -- Reg r1
@@ -90,7 +92,7 @@ begin
       wr_ack_int <= r1_wack;
     when "1" =>
       -- Submap sm2
-      sm2_VMEWrMem_o <= wr_req_d0;
+      sm2_ws <= wr_req_d0;
       wr_ack_int <= sm2_VMEWrDone_i;
     when others =>
       wr_ack_int <= wr_req_d0;

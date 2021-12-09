@@ -97,7 +97,7 @@ begin
       end if;
     end if;
   end process;
-  subm_ws <= wr_req_d0 or (subm_wt and not VMERdMem);
+  subm_VMEWrMem_o <= subm_ws;
   process (VMEAddr, wr_adr_d0, subm_wt, subm_ws) begin
     if (subm_ws or subm_wt) = '1' then
       subm_VMEAddr_o <= wr_adr_d0(2 downto 2);
@@ -108,9 +108,9 @@ begin
 
   -- Process for write requests.
   process (wr_req_d0, subm_VMEWrDone_i) begin
-    subm_VMEWrMem_o <= '0';
+    subm_ws <= '0';
     -- Submap subm
-    subm_VMEWrMem_o <= wr_req_d0;
+    subm_ws <= wr_req_d0;
     wr_ack_int <= subm_VMEWrDone_i;
   end process;
 
