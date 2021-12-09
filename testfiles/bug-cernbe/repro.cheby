@@ -1,0 +1,13 @@
+memory-map:
+  bus: cern-be-vme-16
+  name: example
+  description: An example of a cheby memory map
+  children:
+    - reg:
+        name: regA
+        description: The first register (with some fields)
+        width: 32
+        access: rw
+    - submap:
+        name: sm
+        filename: sub_repro.cheby

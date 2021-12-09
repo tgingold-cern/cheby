@@ -1,0 +1,65 @@
+[*]
+[*] GTKWave Analyzer v3.3.100 (w)1999-2019 BSI
+[*] Tue Dec  7 10:49:39 2021
+[*]
+[dumpfile] "/Users/gingold/work/cheby/testfiles/bug-cernbevme/tb.ghw"
+[dumpfile_mtime] "Tue Dec  7 10:42:33 2021"
+[dumpfile_size] 3516
+[savefile] "/Users/gingold/work/cheby/testfiles/bug-cernbevme/tb.gtkw"
+[timestart] 0
+[size] 1388 814
+[pos] -1 -1
+*-24.263632 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] top.
+[treeopen] top.tb_repro.
+[treeopen] top.tb_repro.sub_dut.
+[sst_width] 193
+[signals_width] 202
+[sst_expanded] 1
+[sst_vpaned_height] 242
+@28
+top.tb_repro.clk
+top.tb_repro.rst
+@800200
+-bus
+@22
+#{top.tb_repro.vmeaddr[12:1]} top.tb_repro.vmeaddr[3] top.tb_repro.vmeaddr[2] top.tb_repro.vmeaddr[1]
+@28
+top.tb_repro.vmerdmem
+@22
+#{top.tb_repro.vmewrdata[15:0]} top.tb_repro.vmewrdata[15] top.tb_repro.vmewrdata[14] top.tb_repro.vmewrdata[13] top.tb_repro.vmewrdata[12] top.tb_repro.vmewrdata[11] top.tb_repro.vmewrdata[10] top.tb_repro.vmewrdata[9] top.tb_repro.vmewrdata[8] top.tb_repro.vmewrdata[7] top.tb_repro.vmewrdata[6] top.tb_repro.vmewrdata[5] top.tb_repro.vmewrdata[4] top.tb_repro.vmewrdata[3] top.tb_repro.vmewrdata[2] top.tb_repro.vmewrdata[1] top.tb_repro.vmewrdata[0]
+@28
+top.tb_repro.vmewrdone
+top.tb_repro.vmewrmem
+@22
+#{top.tb_repro.vmerddata[15:0]} top.tb_repro.vmerddata[15] top.tb_repro.vmerddata[14] top.tb_repro.vmerddata[13] top.tb_repro.vmerddata[12] top.tb_repro.vmerddata[11] top.tb_repro.vmerddata[10] top.tb_repro.vmerddata[9] top.tb_repro.vmerddata[8] top.tb_repro.vmerddata[7] top.tb_repro.vmerddata[6] top.tb_repro.vmerddata[5] top.tb_repro.vmerddata[4] top.tb_repro.vmerddata[3] top.tb_repro.vmerddata[2] top.tb_repro.vmerddata[1] top.tb_repro.vmerddata[0]
+@28
+top.tb_repro.vmerddone
+@1000200
+-bus
+@800200
+-sm-bus
+@23
+#{top.tb_repro.sm_vmeaddr_o[11:1]} top.tb_repro.sm_vmeaddr_o[2] top.tb_repro.sm_vmeaddr_o[1]
+@29
+top.tb_repro.sm_vmewrmem_o
+@23
+#{top.tb_repro.sm_vmewrdata_o[15:0]} top.tb_repro.sm_vmewrdata_o[15] top.tb_repro.sm_vmewrdata_o[14] top.tb_repro.sm_vmewrdata_o[13] top.tb_repro.sm_vmewrdata_o[12] top.tb_repro.sm_vmewrdata_o[11] top.tb_repro.sm_vmewrdata_o[10] top.tb_repro.sm_vmewrdata_o[9] top.tb_repro.sm_vmewrdata_o[8] top.tb_repro.sm_vmewrdata_o[7] top.tb_repro.sm_vmewrdata_o[6] top.tb_repro.sm_vmewrdata_o[5] top.tb_repro.sm_vmewrdata_o[4] top.tb_repro.sm_vmewrdata_o[3] top.tb_repro.sm_vmewrdata_o[2] top.tb_repro.sm_vmewrdata_o[1] top.tb_repro.sm_vmewrdata_o[0]
+@29
+top.tb_repro.sm_vmewrdone_i
+top.tb_repro.sm_vmerdmem_o
+@23
+#{top.tb_repro.sm_vmerddata_i[15:0]} top.tb_repro.sm_vmerddata_i[15] top.tb_repro.sm_vmerddata_i[14] top.tb_repro.sm_vmerddata_i[13] top.tb_repro.sm_vmerddata_i[12] top.tb_repro.sm_vmerddata_i[11] top.tb_repro.sm_vmerddata_i[10] top.tb_repro.sm_vmerddata_i[9] top.tb_repro.sm_vmerddata_i[8] top.tb_repro.sm_vmerddata_i[7] top.tb_repro.sm_vmerddata_i[6] top.tb_repro.sm_vmerddata_i[5] top.tb_repro.sm_vmerddata_i[4] top.tb_repro.sm_vmerddata_i[3] top.tb_repro.sm_vmerddata_i[2] top.tb_repro.sm_vmerddata_i[1] top.tb_repro.sm_vmerddata_i[0]
+@29
+top.tb_repro.sm_vmerddone_i
+@1000200
+-sm-bus
+@28
+top.tb_repro.sub_dut.vmewrdone
+top.tb_repro.sub_dut.wr_ack_int
+top.tb_repro.sub_dut.wr_req_d0
+#{top.tb_repro.sub_dut.wr_adr_d0[2:1]} top.tb_repro.sub_dut.wr_adr_d0[2] top.tb_repro.sub_dut.wr_adr_d0[1]
+#{top.tb_repro.sub_dut.subra_wack[1:0]} top.tb_repro.sub_dut.subra_wack[1] top.tb_repro.sub_dut.subra_wack[0]
+#{top.tb_repro.sub_dut.subra_wreq[1:0]} top.tb_repro.sub_dut.subra_wreq[1] top.tb_repro.sub_dut.subra_wreq[0]
+[pattern_trace] 1
+[pattern_trace] 0
