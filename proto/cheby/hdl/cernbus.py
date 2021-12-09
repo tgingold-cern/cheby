@@ -212,9 +212,7 @@ class CERNBEBus(BusGen):
                           HDLAnd(HDLOr(n.h_wt, n.h_ws), HDLNot(n.h_bus['wack']))))
             proc.rst_stmts.append(HDLAssign(n.h_wt, bit_0))
             stmts.append(proc)
-            module.stmts.append(
-                HDLAssign(n.h_ws,
-                          HDLOr(ibus.wr_req, HDLParen(HDLAnd(n.h_wt, HDLNot(ibus.rd_req))))))
+            stmts.append(HDLAssign(n.h_bus['wr'], n.h_ws))
             # Mux for addresses.
             if n.c_addr_bits > 0:
                 self.gen_adr_mux(root, module, n, ibus)
@@ -224,13 +222,17 @@ class CERNBEBus(BusGen):
                                        HDLSlice(ibus.rd_adr, root.c_addr_word_bits, n.c_addr_bits)))
 
     def write_bus_slave(self, root, stmts, n, proc, ibus):
-        proc.stmts.append(HDLAssign(n.h_bus['wr'], bit_0))
         if root.h_bussplit:
             # Start write transaction if WR is set and neither read nor write transaction
             proc.stmts.append(HDLAssign(n.h_we, bit_0))
             stmts.append(HDLAssign(n.h_we, ibus.wr_req))
+            proc.stmts.append(HDLAssign(n.h_bus['wr'], bit_0))
             stmts.append(HDLAssign(n.h_bus['wr'], n.h_ws))
+        elif ibus.rd_adr != ibus.wr_adr:
+            proc.stmts.append(HDLAssign(n.h_ws, bit_0))
+            stmts.append(HDLAssign(n.h_ws, ibus.wr_req))
         else:
+            proc.stmts.append(HDLAssign(n.h_bus['wr'], bit_0))
             stmts.append(HDLAssign(n.h_bus['wr'], ibus.wr_req))
         stmts.append(HDLAssign(ibus.wr_ack, n.h_bus['wack']))
 
