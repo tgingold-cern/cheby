@@ -289,6 +289,25 @@ begin
     --  Testing AVALON
     test_bus ("avalon", x"0000_4000");
 
+    --  Test bug when first writing a reg and then read in a submap.
+    --  Check with the wb submap.
+    wb_writel (clk, wb_out, wb_in, x"0000_1000", x"def7_0000");
+    wb_writel (clk, wb_out, wb_in, x"0000_0004", x"def7_8505");
+    wb_readl (clk, wb_out, wb_in, x"0000_1000", v);
+    assert v = x"def7_0000" severity error;
+
+    --  Check with the axi submap.
+    wb_writel (clk, wb_out, wb_in, x"0000_2000", x"def6_0000");
+    wb_writel (clk, wb_out, wb_in, x"0000_0004", x"def6_8505");
+    wb_readl (clk, wb_out, wb_in, x"0000_2000", v);
+    assert v = x"def6_0000" severity error;
+
+    --  Check with the cernbe submap.
+    wb_writel (clk, wb_out, wb_in, x"0000_3000", x"def8_0000");
+    wb_writel (clk, wb_out, wb_in, x"0000_0004", x"def8_8505");
+    wb_readl (clk, wb_out, wb_in, x"0000_3000", v);
+    assert v = x"def8_0000" severity error;
+
     wait until rising_edge(clk);
 
     end_of_test <= true;

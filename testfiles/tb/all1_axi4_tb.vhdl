@@ -318,6 +318,25 @@ begin
     --  Testing AVALON
     test_bus ("avalon", x"0000_4000");
 
+    --  Test bug when first writing a reg and then read in a submap.
+    --  Check with the wb submap.
+    axi4lite_write (clk, wr_out, wr_in, x"0000_1000", x"def7_0000");
+    axi4lite_write (clk, wr_out, wr_in, x"0000_0004", x"def7_8505");
+    axi4lite_read (clk, rd_out, rd_in, x"0000_1000", v);
+    assert v = x"def7_0000" severity error;
+
+    --  Check with the axi submap.
+    axi4lite_write (clk, wr_out, wr_in, x"0000_2000", x"def6_0000");
+    axi4lite_write (clk, wr_out, wr_in, x"0000_0004", x"def6_8505");
+    axi4lite_read (clk, rd_out, rd_in, x"0000_2000", v);
+    assert v = x"def6_0000" severity error;
+
+    --  Check with the cernbe submap.
+    axi4lite_write (clk, wr_out, wr_in, x"0000_3000", x"def8_0000");
+    axi4lite_write (clk, wr_out, wr_in, x"0000_0004", x"def8_8505");
+    axi4lite_read (clk, rd_out, rd_in, x"0000_3000", v);
+    assert v = x"def8_0000" severity error;
+
     wait until rising_edge(clk);
 
     report "end of test" severity note;
@@ -329,7 +348,7 @@ begin
   --  Watchdog.
   process
   begin
-    wait until end_of_test for 6 us;
+    wait until end_of_test for 7 us;
     assert end_of_test report "timeout" severity failure;
     wait;
   end process;
