@@ -670,6 +670,20 @@ def test_gena_gen_regressions():
         nbr_tests += 1
 
 
+def test_gena_dsp_regressions():
+    global nbr_tests
+    files = ['issue106/m1']
+    for f in files:
+        if verbose:
+            print('test gena regression: {}'.format(f))
+        chebfile = srcdir + f + '.cheby'
+        # Test parse+layout
+        t = parse_ok(chebfile)
+        layout_ok(t)
+        sub_gena_compare(f, t)
+        nbr_tests += 1
+
+
 def test_wbgen2cheby():
     global nbr_tests
     files = ['reg1', 'reg2', 'reg_field1', 'reg_in', 'reg_noprefix', 'reg_noprefix2',
@@ -819,6 +833,7 @@ def main():
         test_gena2cheby_err()
         test_gena2cheby_regressions()
         test_gena_gen_regressions()
+        test_gena_dsp_regressions()
         test_wbgen2cheby()
         test_consts()
         test_doc()
