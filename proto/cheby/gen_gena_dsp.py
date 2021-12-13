@@ -43,7 +43,10 @@ class Printer(tree.Visitor):
 
     def pr_submap(self, n):
         self.pr_push(n.name, 0)
+        prev_root = self.root
+        self.root = n.c_submap
         self.pr_children(n.c_submap)
+        self.root = prev_root
         self.pr_pop()
 
 
@@ -252,7 +255,7 @@ def print_submap(pr, n):
 def gen_gena_dsp_map(fd, root, with_date=True):
     mp = MPrinter(fd, root)
     if with_date:
-        ts = datetime.datetime.now()    
+        ts = datetime.datetime.now()
         mp.pr_txt('#define GENERATED_ON (0x{0:08X})  // generation time, format: hex(yyyymmdd)'.format(int(ts.strftime("%Y%m%d"))))
     version = get_gena(root, 'map-version')
     if version is not None:
