@@ -66,6 +66,8 @@ Add and document option --header.
 
 Fix incorrect access to a submap using cern-be bus in generated HDL.
 
+Fix a crash in --gen-gena-dsp in case of submap with enums (issue#106)
+
 ## Version 1.4
 
 Add x-hdl:pipeline to control pipelining of the root.
