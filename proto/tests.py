@@ -444,6 +444,32 @@ def test_self():
     test((lambda: layout_err(t)), "layout_err")
 
 
+def sub_gena_compare(filename, t):
+    # Test DSP map generation
+    idx = filename.find('/')
+    basedir = filename[:idx + 1]
+    # Note: Gena fails on Regs_small, sub_reg_swap, Cregs_resize_signed,
+    #   Muxed
+    #   And order is different for sub_reg_one
+    buf = write_buffer()
+    gen_gena_dsp.gen_gena_dsp_map(buf, t, with_date=False)
+    dspmapfile = srcdir + basedir + 'DSP/include/MemMapsDSP_' + t.name + '.h'
+    if not compare_buffer_and_file(buf, dspmapfile):
+        error('gena DSP MemMap generation error for {}'.format(filename))
+    # Test DSP access header generation
+    buf = write_buffer()
+    gen_gena_dsp.gen_gena_dsp_h(buf, t)
+    dspmapfile = srcdir + basedir + 'DSP/include/vmeacc_' + t.name + '.h'
+    if not compare_buffer_and_file(buf, dspmapfile):
+        error('gena DSP header generation error for {}'.format(filename))
+    # Test DSP access C generation
+    buf = write_buffer()
+    gen_gena_dsp.gen_gena_dsp_c(buf, t)
+    dspmapfile = srcdir + basedir + 'DSP/vmeacc_' + t.name + '.c'
+    if not compare_buffer_and_file(buf, dspmapfile):
+        error('gena DSP C generation error for {}'.format(filename))
+
+
 def test_gena():
     # Feature tests
     global nbr_tests
@@ -496,26 +522,7 @@ def test_gena():
         if not compare_buffer_and_file(buf, regctrlfile):
             error('gena regctrl generation error for {}'.format(f))
         # Test DSP map generation
-        # Note: Gena fails on Regs_small, sub_reg_swap, Cregs_resize_signed,
-        #   Muxed
-        #   And order is different for sub_reg_one
-        buf = write_buffer()
-        gen_gena_dsp.gen_gena_dsp_map(buf, t, with_date=False)
-        dspmapfile = srcdir + 'gena/DSP/include/MemMapDSP_' + t.name + '.h'
-        if not compare_buffer_and_file(buf, dspmapfile):
-            error('gena DSP MemMap generation error for {}'.format(f))
-        # Test DSP access header generation
-        buf = write_buffer()
-        gen_gena_dsp.gen_gena_dsp_h(buf, t)
-        dspmapfile = srcdir + 'gena/DSP/include/vmeacc_' + t.name + '.h'
-        if not compare_buffer_and_file(buf, dspmapfile):
-            error('gena DSP header generation error for {}'.format(f))
-        # Test DSP access C generation
-        buf = write_buffer()
-        gen_gena_dsp.gen_gena_dsp_c(buf, t)
-        dspmapfile = srcdir + 'gena/DSP/vmeacc_' + t.name + '.c'
-        if not compare_buffer_and_file(buf, dspmapfile):
-            error('gena DSP C generation error for {}'.format(f))
+        sub_gena_compare('gena/' + f, t)
         nbr_tests += 1
 
 
