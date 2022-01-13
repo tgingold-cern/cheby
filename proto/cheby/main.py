@@ -248,7 +248,7 @@ def handle_file(args, filename):
             gen_gena_dsp.gen_gena_dsp_c(f, t)
     if args.gen_gena_dsp:
         os.makedirs("DSP/include", exist_ok=True)
-        with open_filename("DSP/include/MemMapsDSP_{}.h".format(t.name)) as f:
+        with open_filename("DSP/include/MemMapDSP_{}.h".format(t.name)) as f:
             gen_comment_header_maybe(f, args)
             gen_gena_dsp.gen_gena_dsp_map(f, t)
         with open_filename("DSP/include/vmeacc_{}.h".format(t.name)) as f:
