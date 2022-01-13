@@ -439,6 +439,7 @@ def layout_block(lo, n):
         layout_composite_size(lo, n)
     else:
         # No children.  Set size and alignment
+        n.c_sorted_children = []
         if n.size_val is None:
             raise LayoutException(
                 n, "no size for empty block '{}'".format(n.get_path()))
