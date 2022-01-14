@@ -305,7 +305,8 @@ def test_hdl_err():
     for f in ['issue11/test_port1_err1', 'issue11/test_port_err2',
               'access/const_err_wo', 'access/const_err_nopreset',
               'access/autoclear_err_ro',
-              'access/orclr_err_ro', 'access/orclr_err_wo']:
+              'access/orclr_err_ro', 'access/orclr_err_wo',
+              'issue109/test']:
         if verbose:
             print('test hdl error: {}'.format(f))
         t = parse_ok(srcdir + f + '.cheby')
