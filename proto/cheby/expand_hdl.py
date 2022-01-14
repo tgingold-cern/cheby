@@ -176,10 +176,12 @@ def expand_x_hdl_root(n, dct):
     n.hdl_pipeline = None
     n.hdl_bus_attribute = None
     for k, v in dct.items():
-        if k in ['busgroup', 'iogroup',
+        if k in ['busgroup',
                  'reg_prefix', 'reg-prefix', 'block_prefix', 'block-prefix',
                  'name-suffix']:
             pass
+        elif k == 'iogroup':
+            name = parser.read_text(n, k, v)
         elif k == 'bus-attribute':
             if v in ('Xilinx',):
                 n.hdl_bus_attribute = v

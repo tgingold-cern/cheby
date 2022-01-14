@@ -27,11 +27,14 @@ def isstr(s):
         return isinstance(s, str)
 
 
-def read_text(parent, key, val):
+def read_text(parent, key, val, allow_empty = False):
+    if val is None or val == "":
+        if allow_empty:
+            return val
+        else:
+            error("expect a non-empty string for {}:{}".format(parent.get_path(), key))
     if isstr(val):
         return val
-    if val is None:
-        return None
     error("expect a string for {}:{}".format(parent.get_path(), key))
 
 
@@ -75,11 +78,11 @@ def parse_name(node, els):
 
 def parse_named(node, key, val):
     if key == 'name':
-        node.name = read_text(node, key, val)
+        node.name = read_text(node, key, val, allow_empty=True)
     elif key == 'description':
         node.description = read_text(node, key, val)
     elif key == 'comment':
-        node.comment = read_text(node, key, val)
+        node.comment = read_text(node, key, val, allow_empty=True)
         if node.comment:
             node.comment = node.comment.rstrip()
     elif key == 'note':
