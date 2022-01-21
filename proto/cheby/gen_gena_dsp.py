@@ -92,7 +92,7 @@ def mprint_enum(mp, n, pfx):
     if enum is None:
         return
     enums = mp.root.c_enums_dict[enum]
-    for e in enums.children:
+    for e in sorted(enums.children, key=lambda a: a.value):
         mp.pr_txt('#define {:50s} {} // code-field'.format(pfx + '_' + e.name, e.value))
 
 
