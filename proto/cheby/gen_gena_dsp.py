@@ -73,7 +73,7 @@ class CPrinter(Printer):
 
 
 def mprint_field(mp, n, f):
-    pfx = n.name + '_' + f.name
+    pfx = mp.prefix + n.name + '_' + f.name
     mask = 1 << f.lo
     if f.hi is None:
         comment = 'bit-field-data'
@@ -180,7 +180,7 @@ def mprint_reg(mp, n):
         else:
             acc = ACC[n.access]
         mp.mp_addr(n, '// register-data, {}, {}'.format(acc, typ))
-    mprint_enum(mp, n, n.name)
+    mprint_enum(mp, n, mp.prefix + n.name)
     for f in get_ordered_fields(n):
         mprint_field(mp, n, f)
 
