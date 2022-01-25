@@ -42,7 +42,7 @@ class Printer(tree.Visitor):
         self.pr_pop()
 
     def pr_submap(self, n):
-        self.pr_push(n.name, 0)
+        self.pr_push(n.name, n.c_address)
         prev_root = self.root
         self.root = n.c_submap
         self.pr_children(n.c_submap)
