@@ -108,7 +108,7 @@ def get_ctype(n):
     if n.c_type == 'signed':
         typ = {1: 'int8_t',
                2: 'int16_t',
-               4: 'int32_t',
+               4: 'int',
                8: None}[n.c_size]
     elif n.c_type == 'float':
         typ = {4: 'float',
