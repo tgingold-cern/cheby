@@ -141,13 +141,13 @@ def hprint_prototype(pr, n, typ, name):
 
 
 def hprint_field(pr, n, f):
-    hprint_prototype(pr, n, 'unsigned int', n.name + '_' + f.name)
+    hprint_prototype(pr, n, 'unsigned int', pr.prefix + n.name + '_' + f.name)
     hprint_enum(pr, f)
 
 
 def cprint_field(pr, n, f):
     typ = 'unsigned int'
-    name = n.name + '_' + f.name
+    name = pr.prefix + n.name + '_' + f.name
     pr.pr_txt('{} get_{}() {{'.format(typ, name))  # TODO: Use (void)
     pr.pr_txt('\t{}* preg = ({}*){};'.format(typ, typ, n.name))
     pr.pr_txt('\t{} b_lsb = {};'.format(typ, f.lo))
