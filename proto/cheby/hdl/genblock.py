@@ -3,6 +3,7 @@ from cheby.hdl.genreg import GenReg
 from cheby.hdl.geninterface import GenInterface
 from cheby.hdl.genmemory import GenMemory
 from cheby.hdl.gensubmap import GenSubmap
+from cheby.hdltree import HDLInterface
 import cheby.tree as tree
 from cheby.layout import ilog2
 
@@ -38,8 +39,21 @@ class GenBlock(ElGen):
             n.h_gen.create_generators()
 
     def gen_ports(self):
+        if self.n.hdl_iogroup is not None:
+            if self.root.h_itf:
+                print("nested interface is ignored")
+                self.root.hdl_iogroup = None
+            else:
+                self.root.h_itf = HDLInterface('t_' + self.n.hdl_iogroup)
+                self.module.global_decls.append(self.root.h_itf)
+                self.root.h_ports = self.module.add_modport(self.n.hdl_iogroup, self.root.h_itf, True)
+
         for n in self.n.children:
             n.h_gen.gen_ports()
+
+        if self.n.hdl_iogroup is not None:
+            self.root.h_itf = None
+            self.root.h_ports = self.module
 
     def gen_processes(self, ibus):
         for n in self.n.children:

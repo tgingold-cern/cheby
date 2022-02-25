@@ -151,9 +151,12 @@ def expand_pipeline(n, v):
 
 
 def expand_x_hdl_block(n, dct):
-    for k, _ in dct.items():
+    n.hdl_iogroup = None
+    for k, v in dct.items():
         if k in ('reg-prefix', 'block-prefix'):
             pass
+        elif k == 'iogroup':
+            n.hdl_iogroup = parser.read_text(n, k, v)
         else:
             parser.error("unhandled '{}' in x-hdl of {}".format(
                 k, n.get_path()))
@@ -175,13 +178,14 @@ def expand_x_hdl_memory(n, dct):
 def expand_x_hdl_root(n, dct):
     n.hdl_pipeline = None
     n.hdl_bus_attribute = None
+    n.hdl_iogroup = None
     for k, v in dct.items():
         if k in ['busgroup',
                  'reg_prefix', 'reg-prefix', 'block_prefix', 'block-prefix',
                  'name-suffix']:
             pass
         elif k == 'iogroup':
-            name = parser.read_text(n, k, v)
+            n.hdl_iogroup = parser.read_text(n, k, v)
         elif k == 'bus-attribute':
             if v in ('Xilinx',):
                 n.hdl_bus_attribute = v
@@ -309,6 +313,7 @@ def unroll_repeat(n):
     res.c_address = n.c_address
     res.c_size = n.c_size
     res.c_align = n.c_align
+    res.hdl_iogroup = n.hdl_iogroup
     if hasattr(n, 'x_hdl'):
         res.x_hdl = n.x_hdl
     for i in range(n.count):
@@ -320,6 +325,7 @@ def unroll_repeat(n):
         blk.c_align = n.c_align
         blk.children = [tree_copy(el, blk) for el in n.children]
         blk.origin = n
+        blk.hdl_iogroup = None
         layout.build_sorted_children(blk)
         res.children.append(blk)
     layout.build_sorted_children(res)
@@ -357,6 +363,7 @@ def expand_hdl(root):
             c.hdl_module_name = root.hdl_module_name
             c.hdl_bus_attribute = root.hdl_bus_attribute
             c.hdl_pipeline = root.hdl_pipeline
+            c.hdl_iogroup = None
             c.bus = root.bus
     else:
         expand_memmap_hdl(root)
