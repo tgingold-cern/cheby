@@ -164,6 +164,14 @@ def pprint_block(pp, n):
     pp.pp_endobj()
 
 
+@PrettyPrinter.register(tree.RepeatBlock)
+def pprint_repeat_block(pp, n):
+    pp.pp_obj('repeat-block')
+    pprint_complex_head(pp, n)
+    pprint_complex_tail(pp, n)
+    pp.pp_endobj()
+
+
 @PrettyPrinter.register(tree.Submap)
 def pprint_submap(pp, n):
     pp.pp_obj('submap')

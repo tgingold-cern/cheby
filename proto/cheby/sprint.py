@@ -59,17 +59,23 @@ def sprint_reg(sp, n):
         for f in n.children:
             sp.sp_field(f)
 
-
-@SimplePrinter.register(tree.Block)
-def sprint_block(sp, n):
-    if isinstance(n.origin, tree.Repeat):
-        sp.sp_name('block (from repeat)', n)
-    else:
-        sp.sp_name('block', n)
+def sprint_block_children(sp, n):
     old_base = sp.base_addr
     sp.base_addr += n.c_address
     sprint_composite(sp, n)
     sp.base_addr = old_base
+
+
+@SimplePrinter.register(tree.Block)
+def sprint_block(sp, n):
+    sp.sp_name('block', n)
+    sprint_block_children(sp, n)
+
+
+@SimplePrinter.register(tree.RepeatBlock)
+def sprint_repeatblock(sp, n):
+    sp.sp_name('repeat-block', n)
+    sprint_block_children(sp, n)
 
 
 @SimplePrinter.register(tree.Submap)

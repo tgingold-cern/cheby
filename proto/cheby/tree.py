@@ -129,6 +129,12 @@ class Block(CompositeNode):
         self.origin = None
 
 
+class RepeatBlock(Block):
+    """Like a block, but expanded from Repeat"""
+    _dispatcher = {}
+    NAME = "RepeatBlock"
+
+
 class Submap(CompositeNode):
     _dispatcher = {}
     NAME = "Submap"

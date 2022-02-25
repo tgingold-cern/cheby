@@ -307,7 +307,7 @@ def tree_copy(n, new_parent):
 
 def unroll_repeat(n):
     # Transmute the array to COUNT blocks
-    res = tree.Block(n.parent)
+    res = tree.RepeatBlock(n.parent)
     res.name = n.name
     res.align = n.align
     res.c_address = n.c_address

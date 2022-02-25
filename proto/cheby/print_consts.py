@@ -251,6 +251,11 @@ def pconsts_block(pr, n):
     pconsts_composite_children(pr, n)
 
 
+@ConstsVisitor.register(tree.RepeatBlock)
+def pconsts_repeatblock(pr, n):
+    pconsts_block(pr, n)
+
+
 @ConstsVisitor.register(tree.Submap)
 def pconsts_submap(pr, n):
     pr.pr_address(n)

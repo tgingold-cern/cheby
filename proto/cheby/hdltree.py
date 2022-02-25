@@ -87,6 +87,7 @@ class HDLSignal(HDLObject):
 
 
 class HDLPortGroup(HDLNode, HDLPortsBase):
+    """Declare an interface instance"""
     def __init__(self, name=None, itf=None, is_master=True):
         super(HDLPortGroup, self).__init__()
         self.name = name
@@ -98,6 +99,7 @@ class HDLPortGroup(HDLNode, HDLPortsBase):
 
 
 class HDLInterface(HDLNode, HDLPortsBase):
+    """Declare an interface (the type, not an instance)"""
     def __init__(self, name=None):
         super(HDLInterface, self).__init__()
         self.name = name
@@ -105,6 +107,7 @@ class HDLInterface(HDLNode, HDLPortsBase):
 
 
 class HDLInterfaceSelect(HDLNode):
+    """Select port :param subport: in interface :param prefix:"""
     def __init__(self, prefix, subport):
         super(HDLInterfaceSelect, self).__init__()
         self.prefix = prefix

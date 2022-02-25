@@ -65,6 +65,7 @@ def gen_name_children(parent, prefix, ctxt):
     parent.hdl_blk_prefix = ctxt.blk_prefix
     parent.hdl_reg_prefix = ctxt.reg_prefix
 
+    # If the parent is expanded from a repeat, append the index.
     if isinstance(parent, tree.Block) and isinstance(parent.origin, tree.Repeat) and not ctxt.blk_prefix:
         for n in parent.children:
             n.name += parent.name
