@@ -247,16 +247,8 @@ def generate_hdl(root):
         gen_enums(root, module)
 
     # Add ports
-    if root.hdl_iogroup is not None:
-        root.h_itf = HDLInterface('t_' + root.hdl_iogroup)
-        module.global_decls.append(root.h_itf)
-        grp = module.add_modport(root.hdl_iogroup, root.h_itf, True)
-        grp.comment = 'Wires and registers'
-        root.h_ports = grp
-    else:
-        root.h_itf = None
-        root.h_ports = module
-
+    root.h_itf = None
+    root.h_ports = module
     root.h_gen.gen_ports()
 
     if root.hdl_pipeline:
