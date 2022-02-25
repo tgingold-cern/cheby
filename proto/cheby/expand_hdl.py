@@ -330,15 +330,15 @@ def unroll_repeats(n):
     if isinstance(n, tree.Reg):
         # Nothing to do.
         return n
-    if isinstance(n, tree.Repeat):
-        # Unroll
-        return unroll_repeat(n)
     if isinstance(n, tree.CompositeNode):
         nl = [unroll_repeats(el) for el in n.children]
         n.children = nl
         layout.build_sorted_children(n)
+    if isinstance(n, tree.Repeat):
+        # Unroll
+        return unroll_repeat(n)
+    else:
         return n
-    raise AssertionError
 
 
 def expand_memmap_hdl(root):
