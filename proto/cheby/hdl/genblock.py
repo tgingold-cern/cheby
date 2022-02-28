@@ -11,7 +11,9 @@ class GenBlock(ElGen):
     def create_generators(self):
         """Add the object to generate hdl"""
         for n in self.n.children:
-            if isinstance(n, tree.Block):
+            if isinstance(n, tree.RepeatBlock):
+                n.h_gen = GenRepeatBlock(self.root, self.module, n)
+            elif isinstance(n, tree.Block):
                 n.h_gen = GenBlock(self.root, self.module, n)
             elif isinstance(n, tree.Submap):
                 if n.include is True:
@@ -66,3 +68,7 @@ class GenBlock(ElGen):
 
     def gen_write(self, s, off, ibus, wrproc):
         raise AssertionError
+
+
+class GenRepeatBlock(GenBlock):
+    pass
