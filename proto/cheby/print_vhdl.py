@@ -481,7 +481,7 @@ def print_inters_list(fd, lst, name, indent):
             generate_port(fd, p, indent + 1)
         elif isinstance(p, hdltree.HDLParam):
             generate_param(fd, p, indent + 1)
-        elif isinstance(p, hdltree.HDLPortGroup):
+        elif isinstance(p, hdltree.HDLInterfaceInstance):
             # External ports of a slave interface become extra normal ports.
             if not p.is_master:
                 for itfp in p.interface.ports:

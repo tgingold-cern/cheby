@@ -39,7 +39,7 @@ class Unused:
             assert t.dir == 'OUT'
             self.discovered.add(t)
 
-    def build_portgroup(self, t):
+    def build_interfaceinstance(self, t):
         assert t not in self.graph
         # The interface is known to be used (as it is connected to the outside)
         # But we also need to extract dependencies for its outputs.
@@ -51,7 +51,7 @@ class Unused:
         self.graph[t] = set()
 
     def extract_target(self, t):
-        if isinstance(t, (hdltree.HDLSignal, hdltree.HDLPortGroup, hdltree.HDLPort)):
+        if isinstance(t, (hdltree.HDLSignal, hdltree.HDLInterfaceInstance, hdltree.HDLPort)):
             return t
         elif isinstance(t, (hdltree.HDLInterfaceSelect, hdltree.HDLSlice, hdltree.HDLIndex)):
             # For index: check the index is const.
@@ -62,7 +62,7 @@ class Unused:
     def build_expr(self, s, e):
         if e is None:
             return
-        if isinstance(e, (hdltree.HDLSignal, hdltree.HDLPort, hdltree.HDLPortGroup)):
+        if isinstance(e, (hdltree.HDLSignal, hdltree.HDLPort, hdltree.HDLInterfaceInstance)):
             s.add(e)
         elif isinstance(e, (hdltree.HDLSlice, hdltree.HDLIndex)):
             self.build_expr(s, e.prefix)
@@ -88,8 +88,8 @@ class Unused:
             self.build_module(t)
         elif isinstance(t, hdltree.HDLPort):
             self.build_port(t)
-        elif isinstance(t, (hdltree.HDLInterface, hdltree.HDLPortGroup)):
-            self.build_portgroup(t)
+        elif isinstance(t, (hdltree.HDLInterface, hdltree.HDLInterfaceInstance)):
+            self.build_interfaceinstance(t)
         elif isinstance(t, hdltree.HDLSignal):
             self.build_signal(t)
         elif isinstance(t, hdltree.HDLAssign):
@@ -141,7 +141,7 @@ class Unused:
         elif isinstance(t, (hdltree.HDLInterfaceSelect,
                             hdltree.HDLIndex, hdltree.HDLSlice)):
             return self.is_unused(t.prefix)
-        elif isinstance(t, (hdltree.HDLPortGroup, hdltree.HDLPort)):
+        elif isinstance(t, (hdltree.HDLInterfaceInstance, hdltree.HDLPort)):
             assert t not in self.unused
             return False
         elif isinstance(t, hdltree.HDLIfElse):

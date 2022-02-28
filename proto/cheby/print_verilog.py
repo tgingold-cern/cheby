@@ -395,7 +395,7 @@ def print_inters_list(fd, lst, name, indent):
             generate_port(fd, p, indent + 1)
         elif isinstance(p, hdltree.HDLParam):
             generate_param(fd, p, indent + 1)
-        elif isinstance(p, hdltree.HDLPortGroup):
+        elif isinstance(p, hdltree.HDLInterfaceInstance):
             generate_decl_comment(fd, p.comment, indent + 1)
             group_typename = '{}.{}'.format(
                 p.interface.name, 'master' if p.is_master else 'slave')
@@ -417,7 +417,7 @@ def extract_reg_init(decls):
     for d in decls:
         if isinstance(d, (hdltree.HDLSignal, hdltree.HDLPort)):
             d.p_vlg_reg = None
-        elif isinstance(d, hdltree.HDLPortGroup):
+        elif isinstance(d, hdltree.HDLInterfaceInstance):
             # Renames ports which have the same name
             names = {}
             for p in d.interface.ports:

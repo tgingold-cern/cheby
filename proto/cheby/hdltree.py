@@ -27,7 +27,7 @@ class HDLPortsBase(object):
         return res
 
     def add_modport(self, *args, **kwargs):
-        res = HDLPortGroup(*args, **kwargs)
+        res = HDLInterfaceInstance(*args, **kwargs)
         res.parent = self
         self.ports.append(res)
         return res
@@ -86,10 +86,10 @@ class HDLSignal(HDLObject):
     pass
 
 
-class HDLPortGroup(HDLNode, HDLPortsBase):
+class HDLInterfaceInstance(HDLNode, HDLPortsBase):
     """Declare an interface instance"""
     def __init__(self, name=None, itf=None, is_master=True):
-        super(HDLPortGroup, self).__init__()
+        super(HDLInterfaceInstance, self).__init__()
         self.name = name
         self.comment = None
         self.interface = itf
