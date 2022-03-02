@@ -1,0 +1,17 @@
+memory-map:
+  bus: wb-32-be
+  name: igroup2
+  children:
+  - reg:
+      name: areg
+      access: rw
+      width: 32
+  - block:
+      name: blk
+      x-hdl:
+        iogroup: blk
+      children:
+      - reg:
+          name: breg
+          access: rw
+          width: 32
