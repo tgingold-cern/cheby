@@ -79,6 +79,8 @@ def generate_interface_port(fd, itf, dirn, indent):
 
 def has_in_out(itf, reverse):
     """Return a tuple of boolean if inputs and outputs are present"""
+    if isinstance(itf, hdltree.HDLInterfaceArray):
+        return has_in_out(itf.prefix, reverse)
     has_input = False
     has_output = False
     for p in itf.ports:
@@ -91,6 +93,7 @@ def has_in_out(itf, reverse):
     else:
         return (has_input, has_output)
 
+
 def generate_interface(fd, itf, indent):
     has_input, has_output = has_in_out(itf, False)
     generate_decl_comment(fd, itf.comment, indent)
@@ -102,8 +105,7 @@ def generate_interface(fd, itf, indent):
         wln(fd, "end record {}_master_out;".format(itf.name))
         windent(fd, indent)
         wln(fd, "subtype {0}_slave_in is {0}_master_out;".format(itf.name))
-        if has_input:
-            wln(fd)
+        wln(fd)
     if has_input:
         windent(fd, indent)
         wln(fd, "type {}_slave_out is record".format(itf.name))
@@ -112,6 +114,29 @@ def generate_interface(fd, itf, indent):
         wln(fd, "end record {}_slave_out;".format(itf.name))
         windent(fd, indent)
         wln(fd, "subtype {0}_master_in is {0}_slave_out;".format(itf.name))
+        wln(fd)
+
+
+def generate_interface_array(fd, itf, indent):
+    generate_decl(fd, itf.prefix, indent)
+    has_input, has_output = has_in_out(itf.prefix, False)
+    name = itf.prefix.name
+    if has_output:
+        windent(fd, indent)
+        wln(fd, "type {0}_master_out_array is array(natural range <>) of".format(name))
+        windent(fd, indent + 1)
+        wln(fd, "{0}_master_out;".format(name))
+        windent(fd, indent)
+        wln(fd, "subtype {0}_slave_in_array is {0}_master_out_array;".format(name))
+        wln(fd)
+    if has_input:
+        windent(fd, indent)
+        wln(fd, "type {0}_master_in_array is array(natural range <>) of".format(name))
+        windent(fd, indent + 1)
+        wln(fd, "{0}_master_in;".format(name))
+        windent(fd, indent)
+        wln(fd, "subtype {0}_slave_out_array is {0}_master_in_array;".format(name))
+        wln(fd)
 
 
 def generate_param(fd, p, indent):
@@ -169,8 +194,20 @@ def generate_decl(fd, d, indent):
         generate_comment(fd, d, indent)
     elif isinstance(d, hdltree.HDLInterface):
         generate_interface(fd, d, indent)
+    elif isinstance(d, hdltree.HDLInterfaceArray):
+        generate_interface_array(fd, d, indent)
     else:
         raise AssertionError(d)
+
+
+def generate_name_interface(itf, dirn):
+    if isinstance(itf, hdltree.HDLInterfaceInstance):
+        sfx = 'i' if (dirn == 'IN') == itf.is_master else 'o'
+        return "{}_{}".format(itf.name, sfx)
+    elif isinstance(itf, hdltree.HDLInterfaceIndex):
+        return "{}({})".format(generate_name_interface(itf.prefix, dirn), itf.index)
+    else:
+        raise AssertionError(itf)
 
 
 operator = {hdltree.HDLAnd: (' and ', 4),
@@ -259,8 +296,7 @@ def generate_expr(e, prio=-1):
         if e.subport.dir == 'EXT':
             return "{}_i".format(e.subport.name)
         else:
-            sfx = 'i' if (e.subport.dir == 'IN') == (e.prefix.is_master) else 'o'
-            return "{}_{}.{}".format(e.prefix.name, sfx, e.subport.name)
+            return "{}.{}".format(generate_name_interface(e.prefix, e.subport.dir), e.subport.name)
     elif isinstance(e, hdltree.HDLExternalName):
         return e.name
     else:
@@ -466,6 +502,18 @@ def generate_stmts(fd, stmts, indent):
             assert False, "unhandled hdl stmt {}".format(s)
 
 
+def get_interface_name(inter, is_master, is_out):
+    if isinstance(inter, hdltree.HDLInterface):
+        return '{}_{}_{}'.format(inter.name,
+                                 'master' if is_master else 'slave',
+                                 'out' if is_out else 'in')
+    elif isinstance(inter, hdltree.HDLInterfaceArray):
+        pnam = get_interface_name(inter.prefix, is_master, is_out)
+        return "{}_array(0 to {})".format(pnam, inter.count - 1)
+    else:
+        raise AssertionError
+
+
 def print_inters_list(fd, lst, name, indent):
     if not lst:
         return
@@ -492,17 +540,17 @@ def print_inters_list(fd, lst, name, indent):
                         wln(fd, ";")
             # The interface is composed of two records: for the inputs and for the outputs.
             generate_decl_comment(fd, p.comment, indent + 1)
-            group_typename = '{}_{}'.format(
-                p.interface.name, 'master' if p.is_master else 'slave')
             has_input, has_output = has_in_out(p.interface, not p.is_master)
             if has_input:
                 windent(fd, indent + 1)
-                w(fd, "{:<20} : in    {}_in".format(p.name + '_i', group_typename))
+                nam = get_interface_name(p.interface, p.is_master, False)
+                w(fd, "{:<20} : in    {}".format(p.name + '_i', nam))
                 if has_output:
                     wln(fd, ";")
             if has_output:
                 windent(fd, indent + 1)
-                w(fd, "{:<20} : out   {}_out".format(p.name + '_o', group_typename))
+                nam = get_interface_name(p.interface, p.is_master, True)
+                w(fd, "{:<20} : out   {}".format(p.name + '_o', nam))
         else:
             raise AssertionError
     wln(fd)

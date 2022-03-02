@@ -314,6 +314,7 @@ def unroll_repeat(n):
     res.c_size = n.c_size
     res.c_align = n.c_align
     res.hdl_iogroup = n.hdl_iogroup
+    res.count = n.count
     if hasattr(n, 'x_hdl'):
         res.x_hdl = n.x_hdl
     for i in range(n.count):

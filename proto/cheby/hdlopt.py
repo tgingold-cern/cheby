@@ -8,8 +8,12 @@ import cheby.hdltree as hdltree
 
 class Unused:
     def __init__(self):
+        # Signals that are known to be used.  The initial set is input ports.
         self.used = set()
+        # Signals that have been discovered, but not known if used.
         self.discovered = set()
+        # Graph of dependency: if a signal S is used, all signals that are used to
+        # to compute S are also used.
         self.graph = {}
         self.unused = set()
 
@@ -53,7 +57,8 @@ class Unused:
     def extract_target(self, t):
         if isinstance(t, (hdltree.HDLSignal, hdltree.HDLInterfaceInstance, hdltree.HDLPort)):
             return t
-        elif isinstance(t, (hdltree.HDLInterfaceSelect, hdltree.HDLSlice, hdltree.HDLIndex)):
+        elif isinstance(t, (hdltree.HDLInterfaceSelect, hdltree.HDLInterfaceIndex,
+                            hdltree.HDLSlice, hdltree.HDLIndex)):
             # For index: check the index is const.
             return self.extract_target(t.prefix)
         else:
@@ -67,7 +72,7 @@ class Unused:
         elif isinstance(e, (hdltree.HDLSlice, hdltree.HDLIndex)):
             self.build_expr(s, e.prefix)
             self.build_expr(s, e.index)
-        elif isinstance(e, hdltree.HDLInterfaceSelect):
+        elif isinstance(e, (hdltree.HDLInterfaceSelect, hdltree.HDLInterfaceIndex)):
             self.build_expr(s, e.prefix)
         elif isinstance(e, hdltree.HDLBinary):
             self.build_expr(s, e.left)
@@ -88,7 +93,7 @@ class Unused:
             self.build_module(t)
         elif isinstance(t, hdltree.HDLPort):
             self.build_port(t)
-        elif isinstance(t, (hdltree.HDLInterface, hdltree.HDLInterfaceInstance)):
+        elif isinstance(t, (hdltree.HDLInterface, hdltree.HDLInterfaceArray, hdltree.HDLInterfaceInstance)):
             self.build_interfaceinstance(t)
         elif isinstance(t, hdltree.HDLSignal):
             self.build_signal(t)
@@ -139,6 +144,7 @@ class Unused:
         elif isinstance(t, hdltree.HDLAssign):
             return self.is_unused(t.target)
         elif isinstance(t, (hdltree.HDLInterfaceSelect,
+                            hdltree.HDLInterfaceIndex,
                             hdltree.HDLIndex, hdltree.HDLSlice)):
             return self.is_unused(t.prefix)
         elif isinstance(t, (hdltree.HDLInterfaceInstance, hdltree.HDLPort)):

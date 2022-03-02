@@ -106,12 +106,45 @@ class HDLInterface(HDLNode, HDLPortsBase):
         self.comment = None
 
 
+class HDLInterfaceArray(HDLNode):
+    """Declare an interface array"""
+    def __init__(self, prefix, count):
+        super(HDLInterfaceArray, self).__init__()
+        # TODO: array of array ?
+        assert isinstance(prefix, HDLInterface)
+        self.prefix = prefix
+        self.count = count
+        self.name_prefix = ''
+        self.first_index = True
+        self.names = {}
+
+    def add_port(self, name, *args, **kwargs):
+        assert name.startswith(self.name_prefix)
+        name = name[len(self.name_prefix):]
+        if self.first_index:
+            res = HDLPort(name, *args, **kwargs)
+            res.parent = self.prefix
+            self.prefix.ports.append(res)
+            self.names[name] = res
+            return res
+        else:
+            return self.names[name]
+        
+
 class HDLInterfaceSelect(HDLNode):
     """Select port :param subport: in interface :param prefix:"""
     def __init__(self, prefix, subport):
         super(HDLInterfaceSelect, self).__init__()
         self.prefix = prefix
         self.subport = subport
+
+
+class HDLInterfaceIndex(HDLNode):
+    """Select port :param subport: in interface :param prefix:"""
+    def __init__(self, prefix, index):
+        super(HDLInterfaceIndex, self).__init__()
+        self.prefix = prefix
+        self.index = index
 
 
 class HDLPort(HDLObject):

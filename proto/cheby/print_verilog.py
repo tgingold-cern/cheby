@@ -61,23 +61,45 @@ def generate_interface_port(fd, itf, dirn, indent):
             wln(fd, "{:<16} : {};".format(p.name, generate_verilog_type(p)))
 
 
+def generate_interface_modport(fd, itf, dirn, dirname):
+    first = True
+    for p in itf.ports:
+        if p.dir == dirn:
+            if first:
+                w(fd, dirname)
+                first = False
+            else:
+                w(fd, ',')
+            w(fd, " {}".format(p.name))
+    return not first
+
 def generate_interface(fd, itf, indent):
     generate_decl_comment(fd, itf.comment, indent)
     windent(fd, indent)
-    wln(fd, "type {}_master_out is record".format(itf.name))
-    generate_interface_port(fd, itf, 'OUT', indent)
+    wln(fd, "interface {};".format(itf.name))
+    for p in itf.ports:
+        windent(fd, indent + 1)
+        wln(fd, "logic {}{};".format(generate_verilog_type(p), p.name))
+    windent(fd, indent + 1)
+    w(fd, "modport master(")
+    p = generate_interface_modport(fd, itf, 'IN', 'input')
+    if p:
+        w(fd, ', ')
+    generate_interface_modport(fd, itf, 'OUT', 'output')
+    wln(fd, ');')
+    windent(fd, indent + 1)
+    w(fd, "modport slave(")
+    p = generate_interface_modport(fd, itf, 'IN', 'output')
+    if p:
+        w(fd, ', ')
+    generate_interface_modport(fd, itf, 'OUT', 'input')
+    wln(fd, ');')
     windent(fd, indent)
-    wln(fd, "end record {}_master_out;".format(itf.name))
-    windent(fd, indent)
-    wln(fd, "subtype {0}_slave_in is {0}_master_out;".format(itf.name))
-    wln(fd)
-    windent(fd, indent)
-    wln(fd, "type {}_slave_out is record".format(itf.name))
-    generate_interface_port(fd, itf, 'IN', indent)
-    windent(fd, indent)
-    wln(fd, "end record {}_slave_out;".format(itf.name))
-    windent(fd, indent)
-    wln(fd, "subtype {0}_master_in is {0}_slave_out;".format(itf.name))
+    wln(fd, "endinterface")
+
+
+def generate_interface_array(fd, itf, indent):
+    generate_decl(fd, itf.prefix, indent)
 
 
 def generate_param(fd, p, indent):
@@ -118,6 +140,8 @@ def generate_decl(fd, d, indent):
         generate_comment(fd, d, indent)
     elif isinstance(d, hdltree.HDLInterface):
         generate_interface(fd, d, indent)
+    elif isinstance(d, hdltree.HDLInterfaceArray):
+        generate_interface_array(fd, d, indent)
     else:
         raise AssertionError(d)
 
@@ -210,7 +234,11 @@ def generate_expr(e, prio=-1):
     elif isinstance(e, hdltree.HDLIndex):
         return "{}[{}]".format(generate_expr(e.prefix), e.index)
     elif isinstance(e, hdltree.HDLInterfaceSelect):
-        return "{}.{}".format(e.prefix.name, e.subport.name)
+        return "{}.{}".format(generate_expr(e.prefix), e.subport.name)
+    elif isinstance(e, hdltree.HDLInterfaceIndex):
+        return "{}[{}]".format(generate_expr(e.prefix), e.index)
+    elif isinstance(e, hdltree.HDLInterfaceInstance):
+        return "{}".format(e.name)
     else:
         assert False, "unhandled hdl expr {}".format(e)
 
@@ -380,6 +408,16 @@ def generate_stmts(fd, stmts, indent):
             assert False, "unhandled hdl stmt {}".format(s)
 
 
+def print_interface_name(fd, itf, is_master, name):
+    if isinstance(itf, hdltree.HDLInterface):
+        w(fd, "{}.{} {}".format(itf.name, 'master' if is_master else 'slave', name))
+    elif isinstance(itf, hdltree.HDLInterfaceArray):
+        print_interface_name(fd, itf.prefix, is_master, name)
+        w(fd, "[{}]".format(itf.count))
+    else:
+        raise AssertionError
+
+
 def print_inters_list(fd, lst, name, indent):
     if not lst:
         return
@@ -397,10 +435,8 @@ def print_inters_list(fd, lst, name, indent):
             generate_param(fd, p, indent + 1)
         elif isinstance(p, hdltree.HDLInterfaceInstance):
             generate_decl_comment(fd, p.comment, indent + 1)
-            group_typename = '{}.{}'.format(
-                p.interface.name, 'master' if p.is_master else 'slave')
             windent(fd, indent + 1)
-            w(fd, "{} {}".format(group_typename, p.name))
+            print_interface_name(fd, p.interface, p.is_master, p.name)
         else:
             raise AssertionError
     wln(fd)
@@ -420,7 +456,10 @@ def extract_reg_init(decls):
         elif isinstance(d, hdltree.HDLInterfaceInstance):
             # Renames ports which have the same name
             names = {}
-            for p in d.interface.ports:
+            inter = d.interface
+            while isinstance(inter, hdltree.HDLInterfaceArray):
+                inter = inter.prefix
+            for p in inter.ports:
                 prev = names.get(p.name)
                 if prev is not None:
                     # This is a duplicate
@@ -482,7 +521,7 @@ def print_module(fd, module):
     extract_reg_module(module)
     if module.global_decls:
         for s in module.global_decls:
-            generate_decl(fd, s, 1)
+            generate_decl(fd, s, 0)
         wln(fd)
 
     generate_header(fd, module)

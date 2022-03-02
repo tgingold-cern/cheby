@@ -20,6 +20,7 @@ package iogroup1_pkg is
     areg4_rack       : std_logic;
   end record t_ios_slave_out;
   subtype t_ios_master_in is t_ios_slave_out;
+
 end iogroup1_pkg;
 
 library ieee;

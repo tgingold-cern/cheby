@@ -8,6 +8,7 @@ package noout_pkg is
     reg1             : std_logic_vector(31 downto 0);
   end record t_noout_inter_slave_out;
   subtype t_noout_inter_master_in is t_noout_inter_slave_out;
+
 end noout_pkg;
 
 library ieee;

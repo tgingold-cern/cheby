@@ -3,7 +3,7 @@ from cheby.hdl.genreg import GenReg
 from cheby.hdl.geninterface import GenInterface
 from cheby.hdl.genmemory import GenMemory
 from cheby.hdl.gensubmap import GenSubmap
-from cheby.hdltree import HDLInterface
+from cheby.hdltree import HDLInterface, HDLInterfaceArray, HDLInterfaceIndex
 import cheby.tree as tree
 from cheby.layout import ilog2
 
@@ -71,4 +71,32 @@ class GenBlock(ElGen):
 
 
 class GenRepeatBlock(GenBlock):
-    pass
+    def gen_ports(self):
+        if self.n.hdl_iogroup is not None:
+            prev_itf = self.root.h_itf
+            prev_ports = self.root.h_ports
+            itf = HDLInterface('t_' + self.n.hdl_iogroup)
+            itf_arr = HDLInterfaceArray(itf, self.n.count)
+            self.root.h_itf = itf_arr
+            self.module.global_decls.append(itf_arr)
+            ports_arr = self.module.add_modport(self.n.hdl_iogroup, itf_arr, True)
+
+            n = self.n.children[0]
+            itf_arr.name_prefix = n.c_name + '_'
+            itf_arr.first_index = True
+            self.root.h_ports = HDLInterfaceIndex(ports_arr, 0)
+            n.h_gen.gen_ports()
+
+            itf_arr.first_index = False
+            for i, n in enumerate(self.n.children[1:]):
+                itf_arr.name_prefix = n.c_name + '_'
+                self.root.h_ports = HDLInterfaceIndex(ports_arr, i + 1)
+                n.h_gen.gen_ports()
+
+            self.root.h_itf = prev_itf
+            self.root.h_ports = prev_ports
+        else:
+            for n in self.n.children:
+                n.h_gen.gen_ports()
+
+

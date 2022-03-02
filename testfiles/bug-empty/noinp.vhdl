@@ -8,6 +8,7 @@ package noinp_pkg is
     reg1             : std_logic_vector(31 downto 0);
   end record t_noinp_inter_master_out;
   subtype t_noinp_inter_slave_in is t_noinp_inter_master_out;
+
 end noinp_pkg;
 
 library ieee;
