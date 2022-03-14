@@ -366,6 +366,7 @@ def test_hdl_ref():
               'issue44/m1', 'issue75/m1',
               'features/xilinx_attrs', 'features/xilinx_attrs_cern',
               'features/axi4_byte', 'features/axi4_word', 'features/axi4_submap_wb',
+              'features/reg128',
               'issue77/m1', 'issue77/m2', 'issue77/m3',
               'issue77/s1', 'issue77/s2', 'issue77/s3', 'issue77/s4',
               'issue77/s5', 'issue77/s6',

@@ -1,0 +1,10 @@
+memory-map:
+  bus: wb-32-be
+  name: reg128
+  description: a single register
+  children:
+    - reg:
+        name: areg
+        width: 128
+        access: rw
+        type: unsigned
