@@ -186,7 +186,7 @@ def layout_reg(lo, n):
     if n.width is None:
         raise LayoutException(
             n, "missing width for register {}".format(n.get_path()))
-    elif n.width not in [8, 16, 32, 64]:
+    elif n.width not in [8, 16, 32, 64, 128]:
         raise LayoutException(
             n, "incorrect width for register {}".format(n.get_path()))
     layout_check_name(n)
