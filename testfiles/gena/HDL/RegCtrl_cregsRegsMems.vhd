@@ -378,7 +378,8 @@ begin
     end case;
   end process WrSelDec;
 
-  CRegRdMux: process (VMEAddr, Loc_test1, Loc_test2, Loc_test3, Loc_test4, Loc_test5, Loc_test6, Loc_test7, Loc_test8) begin
+  CRegRdMux: process (VMEAddr, Loc_test1, Loc_test2, Loc_test3, Loc_test4, Loc_test5, Loc_test6,
+           Loc_test7, Loc_test8) begin
     case VMEAddr(19 downto 1) is
     when C_Reg_cregsRegsMems_test1 =>
       Loc_CRegRdData <= std_logic_vector(resize(unsigned(Loc_test1(7 downto 0)), 16));
@@ -439,7 +440,8 @@ begin
   RegRdDone <= Loc_VMERdMem(1) and RegRdOK;
   RegWrDone <= Loc_VMEWrMem(1) and CRegWrOK;
 
-  MemRdMux: process (VMEAddr, RegRdData, RegRdDone, mem1_RdData, mem1_RdDone, mem2_RdData, mem2_RdDone) begin
+  MemRdMux: process (VMEAddr, RegRdData, RegRdDone, mem1_RdData, mem1_RdDone, mem2_RdData,
+           mem2_RdDone) begin
     Sel_mem1 <= '0';
     Sel_mem2 <= '0';
     if VMEAddr(19 downto 1) >= C_Mem_cregsRegsMems_mem1_Sta and VMEAddr(19 downto 1) <= C_Mem_cregsRegsMems_mem1_End then

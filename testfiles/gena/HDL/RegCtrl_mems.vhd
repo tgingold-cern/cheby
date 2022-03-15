@@ -83,7 +83,8 @@ begin
   RegRdDone <= Loc_VMERdMem(0) and RegRdOK;
   RegWrDone <= Loc_VMEWrMem(0) and CRegWrOK;
 
-  MemRdMux: process (VMEAddr, RegRdData, RegRdDone, mem1_RdData, mem1_RdDone, mem2_RdData, mem2_RdDone) begin
+  MemRdMux: process (VMEAddr, RegRdData, RegRdDone, mem1_RdData, mem1_RdDone, mem2_RdData,
+           mem2_RdDone) begin
     Sel_mem1 <= '0';
     Sel_mem2 <= '0';
     if VMEAddr(19 downto 1) >= C_Mem_mems_mem1_Sta and VMEAddr(19 downto 1) <= C_Mem_mems_mem1_End then

@@ -75,7 +75,8 @@ begin
   CRegRdOK <= Loc_CRegRdOK;
   CRegWrOK <= Loc_CRegWrOK;
 
-  RegRdMux: process (VMEAddr, CRegRdData, CRegRdOK, Loc_firmwareVersion, Loc_memMapVersion, Loc_designerID) begin
+  RegRdMux: process (VMEAddr, CRegRdData, CRegRdOK, Loc_firmwareVersion, Loc_memMapVersion,
+           Loc_designerID) begin
     case VMEAddr(17 downto 2) is
     when C_Reg_const_firmwareVersion =>
       Loc_RegRdData <= Loc_firmwareVersion(31 downto 0);

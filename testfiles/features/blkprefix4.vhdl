@@ -238,7 +238,8 @@ begin
   end process;
 
   -- Process for write requests.
-  process (wr_adr_d0, wr_req_d0, r5_wack, sub1_r1_wack, sub1_b1_r2_wack, sub1_b2_r3_wack, sub2_r1_wack, sub2_b1_r2_wack, sub2_b2_r3_wack) begin
+  process (wr_adr_d0, wr_req_d0, r5_wack, sub1_r1_wack, sub1_b1_r2_wack,
+           sub1_b2_r3_wack, sub2_r1_wack, sub2_b1_r2_wack, sub2_b2_r3_wack) begin
     r5_wreq <= '0';
     sub1_r1_wreq <= '0';
     sub1_b1_r2_wreq <= '0';
@@ -281,7 +282,8 @@ begin
   end process;
 
   -- Process for read requests.
-  process (wb_adr_i, rd_req_int, r5_reg, sub1_r1_reg, sub1_b1_r2_reg, sub1_b2_r3_reg, sub2_r1_reg, sub2_b1_r2_reg, sub2_b2_r3_reg) begin
+  process (wb_adr_i, rd_req_int, r5_reg, sub1_r1_reg, sub1_b1_r2_reg, sub1_b2_r3_reg,
+           sub2_r1_reg, sub2_b1_r2_reg, sub2_b2_r3_reg) begin
     -- By default ack read requests
     rd_dat_d0 <= (others => 'X');
     case wb_adr_i(5 downto 2) is

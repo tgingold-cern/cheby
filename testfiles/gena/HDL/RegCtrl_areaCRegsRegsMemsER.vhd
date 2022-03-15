@@ -568,7 +568,8 @@ begin
     end if;
   end process area_WrSelDec;
 
-  area_CRegRdMux: process (VMEAddr, Loc_area_test1, Loc_area_test2, Loc_area_test3, Loc_area_test4, Loc_area_test5, Loc_area_test6) begin
+  area_CRegRdMux: process (VMEAddr, Loc_area_test1, Loc_area_test2, Loc_area_test3, Loc_area_test4,
+           Loc_area_test5, Loc_area_test6) begin
     if VMEAddr(19 downto 19) = C_Area_areaCRegsRegsMemsER_area then
       case VMEAddr(18 downto 1) is
       when C_Reg_areaCRegsRegsMemsER_area_test1_1 =>
@@ -690,7 +691,8 @@ begin
   area_RegRdDone <= Loc_VMERdMem(2) and area_RegRdOK;
   area_RegWrDone <= Loc_VMEWrMem(1) and area_CRegWrOK;
 
-  area_MemRdMux: process (VMEAddr, area_RegRdData, area_RegRdDone, area_mem1_RdData, area_mem1_RdDone, area_mem2_RdData, area_mem2_RdDone) begin
+  area_MemRdMux: process (VMEAddr, area_RegRdData, area_RegRdDone, area_mem1_RdData,
+           area_mem1_RdDone, area_mem2_RdData, area_mem2_RdDone) begin
     Sel_area_mem1 <= '0';
     Sel_area_mem2 <= '0';
     if VMEAddr(19 downto 19) = C_Area_areaCRegsRegsMemsER_area then

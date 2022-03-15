@@ -143,7 +143,8 @@ begin
   MemWrDone <= Loc_MemWrDone;
   MemWrError <= Loc_MemWrError;
 
-  AreaRdMux: process (VMEAddr, MemRdData, MemRdDone, area_RdData, area_RdDone, area_RdError, MemRdError) begin
+  AreaRdMux: process (VMEAddr, MemRdData, MemRdDone, area_RdData, area_RdDone, area_RdError,
+           MemRdError) begin
     if VMEAddr(19 downto 19) = C_Area_areaMems_area then
       RdData <= area_RdData;
       RdDone <= area_RdDone;
@@ -185,7 +186,9 @@ begin
   area_RegRdError <= Loc_VMERdMem(0) and not area_RegRdOK;
   area_RegWrError <= Loc_VMEWrMem(0) and not area_CRegWrOK;
 
-  area_MemRdMux: process (VMEAddr, area_RegRdData, area_RegRdDone, area_RegRdError, area_mem1_RdData, area_mem1_RdDone, area_mem1_RdError, area_mem3_RdData, area_mem3_RdDone, area_mem3_RdError) begin
+  area_MemRdMux: process (VMEAddr, area_RegRdData, area_RegRdDone, area_RegRdError,
+           area_mem1_RdData, area_mem1_RdDone, area_mem1_RdError,
+           area_mem3_RdData, area_mem3_RdDone, area_mem3_RdError) begin
     Sel_area_mem1 <= '0';
     Sel_area_mem3 <= '0';
     if VMEAddr(19 downto 19) = C_Area_areaMems_area then
@@ -223,7 +226,8 @@ begin
     end if;
   end process area_MemRdMux_DFF;
 
-  area_MemWrMux: process (VMEAddr, area_RegWrDone, area_RegWrError, area_mem1_WrDone, area_mem1_WrError, area_mem2_WrDone, area_mem2_WrError) begin
+  area_MemWrMux: process (VMEAddr, area_RegWrDone, area_RegWrError, area_mem1_WrDone,
+           area_mem1_WrError, area_mem2_WrDone, area_mem2_WrError) begin
     Sel_area_mem2 <= '0';
     if VMEAddr(19 downto 19) = C_Area_areaMems_area then
       if VMEAddr(18 downto 2) >= C_Mem_areaMems_area_mem1_Sta and VMEAddr(18 downto 2) <= C_Mem_areaMems_area_mem1_End then

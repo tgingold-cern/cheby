@@ -94,7 +94,8 @@ begin
   end process;
 
   -- Process for read requests.
-  process (VMERdMem, b1_r1_f1_reg, b1_r1_f4_reg, b1_r1_f3_reg, b1_r1_f2_reg, b1_r1_f5_reg) begin
+  process (VMERdMem, b1_r1_f1_reg, b1_r1_f4_reg, b1_r1_f3_reg, b1_r1_f2_reg,
+           b1_r1_f5_reg) begin
     -- By default ack read requests
     rd_dat_d0 <= (others => 'X');
     -- Reg b1_r1

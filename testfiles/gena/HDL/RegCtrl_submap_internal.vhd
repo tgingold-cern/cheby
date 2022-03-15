@@ -177,7 +177,8 @@ begin
   MemWrDone <= Loc_MemWrDone;
   MemWrError <= Loc_MemWrError;
 
-  AreaRdMux: process (VMEAddr, MemRdData, MemRdDone, submap1_RdData, submap1_RdDone, submap1_RdError, MemRdError) begin
+  AreaRdMux: process (VMEAddr, MemRdData, MemRdDone, submap1_RdData, submap1_RdDone,
+           submap1_RdError, MemRdError) begin
     if VMEAddr(19 downto 10) = C_Submap_submap_internal_submap1 then
       RdData <= submap1_RdData;
       RdDone <= submap1_RdDone;
@@ -340,7 +341,8 @@ begin
     end if;
   end process submap1_WrSelDec;
 
-  submap1_CRegRdMux: process (VMEAddr, Loc_submap1_test1, Loc_submap1_test2, Loc_submap1_test3, Loc_submap1_test4, Loc_submap1_test5, Loc_submap1_test6) begin
+  submap1_CRegRdMux: process (VMEAddr, Loc_submap1_test1, Loc_submap1_test2, Loc_submap1_test3,
+           Loc_submap1_test4, Loc_submap1_test5, Loc_submap1_test6) begin
     if VMEAddr(19 downto 10) = C_Submap_submap_internal_submap1 then
       case VMEAddr(9 downto 2) is
       when C_Reg_incCRegs_test1 =>
@@ -379,7 +381,8 @@ begin
     end if;
   end process submap1_CRegRdMux_DFF;
 
-  submap1_RegRdMux: process (VMEAddr, submap1_CRegRdData, submap1_CRegRdOK, Loc_submap1_test7, Loc_submap1_test8) begin
+  submap1_RegRdMux: process (VMEAddr, submap1_CRegRdData, submap1_CRegRdOK, Loc_submap1_test7,
+           Loc_submap1_test8) begin
     if VMEAddr(19 downto 10) = C_Submap_submap_internal_submap1 then
       case VMEAddr(9 downto 2) is
       when C_Reg_incCRegs_test7 =>

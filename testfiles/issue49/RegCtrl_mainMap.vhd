@@ -161,7 +161,8 @@ begin
 
   ssmap2_MemWrDone <= Loc_ssmap2_MemWrDone;
 
-  ssmap2_AreaRdMux: process (VMEAddr, ssmap2_MemRdData, ssmap2_MemRdDone, ssmap2_b1_RdData, ssmap2_b1_RdDone) begin
+  ssmap2_AreaRdMux: process (VMEAddr, ssmap2_MemRdData, ssmap2_MemRdDone, ssmap2_b1_RdData,
+           ssmap2_b1_RdDone) begin
     if VMEAddr(1 downto 2) = C_Area_ssmap_b1 then
       ssmap2_RdData <= ssmap2_b1_RdData;
       ssmap2_RdDone <= ssmap2_b1_RdDone;

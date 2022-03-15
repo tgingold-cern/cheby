@@ -277,7 +277,17 @@ begin
   end process;
 
   -- Process for read requests.
-  process (adr_int, rd_req_int, regs_0_control_last_reg_adr_reg, regs_0_control_max_dim_no_reg, regs_0_control_read_delay_reg, regs_0_status_busy_i, regs_0_status_done_i, regs_0_status_err_many_i, regs_0_status_err_fb_i, regs_0_status_dim_count_i, regs_1_control_last_reg_adr_reg, regs_1_control_max_dim_no_reg, regs_1_control_read_delay_reg, regs_1_status_busy_i, regs_1_status_done_i, regs_1_status_err_many_i, regs_1_status_err_fb_i, regs_1_status_dim_count_i, memory_0_mem_readout_data_i, memory_0_mem_readout_rack, memory_1_mem_readout_data_i, memory_1_mem_readout_rack) begin
+  process (adr_int, rd_req_int, regs_0_control_last_reg_adr_reg,
+           regs_0_control_max_dim_no_reg, regs_0_control_read_delay_reg,
+           regs_0_status_busy_i, regs_0_status_done_i,
+           regs_0_status_err_many_i, regs_0_status_err_fb_i,
+           regs_0_status_dim_count_i, regs_1_control_last_reg_adr_reg,
+           regs_1_control_max_dim_no_reg, regs_1_control_read_delay_reg,
+           regs_1_status_busy_i, regs_1_status_done_i,
+           regs_1_status_err_many_i, regs_1_status_err_fb_i,
+           regs_1_status_dim_count_i, memory_0_mem_readout_data_i,
+           memory_0_mem_readout_rack, memory_1_mem_readout_data_i,
+           memory_1_mem_readout_rack) begin
     -- By default ack read requests
     rd_dat_d0 <= (others => 'X');
     memory_0_mem_readout_re <= '0';

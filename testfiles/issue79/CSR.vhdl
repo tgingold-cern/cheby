@@ -305,7 +305,9 @@ begin
   end process;
 
   -- Process for read requests.
-  process (wb_adr_i, rd_req_int, ident_i, version_i, cal_ctrl_cal_sel_reg, i2c_master_dat_i, i2c_master_rack, adc_offs_data_int_dato, adc_offs_data_rack, adc_meas_data_int_dato, adc_meas_data_rack) begin
+  process (wb_adr_i, rd_req_int, ident_i, version_i, cal_ctrl_cal_sel_reg,
+           i2c_master_dat_i, i2c_master_rack, adc_offs_data_int_dato,
+           adc_offs_data_rack, adc_meas_data_int_dato, adc_meas_data_rack) begin
     -- By default ack read requests
     rd_dat_d0 <= (others => 'X');
     i2c_master_re <= '0';

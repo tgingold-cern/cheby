@@ -537,7 +537,9 @@ begin
   RawData3_addr_o <= adr_int(17 downto 2);
 
   -- Process for write requests.
-  process (wr_adr_d0, wr_req_d0, Ctrl_wack, TurnPeriod_wack, TurnLength_wack, FmcPower_wack, ADCPatternCheckCtrl_wack, ADCCtrl_wack, JesdLink_wack, AdcSpiWrite_wack, CummulativeTurns_wack, Debug_wack) begin
+  process (wr_adr_d0, wr_req_d0, Ctrl_wack, TurnPeriod_wack, TurnLength_wack,
+           FmcPower_wack, ADCPatternCheckCtrl_wack, ADCCtrl_wack, JesdLink_wack,
+           AdcSpiWrite_wack, CummulativeTurns_wack, Debug_wack) begin
     Ctrl_wreq <= '0';
     TurnPeriod_wreq <= '0';
     TurnLength_wreq <= '0';
@@ -633,7 +635,20 @@ begin
   end process;
 
   -- Process for read requests.
-  process (adr_int, rd_req_int, Token_i, Enable_reg, DisableADCStream_reg, EnableTurnEmulator_reg, LHCTiming_reg, VoltageFail_i, JesdRXNotReady_i, TurnEmulatorPLLError_i, TurnEmulatorError_i, NoTurnDetected_i, VfmcDisabled_i, std_bst_desynced, GBTPLLLol_i, std_fa_in_reset, PatternFail_i, DCDCSyncEnabled_i, SysrefFail_i, FmcLol_i, FmcLos_i, SysrefTicks_i, GWRevision_i, TurnPeriod_reg, TurnLength_reg, TurnsIntercepted_b32, FmcPowerEnable_reg, DCDCSyncEnable_reg, PatternRst_reg, ADCRst_reg, ADCEnable_reg, ADCManualSync_reg, ADCDisableAutoSync_reg, JesdXcvrRst_reg, JesdLinkRst_reg, JesdPLLRst_reg, JesdAvsRst_reg, SixxRst_reg, JesdLinkReady_reg, JesdEnableSysref_reg, AdcSpiRead_i, AdcSpiBusy_i, CummulativeTurns_reg, OverrideTurnEmulatorTiming_reg, RawData0_data_i, RawData0_rack, RawData1_data_i, RawData1_rack, RawData2_data_i, RawData2_rack, RawData3_data_i, RawData3_rack) begin
+  process (adr_int, rd_req_int, Token_i, Enable_reg, DisableADCStream_reg,
+           EnableTurnEmulator_reg, LHCTiming_reg, VoltageFail_i,
+           JesdRXNotReady_i, TurnEmulatorPLLError_i, TurnEmulatorError_i,
+           NoTurnDetected_i, VfmcDisabled_i, std_bst_desynced, GBTPLLLol_i,
+           std_fa_in_reset, PatternFail_i, DCDCSyncEnabled_i, SysrefFail_i,
+           FmcLol_i, FmcLos_i, SysrefTicks_i, GWRevision_i, TurnPeriod_reg,
+           TurnLength_reg, TurnsIntercepted_b32, FmcPowerEnable_reg,
+           DCDCSyncEnable_reg, PatternRst_reg, ADCRst_reg, ADCEnable_reg,
+           ADCManualSync_reg, ADCDisableAutoSync_reg, JesdXcvrRst_reg,
+           JesdLinkRst_reg, JesdPLLRst_reg, JesdAvsRst_reg, SixxRst_reg,
+           JesdLinkReady_reg, JesdEnableSysref_reg, AdcSpiRead_i, AdcSpiBusy_i,
+           CummulativeTurns_reg, OverrideTurnEmulatorTiming_reg,
+           RawData0_data_i, RawData0_rack, RawData1_data_i, RawData1_rack,
+           RawData2_data_i, RawData2_rack, RawData3_data_i, RawData3_rack) begin
     -- By default ack read requests
     rd_dat_d0 <= (others => 'X');
     RawData0_re <= '0';

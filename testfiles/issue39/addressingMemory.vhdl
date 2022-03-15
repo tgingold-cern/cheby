@@ -123,7 +123,8 @@ begin
   end process;
 
   -- Process for read requests.
-  process (VMEAddr, VMERdMem, acqVP_VMERdData_i, acqVP_VMERdDone_i, softReset_reset_reg) begin
+  process (VMEAddr, VMERdMem, acqVP_VMERdData_i, acqVP_VMERdDone_i,
+           softReset_reset_reg) begin
     -- By default ack read requests
     rd_dat_d0 <= (others => 'X');
     acqVP_VMERdMem_o <= '0';

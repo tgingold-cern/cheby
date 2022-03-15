@@ -200,7 +200,10 @@ begin
   end process;
 
   -- Process for read requests.
-  process (adr_int, rd_req_int, wr_enable_i, wr_link_i, wr_valid_i, ts_present_i, ch1_enable_reg, ch2_enable_reg, ch3_enable_reg, ch4_enable_reg, ext_enable_reg, ts_sec_i, ch1_mask_i, ch2_mask_i, ch3_mask_i, ch4_mask_i, ext_mask_i, cycles_i) begin
+  process (adr_int, rd_req_int, wr_enable_i, wr_link_i, wr_valid_i, ts_present_i,
+           ch1_enable_reg, ch2_enable_reg, ch3_enable_reg, ch4_enable_reg,
+           ext_enable_reg, ts_sec_i, ch1_mask_i, ch2_mask_i, ch3_mask_i, ch4_mask_i,
+           ext_mask_i, cycles_i) begin
     -- By default ack read requests
     rd_dat_d0 <= (others => 'X');
     ts_cycles_rd_o <= '0';

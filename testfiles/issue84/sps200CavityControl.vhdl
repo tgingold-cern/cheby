@@ -258,7 +258,8 @@ begin
   end process;
 
   -- Process for read requests.
-  process (rd_addr, rd_req, hwInfo_rdata_i, hwInfo_rvalid_i, app_rdata_i, app_rvalid_i) begin
+  process (rd_addr, rd_req, hwInfo_rdata_i, hwInfo_rvalid_i, app_rdata_i,
+           app_rvalid_i) begin
     -- By default ack read requests
     rd_dat_d0 <= (others => 'X');
     hwInfo_rd <= '0';

@@ -183,7 +183,8 @@ begin
   end process;
 
   -- Process for read requests.
-  process (wb_adr_i, rd_req_int, b1_r2_f1_reg, b1_r2_f2_reg, b1_r3_f1_reg, b1_r3_f2_reg, b2_r3_f1_reg) begin
+  process (wb_adr_i, rd_req_int, b1_r2_f1_reg, b1_r2_f2_reg, b1_r3_f1_reg,
+           b1_r3_f2_reg, b2_r3_f1_reg) begin
     -- By default ack read requests
     rd_dat_d0 <= (others => 'X');
     case wb_adr_i(3 downto 2) is

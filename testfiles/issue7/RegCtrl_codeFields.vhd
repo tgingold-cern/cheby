@@ -119,7 +119,8 @@ begin
 
   MemWrDone <= Loc_MemWrDone;
 
-  AreaRdMux: process (VMEAddr, MemRdData, MemRdDone, area1_RdData, area1_RdDone, area2_RdData, area2_RdDone) begin
+  AreaRdMux: process (VMEAddr, MemRdData, MemRdDone, area1_RdData, area1_RdDone, area2_RdData,
+           area2_RdDone) begin
     if VMEAddr(13 downto 10) = C_Area_codeFields_area1 then
       RdData <= area1_RdData;
       RdDone <= area1_RdDone;

@@ -422,7 +422,8 @@ begin
     end case;
   end process WrSelDec;
 
-  CRegRdMux: process (VMEAddr, Loc_test1, Loc_test2, Loc_test3, Loc_test4, Loc_test5, Loc_test6, Loc_test7, Loc_test8) begin
+  CRegRdMux: process (VMEAddr, Loc_test1, Loc_test2, Loc_test3, Loc_test4, Loc_test5, Loc_test6,
+           Loc_test7, Loc_test8) begin
     case VMEAddr(19 downto 1) is
     when C_Reg_cregsRegsNoRMW_test1 =>
       Loc_CRegRdData <= Loc_test1(15 downto 0);

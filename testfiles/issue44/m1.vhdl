@@ -205,7 +205,8 @@ begin
   end process;
 
   -- Process for read requests.
-  process (wb_adr_i, rd_req_int, m0_VMERdData_i, m0_VMERdDone_i, m1_VMERdData_i, m1_VMERdDone_i, m2_VMERdData_i, m2_VMERdDone_i) begin
+  process (wb_adr_i, rd_req_int, m0_VMERdData_i, m0_VMERdDone_i, m1_VMERdData_i,
+           m1_VMERdDone_i, m2_VMERdData_i, m2_VMERdDone_i) begin
     -- By default ack read requests
     rd_dat_d0 <= (others => 'X');
     m0_VMERdMem_o <= '0';

@@ -115,7 +115,8 @@ begin
   end process;
 
   -- Process for read requests.
-  process (rd_req_int, i1Thresholds_lowThreshold_reg, i1Thresholds_highThreshold_reg) begin
+  process (rd_req_int, i1Thresholds_lowThreshold_reg,
+           i1Thresholds_highThreshold_reg) begin
     -- By default ack read requests
     rd_dat_d0 <= (others => 'X');
     -- Reg i1Thresholds

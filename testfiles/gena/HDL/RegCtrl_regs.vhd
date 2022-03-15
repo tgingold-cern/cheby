@@ -85,7 +85,8 @@ begin
   CRegRdOK <= Loc_CRegRdOK;
   CRegWrOK <= Loc_CRegWrOK;
 
-  RegRdMux: process (VMEAddr, CRegRdData, CRegRdOK, Loc_test1, Loc_test2, Loc_test3, Loc_test4, Loc_test5, Loc_test6, Loc_test7, Loc_test8) begin
+  RegRdMux: process (VMEAddr, CRegRdData, CRegRdOK, Loc_test1, Loc_test2, Loc_test3, Loc_test4,
+           Loc_test5, Loc_test6, Loc_test7, Loc_test8) begin
     case VMEAddr(19 downto 1) is
     when C_Reg_regs_test1 =>
       Loc_RegRdData <= Loc_test1(15 downto 0);

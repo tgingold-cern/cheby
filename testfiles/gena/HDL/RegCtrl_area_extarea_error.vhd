@@ -183,7 +183,8 @@ begin
   MemWrDone <= Loc_MemWrDone;
   MemWrError <= Loc_MemWrError;
 
-  AreaRdMux: process (VMEAddr, MemRdData, MemRdDone, area_RdData, area_RdDone, area_RdError, MemRdError) begin
+  AreaRdMux: process (VMEAddr, MemRdData, MemRdDone, area_RdData, area_RdDone, area_RdError,
+           MemRdError) begin
     Sel_area <= '0';
     if VMEAddr(19 downto 19) = C_Area_area_extarea_error_area then
       RdData <= area_RdData;

@@ -133,7 +133,8 @@ begin
   end process;
 
   -- Process for read requests.
-  process (VMEAddr, VMERdMem, subMap1_VMERdData_i, subMap1_VMERdDone_i, subMap2_VMERdData_i, subMap2_VMERdDone_i) begin
+  process (VMEAddr, VMERdMem, subMap1_VMERdData_i, subMap1_VMERdDone_i,
+           subMap2_VMERdData_i, subMap2_VMERdDone_i) begin
     -- By default ack read requests
     rd_dat_d0 <= (others => 'X');
     subMap1_VMERdMem_o <= '0';

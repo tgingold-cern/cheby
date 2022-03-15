@@ -216,7 +216,9 @@ begin
   end process;
 
   -- Process for read requests.
-  process (rd_addr, rd_req, block1_register2_field1_i, block1_register2_field2_i, block1_register3_reg, block1_block2_register4_field3_i, block1_block2_register4_field4_i) begin
+  process (rd_addr, rd_req, block1_register2_field1_i, block1_register2_field2_i,
+           block1_register3_reg, block1_block2_register4_field3_i,
+           block1_block2_register4_field4_i) begin
     -- By default ack read requests
     rd_dat_d0 <= (others => 'X');
     case rd_addr(4 downto 2) is

@@ -346,7 +346,8 @@ begin
   MemWrDone <= Loc_MemWrDone;
   MemWrError <= Loc_MemWrError;
 
-  AreaRdMux: process (VMEAddr, MemRdData, MemRdDone, area1_RdData, area1_RdDone, area1_RdError, area2_RdData, area2_RdDone, area2_RdError, MemRdError) begin
+  AreaRdMux: process (VMEAddr, MemRdData, MemRdDone, area1_RdData, area1_RdDone, area1_RdError,
+           area2_RdData, area2_RdDone, area2_RdError, MemRdError) begin
     if VMEAddr(19 downto 10) = C_Area_areaCRegs_area1 then
       RdData <= area1_RdData;
       RdDone <= area1_RdDone;
@@ -362,7 +363,8 @@ begin
     end if;
   end process AreaRdMux;
 
-  AreaWrMux: process (VMEAddr, MemWrDone, area1_WrDone, area1_WrError, area2_WrDone, area2_WrError, MemWrError) begin
+  AreaWrMux: process (VMEAddr, MemWrDone, area1_WrDone, area1_WrError, area2_WrDone,
+           area2_WrError, MemWrError) begin
     if VMEAddr(19 downto 10) = C_Area_areaCRegs_area1 then
       WrDone <= area1_WrDone;
       WrError <= area1_WrError;

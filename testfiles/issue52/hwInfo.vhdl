@@ -138,7 +138,10 @@ begin
   end process;
 
   -- Process for read requests.
-  process (VMEAddr, VMERdMem, serialNumber_i, firmwareVersion_major_i, firmwareVersion_patch_i, firmwareVersion_minor_i, memMapVersion_major_i, memMapVersion_patch_i, memMapVersion_minor_i, echo_echo_reg) begin
+  process (VMEAddr, VMERdMem, serialNumber_i, firmwareVersion_major_i,
+           firmwareVersion_patch_i, firmwareVersion_minor_i,
+           memMapVersion_major_i, memMapVersion_patch_i, memMapVersion_minor_i,
+           echo_echo_reg) begin
     -- By default ack read requests
     rd_dat_d0 <= (others => 'X');
     case VMEAddr(4 downto 1) is

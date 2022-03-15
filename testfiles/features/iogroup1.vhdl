@@ -185,7 +185,8 @@ begin
   end process;
 
   -- Process for read requests.
-  process (wb_adr_i, rd_req_int, areg1_reg, ios_i.areg2, ios_i.areg4_rack, ios_i.areg4) begin
+  process (wb_adr_i, rd_req_int, areg1_reg, ios_i.areg2, ios_i.areg4_rack,
+           ios_i.areg4) begin
     -- By default ack read requests
     rd_dat_d0 <= (others => 'X');
     ios_o.areg4_rd <= '0';

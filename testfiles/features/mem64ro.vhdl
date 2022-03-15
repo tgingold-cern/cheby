@@ -207,7 +207,11 @@ begin
   end process;
 
   -- Process for read requests.
-  process (wb_adr_i, rd_req_int, regA_field0_reg, DdrCapturesIndex_DdrCaptures_int_dato0, DdrCapturesIndex_DdrCaptures_rack0, DdrCapturesIndex_DdrCaptures_int_dato1, DdrCapturesIndex_DdrCaptures_rack1) begin
+  process (wb_adr_i, rd_req_int, regA_field0_reg,
+           DdrCapturesIndex_DdrCaptures_int_dato0,
+           DdrCapturesIndex_DdrCaptures_rack0,
+           DdrCapturesIndex_DdrCaptures_int_dato1,
+           DdrCapturesIndex_DdrCaptures_rack1) begin
     -- By default ack read requests
     rd_dat_d0 <= (others => 'X');
     DdrCapturesIndex_DdrCaptures_rreq0 <= '0';
