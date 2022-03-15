@@ -449,12 +449,20 @@ def generate_stmts(fd, stmts, indent):
                 w(fd, '{}: '.format(s.name))
             w(fd, "process (")
             first = True
+            l = 0
             for e in s.sensitivity:
+                se = generate_expr(e)
                 if first:
                     first = False
                 else:
-                    w(fd, ", ")
-                w(fd, generate_expr(e))
+                    w(fd, ',')
+                    if style == 'wbgen' or (l == 0 or l + len(se) < 64):
+                        w(fd, " ")
+                    else:
+                        w(fd, "\n           ")
+                        l = 0
+                l += len(se)
+                w(fd, se)
             if style == 'wbgen':
                 wln(fd, "  )")
                 w(fd, sindent)
