@@ -116,19 +116,22 @@ class HDLInterfaceArray(HDLNode):
         self.count = count
         self.name_prefix = ''
         self.first_index = True
-        self.names = {}
+        self.names = {'IN': {}, 'OUT': {}}
 
     def add_port(self, name, *args, **kwargs):
         assert name.startswith(self.name_prefix)
         name = name[len(self.name_prefix):]
+        dirn = kwargs['dir']
+        # Ports are created when the first index is used,
+        # then for the following indexes, ports are reused.
         if self.first_index:
             res = HDLPort(name, *args, **kwargs)
             res.parent = self.prefix
             self.prefix.ports.append(res)
-            self.names[name] = res
+            self.names[dirn][name] = res
             return res
         else:
-            return self.names[name]
+            return self.names[dirn][name]
         
 
 class HDLInterfaceSelect(HDLNode):

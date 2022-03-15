@@ -79,7 +79,7 @@ class GenRepeatBlock(GenBlock):
             itf_arr = HDLInterfaceArray(itf, self.n.count)
             self.root.h_itf = itf_arr
             self.module.global_decls.append(itf_arr)
-            ports_arr = self.module.add_modport(self.n.hdl_iogroup, itf_arr, True)
+            ports_arr = self.module.add_modport(self.n.hdl_iogroup, itf_arr, is_master=True)
 
             n = self.n.children[0]
             itf_arr.name_prefix = n.c_name + '_'
