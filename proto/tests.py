@@ -360,6 +360,7 @@ def test_hdl_ref():
               'features/regprefix1', 'features/regprefix2', 'features/regprefix3',
               'features/mem64ro', 'features/mem64rodual',
               'features/iogroup1', 'features/iogroup2', 'features/repeat-iogroup1',
+              'features/repeat-iogroup2',
               'issue52/hwInfo',
               'bug-gen_wt/m1',
               'issue59/inherit', 'issue64/simple_reg1', 'issue66/m1',
