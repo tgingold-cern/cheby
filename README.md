@@ -70,6 +70,8 @@ Fix a crash in --gen-gena-dsp in case of submap with enums (issue#106)
 
 Emit an error message on empty 'iogroup' (issue#106)
 
+Split long vhdl lines in process sensitivity list.
+
 ## Version 1.4
 
 Add x-hdl:pipeline to control pipelining of the root.
