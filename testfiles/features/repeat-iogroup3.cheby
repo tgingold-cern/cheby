@@ -1,0 +1,20 @@
+memory-map:
+  bus: wb-32-be
+  name: repeat_iogroup1
+  description: a simple array
+  x-hdl:
+      block-prefix: False
+  children:
+    - repeat:
+        name: arr1
+        count: 2
+        align: False
+        x-hdl:
+         iogroup: itf
+        children:
+          - reg:
+              name: areg1
+              access: rw
+              width: 32
+              x-hdl:
+                type: wire
