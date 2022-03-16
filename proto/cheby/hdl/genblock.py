@@ -81,16 +81,13 @@ class GenRepeatBlock(GenBlock):
             self.module.global_decls.append(itf_arr)
             ports_arr = self.module.add_modport(self.n.hdl_iogroup, itf_arr, is_master=True)
 
-            n = self.n.children[0]
-            itf_arr.name_prefix = n.c_name + '_'
-            itf_arr.first_index = True
-            self.root.h_ports = HDLInterfaceIndex(ports_arr, 0)
-            n.h_gen.gen_ports()
-
-            itf_arr.first_index = False
-            for i, n in enumerate(self.n.children[1:]):
-                itf_arr.name_prefix = n.c_name + '_'
-                self.root.h_ports = HDLInterfaceIndex(ports_arr, i + 1)
+            for i, n in enumerate(self.n.children):
+                itf_arr.first_index = (i == 0)
+                if n.hdl_blk_prefix:            
+                    itf_arr.name_prefix = n.c_name + '_'
+                else:
+                    itf_arr.name_suffix = n.c_name
+                self.root.h_ports = HDLInterfaceIndex(ports_arr, i)
                 n.h_gen.gen_ports()
 
             self.root.h_itf = prev_itf
