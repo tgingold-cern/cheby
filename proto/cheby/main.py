@@ -209,18 +209,22 @@ def handle_file(args, filename):
     if args.gen_edge is not None:
         with open_filename(args.gen_edge) as f:
             gen_edge.generate_edge(f, t)
+
     # Generate names for C code (but do not expand)
     gen_name.gen_name_memmap(t)
+
     if args.gen_c is not None:
         with open_filename(args.gen_c) as f:
             gen_c.gen_c_cheby(f, t, args.c_style)
     if args.gen_c_check_layout is not None:
         with open_filename(args.gen_c_check_layout) as f:
             gen_laychk.gen_chklayout_cheby(f, t)
+
     # Decode x-hdl, unroll
     expand_hdl.expand_hdl(t)
     # Regenerate names after unrolling.
     gen_name.gen_name_memmap(t)
+
     if args.print_simple_expanded is not None:
         with open_filename(args.print_simple_expanded) as f:
             sprint.sprint_cheby(f, t, True)

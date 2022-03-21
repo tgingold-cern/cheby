@@ -67,19 +67,23 @@ def gen_name_children(parent, prefix, ctxt):
 
     # If the parent is expanded from a repeat, append the index.
     if isinstance(parent, tree.Block) and isinstance(parent.origin, tree.Repeat) and not ctxt.blk_prefix:
-        for n in parent.children:
-            n.name += parent.name
+        suffix = parent.name
+    else:
+        suffix = ''
 
     for n in parent.children:
-        n.c_name = concat(prefix, n.name)
+        n.c_name = concat(prefix, n.name) + suffix
         if isinstance(n, tree.Reg):
             nprefix = concat_if(prefix, n.name, ctxt.reg_prefix)
+            if nprefix is not None:
+                nprefix += suffix
             for f in n.children:
+                # print("n.c_name: {}, field name: {}, f: {}, parent: {}".format(n.c_name, f.name, f, parent))
                 if isinstance(f, tree.FieldReg):
                     # If the register is the field, then reg-prefix does not
                     # apply.
                     assert f.name is None
-                    f.c_name = concat(prefix, n.name)
+                    f.c_name = concat(prefix, n.name) + suffix
                 elif f.name == '':
                     # Handle anonymous field.  Only one such field is allowed.
                     assert len(n.children) == 1

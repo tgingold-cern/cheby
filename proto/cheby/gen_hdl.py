@@ -28,6 +28,7 @@ from cheby.hdl.wbbus import WBBus
 from cheby.hdl.ibus import Ibus
 from cheby.hdl.genblock import GenBlock
 from cheby.hdl.buses import name_to_busgen
+from cheby.gen_name import concat, concat_if
 
 def add_block_decoder(root, stmts, addr, children, hi, func, off):
     # :param hi: is the highest address bit to be decoded.
@@ -230,6 +231,65 @@ def gen_enums(root, module):
             decls.append(cst)
 
 
+def gen_hdl_names(n, parent):
+    """Set h_pname for the port name, and h_fname for the full name"""
+    if isinstance(n, tree.Reg):
+        n.h_fname = concat(parent.h_fname, n.name)
+        n.h_pname = concat(parent.h_pname, n.name)
+        # Handle fields.
+        for f in n.children:
+            if isinstance(f, tree.FieldReg) or f.name == '':
+                # A FieldReg has no name, use the name of the register.
+                f.h_fname = n.h_fname
+                f.h_pname = n.h_pname
+            else:
+                if parent.hdl_reg_prefix:
+                    f.h_pname = concat(n.h_pname, f.name)
+                    f.h_fname = concat(n.h_fname, f.name)
+                else:
+                    f.h_pname = f.name
+                    f.h_fname = f.name
+    elif isinstance(n, tree.Repeat):
+        raise AssertionError(n)
+    elif isinstance(n, tree.RepeatBlock):
+        n.h_fname = concat_if(parent.h_fname, n.name, parent.hdl_blk_prefix)
+        n.h_pname = concat_if(parent.h_pname, n.name, parent.hdl_blk_prefix)
+        if n.hdl_iogroup is None:
+            for c in n.children:
+                gen_hdl_names(c, n)
+        else:
+            for b in n.children:
+                b.h_pname = None
+                b.h_fname = concat(n.h_fname, b.name)
+                for c in b.children:
+                    gen_hdl_names(c, b)
+    elif isinstance(n, tree.Submap):
+        n.h_pname = concat_if(parent.h_pname, n.name, parent.hdl_blk_prefix)
+        n.h_fname = concat_if(parent.h_fname, n.name, parent.hdl_blk_prefix)
+        if n.filename is not None:
+            n.c_submap.h_fname = n.h_fname
+            n.c_submap.h_pname = n.h_pname
+            for c in n.c_submap.children:
+                gen_hdl_names(c, n.c_submap)
+    elif isinstance(n, tree.Root):
+        n.h_fname = None
+        n.h_pname = None
+        for c in n.children:
+            gen_hdl_names(c, n)
+    elif isinstance(n, tree.CompositeNode):
+        if parent is None:
+            # :param parent: can be None for address spaces...
+            n.h_fname = n.name
+            n.h_pname = n.name
+        else:
+            n.h_fname = concat_if(parent.h_fname, n.name, parent.hdl_blk_prefix)
+            n.h_pname = concat_if(parent.h_pname, n.name, parent.hdl_blk_prefix)
+        for c in n.children:
+            gen_hdl_names(c, n)
+    else:
+        raise AssertionError(n)
+
+
 def generate_hdl(root):
     ibus = Ibus()
 
@@ -238,7 +298,10 @@ def generate_hdl(root):
 
     module = gen_hdl_header(root, ibus)
 
+    # For compatibility with Gena.
     root.h_bus['vrst'] = root.h_bus['brst']
+
+    gen_hdl_names(root, None)
 
     root.h_gen = GenBlock(root, module, root)
     root.h_gen.create_generators()
@@ -262,6 +325,7 @@ def generate_hdl(root):
     add_write_mux_process(root, module, ibus)
     add_read_mux_process(root, module, ibus)
 
+    # Remove unused assignments (cleanup)
     hdlopt.remove_unused(module)
 
     return module

@@ -83,10 +83,6 @@ class GenRepeatBlock(GenBlock):
 
             for i, n in enumerate(self.n.children):
                 itf_arr.first_index = (i == 0)
-                if n.hdl_blk_prefix:            
-                    itf_arr.name_prefix = n.c_name + '_'
-                else:
-                    itf_arr.name_suffix = n.c_name
                 self.root.h_ports = HDLInterfaceIndex(ports_arr, i)
                 n.h_gen.gen_ports()
 

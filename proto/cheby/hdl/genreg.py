@@ -247,7 +247,7 @@ class GenReg(ElGen):
         attribute or if :param both: is True"""
         if isinstance(n, tree.FieldReg):
             n = n._parent
-        name = n.hdl_port_name or n.c_name
+        name = n.hdl_port_name or n.h_pname
         name += name_sfx
         if (n.hdl_port_name is None or both) and self.root.h_itf is None:
             name += '_' + dir_sfx
@@ -296,7 +296,7 @@ class GenReg(ElGen):
             # Create the register (only for registers)
             if f.h_gen.need_reg():
                 w = None if f.c_rwidth == 1 else f.c_rwidth
-                f.h_reg = self.module.new_HDLSignal(f.c_name + '_reg', w)
+                f.h_reg = self.module.new_HDLSignal(f.h_fname + '_reg', w)
                 n.h_has_regs = True
             else:
                 f.h_reg = None

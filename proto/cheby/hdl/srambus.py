@@ -17,7 +17,7 @@ class SRAMBus(BusGen):
         n.h_bus['adr'] = root.h_ports.add_port(
             prefix + 'addr_o', n.c_addr_bits,
             lo_idx=root.c_addr_word_bits, dir='OUT')
-        n.h_bus['adr'].comment = '\n' + (n.comment or 'SRAM bus {}'.format(n.name))
+        n.h_bus['adr'].comment = '\n' + (n.comment or 'SRAM bus {}'.format(n.c_name))
 
         if n.c_bus_access in ('ro', 'rw'):
             n.h_bus['dati'] = root.h_ports.add_port(
