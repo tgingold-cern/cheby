@@ -237,10 +237,11 @@ will also generate a package to declare the records.  The value of this
 attribute is the name of the port.
 
 `reg-prefix`:: If false, discard register prefix and every prefix before
-register.  This creates shorter names.
+register.  So only the name of the field is kept. This creates shorter names.
+This attribute is inherited.
 
 `block-prefix`:: If false, discard block prefix, in order to create shorter
-names.
+names.  This attribute is inherited.
 
 `pipeline`:: Finely define the pipelining.  In case of timing closure issues,
 you can set this value to "all".  Possible values are "rd-in", "rd-out",
