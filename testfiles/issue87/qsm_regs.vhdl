@@ -58,11 +58,11 @@ entity qsm_regs is
     -- Detected number of DIM devices (can be lower than 'max_dim_no')
     regs_1_status_dim_count_i : in    std_logic_vector(3 downto 0);
 
-    -- SRAM bus mem_readout
+    -- SRAM bus memory_0_mem_readout
     memory_0_mem_readout_addr_o : out   std_logic_vector(8 downto 2);
     memory_0_mem_readout_data_i : in    std_logic_vector(15 downto 0);
 
-    -- SRAM bus mem_readout
+    -- SRAM bus memory_1_mem_readout
     memory_1_mem_readout_addr_o : out   std_logic_vector(8 downto 2);
     memory_1_mem_readout_data_i : in    std_logic_vector(15 downto 0)
   );

@@ -1,6 +1,6 @@
 memory-map:
   bus: wb-32-be
-  name: repeat_iogroup1
+  name: repeat_iogroup3
   description: a simple array
   x-hdl:
       block-prefix: False

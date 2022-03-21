@@ -2,7 +2,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
-package repeat_iogroup1_pkg is
+package repeat_iogroup3_pkg is
   type t_itf_master_out is record
     areg1            : std_logic_vector(31 downto 0);
   end record t_itf_master_out;
@@ -21,14 +21,14 @@ package repeat_iogroup1_pkg is
     t_itf_master_in;
   subtype t_itf_slave_out_array is t_itf_master_in_array;
 
-end repeat_iogroup1_pkg;
+end repeat_iogroup3_pkg;
 
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
-use work.repeat_iogroup1_pkg.all;
+use work.repeat_iogroup3_pkg.all;
 
-entity repeat_iogroup1 is
+entity repeat_iogroup3 is
   port (
     rst_n_i              : in    std_logic;
     clk_i                : in    std_logic;
@@ -46,9 +46,9 @@ entity repeat_iogroup1 is
     itf_i                : in    t_itf_master_in_array(0 to 1);
     itf_o                : out   t_itf_master_out_array(0 to 1)
   );
-end repeat_iogroup1;
+end repeat_iogroup3;
 
-architecture syn of repeat_iogroup1 is
+architecture syn of repeat_iogroup3 is
   signal rd_req_int                     : std_logic;
   signal wr_req_int                     : std_logic;
   signal rd_ack_int                     : std_logic;
