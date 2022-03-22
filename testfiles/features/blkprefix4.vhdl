@@ -53,22 +53,22 @@ architecture syn of blkprefix4 is
   signal r5_reg                         : std_logic_vector(31 downto 0);
   signal r5_wreq                        : std_logic;
   signal r5_wack                        : std_logic;
-  signal sub1_r1_reg                    : std_logic_vector(31 downto 0);
+  signal blk_sub1_r1_reg                : std_logic_vector(31 downto 0);
   signal sub1_r1_wreq                   : std_logic;
   signal sub1_r1_wack                   : std_logic;
-  signal sub1_b1_r2_reg                 : std_logic_vector(31 downto 0);
+  signal blk_sub1_b1_r2_reg             : std_logic_vector(31 downto 0);
   signal sub1_b1_r2_wreq                : std_logic;
   signal sub1_b1_r2_wack                : std_logic;
-  signal sub1_b2_r3_reg                 : std_logic_vector(31 downto 0);
+  signal blk_sub1_b2_r3_reg             : std_logic_vector(31 downto 0);
   signal sub1_b2_r3_wreq                : std_logic;
   signal sub1_b2_r3_wack                : std_logic;
-  signal sub2_r1_reg                    : std_logic_vector(31 downto 0);
+  signal blk_sub2_r1_reg                : std_logic_vector(31 downto 0);
   signal sub2_r1_wreq                   : std_logic;
   signal sub2_r1_wack                   : std_logic;
-  signal sub2_b1_r2_reg                 : std_logic_vector(31 downto 0);
+  signal blk_sub2_b1_r2_reg             : std_logic_vector(31 downto 0);
   signal sub2_b1_r2_wreq                : std_logic;
   signal sub2_b1_r2_wack                : std_logic;
-  signal sub2_b2_r3_reg                 : std_logic_vector(31 downto 0);
+  signal blk_sub2_b2_r3_reg             : std_logic_vector(31 downto 0);
   signal sub2_b2_r3_wreq                : std_logic;
   signal sub2_b2_r3_wack                : std_logic;
   signal rd_ack_d0                      : std_logic;
@@ -142,15 +142,15 @@ begin
   end process;
 
   -- Register sub1_r1
-  sub1_r1_o <= sub1_r1_reg;
+  sub1_r1_o <= blk_sub1_r1_reg;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
-        sub1_r1_reg <= "00000000000000000000000000000000";
+        blk_sub1_r1_reg <= "00000000000000000000000000000000";
         sub1_r1_wack <= '0';
       else
         if sub1_r1_wreq = '1' then
-          sub1_r1_reg <= wr_dat_d0;
+          blk_sub1_r1_reg <= wr_dat_d0;
         end if;
         sub1_r1_wack <= sub1_r1_wreq;
       end if;
@@ -158,15 +158,15 @@ begin
   end process;
 
   -- Register sub1_b1_r2
-  sub1_b1_r2_o <= sub1_b1_r2_reg;
+  sub1_b1_r2_o <= blk_sub1_b1_r2_reg;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
-        sub1_b1_r2_reg <= "00000000000000000000000000000000";
+        blk_sub1_b1_r2_reg <= "00000000000000000000000000000000";
         sub1_b1_r2_wack <= '0';
       else
         if sub1_b1_r2_wreq = '1' then
-          sub1_b1_r2_reg <= wr_dat_d0;
+          blk_sub1_b1_r2_reg <= wr_dat_d0;
         end if;
         sub1_b1_r2_wack <= sub1_b1_r2_wreq;
       end if;
@@ -174,15 +174,15 @@ begin
   end process;
 
   -- Register sub1_b2_r3
-  sub1_b2_r3_o <= sub1_b2_r3_reg;
+  sub1_b2_r3_o <= blk_sub1_b2_r3_reg;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
-        sub1_b2_r3_reg <= "00000000000000000000000000000000";
+        blk_sub1_b2_r3_reg <= "00000000000000000000000000000000";
         sub1_b2_r3_wack <= '0';
       else
         if sub1_b2_r3_wreq = '1' then
-          sub1_b2_r3_reg <= wr_dat_d0;
+          blk_sub1_b2_r3_reg <= wr_dat_d0;
         end if;
         sub1_b2_r3_wack <= sub1_b2_r3_wreq;
       end if;
@@ -190,15 +190,15 @@ begin
   end process;
 
   -- Register sub2_r1
-  sub2_r1_o <= sub2_r1_reg;
+  sub2_r1_o <= blk_sub2_r1_reg;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
-        sub2_r1_reg <= "00000000000000000000000000000000";
+        blk_sub2_r1_reg <= "00000000000000000000000000000000";
         sub2_r1_wack <= '0';
       else
         if sub2_r1_wreq = '1' then
-          sub2_r1_reg <= wr_dat_d0;
+          blk_sub2_r1_reg <= wr_dat_d0;
         end if;
         sub2_r1_wack <= sub2_r1_wreq;
       end if;
@@ -206,15 +206,15 @@ begin
   end process;
 
   -- Register sub2_b1_r2
-  sub2_b1_r2_o <= sub2_b1_r2_reg;
+  sub2_b1_r2_o <= blk_sub2_b1_r2_reg;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
-        sub2_b1_r2_reg <= "00000000000000000000000000000000";
+        blk_sub2_b1_r2_reg <= "00000000000000000000000000000000";
         sub2_b1_r2_wack <= '0';
       else
         if sub2_b1_r2_wreq = '1' then
-          sub2_b1_r2_reg <= wr_dat_d0;
+          blk_sub2_b1_r2_reg <= wr_dat_d0;
         end if;
         sub2_b1_r2_wack <= sub2_b1_r2_wreq;
       end if;
@@ -222,15 +222,15 @@ begin
   end process;
 
   -- Register sub2_b2_r3
-  sub2_b2_r3_o <= sub2_b2_r3_reg;
+  sub2_b2_r3_o <= blk_sub2_b2_r3_reg;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
-        sub2_b2_r3_reg <= "00000000000000000000000000000000";
+        blk_sub2_b2_r3_reg <= "00000000000000000000000000000000";
         sub2_b2_r3_wack <= '0';
       else
         if sub2_b2_r3_wreq = '1' then
-          sub2_b2_r3_reg <= wr_dat_d0;
+          blk_sub2_b2_r3_reg <= wr_dat_d0;
         end if;
         sub2_b2_r3_wack <= sub2_b2_r3_wreq;
       end if;
@@ -282,8 +282,9 @@ begin
   end process;
 
   -- Process for read requests.
-  process (wb_adr_i, rd_req_int, r5_reg, sub1_r1_reg, sub1_b1_r2_reg, sub1_b2_r3_reg,
-           sub2_r1_reg, sub2_b1_r2_reg, sub2_b2_r3_reg) begin
+  process (wb_adr_i, rd_req_int, r5_reg, blk_sub1_r1_reg, blk_sub1_b1_r2_reg,
+           blk_sub1_b2_r3_reg, blk_sub2_r1_reg, blk_sub2_b1_r2_reg,
+           blk_sub2_b2_r3_reg) begin
     -- By default ack read requests
     rd_dat_d0 <= (others => 'X');
     case wb_adr_i(5 downto 2) is
@@ -294,27 +295,27 @@ begin
     when "1000" =>
       -- Reg sub1_r1
       rd_ack_d0 <= rd_req_int;
-      rd_dat_d0 <= sub1_r1_reg;
+      rd_dat_d0 <= blk_sub1_r1_reg;
     when "1001" =>
       -- Reg sub1_b1_r2
       rd_ack_d0 <= rd_req_int;
-      rd_dat_d0 <= sub1_b1_r2_reg;
+      rd_dat_d0 <= blk_sub1_b1_r2_reg;
     when "1010" =>
       -- Reg sub1_b2_r3
       rd_ack_d0 <= rd_req_int;
-      rd_dat_d0 <= sub1_b2_r3_reg;
+      rd_dat_d0 <= blk_sub1_b2_r3_reg;
     when "1100" =>
       -- Reg sub2_r1
       rd_ack_d0 <= rd_req_int;
-      rd_dat_d0 <= sub2_r1_reg;
+      rd_dat_d0 <= blk_sub2_r1_reg;
     when "1101" =>
       -- Reg sub2_b1_r2
       rd_ack_d0 <= rd_req_int;
-      rd_dat_d0 <= sub2_b1_r2_reg;
+      rd_dat_d0 <= blk_sub2_b1_r2_reg;
     when "1110" =>
       -- Reg sub2_b2_r3
       rd_ack_d0 <= rd_req_int;
-      rd_dat_d0 <= sub2_b2_r3_reg;
+      rd_dat_d0 <= blk_sub2_b2_r3_reg;
     when others =>
       rd_ack_d0 <= rd_req_int;
     end case;

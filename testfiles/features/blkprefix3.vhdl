@@ -44,8 +44,8 @@ architecture syn of blkprefix3 is
   signal b1_r2_f2_reg                   : std_logic;
   signal b1_r2_wreq                     : std_logic;
   signal b1_r2_wack                     : std_logic;
-  signal b1_r3_f1_reg                   : std_logic_vector(2 downto 0);
-  signal b1_r3_f2_reg                   : std_logic;
+  signal b1_b11_r3_f1_reg               : std_logic_vector(2 downto 0);
+  signal b1_b11_r3_f2_reg               : std_logic;
   signal b1_r3_wreq                     : std_logic;
   signal b1_r3_wack                     : std_logic;
   signal b2_r3_f1_reg                   : std_logic_vector(2 downto 0);
@@ -125,18 +125,18 @@ begin
   end process;
 
   -- Register b1_r3
-  b1_r3_f1_o <= b1_r3_f1_reg;
-  b1_r3_f2_o <= b1_r3_f2_reg;
+  b1_r3_f1_o <= b1_b11_r3_f1_reg;
+  b1_r3_f2_o <= b1_b11_r3_f2_reg;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
-        b1_r3_f1_reg <= "000";
-        b1_r3_f2_reg <= '0';
+        b1_b11_r3_f1_reg <= "000";
+        b1_b11_r3_f2_reg <= '0';
         b1_r3_wack <= '0';
       else
         if b1_r3_wreq = '1' then
-          b1_r3_f1_reg <= wr_dat_d0(2 downto 0);
-          b1_r3_f2_reg <= wr_dat_d0(4);
+          b1_b11_r3_f1_reg <= wr_dat_d0(2 downto 0);
+          b1_b11_r3_f2_reg <= wr_dat_d0(4);
         end if;
         b1_r3_wack <= b1_r3_wreq;
       end if;
@@ -183,8 +183,8 @@ begin
   end process;
 
   -- Process for read requests.
-  process (wb_adr_i, rd_req_int, b1_r2_f1_reg, b1_r2_f2_reg, b1_r3_f1_reg,
-           b1_r3_f2_reg, b2_r3_f1_reg) begin
+  process (wb_adr_i, rd_req_int, b1_r2_f1_reg, b1_r2_f2_reg, b1_b11_r3_f1_reg,
+           b1_b11_r3_f2_reg, b2_r3_f1_reg) begin
     -- By default ack read requests
     rd_dat_d0 <= (others => 'X');
     case wb_adr_i(3 downto 2) is
@@ -198,9 +198,9 @@ begin
     when "01" =>
       -- Reg b1_r3
       rd_ack_d0 <= rd_req_int;
-      rd_dat_d0(2 downto 0) <= b1_r3_f1_reg;
+      rd_dat_d0(2 downto 0) <= b1_b11_r3_f1_reg;
       rd_dat_d0(3) <= '0';
-      rd_dat_d0(4) <= b1_r3_f2_reg;
+      rd_dat_d0(4) <= b1_b11_r3_f2_reg;
       rd_dat_d0(31 downto 5) <= (others => '0');
     when "10" =>
       -- Reg b2_r3
