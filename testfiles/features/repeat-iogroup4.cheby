@@ -1,0 +1,30 @@
+memory-map:
+  bus: wb-32-be
+  name: repeat_iogroup4
+  description: array interface
+  x-hdl:
+      block-prefix: False
+  children:
+  - repeat:
+      name: arr1
+      count: 1
+      x-hdl:
+        iogroup: itf
+      children:
+        - reg:
+            name: areg
+            access: rw
+            width: 32
+        - reg:
+            name: regf
+            width: 32
+            access: ro
+            children:
+              - field:
+                  name: f0
+                  range: 0
+                  description: "1 if tx is sending data"
+              - field:
+                  name: f1
+                  range: 1
+                  description: "1 if tx fifo is full"
