@@ -283,7 +283,10 @@ def gen_hdl_names(n, parent):
             n.h_pname = n.name
         else:
             n.h_fname = concat(parent.h_fname, n.name)
-            n.h_pname = concat_if(parent.h_pname, n.name, parent.hdl_blk_prefix)
+            add_prefix = parent.hdl_blk_prefix
+            if isinstance(n, tree.Block):
+                add_prefix = add_prefix and n.hdl_iogroup is None
+            n.h_pname = concat_if(parent.h_pname, n.name, add_prefix)
         for c in n.children:
             gen_hdl_names(c, n)
     else:

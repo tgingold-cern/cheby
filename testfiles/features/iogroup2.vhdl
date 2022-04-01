@@ -4,7 +4,7 @@ use ieee.numeric_std.all;
 
 package igroup2_pkg is
   type t_blk_master_out is record
-    blk_breg         : std_logic_vector(31 downto 0);
+    breg             : std_logic_vector(31 downto 0);
   end record t_blk_master_out;
   subtype t_blk_slave_in is t_blk_master_out;
 
@@ -123,7 +123,7 @@ begin
   end process;
 
   -- Register blk_breg
-  blk_o.blk_breg <= blk_breg_reg;
+  blk_o.breg <= blk_breg_reg;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
