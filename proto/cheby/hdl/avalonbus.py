@@ -38,18 +38,20 @@ class AvalonBus(BusGen):
         # address: saved on 'read' or 'write' when waitrequest is not set.
         # writedata: saved on 'write' when waitrequest is not set.
         # rd, wr: hold one cycle when waitrequest is not set.
-        addr = module.new_HDLSignal(
-            'addr_int', root.c_addr_bits, lo_idx=root.c_addr_word_bits)
+        if ibus.addr_size > 0:
+            addr = module.new_HDLSignal(
+                'addr_int', root.c_addr_bits, lo_idx=root.c_addr_word_bits)
         dati = module.new_HDLSignal('dati_int', root.c_word_bits)
         proc = HDLSync(root.h_bus['clk'], root.h_bus['brst'],
                        rst_sync=gconfig.rst_sync)
         proc.rst_stmts.append(HDLAssign(ibus.rd_req, bit_0))
         proc.rst_stmts.append(HDLAssign(ibus.wr_req, bit_0))
-        if_stmt = HDLIfElse(
-            HDLEq(HDLAnd(HDLParen(HDLOr(root.h_bus['rd'], root.h_bus['wr'])),
-                         HDLNot(wait)), bit_1))
-        if_stmt.then_stmts.append(HDLAssign(addr, root.h_bus['adr']))
-        proc.sync_stmts.append(if_stmt)
+        if ibus.addr_size > 0:
+            if_stmt = HDLIfElse(
+                HDLEq(HDLAnd(HDLParen(HDLOr(root.h_bus['rd'], root.h_bus['wr'])),
+                             HDLNot(wait)), bit_1))
+            if_stmt.then_stmts.append(HDLAssign(addr, root.h_bus['adr']))
+            proc.sync_stmts.append(if_stmt)
         if_stmt = HDLIfElse(HDLEq(HDLAnd(root.h_bus['wr'], HDLNot(wait)), bit_1))
         if_stmt.then_stmts.append(HDLAssign(dati, root.h_bus['dati']))
         proc.sync_stmts.append(if_stmt)
@@ -57,8 +59,9 @@ class AvalonBus(BusGen):
         proc.sync_stmts.append(HDLAssign(ibus.wr_req, HDLAnd(root.h_bus['wr'], HDLNot(wait))))
         module.stmts.append(proc)
 
-        ibus.rd_adr = addr
-        ibus.wr_adr = addr
+        if ibus.addr_size > 0:
+            ibus.rd_adr = addr
+            ibus.wr_adr = addr
         ibus.wr_dat = dati
 
         module.stmts.append(HDLAssign(root.h_bus['rack'], ibus.rd_ack))
