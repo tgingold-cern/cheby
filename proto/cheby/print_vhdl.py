@@ -517,7 +517,7 @@ def get_interface_name(inter, is_master, is_out):
                                  'out' if is_out else 'in')
     elif isinstance(inter, hdltree.HDLInterfaceArray):
         pnam = get_interface_name(inter.prefix, is_master, is_out)
-        return "{}_array(0 to {})".format(pnam, inter.count - 1)
+        return "{}_array({} downto 0)".format(pnam, inter.count - 1)
     else:
         raise AssertionError
 

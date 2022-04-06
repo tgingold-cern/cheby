@@ -34,7 +34,7 @@ entity repeat_iogroup1 is
     wb_rty_o             : out   std_logic;
     wb_stall_o           : out   std_logic;
     wb_dat_o             : out   std_logic_vector(31 downto 0);
-    itf_o                : out   t_itf_master_out_array(0 to 1)
+    itf_o                : out   t_itf_master_out_array(1 downto 0)
   );
 end repeat_iogroup1;
 
