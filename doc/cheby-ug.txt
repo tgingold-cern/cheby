@@ -257,10 +257,10 @@ Finally it is possible to use "none" not to use any pipelining.
 The pipelining is a single barrier of registers inserted on an internal bus,
 which is created from the external bus.
 
-`name-suffix`: The name of the hdl entity or module is by default the name of
+`name-suffix`:: The name of the hdl entity or module is by default the name of
 the memory map.  This attribute adds a suffix to those names.
 
-`bus-granularity`: Specify the granularity of the addresses. If set to
+`bus-granularity`:: Specify the granularity of the addresses. If set to
 `word`, the address bus LSB bits are omitted.  So if a word is 4
 bytes, the address bus start at bit 2.  If set to `byte`, the address
 bus start at 0 (but those extra bits are ignored).  The default is
