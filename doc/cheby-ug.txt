@@ -552,7 +552,7 @@ For all buses, only word accesses are supported.  Sub-word (byte or half-word)
 accesses are considered as word accesses (which can lead to error when
 writting).
 
-Addresses are always byte addresses.
+Addresses are byte addresses unless `bus-granularity` is set to `word`.
 
 For registers longer than a word on a big-endian bus, the most significant
 word is at the lowest address. There is one bit per word for strobe bits, and
@@ -581,7 +581,8 @@ There are registers for each channel.  The AW and W channels wait until both
 have a request, handle the request and then become ready.  The B channel
 becomes valid the next cycle, until ready is asserted.
 
-Note that AXI4 addresses are byte addresses as specified in A3.4.1.
+Note that AXI4 addresses are byte addresses as specified in A3.4.1, but LSB
+bits may be omitted with the `bus-granularity` attribute.
 
 === Wishbone
 
