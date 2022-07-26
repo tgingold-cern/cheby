@@ -66,8 +66,9 @@ def print_root(fd, root):
     wln(fd, "Memory map summary")
     wln(fd, "##################")
     wln(fd)
-    wln(fd, root.description)
-    wln(fd)
+    if root.description is not None:
+        wln(fd, root.description)
+        wln(fd)
     if root.version is not None:
         wln(fd, "version: {}".format(root.version))
         wln(fd)
