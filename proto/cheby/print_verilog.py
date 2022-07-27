@@ -517,13 +517,7 @@ def extract_reg_module(module):
             extract_reg_seq(s.stmts)
 
 
-def print_module(fd, module):
-    extract_reg_module(module)
-    if module.global_decls:
-        for s in module.global_decls:
-            generate_decl(fd, s, 0)
-        wln(fd)
-
+def print_module_declaration(fd, module):
     generate_header(fd, module)
     wln(fd)
     wln(fd, "module {}".format(module.name))
@@ -535,8 +529,35 @@ def print_module(fd, module):
     wln(fd, "endmodule")
 
 
+def print_module(fd, module):
+    extract_reg_module(module)
+    if module.global_decls:
+        for s in module.global_decls:
+            generate_decl(fd, s, 0)
+        wln(fd)
+    print_module_declaration(fd, module)
+
+
 def print_verilog(fd, n):
     if isinstance(n, hdltree.HDLModule):
         print_module(fd, n)
     else:
         raise AssertionError
+
+def print_verilog_per_units(module, write_hdr=None):
+    assert isinstance(module, hdltree.HDLModule)
+    extract_reg_module(module)
+    if module.global_decls:
+        for s in module.global_decls:
+            if isinstance(s, hdltree.HDLInterfaceArray):
+                s = s.prefix
+            filename = s.name + '.v'
+            print('Writing {}'.format(filename))
+            with open(filename, 'w') as fd:
+                generate_decl(fd, s, 0)
+    filename = module.name + '.v'
+    print('Writing {}'.format(filename))
+    with open(filename, 'w') as fd:
+        if write_hdr is not None:
+            write_hdr(fd)
+        print_module_declaration(fd, module)

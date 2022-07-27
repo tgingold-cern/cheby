@@ -315,13 +315,19 @@ def handle_file(args, filename):
                 sys.stderr.write('error: no address space "{}"\n'.format(args.address_space))
                 sys.exit(2)
         h = gen_hdl.generate_hdl(top)
-        with open_filename(args.gen_hdl) as f:
-            if args.header != 'none':
-                gen_comment_header(f, args)
-                if t.version is not None:
-                    f.write("{c}\n{c} Version: {ver}\n".format(c=c, ver=t.version))
-                f.write("\n")
-            print_hdl(f, args.hdl, h)
+        if args.gen_hdl == '+units':
+            if args.hdl == 'verilog':
+                print_verilog.print_verilog_per_units(h)
+            else:
+                raise AssertionError('unhandled language {}'.format(args.hdl))
+        else:
+            with open_filename(args.gen_hdl) as f:
+                if args.header != 'none':
+                    gen_comment_header(f, args)
+                    if t.version is not None:
+                        f.write("{c}\n{c} Version: {ver}\n".format(c=c, ver=t.version))
+                    f.write("\n")
+                print_hdl(f, args.hdl, h)
 
 
 def print_example():
