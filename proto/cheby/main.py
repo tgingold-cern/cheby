@@ -109,6 +109,8 @@ def decode_args():
                          help='override the word-endianness in memmory maps')
     aparser.add_argument('--address-space',
                          help='specify address space for --gen-hdl')
+    aparser.add_argument('--out-prefix', default='',
+                         help='specify path prefix for automatic output files')
 
     args = aparser.parse_args()
     cheby.hdl.globals.gconfig.rst_sync = (args.ff_reset != 'async')
@@ -317,7 +319,7 @@ def handle_file(args, filename):
         h = gen_hdl.generate_hdl(top)
         if args.gen_hdl == '+units':
             if args.hdl == 'verilog':
-                print_verilog.print_verilog_per_units(h)
+                print_verilog.print_verilog_per_units(h, args.out_prefix)
             else:
                 raise AssertionError('unhandled language {}'.format(args.hdl))
         else:

@@ -544,18 +544,18 @@ def print_verilog(fd, n):
     else:
         raise AssertionError
 
-def print_verilog_per_units(module, write_hdr=None):
+def print_verilog_per_units(module, prefix="", write_hdr=None):
     assert isinstance(module, hdltree.HDLModule)
     extract_reg_module(module)
     if module.global_decls:
         for s in module.global_decls:
             if isinstance(s, hdltree.HDLInterfaceArray):
                 s = s.prefix
-            filename = s.name + '.v'
+            filename = prefix + s.name + '.sv'
             print('Writing {}'.format(filename))
             with open(filename, 'w') as fd:
                 generate_decl(fd, s, 0)
-    filename = module.name + '.v'
+    filename = prefix + module.name + '.sv'
     print('Writing {}'.format(filename))
     with open(filename, 'w') as fd:
         if write_hdr is not None:
