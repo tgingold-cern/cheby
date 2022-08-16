@@ -645,15 +645,21 @@ def layout_bus(root):
     """Extract size/align from a bus"""
     root.c_align_reg = True
     root.c_buserr = False
-    if root.bus is None or root.bus == 'wb-32-be':
+    if root.bus is None:    # default
         root.c_word_size = 4
         root.c_word_endian = 'big'
     elif root.bus.startswith('wb-'):
-        params = root.bus[3:]
-        root.c_word_endian = 'big'
-        if params == '32':
+        width = root.bus[3:5]
+        endianess = root.bus[6:8]
+
+        if endianess == 'le':
+            root.c_word_endian = 'little'
+        else:
+            root.c_word_endian = 'big'
+
+        if width == '32':
             root.c_word_size = 4
-        elif params == '16':
+        elif width == '16':
             root.c_word_size = 2
         else:
             raise LayoutException(
