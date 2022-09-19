@@ -208,6 +208,8 @@ def gen_c_cheby(fd, root, style):
     print_consts.pconsts_for_gen_c(fd, root)
     fd.write('\n')
 
+    fd.write('#ifndef __ASSEMBLER__\n')
     fd.write(cp.buffer)
+    fd.write('#endif /* !__ASSEMBLER__*/\n')
     fd.write('\n')
     fd.write("#endif /* {} */\n".format(csym))
