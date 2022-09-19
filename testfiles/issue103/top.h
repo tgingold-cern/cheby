@@ -21,6 +21,7 @@
 #define ADDR_MASK_TOP_SUB3 0xcUL
 #define TOP_SUB3_SIZE 4 /* 0x4 */
 
+#ifndef __ASSEMBLER__
 struct top {
   /* [0x0]: SUBMAP A normal submap */
   struct sub1 sub1;
@@ -31,5 +32,6 @@ struct top {
   /* [0x8]: SUBMAP An included submap */
   struct sub3 sub3;
 };
+#endif /* !__ASSEMBLER__*/
 
 #endif /* __CHEBY__TOP__H__ */
