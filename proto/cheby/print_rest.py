@@ -61,10 +61,11 @@ def print_reg(fd, r, abs_addr):
         wln(fd)
 
 
-def print_root(fd, root):
-    wln(fd, "##################")
-    wln(fd, "Memory map summary")
-    wln(fd, "##################")
+def print_root(fd, root, heading):
+    title = "Memory map summary"
+    wln(fd, heading[0] * len(title))
+    wln(fd, title)
+    wln(fd, heading[0] * len(title))
     wln(fd)
     if root.description is not None:
         wln(fd, root.description)
@@ -83,17 +84,19 @@ def print_root(fd, root):
     wtable(fd, t)
     wln(fd)
 
-    wln(fd, "Registers description")
-    wln(fd, "=====================")
+    title = "Registers description"
+    wln(fd, title)
+    wln(fd, heading[1] * len (title))
     for ra in summary.raws:
         r = ra.node
         if isinstance(r, tree.Reg):
             wln(fd, "{}".format(ra.name))
-            wln(fd, "-" * len(ra.name))
+            wln(fd, heading[2] * len(ra.name))
             wln(fd)
             print_reg(fd, r, ra.abs_addr)
 
 
-def print_rest(fd, n):
+def print_rest(fd, n, heading=["#", "=", '-']):
     assert isinstance(n, tree.Root)
-    print_root(fd, n)
+    assert isinstance(heading, list)
+    print_root(fd, n, heading)
