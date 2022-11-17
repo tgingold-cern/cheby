@@ -101,7 +101,7 @@ def decode_args():
                          help='select language for doc generation')
     aparser.add_argument('--gen-doc', nargs='?', const='-',
                          help='generate documentation')
-    aparser.add_argument('--rest-header', default='#=-',
+    aparser.add_argument('--rest-headers', default='#=-',
                          help='Ordered set of characters to be used for ReST heading levels')
     aparser.add_argument('--input', '-i',
                          help='input file')
@@ -272,7 +272,7 @@ def handle_file(args, filename):
             elif args.doc == 'md':
                 print_markdown.print_markdown(f, t)
             elif args.doc == 'rest':
-                print_rest.print_rest(f, t, list(args.rest_header))
+                print_rest.print_rest(f, t, args.rest_headers)
             else:
                 raise AssertionError('unknown doc format {}'.format(args.doc))
     if args.gen_consts is not None:

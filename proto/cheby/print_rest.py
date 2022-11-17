@@ -96,7 +96,6 @@ def print_root(fd, root, heading):
             print_reg(fd, r, ra.abs_addr)
 
 
-def print_rest(fd, n, heading=["#", "=", '-']):
+def print_rest(fd, n, heading="#=-"):
     assert isinstance(n, tree.Root)
-    assert isinstance(heading, list)
     print_root(fd, n, heading)
