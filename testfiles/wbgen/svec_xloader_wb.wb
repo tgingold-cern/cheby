@@ -1,0 +1,239 @@
+-- -*- Mode: LUA; tab-width: 2 -*-
+
+-------------------------------------------------------------------------------
+-- Title        : Xilinx FPGA Loader
+-- Project      : Simple VME64x FMC Carrier (SVEC)
+-------------------------------------------------------------------------------
+-- File         : svec_xloader_wb.wb
+-- Author       : Tomasz Włostowski
+-- Company      : CERN BE-CO-HT
+-- Created      : 2012-01-30
+-- Last update  : 2013-01-24
+-- Standard     : Lua 5.1
+-- Dependencies : wbgen2 ver 0.6+
+-------------------------------------------------------------------------------
+-- Description: Wishbone register block definition for Xilinx FPGA loader core.
+-------------------------------------------------------------------------------
+--
+-- Copyright (c) 2012 - 2013 CERN
+--
+-- This source file is free software; you can redistribute it   
+-- and/or modify it under the terms of the GNU Lesser General   
+-- Public License as published by the Free Software Foundation; 
+-- either version 2.1 of the License, or (at your option) any   
+-- later version.                                               
+--
+-- This source is distributed in the hope that it will be       
+-- useful, but WITHOUT ANY WARRANTY; without even the implied   
+-- warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR      
+-- PURPOSE.  See the GNU Lesser General Public License for more 
+-- details.                                                     
+--
+-- You should have received a copy of the GNU Lesser General    
+-- Public License along with this source; if not, download it   
+-- from http://www.gnu.org/licenses/lgpl-2.1.html
+--
+-------------------------------------------------------------------------------
+
+peripheral {
+   name = "SVEC FPGA loader";
+   description = "A very simple serial firmware loader for Xilinx FPGAs. Programs the FPGA using serial slave mode method";
+   prefix = "sxldr";
+   hdl_entity = "svec_xloader_wb";
+   
+   reg {
+      name = "Control/status register";
+      prefix = "CSR";
+      
+      field {
+         name = "Start configuration";
+         description = "write 1: starts the configuration process.\
+         write 0: no effect";
+         
+         prefix = "START";
+         type = MONOSTABLE;		
+      };
+      
+      field {
+         name = "Configuration done";
+         description = "read 1: the bitstream has been loaded\
+         read 0: configuration still in progress";
+         prefix = "DONE";
+         type = BIT;
+         access_bus = READ_ONLY;
+         access_dev = WRITE_ONLY;
+      };
+
+      field {
+         name = "Configuration error";
+         description = "read 1: an error occured during the configuration (DONE/INIT_B timeout)\
+         read 0: configuration was successful";
+         prefix = "ERROR";
+         type = BIT;
+         access_bus = READ_ONLY;
+         access_dev = WRITE_ONLY;
+      };
+                
+      field {
+         name = "Loader busy";
+         prefix = "BUSY";
+         description = "read 1: the loader is busy (can't start configuration yet)\
+         read 0: the loader is ready to re-configure the FPGA";
+         type = BIT;
+         access_bus = READ_ONLY;
+         access_dev = WRITE_ONLY;
+      };
+
+      field {
+         name = "Byte order select";
+         description = "write 1: MSB first (big endian host)\
+         write 0: LSB first (little endian host)";
+         prefix = "MSBF";
+         type = BIT;
+         access_bus = READ_WRITE;
+         access_dev = READ_ONLY;
+      };
+                
+      field {
+         name = "Software resest";
+         description = "write 1: resets the loader core\
+         write 0: no effect";
+         prefix = "SWRST";
+         type = MONOSTABLE;                      
+      };
+
+      field {
+         name = "Exit bootloader mode";
+         description = "write 1: terminate bootloader mode and go passive (VME only)";
+         prefix = "EXIT";
+         type = MONOSTABLE;                      
+      };
+      
+      field {
+         name = "Serial clock divider"; 
+         description = "CCLK division ratio. CCLK frequency = F_sysclk / 2 / (CLKDIV + 1)";
+         prefix = "CLKDIV";
+         type = SLV;
+         align = 8;
+         size = 6;
+         access_bus = READ_WRITE;
+         access_dev =READ_ONLY;
+      };
+      
+      field {
+         name = "Bootloader version";
+         prefix = "VERSION";
+         type = CONSTANT;
+         size = 8;
+         value = 3;
+      }
+
+	};
+	
+   reg {
+      name = "Bootloader Trigger Register";
+      prefix = "BTRIGR";
+
+      field {
+         name = "Trigger Sequence Input";
+         description = "Write a sequence of 0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe to enter bootloader mode (VME only)";
+         size = 8;
+         type = PASS_THROUGH;
+      };
+   };
+
+ reg {
+      name = "Flash Access Register";
+      description = "Provides direct access to the SPI flash memory containing the bitstream.";
+      prefix = "FAR";
+
+      field {
+         prefix = "DATA";
+         name = "SPI Data";
+         description = "Data to be written / read to/from the flash SPI controller.";
+         size = 8;
+         type = SLV;
+         access_bus = READ_WRITE;
+         access_dev = READ_WRITE;
+         load = LOAD_EXT;
+      };
+
+      field {
+         prefix = "XFER";
+         name = "SPI Start Transfer";
+         description = "write 1: initiate an SPI transfer with an 8-bit data word taken from the <code>DATA</code>field\
+         write 0: no effect";
+         type = BIT;
+         access_bus = READ_WRITE;
+         access_dev = READ_ONLY;
+      };
+
+      field {
+         prefix = "READY";
+         name = "SPI Ready";
+         description = "read 1: Core is ready to initiate another transfer. DATA field contains the data read during previous transaction.\
+read 0: core is busy";
+         type = BIT;
+         access_bus = READ_ONLY;
+         access_dev = WRITE_ONLY;
+      };
+
+      field {
+         prefix = "CS";
+         name = "SPI Chip Select";
+         description = "write 1: Enable target SPI controller\
+write 0: Disable target SPI controller";
+         type = BIT;
+         access_bus = READ_WRITE;
+         access_dev = READ_ONLY;
+      };
+   };
+
+  reg {
+      name = "ID Register";
+      prefix = "IDR";
+
+      field {
+         name = "Identification code";
+         description = "User-defined identification code (g_idr_value generic)";
+         size = 32;
+         type = SLV;
+         access_bus = READ_ONLY;
+         access_dev = WRITE_ONLY;
+      };
+   };
+
+	fifo_reg {
+      size = 256;
+	    direction = BUS_TO_CORE;
+      prefix = "FIFO";
+      name = "Bitstream FIFO";
+      flags_bus = {FIFO_CLEAR, FIFO_FULL, FIFO_EMPTY, FIFO_COUNT};
+      flags_dev = {FIFO_FULL, FIFO_EMPTY};
+
+      field {
+         description = "Number of bytes to send (0 = 1 byte .. 3 = full 32-bit word)";
+         name = "Entry size";
+         prefix = "XSIZE";
+         size = 2;
+         type = SLV;
+      };
+
+      field {
+         description = "write 1: indicates the last word to be written to the FPGA";
+         name = "Last xfer";
+         prefix = "XLAST";
+         type = BIT;    
+      };
+      
+      field {
+         description = "Subsequent words of the bitstream";
+         name = "Data";
+         prefix = "XDATA";
+         size = 32;
+         type = SLV;      
+      };
+   };
+
+ 
+};

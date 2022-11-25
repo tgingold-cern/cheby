@@ -709,6 +709,7 @@ def test_wbgen2cheby():
              'description', 'comment1', 'comment_block',
              'wb_freq_multi_count_cst',
              'version',
+             'svec_xloader_wb',
              '../issue28/wrc_syscon_wb']
     print_vhdl.style = 'wbgen'
     for f in files:
