@@ -1,4 +1,3 @@
-import sys
 import cheby.wbgen.tree as wbtree
 import cheby.wbgen.layout as layout
 import cheby.tree as tree
@@ -51,7 +50,7 @@ def write_field(n, parent):
     write_field_content(res, n, parent)
     return res
 
-def write_reg(parent, n):
+def write_reg(parent, n, addr_off):
     # Compute access mode
     acc = "--"
     accmap = {'--': {'READ_ONLY': 'ro',
@@ -78,7 +77,7 @@ def write_reg(parent, n):
     res = tree.Reg(parent)
     # write_pre_comment(n.pre_comment)
     res.name = n.prefix
-    res.address = n.addr_base * layout.DATA_BYTES
+    res.address = (n.addr_base - addr_off) * layout.DATA_BYTES
     res.width = layout.DATA_WIDTH
     res.access = acc
     res.description = n.name
@@ -135,7 +134,7 @@ def write_fifo(parent, n):
     #self.block_addr.append(addr)
     for r in n.regs:
         r.pre_comment = None
-        res.children.append(write_reg(res, r))
+        res.children.append(write_reg(res, r, addr))
     #self.block_addr.pop()
     return res
 
@@ -188,10 +187,7 @@ def write_irqs(parent, regs, irqs):
 
     for r in regs:
         r.pre_comment = None
-        # Adjust addr_base as it is relative in cheby.
-        r.addr_base -= addr
-        res.children.append(write_reg(res, r))
-        r.addr_base += addr
+        res.children.append(write_reg(res, r, addr))
 
     return res
 
@@ -220,7 +216,7 @@ def gen_root(n):
     # Generate
     for r in n.regs:
         if isinstance(r, wbtree.Reg):
-            res.children.append(write_reg(res, r))
+            res.children.append(write_reg(res, r, 0))
         elif isinstance(r, wbtree.Fifo):
             res.children.append(write_fifo(res, r))
         elif isinstance(r, wbtree.Ram):
