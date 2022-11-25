@@ -74,6 +74,8 @@ Split long vhdl lines in process sensitivity list.
 
 Avoid a crash during REST generation on missing root description (issue#112)
 
+wbgen2cheby: fix address values for FIFO registers.
+
 ## Version 1.4
 
 Add x-hdl:pipeline to control pipelining of the root.
