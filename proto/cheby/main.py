@@ -281,7 +281,7 @@ def handle_file(args, filename):
     if args.gen_wbgen_hdl is not None:
         h = gen_wbgen_hdl.expand_hdl(t)
         with open_filename(args.gen_wbgen_hdl) as f:
-            if not args.no_header:
+            if args.header != 'none':
                 (basename, _) = os.path.splitext(os.path.basename(filename))
                 c = {'vhdl': '--', 'verilog': '//'}[args.hdl]
                 l = c[0] * 79
