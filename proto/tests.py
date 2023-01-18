@@ -413,7 +413,7 @@ def test_verilog_ref():
 
 def test_issue84():
     global nbr_tests
-    for f in ['issue84/sps200CavityControl', 'issue84/sps200CavityControl_as']:
+    for f in ['issue84/sps200CavityControl_as']:
         if verbose:
             print('test hdl with ref: {}'.format(f))
         cheby_file = srcdir + f + '.cheby'

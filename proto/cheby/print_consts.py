@@ -298,7 +298,7 @@ def pconsts_enums(pr, root):
 
 @ConstsVisitor.register(tree.Root)
 def pconsts_root(pr, n):
-    if not n.address_spaces:
+    if n.c_address_spaces_map is None:
         pr.printer.pr_size(n, n.c_size)
     if n.version is not None:
         pr.printer.pr_version(n, 'VERSION', n.c_version)

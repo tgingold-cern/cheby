@@ -136,8 +136,4 @@ def sprint_root(sp, n):
 
 def sprint_cheby(fd, root, with_fields=True, with_verbose=False):
     sp = SimplePrinter(fd, with_fields, with_verbose)
-    if root.address_spaces:
-        for space in root.children:
-            sp.visit(space)
-    else:
-        sp.visit(root)
+    sp.visit(root)

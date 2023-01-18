@@ -392,25 +392,6 @@ def parse_enums(root, enums):
         root.x_enums.append(res)
 
 
-def parse_address_spaces(root, spaces):
-    if not isinstance(spaces, list):
-        error("address-spaces must be a list (of address-space)")
-    for addr in spaces:
-        if not isinstance(addr, dict) \
-           or len(addr) != 1 \
-           or 'address-space' not in addr:
-            error("address-spaces list element must be 'address-space'")
-        addr = addr['address-space']
-        res = tree.AddressSpace(root)
-        parse_name(res, addr)
-        for k, v in addr.items():
-            if parse_named(res, k, v):
-                pass
-            else:
-                error("unhandled '{}' in address-spaces:address-space".format(k))
-        root.address_spaces.append(res)
-
-
 def parse_yaml(filename):
     try:
         el = yamlread.load(open(filename))
@@ -448,7 +429,7 @@ def parse_yaml(filename):
         elif k == 'schema-version':
             res.schema_version = v
         elif k == 'address-spaces':
-            parse_address_spaces(res, v)
+            error("'address-spaces' feature has been removed")
         else:
             error("unhandled '{}' in root".format(k))
     return res

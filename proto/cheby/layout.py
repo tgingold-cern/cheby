@@ -591,7 +591,6 @@ def layout_address_space(lo, n):
 @Layout.register(tree.Root)
 def layout_root(lo, root):
     # A root is considered as an address space
-    assert not root.address_spaces
     layout_hierarchy(lo, root)
 
 
@@ -733,7 +732,6 @@ def layout_cheby_memmap(root):
     layout_memmap_root(root)
 
     # A normal map/submap
-    assert not root.address_spaces
     lo = Layout(root)
     lo.visit(root)
 
@@ -760,8 +758,6 @@ def set_abs_address(n, base_addr):
 def layout_cheby(n):
     """Layout the root memmap"""
     if any([isinstance(c, tree.AddressSpace) for c in n.children]):
-        if n.address_spaces:
-            raise LayoutException(n, "address-spaces not allowed when root has address-space")
         n.c_address_spaces_map = {s.name: s for s in n.children}
         layout_memmap_root(n)
         for space in n.children:
@@ -770,28 +766,8 @@ def layout_cheby(n):
             lo = Layout(n)
             lo.visit(space)
             set_abs_address(space, 0)
-    elif n.address_spaces:
-        # At least one address space, none selected
-        layout_memmap_root(n)
-        n.c_address_spaces_map = {s.name: s for s in n.address_spaces}
-        # Move root children to spaces
-        for c in n.children:
-            if not isinstance(c, tree.Submap):
-                raise LayoutException(c, "only submaps are allowed in memmap with address spaces")
-            if c.address_space is None:
-                raise LayoutException(c, "missing address-space")
-            if c.address_space not in n.c_address_spaces_map:
-                raise LayoutException(c, "address space {} was not declared".format(c.address_space))
-            space = n.c_address_spaces_map[c.address_space]
-            space.children.append(c)
-            c._parent = space
-        # Root children are now spaces
-        n.children = n.address_spaces
-        for space in n.address_spaces:
-            lo = Layout(n)
-            lo.visit(space)
-            set_abs_address(space, 0)
     else:
         # No address space, use a default one
+        n.c_address_spaces_map = None
         layout_cheby_memmap(n)
         set_abs_address(n, 0)

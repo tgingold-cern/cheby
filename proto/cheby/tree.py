@@ -106,7 +106,6 @@ class Root(CompositeNode):
         self.version = None        # Semantic version (as a string)
         self.ident = None          # x-map-info:ident
         self.memmap_version = None # x-map-info:memmap-version
-        self.address_spaces = []
         self.x_enums = []
         self.schema_version = {}
         # Computed variables
