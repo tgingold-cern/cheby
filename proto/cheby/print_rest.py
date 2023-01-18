@@ -2,8 +2,7 @@ import cheby.tree as tree
 import cheby.gen_doc as gen_doc
 from cheby.wrutils import w, wln
 
-#  Generate markdown (asciidoc variant)
-#  Ref: https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/#tables
+# https://www.sphinx-doc.org/en/master/usage/restructuredtext/basics.html
 
 
 def wtable(fd, table):
@@ -61,6 +60,27 @@ def print_reg(fd, r, abs_addr):
         wln(fd)
 
 
+def print_map_summary(fd, summary):
+    t = [["HW address", "Type", "Name", "HDL name"]]
+    for r in summary.raws:
+        t.append(["{}".format(r.address),
+                  "{}".format(r.typ),
+                  "{}".format(r.name),
+                  "{}".format(r.node.c_name)])
+    wtable(fd, t)
+    wln(fd)
+
+
+def print_reg_description(fd, summary, heading):
+    for ra in summary.raws:
+        r = ra.node
+        if isinstance(r, tree.Reg):
+            wln(fd, "{}".format(ra.name))
+            wln(fd, heading * len(ra.name))
+            wln(fd)
+            print_reg(fd, r, ra.abs_addr)
+
+
 def print_root(fd, root, heading):
     title = "Memory map summary"
     wln(fd, heading[0] * len(title))
@@ -74,27 +94,26 @@ def print_root(fd, root, heading):
         wln(fd, "version: {}".format(root.version))
         wln(fd)
 
-    t = [["HW address", "Type", "Name", "HDL name"]]
-    summary = gen_doc.MemmapSummary(root)
-    for r in summary.raws:
-        t.append(["{}".format(r.address),
-                  "{}".format(r.typ),
-                  "{}".format(r.name),
-                  "{}".format(r.node.c_name)])
-    wtable(fd, t)
-    wln(fd)
+    if root.c_address_spaces_map is None:
+        summary = gen_doc.MemmapSummary(root)
+        print_map_summary(fd, summary)
 
-    title = "Registers description"
-    wln(fd, title)
-    wln(fd, heading[1] * len (title))
-    for ra in summary.raws:
-        r = ra.node
-        if isinstance(r, tree.Reg):
-            wln(fd, "{}".format(ra.name))
-            wln(fd, heading[2] * len(ra.name))
-            wln(fd)
-            print_reg(fd, r, ra.abs_addr)
-
+        title = "Registers description"
+        wln(fd, title)
+        wln(fd, heading[1] * len(title))
+        print_reg_description(fd, summary, heading[2])
+    else:
+        summaries = [(gen_doc.MemmapSummary(space), space) for space in root.children]
+        for summary, space in summaries:
+            title = "For space {}".format(space.name)
+            wln(fd, title)
+            wln(fd, heading[1] * len(title))
+            print_map_summary(fd, summary)
+        for summary, space in summaries:
+            title = "Registers description for space {}\n".format(space.name)
+            wln(fd, title)
+            wln(fd, heading[1] * len(title))
+            print_reg_description(fd, summary, heading[2])
 
 def print_rest(fd, n, heading="#=-"):
     assert isinstance(n, tree.Root)

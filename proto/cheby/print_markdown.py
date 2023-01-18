@@ -45,18 +45,9 @@ def print_reg(fd, r, abs_addr):
                 wln(fd, '(not documented)')
         wln(fd)
 
-
-def print_root(fd, root):
-    wln(fd, "== Memory map summary")
-    wln(fd, root.description or '(no description)')
-    wln(fd)
-    if root.version is not None:
-        wln(fd, "version: {}".format(root.version))
-        wln(fd)
-
+def print_map_summary(fd, summary):
     wln(fd, "|===")
     wln(fd, "|HW address | Type | Name | HDL name")
-    summary = gen_doc.MemmapSummary(root)
     for r in summary.raws:
         wln(fd)
         wln(fd, "|{}".format(r.address))
@@ -66,12 +57,36 @@ def print_root(fd, root):
     wln(fd, "|===")
     wln(fd)
 
-    wln(fd, "== Registers description")
+
+def print_reg_description(fd, summary):
     for ra in summary.raws:
         r = ra.node
         if isinstance(r, tree.Reg):
             wln(fd, "=== {}".format(ra.name))
             print_reg(fd, r, ra.abs_addr)
+
+
+def print_root(fd, root):
+    wln(fd, "== Memory map summary")
+    wln(fd, root.description or '(no description)')
+    wln(fd)
+    if root.version is not None:
+        wln(fd, "version: {}".format(root.version))
+        wln(fd)
+
+    if root.c_address_spaces_map is None:
+        summary = gen_doc.MemmapSummary(root)
+        print_map_summary(fd, summary)
+        wln(fd, "== Registers description")
+        print_reg_description(fd, summary)
+    else:
+        summaries = [(gen_doc.MemmapSummary(space), space) for space in root.children]
+        for summary, space in summaries:
+            wln(fd, "== For space {}".format(space.name))
+            print_map_summary(fd, summary)
+        for summary, space in summaries:
+            wln(fd, "== Registers description for space {}\n".format(space.name))
+            print_reg_description(fd, summary)
 
 
 def print_markdown(fd, n):
