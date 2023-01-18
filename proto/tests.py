@@ -36,6 +36,7 @@ nbr_tests = 0
 
 class TestError(Exception):
     def __init__(self, msg):
+        super().__init__()
         self.msg = msg
 
 
@@ -52,7 +53,7 @@ def error(msg):
 
 class write_null(object):
     """A class that could be used as a very simple write-only stream"""
-    def write(self, str):
+    def write(self, s):
         pass
 
 
@@ -768,7 +769,7 @@ def test_consts():
 def test_doc():
     # Generate html and md, compare with a baseline.
     global nbr_tests
-    for f in ['issue9/test', 'features/semver1']:
+    for f in ['issue9/test', 'features/semver1', 'issue84/sps200CavityControl_as']:
         if verbose:
             print('test doc: {}'.format(f))
         cheby_file = srcdir + f + '.cheby'

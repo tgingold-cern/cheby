@@ -1,0 +1,2265 @@
+<HTML>
+<HEAD>
+<TITLE>sps200CavityControl</TITLE>
+<STYLE TYPE="text/css" MEDIA="all">
+<!--
+  BODY { background: white; color: black;
+         font-family: Arial,Helvetica; font-size:12; }
+  h1 { font-family: Trebuchet MS,Arial,Helvetica; font-size:30;
+       color:#404040; }
+  h2 { font-family: Trebuchet MS,Arial,Helvetica; font-size:22;
+       color:#404040; }
+  h3 { font-family: Trebuchet MS,Arial,Helvetica; font-size:16;
+       color:#404040; }
+  .td_arrow_left { padding:0px; background: #ffffff; text-align: right;
+                   font-size:12; }
+  .td_arrow_right { padding:0px; background: #ffffff; text-align: left;
+                    font-size:12; }
+  .td_code { font-family:Courier New,Courier; padding: 3px; }
+  .td_desc { padding: 3px; }
+  .td_sym_center { background: #e0e0f0; padding: 3px; }
+  .td_port_name { font-family:Courier New,Courier; background: #e0e0f0;
+                  text-align: right; font-weight:bold;
+                  padding: 3px; width:200px; }
+  .td_pblock_left { font-family:Courier New,Courier; background: #e0e0f0;
+                    padding: 0px; text-align: left; }
+  .td_pblock_right { font-family:Courier New,Courier;
+                     background: #e0e0f0;
+                     padding: 0px; text-align: right; }
+  .td_bit { background: #ffffff; color:#404040;
+            font-size:10; width: 70px;
+            font-family:Courier New,Courier; padding: 3px;
+            text-align:center; }
+  .td_field { background: #e0e0f0; padding: 3px; text-align:center;
+              border: solid 1px black; }
+  .td_unused { background: #a0a0a0; padding: 3px; text-align:center;  }
+  th { font-weight:bold; color:#ffffff; background: #202080;
+       padding:3px; }
+  .tr_even { background: #f0eff0; }
+  .tr_odd { background: #e0e0f0; }
+-->
+</STYLE>
+</HEAD>
+<BODY>
+<h1 class="heading">sps200CavityControl</h1>
+<h3>Memory Map for SPS TWC200 Cavity Control</h3>
+<p>SIS-8300-KU</p>
+<h3>1.1. Memory map summary for address space bar0</h3>
+
+<table cellpadding=2 cellspacing=0 border=0>
+<tr>
+<th>HW address</th>
+<th>Type</th>
+<th>Name</th>
+<th>HDL prefix</th>
+<th>C prefix</th>
+</tr>
+<tr class="tr_odd">
+<td class="td_code">0x000000-0x00001f</td>
+<td>SUBMAP</td>
+<td><A href="#hwInfo">hwInfo</a></td>
+<td class="td_code">hwInfo</td>
+<td class="td_code">hwInfo</td>
+</tr>
+<tr class="tr_even">
+<td class="td_code">0x000000</td>
+<td>REG</td>
+<td><A href="#hwInfo.stdVersion">hwInfo.stdVersion</a></td>
+<td class="td_code">hwInfo_stdVersion</td>
+<td class="td_code">hwInfo.stdVersion</td>
+</tr>
+<tr class="tr_odd">
+<td class="td_code">0x000008</td>
+<td>REG</td>
+<td><A href="#hwInfo.serialNumber">hwInfo.serialNumber</a></td>
+<td class="td_code">hwInfo_serialNumber</td>
+<td class="td_code">hwInfo.serialNumber</td>
+</tr>
+<tr class="tr_even">
+<td class="td_code">0x000010</td>
+<td>REG</td>
+<td><A href="#hwInfo.firmwareVersion">hwInfo.firmwareVersion</a></td>
+<td class="td_code">hwInfo_firmwareVersion</td>
+<td class="td_code">hwInfo.firmwareVersion</td>
+</tr>
+<tr class="tr_odd">
+<td class="td_code">0x000014</td>
+<td>REG</td>
+<td><A href="#hwInfo.memMapVersion">hwInfo.memMapVersion</a></td>
+<td class="td_code">hwInfo_memMapVersion</td>
+<td class="td_code">hwInfo.memMapVersion</td>
+</tr>
+<tr class="tr_even">
+<td class="td_code">0x000018</td>
+<td>REG</td>
+<td><A href="#hwInfo.echo">hwInfo.echo</a></td>
+<td class="td_code">hwInfo_echo</td>
+<td class="td_code">hwInfo.echo</td>
+</tr>
+<tr class="tr_odd">
+<td class="td_code">0x100000-0x17ffff</td>
+<td>SUBMAP</td>
+<td><A href="#app">app</a></td>
+<td class="td_code">app</td>
+<td class="td_code">app</td>
+</tr>
+<tr class="tr_even">
+<td class="td_code">0x100000-0x1003ff</td>
+<td>SUBMAP</td>
+<td><A href="#app.modulation">app.modulation</a></td>
+<td class="td_code">app_modulation</td>
+<td class="td_code">app.modulation</td>
+</tr>
+<tr class="tr_odd">
+<td class="td_code">0x100000-0x10001f</td>
+<td>SUBMAP</td>
+<td><A href="#app.modulation.ipInfo">app.modulation.ipInfo</a></td>
+<td class="td_code">app_modulation_ipInfo</td>
+<td class="td_code">app.modulation.ipInfo</td>
+</tr>
+<tr class="tr_even">
+<td class="td_code">0x100000</td>
+<td>REG</td>
+<td><A href="#app.modulation.ipInfo.stdVersion">app.modulation.ipInfo.stdVersion</a></td>
+<td class="td_code">app_modulation_ipInfo_stdVersion</td>
+<td class="td_code">app.modulation.ipInfo.stdVersion</td>
+</tr>
+<tr class="tr_odd">
+<td class="td_code">0x100004</td>
+<td>REG</td>
+<td><A href="#app.modulation.ipInfo.ident">app.modulation.ipInfo.ident</a></td>
+<td class="td_code">app_modulation_ipInfo_ident</td>
+<td class="td_code">app.modulation.ipInfo.ident</td>
+</tr>
+<tr class="tr_even">
+<td class="td_code">0x100008</td>
+<td>REG</td>
+<td><A href="#app.modulation.ipInfo.firmwareVersion">app.modulation.ipInfo.firmwareVersion</a></td>
+<td class="td_code">app_modulation_ipInfo_firmwareVersion</td>
+<td class="td_code">app.modulation.ipInfo.firmwareVersion</td>
+</tr>
+<tr class="tr_odd">
+<td class="td_code">0x10000c</td>
+<td>REG</td>
+<td><A href="#app.modulation.ipInfo.memMapVersion">app.modulation.ipInfo.memMapVersion</a></td>
+<td class="td_code">app_modulation_ipInfo_memMapVersion</td>
+<td class="td_code">app.modulation.ipInfo.memMapVersion</td>
+</tr>
+<tr class="tr_even">
+<td class="td_code">0x100010</td>
+<td>REG</td>
+<td><A href="#app.modulation.ipInfo.echo">app.modulation.ipInfo.echo</a></td>
+<td class="td_code">app_modulation_ipInfo_echo</td>
+<td class="td_code">app.modulation.ipInfo.echo</td>
+</tr>
+<tr class="tr_odd">
+<td class="td_code">0x100020</td>
+<td>REG</td>
+<td><A href="#app.modulation.control">app.modulation.control</a></td>
+<td class="td_code">app_modulation_control</td>
+<td class="td_code">app.modulation.control</td>
+</tr>
+<tr class="tr_even">
+<td class="td_code">0x100030-0x10003f</td>
+<td>BLOCK</td>
+<td><A href="#app.modulation.testSignal">app.modulation.testSignal</a></td>
+<td class="td_code">app_modulation_testSignal</td>
+<td class="td_code">app.modulation.testSignal</td>
+</tr>
+<tr class="tr_odd">
+<td class="td_code">0x100030</td>
+<td>REG</td>
+<td><A href="#app.modulation.testSignal.amplitude">app.modulation.testSignal.amplitude</a></td>
+<td class="td_code">app_modulation_testSignal_amplitude</td>
+<td class="td_code">app.modulation.testSignal.amplitude</td>
+</tr>
+<tr class="tr_even">
+<td class="td_code">0x100038</td>
+<td>REG</td>
+<td><A href="#app.modulation.testSignal.ftw">app.modulation.testSignal.ftw</a></td>
+<td class="td_code">app_modulation_testSignal_ftw</td>
+<td class="td_code">app.modulation.testSignal.ftw</td>
+</tr>
+<tr class="tr_odd">
+<td class="td_code">0x100040-0x10004f</td>
+<td>BLOCK</td>
+<td><A href="#app.modulation.staticSignal">app.modulation.staticSignal</a></td>
+<td class="td_code">app_modulation_staticSignal</td>
+<td class="td_code">app.modulation.staticSignal</td>
+</tr>
+<tr class="tr_even">
+<td class="td_code">0x100040</td>
+<td>REG</td>
+<td><A href="#app.modulation.staticSignal.i">app.modulation.staticSignal.i</a></td>
+<td class="td_code">app_modulation_staticSignal_i</td>
+<td class="td_code">app.modulation.staticSignal.i</td>
+</tr>
+<tr class="tr_odd">
+<td class="td_code">0x100044</td>
+<td>REG</td>
+<td><A href="#app.modulation.staticSignal.q">app.modulation.staticSignal.q</a></td>
+<td class="td_code">app_modulation_staticSignal_q</td>
+<td class="td_code">app.modulation.staticSignal.q</td>
+</tr>
+<tr class="tr_even">
+<td class="td_code">0x100050</td>
+<td>REG</td>
+<td><A href="#app.modulation.ftwH1main">app.modulation.ftwH1main</a></td>
+<td class="td_code">app_modulation_ftwH1main</td>
+<td class="td_code">app.modulation.ftwH1main</td>
+</tr>
+<tr class="tr_odd">
+<td class="td_code">0x100058</td>
+<td>REG</td>
+<td><A href="#app.modulation.ftwH1on">app.modulation.ftwH1on</a></td>
+<td class="td_code">app_modulation_ftwH1on</td>
+<td class="td_code">app.modulation.ftwH1on</td>
+</tr>
+<tr class="tr_even">
+<td class="td_code">0x100060</td>
+<td>REG</td>
+<td><A href="#app.modulation.dftwH1slip0">app.modulation.dftwH1slip0</a></td>
+<td class="td_code">app_modulation_dftwH1slip0</td>
+<td class="td_code">app.modulation.dftwH1slip0</td>
+</tr>
+<tr class="tr_odd">
+<td class="td_code">0x100064</td>
+<td>REG</td>
+<td><A href="#app.modulation.dftwH1slip1">app.modulation.dftwH1slip1</a></td>
+<td class="td_code">app_modulation_dftwH1slip1</td>
+<td class="td_code">app.modulation.dftwH1slip1</td>
+</tr>
+<tr class="tr_even">
+<td class="td_code">0x100068</td>
+<td>REG</td>
+<td><A href="#app.modulation.latches">app.modulation.latches</a></td>
+<td class="td_code">app_modulation_latches</td>
+<td class="td_code">app.modulation.latches</td>
+</tr>
+</table>
+<h3>1.2. Memory map summary for address space bar4</h3>
+
+<table cellpadding=2 cellspacing=0 border=0>
+<tr>
+<th>HW address</th>
+<th>Type</th>
+<th>Name</th>
+<th>HDL prefix</th>
+<th>C prefix</th>
+</tr>
+<tr class="tr_odd">
+<td class="td_code">0x00000000-0x000fffff</td>
+<td>SUBMAP</td>
+<td><A href="#fgc_ddr">fgc_ddr</a></td>
+<td class="td_code">fgc_ddr</td>
+<td class="td_code">fgc_ddr</td>
+</tr>
+<tr class="tr_even">
+<td class="td_code">0x00000000-0x000fffff</td>
+<td>MEMORY</td>
+<td><A href="#fgc_ddr.data64">fgc_ddr.data64</a></td>
+<td class="td_code">fgc_ddr_data64</td>
+<td class="td_code">fgc_ddr.data64</td>
+</tr>
+<tr class="tr_odd">
+<td class="td_code"> +0x00000000</td>
+<td>REG</td>
+<td><A href="#fgc_ddr.data64.data64">fgc_ddr.data64.data64</a></td>
+<td class="td_code">fgc_ddr_data64_data64</td>
+<td class="td_code">fgc_ddr.data64.data64</td>
+</tr>
+<tr class="tr_even">
+<td class="td_code">0x20000000-0x3fffffff</td>
+<td>SUBMAP</td>
+<td><A href="#acq_ddr">acq_ddr</a></td>
+<td class="td_code">acq_ddr</td>
+<td class="td_code">acq_ddr</td>
+</tr>
+<tr class="tr_odd">
+<td class="td_code">0x20000000-0x3fffffff</td>
+<td>MEMORY</td>
+<td><A href="#acq_ddr.data32">acq_ddr.data32</a></td>
+<td class="td_code">acq_ddr_data32</td>
+<td class="td_code">acq_ddr.data32</td>
+</tr>
+<tr class="tr_even">
+<td class="td_code"> +0x20000000</td>
+<td>REG</td>
+<td><A href="#acq_ddr.data32.data32">acq_ddr.data32.data32</a></td>
+<td class="td_code">acq_ddr_data32_data32</td>
+<td class="td_code">acq_ddr.data32.data32</td>
+</tr>
+<tr class="tr_odd">
+<td class="td_code">0x80000000-0x8001ffff</td>
+<td>SUBMAP</td>
+<td><A href="#acq_ram">acq_ram</a></td>
+<td class="td_code">acq_ram</td>
+<td class="td_code">acq_ram</td>
+</tr>
+<tr class="tr_even">
+<td class="td_code">0x80000000-0x8001ffff</td>
+<td>MEMORY</td>
+<td><A href="#acq_ram.data32">acq_ram.data32</a></td>
+<td class="td_code">acq_ram_data32</td>
+<td class="td_code">acq_ram.data32</td>
+</tr>
+<tr class="tr_odd">
+<td class="td_code"> +0x80000000</td>
+<td>REG</td>
+<td><A href="#acq_ram.data32.data32">acq_ram.data32.data32</a></td>
+<td class="td_code">acq_ram_data32_data32</td>
+<td class="td_code">acq_ram.data32.data32</td>
+</tr>
+</table>
+<h3>2.1 Register description for address space bar0</h3>
+<a name="hwInfo.stdVersion"></a>
+<h3>2.1.1. hwInfo.stdVersion</h3>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr><td><b>HW prefix:</b></td><td class="td_code">hwInfo_stdVersion</td></tr>
+<tr><td><b>HW address:</b></td><td class="td_code">0x0</td></tr>
+<tr><td><b>C prefix:</b></td><td class="td_code">hwInfo.stdVersion</td></tr>
+<tr><td><b>C block offset:</b></td><td class="td_code">0x0</td></tr>
+</table>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr>
+ <td class="td_bit" colspan="1">31</td>
+ <td class="td_bit" colspan="1">30</td>
+ <td class="td_bit" colspan="1">29</td>
+ <td class="td_bit" colspan="1">28</td>
+ <td class="td_bit" colspan="1">27</td>
+ <td class="td_bit" colspan="1">26</td>
+ <td class="td_bit" colspan="1">25</td>
+ <td class="td_bit" colspan="1">24</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">platform[7:0]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">23</td>
+ <td class="td_bit" colspan="1">22</td>
+ <td class="td_bit" colspan="1">21</td>
+ <td class="td_bit" colspan="1">20</td>
+ <td class="td_bit" colspan="1">19</td>
+ <td class="td_bit" colspan="1">18</td>
+ <td class="td_bit" colspan="1">17</td>
+ <td class="td_bit" colspan="1">16</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">major[7:0]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">15</td>
+ <td class="td_bit" colspan="1">14</td>
+ <td class="td_bit" colspan="1">13</td>
+ <td class="td_bit" colspan="1">12</td>
+ <td class="td_bit" colspan="1">11</td>
+ <td class="td_bit" colspan="1">10</td>
+ <td class="td_bit" colspan="1">9</td>
+ <td class="td_bit" colspan="1">8</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">minor[7:0]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">7</td>
+ <td class="td_bit" colspan="1">6</td>
+ <td class="td_bit" colspan="1">5</td>
+ <td class="td_bit" colspan="1">4</td>
+ <td class="td_bit" colspan="1">3</td>
+ <td class="td_bit" colspan="1">2</td>
+ <td class="td_bit" colspan="1">1</td>
+ <td class="td_bit" colspan="1">0</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">patch[7:0]</td>
+</tr>
+</table>
+<ul>
+<li><b>
+platform
+</b>[<i>ro</i>]: Identifying which platform the version belongs to (i.e. pci, lhc_vme, vme64, ...)
+<li><b>
+major
+</b>[<i>ro</i>]: Major version indicating incompatible changes
+<li><b>
+minor
+</b>[<i>ro</i>]: Minor version indicating feature enhancements
+<li><b>
+patch
+</b>[<i>ro</i>]: Patch indicating bug fixes
+</ul>
+<a name="hwInfo.serialNumber"></a>
+<h3>2.1.2. hwInfo.serialNumber</h3>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr><td><b>HW prefix:</b></td><td class="td_code">hwInfo_serialNumber</td></tr>
+<tr><td><b>HW address:</b></td><td class="td_code">0x8</td></tr>
+<tr><td><b>C prefix:</b></td><td class="td_code">hwInfo.serialNumber</td></tr>
+<tr><td><b>C block offset:</b></td><td class="td_code">0x8</td></tr>
+</table>
+<p>
+HW serial number
+</p>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr>
+ <td class="td_bit" colspan="1">63</td>
+ <td class="td_bit" colspan="1">62</td>
+ <td class="td_bit" colspan="1">61</td>
+ <td class="td_bit" colspan="1">60</td>
+ <td class="td_bit" colspan="1">59</td>
+ <td class="td_bit" colspan="1">58</td>
+ <td class="td_bit" colspan="1">57</td>
+ <td class="td_bit" colspan="1">56</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">serialNumber[63:56]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">55</td>
+ <td class="td_bit" colspan="1">54</td>
+ <td class="td_bit" colspan="1">53</td>
+ <td class="td_bit" colspan="1">52</td>
+ <td class="td_bit" colspan="1">51</td>
+ <td class="td_bit" colspan="1">50</td>
+ <td class="td_bit" colspan="1">49</td>
+ <td class="td_bit" colspan="1">48</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">serialNumber[55:48]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">47</td>
+ <td class="td_bit" colspan="1">46</td>
+ <td class="td_bit" colspan="1">45</td>
+ <td class="td_bit" colspan="1">44</td>
+ <td class="td_bit" colspan="1">43</td>
+ <td class="td_bit" colspan="1">42</td>
+ <td class="td_bit" colspan="1">41</td>
+ <td class="td_bit" colspan="1">40</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">serialNumber[47:40]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">39</td>
+ <td class="td_bit" colspan="1">38</td>
+ <td class="td_bit" colspan="1">37</td>
+ <td class="td_bit" colspan="1">36</td>
+ <td class="td_bit" colspan="1">35</td>
+ <td class="td_bit" colspan="1">34</td>
+ <td class="td_bit" colspan="1">33</td>
+ <td class="td_bit" colspan="1">32</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">serialNumber[39:32]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">31</td>
+ <td class="td_bit" colspan="1">30</td>
+ <td class="td_bit" colspan="1">29</td>
+ <td class="td_bit" colspan="1">28</td>
+ <td class="td_bit" colspan="1">27</td>
+ <td class="td_bit" colspan="1">26</td>
+ <td class="td_bit" colspan="1">25</td>
+ <td class="td_bit" colspan="1">24</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">serialNumber[31:24]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">23</td>
+ <td class="td_bit" colspan="1">22</td>
+ <td class="td_bit" colspan="1">21</td>
+ <td class="td_bit" colspan="1">20</td>
+ <td class="td_bit" colspan="1">19</td>
+ <td class="td_bit" colspan="1">18</td>
+ <td class="td_bit" colspan="1">17</td>
+ <td class="td_bit" colspan="1">16</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">serialNumber[23:16]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">15</td>
+ <td class="td_bit" colspan="1">14</td>
+ <td class="td_bit" colspan="1">13</td>
+ <td class="td_bit" colspan="1">12</td>
+ <td class="td_bit" colspan="1">11</td>
+ <td class="td_bit" colspan="1">10</td>
+ <td class="td_bit" colspan="1">9</td>
+ <td class="td_bit" colspan="1">8</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">serialNumber[15:8]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">7</td>
+ <td class="td_bit" colspan="1">6</td>
+ <td class="td_bit" colspan="1">5</td>
+ <td class="td_bit" colspan="1">4</td>
+ <td class="td_bit" colspan="1">3</td>
+ <td class="td_bit" colspan="1">2</td>
+ <td class="td_bit" colspan="1">1</td>
+ <td class="td_bit" colspan="1">0</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">serialNumber[7:0]</td>
+</tr>
+</table>
+<ul>
+<li><b>
+serialNumber
+</b>[<i>ro</i>]: HW serial number
+</ul>
+<a name="hwInfo.firmwareVersion"></a>
+<h3>2.1.3. hwInfo.firmwareVersion</h3>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr><td><b>HW prefix:</b></td><td class="td_code">hwInfo_firmwareVersion</td></tr>
+<tr><td><b>HW address:</b></td><td class="td_code">0x10</td></tr>
+<tr><td><b>C prefix:</b></td><td class="td_code">hwInfo.firmwareVersion</td></tr>
+<tr><td><b>C block offset:</b></td><td class="td_code">0x10</td></tr>
+</table>
+<p>
+Firmware Version
+</p>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr>
+ <td class="td_bit" colspan="1">31</td>
+ <td class="td_bit" colspan="1">30</td>
+ <td class="td_bit" colspan="1">29</td>
+ <td class="td_bit" colspan="1">28</td>
+ <td class="td_bit" colspan="1">27</td>
+ <td class="td_bit" colspan="1">26</td>
+ <td class="td_bit" colspan="1">25</td>
+ <td class="td_bit" colspan="1">24</td>
+</tr>
+<tr>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">23</td>
+ <td class="td_bit" colspan="1">22</td>
+ <td class="td_bit" colspan="1">21</td>
+ <td class="td_bit" colspan="1">20</td>
+ <td class="td_bit" colspan="1">19</td>
+ <td class="td_bit" colspan="1">18</td>
+ <td class="td_bit" colspan="1">17</td>
+ <td class="td_bit" colspan="1">16</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">major[7:0]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">15</td>
+ <td class="td_bit" colspan="1">14</td>
+ <td class="td_bit" colspan="1">13</td>
+ <td class="td_bit" colspan="1">12</td>
+ <td class="td_bit" colspan="1">11</td>
+ <td class="td_bit" colspan="1">10</td>
+ <td class="td_bit" colspan="1">9</td>
+ <td class="td_bit" colspan="1">8</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">minor[7:0]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">7</td>
+ <td class="td_bit" colspan="1">6</td>
+ <td class="td_bit" colspan="1">5</td>
+ <td class="td_bit" colspan="1">4</td>
+ <td class="td_bit" colspan="1">3</td>
+ <td class="td_bit" colspan="1">2</td>
+ <td class="td_bit" colspan="1">1</td>
+ <td class="td_bit" colspan="1">0</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">patch[7:0]</td>
+</tr>
+</table>
+<ul>
+<li><b>
+major
+</b>[<i>ro</i>]: Major version indicating incompatible changes
+<li><b>
+minor
+</b>[<i>ro</i>]: Minor version indicating feature enhancements
+<li><b>
+patch
+</b>[<i>ro</i>]: Patch indicating bug fixes
+</ul>
+<a name="hwInfo.memMapVersion"></a>
+<h3>2.1.4. hwInfo.memMapVersion</h3>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr><td><b>HW prefix:</b></td><td class="td_code">hwInfo_memMapVersion</td></tr>
+<tr><td><b>HW address:</b></td><td class="td_code">0x14</td></tr>
+<tr><td><b>C prefix:</b></td><td class="td_code">hwInfo.memMapVersion</td></tr>
+<tr><td><b>C block offset:</b></td><td class="td_code">0x14</td></tr>
+</table>
+<p>
+Memory Map Version
+</p>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr>
+ <td class="td_bit" colspan="1">31</td>
+ <td class="td_bit" colspan="1">30</td>
+ <td class="td_bit" colspan="1">29</td>
+ <td class="td_bit" colspan="1">28</td>
+ <td class="td_bit" colspan="1">27</td>
+ <td class="td_bit" colspan="1">26</td>
+ <td class="td_bit" colspan="1">25</td>
+ <td class="td_bit" colspan="1">24</td>
+</tr>
+<tr>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">23</td>
+ <td class="td_bit" colspan="1">22</td>
+ <td class="td_bit" colspan="1">21</td>
+ <td class="td_bit" colspan="1">20</td>
+ <td class="td_bit" colspan="1">19</td>
+ <td class="td_bit" colspan="1">18</td>
+ <td class="td_bit" colspan="1">17</td>
+ <td class="td_bit" colspan="1">16</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">major[7:0]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">15</td>
+ <td class="td_bit" colspan="1">14</td>
+ <td class="td_bit" colspan="1">13</td>
+ <td class="td_bit" colspan="1">12</td>
+ <td class="td_bit" colspan="1">11</td>
+ <td class="td_bit" colspan="1">10</td>
+ <td class="td_bit" colspan="1">9</td>
+ <td class="td_bit" colspan="1">8</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">minor[7:0]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">7</td>
+ <td class="td_bit" colspan="1">6</td>
+ <td class="td_bit" colspan="1">5</td>
+ <td class="td_bit" colspan="1">4</td>
+ <td class="td_bit" colspan="1">3</td>
+ <td class="td_bit" colspan="1">2</td>
+ <td class="td_bit" colspan="1">1</td>
+ <td class="td_bit" colspan="1">0</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">patch[7:0]</td>
+</tr>
+</table>
+<ul>
+<li><b>
+major
+</b>[<i>ro</i>]: Memory Map Version
+<li><b>
+minor
+</b>[<i>ro</i>]: Memory Map Version
+<li><b>
+patch
+</b>[<i>ro</i>]: Memory Map Version
+</ul>
+<a name="hwInfo.echo"></a>
+<h3>2.1.5. hwInfo.echo</h3>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr><td><b>HW prefix:</b></td><td class="td_code">hwInfo_echo</td></tr>
+<tr><td><b>HW address:</b></td><td class="td_code">0x18</td></tr>
+<tr><td><b>C prefix:</b></td><td class="td_code">hwInfo.echo</td></tr>
+<tr><td><b>C block offset:</b></td><td class="td_code">0x18</td></tr>
+</table>
+<p>
+Echo register. This version of the standard foresees only 8bits linked to real memory
+</p>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr>
+ <td class="td_bit" colspan="1">31</td>
+ <td class="td_bit" colspan="1">30</td>
+ <td class="td_bit" colspan="1">29</td>
+ <td class="td_bit" colspan="1">28</td>
+ <td class="td_bit" colspan="1">27</td>
+ <td class="td_bit" colspan="1">26</td>
+ <td class="td_bit" colspan="1">25</td>
+ <td class="td_bit" colspan="1">24</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">echo[31:24]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">23</td>
+ <td class="td_bit" colspan="1">22</td>
+ <td class="td_bit" colspan="1">21</td>
+ <td class="td_bit" colspan="1">20</td>
+ <td class="td_bit" colspan="1">19</td>
+ <td class="td_bit" colspan="1">18</td>
+ <td class="td_bit" colspan="1">17</td>
+ <td class="td_bit" colspan="1">16</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">echo[23:16]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">15</td>
+ <td class="td_bit" colspan="1">14</td>
+ <td class="td_bit" colspan="1">13</td>
+ <td class="td_bit" colspan="1">12</td>
+ <td class="td_bit" colspan="1">11</td>
+ <td class="td_bit" colspan="1">10</td>
+ <td class="td_bit" colspan="1">9</td>
+ <td class="td_bit" colspan="1">8</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">echo[15:8]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">7</td>
+ <td class="td_bit" colspan="1">6</td>
+ <td class="td_bit" colspan="1">5</td>
+ <td class="td_bit" colspan="1">4</td>
+ <td class="td_bit" colspan="1">3</td>
+ <td class="td_bit" colspan="1">2</td>
+ <td class="td_bit" colspan="1">1</td>
+ <td class="td_bit" colspan="1">0</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">echo[7:0]</td>
+</tr>
+</table>
+<ul>
+<li><b>
+echo
+</b>[<i>rw</i>]: Echo register. This version of the standard foresees only 8bits linked to real memory
+<br>Register used solely by software. No interaction with the firmware foreseen.<br>The idea is to use this register as "flag" in the hardware to remember your actions from the software side.<br><br>Reading 0xFF often happens when the board is not even reachable (i.e. bus problems on VME)<br><br>On the other hand if the board is reachable the usual state of flipflops are 0x00. Thus this would indicate that no initialization has been attempted yet.<br><br>At start of your software (FESA class) you should set the value 0x40 indicating that initialization is in progress. <br>This is important for you to later one check if you can read this value back before finally setting it to 0x80 (the value previously used with Cheburashka).<br><br>If your initialization failed but you want to continue anyway you should set the register to 0xC0 to indicate this error <br><br>This register is in particular useful if you have several entities interacting with the hardware. In this case several bits could be assigned to this entities (bits 5..0) to signalize that they have done there part successful and a main entity checks all the expected bits.
+</ul>
+<a name="app.modulation.ipInfo.stdVersion"></a>
+<h3>2.1.6. app.modulation.ipInfo.stdVersion</h3>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr><td><b>HW prefix:</b></td><td class="td_code">app_modulation_ipInfo_stdVersion</td></tr>
+<tr><td><b>HW address:</b></td><td class="td_code">0x100000</td></tr>
+<tr><td><b>C prefix:</b></td><td class="td_code">app.modulation.ipInfo.stdVersion</td></tr>
+<tr><td><b>C block offset:</b></td><td class="td_code">0x0</td></tr>
+</table>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr>
+ <td class="td_bit" colspan="1">31</td>
+ <td class="td_bit" colspan="1">30</td>
+ <td class="td_bit" colspan="1">29</td>
+ <td class="td_bit" colspan="1">28</td>
+ <td class="td_bit" colspan="1">27</td>
+ <td class="td_bit" colspan="1">26</td>
+ <td class="td_bit" colspan="1">25</td>
+ <td class="td_bit" colspan="1">24</td>
+</tr>
+<tr>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">23</td>
+ <td class="td_bit" colspan="1">22</td>
+ <td class="td_bit" colspan="1">21</td>
+ <td class="td_bit" colspan="1">20</td>
+ <td class="td_bit" colspan="1">19</td>
+ <td class="td_bit" colspan="1">18</td>
+ <td class="td_bit" colspan="1">17</td>
+ <td class="td_bit" colspan="1">16</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">major[7:0]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">15</td>
+ <td class="td_bit" colspan="1">14</td>
+ <td class="td_bit" colspan="1">13</td>
+ <td class="td_bit" colspan="1">12</td>
+ <td class="td_bit" colspan="1">11</td>
+ <td class="td_bit" colspan="1">10</td>
+ <td class="td_bit" colspan="1">9</td>
+ <td class="td_bit" colspan="1">8</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">minor[7:0]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">7</td>
+ <td class="td_bit" colspan="1">6</td>
+ <td class="td_bit" colspan="1">5</td>
+ <td class="td_bit" colspan="1">4</td>
+ <td class="td_bit" colspan="1">3</td>
+ <td class="td_bit" colspan="1">2</td>
+ <td class="td_bit" colspan="1">1</td>
+ <td class="td_bit" colspan="1">0</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">patch[7:0]</td>
+</tr>
+</table>
+<ul>
+<li><b>
+major
+</b>[<i>ro</i>]: Major version indicating incompatible changes
+<li><b>
+minor
+</b>[<i>ro</i>]: Minor version indicating feature enhancements
+<li><b>
+patch
+</b>[<i>ro</i>]: Patch indicating bug fixes
+</ul>
+<a name="app.modulation.ipInfo.ident"></a>
+<h3>2.1.7. app.modulation.ipInfo.ident</h3>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr><td><b>HW prefix:</b></td><td class="td_code">app_modulation_ipInfo_ident</td></tr>
+<tr><td><b>HW address:</b></td><td class="td_code">0x100004</td></tr>
+<tr><td><b>C prefix:</b></td><td class="td_code">app.modulation.ipInfo.ident</td></tr>
+<tr><td><b>C block offset:</b></td><td class="td_code">0x4</td></tr>
+</table>
+<p>
+IP Ident code
+</p>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr>
+ <td class="td_bit" colspan="1">31</td>
+ <td class="td_bit" colspan="1">30</td>
+ <td class="td_bit" colspan="1">29</td>
+ <td class="td_bit" colspan="1">28</td>
+ <td class="td_bit" colspan="1">27</td>
+ <td class="td_bit" colspan="1">26</td>
+ <td class="td_bit" colspan="1">25</td>
+ <td class="td_bit" colspan="1">24</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">ident[31:24]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">23</td>
+ <td class="td_bit" colspan="1">22</td>
+ <td class="td_bit" colspan="1">21</td>
+ <td class="td_bit" colspan="1">20</td>
+ <td class="td_bit" colspan="1">19</td>
+ <td class="td_bit" colspan="1">18</td>
+ <td class="td_bit" colspan="1">17</td>
+ <td class="td_bit" colspan="1">16</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">ident[23:16]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">15</td>
+ <td class="td_bit" colspan="1">14</td>
+ <td class="td_bit" colspan="1">13</td>
+ <td class="td_bit" colspan="1">12</td>
+ <td class="td_bit" colspan="1">11</td>
+ <td class="td_bit" colspan="1">10</td>
+ <td class="td_bit" colspan="1">9</td>
+ <td class="td_bit" colspan="1">8</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">ident[15:8]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">7</td>
+ <td class="td_bit" colspan="1">6</td>
+ <td class="td_bit" colspan="1">5</td>
+ <td class="td_bit" colspan="1">4</td>
+ <td class="td_bit" colspan="1">3</td>
+ <td class="td_bit" colspan="1">2</td>
+ <td class="td_bit" colspan="1">1</td>
+ <td class="td_bit" colspan="1">0</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">ident[7:0]</td>
+</tr>
+</table>
+<ul>
+<li><b>
+ident
+</b>[<i>ro</i>]: IP Ident code
+</ul>
+<a name="app.modulation.ipInfo.firmwareVersion"></a>
+<h3>2.1.8. app.modulation.ipInfo.firmwareVersion</h3>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr><td><b>HW prefix:</b></td><td class="td_code">app_modulation_ipInfo_firmwareVersion</td></tr>
+<tr><td><b>HW address:</b></td><td class="td_code">0x100008</td></tr>
+<tr><td><b>C prefix:</b></td><td class="td_code">app.modulation.ipInfo.firmwareVersion</td></tr>
+<tr><td><b>C block offset:</b></td><td class="td_code">0x8</td></tr>
+</table>
+<p>
+Firmware Version
+</p>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr>
+ <td class="td_bit" colspan="1">31</td>
+ <td class="td_bit" colspan="1">30</td>
+ <td class="td_bit" colspan="1">29</td>
+ <td class="td_bit" colspan="1">28</td>
+ <td class="td_bit" colspan="1">27</td>
+ <td class="td_bit" colspan="1">26</td>
+ <td class="td_bit" colspan="1">25</td>
+ <td class="td_bit" colspan="1">24</td>
+</tr>
+<tr>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">23</td>
+ <td class="td_bit" colspan="1">22</td>
+ <td class="td_bit" colspan="1">21</td>
+ <td class="td_bit" colspan="1">20</td>
+ <td class="td_bit" colspan="1">19</td>
+ <td class="td_bit" colspan="1">18</td>
+ <td class="td_bit" colspan="1">17</td>
+ <td class="td_bit" colspan="1">16</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">major[7:0]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">15</td>
+ <td class="td_bit" colspan="1">14</td>
+ <td class="td_bit" colspan="1">13</td>
+ <td class="td_bit" colspan="1">12</td>
+ <td class="td_bit" colspan="1">11</td>
+ <td class="td_bit" colspan="1">10</td>
+ <td class="td_bit" colspan="1">9</td>
+ <td class="td_bit" colspan="1">8</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">minor[7:0]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">7</td>
+ <td class="td_bit" colspan="1">6</td>
+ <td class="td_bit" colspan="1">5</td>
+ <td class="td_bit" colspan="1">4</td>
+ <td class="td_bit" colspan="1">3</td>
+ <td class="td_bit" colspan="1">2</td>
+ <td class="td_bit" colspan="1">1</td>
+ <td class="td_bit" colspan="1">0</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">patch[7:0]</td>
+</tr>
+</table>
+<ul>
+<li><b>
+major
+</b>[<i>ro</i>]: Major version indicating incompatible changes
+<li><b>
+minor
+</b>[<i>ro</i>]: Minor version indicating feature enhancements
+<li><b>
+patch
+</b>[<i>ro</i>]: Patch indicating bug fixes
+</ul>
+<a name="app.modulation.ipInfo.memMapVersion"></a>
+<h3>2.1.9. app.modulation.ipInfo.memMapVersion</h3>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr><td><b>HW prefix:</b></td><td class="td_code">app_modulation_ipInfo_memMapVersion</td></tr>
+<tr><td><b>HW address:</b></td><td class="td_code">0x10000c</td></tr>
+<tr><td><b>C prefix:</b></td><td class="td_code">app.modulation.ipInfo.memMapVersion</td></tr>
+<tr><td><b>C block offset:</b></td><td class="td_code">0xc</td></tr>
+</table>
+<p>
+Memory Map Version
+</p>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr>
+ <td class="td_bit" colspan="1">31</td>
+ <td class="td_bit" colspan="1">30</td>
+ <td class="td_bit" colspan="1">29</td>
+ <td class="td_bit" colspan="1">28</td>
+ <td class="td_bit" colspan="1">27</td>
+ <td class="td_bit" colspan="1">26</td>
+ <td class="td_bit" colspan="1">25</td>
+ <td class="td_bit" colspan="1">24</td>
+</tr>
+<tr>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">23</td>
+ <td class="td_bit" colspan="1">22</td>
+ <td class="td_bit" colspan="1">21</td>
+ <td class="td_bit" colspan="1">20</td>
+ <td class="td_bit" colspan="1">19</td>
+ <td class="td_bit" colspan="1">18</td>
+ <td class="td_bit" colspan="1">17</td>
+ <td class="td_bit" colspan="1">16</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">major[7:0]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">15</td>
+ <td class="td_bit" colspan="1">14</td>
+ <td class="td_bit" colspan="1">13</td>
+ <td class="td_bit" colspan="1">12</td>
+ <td class="td_bit" colspan="1">11</td>
+ <td class="td_bit" colspan="1">10</td>
+ <td class="td_bit" colspan="1">9</td>
+ <td class="td_bit" colspan="1">8</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">minor[7:0]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">7</td>
+ <td class="td_bit" colspan="1">6</td>
+ <td class="td_bit" colspan="1">5</td>
+ <td class="td_bit" colspan="1">4</td>
+ <td class="td_bit" colspan="1">3</td>
+ <td class="td_bit" colspan="1">2</td>
+ <td class="td_bit" colspan="1">1</td>
+ <td class="td_bit" colspan="1">0</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">patch[7:0]</td>
+</tr>
+</table>
+<ul>
+<li><b>
+major
+</b>[<i>ro</i>]: Major version indicating incompatible changes
+<li><b>
+minor
+</b>[<i>ro</i>]: Minor version indicating feature enhancements
+<li><b>
+patch
+</b>[<i>ro</i>]: Patch indicating bug fixes
+</ul>
+<a name="app.modulation.ipInfo.echo"></a>
+<h3>2.1.10. app.modulation.ipInfo.echo</h3>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr><td><b>HW prefix:</b></td><td class="td_code">app_modulation_ipInfo_echo</td></tr>
+<tr><td><b>HW address:</b></td><td class="td_code">0x100010</td></tr>
+<tr><td><b>C prefix:</b></td><td class="td_code">app.modulation.ipInfo.echo</td></tr>
+<tr><td><b>C block offset:</b></td><td class="td_code">0x10</td></tr>
+</table>
+<p>
+Echo register. This version of the standard foresees only 8bits linked to real memory
+</p>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr>
+ <td class="td_bit" colspan="1">31</td>
+ <td class="td_bit" colspan="1">30</td>
+ <td class="td_bit" colspan="1">29</td>
+ <td class="td_bit" colspan="1">28</td>
+ <td class="td_bit" colspan="1">27</td>
+ <td class="td_bit" colspan="1">26</td>
+ <td class="td_bit" colspan="1">25</td>
+ <td class="td_bit" colspan="1">24</td>
+</tr>
+<tr>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">23</td>
+ <td class="td_bit" colspan="1">22</td>
+ <td class="td_bit" colspan="1">21</td>
+ <td class="td_bit" colspan="1">20</td>
+ <td class="td_bit" colspan="1">19</td>
+ <td class="td_bit" colspan="1">18</td>
+ <td class="td_bit" colspan="1">17</td>
+ <td class="td_bit" colspan="1">16</td>
+</tr>
+<tr>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">15</td>
+ <td class="td_bit" colspan="1">14</td>
+ <td class="td_bit" colspan="1">13</td>
+ <td class="td_bit" colspan="1">12</td>
+ <td class="td_bit" colspan="1">11</td>
+ <td class="td_bit" colspan="1">10</td>
+ <td class="td_bit" colspan="1">9</td>
+ <td class="td_bit" colspan="1">8</td>
+</tr>
+<tr>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">7</td>
+ <td class="td_bit" colspan="1">6</td>
+ <td class="td_bit" colspan="1">5</td>
+ <td class="td_bit" colspan="1">4</td>
+ <td class="td_bit" colspan="1">3</td>
+ <td class="td_bit" colspan="1">2</td>
+ <td class="td_bit" colspan="1">1</td>
+ <td class="td_bit" colspan="1">0</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">echo[7:0]</td>
+</tr>
+</table>
+<ul>
+<li><b>
+echo
+</b>[<i>rw</i>]: This version of the standard foresees only 8bits linked to real memory
+</ul>
+<a name="app.modulation.control"></a>
+<h3>2.1.11. app.modulation.control</h3>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr><td><b>HW prefix:</b></td><td class="td_code">app_modulation_control</td></tr>
+<tr><td><b>HW address:</b></td><td class="td_code">0x100020</td></tr>
+<tr><td><b>C prefix:</b></td><td class="td_code">app.modulation.control</td></tr>
+<tr><td><b>C block offset:</b></td><td class="td_code">0x20</td></tr>
+</table>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr>
+ <td class="td_bit" colspan="1">31</td>
+ <td class="td_bit" colspan="1">30</td>
+ <td class="td_bit" colspan="1">29</td>
+ <td class="td_bit" colspan="1">28</td>
+ <td class="td_bit" colspan="1">27</td>
+ <td class="td_bit" colspan="1">26</td>
+ <td class="td_bit" colspan="1">25</td>
+ <td class="td_bit" colspan="1">24</td>
+</tr>
+<tr>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">23</td>
+ <td class="td_bit" colspan="1">22</td>
+ <td class="td_bit" colspan="1">21</td>
+ <td class="td_bit" colspan="1">20</td>
+ <td class="td_bit" colspan="1">19</td>
+ <td class="td_bit" colspan="1">18</td>
+ <td class="td_bit" colspan="1">17</td>
+ <td class="td_bit" colspan="1">16</td>
+</tr>
+<tr>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">15</td>
+ <td class="td_bit" colspan="1">14</td>
+ <td class="td_bit" colspan="1">13</td>
+ <td class="td_bit" colspan="1">12</td>
+ <td class="td_bit" colspan="1">11</td>
+ <td class="td_bit" colspan="1">10</td>
+ <td class="td_bit" colspan="1">9</td>
+ <td class="td_bit" colspan="1">8</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="1">clearBPLatches</td>
+ <td class="td_field" colspan="3">rate[2:0]</td>
+ <td class="td_field" colspan="1">wrInputsValidLatch</td>
+ <td class="td_field" colspan="1">wrRresetFSK</td>
+ <td class="td_field" colspan="1">wrResetSlip</td>
+ <td class="td_field" colspan="1">wrResetNCO</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">7</td>
+ <td class="td_bit" colspan="1">6</td>
+ <td class="td_bit" colspan="1">5</td>
+ <td class="td_bit" colspan="1">4</td>
+ <td class="td_bit" colspan="1">3</td>
+ <td class="td_bit" colspan="1">2</td>
+ <td class="td_bit" colspan="1">1</td>
+ <td class="td_bit" colspan="1">0</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="1">wrInputsValid</td>
+ <td class="td_field" colspan="1">bypassMod</td>
+ <td class="td_field" colspan="1">bypassDemod</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_field" colspan="1">useStaticSignal</td>
+ <td class="td_field" colspan="1">useImpulse</td>
+ <td class="td_field" colspan="1">useTestSignal</td>
+</tr>
+</table>
+<ul>
+<li><b>
+useTestSignal
+</b>[<i>rw</i>]: Use DDS generated test signal instead of ADC input as demodulation input
+<br>Test signal is synthezied with additional internal DDS, test signals frequency given by ftw_RF.
+<li><b>
+useImpulse
+</b>[<i>rw</i>]: Use impulse instead of demodulation output
+<li><b>
+useStaticSignal
+</b>[<i>rw</i>]: Use static signal from register instead of demodulation output
+<li><b>
+bypassDemod
+</b>[<i>rw</i>]: Bypass demodulator
+<li><b>
+bypassMod
+</b>[<i>rw</i>]: Bypass modulator
+<li><b>
+wrInputsValid
+</b>[<i>rw</i>]: transmit WR frame
+<li><b>
+wrInputsValidLatch
+</b>[<i>rw</i>]: transmit WR no autoclear
+<li><b>
+wrResetNCO
+</b>[<i>rw</i>]: activate WR frame control bit
+<li><b>
+wrResetSlip
+</b>[<i>rw</i>]: activate WR frame control bit
+<li><b>
+wrRresetFSK
+</b>[<i>rw</i>]: activate WR frame control bit
+<li><b>
+rate
+</b>[<i>rw</i>]: 
+<li><b>
+clearBPLatches
+</b>[<i>rw</i>]: 
+</ul>
+<a name="app.modulation.testSignal.amplitude"></a>
+<h3>2.1.12. app.modulation.testSignal.amplitude</h3>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr><td><b>HW prefix:</b></td><td class="td_code">app_modulation_testSignal_amplitude</td></tr>
+<tr><td><b>HW address:</b></td><td class="td_code">0x100030</td></tr>
+<tr><td><b>C prefix:</b></td><td class="td_code">app.modulation.testSignal.amplitude</td></tr>
+<tr><td><b>C block offset:</b></td><td class="td_code">0x0</td></tr>
+</table>
+<p>
+Amplitude for the test signal
+</p>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr>
+ <td class="td_bit" colspan="1">15</td>
+ <td class="td_bit" colspan="1">14</td>
+ <td class="td_bit" colspan="1">13</td>
+ <td class="td_bit" colspan="1">12</td>
+ <td class="td_bit" colspan="1">11</td>
+ <td class="td_bit" colspan="1">10</td>
+ <td class="td_bit" colspan="1">9</td>
+ <td class="td_bit" colspan="1">8</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">amplitude[15:8]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">7</td>
+ <td class="td_bit" colspan="1">6</td>
+ <td class="td_bit" colspan="1">5</td>
+ <td class="td_bit" colspan="1">4</td>
+ <td class="td_bit" colspan="1">3</td>
+ <td class="td_bit" colspan="1">2</td>
+ <td class="td_bit" colspan="1">1</td>
+ <td class="td_bit" colspan="1">0</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">amplitude[7:0]</td>
+</tr>
+</table>
+<ul>
+<li><b>
+amplitude
+</b>[<i>rw</i>]: Amplitude for the test signal
+</ul>
+<a name="app.modulation.testSignal.ftw"></a>
+<h3>2.1.13. app.modulation.testSignal.ftw</h3>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr><td><b>HW prefix:</b></td><td class="td_code">app_modulation_testSignal_ftw</td></tr>
+<tr><td><b>HW address:</b></td><td class="td_code">0x100038</td></tr>
+<tr><td><b>C prefix:</b></td><td class="td_code">app.modulation.testSignal.ftw</td></tr>
+<tr><td><b>C block offset:</b></td><td class="td_code">0x8</td></tr>
+</table>
+<p>
+FTW of the test signal (frequency relative to fs)
+</p>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr>
+ <td class="td_bit" colspan="1">63</td>
+ <td class="td_bit" colspan="1">62</td>
+ <td class="td_bit" colspan="1">61</td>
+ <td class="td_bit" colspan="1">60</td>
+ <td class="td_bit" colspan="1">59</td>
+ <td class="td_bit" colspan="1">58</td>
+ <td class="td_bit" colspan="1">57</td>
+ <td class="td_bit" colspan="1">56</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">ftw[63:56]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">55</td>
+ <td class="td_bit" colspan="1">54</td>
+ <td class="td_bit" colspan="1">53</td>
+ <td class="td_bit" colspan="1">52</td>
+ <td class="td_bit" colspan="1">51</td>
+ <td class="td_bit" colspan="1">50</td>
+ <td class="td_bit" colspan="1">49</td>
+ <td class="td_bit" colspan="1">48</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">ftw[55:48]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">47</td>
+ <td class="td_bit" colspan="1">46</td>
+ <td class="td_bit" colspan="1">45</td>
+ <td class="td_bit" colspan="1">44</td>
+ <td class="td_bit" colspan="1">43</td>
+ <td class="td_bit" colspan="1">42</td>
+ <td class="td_bit" colspan="1">41</td>
+ <td class="td_bit" colspan="1">40</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">ftw[47:40]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">39</td>
+ <td class="td_bit" colspan="1">38</td>
+ <td class="td_bit" colspan="1">37</td>
+ <td class="td_bit" colspan="1">36</td>
+ <td class="td_bit" colspan="1">35</td>
+ <td class="td_bit" colspan="1">34</td>
+ <td class="td_bit" colspan="1">33</td>
+ <td class="td_bit" colspan="1">32</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">ftw[39:32]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">31</td>
+ <td class="td_bit" colspan="1">30</td>
+ <td class="td_bit" colspan="1">29</td>
+ <td class="td_bit" colspan="1">28</td>
+ <td class="td_bit" colspan="1">27</td>
+ <td class="td_bit" colspan="1">26</td>
+ <td class="td_bit" colspan="1">25</td>
+ <td class="td_bit" colspan="1">24</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">ftw[31:24]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">23</td>
+ <td class="td_bit" colspan="1">22</td>
+ <td class="td_bit" colspan="1">21</td>
+ <td class="td_bit" colspan="1">20</td>
+ <td class="td_bit" colspan="1">19</td>
+ <td class="td_bit" colspan="1">18</td>
+ <td class="td_bit" colspan="1">17</td>
+ <td class="td_bit" colspan="1">16</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">ftw[23:16]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">15</td>
+ <td class="td_bit" colspan="1">14</td>
+ <td class="td_bit" colspan="1">13</td>
+ <td class="td_bit" colspan="1">12</td>
+ <td class="td_bit" colspan="1">11</td>
+ <td class="td_bit" colspan="1">10</td>
+ <td class="td_bit" colspan="1">9</td>
+ <td class="td_bit" colspan="1">8</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">ftw[15:8]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">7</td>
+ <td class="td_bit" colspan="1">6</td>
+ <td class="td_bit" colspan="1">5</td>
+ <td class="td_bit" colspan="1">4</td>
+ <td class="td_bit" colspan="1">3</td>
+ <td class="td_bit" colspan="1">2</td>
+ <td class="td_bit" colspan="1">1</td>
+ <td class="td_bit" colspan="1">0</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">ftw[7:0]</td>
+</tr>
+</table>
+<ul>
+<li><b>
+ftw
+</b>[<i>rw</i>]: FTW of the test signal (frequency relative to fs)
+</ul>
+<a name="app.modulation.staticSignal.i"></a>
+<h3>2.1.14. app.modulation.staticSignal.i</h3>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr><td><b>HW prefix:</b></td><td class="td_code">app_modulation_staticSignal_i</td></tr>
+<tr><td><b>HW address:</b></td><td class="td_code">0x100040</td></tr>
+<tr><td><b>C prefix:</b></td><td class="td_code">app.modulation.staticSignal.i</td></tr>
+<tr><td><b>C block offset:</b></td><td class="td_code">0x0</td></tr>
+</table>
+<p>
+Constant to be used as OTF input for channel I
+</p>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr>
+ <td class="td_bit" colspan="1">15</td>
+ <td class="td_bit" colspan="1">14</td>
+ <td class="td_bit" colspan="1">13</td>
+ <td class="td_bit" colspan="1">12</td>
+ <td class="td_bit" colspan="1">11</td>
+ <td class="td_bit" colspan="1">10</td>
+ <td class="td_bit" colspan="1">9</td>
+ <td class="td_bit" colspan="1">8</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">i[15:8]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">7</td>
+ <td class="td_bit" colspan="1">6</td>
+ <td class="td_bit" colspan="1">5</td>
+ <td class="td_bit" colspan="1">4</td>
+ <td class="td_bit" colspan="1">3</td>
+ <td class="td_bit" colspan="1">2</td>
+ <td class="td_bit" colspan="1">1</td>
+ <td class="td_bit" colspan="1">0</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">i[7:0]</td>
+</tr>
+</table>
+<ul>
+<li><b>
+i
+</b>[<i>rw</i>]: Constant to be used as OTF input for channel I
+</ul>
+<a name="app.modulation.staticSignal.q"></a>
+<h3>2.1.15. app.modulation.staticSignal.q</h3>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr><td><b>HW prefix:</b></td><td class="td_code">app_modulation_staticSignal_q</td></tr>
+<tr><td><b>HW address:</b></td><td class="td_code">0x100044</td></tr>
+<tr><td><b>C prefix:</b></td><td class="td_code">app.modulation.staticSignal.q</td></tr>
+<tr><td><b>C block offset:</b></td><td class="td_code">0x4</td></tr>
+</table>
+<p>
+Constant to be used as OTF input for channel Q
+</p>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr>
+ <td class="td_bit" colspan="1">15</td>
+ <td class="td_bit" colspan="1">14</td>
+ <td class="td_bit" colspan="1">13</td>
+ <td class="td_bit" colspan="1">12</td>
+ <td class="td_bit" colspan="1">11</td>
+ <td class="td_bit" colspan="1">10</td>
+ <td class="td_bit" colspan="1">9</td>
+ <td class="td_bit" colspan="1">8</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">q[15:8]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">7</td>
+ <td class="td_bit" colspan="1">6</td>
+ <td class="td_bit" colspan="1">5</td>
+ <td class="td_bit" colspan="1">4</td>
+ <td class="td_bit" colspan="1">3</td>
+ <td class="td_bit" colspan="1">2</td>
+ <td class="td_bit" colspan="1">1</td>
+ <td class="td_bit" colspan="1">0</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">q[7:0]</td>
+</tr>
+</table>
+<ul>
+<li><b>
+q
+</b>[<i>rw</i>]: Constant to be used as OTF input for channel Q
+</ul>
+<a name="app.modulation.ftwH1main"></a>
+<h3>2.1.16. app.modulation.ftwH1main</h3>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr><td><b>HW prefix:</b></td><td class="td_code">app_modulation_ftwH1main</td></tr>
+<tr><td><b>HW address:</b></td><td class="td_code">0x100050</td></tr>
+<tr><td><b>C prefix:</b></td><td class="td_code">app.modulation.ftwH1main</td></tr>
+<tr><td><b>C block offset:</b></td><td class="td_code">0x50</td></tr>
+</table>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr>
+ <td class="td_bit" colspan="1">63</td>
+ <td class="td_bit" colspan="1">62</td>
+ <td class="td_bit" colspan="1">61</td>
+ <td class="td_bit" colspan="1">60</td>
+ <td class="td_bit" colspan="1">59</td>
+ <td class="td_bit" colspan="1">58</td>
+ <td class="td_bit" colspan="1">57</td>
+ <td class="td_bit" colspan="1">56</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">ftwH1main[63:56]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">55</td>
+ <td class="td_bit" colspan="1">54</td>
+ <td class="td_bit" colspan="1">53</td>
+ <td class="td_bit" colspan="1">52</td>
+ <td class="td_bit" colspan="1">51</td>
+ <td class="td_bit" colspan="1">50</td>
+ <td class="td_bit" colspan="1">49</td>
+ <td class="td_bit" colspan="1">48</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">ftwH1main[55:48]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">47</td>
+ <td class="td_bit" colspan="1">46</td>
+ <td class="td_bit" colspan="1">45</td>
+ <td class="td_bit" colspan="1">44</td>
+ <td class="td_bit" colspan="1">43</td>
+ <td class="td_bit" colspan="1">42</td>
+ <td class="td_bit" colspan="1">41</td>
+ <td class="td_bit" colspan="1">40</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">ftwH1main[47:40]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">39</td>
+ <td class="td_bit" colspan="1">38</td>
+ <td class="td_bit" colspan="1">37</td>
+ <td class="td_bit" colspan="1">36</td>
+ <td class="td_bit" colspan="1">35</td>
+ <td class="td_bit" colspan="1">34</td>
+ <td class="td_bit" colspan="1">33</td>
+ <td class="td_bit" colspan="1">32</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">ftwH1main[39:32]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">31</td>
+ <td class="td_bit" colspan="1">30</td>
+ <td class="td_bit" colspan="1">29</td>
+ <td class="td_bit" colspan="1">28</td>
+ <td class="td_bit" colspan="1">27</td>
+ <td class="td_bit" colspan="1">26</td>
+ <td class="td_bit" colspan="1">25</td>
+ <td class="td_bit" colspan="1">24</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">ftwH1main[31:24]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">23</td>
+ <td class="td_bit" colspan="1">22</td>
+ <td class="td_bit" colspan="1">21</td>
+ <td class="td_bit" colspan="1">20</td>
+ <td class="td_bit" colspan="1">19</td>
+ <td class="td_bit" colspan="1">18</td>
+ <td class="td_bit" colspan="1">17</td>
+ <td class="td_bit" colspan="1">16</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">ftwH1main[23:16]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">15</td>
+ <td class="td_bit" colspan="1">14</td>
+ <td class="td_bit" colspan="1">13</td>
+ <td class="td_bit" colspan="1">12</td>
+ <td class="td_bit" colspan="1">11</td>
+ <td class="td_bit" colspan="1">10</td>
+ <td class="td_bit" colspan="1">9</td>
+ <td class="td_bit" colspan="1">8</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">ftwH1main[15:8]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">7</td>
+ <td class="td_bit" colspan="1">6</td>
+ <td class="td_bit" colspan="1">5</td>
+ <td class="td_bit" colspan="1">4</td>
+ <td class="td_bit" colspan="1">3</td>
+ <td class="td_bit" colspan="1">2</td>
+ <td class="td_bit" colspan="1">1</td>
+ <td class="td_bit" colspan="1">0</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">ftwH1main[7:0]</td>
+</tr>
+</table>
+<ul>
+<li><b>
+ftwH1main
+</b>[<i>rw</i>]: 
+</ul>
+<a name="app.modulation.ftwH1on"></a>
+<h3>2.1.17. app.modulation.ftwH1on</h3>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr><td><b>HW prefix:</b></td><td class="td_code">app_modulation_ftwH1on</td></tr>
+<tr><td><b>HW address:</b></td><td class="td_code">0x100058</td></tr>
+<tr><td><b>C prefix:</b></td><td class="td_code">app.modulation.ftwH1on</td></tr>
+<tr><td><b>C block offset:</b></td><td class="td_code">0x58</td></tr>
+</table>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr>
+ <td class="td_bit" colspan="1">63</td>
+ <td class="td_bit" colspan="1">62</td>
+ <td class="td_bit" colspan="1">61</td>
+ <td class="td_bit" colspan="1">60</td>
+ <td class="td_bit" colspan="1">59</td>
+ <td class="td_bit" colspan="1">58</td>
+ <td class="td_bit" colspan="1">57</td>
+ <td class="td_bit" colspan="1">56</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">ftwH1on[63:56]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">55</td>
+ <td class="td_bit" colspan="1">54</td>
+ <td class="td_bit" colspan="1">53</td>
+ <td class="td_bit" colspan="1">52</td>
+ <td class="td_bit" colspan="1">51</td>
+ <td class="td_bit" colspan="1">50</td>
+ <td class="td_bit" colspan="1">49</td>
+ <td class="td_bit" colspan="1">48</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">ftwH1on[55:48]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">47</td>
+ <td class="td_bit" colspan="1">46</td>
+ <td class="td_bit" colspan="1">45</td>
+ <td class="td_bit" colspan="1">44</td>
+ <td class="td_bit" colspan="1">43</td>
+ <td class="td_bit" colspan="1">42</td>
+ <td class="td_bit" colspan="1">41</td>
+ <td class="td_bit" colspan="1">40</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">ftwH1on[47:40]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">39</td>
+ <td class="td_bit" colspan="1">38</td>
+ <td class="td_bit" colspan="1">37</td>
+ <td class="td_bit" colspan="1">36</td>
+ <td class="td_bit" colspan="1">35</td>
+ <td class="td_bit" colspan="1">34</td>
+ <td class="td_bit" colspan="1">33</td>
+ <td class="td_bit" colspan="1">32</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">ftwH1on[39:32]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">31</td>
+ <td class="td_bit" colspan="1">30</td>
+ <td class="td_bit" colspan="1">29</td>
+ <td class="td_bit" colspan="1">28</td>
+ <td class="td_bit" colspan="1">27</td>
+ <td class="td_bit" colspan="1">26</td>
+ <td class="td_bit" colspan="1">25</td>
+ <td class="td_bit" colspan="1">24</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">ftwH1on[31:24]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">23</td>
+ <td class="td_bit" colspan="1">22</td>
+ <td class="td_bit" colspan="1">21</td>
+ <td class="td_bit" colspan="1">20</td>
+ <td class="td_bit" colspan="1">19</td>
+ <td class="td_bit" colspan="1">18</td>
+ <td class="td_bit" colspan="1">17</td>
+ <td class="td_bit" colspan="1">16</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">ftwH1on[23:16]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">15</td>
+ <td class="td_bit" colspan="1">14</td>
+ <td class="td_bit" colspan="1">13</td>
+ <td class="td_bit" colspan="1">12</td>
+ <td class="td_bit" colspan="1">11</td>
+ <td class="td_bit" colspan="1">10</td>
+ <td class="td_bit" colspan="1">9</td>
+ <td class="td_bit" colspan="1">8</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">ftwH1on[15:8]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">7</td>
+ <td class="td_bit" colspan="1">6</td>
+ <td class="td_bit" colspan="1">5</td>
+ <td class="td_bit" colspan="1">4</td>
+ <td class="td_bit" colspan="1">3</td>
+ <td class="td_bit" colspan="1">2</td>
+ <td class="td_bit" colspan="1">1</td>
+ <td class="td_bit" colspan="1">0</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">ftwH1on[7:0]</td>
+</tr>
+</table>
+<ul>
+<li><b>
+ftwH1on
+</b>[<i>rw</i>]: 
+</ul>
+<a name="app.modulation.dftwH1slip0"></a>
+<h3>2.1.18. app.modulation.dftwH1slip0</h3>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr><td><b>HW prefix:</b></td><td class="td_code">app_modulation_dftwH1slip0</td></tr>
+<tr><td><b>HW address:</b></td><td class="td_code">0x100060</td></tr>
+<tr><td><b>C prefix:</b></td><td class="td_code">app.modulation.dftwH1slip0</td></tr>
+<tr><td><b>C block offset:</b></td><td class="td_code">0x60</td></tr>
+</table>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr>
+ <td class="td_bit" colspan="1">31</td>
+ <td class="td_bit" colspan="1">30</td>
+ <td class="td_bit" colspan="1">29</td>
+ <td class="td_bit" colspan="1">28</td>
+ <td class="td_bit" colspan="1">27</td>
+ <td class="td_bit" colspan="1">26</td>
+ <td class="td_bit" colspan="1">25</td>
+ <td class="td_bit" colspan="1">24</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">dftwH1slip0[31:24]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">23</td>
+ <td class="td_bit" colspan="1">22</td>
+ <td class="td_bit" colspan="1">21</td>
+ <td class="td_bit" colspan="1">20</td>
+ <td class="td_bit" colspan="1">19</td>
+ <td class="td_bit" colspan="1">18</td>
+ <td class="td_bit" colspan="1">17</td>
+ <td class="td_bit" colspan="1">16</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">dftwH1slip0[23:16]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">15</td>
+ <td class="td_bit" colspan="1">14</td>
+ <td class="td_bit" colspan="1">13</td>
+ <td class="td_bit" colspan="1">12</td>
+ <td class="td_bit" colspan="1">11</td>
+ <td class="td_bit" colspan="1">10</td>
+ <td class="td_bit" colspan="1">9</td>
+ <td class="td_bit" colspan="1">8</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">dftwH1slip0[15:8]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">7</td>
+ <td class="td_bit" colspan="1">6</td>
+ <td class="td_bit" colspan="1">5</td>
+ <td class="td_bit" colspan="1">4</td>
+ <td class="td_bit" colspan="1">3</td>
+ <td class="td_bit" colspan="1">2</td>
+ <td class="td_bit" colspan="1">1</td>
+ <td class="td_bit" colspan="1">0</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">dftwH1slip0[7:0]</td>
+</tr>
+</table>
+<ul>
+<li><b>
+dftwH1slip0
+</b>[<i>rw</i>]: 
+</ul>
+<a name="app.modulation.dftwH1slip1"></a>
+<h3>2.1.19. app.modulation.dftwH1slip1</h3>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr><td><b>HW prefix:</b></td><td class="td_code">app_modulation_dftwH1slip1</td></tr>
+<tr><td><b>HW address:</b></td><td class="td_code">0x100064</td></tr>
+<tr><td><b>C prefix:</b></td><td class="td_code">app.modulation.dftwH1slip1</td></tr>
+<tr><td><b>C block offset:</b></td><td class="td_code">0x64</td></tr>
+</table>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr>
+ <td class="td_bit" colspan="1">31</td>
+ <td class="td_bit" colspan="1">30</td>
+ <td class="td_bit" colspan="1">29</td>
+ <td class="td_bit" colspan="1">28</td>
+ <td class="td_bit" colspan="1">27</td>
+ <td class="td_bit" colspan="1">26</td>
+ <td class="td_bit" colspan="1">25</td>
+ <td class="td_bit" colspan="1">24</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">dftwH1slip1[31:24]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">23</td>
+ <td class="td_bit" colspan="1">22</td>
+ <td class="td_bit" colspan="1">21</td>
+ <td class="td_bit" colspan="1">20</td>
+ <td class="td_bit" colspan="1">19</td>
+ <td class="td_bit" colspan="1">18</td>
+ <td class="td_bit" colspan="1">17</td>
+ <td class="td_bit" colspan="1">16</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">dftwH1slip1[23:16]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">15</td>
+ <td class="td_bit" colspan="1">14</td>
+ <td class="td_bit" colspan="1">13</td>
+ <td class="td_bit" colspan="1">12</td>
+ <td class="td_bit" colspan="1">11</td>
+ <td class="td_bit" colspan="1">10</td>
+ <td class="td_bit" colspan="1">9</td>
+ <td class="td_bit" colspan="1">8</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">dftwH1slip1[15:8]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">7</td>
+ <td class="td_bit" colspan="1">6</td>
+ <td class="td_bit" colspan="1">5</td>
+ <td class="td_bit" colspan="1">4</td>
+ <td class="td_bit" colspan="1">3</td>
+ <td class="td_bit" colspan="1">2</td>
+ <td class="td_bit" colspan="1">1</td>
+ <td class="td_bit" colspan="1">0</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">dftwH1slip1[7:0]</td>
+</tr>
+</table>
+<ul>
+<li><b>
+dftwH1slip1
+</b>[<i>rw</i>]: 
+</ul>
+<a name="app.modulation.latches"></a>
+<h3>2.1.20. app.modulation.latches</h3>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr><td><b>HW prefix:</b></td><td class="td_code">app_modulation_latches</td></tr>
+<tr><td><b>HW address:</b></td><td class="td_code">0x100068</td></tr>
+<tr><td><b>C prefix:</b></td><td class="td_code">app.modulation.latches</td></tr>
+<tr><td><b>C block offset:</b></td><td class="td_code">0x68</td></tr>
+</table>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr>
+ <td class="td_bit" colspan="1">31</td>
+ <td class="td_bit" colspan="1">30</td>
+ <td class="td_bit" colspan="1">29</td>
+ <td class="td_bit" colspan="1">28</td>
+ <td class="td_bit" colspan="1">27</td>
+ <td class="td_bit" colspan="1">26</td>
+ <td class="td_bit" colspan="1">25</td>
+ <td class="td_bit" colspan="1">24</td>
+</tr>
+<tr>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">23</td>
+ <td class="td_bit" colspan="1">22</td>
+ <td class="td_bit" colspan="1">21</td>
+ <td class="td_bit" colspan="1">20</td>
+ <td class="td_bit" colspan="1">19</td>
+ <td class="td_bit" colspan="1">18</td>
+ <td class="td_bit" colspan="1">17</td>
+ <td class="td_bit" colspan="1">16</td>
+</tr>
+<tr>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">15</td>
+ <td class="td_bit" colspan="1">14</td>
+ <td class="td_bit" colspan="1">13</td>
+ <td class="td_bit" colspan="1">12</td>
+ <td class="td_bit" colspan="1">11</td>
+ <td class="td_bit" colspan="1">10</td>
+ <td class="td_bit" colspan="1">9</td>
+ <td class="td_bit" colspan="1">8</td>
+</tr>
+<tr>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+ <td class="td_unused" colspan="1">-</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">7</td>
+ <td class="td_bit" colspan="1">6</td>
+ <td class="td_bit" colspan="1">5</td>
+ <td class="td_bit" colspan="1">4</td>
+ <td class="td_bit" colspan="1">3</td>
+ <td class="td_bit" colspan="1">2</td>
+ <td class="td_bit" colspan="1">1</td>
+ <td class="td_bit" colspan="1">0</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">backplane[7:0]</td>
+</tr>
+</table>
+<ul>
+<li><b>
+backplane
+</b>[<i>rw</i>]: 
+</ul>
+
+<h3>2.2 Register description for address space bar4</h3>
+<a name="fgc_ddr.data64.data64"></a>
+<h3>2.2.1. fgc_ddr.data64.data64</h3>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr><td><b>HW prefix:</b></td><td class="td_code">fgc_ddr_data64_data64</td></tr>
+<tr><td><b>HW address:</b></td><td class="td_code">0x0</td></tr>
+<tr><td><b>C prefix:</b></td><td class="td_code">fgc_ddr.data64.data64</td></tr>
+<tr><td><b>C block offset:</b></td><td class="td_code">0x0</td></tr>
+</table>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr>
+ <td class="td_bit" colspan="1">63</td>
+ <td class="td_bit" colspan="1">62</td>
+ <td class="td_bit" colspan="1">61</td>
+ <td class="td_bit" colspan="1">60</td>
+ <td class="td_bit" colspan="1">59</td>
+ <td class="td_bit" colspan="1">58</td>
+ <td class="td_bit" colspan="1">57</td>
+ <td class="td_bit" colspan="1">56</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">upper[31:24]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">55</td>
+ <td class="td_bit" colspan="1">54</td>
+ <td class="td_bit" colspan="1">53</td>
+ <td class="td_bit" colspan="1">52</td>
+ <td class="td_bit" colspan="1">51</td>
+ <td class="td_bit" colspan="1">50</td>
+ <td class="td_bit" colspan="1">49</td>
+ <td class="td_bit" colspan="1">48</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">upper[23:16]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">47</td>
+ <td class="td_bit" colspan="1">46</td>
+ <td class="td_bit" colspan="1">45</td>
+ <td class="td_bit" colspan="1">44</td>
+ <td class="td_bit" colspan="1">43</td>
+ <td class="td_bit" colspan="1">42</td>
+ <td class="td_bit" colspan="1">41</td>
+ <td class="td_bit" colspan="1">40</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">upper[15:8]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">39</td>
+ <td class="td_bit" colspan="1">38</td>
+ <td class="td_bit" colspan="1">37</td>
+ <td class="td_bit" colspan="1">36</td>
+ <td class="td_bit" colspan="1">35</td>
+ <td class="td_bit" colspan="1">34</td>
+ <td class="td_bit" colspan="1">33</td>
+ <td class="td_bit" colspan="1">32</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">upper[7:0]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">31</td>
+ <td class="td_bit" colspan="1">30</td>
+ <td class="td_bit" colspan="1">29</td>
+ <td class="td_bit" colspan="1">28</td>
+ <td class="td_bit" colspan="1">27</td>
+ <td class="td_bit" colspan="1">26</td>
+ <td class="td_bit" colspan="1">25</td>
+ <td class="td_bit" colspan="1">24</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">lower[31:24]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">23</td>
+ <td class="td_bit" colspan="1">22</td>
+ <td class="td_bit" colspan="1">21</td>
+ <td class="td_bit" colspan="1">20</td>
+ <td class="td_bit" colspan="1">19</td>
+ <td class="td_bit" colspan="1">18</td>
+ <td class="td_bit" colspan="1">17</td>
+ <td class="td_bit" colspan="1">16</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">lower[23:16]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">15</td>
+ <td class="td_bit" colspan="1">14</td>
+ <td class="td_bit" colspan="1">13</td>
+ <td class="td_bit" colspan="1">12</td>
+ <td class="td_bit" colspan="1">11</td>
+ <td class="td_bit" colspan="1">10</td>
+ <td class="td_bit" colspan="1">9</td>
+ <td class="td_bit" colspan="1">8</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">lower[15:8]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">7</td>
+ <td class="td_bit" colspan="1">6</td>
+ <td class="td_bit" colspan="1">5</td>
+ <td class="td_bit" colspan="1">4</td>
+ <td class="td_bit" colspan="1">3</td>
+ <td class="td_bit" colspan="1">2</td>
+ <td class="td_bit" colspan="1">1</td>
+ <td class="td_bit" colspan="1">0</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">lower[7:0]</td>
+</tr>
+</table>
+<ul>
+<li><b>
+upper
+</b>[<i>rw</i>]: 
+<li><b>
+lower
+</b>[<i>rw</i>]: 
+</ul>
+<a name="acq_ddr.data32.data32"></a>
+<h3>2.2.2. acq_ddr.data32.data32</h3>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr><td><b>HW prefix:</b></td><td class="td_code">acq_ddr_data32_data32</td></tr>
+<tr><td><b>HW address:</b></td><td class="td_code">0x20000000</td></tr>
+<tr><td><b>C prefix:</b></td><td class="td_code">acq_ddr.data32.data32</td></tr>
+<tr><td><b>C block offset:</b></td><td class="td_code">0x0</td></tr>
+</table>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr>
+ <td class="td_bit" colspan="1">31</td>
+ <td class="td_bit" colspan="1">30</td>
+ <td class="td_bit" colspan="1">29</td>
+ <td class="td_bit" colspan="1">28</td>
+ <td class="td_bit" colspan="1">27</td>
+ <td class="td_bit" colspan="1">26</td>
+ <td class="td_bit" colspan="1">25</td>
+ <td class="td_bit" colspan="1">24</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">upper[15:8]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">23</td>
+ <td class="td_bit" colspan="1">22</td>
+ <td class="td_bit" colspan="1">21</td>
+ <td class="td_bit" colspan="1">20</td>
+ <td class="td_bit" colspan="1">19</td>
+ <td class="td_bit" colspan="1">18</td>
+ <td class="td_bit" colspan="1">17</td>
+ <td class="td_bit" colspan="1">16</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">upper[7:0]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">15</td>
+ <td class="td_bit" colspan="1">14</td>
+ <td class="td_bit" colspan="1">13</td>
+ <td class="td_bit" colspan="1">12</td>
+ <td class="td_bit" colspan="1">11</td>
+ <td class="td_bit" colspan="1">10</td>
+ <td class="td_bit" colspan="1">9</td>
+ <td class="td_bit" colspan="1">8</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">lower[15:8]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">7</td>
+ <td class="td_bit" colspan="1">6</td>
+ <td class="td_bit" colspan="1">5</td>
+ <td class="td_bit" colspan="1">4</td>
+ <td class="td_bit" colspan="1">3</td>
+ <td class="td_bit" colspan="1">2</td>
+ <td class="td_bit" colspan="1">1</td>
+ <td class="td_bit" colspan="1">0</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">lower[7:0]</td>
+</tr>
+</table>
+<ul>
+<li><b>
+upper
+</b>[<i>rw</i>]: 
+<li><b>
+lower
+</b>[<i>rw</i>]: 
+</ul>
+<a name="acq_ram.data32.data32"></a>
+<h3>2.2.3. acq_ram.data32.data32</h3>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr><td><b>HW prefix:</b></td><td class="td_code">acq_ram_data32_data32</td></tr>
+<tr><td><b>HW address:</b></td><td class="td_code">0x80000000</td></tr>
+<tr><td><b>C prefix:</b></td><td class="td_code">acq_ram.data32.data32</td></tr>
+<tr><td><b>C block offset:</b></td><td class="td_code">0x0</td></tr>
+</table>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr>
+ <td class="td_bit" colspan="1">31</td>
+ <td class="td_bit" colspan="1">30</td>
+ <td class="td_bit" colspan="1">29</td>
+ <td class="td_bit" colspan="1">28</td>
+ <td class="td_bit" colspan="1">27</td>
+ <td class="td_bit" colspan="1">26</td>
+ <td class="td_bit" colspan="1">25</td>
+ <td class="td_bit" colspan="1">24</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">upper[15:8]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">23</td>
+ <td class="td_bit" colspan="1">22</td>
+ <td class="td_bit" colspan="1">21</td>
+ <td class="td_bit" colspan="1">20</td>
+ <td class="td_bit" colspan="1">19</td>
+ <td class="td_bit" colspan="1">18</td>
+ <td class="td_bit" colspan="1">17</td>
+ <td class="td_bit" colspan="1">16</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">upper[7:0]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">15</td>
+ <td class="td_bit" colspan="1">14</td>
+ <td class="td_bit" colspan="1">13</td>
+ <td class="td_bit" colspan="1">12</td>
+ <td class="td_bit" colspan="1">11</td>
+ <td class="td_bit" colspan="1">10</td>
+ <td class="td_bit" colspan="1">9</td>
+ <td class="td_bit" colspan="1">8</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">lower[15:8]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">7</td>
+ <td class="td_bit" colspan="1">6</td>
+ <td class="td_bit" colspan="1">5</td>
+ <td class="td_bit" colspan="1">4</td>
+ <td class="td_bit" colspan="1">3</td>
+ <td class="td_bit" colspan="1">2</td>
+ <td class="td_bit" colspan="1">1</td>
+ <td class="td_bit" colspan="1">0</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">lower[7:0]</td>
+</tr>
+</table>
+<ul>
+<li><b>
+upper
+</b>[<i>rw</i>]: 
+<li><b>
+lower
+</b>[<i>rw</i>]: 
+</ul>
+
+
+</BODY>
+</HTML>
