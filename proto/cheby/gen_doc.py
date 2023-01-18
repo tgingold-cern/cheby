@@ -60,7 +60,6 @@ class SummaryRaw(object):
 
 class MemmapSummary(object):
     def __init__(self, root):
-        self.root = root
         self.ndigits = (layout.ilog2(root.c_size) + 3) // 4
         self.raws = []
         self.gen_raws(root, '', '', 0)

@@ -74,17 +74,17 @@ def print_symbol_table(left, right):
     return res
 
 
-def print_regdescr_reg(_periph, raw, num):
+def print_regdescr_reg(_periph, pfx, raw, num):
     r = raw.node
     res = '''<a name="{name}"></a>
-<h3><a name="sect_3_{n}">2.{n}. {name}</a></h3>
+<h3>{pfx}.{n}. {name}</h3>
 <table cellpadding=0 cellspacing=0 border=0>
 <tr><td><b>HW prefix:</b></td><td class="td_code">{hdlprefix}</td></tr>
 <tr><td><b>HW address:</b></td><td class="td_code">0x{addr:x}</td></tr>
 <tr><td><b>C prefix:</b></td><td class="td_code">{cprefix}</td></tr>
 <tr><td><b>C block offset:</b></td><td class="td_code">0x{caddr:x}</td></tr>
 </table>
-'''.format(n=num, cprefix=raw.name,
+'''.format(pfx=pfx, n=num, cprefix=raw.name,
            hdlprefix=r.c_name,
            addr=raw.abs_addr, caddr=r.c_address,
            name=raw.name)
@@ -119,14 +119,12 @@ def print_regdescr_reg(_periph, raw, num):
     return res
 
 
-def print_regdescr(periph, raws):
-    res = '''
-<h3><a name="sect_3_0">2. Register description</a></h3>
-'''
+def print_regdescr(periph, pfx, raws):
+    res = ''
     num = 1
     for raw in raws:
         if isinstance(raw.node, tree.Reg):
-            res += print_regdescr_reg(periph, raw, num)
+            res += print_regdescr_reg(periph, pfx, raw, num)
             num += 1
     res += '\n'
     return res
@@ -134,8 +132,7 @@ def print_regdescr(periph, raws):
 
 def print_summary_html(_periph, summary):
     "HTML formatter for memmap_summary"
-    res = '<h3><a name="sect_1_0">1. Memory map summary</a></h3>\n'
-    res += '''<table cellpadding=2 cellspacing=0 border=0>
+    res = '''<table cellpadding=2 cellspacing=0 border=0>
 <tr>
 <th>HW address</th>
 <th>Type</th>
@@ -217,12 +214,30 @@ def phtml_header(fd, periph):
 
 def pprint_root(fd, root):
     phtml_header(fd, root)
-    summary = gen_doc.MemmapSummary(root)
-    memmap_summary = print_summary_html(root, summary)
-    # Sect1: Memory map summary
-    w(fd, memmap_summary)
-    # Sect2: Registers
-    w(fd, print_regdescr(root, summary.raws))
+
+    if root.c_address_spaces_map is None:
+        summary = gen_doc.MemmapSummary(root)
+        memmap_summary = print_summary_html(root, summary)
+        # Sect1: Memory map summary
+        wln(fd, '<h3>1. Memory map summary</h3>')
+        w(fd, memmap_summary)
+        # Sect2: Registers
+        wln(fd)
+        wln(fd, '<h3><a name="sect_3_0">2. Register description</a></h3>')
+        w(fd, print_regdescr(root, '2', summary.raws))
+    else:
+        summaries = [(space, gen_doc.MemmapSummary(space)) for space in root.children]
+        for i, (space, summary) in enumerate(summaries, 1):
+            memmap_summary = print_summary_html(space, summary)
+            wln(fd, '<h3>1.{}. Memory map summary for address space {}</h3>\n'.format(
+                i, space.name))
+            w(fd, memmap_summary)
+        for i, (space, summary) in enumerate(summaries, 1):
+            # Sect2: Registers
+            wln(fd, '<h3>2.{} Register description for address space {}</h3>'.format(
+                i, space.name))
+            w(fd, print_regdescr(space, '2.{}'.format(i), summary.raws))
+
     wln(fd, '\n</BODY>\n</HTML>')
 
 
