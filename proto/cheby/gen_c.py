@@ -169,9 +169,17 @@ def cprint_composite(cp, n):
 def cprint_root(cp, n):
     if n.version:
         cp.cp_txt("/* For {} version: {} */".format(n.name, n.version))
-    cp.start_struct(n.name)
-    cprint_composite(cp, n)
-    cp.end_struct(None)
+    if n.c_address_spaces_map is None:
+        cp.start_struct(n.name)
+        cprint_composite(cp, n)
+        cp.end_struct(None)
+    else:
+        for i, el in enumerate(n.children):
+            if i != 0:
+                cp.cp_txt('')
+            cp.start_struct(n.name + '_' + el.name)
+            cp.visit(el)
+            cp.end_struct(None)
 
 
 def to_cmacro(name):
