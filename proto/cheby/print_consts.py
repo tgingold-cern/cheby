@@ -208,6 +208,14 @@ class ConstsPrinterPython(ConstsPrinter):
         self.pr_const(name, "0x{:x}".format(val))
 
 
+class ConstsPrinterTCL(ConstsPrinter):
+    def pr_const(self, name, val):
+        self.pr_raw("set {} {}\n".format(name, val))
+
+    def pr_hex_const(self, name, val):
+        self.pr_const(name, "0x{:x}".format(val))
+
+
 class ConstsVisitor(tree.Visitor):
     def __init__(self, printer):
         self.printer = printer
@@ -321,7 +329,8 @@ def pconsts_cheby(fd, root, style):
            'vhdl-ohwr': ConstsPrinterVHDLOhwr,
            'vhdl': ConstsPrinterVHDL,
            'h': ConstsPrinterH,
-           'python': ConstsPrinterPython}
+           'python': ConstsPrinterPython,
+           'tcl': ConstsPrinterTCL}
     pr = ConstsVisitor(cls[style](fd, root))
     pr.pr_header()
     pr.visit(root)
