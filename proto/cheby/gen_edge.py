@@ -3,6 +3,16 @@ import cheby.tree as tree
 access_map = {'rw': 'rw', 'ro': 'r', 'wo': 'w'}
 
 
+def clean_string(desc):
+    """Clean a description string so that it is OK for a CSV field"""
+    if not desc:
+        return desc
+    # Keep only the first line
+    l = desc.splitlines()[0]
+    # Replace comma with spaces
+    return str.replace(l, ',', ' ')
+
+
 class EdgeReg(object):
     def __init__(self, name, reg, offset, depth, mask, desc):
         self.name = name
@@ -22,7 +32,7 @@ class EdgeReg(object):
                  "     {dwidth:>2}, 0x{depth:<5x}, {mask}, 0, {desc}\n".format(
                      bid=block_name, name=self.name, rwmode=self.rwmode,
                      offset=self.offset, dwidth=self.dwidth,
-                     depth=self.depth, mask=mask, desc=self.desc))
+                     depth=self.depth, mask=mask, desc=clean_string(self.desc)))
 
 
 class EncoreBlock(object):
@@ -78,7 +88,7 @@ class Encore(object):
 def p_vme_header(fd, root):
     fd.write("module,    bus, version, endian, description\n")
     fd.write("{:<10} {}, {:<8} {},     {}\n".format(
-        root.name + ',', "VME", "0.1" + ',', "BE", root.description))
+        root.name + ',', "VME", "0.1" + ',', "BE", clean_string(root.description)))
     fd.write("\n")
     fd.write("bar_id, bar_no, addrwidth, dwidth,  size,     "
              "blt_mode, mblt_mode, description\n")
@@ -119,7 +129,7 @@ def generate_edge(fd, root):
 
     fd.write("hw_mod_name, hw_lif_name, hw_lif_vers, edge_vers, bus, endian, description\n")
     fd.write("{:<10}, {}, dev, 2.0.0, VME, BE, {}\n".format(
-        root.name, root.name, root.description))
+        root.name, root.name, clean_string(root.description)))
     fd.write("\n")
 
     fd.write("bar_def_name, bar_no, addrspace, dwidth, size,    blt_mode, mblt_mode, description\n")
