@@ -74,6 +74,8 @@ def decode_args():
                          help='generate devicetree file')
     aparser.add_argument('--gen-install-script', nargs='?', const='-',
                          help='generate device install script')
+    aparser.add_argument('--custom', nargs='?', default='custom', const='custom',
+                         help='filename of custom user-code to run')
     aparser.add_argument('--gen-custom', nargs='?', const='-',
                          help='generate a file by running custom user-code')
     aparser.add_argument('--gen-gena-memmap', nargs='?', const='-',
@@ -203,7 +205,7 @@ def handle_file(args, filename):
             gen_silecs.generate_silecs(f, t)
     if args.gen_custom is not None:
         with open_filename(args.gen_custom) as f:
-            gen_custom.generate_custom(f, t)
+            gen_custom.generate_custom(f, t, args.custom)
     if args.gen_devicetree is not None:
         with open_filename(args.gen_devicetree) as f:
             gen_devicetree.generate_devicetree(f, t)
