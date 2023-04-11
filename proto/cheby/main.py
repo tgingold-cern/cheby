@@ -74,7 +74,7 @@ def decode_args():
                          help='generate devicetree file')
     aparser.add_argument('--gen-install-script', nargs='?', const='-',
                          help='generate device install script')
-    aparser.add_argument('--custom', nargs='?', default='custom', const='custom',
+    aparser.add_argument('--custom', nargs='?', default='gen_custom.py', const='gen_custom.py',
                          help='filename of custom user-code to run')
     aparser.add_argument('--gen-custom', nargs='?', const='-',
                          help='generate a file by running custom user-code')
