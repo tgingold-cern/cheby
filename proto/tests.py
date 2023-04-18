@@ -805,7 +805,7 @@ def test_custom():
         # We need to change working directory
         cwd = os.getcwd()
         os.chdir(srcdir + '/custom')
-        gen_custom.generate_custom(buf, t)
+        gen_custom.generate_custom(buf, t, 'gen_custom.py')
         os.chdir(cwd)
         if not compare_buffer_and_file(buf, c_file):
             error('custom generation error for {}'.format(f))
