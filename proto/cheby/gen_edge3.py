@@ -14,13 +14,14 @@ def clean_string(desc):
 
 
 class EdgeReg(object):
-    def __init__(self, name, reg, offset, depth, mask, desc):
+    def __init__(self, name, reg, offset, flags, depth, mask, desc):
         self.name = name
         self.rwmode = access_map[reg.access]
         self.offset = reg.c_address + offset
         self.dwidth = tree.BYTE_SIZE * reg.c_size
         self.depth = depth
         self.mask = mask
+        self.flags = flags
         self.desc = desc or ''
 
     def write(self, fd, block_name):
@@ -33,7 +34,7 @@ class EdgeReg(object):
                  "     {dwidth:>2}, {depth:>#6x}, {mask}, {flags:>5}, {desc}\n".format(
                      bid=block_name, type='REG', name=self.name, rwmode=self.rwmode,
                      offset=self.offset, dwidth=self.dwidth,
-                     depth=self.depth, mask=mask, flags='', desc=clean_string(self.desc)))
+                     depth=self.depth, mask=mask, flags=self.flags, desc=clean_string(self.desc)))
 
 
 class EncoreBlock(object):
@@ -46,9 +47,9 @@ class EncoreBlock(object):
             encore.blocks_set.add(block_name)
 
 
-    def append_reg(self, reg, name, offset, depth=1, desc=None):
+    def append_reg(self, reg, name, offset, flags='', depth=1, desc=None):
         assert isinstance(reg, tree.Reg)
-        self.regs.append(EdgeReg(name, reg, offset, depth, None, desc or reg.description))
+        self.regs.append(EdgeReg(name, reg, offset, flags, depth, None, desc or reg.description))
         if reg.has_fields():
             for f in reg.children:
                 if f.hi is None:
@@ -57,7 +58,7 @@ class EncoreBlock(object):
                     mask = (2 << (f.hi - f.lo)) - 1
                 mask = mask << f.lo
                 self.regs.append(EdgeReg(
-                    "{}_{}".format(name, f.name), reg, offset, depth, mask, f.description))
+                    "{}_{}".format(name, f.name), reg, offset, '', depth, mask, f.description))
 
     def append_block(self, blk, name, offset, desc):
         self.regs.append(EdgeBlockInst(blk, name, offset, desc))
@@ -124,10 +125,13 @@ def process_body(b, n, offset):
         if isinstance(el, tree.Reg):
             b.append_reg(el, el.name, offset)
         elif isinstance(el, tree.Memory):
-            b.append_reg(el.children[0], el.name, offset + el.c_address, el.c_depth, el.description)
+            flags = ''
+            if el.get_extension('x_driver_edge', 'fifo', False):
+                flags = 'FIFO'
+            b.append_reg(el.children[0], el.name, offset + el.c_address, flags, el.c_depth, el.description)
         elif isinstance(el, tree.Repeat):
             if len(el.children) == 1 and isinstance(el.children[0], tree.Reg):
-                b.append_reg(el.children[0], el.name, offset + el.c_address, el.count, el.description)
+                b.append_reg(el.children[0], el.name, offset + el.c_address, '', el.count, el.description)
             else:
                 # TODO
                 b2 = EncoreBlock(el.name, b.encore)
