@@ -124,10 +124,10 @@ def process_body(b, n, offset):
         if isinstance(el, tree.Reg):
             b.append_reg(el, el.name, offset)
         elif isinstance(el, tree.Memory):
-            b.append_reg(el.children[0], el.name, offset + el.c_abs_addr, el.c_depth, el.description)
+            b.append_reg(el.children[0], el.name, offset + el.c_address, el.c_depth, el.description)
         elif isinstance(el, tree.Repeat):
             if len(el.children) == 1 and isinstance(el.children[0], tree.Reg):
-                b.append_reg(el.children[0], el.name, offset + el.c_abs_addr, el.count, el.description)
+                b.append_reg(el.children[0], el.name, offset + el.c_address, el.count, el.description)
             else:
                 # TODO
                 b2 = EncoreBlock(el.name, b.encore)
