@@ -95,18 +95,25 @@ class Encore(object):
         self.top = None
 
     def write(self, fd):
+        top_needed = any([not isinstance(c, EdgeBlockInst) for c in self.top.regs])
         # Write all blocks
         for b in self.blocks:
             if b == self.top:
                 continue
             b.write(fd)
             fd.write('\n')
-        self.top.write(fd)
-        fd.write('\n')
+        if top_needed:
+            self.top.write(fd)
+            fd.write('\n')
 
         fd.write("block_inst_name, block_def_name, res_def_name,   offset, description\n")
-        fd.write("{:>15}, {:>14}, {:>12}, {:>#8x}, {}\n".format(
-            self.top.block_name, self.top.block_name, "Registers", 0, "Top level"))
+        if top_needed:
+            fd.write("{:>15}, {:>14}, {:>12}, {:>#8x}, {}\n".format(
+                self.top.block_name, self.top.block_name, "Registers", 0, "Top level"))
+        else:
+            for b in self.top.regs:
+                fd.write("{:>15}, {:>14}, {:>12}, {:>#8x}, {}\n".format(
+                    b.name, b.block.block_name, "Registers", b.offset, b.desc))
 
 
 def p_vme_header(fd, root):
