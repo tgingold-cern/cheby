@@ -252,25 +252,31 @@ def handle_file(args, filename):
             print_vhdl.print_vhdl(f, h)
     if args.gen_gena_dsp_map is not None:
         with open_filename(args.gen_gena_dsp_map) as f:
+            args.hdl = "verilog" # to force C-compatible header
             gen_comment_header_maybe(f, args)
             gen_gena_dsp.gen_gena_dsp_map(f, t)
     if args.gen_gena_dsp_h is not None:
         with open_filename(args.gen_gena_dsp_h) as f:
+            args.hdl = "verilog" # to force C-compatible header
             gen_comment_header_maybe(f, args)
             gen_gena_dsp.gen_gena_dsp_h(f, t)
     if args.gen_gena_dsp_c is not None:
         with open_filename(args.gen_gena_dsp_c) as f:
+            args.hdl = "verilog" # to force C-compatible header
             gen_comment_header_maybe(f, args)
             gen_gena_dsp.gen_gena_dsp_c(f, t)
     if args.gen_gena_dsp:
         os.makedirs("DSP/include", exist_ok=True)
         with open_filename("DSP/include/MemMapDSP_{}.h".format(t.name)) as f:
+            args.hdl = "verilog" # to force C-compatible header
             gen_comment_header_maybe(f, args)
             gen_gena_dsp.gen_gena_dsp_map(f, t)
         with open_filename("DSP/include/vmeacc_{}.h".format(t.name)) as f:
+            args.hdl = "verilog" # to force C-compatible header
             gen_comment_header_maybe(f, args)
             gen_gena_dsp.gen_gena_dsp_h(f, t)
         with open_filename("DSP/vmeacc_{}.c".format(t.name)) as f:
+            args.hdl = "verilog" # to force C-compatible header
             gen_comment_header_maybe(f, args)
             gen_gena_dsp.gen_gena_dsp_c(f, t)
     if args.gen_doc is not None:
