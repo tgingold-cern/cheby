@@ -46,11 +46,12 @@ class EncoreBlock(object):
             encore.blocks.append(self)
             encore.blocks_set.add(block_name)
 
-
     def append_reg(self, reg, name, offset, flags='', depth=1, desc=None):
         assert isinstance(reg, tree.Reg)
         self.regs.append(EdgeReg(name, reg, offset, flags, depth, None, desc or reg.description))
         if reg.has_fields():
+            if not reg.get_extension('x_driver_edge', 'include-fields', 'True'):
+                return
             for f in reg.children:
                 if f.hi is None:
                     mask = 1
