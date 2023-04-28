@@ -9,17 +9,17 @@ void set_m2_r1(unsigned int val) {
 	*preg = val;
 }
 
-unsigned int get_r1_enumeration() {
+unsigned int get_m2_r1_enumeration() {
 	unsigned int* preg = (unsigned int*)r1;
 	unsigned int b_lsb = 0;
-	unsigned int bval = ( (*preg & r1_enumeration) >> b_lsb );
+	unsigned int bval = ( (*preg & m2_r1_enumeration) >> b_lsb );
 	return bval;
 }
-void set_r1_enumeration(unsigned int bval) {
+void set_m2_r1_enumeration(unsigned int bval) {
 	unsigned int* preg = (unsigned int*)r1;
 	unsigned int oldval = *preg;
 	unsigned int b_lsb = 0;
-	unsigned int newval = (oldval & ~r1_enumeration) | (bval << b_lsb);
+	unsigned int newval = (oldval & ~m2_r1_enumeration) | (bval << b_lsb);
 	*preg = newval;
 }
 
