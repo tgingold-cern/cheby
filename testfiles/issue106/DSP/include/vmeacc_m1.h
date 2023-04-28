@@ -1,8 +1,8 @@
 unsigned int get_m2_r1(void);
 void set_m2_r1(unsigned int val);
 
-unsigned int get_r1_enumeration(void);
-void set_r1_enumeration(unsigned int val);
+unsigned int get_m2_r1_enumeration(void);
+void set_m2_r1_enumeration(unsigned int val);
 
 // Not implemented yet: no code-field getter
 // Not implemented yet: no code-field getter

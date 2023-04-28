@@ -42,7 +42,7 @@ class Printer(tree.Visitor):
         self.pr_pop()
 
     def pr_submap(self, n):
-        self.pr_push(n.name, 0)
+        self.pr_push(n.name, n.c_address)
         prev_root = self.root
         self.root = n.c_submap
         self.pr_children(n.c_submap)
@@ -73,7 +73,7 @@ class CPrinter(Printer):
 
 
 def mprint_field(mp, n, f):
-    pfx = n.name + '_' + f.name
+    pfx = mp.prefix + n.name + '_' + f.name
     mask = 1 << f.lo
     if f.hi is None:
         comment = 'bit-field-data'
@@ -92,7 +92,7 @@ def mprint_enum(mp, n, pfx):
     if enum is None:
         return
     enums = mp.root.c_enums_dict[enum]
-    for e in enums.children:
+    for e in sorted(enums.children, key=lambda a: a.value):
         mp.pr_txt('#define {:50s} {} // code-field'.format(pfx + '_' + e.name, e.value))
 
 
@@ -108,7 +108,7 @@ def get_ctype(n):
     if n.c_type == 'signed':
         typ = {1: 'int8_t',
                2: 'int16_t',
-               4: 'int32_t',
+               4: 'int',
                8: None}[n.c_size]
     elif n.c_type == 'float':
         typ = {4: 'float',
@@ -141,13 +141,13 @@ def hprint_prototype(pr, n, typ, name):
 
 
 def hprint_field(pr, n, f):
-    hprint_prototype(pr, n, 'unsigned int', n.name + '_' + f.name)
+    hprint_prototype(pr, n, 'unsigned int', pr.prefix + n.name + '_' + f.name)
     hprint_enum(pr, f)
 
 
 def cprint_field(pr, n, f):
     typ = 'unsigned int'
-    name = n.name + '_' + f.name
+    name = pr.prefix + n.name + '_' + f.name
     pr.pr_txt('{} get_{}() {{'.format(typ, name))  # TODO: Use (void)
     pr.pr_txt('\t{}* preg = ({}*){};'.format(typ, typ, n.name))
     pr.pr_txt('\t{} b_lsb = {};'.format(typ, f.lo))
@@ -180,7 +180,7 @@ def mprint_reg(mp, n):
         else:
             acc = ACC[n.access]
         mp.mp_addr(n, '// register-data, {}, {}'.format(acc, typ))
-    mprint_enum(mp, n, n.name)
+    mprint_enum(mp, n, mp.prefix + n.name)
     for f in get_ordered_fields(n):
         mprint_field(mp, n, f)
 

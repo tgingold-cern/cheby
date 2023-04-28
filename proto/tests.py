@@ -459,7 +459,7 @@ def sub_gena_compare(filename, t):
     #   And order is different for sub_reg_one
     buf = write_buffer()
     gen_gena_dsp.gen_gena_dsp_map(buf, t, with_date=False)
-    dspmapfile = srcdir + basedir + 'DSP/include/MemMapsDSP_' + t.name + '.h'
+    dspmapfile = srcdir + basedir + 'DSP/include/MemMapDSP_' + t.name + '.h'
     if not compare_buffer_and_file(buf, dspmapfile):
         error('gena DSP MemMap generation error for {}'.format(filename))
     # Test DSP access header generation
