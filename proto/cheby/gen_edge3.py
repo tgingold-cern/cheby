@@ -67,6 +67,7 @@ class EncoreBlock(object):
         self.regs.append(EdgeBlockInst(blk, self.block_name, name, offset, desc))
 
     def write(self, fd):
+        fd.write("#Block table definition\n")
         for title, width in zip(self.encore.block_titles, self.encore.block_col_widths):
             if title == 'description':
                 fd.write(" {val}".format(val=title))
@@ -119,13 +120,14 @@ class Encore(object):
             self.top.write(fd)
             fd.write('\n')
 
-        fd.write("block_inst_name, block_def_name, res_def_name,   offset, description\n")
+        fd.write("#Block instances table definition\n")
+        fd.write(" block_inst_name, block_def_name, res_def_name,   offset, description\n")
         if top_needed:
-            fd.write("{:>15}, {:>14}, {:>12}, {:>8}, {}\n".format(
+            fd.write(" {:>15}, {:>14}, {:>12}, {:>8}, {}\n".format(
                 self.top.block_name, self.top.block_name, "Registers", 0, "Top level"))
         else:
             for b in self.top.regs:
-                fd.write("{:>15}, {:>14}, {:>12}, {:>8}, {}\n".format(
+                fd.write(" {:>15}, {:>14}, {:>12}, {:>8}, {}\n".format(
                     b.name, b.block.block_name, "Registers", b.offset, b.description))
 
 
@@ -180,15 +182,18 @@ def generate_edge3(fd, root):
     e.top = b
     process_body(b, root, 0)
 
-    fd.write("hw_mod_name, hw_lif_name, hw_lif_vers, edge_vers, bus, endian, description\n")
-    fd.write("{:<10}, {}, 3.0.1,       3.0, VME,     BE, {}\n".format(
+    fd.write("#Encore Driver GEnerator version: 3.0\n\n")
+    fd.write("#LIF (Logical Interface) table definition\n")
+    fd.write(" hw_mod_name, hw_lif_name, hw_lif_vers, edge_vers, bus, endian, description\n")
+    fd.write(" {:<10}, {}, 3.0.1,       3.0, VME,     BE, {}\n".format(
         root.name, root.name, clean_string(root.description)))
-    fd.write("\n")
+    fd.write("\n\n")
 
     # TODO: args
-    fd.write("res_def_name, type, res_no,"
+    fd.write("#Resources (Memory(BARs) - DMA - IRQ) table definition\n")
+    fd.write(" res_def_name, type, res_no,"
              "                                                args, description\n")
-    fd.write("   Registers,  MEM,      0, ,\n")
-    fd.write("\n")
+    fd.write("    Registers,  MEM,      0, ,\n")
+    fd.write("\n\n")
 
     e.write(fd)
