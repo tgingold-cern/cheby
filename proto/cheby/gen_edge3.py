@@ -157,14 +157,15 @@ class Encore(object):
             fd.write('\n')
 
         fd.write("#Block instances table definition\n")
-        fd.write(" block_inst_name, block_def_name, res_def_name,   offset, description\n")
+        binst_table = CsvTable("block_inst_name", "block_def_name", "res_def_name", "offset", "description")
         if top_needed:
-            fd.write(" {:>15}, {:>14}, {:>12}, {:>8}, {}\n".format(
-                self.top.block_name, self.top.block_name, "Registers", 0, "Top level"))
+            binst_table.append(block_inst_name=self.top.block_name, block_def_name=self.top.block_name,
+                               res_def_name="Registers", offset=0, description="Top level")
         else:
             for b in self.top.regs:
-                fd.write(" {:>15}, {:>14}, {:>12}, {:>8}, {}\n".format(
-                    b.name, b.block.block_name, "Registers", b.offset, b.description))
+                binst_table.append(block_inst_name=b.name, block_def_name=b.block.block_name,
+                                   res_def_name="Registers", offset=b.offset, description=b.description)
+        binst_table.write(fd)
 
         # Deal with roles
         roles_table = CsvTable("reg_role", "reg_name", "block_def_name", "args")
@@ -194,18 +195,6 @@ class Encore(object):
             fd.write("\n")
             fd.write("#Register Roles table definition\n")
             roles_table.write(fd)
-
-
-def p_vme_header(fd, root):
-    fd.write("module,    bus, version, endian, description\n")
-    fd.write("{:<10} {}, {:<8} {},     {}\n".format(
-        root.name + ',', "VME", "0.1" + ',', "BE", clean_string(root.description)))
-    fd.write("\n")
-    fd.write("bar_id, bar_no, addrwidth, dwidth,  size,     "
-             "blt_mode, mblt_mode, description\n")
-    fd.write("0,      0,      24,        32,      0x{:06x}, "
-             "0,        0,         BAR\n".format(root.c_size))
-    fd.write("\n")
 
 
 def process_body(b, n, offset):
@@ -241,24 +230,27 @@ def process_body(b, n, offset):
 
 def generate_edge3(fd, root):
     e = Encore()
-    # Headers are not generated.
-    # p_vme_header(fd, root)
     b = EncoreBlock("Top", e)
     e.top = b
     process_body(b, root, 0)
 
     fd.write("#Encore Driver GEnerator version: 3.0\n\n")
     fd.write("#LIF (Logical Interface) table definition\n")
-    fd.write(" hw_mod_name, hw_lif_name, hw_lif_vers, edge_vers, bus, endian, description\n")
-    fd.write(" {:<10}, {}, 3.0.1,       3.0, VME,     BE, {}\n".format(
-        root.name, root.name, clean_string(root.description)))
+
+    lif_table = CsvTable("hw_mod_name", "hw_lif_name", "hw_lif_vers", "edge_vers",
+                         "bus", "endian", "description")
+    lif_table.append(hw_mod_name=root.name, hw_lif_name=root.name.lower(),
+                     hw_lif_vers="3.0.1", edge_vers="3.0", bus="VME",
+                     endian="BE", description=clean_string(root.description))
+    lif_table.write(fd)
     fd.write("\n\n")
 
     # TODO: args
     fd.write("#Resources (Memory(BARs) - DMA - IRQ) table definition\n")
-    fd.write(" res_def_name, type, res_no,"
-             "                                                args, description\n")
-    fd.write("    Registers,  MEM,      0, ,\n")
+    rsrc_table = CsvTable("res_def_name", "type", "res_no", "args", "description")
+    rsrc_table.append(res_def_name="Registers", type="MEM", res_no=0,
+                      args="", description="")
+    rsrc_table.write(fd)
     fd.write("\n\n")
 
     e.write(fd)
