@@ -13,6 +13,42 @@ def clean_string(desc):
     return str.replace(l, ',', ' ')
 
 
+class CsvTable(object):
+    def __init__(self, *titles):
+        self.titles = titles
+        self.widths = [len(t) for t in titles]
+        self.rows = []
+
+    def append(self, **row):
+        self.rows.append(dict(**row))
+
+    def count(self):
+        return len(self.rows)
+
+    def write(self, fd):
+        for r in self.rows:
+            for i, title in enumerate(self.titles):
+                self.widths[i] = max(self.widths[i],
+                                     len(str(r.get(title, ''))))
+
+        for title, width in zip(self.titles, self.widths):
+            if title == self.titles[-1]:
+                fd.write(" {val}".format(val=title))
+            else:
+                fd.write(" {val:>{width}},".format(val=title, width=width))
+        fd.write("\n")
+
+        for r in self.rows:
+            for title, width in zip(self.titles, self.widths):
+                val = r.get(title, '')
+                if title == self.titles[-1]:
+                    if val:
+                        fd.write(" {val}".format(val=val))
+                else:
+                    fd.write(" {val:>{width}},".format(val=val, width=width))
+            fd.write("\n")
+
+
 class EdgeReg(object):
     def __init__(self, reg, block_def_name, name, offset, flags, depth, mask, desc):
         assert isinstance(reg, tree.Reg)
@@ -129,6 +165,35 @@ class Encore(object):
             for b in self.top.regs:
                 fd.write(" {:>15}, {:>14}, {:>12}, {:>8}, {}\n".format(
                     b.name, b.block.block_name, "Registers", b.offset, b.description))
+
+        # Deal with roles
+        roles_table = CsvTable("reg_role", "reg_name", "block_def_name", "args")
+        for b in self.blocks:
+            for r in filter(lambda x: type(x) == EdgeReg, b.regs):
+                reg_role = r.reg.get_extension('x_driver_edge', 'reg-role')
+                if reg_role:
+                    if isinstance(reg_role, dict):
+                        role = reg_role['type']
+                        args = reg_role.get('args', {})
+                    else:
+                        role = reg_role
+                        args = {}
+
+                    if role == 'IRQ_V' or role == 'IRQ_L':
+                        args_str = ''
+                    elif role == 'ASSERT':
+                        min_val = hex(args['min-val'])
+                        max_val = hex(args['max-val'])
+                        args_str = 'min_val={} max_val={}'.format(min_val, max_val)
+                    else:
+                        raise AssertionError("unknown reg-role {}".format(role))
+
+                    roles_table.append(reg_role=role, reg_name=r.name,
+                                       block_def_name=r.block_def_name, args=args_str)
+        if roles_table.count != 0:
+            fd.write("\n")
+            fd.write("#Register Roles table definition\n")
+            roles_table.write(fd)
 
 
 def p_vme_header(fd, root):
