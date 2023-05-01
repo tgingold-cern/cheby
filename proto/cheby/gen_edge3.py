@@ -13,6 +13,20 @@ def clean_string(desc):
     return str.replace(l, ',', ' ')
 
 
+def clean_args(args, args_list, fmt_list):
+    if args is None:
+        return ''
+    args_cleaned = []
+    for arg, fmt in zip(args_list, fmt_list):
+        val = args.get(arg)
+        if val is not None:
+            args_cleaned.append('{}={}'.format(
+                arg.replace('-', '_'),
+                fmt(val)
+            ))
+    return ' '.join(args_cleaned)
+
+
 class CsvTable(object):
     def __init__(self, *titles):
         self.titles = titles
@@ -63,7 +77,7 @@ class EdgeReg(object):
         self.depth = hex(depth)
         self.mask = hex(mask) if mask is not None else ''
         self.flags = flags
-        self.description = desc or ''
+        self.description = clean_string(desc) or ''
 
     def write(self, fd, encore):
         for title, width in zip(encore.block_titles, encore.block_col_widths):
@@ -124,7 +138,7 @@ class EdgeBlockInst(EdgeReg):
         self.type = self.block.block_name
         self.name = name
         self.offset = hex(offset)
-        self.description = desc or ''
+        self.description = clean_string(desc) or ''
 
 
 class Encore(object):
@@ -164,13 +178,44 @@ class Encore(object):
         else:
             for b in self.top.regs:
                 binst_table.append(block_inst_name=b.name, block_def_name=b.block.block_name,
-                                   res_def_name="Registers", offset=b.offset, description=b.description)
+                                   res_def_name="Registers", offset=b.offset, description=clean_string(b.description))
         binst_table.write(fd)
 
-        # Deal with roles
+        # Deal with roles and interrupt controllers
+        intc_table = CsvTable("intc_name", "type", "reg_name", "block_def_name",
+                              "chained_intc_name", "chained_intc_mask", "args",
+                              "description")
         roles_table = CsvTable("reg_role", "reg_name", "block_def_name", "args")
+
         for b in self.blocks:
             for r in filter(lambda x: type(x) == EdgeReg, b.regs):
+                intc_list = r.reg.get_extension('x_driver_edge', 'interrupt-controller', [])
+
+                if isinstance(intc_list, dict):
+                    intc_list = [intc_list]
+
+                for intc in intc_list:
+                    intc_name = intc['name']
+                    intc_type = intc['type']
+
+                    if intc_type not in ('INTC_SR', 'INTC_CR'):
+                        raise AssertionError("unknown interrupt-controller type {}".format(intc_type))
+
+                    chained = intc.get('chained')
+                    if chained is not None:
+                        chained_name = chained['name']
+                        chained_mask = hex(chained['mask'])
+                    else:
+                        chained_name = ''
+                        chained_mask = ''
+
+                    args = clean_args(intc.get('args'), ('enable-mask', 'ack-mask'), (hex, hex))
+                    desc = clean_string(intc.get('description', ''))
+
+                    intc_table.append(intc_name=intc_name, type=intc_type, reg_name=r.name,
+                                      block_def_name=r.block_def_name, chained_intc_name=chained_name,
+                                      chained_intc_mask=chained_mask, args=args, description=desc)
+
                 reg_role = r.reg.get_extension('x_driver_edge', 'reg-role')
                 if reg_role:
                     if isinstance(reg_role, dict):
@@ -183,14 +228,18 @@ class Encore(object):
                     if role == 'IRQ_V' or role == 'IRQ_L':
                         args_str = ''
                     elif role == 'ASSERT':
-                        min_val = hex(args['min-val'])
-                        max_val = hex(args['max-val'])
-                        args_str = 'min_val={} max_val={}'.format(min_val, max_val)
+                        args_str = clean_args(args, ('min-val', 'max-val'), (hex, hex))
                     else:
                         raise AssertionError("unknown reg-role {}".format(role))
 
                     roles_table.append(reg_role=role, reg_name=r.name,
                                        block_def_name=r.block_def_name, args=args_str)
+
+        if intc_table.count != 0:
+            fd.write("\n")
+            fd.write("#Interrupt Controller (INTC) table definition\n")
+            intc_table.write(fd)
+
         if roles_table.count != 0:
             fd.write("\n")
             fd.write("#Register Roles table definition\n")
