@@ -141,7 +141,8 @@ class EdgeReg(object):
         for title, width in zip(encore.block_titles, encore.block_col_widths):
             val = getattr(self, title, '')
             if title == 'description':
-                fd.write(" {val}".format(val=val))
+                if val:
+                    fd.write(" {val}".format(val=val))
             else:
                 fd.write(" {val:>{width}},".format(val=val, width=width))
         fd.write("\n")
