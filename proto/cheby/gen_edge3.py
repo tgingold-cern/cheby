@@ -189,12 +189,17 @@ class Encore(object):
 
         for b in self.blocks:
             for r in filter(lambda x: type(x) == EdgeReg, b.regs):
-                intc_list = r.reg.get_extension('x_driver_edge', 'interrupt-controller', [])
+                intc_list = r.reg.get_extension('x_driver_edge', 'interrupt-controllers', [])
 
-                if isinstance(intc_list, dict):
-                    intc_list = [intc_list]
+                intc = r.reg.get_extension('x_driver_edge', 'interrupt-controller')
+                if intc:
+                    intc_list.append({'interrupt-controller': intc})
 
-                for intc in intc_list:
+                for item in intc_list:
+                    intc = item.get('interrupt-controller')
+                    if intc is None:
+                        continue
+
                     intc_name = intc['name']
                     intc_type = intc['type']
 
