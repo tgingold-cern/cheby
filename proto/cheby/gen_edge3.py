@@ -245,17 +245,8 @@ class Encore(object):
 
         for b in self.blocks:
             for r in filter(lambda x: type(x) == EdgeReg, b.regs):
-                intc_list = r.reg.get_extension('x_driver_edge', 'interrupt-controllers', [])
-
-                intc = r.reg.get_extension('x_driver_edge', 'interrupt-controller')
-                if intc:
-                    intc_list.append({'interrupt-controller': intc})
-
-                for item in intc_list:
-                    intc = item.get('interrupt-controller')
-                    if intc is None:
-                        continue
-
+                for intc in filter(None, map(lambda x: x.get('interrupt-controller'),
+                                             r.reg.get_extension('x_driver_edge', 'interrupt-controllers', []))):
                     intc_name = intc['name']
                     intc_type = intc['type']
 
@@ -279,12 +270,8 @@ class Encore(object):
 
                 reg_role = r.reg.get_extension('x_driver_edge', 'reg-role')
                 if reg_role:
-                    if isinstance(reg_role, dict):
-                        role = reg_role['type']
-                        args = reg_role.get('args', {})
-                    else:
-                        role = reg_role
-                        args = {}
+                    role = reg_role['type']
+                    args = reg_role.get('args', {})
 
                     if role == 'IRQ_V' or role == 'IRQ_L':
                         args_str = ''
