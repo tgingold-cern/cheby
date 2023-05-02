@@ -62,6 +62,64 @@ class CsvTable(object):
                     fd.write(" {val:>{width}},".format(val=val, width=width))
             fd.write("\n")
 
+    def write_if_needed(self, fd):
+        if self.count != 0:
+            self.write(fd)
+
+
+class LifTable(CsvTable):
+    def __init__(self):
+        super().__init__("hw_mod_name", "hw_lif_name", "hw_lif_vers", "edge_vers",
+                         "bus", "endian", "description")
+
+    def write(self, fd):
+        fd.write("#LIF (Logical Interface) table definition\n")
+        super().write(fd)
+        fd.write("\n")
+
+
+class ResourceTable(CsvTable):
+    def __init__(self):
+        super().__init__("res_def_name", "type", "res_no", "args", "description")
+
+    def write(self, fd):
+        fd.write("#Resources (Memory(BARs) - DMA - IRQ) table definition\n")
+        super().write(fd)
+        fd.write("\n")
+
+
+class BlockInstTable(CsvTable):
+    def __init__(self):
+        super().__init__("block_inst_name", "block_def_name", "res_def_name",
+                         "offset", "description")
+
+    def write(self, fd):
+        fd.write("#Block instances table definition\n")
+        super().write(fd)
+        fd.write("\n")
+
+
+class IntcTable(CsvTable):
+    def __init__(self):
+        super().__init__("intc_name", "type", "reg_name", "block_def_name",
+                         "chained_intc_name", "chained_intc_mask", "args",
+                         "description")
+
+    def write(self, fd):
+        fd.write("#Interrupt Controller (INTC) table definition\n")
+        super().write(fd)
+        fd.write("\n")
+
+
+class RolesTable(CsvTable):
+    def __init__(self):
+        super().__init__("reg_role", "reg_name", "block_def_name", "args")
+
+    def write(self, fd):
+        fd.write("#Register Roles table definition\n")
+        super().write(fd)
+        fd.write("\n")
+
 
 class EdgeReg(object):
     def __init__(self, reg, block_def_name, name, offset, flags, depth, mask, desc):
@@ -170,8 +228,7 @@ class Encore(object):
             self.top.write(fd)
             fd.write('\n')
 
-        fd.write("#Block instances table definition\n")
-        binst_table = CsvTable("block_inst_name", "block_def_name", "res_def_name", "offset", "description")
+        binst_table = BlockInstTable()
         if top_needed:
             binst_table.append(block_inst_name=self.top.block_name, block_def_name=self.top.block_name,
                                res_def_name="Registers", offset=0, description="Top level")
@@ -182,10 +239,8 @@ class Encore(object):
         binst_table.write(fd)
 
         # Deal with roles and interrupt controllers
-        intc_table = CsvTable("intc_name", "type", "reg_name", "block_def_name",
-                              "chained_intc_name", "chained_intc_mask", "args",
-                              "description")
-        roles_table = CsvTable("reg_role", "reg_name", "block_def_name", "args")
+        intc_table = IntcTable()
+        roles_table = RolesTable()
 
         for b in self.blocks:
             for r in filter(lambda x: type(x) == EdgeReg, b.regs):
@@ -240,15 +295,8 @@ class Encore(object):
                     roles_table.append(reg_role=role, reg_name=r.name,
                                        block_def_name=r.block_def_name, args=args_str)
 
-        if intc_table.count != 0:
-            fd.write("\n")
-            fd.write("#Interrupt Controller (INTC) table definition\n")
-            intc_table.write(fd)
-
-        if roles_table.count != 0:
-            fd.write("\n")
-            fd.write("#Register Roles table definition\n")
-            roles_table.write(fd)
+        intc_table.write_if_needed(fd)
+        roles_table.write_if_needed(fd)
 
 
 def process_body(b, n, offset):
@@ -289,22 +337,17 @@ def generate_edge3(fd, root):
     process_body(b, root, 0)
 
     fd.write("#Encore Driver GEnerator version: 3.0\n\n")
-    fd.write("#LIF (Logical Interface) table definition\n")
 
-    lif_table = CsvTable("hw_mod_name", "hw_lif_name", "hw_lif_vers", "edge_vers",
-                         "bus", "endian", "description")
+    lif_table = LifTable()
     lif_table.append(hw_mod_name=root.name, hw_lif_name=root.name.lower(),
                      hw_lif_vers="3.0.1", edge_vers="3.0", bus="VME",
                      endian="BE", description=clean_string(root.description))
     lif_table.write(fd)
-    fd.write("\n\n")
 
     # TODO: args
-    fd.write("#Resources (Memory(BARs) - DMA - IRQ) table definition\n")
-    rsrc_table = CsvTable("res_def_name", "type", "res_no", "args", "description")
+    rsrc_table = ResourceTable()
     rsrc_table.append(res_def_name="Registers", type="MEM", res_no=0,
                       args="", description="")
     rsrc_table.write(fd)
-    fd.write("\n\n")
 
     e.write(fd)
