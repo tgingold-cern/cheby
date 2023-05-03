@@ -13,6 +13,114 @@ def clean_string(desc):
     return str.replace(l, ',', ' ')
 
 
+def clean_args(args, args_list, fmt_list):
+    if args is None:
+        return ''
+    args_cleaned = []
+    for arg, fmt in zip(args_list, fmt_list):
+        val = args.get(arg)
+        if val is not None:
+            args_cleaned.append('{}={}'.format(
+                arg.replace('-', '_'),
+                fmt(val)
+            ))
+    return ' '.join(args_cleaned)
+
+
+class CsvTable(object):
+    def __init__(self, *titles):
+        self.titles = titles
+        self.widths = [len(t) for t in titles]
+        self.rows = []
+
+    def append(self, **row):
+        self.rows.append(dict(**row))
+
+    def count(self):
+        return len(self.rows)
+
+    def write(self, fd):
+        for r in self.rows:
+            for i, title in enumerate(self.titles):
+                self.widths[i] = max(self.widths[i],
+                                     len(str(r.get(title, ''))))
+
+        for title, width in zip(self.titles, self.widths):
+            if title == self.titles[-1]:
+                fd.write(" {val}".format(val=title))
+            else:
+                fd.write(" {val:>{width}},".format(val=title, width=width))
+        fd.write("\n")
+
+        for r in self.rows:
+            for title, width in zip(self.titles, self.widths):
+                val = r.get(title, '')
+                if title == self.titles[-1]:
+                    if val:
+                        fd.write(" {val}".format(val=val))
+                else:
+                    fd.write(" {val:>{width}},".format(val=val, width=width))
+            fd.write("\n")
+
+    def write_if_needed(self, fd):
+        if self.count != 0:
+            self.write(fd)
+
+
+class LifTable(CsvTable):
+    def __init__(self):
+        super().__init__("hw_mod_name", "hw_lif_name", "hw_lif_vers", "edge_vers",
+                         "bus", "endian", "description")
+
+    def write(self, fd):
+        fd.write("#LIF (Logical Interface) table definition\n")
+        super().write(fd)
+        fd.write("\n")
+
+
+class ResourceTable(CsvTable):
+    def __init__(self):
+        super().__init__("res_def_name", "type", "res_no", "args", "description")
+
+    def write(self, fd):
+        fd.write("#Resources (Memory(BARs) - DMA - IRQ) table definition\n")
+        super().write(fd)
+        fd.write("\n")
+
+
+class BlockInstTable(CsvTable):
+    def __init__(self):
+        super().__init__("block_inst_name", "block_def_name", "res_def_name",
+                         "offset", "description")
+
+    def write(self, fd):
+        fd.write("#Block instances table definition\n")
+        super().write(fd)
+        fd.write("\n")
+
+
+class IntcTable(CsvTable):
+    def __init__(self):
+        super().__init__("intc_name", "type", "reg_name", "block_def_name",
+                         "chained_intc_name", "chained_intc_mask", "args",
+                         "description")
+
+    def write(self, fd):
+        fd.write("#Interrupt Controller (INTC) table definition\n")
+        super().write(fd)
+        fd.write("\n")
+
+
+class RolesTable(CsvTable):
+    def __init__(self):
+        super().__init__("reg_role", "reg_name", "block_def_name", "args")
+
+    def write(self, fd):
+        fd.write("#Register Roles table definition\n")
+        super().write(fd)
+        fd.write("\n")
+
+
 class EdgeReg(object):
     def __init__(self, reg, block_def_name, name, offset, flags, depth, mask, desc):
         assert isinstance(reg, tree.Reg)
@@ -27,13 +135,14 @@ class EdgeReg(object):
         self.depth = hex(depth)
         self.mask = hex(mask) if mask is not None else ''
         self.flags = flags
-        self.description = desc or ''
+        self.description = clean_string(desc) or ''
 
     def write(self, fd, encore):
         for title, width in zip(encore.block_titles, encore.block_col_widths):
             val = getattr(self, title, '')
             if title == 'description':
-                fd.write(" {val}".format(val=val))
+                if val:
+                    fd.write(" {val}".format(val=val))
             else:
                 fd.write(" {val:>{width}},".format(val=val, width=width))
         fd.write("\n")
@@ -88,7 +197,7 @@ class EdgeBlockInst(EdgeReg):
         self.type = self.block.block_name
         self.name = name
         self.offset = hex(offset)
-        self.description = desc or ''
+        self.description = clean_string(desc) or ''
 
 
 class Encore(object):
@@ -120,27 +229,62 @@ class Encore(object):
             self.top.write(fd)
             fd.write('\n')
 
-        fd.write("#Block instances table definition\n")
-        fd.write(" block_inst_name, block_def_name, res_def_name,   offset, description\n")
+        binst_table = BlockInstTable()
         if top_needed:
-            fd.write(" {:>15}, {:>14}, {:>12}, {:>8}, {}\n".format(
-                self.top.block_name, self.top.block_name, "Registers", 0, "Top level"))
+            binst_table.append(block_inst_name=self.top.block_name, block_def_name=self.top.block_name,
+                               res_def_name="Registers", offset=0, description="Top level")
         else:
             for b in self.top.regs:
-                fd.write(" {:>15}, {:>14}, {:>12}, {:>8}, {}\n".format(
-                    b.name, b.block.block_name, "Registers", b.offset, b.description))
+                binst_table.append(block_inst_name=b.name, block_def_name=b.block.block_name,
+                                   res_def_name="Registers", offset=b.offset, description=clean_string(b.description))
+        binst_table.write(fd)
 
+        # Deal with roles and interrupt controllers
+        intc_table = IntcTable()
+        roles_table = RolesTable()
 
-def p_vme_header(fd, root):
-    fd.write("module,    bus, version, endian, description\n")
-    fd.write("{:<10} {}, {:<8} {},     {}\n".format(
-        root.name + ',', "VME", "0.1" + ',', "BE", clean_string(root.description)))
-    fd.write("\n")
-    fd.write("bar_id, bar_no, addrwidth, dwidth,  size,     "
-             "blt_mode, mblt_mode, description\n")
-    fd.write("0,      0,      24,        32,      0x{:06x}, "
-             "0,        0,         BAR\n".format(root.c_size))
-    fd.write("\n")
+        for b in self.blocks:
+            for r in filter(lambda x: type(x) == EdgeReg, b.regs):
+                for intc in filter(None, map(lambda x: x.get('interrupt-controller'),
+                                             r.reg.get_extension('x_driver_edge', 'interrupt-controllers', []))):
+                    intc_name = intc['name']
+                    intc_type = intc['type']
+
+                    if intc_type not in ('INTC_SR', 'INTC_CR'):
+                        raise AssertionError("unknown interrupt-controller type {}".format(intc_type))
+
+                    chained = intc.get('chained')
+                    if chained is not None:
+                        chained_name = chained['name']
+                        chained_mask = hex(chained['mask'])
+                    else:
+                        chained_name = ''
+                        chained_mask = ''
+
+                    args = clean_args(intc.get('args'), ('enable-mask', 'ack-mask'), (hex, hex))
+                    desc = clean_string(intc.get('description', ''))
+
+                    intc_table.append(intc_name=intc_name, type=intc_type, reg_name=r.name,
+                                      block_def_name=r.block_def_name, chained_intc_name=chained_name,
+                                      chained_intc_mask=chained_mask, args=args, description=desc)
+
+                reg_role = r.reg.get_extension('x_driver_edge', 'reg-role')
+                if reg_role:
+                    role = reg_role['type']
+                    args = reg_role.get('args', {})
+
+                    if role == 'IRQ_V' or role == 'IRQ_L':
+                        args_str = ''
+                    elif role == 'ASSERT':
+                        args_str = clean_args(args, ('min-val', 'max-val'), (hex, hex))
+                    else:
+                        raise AssertionError("unknown reg-role {}".format(role))
+
+                    roles_table.append(reg_role=role, reg_name=r.name,
+                                       block_def_name=r.block_def_name, args=args_str)
+
+        intc_table.write_if_needed(fd)
+        roles_table.write_if_needed(fd)
 
 
 def process_body(b, n, offset):
@@ -176,24 +320,22 @@ def process_body(b, n, offset):
 
 def generate_edge3(fd, root):
     e = Encore()
-    # Headers are not generated.
-    # p_vme_header(fd, root)
     b = EncoreBlock("Top", e)
     e.top = b
     process_body(b, root, 0)
 
     fd.write("#Encore Driver GEnerator version: 3.0\n\n")
-    fd.write("#LIF (Logical Interface) table definition\n")
-    fd.write(" hw_mod_name, hw_lif_name, hw_lif_vers, edge_vers, bus, endian, description\n")
-    fd.write(" {:<10}, {}, 3.0.1,       3.0, VME,     BE, {}\n".format(
-        root.name, root.name, clean_string(root.description)))
-    fd.write("\n\n")
+
+    lif_table = LifTable()
+    lif_table.append(hw_mod_name=root.name, hw_lif_name=root.name.lower(),
+                     hw_lif_vers="3.0.1", edge_vers="3.0", bus="VME",
+                     endian="BE", description=clean_string(root.description))
+    lif_table.write(fd)
 
     # TODO: args
-    fd.write("#Resources (Memory(BARs) - DMA - IRQ) table definition\n")
-    fd.write(" res_def_name, type, res_no,"
-             "                                                args, description\n")
-    fd.write("    Registers,  MEM,      0, ,\n")
-    fd.write("\n\n")
+    rsrc_table = ResourceTable()
+    rsrc_table.append(res_def_name="Registers", type="MEM", res_no=0,
+                      args="", description="")
+    rsrc_table.write(fd)
 
     e.write(fd)
