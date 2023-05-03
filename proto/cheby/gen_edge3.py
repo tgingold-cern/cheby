@@ -161,9 +161,9 @@ class EncoreBlock(object):
         self.regs.append(EdgeReg(reg, self.block_name, name,
                                  offset, flags, depth, None, desc or reg.description))
         if reg.has_fields():
-            if not reg.get_extension('x_driver_edge', 'include-fields', 'True'):
-                return
             for f in reg.children:
+                if not f.get_extension('x_driver_edge', 'generate', True):
+                    continue
                 if f.hi is None:
                     mask = 1
                 else:
@@ -289,6 +289,8 @@ class Encore(object):
 
 def process_body(b, n, offset):
     for el in n.children:
+        if not el.get_extension('x_driver_edge', 'generate', True):
+            continue
         if isinstance(el, tree.Reg):
             b.append_reg(el, el.name, offset)
         elif isinstance(el, tree.Memory):
