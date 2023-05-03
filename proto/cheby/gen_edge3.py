@@ -14,27 +14,29 @@ def clean_string(desc):
 
 
 class EdgeReg(object):
-    def __init__(self, name, reg, offset, flags, depth, mask, desc):
-        self.name = name
-        self.rwmode = access_map[reg.access]
-        self.offset = reg.c_address + offset
-        self.dwidth = tree.BYTE_SIZE * reg.c_size
-        self.depth = depth
-        self.mask = mask
-        self.flags = flags
-        self.desc = desc or ''
+    def __init__(self, reg, block_def_name, name, offset, flags, depth, mask, desc):
+        assert isinstance(reg, tree.Reg)
+        self.reg = reg
 
-    def write(self, fd, block_name):
-        if self.mask is not None:
-            mask = "{:>#10x}".format(self.mask)
-        else:
-            mask = 10 * ' '
-        # block_def_name,     type,                    name,   offset, rwmode, dwidth,  depth,       mask, flags, description
-        fd.write("{bid:>14}, {type:>8}, {name:>23}, {offset:>#8x}, {rwmode:>6},"
-                 "     {dwidth:>2}, {depth:>#6x}, {mask}, {flags:>5}, {desc}\n".format(
-                     bid=block_name, type='REG', name=self.name, rwmode=self.rwmode,
-                     offset=self.offset, dwidth=self.dwidth,
-                     depth=self.depth, mask=mask, flags=self.flags, desc=clean_string(self.desc)))
+        self.block_def_name = block_def_name
+        self.type = 'REG'
+        self.name = name
+        self.offset = hex(reg.c_address + offset)
+        self.rwmode = access_map[reg.access]
+        self.dwidth = tree.BYTE_SIZE * reg.c_size
+        self.depth = hex(depth)
+        self.mask = hex(mask) if mask is not None else ''
+        self.flags = flags
+        self.description = desc or ''
+
+    def write(self, fd, encore):
+        for title, width in zip(encore.block_titles, encore.block_col_widths):
+            val = getattr(self, title, '')
+            if title == 'description':
+                fd.write(" {val}".format(val=val))
+            else:
+                fd.write(" {val:>{width}},".format(val=val, width=width))
+        fd.write("\n")
 
 
 class EncoreBlock(object):
@@ -47,8 +49,8 @@ class EncoreBlock(object):
             encore.blocks_set.add(block_name)
 
     def append_reg(self, reg, name, offset, flags='', depth=1, desc=None):
-        assert isinstance(reg, tree.Reg)
-        self.regs.append(EdgeReg(name, reg, offset, flags, depth, None, desc or reg.description))
+        self.regs.append(EdgeReg(reg, self.block_name, name,
+                                 offset, flags, depth, None, desc or reg.description))
         if reg.has_fields():
             if not reg.get_extension('x_driver_edge', 'include-fields', 'True'):
                 return
@@ -58,34 +60,35 @@ class EncoreBlock(object):
                 else:
                     mask = (2 << (f.hi - f.lo)) - 1
                 mask = mask << f.lo
-                self.regs.append(EdgeReg(
-                    "{}_{}".format(name, f.name), reg, offset, '', depth, mask, f.description))
+                self.regs.append(EdgeReg(reg, self.block_name, "{}_{}".format(name, f.name),
+                                         offset, flags, depth, mask, f.description))
 
     def append_block(self, blk, name, offset, desc):
-        self.regs.append(EdgeBlockInst(blk, name, offset, desc))
+        self.regs.append(EdgeBlockInst(blk, self.block_name, name, offset, desc))
 
     def write(self, fd):
-        fd.write("block_def_name,     type,                    name,"
-                 "   offset, rwmode, dwidth,  depth,       mask, flags, description\n")
+        fd.write("#Block table definition\n")
+        for title, width in zip(self.encore.block_titles, self.encore.block_col_widths):
+            if title == 'description':
+                fd.write(" {val}".format(val=title))
+            else:
+                fd.write(" {val:>{width}},".format(val=title, width=width))
+        fd.write("\n")
+
         for r in self.regs:
-            r.write(fd, self.block_name)
+            r.write(fd, self.encore)
 
 
-class EdgeBlockInst(object):
-    def __init__(self, block, name, offset, desc):
+class EdgeBlockInst(EdgeReg):
+    def __init__(self, block, block_def_name, name, offset, desc):
         assert isinstance(block, EncoreBlock)
         self.block = block
-        self.name = name
-        self.offset = offset
-        self.desc = desc
 
-    def write(self, fd, block_name):
-        # block_def_name,     type,                    name,   offset, rwmode, dwidth,  depth,       mask, flags, description
-        fd.write("{bid:>14}, {type:>8}, {name:>23}, {offset:>#8x}, {rwmode:>6},"
-                 "     {dwidth:>2}, {depth:>6}, {mask}, {flags:>5}, {desc}\n".format(
-                     bid=block_name, type=self.block.block_name, name=self.name, rwmode='',
-                     offset=self.offset, dwidth='',
-                     depth='', mask='', flags='', desc=clean_string(self.desc)))
+        self.block_def_name = block_def_name
+        self.type = self.block.block_name
+        self.name = name
+        self.offset = hex(offset)
+        self.description = desc or ''
 
 
 class Encore(object):
@@ -93,9 +96,20 @@ class Encore(object):
         self.blocks_set = set()
         self.blocks = []
         self.top = None
+        self.block_titles = ["block_def_name", "type", "name", "offset",
+                             "rwmode", "dwidth", "depth", "mask", "flags",
+                             "description"]
+        self.block_col_widths = [len(t) for t in self.block_titles]
 
     def write(self, fd):
         top_needed = any([not isinstance(c, EdgeBlockInst) for c in self.top.regs])
+
+        # Determine maximum width of each column across all blocks
+        for b in self.blocks:
+            for r in b.regs:
+                for i, title in enumerate(self.block_titles):
+                    self.block_col_widths[i] = max(self.block_col_widths[i],
+                                                   len(str(getattr(r, title, ''))))
         # Write all blocks
         for b in self.blocks:
             if b == self.top:
@@ -106,14 +120,15 @@ class Encore(object):
             self.top.write(fd)
             fd.write('\n')
 
-        fd.write("block_inst_name, block_def_name, res_def_name,   offset, description\n")
+        fd.write("#Block instances table definition\n")
+        fd.write(" block_inst_name, block_def_name, res_def_name,   offset, description\n")
         if top_needed:
-            fd.write("{:>15}, {:>14}, {:>12}, {:>#8x}, {}\n".format(
+            fd.write(" {:>15}, {:>14}, {:>12}, {:>8}, {}\n".format(
                 self.top.block_name, self.top.block_name, "Registers", 0, "Top level"))
         else:
             for b in self.top.regs:
-                fd.write("{:>15}, {:>14}, {:>12}, {:>#8x}, {}\n".format(
-                    b.name, b.block.block_name, "Registers", b.offset, b.desc))
+                fd.write(" {:>15}, {:>14}, {:>12}, {:>8}, {}\n".format(
+                    b.name, b.block.block_name, "Registers", b.offset, b.description))
 
 
 def p_vme_header(fd, root):
@@ -167,15 +182,18 @@ def generate_edge3(fd, root):
     e.top = b
     process_body(b, root, 0)
 
-    fd.write("hw_mod_name, hw_lif_name, hw_lif_vers, edge_vers, bus, endian, description\n")
-    fd.write("{:<10}, {}, 3.0.1,       3.0, VME,     BE, {}\n".format(
+    fd.write("#Encore Driver GEnerator version: 3.0\n\n")
+    fd.write("#LIF (Logical Interface) table definition\n")
+    fd.write(" hw_mod_name, hw_lif_name, hw_lif_vers, edge_vers, bus, endian, description\n")
+    fd.write(" {:<10}, {}, 3.0.1,       3.0, VME,     BE, {}\n".format(
         root.name, root.name, clean_string(root.description)))
-    fd.write("\n")
+    fd.write("\n\n")
 
     # TODO: args
-    fd.write("res_def_name, type, res_no,"
+    fd.write("#Resources (Memory(BARs) - DMA - IRQ) table definition\n")
+    fd.write(" res_def_name, type, res_no,"
              "                                                args, description\n")
-    fd.write("   Registers,  MEM,      0, ,\n")
-    fd.write("\n")
+    fd.write("    Registers,  MEM,      0, ,\n")
+    fd.write("\n\n")
 
     e.write(fd)
