@@ -287,33 +287,49 @@ class Encore(object):
         roles_table.write_if_needed(fd)
 
 
-def process_body(b, n, offset):
+def process_body(b, n, offset, name_prefix=[]):
     for el in n.children:
         if not el.get_extension('x_driver_edge', 'generate', True):
             continue
+
+        el_name_prefix = name_prefix + [el.name]
+        el_name = '_'.join(el_name_prefix)
+
         if isinstance(el, tree.Reg):
-            b.append_reg(el, el.name, offset)
+            b.append_reg(el, el_name, offset)
         elif isinstance(el, tree.Memory):
             flags = ''
             if el.get_extension('x_driver_edge', 'fifo', False):
                 flags = 'FIFO'
-            b.append_reg(el.children[0], el.name, offset + el.c_address, flags, el.c_depth, el.description)
+            b.append_reg(el.children[0], el_name, offset + el.c_address, flags, el.c_depth, el.description)
         elif isinstance(el, tree.Repeat):
             if len(el.children) == 1 and isinstance(el.children[0], tree.Reg):
-                b.append_reg(el.children[0], el.name, offset + el.c_address, '', el.count, el.description)
+                b.append_reg(el.children[0], el_name, offset + el.c_address, '', el.count, el.description)
             else:
                 # TODO
-                b2 = EncoreBlock(el.name, b.encore)
+                b2 = EncoreBlock(el_name, b.encore)
                 process_body(b2, el, 0)
                 for i in range(0, el.count):
-                    b.instantiate("{}_{}".format(el.name, i), b2, offset + el.c_abs_addr + i * el.c_elsize)
+                    b.instantiate("{}_{}".format(el_name, i), b2, offset + el.c_abs_addr + i * el.c_elsize)
         elif isinstance(el, tree.Block):
-            process_body(b, el, offset)
+            include = el.get_extension('x_driver_edge', 'include', False)
+            if include:
+                sub_name_prefix = el_name_prefix if el.get_extension('x_driver_edge', 'block-prefix', True) else []
+                process_body(b, el, offset + el.c_address, sub_name_prefix)
+            else:
+                sub_block = EncoreBlock(el.name, b.encore)
+                b.append_block(sub_block, el_name, offset + el.c_address, el.description)
+                process_body(sub_block, el, 0)
         elif isinstance(el, tree.Submap):
             if el.filename is not None:
-                sub_block = EncoreBlock(el.c_submap.name, b.encore)
-                b.append_block(sub_block, el.name, offset + el.c_address, el.description)
-                process_body(sub_block, el.c_submap, 0)
+                include = el.get_extension('x_driver_edge', 'include', False)
+                if include:
+                    sub_name_prefix = el_name_prefix if el.get_extension('x_driver_edge', 'block-prefix', True) else []
+                    process_body(b, el.c_submap, offset + el.c_address, sub_name_prefix)
+                else:
+                    sub_block = EncoreBlock(el.c_submap.name, b.encore)
+                    b.append_block(sub_block, el_name, offset + el.c_address, el.description)
+                    process_body(sub_block, el.c_submap, 0)
             else:
                 pass
         else:
