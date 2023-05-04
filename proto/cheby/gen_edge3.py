@@ -3,6 +3,19 @@ import cheby.tree as tree
 access_map = {'rw': 'rw', 'ro': 'r', 'wo': 'w'}
 
 
+def get_extension(el, name, default=None, required=False):
+    """Get the `x-driver-edge` extension for an element"""
+    x = el.get_ext_node('x_driver_edge') or {}
+    for n in name.split('/'):
+        x = x.get(n)
+        if x is None:
+            if required:
+                raise AssertionError('x-driver-edge/{} is required'.format(name))
+            else:
+                return default
+    return x
+
+
 def clean_string(desc):
     """Clean a description string so that it is OK for a CSV field"""
     if not desc:
@@ -162,7 +175,7 @@ class EncoreBlock(object):
                                  offset, flags, depth, None, desc or reg.description))
         if reg.has_fields():
             for f in reg.children:
-                if not f.get_extension('x_driver_edge', 'generate', True):
+                if not get_extension(f, 'generate', True):
                     continue
                 if f.hi is None:
                     mask = 1
@@ -246,7 +259,7 @@ class Encore(object):
         for b in self.blocks:
             for r in filter(lambda x: type(x) == EdgeReg, b.regs):
                 for intc in filter(None, map(lambda x: x.get('interrupt-controller'),
-                                             r.reg.get_extension('x_driver_edge', 'interrupt-controllers', []))):
+                                             get_extension(r.reg, 'interrupt-controllers', []))):
                     intc_name = intc['name']
                     intc_type = intc['type']
 
@@ -268,10 +281,9 @@ class Encore(object):
                                       block_def_name=r.block_def_name, chained_intc_name=chained_name,
                                       chained_intc_mask=chained_mask, args=args, description=desc)
 
-                reg_role = r.reg.get_extension('x_driver_edge', 'reg-role')
-                if reg_role:
-                    role = reg_role['type']
-                    args = reg_role.get('args', {})
+                if get_extension(r.reg, 'reg-role'):
+                    role = get_extension(r.reg, 'reg-role/type', required=True)
+                    args = get_extension(r.reg, 'reg-role/args')
 
                     if role == 'IRQ_V' or role == 'IRQ_L':
                         args_str = ''
@@ -289,7 +301,7 @@ class Encore(object):
 
 def process_body(b, n, offset, name_prefix=[]):
     for el in n.children:
-        if not el.get_extension('x_driver_edge', 'generate', True):
+        if not get_extension(el, 'generate', True):
             continue
 
         el_name_prefix = name_prefix + [el.name]
@@ -302,7 +314,7 @@ def process_body(b, n, offset, name_prefix=[]):
 
         elif isinstance(el, tree.Memory):
             flags = ''
-            if el.get_extension('x_driver_edge', 'fifo', False):
+            if get_extension(el, 'fifo', False):
                 flags = 'FIFO'
             b.append_reg(el.children[0], el_name, el_addr, flags, el.c_depth, el.description)
 
