@@ -295,43 +295,51 @@ def process_body(b, n, offset, name_prefix=[]):
         el_name_prefix = name_prefix + [el.name]
         el_name = '_'.join(el_name_prefix)
 
+        el_addr = offset + el.c_address
+
         if isinstance(el, tree.Reg):
             b.append_reg(el, el_name, offset)
+
         elif isinstance(el, tree.Memory):
             flags = ''
             if el.get_extension('x_driver_edge', 'fifo', False):
                 flags = 'FIFO'
-            b.append_reg(el.children[0], el_name, offset + el.c_address, flags, el.c_depth, el.description)
+            b.append_reg(el.children[0], el_name, el_addr, flags, el.c_depth, el.description)
+
         elif isinstance(el, tree.Repeat):
             if len(el.children) == 1 and isinstance(el.children[0], tree.Reg):
-                b.append_reg(el.children[0], el_name, offset + el.c_address, '', el.count, el.description)
+                b.append_reg(el.children[0], el_name, el_addr, '', el.count, el.description)
             else:
                 # TODO
                 b2 = EncoreBlock(el_name, b.encore)
                 process_body(b2, el, 0)
                 for i in range(0, el.count):
                     b.instantiate("{}_{}".format(el_name, i), b2, offset + el.c_abs_addr + i * el.c_elsize)
-        elif isinstance(el, tree.Block):
-            include = el.get_extension('x_driver_edge', 'include', False)
+
+        elif isinstance(el, (tree.Block, tree.Submap)):
+            if isinstance(el, tree.Submap):
+                if el.filename is None:
+                    # TODO
+                    continue
+
+                name = el.c_submap.name
+                node = el.c_submap
+                include = el.include
+            else:
+                name = el.name
+                node = el
+                include = False
+
+            include = el.get_extension('x_driver_edge', 'include', include)
+            block_prefix = el.get_extension('x_driver_edge', 'block-prefix', True)
+
             if include:
-                sub_name_prefix = el_name_prefix if el.get_extension('x_driver_edge', 'block-prefix', True) else []
-                process_body(b, el, offset + el.c_address, sub_name_prefix)
+                process_body(b, node, el_addr, el_name_prefix if block_prefix else name_prefix)
             else:
-                sub_block = EncoreBlock(el.name, b.encore)
-                b.append_block(sub_block, el_name, offset + el.c_address, el.description)
-                process_body(sub_block, el, 0)
-        elif isinstance(el, tree.Submap):
-            if el.filename is not None:
-                include = el.get_extension('x_driver_edge', 'include', el.include)
-                if include:
-                    sub_name_prefix = el_name_prefix if el.get_extension('x_driver_edge', 'block-prefix', True) else []
-                    process_body(b, el.c_submap, offset + el.c_address, sub_name_prefix)
-                else:
-                    sub_block = EncoreBlock(el.c_submap.name, b.encore)
-                    b.append_block(sub_block, el_name, offset + el.c_address, el.description)
-                    process_body(sub_block, el.c_submap, 0)
-            else:
-                pass
+                b2 = EncoreBlock(name, b.encore)
+                b.append_block(b2, el_name, el_addr, el.description)
+                process_body(b2, node, 0)
+
         else:
             raise AssertionError("unhandled element {}".format(type(el)))
 
