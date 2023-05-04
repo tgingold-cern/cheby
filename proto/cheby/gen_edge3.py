@@ -322,7 +322,7 @@ def process_body(b, n, offset, name_prefix=[]):
                 process_body(sub_block, el, 0)
         elif isinstance(el, tree.Submap):
             if el.filename is not None:
-                include = el.get_extension('x_driver_edge', 'include', False)
+                include = el.get_extension('x_driver_edge', 'include', el.include)
                 if include:
                     sub_name_prefix = el_name_prefix if el.get_extension('x_driver_edge', 'block-prefix', True) else []
                     process_body(b, el.c_submap, offset + el.c_address, sub_name_prefix)
