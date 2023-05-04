@@ -27,6 +27,7 @@ def clean_string(desc):
 
 
 def clean_args(args, args_list, fmt_list):
+    """Clean a dict of args into a space separated key=value list"""
     if args is None:
         return ''
     args_cleaned = []
