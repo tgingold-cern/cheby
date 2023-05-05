@@ -147,16 +147,15 @@ class RolesTable(CsvTable):
 
 
 class EdgeReg(object):
-    def __init__(self, reg, block_def_name, name, offset, flags, depth, mask, desc):
-        assert isinstance(reg, tree.Reg)
+    def __init__(self, reg, block_def_name, name, offset, flags, size, depth, mask, desc):
         self.reg = reg
 
         self.block_def_name = block_def_name
         self.type = 'REG'
         self.name = name
-        self.offset = hex(reg.c_address + offset)
-        self.rwmode = access_map[reg.access]
-        self.dwidth = tree.BYTE_SIZE * reg.c_size
+        self.offset = hex(offset)
+        self.rwmode = access_map[getattr(reg, 'access', 'rw')]
+        self.dwidth = tree.BYTE_SIZE * size
         self.depth = hex(depth)
         self.mask = hex(mask) if mask is not None else ''
         self.flags = flags
@@ -184,20 +183,24 @@ class EncoreBlock(object):
             encore.blocks.append(self)
             encore.blocks_set.add(block_name)
 
-    def append_reg(self, reg, name, offset, flags='', depth=1, desc=None):
+    def append_reg(self, reg, name, offset, size, flags='', depth=1, desc=None):
         self.regs.append(EdgeReg(reg, self.block_name, name,
-                                 offset, flags, depth, None, desc or reg.description))
-        if reg.has_fields():
-            for f in reg.children:
-                if not get_extension(f, 'generate', True):
-                    continue
-                if f.hi is None:
-                    mask = 1
-                else:
-                    mask = (2 << (f.hi - f.lo)) - 1
-                mask = mask << f.lo
-                self.regs.append(EdgeReg(reg, self.block_name, "{}_{}".format(name, f.name),
-                                         offset, flags, depth, mask, f.description))
+                                 offset, flags, size, depth, None,
+                                 desc or reg.description))
+        try:
+            if reg.has_fields():
+                for f in reg.children:
+                    if not get_extension(f, 'generate', True):
+                        continue
+                    if f.hi is None:
+                        mask = 1
+                    else:
+                        mask = (2 << (f.hi - f.lo)) - 1
+                    mask = mask << f.lo
+                    self.regs.append(EdgeReg(reg, self.block_name, "{}_{}".format(name, f.name),
+                                             offset, flags, size, depth, mask, f.description))
+        except AttributeError:
+            pass
 
     def append_block(self, blk, name, offset, desc):
         self.regs.append(EdgeBlockInst(blk, self.block_name, name, offset, desc))
@@ -319,17 +322,19 @@ def process_body(b, n, offset, res_name, name_prefix=[]):
         el_addr = offset + el.c_address
 
         if isinstance(el, tree.Reg):
-            b.append_reg(el, el_name, offset)
+            b.append_reg(el, el_name, el_addr, el.c_size)
 
         elif isinstance(el, tree.Memory):
             flags = ''
             if get_extension(el, 'fifo', False):
                 flags = 'FIFO'
-            b.append_reg(el.children[0], el_name, el_addr, flags, el.c_depth, el.description)
+            r = el.children[0]
+            b.append_reg(r, el_name, el_addr, r.c_size, flags, el.c_depth, el.description)
 
         elif isinstance(el, tree.Repeat):
             if len(el.children) == 1 and isinstance(el.children[0], tree.Reg):
-                b.append_reg(el.children[0], el_name, el_addr, '', el.count, el.description)
+                r = el.children[0]
+                b.append_reg(r, el_name, el_addr, r.c_size, '', el.count, el.description)
             else:
                 # TODO
                 b2 = EncoreBlock(b.encore, el, el_name, res_name)
@@ -340,7 +345,7 @@ def process_body(b, n, offset, res_name, name_prefix=[]):
         elif isinstance(el, (tree.Block, tree.Submap)):
             if isinstance(el, tree.Submap):
                 if el.filename is None:
-                    # TODO
+                    b.append_reg(el, el_name, el_addr, el.c_word_size, '', el.c_size // el.c_word_size, el.description)
                     continue
 
                 name = el.c_submap.name

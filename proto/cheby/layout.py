@@ -390,6 +390,8 @@ def layout_submap(lo, n):
                 n, "use of 'align' is not allowed in a generic submap")
         n.c_size = n.size_val
         n.c_interface = n.interface
+        n.bus = n.interface
+        layout_bus(n)
     else:
         if n.size_val is not None:
             raise LayoutException(
