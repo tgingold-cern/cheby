@@ -147,14 +147,14 @@ class RolesTable(CsvTable):
 
 
 class EdgeReg(object):
-    def __init__(self, reg, block_def_name, name, offset, size, depth, mask, flags, desc):
+    def __init__(self, reg, block_def_name, name, offset, rwmode, size, depth, mask, flags, desc):
         self.reg = reg
 
         self.block_def_name = block_def_name
         self.type = 'REG'
         self.name = name
         self.offset = hex(offset)
-        self.rwmode = access_map[getattr(reg, 'access', 'rw')]
+        self.rwmode = access_map[rwmode]
         self.dwidth = tree.BYTE_SIZE * size
         self.depth = hex(depth)
         self.mask = hex(mask) if mask is not None else ''
@@ -183,9 +183,9 @@ class EncoreBlock(object):
             encore.blocks.append(self)
             encore.blocks_set.add(block_name)
 
-    def append_reg(self, reg, name, offset, size, depth=1, flags='', desc=None):
+    def append_reg(self, reg, name, offset, rwmode, size, depth=1, flags='', desc=None):
         self.regs.append(EdgeReg(reg, self.block_name, name,
-                                 offset, size, depth, None, flags,
+                                 offset, rwmode, size, depth, None, flags,
                                  desc or reg.description))
         try:
             if reg.has_fields():
@@ -198,7 +198,7 @@ class EncoreBlock(object):
                         mask = (2 << (f.hi - f.lo)) - 1
                     mask = mask << f.lo
                     self.regs.append(EdgeReg(reg, self.block_name, "{}_{}".format(name, f.name),
-                                             offset, size, depth, mask, flags, f.description))
+                                             offset, rwmode, size, depth, mask, flags, f.description))
         except AttributeError:
             pass
 
@@ -311,6 +311,28 @@ class Encore(object):
         roles_table.write_if_needed(fd)
 
 
+def required_access_mode(n):
+    """Calculate the minimum required access mode from all children
+      - all 'ro'  => 'ro'
+      - all 'wo'  => 'wo'
+      - otherwise => 'rw'
+    """
+    m = []
+    for el in n.children:
+        if isinstance(el, (tree.Block, tree.Memory)):
+            m.append(required_access_mode(el))
+        elif isinstance(el, tree.Submap):
+            m.append(required_access_mode(el.c_submap))
+        else:
+            m.append(el.access)
+    m = list(set(m))
+    if len(m) == 1:
+        return m[0]
+    else:
+        # Must be some combination which requires 'rw'
+        return 'rw'
+
+
 def process_body(b, n, offset, res_name, name_prefix=[]):
     for el in n.children:
         if not get_extension(el, 'generate', True):
@@ -322,19 +344,19 @@ def process_body(b, n, offset, res_name, name_prefix=[]):
         el_addr = offset + el.c_address
 
         if isinstance(el, tree.Reg):
-            b.append_reg(el, el_name, el_addr, el.c_size)
+            b.append_reg(el, el_name, el_addr, el.access, el.c_size)
 
         elif isinstance(el, tree.Memory):
             flags = ''
             if get_extension(el, 'fifo', False):
                 flags = 'FIFO'
             r = el.children[0]
-            b.append_reg(r, el_name, el_addr, r.c_size, el.c_depth, flags, el.description)
+            b.append_reg(r, el_name, el_addr, r.access, r.c_size, el.c_depth, flags, el.description)
 
         elif isinstance(el, tree.Repeat):
             if len(el.children) == 1 and isinstance(el.children[0], tree.Reg):
                 r = el.children[0]
-                b.append_reg(r, el_name, el_addr, r.c_size, el.count, '', el.description)
+                b.append_reg(r, el_name, el_addr, r.access, r.c_size, el.count, '', el.description)
             else:
                 # TODO
                 b2 = EncoreBlock(b.encore, el, el_name, res_name)
@@ -344,14 +366,22 @@ def process_body(b, n, offset, res_name, name_prefix=[]):
 
         elif isinstance(el, (tree.Block, tree.Submap)):
             if isinstance(el, tree.Submap):
-                if el.filename is None:
-                    b.append_reg(el, el_name, el_addr, el.c_word_size, el.c_size // el.c_word_size, '', el.description)
+                if el.filename is None or not get_extension(el, 'expand', True):
+                    word_size = el.c_word_size
+                    access = 'rw'
+                    b.append_reg(el, el_name, el_addr, access, word_size, el.c_size // word_size, '', el.description)
                     continue
 
                 name = el.c_submap.name
                 node = el.c_submap
                 include = el.include
             else:
+                if not get_extension(el, 'expand', True):
+                    word_size = b.encore.root.c_word_size
+                    access = required_access_mode(el)
+                    b.append_reg(el, el_name, el_addr, access, word_size, el.c_size // word_size, '', el.description)
+                    continue
+
                 name = el.name
                 node = el
                 include = False
