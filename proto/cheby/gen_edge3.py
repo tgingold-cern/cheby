@@ -147,7 +147,7 @@ class RolesTable(CsvTable):
 
 
 class EdgeReg(object):
-    def __init__(self, reg, block_def_name, name, offset, flags, size, depth, mask, desc):
+    def __init__(self, reg, block_def_name, name, offset, size, depth, mask, flags, desc):
         self.reg = reg
 
         self.block_def_name = block_def_name
@@ -183,9 +183,9 @@ class EncoreBlock(object):
             encore.blocks.append(self)
             encore.blocks_set.add(block_name)
 
-    def append_reg(self, reg, name, offset, size, flags='', depth=1, desc=None):
+    def append_reg(self, reg, name, offset, size, depth=1, flags='', desc=None):
         self.regs.append(EdgeReg(reg, self.block_name, name,
-                                 offset, flags, size, depth, None,
+                                 offset, size, depth, None, flags,
                                  desc or reg.description))
         try:
             if reg.has_fields():
@@ -198,7 +198,7 @@ class EncoreBlock(object):
                         mask = (2 << (f.hi - f.lo)) - 1
                     mask = mask << f.lo
                     self.regs.append(EdgeReg(reg, self.block_name, "{}_{}".format(name, f.name),
-                                             offset, flags, size, depth, mask, f.description))
+                                             offset, size, depth, mask, flags, f.description))
         except AttributeError:
             pass
 
@@ -329,12 +329,12 @@ def process_body(b, n, offset, res_name, name_prefix=[]):
             if get_extension(el, 'fifo', False):
                 flags = 'FIFO'
             r = el.children[0]
-            b.append_reg(r, el_name, el_addr, r.c_size, flags, el.c_depth, el.description)
+            b.append_reg(r, el_name, el_addr, r.c_size, el.c_depth, flags, el.description)
 
         elif isinstance(el, tree.Repeat):
             if len(el.children) == 1 and isinstance(el.children[0], tree.Reg):
                 r = el.children[0]
-                b.append_reg(r, el_name, el_addr, r.c_size, '', el.count, el.description)
+                b.append_reg(r, el_name, el_addr, r.c_size, el.count, '', el.description)
             else:
                 # TODO
                 b2 = EncoreBlock(b.encore, el, el_name, res_name)
@@ -345,7 +345,7 @@ def process_body(b, n, offset, res_name, name_prefix=[]):
         elif isinstance(el, (tree.Block, tree.Submap)):
             if isinstance(el, tree.Submap):
                 if el.filename is None:
-                    b.append_reg(el, el_name, el_addr, el.c_word_size, '', el.c_size // el.c_word_size, el.description)
+                    b.append_reg(el, el_name, el_addr, el.c_word_size, el.c_size // el.c_word_size, '', el.description)
                     continue
 
                 name = el.c_submap.name
