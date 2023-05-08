@@ -333,7 +333,7 @@ def required_access_mode(n):
         return 'rw'
 
 
-def process_body(b, n, offset, res_name, name_prefix=[]):
+def process_body(b, n, offset, res_name, name_prefix=[], block_prefix=[]):
     for el in n.children:
         if not get_extension(el, 'generate', True):
             continue
@@ -365,6 +365,8 @@ def process_body(b, n, offset, res_name, name_prefix=[]):
                     b.instantiate("{}_{}".format(el_name, i), b2, offset + el.c_abs_addr + i * el.c_elsize)
 
         elif isinstance(el, (tree.Block, tree.Submap)):
+            use_block_prefix = get_extension(el, 'block-prefix', True)
+
             if isinstance(el, tree.Submap):
                 if el.filename is None or not get_extension(el, 'expand', True):
                     word_size = el.c_word_size
@@ -372,6 +374,7 @@ def process_body(b, n, offset, res_name, name_prefix=[]):
                     b.append_reg(el, el_name, el_addr, access, word_size, el.c_size // word_size, '', el.description)
                     continue
 
+                prefix = []
                 name = el.c_submap.name
                 node = el.c_submap
                 include = el.include
@@ -382,19 +385,23 @@ def process_body(b, n, offset, res_name, name_prefix=[]):
                     b.append_reg(el, el_name, el_addr, access, word_size, el.c_size // word_size, '', el.description)
                     continue
 
-                name = el.name
+                if use_block_prefix:
+                    prefix = block_prefix + [n.name]
+                    name = '_'.join(prefix + [el.name])
+                else:
+                    prefix = []
+                    name = el.name
                 node = el
                 include = False
 
             include = get_extension(el, 'include', include)
-            block_prefix = get_extension(el, 'block-prefix', True)
 
             if include:
-                process_body(b, node, el_addr, res_name, el_name_prefix if block_prefix else name_prefix)
+                process_body(b, node, el_addr, res_name, el_name_prefix if use_block_prefix else name_prefix, prefix)
             else:
                 b2 = EncoreBlock(b.encore, el, name, res_name)
                 b.append_block(b2, el_name, el_addr, el.description)
-                process_body(b2, node, 0, res_name)
+                process_body(b2, node, 0, res_name, [], prefix)
 
         else:
             raise AssertionError("unhandled element {}".format(type(el)))
