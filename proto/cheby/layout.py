@@ -390,8 +390,6 @@ def layout_submap(lo, n):
                 n, "use of 'align' is not allowed in a generic submap")
         n.c_size = n.size_val
         n.c_interface = n.interface
-        n.bus = n.interface
-        layout_bus(n)
     else:
         if n.size_val is not None:
             raise LayoutException(
@@ -642,16 +640,17 @@ def layout_enums(root):
                         lit, "value is too large (needs a size of {})".format(lit_width))
 
 
-def layout_bus(root):
+def layout_bus(root, bus=None):
     """Extract size/align from a bus"""
+    bus = bus or root.bus
     root.c_align_reg = True
     root.c_buserr = False
-    if root.bus is None:    # default
+    if bus is None:    # default
         root.c_word_size = 4
         root.c_word_endian = 'big'
-    elif root.bus.startswith('wb-'):
-        width = root.bus[3:5]
-        endianess = root.bus[6:8]
+    elif bus.startswith('wb-'):
+        width = bus[3:5]
+        endianess = bus[6:8]
 
         if endianess == 'le':
             root.c_word_endian = 'little'
@@ -664,15 +663,15 @@ def layout_bus(root):
             root.c_word_size = 2
         else:
             raise LayoutException(
-                root, "unknown bus size '{}'".format(root.bus))
-    elif root.bus == 'axi4-lite-32':
+                root, "unknown bus size '{}'".format(bus))
+    elif bus == 'axi4-lite-32':
         root.c_word_size = 4
         root.c_word_endian = 'little'
-    elif root.bus == 'avalon-lite-32':
+    elif bus == 'avalon-lite-32':
         root.c_word_size = 4
         root.c_word_endian = 'little'
-    elif root.bus.startswith('cern-be-vme-'):
-        params = root.bus[12:].split('-')
+    elif bus.startswith('cern-be-vme-'):
+        params = bus[12:].split('-')
         root.c_word_endian = 'big'
         if params[0] == 'err':
             root.c_buserr = True
@@ -685,7 +684,7 @@ def layout_bus(root):
         else:
             root.c_bussplit = False
         if len(params) != 1:
-            raise LayoutException(root, "unknown bus '{}'".format(root.bus))
+            raise LayoutException(root, "unknown bus '{}'".format(bus))
         if params[0] == '32':
             root.c_word_size = 4
         elif params[0] == '16':
@@ -694,10 +693,10 @@ def layout_bus(root):
             root.c_word_size = 1
         else:
             raise LayoutException(
-                root, "unknown bus size '{}'".format(root.bus))
+                root, "unknown bus size '{}'".format(bus))
         root.c_align_reg = False
     else:
-        raise LayoutException(root, "unknown bus '{}'".format(root.bus))
+        raise LayoutException(root, "unknown bus '{}'".format(bus))
 
     # word endianness override.
     if root.word_endian is not None:
