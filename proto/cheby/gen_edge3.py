@@ -333,7 +333,7 @@ def required_access_mode(n):
         return 'rw'
 
 
-def process_body(b, n, offset, res_name, name_prefix=[], block_prefix=[]):
+def process_body(b, n, offset, res_name, name_prefix=[], block_prefix=[], top=False):
     for el in n.children:
         if not get_extension(el, 'generate', True):
             continue
@@ -385,7 +385,7 @@ def process_body(b, n, offset, res_name, name_prefix=[], block_prefix=[]):
                     b.append_reg(el, el_name, el_addr, access, word_size, el.c_size // word_size, '', el.description)
                     continue
 
-                if use_block_prefix:
+                if use_block_prefix and not top:
                     prefix = block_prefix + [n.name]
                     name = '_'.join(prefix + [el.name])
                 else:
@@ -497,7 +497,7 @@ def generate_edge3(fd, root):
         rsrc_table.append(res_def_name=el.name, type='MEM', res_no=num,
                           args=args_str, description=el.description)
 
-        process_body(e.top, el, 0, el.name)
+        process_body(e.top, el, 0, el.name, top=True)
 
     rsrc_table.write(fd)
 
