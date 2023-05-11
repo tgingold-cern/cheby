@@ -372,7 +372,7 @@ def vme_addr_space(bus):
             return 'A24'
         else:
             return 'A32'
-    elif bus == 'wb-16-be':
+    elif bus.startswith('wb-16'):
         return 'A16'
     else:
         return 'A32'
