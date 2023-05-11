@@ -329,6 +329,8 @@ def parse_address_space(parent, el):
     for k, v in el.items():
         if parse_composite(res, k, v):
             pass
+        elif k == 'size':
+            res.size_str, res.size_val = read_size(res, k, v)
         else:
             error("unhandled '{}' in address-spaces:address-space".format(k))
     if not isinstance(parent, tree.Root):
