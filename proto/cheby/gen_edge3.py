@@ -147,16 +147,15 @@ class RolesTable(CsvTable):
 
 
 class EdgeReg(object):
-    def __init__(self, reg, block_def_name, name, offset, flags, depth, mask, desc):
-        assert isinstance(reg, tree.Reg)
+    def __init__(self, reg, block_def_name, name, offset, rwmode, size, depth, mask, flags, desc):
         self.reg = reg
 
         self.block_def_name = block_def_name
         self.type = 'REG'
         self.name = name
-        self.offset = hex(reg.c_address + offset)
-        self.rwmode = access_map[reg.access]
-        self.dwidth = tree.BYTE_SIZE * reg.c_size
+        self.offset = hex(offset)
+        self.rwmode = access_map[rwmode]
+        self.dwidth = tree.BYTE_SIZE * size
         self.depth = hex(depth)
         self.mask = hex(mask) if mask is not None else ''
         self.flags = flags
@@ -184,20 +183,24 @@ class EncoreBlock(object):
             encore.blocks.append(self)
             encore.blocks_set.add(block_name)
 
-    def append_reg(self, reg, name, offset, flags='', depth=1, desc=None):
+    def append_reg(self, reg, name, offset, rwmode, size, depth=1, flags='', desc=None):
         self.regs.append(EdgeReg(reg, self.block_name, name,
-                                 offset, flags, depth, None, desc or reg.description))
-        if reg.has_fields():
-            for f in reg.children:
-                if not get_extension(f, 'generate', True):
-                    continue
-                if f.hi is None:
-                    mask = 1
-                else:
-                    mask = (2 << (f.hi - f.lo)) - 1
-                mask = mask << f.lo
-                self.regs.append(EdgeReg(reg, self.block_name, "{}_{}".format(name, f.name),
-                                         offset, flags, depth, mask, f.description))
+                                 offset, rwmode, size, depth, None, flags,
+                                 desc or reg.description))
+        try:
+            if reg.has_fields():
+                for f in reg.children:
+                    if not get_extension(f, 'generate', True):
+                        continue
+                    if f.hi is None:
+                        mask = 1
+                    else:
+                        mask = (2 << (f.hi - f.lo)) - 1
+                    mask = mask << f.lo
+                    self.regs.append(EdgeReg(reg, self.block_name, "{}_{}".format(name, f.name),
+                                             offset, rwmode, size, depth, mask, flags, f.description))
+        except AttributeError:
+            pass
 
     def append_block(self, blk, name, offset, desc):
         self.regs.append(EdgeBlockInst(blk, self.block_name, name, offset, desc))
@@ -308,7 +311,29 @@ class Encore(object):
         roles_table.write_if_needed(fd)
 
 
-def process_body(b, n, offset, res_name, name_prefix=[]):
+def required_access_mode(n):
+    """Calculate the minimum required access mode from all children
+      - all 'ro'  => 'ro'
+      - all 'wo'  => 'wo'
+      - otherwise => 'rw'
+    """
+    m = []
+    for el in n.children:
+        if isinstance(el, (tree.Block, tree.Memory)):
+            m.append(required_access_mode(el))
+        elif isinstance(el, tree.Submap):
+            m.append(required_access_mode(el.c_submap))
+        else:
+            m.append(el.access)
+    m = list(set(m))
+    if len(m) == 1:
+        return m[0]
+    else:
+        # Must be some combination which requires 'rw'
+        return 'rw'
+
+
+def process_body(b, n, offset, res_name, name_prefix=[], block_prefix=[], top=False):
     for el in n.children:
         if not get_extension(el, 'generate', True):
             continue
@@ -319,17 +344,19 @@ def process_body(b, n, offset, res_name, name_prefix=[]):
         el_addr = offset + el.c_address
 
         if isinstance(el, tree.Reg):
-            b.append_reg(el, el_name, offset)
+            b.append_reg(el, el_name, el_addr, el.access, el.c_size)
 
         elif isinstance(el, tree.Memory):
             flags = ''
             if get_extension(el, 'fifo', False):
                 flags = 'FIFO'
-            b.append_reg(el.children[0], el_name, el_addr, flags, el.c_depth, el.description)
+            r = el.children[0]
+            b.append_reg(r, el_name, el_addr, r.access, r.c_size, el.c_depth, flags, el.description)
 
         elif isinstance(el, tree.Repeat):
             if len(el.children) == 1 and isinstance(el.children[0], tree.Reg):
-                b.append_reg(el.children[0], el_name, el_addr, '', el.count, el.description)
+                r = el.children[0]
+                b.append_reg(r, el_name, el_addr, r.access, r.c_size, el.count, '', el.description)
             else:
                 # TODO
                 b2 = EncoreBlock(b.encore, el, el_name, res_name)
@@ -338,28 +365,43 @@ def process_body(b, n, offset, res_name, name_prefix=[]):
                     b.instantiate("{}_{}".format(el_name, i), b2, offset + el.c_abs_addr + i * el.c_elsize)
 
         elif isinstance(el, (tree.Block, tree.Submap)):
+            use_block_prefix = get_extension(el, 'block-prefix', True)
+
             if isinstance(el, tree.Submap):
-                if el.filename is None:
-                    # TODO
+                if el.filename is None or not get_extension(el, 'expand', True):
+                    word_size = getattr(el, 'c_word_size', b.encore.root.c_word_size)
+                    access = 'rw'
+                    b.append_reg(el, el_name, el_addr, access, word_size, el.c_size // word_size, '', el.description)
                     continue
 
+                prefix = []
                 name = el.c_submap.name
                 node = el.c_submap
                 include = el.include
             else:
-                name = el.name
+                if not get_extension(el, 'expand', True):
+                    word_size = b.encore.root.c_word_size
+                    access = required_access_mode(el)
+                    b.append_reg(el, el_name, el_addr, access, word_size, el.c_size // word_size, '', el.description)
+                    continue
+
+                if use_block_prefix and not top:
+                    prefix = block_prefix + [n.name]
+                    name = '_'.join(prefix + [el.name])
+                else:
+                    prefix = []
+                    name = el.name
                 node = el
                 include = False
 
             include = get_extension(el, 'include', include)
-            block_prefix = get_extension(el, 'block-prefix', True)
 
             if include:
-                process_body(b, node, el_addr, res_name, el_name_prefix if block_prefix else name_prefix)
+                process_body(b, node, el_addr, res_name, el_name_prefix if use_block_prefix else name_prefix, prefix)
             else:
                 b2 = EncoreBlock(b.encore, el, name, res_name)
                 b.append_block(b2, el_name, el_addr, el.description)
-                process_body(b2, node, 0, res_name)
+                process_body(b2, node, 0, res_name, [], prefix)
 
         else:
             raise AssertionError("unhandled element {}".format(type(el)))
@@ -455,7 +497,7 @@ def generate_edge3(fd, root):
         rsrc_table.append(res_def_name=el.name, type='MEM', res_no=num,
                           args=args_str, description=el.description)
 
-        process_body(e.top, el, 0, el.name)
+        process_body(e.top, el, 0, el.name, top=True)
 
     rsrc_table.write(fd)
 
