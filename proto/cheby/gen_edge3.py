@@ -1,5 +1,4 @@
 import cheby.tree as tree
-import cheby.layout as layout
 
 access_map = {'rw': 'rw', 'ro': 'r', 'wo': 'w'}
 endian_map = {'little': 'LE', 'big': 'BE'}
@@ -370,11 +369,7 @@ def process_body(b, n, offset, res_name, name_prefix=[], block_prefix=[], top=Fa
 
             if isinstance(el, tree.Submap):
                 if el.filename is None or not get_extension(el, 'expand', True):
-                    if el.interface == 'sram':
-                        word_size = b.encore.root.c_word_size
-                    else:
-                        layout.layout_bus(el, bus.interface)
-                        word_size = el.c_word_size
+                    word_size = getattr(el, 'c_word_size', b.encore.root.c_word_size)
                     access = 'rw'
                     b.append_reg(el, el_name, el_addr, access, word_size, el.c_size // word_size, '', el.description)
                     continue

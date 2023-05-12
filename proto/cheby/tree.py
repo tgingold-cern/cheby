@@ -144,7 +144,6 @@ class Submap(CompositeNode):
         self.interface = None
         self.include = None
         self.address_space = None
-        self.word_endian = None
         # Computed variables
         self.c_submap = None
 
