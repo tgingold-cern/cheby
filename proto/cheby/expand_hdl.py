@@ -129,6 +129,7 @@ def expand_pipeline(n, v):
             'out': ['rd-out', 'wr-out'],
             'rd': ['rd-in', 'rd-out'],
             'wr': ['wr-in', 'wr-out'],
+            'all': ['wr-in', 'wr-out', 'rd-in', 'rd-out'], 
             'rd-in': ['rd-in'],
             'rd-out': ['rd-out'],
             'wr-in': ['wr-in'],

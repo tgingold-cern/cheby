@@ -170,7 +170,7 @@ build_avalon
 
 # Test buses with various pipelining.
 for pl in "none" "rd" "wr" "in" "out" "rd-in" "rd-out" "wr-in" "wr-out" \
-          "wr-in,rd-out" "rd-in,wr-out" "in,out"
+          "wr-in,rd-out" "rd-in,wr-out" "in,out" "all"
 do
     echo "### Testing pipeline $pl"
     sed -e "s/PIPELINE/$pl/" < all1_xxx.cheby > all1_BUS.cheby
