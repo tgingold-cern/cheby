@@ -5,7 +5,7 @@ import time
 import argparse
 import getpass
 import cheby.parser
-import cheby.pprint as pprint
+import cheby.print_pretty as pprint
 import cheby.sprint as sprint
 import cheby.gen_c as gen_c
 import cheby.gen_laychk as gen_laychk

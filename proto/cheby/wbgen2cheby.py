@@ -8,7 +8,7 @@ import cheby.wbgen.field_layout
 import cheby.wbgen.layout
 import cheby.wbgen.expand_reg
 import cheby.wbgen.gen_cheby
-import cheby.pprint
+import cheby.print_pretty
 
 
 def convert(stream, filename):
@@ -21,7 +21,7 @@ def convert(stream, filename):
     cheby.wbgen.expand_reg.expand(t)
     cheby.wbgen.layout.layout(t)
     r = cheby.wbgen.gen_cheby.gen_root(t)
-    cheby.pprint.pprint_cheby(stream, r)
+    cheby.print_pretty.pprint_cheby(stream, r)
 
 
 def main():

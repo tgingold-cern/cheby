@@ -5,7 +5,7 @@ import os
 import subprocess
 import cheby.parser as parser
 import cheby.layout as layout
-import cheby.pprint as pprint
+import cheby.print_pretty as pprint
 import cheby.sprint as sprint
 import cheby.gen_c as gen_c
 import cheby.gen_name as gen_name

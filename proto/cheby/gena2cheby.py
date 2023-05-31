@@ -7,7 +7,7 @@ from pathlib import Path
 import argparse
 from xml.etree import ElementTree as ET
 import cheby.tree
-import cheby.pprint
+import cheby.print_pretty
 import cheby.layout as layout
 from cheby.schemas_version import VERSIONS
 
@@ -977,9 +977,9 @@ def process_file(filename):
         if flag_out_file:
             new_filename = os.path.splitext(filename)[0] + '.cheby'
             with open(new_filename, 'w') as f:
-                cheby.pprint.pprint_cheby(f, res)
+                cheby.print_pretty.pprint_cheby(f, res)
         else:
-            cheby.pprint.pprint_cheby(sys.stdout, res)
+            cheby.print_pretty.pprint_cheby(sys.stdout, res)
 
 
 def main():
