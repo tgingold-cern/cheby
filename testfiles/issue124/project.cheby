@@ -1,0 +1,26 @@
+memory-map:
+    name: "Project"
+    comment: "Project Comment"
+    description: "Project Description"
+    bus: avalon-lite-32
+    size: 0x1000000
+    x-driver-edge:
+        driver-version: 3.0.1
+        schema-version: 3.0
+        bus-type: VME
+    children:
+    - address-space:
+        name: BAR0
+        x-driver-edge:
+          number: 0
+          addr-mode: A32
+          data-width: 32
+          dma-mode: BLT|MBLT
+        children:
+        - submap:
+            name: "moduleA_instance1"
+            comment: "moduleA instance1 Comment"
+            description: "moduleA instance1 Description"
+            address: 0x0
+            include: False
+            filename: moduleA.cheby

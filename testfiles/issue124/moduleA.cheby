@@ -1,0 +1,24 @@
+memory-map:
+    name: "moduleA_mmap_name"
+    comment: "moduleA Comment"
+    description: "moduleA Description"
+    bus: avalon-lite-32
+    children:
+    - reg:
+        name: "Reg1"
+        comment: "Reg1 Comment"
+        description: "Reg1 Description"
+        address: 0x0
+        width: 32
+        access: ro
+        type: unsigned
+        preset: 0
+    - reg:
+        name: "Reg2"
+        comment: "Reg2 Comment"
+        description: "Reg2 Description"
+        address: 0x10
+        width: 32
+        access: ro
+        type: unsigned
+        preset: 0

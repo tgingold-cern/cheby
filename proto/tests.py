@@ -187,7 +187,7 @@ def test_print():
     fd = write_null()
     for f in ['demo', 'features/reg_value1', 'features/reg_value2',
               'features/reg_value3', 'demo_all', 'features/semver1',
-              'issue55/modulation']:
+              'issue55/modulation', 'issue124/project']:
         f += '.cheby'
         t = parse_ok(srcdir + f)
         layout_ok(t)
