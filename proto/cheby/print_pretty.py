@@ -82,6 +82,8 @@ def pprint_extension(pp, name, n):
         pp.pp_bool(name, n)
     elif isinstance(n, int):
         pp.pp_int(name, n)
+    elif isinstance(n, float):
+        pp.pp_str(name, str(n))
     elif n is None:
         pass
     else:
@@ -243,6 +245,14 @@ def pprint_enums(pp, n):
         pp.pp_endlist()
         pp.pp_endobj()
     pp.pp_endlist()
+
+
+@PrettyPrinter.register(tree.AddressSpace)
+def pprint_address_space(pp, n):
+    pp.pp_obj('address-space')
+    pprint_composite_head(pp, n)
+    pprint_composite_tail(pp, n)
+    pp.pp_endobj()
 
 
 @PrettyPrinter.register(tree.Root)

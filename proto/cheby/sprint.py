@@ -127,11 +127,16 @@ def sprint_address_space(sp, n):
 
 @SimplePrinter.register(tree.Root)
 def sprint_root(sp, n):
-    sp.sp_name('root', n)
-    if sp.with_info:
-        sp.sp_info('[word_bits: {}, addr_word_bits: {}, addr_bits: {}]'.format(
-            n.c_word_bits, n.c_addr_word_bits, n.c_addr_bits))
-    sprint_composite(sp, n)
+    if n.c_address_spaces_map is None:
+        sp.sp_name('root', n)
+        if sp.with_info:
+            sp.sp_info('[word_bits: {}, addr_word_bits: {}, addr_bits: {}]'.format(
+                n.c_word_bits, n.c_addr_word_bits, n.c_addr_bits))
+        sprint_composite(sp, n)
+    else:
+        for el in n.children:
+            sp.visit(el)
+
 
 
 def sprint_cheby(fd, root, with_fields=True, with_verbose=False):
