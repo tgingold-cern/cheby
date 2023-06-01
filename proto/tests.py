@@ -62,8 +62,8 @@ class write_buffer(object):
     def __init__(self):
         self.buffer = ''
 
-    def write(self, str):
-        self.buffer += str
+    def write(self, s):
+        self.buffer += s
 
     def get(self):
         return self.buffer
@@ -232,7 +232,6 @@ def compare_buffer_and_file(buf, filename):
 
 def test_genc_ref():
     global nbr_tests
-    fd = write_null()
     for f in ['issue103/top']:
         h_file = srcdir + f + '.h'
         cheby_file = srcdir + f + '.cheby'
