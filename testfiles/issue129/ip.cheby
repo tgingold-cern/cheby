@@ -1,0 +1,54 @@
+memory-map:
+  name: acdipole-ip
+  bus: axi4-lite-32
+  children:
+    - reg:
+        name: revision
+        width: 32
+        access: ro
+        address: 0x0
+    - reg:
+        name: control
+        width: 32
+        access: rw
+        address: next
+    - reg:
+        name: test
+        width: 32
+        access: ro
+        address: next
+    - reg:
+        name: temperature
+        width: 32
+        access: ro
+        address: next
+    - reg:
+        name: temp_warning
+        comment: clear warning on read
+        width: 32
+        access: rw
+        address: next
+    - reg:
+        name: temp_failure
+        comment: clear warning on read
+        width: 32
+        access: rw
+        address: next
+    - reg:
+        name: ram_acq_addr
+        description: Acquisition RAM address
+        width: 32
+        access: rw
+        address: next
+    - reg:
+        name: ram_acq_data
+        description: Acquisition RAM data
+        width: 32
+        access: ro
+        address: next
+    - reg:
+        name: pll_control
+        description: PLL clock control, obsolete
+        width: 32
+        access: rw
+        address: next

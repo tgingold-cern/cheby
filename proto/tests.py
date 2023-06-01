@@ -273,7 +273,7 @@ def test_hdl():
               'issue60/busgroup-filename', 'issue60/busgroup-include',
               'issue60/busgroup-interface', 'issue82/m1',
               'issue95/m1', 'issue95/m2', 'issue95/m3', 'issue95/sm1', 'issue95/sm3',
-              'features/avalon-noaddr', 'issue129/acdipole_ip']:
+              'features/avalon-noaddr', 'issue129/acdipole_ip', 'issue129/acdipole_ip-orig']:
         if verbose:
             print('test hdl: {}'.format(f))
         t = parse_ok(srcdir + f + '.cheby')
