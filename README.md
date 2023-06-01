@@ -44,6 +44,8 @@ Add documented 'all' value for pipeline (issue#127)
 
 Handle address-space in --pretty-print and --print-simple (issue#124)
 
+Add support for any construct in an address-space (issue#129)
+
 ## Version 1.5
 
 Fix a crash when address lines are not used by cernbus (issue#95)
