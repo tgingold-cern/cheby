@@ -273,15 +273,20 @@ def test_hdl():
               'issue60/busgroup-filename', 'issue60/busgroup-include',
               'issue60/busgroup-interface', 'issue82/m1',
               'issue95/m1', 'issue95/m2', 'issue95/m3', 'issue95/sm1', 'issue95/sm3',
-              'features/avalon-noaddr']:
+              'features/avalon-noaddr', 'issue129/acdipole_ip']:
         if verbose:
             print('test hdl: {}'.format(f))
         t = parse_ok(srcdir + f + '.cheby')
         layout_ok(t)
         expand_hdl.expand_hdl(t)
         gen_name.gen_name_memmap(t)
-        h = gen_hdl.generate_hdl(t)
-        print_vhdl.print_vhdl(fd, h)
+        if t.c_address_spaces_map is None:
+            h = gen_hdl.generate_hdl(t)
+            print_vhdl.print_vhdl(fd, h)
+        else:
+            for sp in t.children:
+                h = gen_hdl.generate_hdl(sp)
+                print_vhdl.print_vhdl(fd, h)
         nbr_tests += 1
 
 

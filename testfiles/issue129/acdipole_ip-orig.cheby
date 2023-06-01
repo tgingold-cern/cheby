@@ -1,0 +1,39 @@
+memory-map:
+  name: acdipole
+  bus: axi4-lite-32
+  x-hdl:
+    pipeline: wr
+  x-driver-edge:
+    driver-version: 0.1.0
+    schema-version: 0.1.0
+    bus-type: PCI
+    endianness: big
+    pci-device-info:
+      vendor-id: 0x10DC
+      devide-id: 0xbeef
+  children:
+    - address-space:
+        name: bar0
+        description: AXI4-Lite acdipole IP
+        x-driver-edge:
+          number: 0
+          addr-mode: A32
+          data-width: 32
+        children:
+          - submap:
+              name: ip
+              address: 0x0
+              include: True
+              filename: ip.cheby
+    - address-space:
+        name: bar1
+        description: DDR for ADC, DAC
+        children:
+          - memory:
+              name: DDR
+              memsize: 4k
+              children:
+                - reg:
+                    name: data
+                    width: 32
+                    access: rw
