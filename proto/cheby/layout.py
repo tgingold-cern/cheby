@@ -640,16 +640,25 @@ def layout_enums(root):
                         lit, "value is too large (needs a size of {})".format(lit_width))
 
 
-def layout_bus(root):
-    """Extract size/align from a bus"""
+def layout_bus(root, name):
+    """Extract size/align from a bus, set:
+       * c_word_size
+       * c_word_endian
+       * c_align_reg
+       * c_bussplit
+       * c_buserr
+       And deduce:
+       * c_addr_word_bits
+       * c_word_bits"""
     root.c_align_reg = True
     root.c_buserr = False
-    if root.bus is None:    # default
+    root.c_bussplit = False
+    if name is None:    # default
         root.c_word_size = 4
         root.c_word_endian = 'big'
-    elif root.bus.startswith('wb-'):
-        width = root.bus[3:5]
-        endianess = root.bus[6:8]
+    elif name.startswith('wb-'):
+        width = name[3:5]
+        endianess = name[6:8]
 
         if endianess == 'le':
             root.c_word_endian = 'little'
@@ -663,14 +672,14 @@ def layout_bus(root):
         else:
             raise LayoutException(
                 root, "unknown bus size '{}'".format(root.bus))
-    elif root.bus == 'axi4-lite-32':
+    elif name == 'axi4-lite-32':
         root.c_word_size = 4
         root.c_word_endian = 'little'
-    elif root.bus == 'avalon-lite-32':
+    elif name == 'avalon-lite-32':
         root.c_word_size = 4
         root.c_word_endian = 'little'
-    elif root.bus.startswith('cern-be-vme-'):
-        params = root.bus[12:].split('-')
+    elif name.startswith('cern-be-vme-'):
+        params = name[12:].split('-')
         root.c_word_endian = 'big'
         if params[0] == 'err':
             root.c_buserr = True
@@ -683,7 +692,7 @@ def layout_bus(root):
         else:
             root.c_bussplit = False
         if len(params) != 1:
-            raise LayoutException(root, "unknown bus '{}'".format(root.bus))
+            raise LayoutException(root, "unknown bus '{}'".format(name))
         if params[0] == '32':
             root.c_word_size = 4
         elif params[0] == '16':
@@ -692,10 +701,10 @@ def layout_bus(root):
             root.c_word_size = 1
         else:
             raise LayoutException(
-                root, "unknown bus size '{}'".format(root.bus))
+                root, "unknown bus size '{}'".format(name))
         root.c_align_reg = False
     else:
-        raise LayoutException(root, "unknown bus '{}'".format(root.bus))
+        raise LayoutException(root, "unknown bus '{}'".format(name))
 
     # word endianness override.
     if root.word_endian is not None:
@@ -713,9 +722,19 @@ def layout_bus(root):
     root.c_word_bits = root.c_word_size * tree.BYTE_SIZE
 
 
+def copy_bus(dst, src):
+    dst.c_word_size = src.c_word_size
+    dst.c_word_endian = src.c_word_endian
+    dst.c_align_reg = src.c_align_reg
+    dst.c_bussplit = src.c_bussplit
+    dst.c_buserr = src.c_buserr
+    dst.c_addr_word_bits = src.c_addr_word_bits
+    dst.c_word_bits = src.c_word_bits
+
+
 def layout_memmap_root(root):
     """Layout a memmap or a submap but not its children"""
-    layout_bus(root)
+    layout_bus(root, root.bus)
 
     # version
     root.c_version = layout_semantic_version(root, root.version)
@@ -755,19 +774,21 @@ def set_abs_address(n, base_addr):
         raise AssertionError
 
 
-def layout_cheby(n):
+def layout_cheby(root):
     """Layout the root memmap"""
-    if any([isinstance(c, tree.AddressSpace) for c in n.children]):
-        n.c_address_spaces_map = {s.name: s for s in n.children}
-        layout_memmap_root(n)
-        for space in n.children:
+    if any([isinstance(c, tree.AddressSpace) for c in root.children]):
+        root.c_address_spaces_map = {s.name: s for s in root.children}
+        layout_memmap_root(root)
+        for space in root.children:
             if not isinstance(space, tree.AddressSpace):
                 raise LayoutException(space, "either all root children must be address-space or none")
-            lo = Layout(n)
+            # By default use main bus
+            copy_bus(space, root)
+            lo = Layout(root)
             lo.visit(space)
             set_abs_address(space, 0)
     else:
         # No address space, use a default one
-        n.c_address_spaces_map = None
-        layout_cheby_memmap(n)
-        set_abs_address(n, 0)
+        root.c_address_spaces_map = None
+        layout_cheby_memmap(root)
+        set_abs_address(root, 0)
