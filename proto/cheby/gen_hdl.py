@@ -14,7 +14,7 @@
    The _i/_o suffixes are also used for ports, so the ports of the bus can
    also have conflicts with user names.
 """
-from cheby.hdltree import (HDLModule, HDLInterface,
+from cheby.hdltree import (HDLModule,
                            HDLAssign, HDLComb, HDLComment, HDLConstant,
                            HDLSwitch, HDLChoiceExpr, HDLChoiceDefault,
                            bit_x,
