@@ -343,6 +343,7 @@ def handle_file(args, filename):
                 if args.header != 'none':
                     gen_comment_header(f, args)
                     if t.version is not None:
+                        c = {'vhdl': '--', 'verilog': '//'}[args.hdl]
                         f.write("{c}\n{c} Version: {ver}\n".format(c=c, ver=t.version))
                     f.write("\n")
                 print_hdl(f, args.hdl, h)
