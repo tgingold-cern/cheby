@@ -1,3 +1,5 @@
+"""Generate HDL for block nodes"""
+
 from cheby.hdl.elgen import ElGen
 from cheby.hdl.genreg import GenReg
 from cheby.hdl.geninterface import GenInterface
@@ -48,7 +50,8 @@ class GenBlock(ElGen):
             else:
                 self.root.h_itf = HDLInterface('t_' + self.n.hdl_iogroup)
                 self.module.global_decls.append(self.root.h_itf)
-                self.root.h_ports = self.module.add_modport(self.n.hdl_iogroup, self.root.h_itf, True)
+                self.root.h_ports = self.module.add_modport(
+                    self.n.hdl_iogroup, self.root.h_itf, True)
                 if isinstance(self.n, tree.Root):
                     self.root.h_ports.comment = "Wires and registers"
 
@@ -103,5 +106,3 @@ class GenRepeatBlock(GenBlock):
         else:
             for n in self.n.children:
                 n.h_gen.gen_ports()
-
-
