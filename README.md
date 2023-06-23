@@ -46,6 +46,8 @@ Handle address-space in --pretty-print and --print-simple (issue#124)
 
 Add support for any construct in an address-space (issue#129)
 
+Output comments for 'repeat' when iogroup is true (issue#130)
+
 ## Version 1.5
 
 Fix a crash when address lines are not used by cernbus (issue#95)
