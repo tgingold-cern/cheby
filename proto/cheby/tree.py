@@ -133,6 +133,10 @@ class RepeatBlock(Block):
     _dispatcher = {}
     NAME = "RepeatBlock"
 
+    def __init__(self, parent, origin):
+        super(RepeatBlock, self).__init__(parent)
+        self.origin = origin
+
 
 class Submap(CompositeNode):
     _dispatcher = {}
@@ -215,12 +219,10 @@ class FieldBase(NamedNode):
 
 class Field(FieldBase):
     "A field within a register."
-    pass
 
 
 class FieldReg(FieldBase):
     "A pseudo field for a register without fields."
-    pass
 
 
 class EnumVal(NamedNode):
@@ -238,14 +240,12 @@ class EnumDecl(CompositeNode):
 
 
 class AddressSpace(CompositeNode):
-    def __init__(self, parent):
-        super(AddressSpace, self).__init__(parent)
-        # Children are nodes
+    # Children are nodes
+    pass
 
 class AddressSpaces(CompositeNode):
-    def __init__(self, parent):
-        super(AddressSpaces, self).__init__(parent)
-        # children are AddressSpace
+    # children are AddressSpace
+    pass
 
 
 class Visitor(object):
