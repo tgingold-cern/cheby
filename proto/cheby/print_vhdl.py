@@ -153,6 +153,7 @@ def generate_signal(fd, s, indent):
         typ = generate_vhdl_type(s)
     else:
         typ = "std_logic"
+    generate_decl_comment(fd, s.comment, indent)
     windent(fd, indent)
     wln(fd, "signal {:<30} : {typ};".format(s.name, typ=typ))
 
