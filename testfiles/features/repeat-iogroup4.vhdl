@@ -45,7 +45,7 @@ entity repeat_iogroup4 is
     wb_stall_o           : out   std_logic;
     wb_dat_o             : out   std_logic_vector(31 downto 0);
 
-    -- REPEAT arr1
+    -- the array of registers
     itf_i                : in    t_itf_master_in_array(0 downto 0);
     itf_o                : out   t_itf_master_out_array(0 downto 0)
   );
