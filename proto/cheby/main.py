@@ -234,8 +234,9 @@ def handle_file(args, filename):
 
     # Decode x-hdl, unroll
     expand_hdl.expand_hdl(t)
-    # Regenerate names after unrolling.
+    # Regenerate names and sorted children after unrolling.
     gen_name.gen_name_memmap(t)
+    layout.sort_tree(t)
 
     if args.print_simple_expanded is not None:
         with open_filename(args.print_simple_expanded) as f:

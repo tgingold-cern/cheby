@@ -516,6 +516,10 @@ def build_sorted_children(n):
     """Create c_sorted_children (list of children sorted by address)"""
     n.c_sorted_children = sorted(n.children, key=(lambda x: x.c_address))
 
+def build_sorted_children_noneable(n):
+    """Create c_sorted_children (list of children sorted by address), tolerate None as c_address"""
+    n.c_sorted_children = sorted(n.children, key=(lambda x: x.c_address if x.c_address is not None else 0))    
+
 def build_sorted_fields(n):
     n.c_sorted_fields = sorted(n.children, key=(lambda x: x.lo))
 
@@ -792,3 +796,12 @@ def layout_cheby(root):
         root.c_address_spaces_map = None
         layout_cheby_memmap(root)
         set_abs_address(root, 0)
+
+def sort_tree(n):
+    """Recursively sort the descendants of this node and create c_sorted_children fields"""
+    if not hasattr(n, 'children'):
+        return
+
+    build_sorted_children_noneable(n)
+    for child in n.c_sorted_children:
+        sort_tree(child)

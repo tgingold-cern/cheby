@@ -1,0 +1,321 @@
+== Memory map summary
+(no description)
+
+|===
+|HW address | Type | Name | HDL name
+
+|0x00-0x1f
+|BLOCK
+|repA
+|repA
+
+|0x00-0x07
+|BLOCK
+|repA.0
+|repA_0
+
+|0x00-0x07
+|BLOCK
+|repA.0.block1
+|repA_0_block1
+
+|0x00-0x07
+|BLOCK
+|repA.0.block1.repB
+|repA_0_block1_repB
+
+|0x00-0x03
+|BLOCK
+|repA.0.block1.repB.0
+|repA_0_block1_repB_0
+
+|0x00
+|REG
+|repA.0.block1.repB.0.reg1
+|repA_0_block1_repB_0_reg1
+
+|0x04-0x07
+|BLOCK
+|repA.0.block1.repB.1
+|repA_0_block1_repB_1
+
+|0x04
+|REG
+|repA.0.block1.repB.1.reg1
+|repA_0_block1_repB_1_reg1
+
+|0x08-0x0f
+|BLOCK
+|repA.1
+|repA_1
+
+|0x08-0x0f
+|BLOCK
+|repA.1.block1
+|repA_1_block1
+
+|0x08-0x0f
+|BLOCK
+|repA.1.block1.repB
+|repA_1_block1_repB
+
+|0x08-0x0b
+|BLOCK
+|repA.1.block1.repB.0
+|repA_1_block1_repB_0
+
+|0x08
+|REG
+|repA.1.block1.repB.0.reg1
+|repA_1_block1_repB_0_reg1
+
+|0x0c-0x0f
+|BLOCK
+|repA.1.block1.repB.1
+|repA_1_block1_repB_1
+
+|0x0c
+|REG
+|repA.1.block1.repB.1.reg1
+|repA_1_block1_repB_1_reg1
+
+|0x10-0x17
+|BLOCK
+|repA.2
+|repA_2
+
+|0x10-0x17
+|BLOCK
+|repA.2.block1
+|repA_2_block1
+
+|0x10-0x17
+|BLOCK
+|repA.2.block1.repB
+|repA_2_block1_repB
+
+|0x10-0x13
+|BLOCK
+|repA.2.block1.repB.0
+|repA_2_block1_repB_0
+
+|0x10
+|REG
+|repA.2.block1.repB.0.reg1
+|repA_2_block1_repB_0_reg1
+
+|0x14-0x17
+|BLOCK
+|repA.2.block1.repB.1
+|repA_2_block1_repB_1
+
+|0x14
+|REG
+|repA.2.block1.repB.1.reg1
+|repA_2_block1_repB_1_reg1
+
+|0x18-0x1f
+|BLOCK
+|repA.3
+|repA_3
+
+|0x18-0x1f
+|BLOCK
+|repA.3.block1
+|repA_3_block1
+
+|0x18-0x1f
+|BLOCK
+|repA.3.block1.repB
+|repA_3_block1_repB
+
+|0x18-0x1b
+|BLOCK
+|repA.3.block1.repB.0
+|repA_3_block1_repB_0
+
+|0x18
+|REG
+|repA.3.block1.repB.0.reg1
+|repA_3_block1_repB_0_reg1
+
+|0x1c-0x1f
+|BLOCK
+|repA.3.block1.repB.1
+|repA_3_block1_repB_1
+
+|0x1c
+|REG
+|repA.3.block1.repB.1.reg1
+|repA_3_block1_repB_1_reg1
+|===
+
+== Registers description
+=== repA.0.block1.repB.0.reg1
+[horizontal]
+HDL name:: repA_0_block1_repB_0_reg1
+address:: 0x0
+block offset:: 0x0
+access mode:: rw
+
+[cols="8*^"]
+|===
+
+| 7
+| 6
+| 5
+| 4
+| 3
+| 2
+| 1
+| 0
+
+8+s| reg1[7:0]
+|===
+=== repA.0.block1.repB.1.reg1
+[horizontal]
+HDL name:: repA_0_block1_repB_1_reg1
+address:: 0x4
+block offset:: 0x0
+access mode:: rw
+
+[cols="8*^"]
+|===
+
+| 7
+| 6
+| 5
+| 4
+| 3
+| 2
+| 1
+| 0
+
+8+s| reg1[7:0]
+|===
+=== repA.1.block1.repB.0.reg1
+[horizontal]
+HDL name:: repA_1_block1_repB_0_reg1
+address:: 0x8
+block offset:: 0x0
+access mode:: rw
+
+[cols="8*^"]
+|===
+
+| 7
+| 6
+| 5
+| 4
+| 3
+| 2
+| 1
+| 0
+
+8+s| reg1[7:0]
+|===
+=== repA.1.block1.repB.1.reg1
+[horizontal]
+HDL name:: repA_1_block1_repB_1_reg1
+address:: 0xc
+block offset:: 0x0
+access mode:: rw
+
+[cols="8*^"]
+|===
+
+| 7
+| 6
+| 5
+| 4
+| 3
+| 2
+| 1
+| 0
+
+8+s| reg1[7:0]
+|===
+=== repA.2.block1.repB.0.reg1
+[horizontal]
+HDL name:: repA_2_block1_repB_0_reg1
+address:: 0x10
+block offset:: 0x0
+access mode:: rw
+
+[cols="8*^"]
+|===
+
+| 7
+| 6
+| 5
+| 4
+| 3
+| 2
+| 1
+| 0
+
+8+s| reg1[7:0]
+|===
+=== repA.2.block1.repB.1.reg1
+[horizontal]
+HDL name:: repA_2_block1_repB_1_reg1
+address:: 0x14
+block offset:: 0x0
+access mode:: rw
+
+[cols="8*^"]
+|===
+
+| 7
+| 6
+| 5
+| 4
+| 3
+| 2
+| 1
+| 0
+
+8+s| reg1[7:0]
+|===
+=== repA.3.block1.repB.0.reg1
+[horizontal]
+HDL name:: repA_3_block1_repB_0_reg1
+address:: 0x18
+block offset:: 0x0
+access mode:: rw
+
+[cols="8*^"]
+|===
+
+| 7
+| 6
+| 5
+| 4
+| 3
+| 2
+| 1
+| 0
+
+8+s| reg1[7:0]
+|===
+=== repA.3.block1.repB.1.reg1
+[horizontal]
+HDL name:: repA_3_block1_repB_1_reg1
+address:: 0x1c
+block offset:: 0x0
+access mode:: rw
+
+[cols="8*^"]
+|===
+
+| 7
+| 6
+| 5
+| 4
+| 3
+| 2
+| 1
+| 0
+
+8+s| reg1[7:0]
+|===

@@ -1,0 +1,488 @@
+<HTML>
+<HEAD>
+<TITLE>repeatInRepeat</TITLE>
+<STYLE TYPE="text/css" MEDIA="all">
+<!--
+  BODY { background: white; color: black;
+         font-family: Arial,Helvetica; font-size:12; }
+  h1 { font-family: Trebuchet MS,Arial,Helvetica; font-size:30;
+       color:#404040; }
+  h2 { font-family: Trebuchet MS,Arial,Helvetica; font-size:22;
+       color:#404040; }
+  h3 { font-family: Trebuchet MS,Arial,Helvetica; font-size:16;
+       color:#404040; }
+  .td_arrow_left { padding:0px; background: #ffffff; text-align: right;
+                   font-size:12; }
+  .td_arrow_right { padding:0px; background: #ffffff; text-align: left;
+                    font-size:12; }
+  .td_code { font-family:Courier New,Courier; padding: 3px; }
+  .td_desc { padding: 3px; }
+  .td_sym_center { background: #e0e0f0; padding: 3px; }
+  .td_port_name { font-family:Courier New,Courier; background: #e0e0f0;
+                  text-align: right; font-weight:bold;
+                  padding: 3px; width:200px; }
+  .td_pblock_left { font-family:Courier New,Courier; background: #e0e0f0;
+                    padding: 0px; text-align: left; }
+  .td_pblock_right { font-family:Courier New,Courier;
+                     background: #e0e0f0;
+                     padding: 0px; text-align: right; }
+  .td_bit { background: #ffffff; color:#404040;
+            font-size:10; width: 70px;
+            font-family:Courier New,Courier; padding: 3px;
+            text-align:center; }
+  .td_field { background: #e0e0f0; padding: 3px; text-align:center;
+              border: solid 1px black; }
+  .td_unused { background: #a0a0a0; padding: 3px; text-align:center;  }
+  th { font-weight:bold; color:#ffffff; background: #202080;
+       padding:3px; }
+  .tr_even { background: #f0eff0; }
+  .tr_odd { background: #e0e0f0; }
+-->
+</STYLE>
+</HEAD>
+<BODY>
+<h1 class="heading">repeatInRepeat</h1>
+<h3>None</h3>
+<h3>1. Memory map summary</h3>
+<table cellpadding=2 cellspacing=0 border=0>
+<tr>
+<th>HW address</th>
+<th>Type</th>
+<th>Name</th>
+<th>HDL prefix</th>
+<th>C prefix</th>
+</tr>
+<tr class="tr_odd">
+<td class="td_code">0x00-0x1f</td>
+<td>BLOCK</td>
+<td><A href="#repA">repA</a></td>
+<td class="td_code">repA</td>
+<td class="td_code">repA</td>
+</tr>
+<tr class="tr_even">
+<td class="td_code">0x00-0x07</td>
+<td>BLOCK</td>
+<td><A href="#repA.0">repA.0</a></td>
+<td class="td_code">repA_0</td>
+<td class="td_code">repA.0</td>
+</tr>
+<tr class="tr_odd">
+<td class="td_code">0x00-0x07</td>
+<td>BLOCK</td>
+<td><A href="#repA.0.block1">repA.0.block1</a></td>
+<td class="td_code">repA_0_block1</td>
+<td class="td_code">repA.0.block1</td>
+</tr>
+<tr class="tr_even">
+<td class="td_code">0x00-0x07</td>
+<td>BLOCK</td>
+<td><A href="#repA.0.block1.repB">repA.0.block1.repB</a></td>
+<td class="td_code">repA_0_block1_repB</td>
+<td class="td_code">repA.0.block1.repB</td>
+</tr>
+<tr class="tr_odd">
+<td class="td_code">0x00-0x03</td>
+<td>BLOCK</td>
+<td><A href="#repA.0.block1.repB.0">repA.0.block1.repB.0</a></td>
+<td class="td_code">repA_0_block1_repB_0</td>
+<td class="td_code">repA.0.block1.repB.0</td>
+</tr>
+<tr class="tr_even">
+<td class="td_code">0x00</td>
+<td>REG</td>
+<td><A href="#repA.0.block1.repB.0.reg1">repA.0.block1.repB.0.reg1</a></td>
+<td class="td_code">repA_0_block1_repB_0_reg1</td>
+<td class="td_code">repA.0.block1.repB.0.reg1</td>
+</tr>
+<tr class="tr_odd">
+<td class="td_code">0x04-0x07</td>
+<td>BLOCK</td>
+<td><A href="#repA.0.block1.repB.1">repA.0.block1.repB.1</a></td>
+<td class="td_code">repA_0_block1_repB_1</td>
+<td class="td_code">repA.0.block1.repB.1</td>
+</tr>
+<tr class="tr_even">
+<td class="td_code">0x04</td>
+<td>REG</td>
+<td><A href="#repA.0.block1.repB.1.reg1">repA.0.block1.repB.1.reg1</a></td>
+<td class="td_code">repA_0_block1_repB_1_reg1</td>
+<td class="td_code">repA.0.block1.repB.1.reg1</td>
+</tr>
+<tr class="tr_odd">
+<td class="td_code">0x08-0x0f</td>
+<td>BLOCK</td>
+<td><A href="#repA.1">repA.1</a></td>
+<td class="td_code">repA_1</td>
+<td class="td_code">repA.1</td>
+</tr>
+<tr class="tr_even">
+<td class="td_code">0x08-0x0f</td>
+<td>BLOCK</td>
+<td><A href="#repA.1.block1">repA.1.block1</a></td>
+<td class="td_code">repA_1_block1</td>
+<td class="td_code">repA.1.block1</td>
+</tr>
+<tr class="tr_odd">
+<td class="td_code">0x08-0x0f</td>
+<td>BLOCK</td>
+<td><A href="#repA.1.block1.repB">repA.1.block1.repB</a></td>
+<td class="td_code">repA_1_block1_repB</td>
+<td class="td_code">repA.1.block1.repB</td>
+</tr>
+<tr class="tr_even">
+<td class="td_code">0x08-0x0b</td>
+<td>BLOCK</td>
+<td><A href="#repA.1.block1.repB.0">repA.1.block1.repB.0</a></td>
+<td class="td_code">repA_1_block1_repB_0</td>
+<td class="td_code">repA.1.block1.repB.0</td>
+</tr>
+<tr class="tr_odd">
+<td class="td_code">0x08</td>
+<td>REG</td>
+<td><A href="#repA.1.block1.repB.0.reg1">repA.1.block1.repB.0.reg1</a></td>
+<td class="td_code">repA_1_block1_repB_0_reg1</td>
+<td class="td_code">repA.1.block1.repB.0.reg1</td>
+</tr>
+<tr class="tr_even">
+<td class="td_code">0x0c-0x0f</td>
+<td>BLOCK</td>
+<td><A href="#repA.1.block1.repB.1">repA.1.block1.repB.1</a></td>
+<td class="td_code">repA_1_block1_repB_1</td>
+<td class="td_code">repA.1.block1.repB.1</td>
+</tr>
+<tr class="tr_odd">
+<td class="td_code">0x0c</td>
+<td>REG</td>
+<td><A href="#repA.1.block1.repB.1.reg1">repA.1.block1.repB.1.reg1</a></td>
+<td class="td_code">repA_1_block1_repB_1_reg1</td>
+<td class="td_code">repA.1.block1.repB.1.reg1</td>
+</tr>
+<tr class="tr_even">
+<td class="td_code">0x10-0x17</td>
+<td>BLOCK</td>
+<td><A href="#repA.2">repA.2</a></td>
+<td class="td_code">repA_2</td>
+<td class="td_code">repA.2</td>
+</tr>
+<tr class="tr_odd">
+<td class="td_code">0x10-0x17</td>
+<td>BLOCK</td>
+<td><A href="#repA.2.block1">repA.2.block1</a></td>
+<td class="td_code">repA_2_block1</td>
+<td class="td_code">repA.2.block1</td>
+</tr>
+<tr class="tr_even">
+<td class="td_code">0x10-0x17</td>
+<td>BLOCK</td>
+<td><A href="#repA.2.block1.repB">repA.2.block1.repB</a></td>
+<td class="td_code">repA_2_block1_repB</td>
+<td class="td_code">repA.2.block1.repB</td>
+</tr>
+<tr class="tr_odd">
+<td class="td_code">0x10-0x13</td>
+<td>BLOCK</td>
+<td><A href="#repA.2.block1.repB.0">repA.2.block1.repB.0</a></td>
+<td class="td_code">repA_2_block1_repB_0</td>
+<td class="td_code">repA.2.block1.repB.0</td>
+</tr>
+<tr class="tr_even">
+<td class="td_code">0x10</td>
+<td>REG</td>
+<td><A href="#repA.2.block1.repB.0.reg1">repA.2.block1.repB.0.reg1</a></td>
+<td class="td_code">repA_2_block1_repB_0_reg1</td>
+<td class="td_code">repA.2.block1.repB.0.reg1</td>
+</tr>
+<tr class="tr_odd">
+<td class="td_code">0x14-0x17</td>
+<td>BLOCK</td>
+<td><A href="#repA.2.block1.repB.1">repA.2.block1.repB.1</a></td>
+<td class="td_code">repA_2_block1_repB_1</td>
+<td class="td_code">repA.2.block1.repB.1</td>
+</tr>
+<tr class="tr_even">
+<td class="td_code">0x14</td>
+<td>REG</td>
+<td><A href="#repA.2.block1.repB.1.reg1">repA.2.block1.repB.1.reg1</a></td>
+<td class="td_code">repA_2_block1_repB_1_reg1</td>
+<td class="td_code">repA.2.block1.repB.1.reg1</td>
+</tr>
+<tr class="tr_odd">
+<td class="td_code">0x18-0x1f</td>
+<td>BLOCK</td>
+<td><A href="#repA.3">repA.3</a></td>
+<td class="td_code">repA_3</td>
+<td class="td_code">repA.3</td>
+</tr>
+<tr class="tr_even">
+<td class="td_code">0x18-0x1f</td>
+<td>BLOCK</td>
+<td><A href="#repA.3.block1">repA.3.block1</a></td>
+<td class="td_code">repA_3_block1</td>
+<td class="td_code">repA.3.block1</td>
+</tr>
+<tr class="tr_odd">
+<td class="td_code">0x18-0x1f</td>
+<td>BLOCK</td>
+<td><A href="#repA.3.block1.repB">repA.3.block1.repB</a></td>
+<td class="td_code">repA_3_block1_repB</td>
+<td class="td_code">repA.3.block1.repB</td>
+</tr>
+<tr class="tr_even">
+<td class="td_code">0x18-0x1b</td>
+<td>BLOCK</td>
+<td><A href="#repA.3.block1.repB.0">repA.3.block1.repB.0</a></td>
+<td class="td_code">repA_3_block1_repB_0</td>
+<td class="td_code">repA.3.block1.repB.0</td>
+</tr>
+<tr class="tr_odd">
+<td class="td_code">0x18</td>
+<td>REG</td>
+<td><A href="#repA.3.block1.repB.0.reg1">repA.3.block1.repB.0.reg1</a></td>
+<td class="td_code">repA_3_block1_repB_0_reg1</td>
+<td class="td_code">repA.3.block1.repB.0.reg1</td>
+</tr>
+<tr class="tr_even">
+<td class="td_code">0x1c-0x1f</td>
+<td>BLOCK</td>
+<td><A href="#repA.3.block1.repB.1">repA.3.block1.repB.1</a></td>
+<td class="td_code">repA_3_block1_repB_1</td>
+<td class="td_code">repA.3.block1.repB.1</td>
+</tr>
+<tr class="tr_odd">
+<td class="td_code">0x1c</td>
+<td>REG</td>
+<td><A href="#repA.3.block1.repB.1.reg1">repA.3.block1.repB.1.reg1</a></td>
+<td class="td_code">repA_3_block1_repB_1_reg1</td>
+<td class="td_code">repA.3.block1.repB.1.reg1</td>
+</tr>
+</table>
+
+<h3><a name="sect_3_0">2. Register description</a></h3>
+<a name="repA.0.block1.repB.0.reg1"></a>
+<h3>2.1. repA.0.block1.repB.0.reg1</h3>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr><td><b>HW prefix:</b></td><td class="td_code">repA_0_block1_repB_0_reg1</td></tr>
+<tr><td><b>HW address:</b></td><td class="td_code">0x0</td></tr>
+<tr><td><b>C prefix:</b></td><td class="td_code">repA.0.block1.repB.0.reg1</td></tr>
+<tr><td><b>C block offset:</b></td><td class="td_code">0x0</td></tr>
+</table>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr>
+ <td class="td_bit" colspan="1">7</td>
+ <td class="td_bit" colspan="1">6</td>
+ <td class="td_bit" colspan="1">5</td>
+ <td class="td_bit" colspan="1">4</td>
+ <td class="td_bit" colspan="1">3</td>
+ <td class="td_bit" colspan="1">2</td>
+ <td class="td_bit" colspan="1">1</td>
+ <td class="td_bit" colspan="1">0</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">reg1[7:0]</td>
+</tr>
+</table>
+<ul>
+<li><b>
+reg1
+</b>[<i>rw</i>]: 
+</ul>
+<a name="repA.0.block1.repB.1.reg1"></a>
+<h3>2.2. repA.0.block1.repB.1.reg1</h3>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr><td><b>HW prefix:</b></td><td class="td_code">repA_0_block1_repB_1_reg1</td></tr>
+<tr><td><b>HW address:</b></td><td class="td_code">0x4</td></tr>
+<tr><td><b>C prefix:</b></td><td class="td_code">repA.0.block1.repB.1.reg1</td></tr>
+<tr><td><b>C block offset:</b></td><td class="td_code">0x0</td></tr>
+</table>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr>
+ <td class="td_bit" colspan="1">7</td>
+ <td class="td_bit" colspan="1">6</td>
+ <td class="td_bit" colspan="1">5</td>
+ <td class="td_bit" colspan="1">4</td>
+ <td class="td_bit" colspan="1">3</td>
+ <td class="td_bit" colspan="1">2</td>
+ <td class="td_bit" colspan="1">1</td>
+ <td class="td_bit" colspan="1">0</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">reg1[7:0]</td>
+</tr>
+</table>
+<ul>
+<li><b>
+reg1
+</b>[<i>rw</i>]: 
+</ul>
+<a name="repA.1.block1.repB.0.reg1"></a>
+<h3>2.3. repA.1.block1.repB.0.reg1</h3>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr><td><b>HW prefix:</b></td><td class="td_code">repA_1_block1_repB_0_reg1</td></tr>
+<tr><td><b>HW address:</b></td><td class="td_code">0x8</td></tr>
+<tr><td><b>C prefix:</b></td><td class="td_code">repA.1.block1.repB.0.reg1</td></tr>
+<tr><td><b>C block offset:</b></td><td class="td_code">0x0</td></tr>
+</table>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr>
+ <td class="td_bit" colspan="1">7</td>
+ <td class="td_bit" colspan="1">6</td>
+ <td class="td_bit" colspan="1">5</td>
+ <td class="td_bit" colspan="1">4</td>
+ <td class="td_bit" colspan="1">3</td>
+ <td class="td_bit" colspan="1">2</td>
+ <td class="td_bit" colspan="1">1</td>
+ <td class="td_bit" colspan="1">0</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">reg1[7:0]</td>
+</tr>
+</table>
+<ul>
+<li><b>
+reg1
+</b>[<i>rw</i>]: 
+</ul>
+<a name="repA.1.block1.repB.1.reg1"></a>
+<h3>2.4. repA.1.block1.repB.1.reg1</h3>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr><td><b>HW prefix:</b></td><td class="td_code">repA_1_block1_repB_1_reg1</td></tr>
+<tr><td><b>HW address:</b></td><td class="td_code">0xc</td></tr>
+<tr><td><b>C prefix:</b></td><td class="td_code">repA.1.block1.repB.1.reg1</td></tr>
+<tr><td><b>C block offset:</b></td><td class="td_code">0x0</td></tr>
+</table>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr>
+ <td class="td_bit" colspan="1">7</td>
+ <td class="td_bit" colspan="1">6</td>
+ <td class="td_bit" colspan="1">5</td>
+ <td class="td_bit" colspan="1">4</td>
+ <td class="td_bit" colspan="1">3</td>
+ <td class="td_bit" colspan="1">2</td>
+ <td class="td_bit" colspan="1">1</td>
+ <td class="td_bit" colspan="1">0</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">reg1[7:0]</td>
+</tr>
+</table>
+<ul>
+<li><b>
+reg1
+</b>[<i>rw</i>]: 
+</ul>
+<a name="repA.2.block1.repB.0.reg1"></a>
+<h3>2.5. repA.2.block1.repB.0.reg1</h3>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr><td><b>HW prefix:</b></td><td class="td_code">repA_2_block1_repB_0_reg1</td></tr>
+<tr><td><b>HW address:</b></td><td class="td_code">0x10</td></tr>
+<tr><td><b>C prefix:</b></td><td class="td_code">repA.2.block1.repB.0.reg1</td></tr>
+<tr><td><b>C block offset:</b></td><td class="td_code">0x0</td></tr>
+</table>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr>
+ <td class="td_bit" colspan="1">7</td>
+ <td class="td_bit" colspan="1">6</td>
+ <td class="td_bit" colspan="1">5</td>
+ <td class="td_bit" colspan="1">4</td>
+ <td class="td_bit" colspan="1">3</td>
+ <td class="td_bit" colspan="1">2</td>
+ <td class="td_bit" colspan="1">1</td>
+ <td class="td_bit" colspan="1">0</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">reg1[7:0]</td>
+</tr>
+</table>
+<ul>
+<li><b>
+reg1
+</b>[<i>rw</i>]: 
+</ul>
+<a name="repA.2.block1.repB.1.reg1"></a>
+<h3>2.6. repA.2.block1.repB.1.reg1</h3>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr><td><b>HW prefix:</b></td><td class="td_code">repA_2_block1_repB_1_reg1</td></tr>
+<tr><td><b>HW address:</b></td><td class="td_code">0x14</td></tr>
+<tr><td><b>C prefix:</b></td><td class="td_code">repA.2.block1.repB.1.reg1</td></tr>
+<tr><td><b>C block offset:</b></td><td class="td_code">0x0</td></tr>
+</table>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr>
+ <td class="td_bit" colspan="1">7</td>
+ <td class="td_bit" colspan="1">6</td>
+ <td class="td_bit" colspan="1">5</td>
+ <td class="td_bit" colspan="1">4</td>
+ <td class="td_bit" colspan="1">3</td>
+ <td class="td_bit" colspan="1">2</td>
+ <td class="td_bit" colspan="1">1</td>
+ <td class="td_bit" colspan="1">0</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">reg1[7:0]</td>
+</tr>
+</table>
+<ul>
+<li><b>
+reg1
+</b>[<i>rw</i>]: 
+</ul>
+<a name="repA.3.block1.repB.0.reg1"></a>
+<h3>2.7. repA.3.block1.repB.0.reg1</h3>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr><td><b>HW prefix:</b></td><td class="td_code">repA_3_block1_repB_0_reg1</td></tr>
+<tr><td><b>HW address:</b></td><td class="td_code">0x18</td></tr>
+<tr><td><b>C prefix:</b></td><td class="td_code">repA.3.block1.repB.0.reg1</td></tr>
+<tr><td><b>C block offset:</b></td><td class="td_code">0x0</td></tr>
+</table>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr>
+ <td class="td_bit" colspan="1">7</td>
+ <td class="td_bit" colspan="1">6</td>
+ <td class="td_bit" colspan="1">5</td>
+ <td class="td_bit" colspan="1">4</td>
+ <td class="td_bit" colspan="1">3</td>
+ <td class="td_bit" colspan="1">2</td>
+ <td class="td_bit" colspan="1">1</td>
+ <td class="td_bit" colspan="1">0</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">reg1[7:0]</td>
+</tr>
+</table>
+<ul>
+<li><b>
+reg1
+</b>[<i>rw</i>]: 
+</ul>
+<a name="repA.3.block1.repB.1.reg1"></a>
+<h3>2.8. repA.3.block1.repB.1.reg1</h3>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr><td><b>HW prefix:</b></td><td class="td_code">repA_3_block1_repB_1_reg1</td></tr>
+<tr><td><b>HW address:</b></td><td class="td_code">0x1c</td></tr>
+<tr><td><b>C prefix:</b></td><td class="td_code">repA.3.block1.repB.1.reg1</td></tr>
+<tr><td><b>C block offset:</b></td><td class="td_code">0x0</td></tr>
+</table>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr>
+ <td class="td_bit" colspan="1">7</td>
+ <td class="td_bit" colspan="1">6</td>
+ <td class="td_bit" colspan="1">5</td>
+ <td class="td_bit" colspan="1">4</td>
+ <td class="td_bit" colspan="1">3</td>
+ <td class="td_bit" colspan="1">2</td>
+ <td class="td_bit" colspan="1">1</td>
+ <td class="td_bit" colspan="1">0</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">reg1[7:0]</td>
+</tr>
+</table>
+<ul>
+<li><b>
+reg1
+</b>[<i>rw</i>]: 
+</ul>
+
+
+</BODY>
+</HTML>

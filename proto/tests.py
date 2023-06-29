@@ -272,7 +272,8 @@ def test_hdl():
               'issue60/busgroup-filename', 'issue60/busgroup-include',
               'issue60/busgroup-interface', 'issue82/m1',
               'issue95/m1', 'issue95/m2', 'issue95/m3', 'issue95/sm1', 'issue95/sm3',
-              'features/avalon-noaddr', 'issue129/acdipole_ip', 'issue129/acdipole_ip-orig']:
+              'features/avalon-noaddr', 'issue129/acdipole_ip', 'issue129/acdipole_ip-orig',
+              'issue67/repeatInRepeat']:
         if verbose:
             print('test hdl: {}'.format(f))
         t = parse_ok(srcdir + f + '.cheby')
@@ -773,7 +774,7 @@ def test_consts():
 def test_doc():
     # Generate html and md, compare with a baseline.
     global nbr_tests
-    for f in ['issue9/test', 'features/semver1', 'issue84/sps200CavityControl_as']:
+    for f in ['issue9/test', 'features/semver1', 'issue84/sps200CavityControl_as', 'issue67/repeatInRepeat']:
         if verbose:
             print('test doc: {}'.format(f))
         cheby_file = srcdir + f + '.cheby'
@@ -784,6 +785,7 @@ def test_doc():
         layout_ok(t)
         expand_hdl.expand_hdl(t)
         gen_name.gen_name_memmap(t)
+        layout.sort_tree(t)
 
         for file, pprint, style in [
                 (html_file, print_html.pprint, 'html'),
