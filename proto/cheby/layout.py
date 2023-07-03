@@ -516,12 +516,10 @@ def build_sorted_children(n):
     """Create c_sorted_children (list of children sorted by address)"""
     n.c_sorted_children = sorted(n.children, key=(lambda x: x.c_address))
 
-def build_sorted_children_noneable(n):
-    """Create c_sorted_children (list of children sorted by address), tolerate None as c_address"""
-    n.c_sorted_children = sorted(n.children, key=(lambda x: x.c_address if x.c_address is not None else 0))    
 
 def build_sorted_fields(n):
     n.c_sorted_fields = sorted(n.children, key=(lambda x: x.lo))
+
 
 def layout_composite_children(lo, n):
     layout_check_name(n)
@@ -799,9 +797,9 @@ def layout_cheby(root):
 
 def sort_tree(n):
     """Recursively sort the descendants of this node and create c_sorted_children fields"""
-    if not hasattr(n, 'children'):
+    if isinstance(n, tree.Reg):
         return
 
-    build_sorted_children_noneable(n)
+    build_sorted_children(n)
     for child in n.c_sorted_children:
         sort_tree(child)
