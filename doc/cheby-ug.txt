@@ -58,7 +58,7 @@ generate:
 * C headers
 * Device drivers
 * HDL code
-* HTML documentation
+* HTML, markdown, and Latex documentation
 
 The automatic generation of these files avoid a tedious work and ensure
 coherency between them.
@@ -747,14 +747,17 @@ as the layout seen by Cheby.  This can be used as a consistency check.
 
 === Generating documentation
 
-Documentation can be generated either in HTML or in markdown (tested with
+Documentation can be generated either in HTML, Latex, or in markdown (tested with
 asciidoctor).  The format is specified by the `--doc=FORMAT` flag and the
-format is either `html` or `md`.
+format is either `html`, `latex`, or `md`.
 
 [source]
 ----
   $ cheby --doc=md --gen-doc=OUTPUT.md -i INPUT.cheby
 ----
+
+The generated Latex file is meant to be included from a main file. An example
+for such a file is provided at `doc/srcs/main.tex`.
 
 === Generating constants file
 
