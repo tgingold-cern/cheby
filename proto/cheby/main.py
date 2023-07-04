@@ -111,6 +111,8 @@ def decode_args():
                          help='Ordered set of characters to be used for ReST heading levels')
     aparser.add_argument('--doc-no-reg-drawing', help='Disable generation of register drawings in documentation', 
                          action='store_true')
+    aparser.add_argument('--doc-copy-template', help='Target file to copy a template for the main file (Latex only).', 
+                        type=str)
     aparser.add_argument('--input', '-i',
                          help='input file')
     aparser.add_argument('--ff-reset', choices=['sync', 'async'], default='sync',
@@ -295,6 +297,13 @@ def handle_file(args, filename):
                 print_latex.print_latex(f, t, not args.doc_no_reg_drawing)
             else:
                 raise AssertionError('unknown doc format {}'.format(args.doc))
+    if args.doc_copy_template is not None:
+        # Copy template to filename specified as argument
+        with open_filename(args.doc_copy_template) as f:
+            if args.doc == 'latex':
+                print_latex.copy_template(f)
+            else:
+                raise AssertionError('Unknown doc format {} for template copying.'.format(args.doc))
     if args.gen_consts is not None:
         with open_filename(args.gen_consts) as f:
             print_consts.pconsts_cheby(f, t, args.consts_style)
