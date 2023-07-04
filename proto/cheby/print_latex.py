@@ -1,6 +1,7 @@
 import cheby.tree as tree
 import cheby.gen_doc as gen_doc
 from cheby.wrutils import w, wln
+from pathlib import Path
 
 # Generate Latex Documentation
 #
@@ -130,3 +131,14 @@ def print_latex(fd, n, print_reg_drawing=True):
         print_root(fd, n, print_reg_drawing)
     else:
         raise AssertionError
+
+
+def copy_template(fd_target):
+    # Copy the template for the main file to the directory of the register file
+    
+    # Path of template source is relative to the executed script
+    path_source = Path(__file__).parent / 'data' / 'main_template.tex'
+    
+    # Copy file
+    with open(path_source, 'r') as fd_source:
+        fd_target.write(fd_source.read())
