@@ -26,6 +26,7 @@ import cheby.gen_wbgen_hdl as gen_wbgen_hdl
 import cheby.print_html as print_html
 import cheby.print_markdown as print_markdown
 import cheby.print_rest as print_rest
+import cheby.print_latex as print_latex
 import cheby.print_consts as print_consts
 import cheby.gen_devicetree as gen_devicetree
 import cheby.gen_device_script as gen_device_script
@@ -102,12 +103,14 @@ def decode_args():
     # default doesn't work - conflict with store_const of --no-header ?
     aparser.add_argument('--header', choices=['none', 'full', 'commit'],
                          help='set comment header generation')
-    aparser.add_argument('--doc', choices=['html', 'md', 'rest'], default='html',
+    aparser.add_argument('--doc', choices=['html', 'md', 'rest', 'latex'], default='html',
                          help='select language for doc generation')
     aparser.add_argument('--gen-doc', nargs='?', const='-',
                          help='generate documentation')
     aparser.add_argument('--rest-headers', default='#=-',
                          help='Ordered set of characters to be used for ReST heading levels')
+    aparser.add_argument('--doc-no-reg-drawing', help='Disable generation of register drawings in documentation', 
+                         action='store_true')
     aparser.add_argument('--input', '-i',
                          help='input file')
     aparser.add_argument('--ff-reset', choices=['sync', 'async'], default='sync',
@@ -288,6 +291,8 @@ def handle_file(args, filename):
                 print_markdown.print_markdown(f, t)
             elif args.doc == 'rest':
                 print_rest.print_rest(f, t, args.rest_headers)
+            elif args.doc == 'latex':
+                print_latex.print_latex(f, t, not args.doc_no_reg_drawing)
             else:
                 raise AssertionError('unknown doc format {}'.format(args.doc))
     if args.gen_consts is not None:

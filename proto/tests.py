@@ -23,6 +23,7 @@ import cheby.gen_wbgen_hdl as gen_wbgen_hdl
 import cheby.print_consts as print_consts
 import cheby.print_html as print_html
 import cheby.print_markdown as print_markdown
+import cheby.print_latex as print_latex
 import cheby.print_rest as print_rest
 import cheby.gen_custom as gen_custom
 
@@ -781,6 +782,7 @@ def test_doc():
         html_file = srcdir + f + '.html'
         md_file = srcdir + f + '.md'
         rst_file = srcdir + f + '.rst'
+        latex_file = srcdir + f + '.tex'
         t = parse_ok(cheby_file)
         layout_ok(t)
         expand_hdl.expand_hdl(t)
@@ -790,7 +792,8 @@ def test_doc():
         for file, pprint, style in [
                 (html_file, print_html.pprint, 'html'),
                 (md_file, print_markdown.print_markdown, 'md'),
-                (rst_file, print_rest.print_rest, 'rst')]:
+                (rst_file, print_rest.print_rest, 'rst'),
+                (latex_file, print_latex.print_latex, 'latex')]:
             buf = write_buffer()
             pprint(buf, t)
             if not compare_buffer_and_file(buf, file):

@@ -1,0 +1,85 @@
+% Template for a document containing a cheby register file description
+%
+% This file is meant to contain the style definition, which can be changed
+% without modifying the automatically generated .tex file. Tabularray is used
+% to achieve dynamic compatibility with different page layouts.
+
+% Document set up (up to user preference)
+\documentclass{article}
+\usepackage[margin=25mm]{geometry}
+\usepackage[english]{babel}
+
+% Use sans serif font
+\usepackage{helvet}
+\renewcommand{\familydefault}{\sfdefault}
+
+% Required packages
+\usepackage{tabularray}
+\usepackage[colorlinks=true,linkcolor=blue]{hyperref}
+\usepackage{xcolor}
+
+% Memory Map
+\newenvironment{memmap}{
+  \vspace{5mm}
+  \centering
+  \begin{longtblr}{
+    width    = \textwidth,
+    hline{1} = {1pt},
+    hline{2} = {0.5pt},
+    hline{Z} = {1pt},
+    colspec  = {X[1.5] X[1] X[3] X[3]},
+  }
+  HW address & Type & Name & HDL name \\
+}{
+  \end{longtblr}
+}
+
+% Register Summary
+\newenvironment{regsummary}{
+  \centering
+  \begin{tblr}{
+    width    = \textwidth,
+    colspec  = {X[1] X[4]},
+  }
+}{
+  \end{tblr}
+}
+
+% Register Drawing
+\newenvironment{regdraw}{
+  \vspace{5mm}
+  \begin{center}
+  \begin{tblr}{
+    width    = \textwidth,
+    hlines,
+    vlines,
+    colspec  = {X[1,c] X[1,c] X[1,c] X[1,c] X[1,c] X[1,c] X[1,c] X[1,c]},
+    row{odd} = {font=\footnotesize}
+  }
+}{
+  \end{tblr}
+  \end{center}
+}
+
+% Register Description
+\newenvironment{regdesc}{
+  \vspace{5mm}
+  \centering
+  \begin{tblr}{
+    width    = \textwidth,
+    hline{1} = {1pt},
+    hline{2} = {0.5pt},
+    hline{Z} = {1pt},
+    colspec  = {X[1] X[1] X[2] X[7]},
+  }
+  Bits & R/W & Name & Description \\
+}{
+  \end{tblr}
+}
+
+\begin{document}
+
+% Include the automatically generated .tex file here
+\input{reg.tex}
+
+\end{document}

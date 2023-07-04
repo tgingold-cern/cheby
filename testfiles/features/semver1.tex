@@ -1,0 +1,35 @@
+\section{Memory Map Summary}
+a single register
+
+Version: 1.0.0
+
+\begin{memmap}
+0x0 & REG & \hyperref[sec:r1]{r1} & r1\\
+\end{memmap}
+
+\section{Register Description}
+\subsubsection{r1}
+\label{sec:r1}
+\begin{regsummary}
+HW Prefix & r1\\
+HW Address & 0x0\\
+C Prefix & r1\\
+C Block Offset & 0x0\\
+\end{regsummary}
+
+\begin{regdraw}
+31 & 30 & 29 & 28 & 27 & 26 & 25 & 24 \\
+\SetCell[c=8]{c, bg=lightgray} r1[31:24] \\
+23 & 22 & 21 & 20 & 19 & 18 & 17 & 16 \\
+\SetCell[c=8]{c, bg=lightgray} r1[23:16] \\
+15 & 14 & 13 & 12 & 11 & 10 & 9 & 8 \\
+\SetCell[c=8]{c, bg=lightgray} r1[15:8] \\
+7 & 6 & 5 & 4 & 3 & 2 & 1 & 0 \\
+\SetCell[c=8]{c, bg=lightgray} r1[7:0] \\
+\end{regdraw}
+
+\begin{regdesc}
+31:0 & rw & r1 & \\
+\end{regdesc}
+
+

@@ -1,0 +1,692 @@
+\section{Memory Map Summary}
+Memory Map for SPS TWC200 Cavity Control
+
+\subsection{For Space bar0}
+\begin{memmap}
+0x000000-0x00001f & SUBMAP & hwInfo & hwInfo\\
+0x000000 & REG & \hyperref[sec:hwInfo.stdVersion]{hwInfo.\allowbreak{}stdVersion} & hwInfo\textunderscore\allowbreak{}stdVersion\\
+0x000008 & REG & \hyperref[sec:hwInfo.serialNumber]{hwInfo.\allowbreak{}serialNumber} & hwInfo\textunderscore\allowbreak{}serialNumber\\
+0x000010 & REG & \hyperref[sec:hwInfo.firmwareVersion]{hwInfo.\allowbreak{}firmwareVersion} & hwInfo\textunderscore\allowbreak{}firmwareVersion\\
+0x000014 & REG & \hyperref[sec:hwInfo.memMapVersion]{hwInfo.\allowbreak{}memMapVersion} & hwInfo\textunderscore\allowbreak{}memMapVersion\\
+0x000018 & REG & \hyperref[sec:hwInfo.echo]{hwInfo.\allowbreak{}echo} & hwInfo\textunderscore\allowbreak{}echo\\
+0x100000-0x17ffff & SUBMAP & app & app\\
+0x100000-0x1003ff & SUBMAP & app.\allowbreak{}modulation & app\textunderscore\allowbreak{}modulation\\
+0x100000-0x10001f & SUBMAP & app.\allowbreak{}modulation.\allowbreak{}ipInfo & app\textunderscore\allowbreak{}modulation\textunderscore\allowbreak{}ipInfo\\
+0x100000 & REG & \hyperref[sec:app.modulation.ipInfo.stdVersion]{app.\allowbreak{}modulation.\allowbreak{}ipInfo.\allowbreak{}stdVersion} & app\textunderscore\allowbreak{}modulation\textunderscore\allowbreak{}ipInfo\textunderscore\allowbreak{}stdVersion\\
+0x100004 & REG & \hyperref[sec:app.modulation.ipInfo.ident]{app.\allowbreak{}modulation.\allowbreak{}ipInfo.\allowbreak{}ident} & app\textunderscore\allowbreak{}modulation\textunderscore\allowbreak{}ipInfo\textunderscore\allowbreak{}ident\\
+0x100008 & REG & \hyperref[sec:app.modulation.ipInfo.firmwareVersion]{app.\allowbreak{}modulation.\allowbreak{}ipInfo.\allowbreak{}firmwareVersion} & app\textunderscore\allowbreak{}modulation\textunderscore\allowbreak{}ipInfo\textunderscore\allowbreak{}firmwareVersion\\
+0x10000c & REG & \hyperref[sec:app.modulation.ipInfo.memMapVersion]{app.\allowbreak{}modulation.\allowbreak{}ipInfo.\allowbreak{}memMapVersion} & app\textunderscore\allowbreak{}modulation\textunderscore\allowbreak{}ipInfo\textunderscore\allowbreak{}memMapVersion\\
+0x100010 & REG & \hyperref[sec:app.modulation.ipInfo.echo]{app.\allowbreak{}modulation.\allowbreak{}ipInfo.\allowbreak{}echo} & app\textunderscore\allowbreak{}modulation\textunderscore\allowbreak{}ipInfo\textunderscore\allowbreak{}echo\\
+0x100020 & REG & \hyperref[sec:app.modulation.control]{app.\allowbreak{}modulation.\allowbreak{}control} & app\textunderscore\allowbreak{}modulation\textunderscore\allowbreak{}control\\
+0x100030-0x10003f & BLOCK & app.\allowbreak{}modulation.\allowbreak{}testSignal & app\textunderscore\allowbreak{}modulation\textunderscore\allowbreak{}testSignal\\
+0x100030 & REG & \hyperref[sec:app.modulation.testSignal.amplitude]{app.\allowbreak{}modulation.\allowbreak{}testSignal.\allowbreak{}amplitude} & app\textunderscore\allowbreak{}modulation\textunderscore\allowbreak{}testSignal\textunderscore\allowbreak{}amplitude\\
+0x100038 & REG & \hyperref[sec:app.modulation.testSignal.ftw]{app.\allowbreak{}modulation.\allowbreak{}testSignal.\allowbreak{}ftw} & app\textunderscore\allowbreak{}modulation\textunderscore\allowbreak{}testSignal\textunderscore\allowbreak{}ftw\\
+0x100040-0x10004f & BLOCK & app.\allowbreak{}modulation.\allowbreak{}staticSignal & app\textunderscore\allowbreak{}modulation\textunderscore\allowbreak{}staticSignal\\
+0x100040 & REG & \hyperref[sec:app.modulation.staticSignal.i]{app.\allowbreak{}modulation.\allowbreak{}staticSignal.\allowbreak{}i} & app\textunderscore\allowbreak{}modulation\textunderscore\allowbreak{}staticSignal\textunderscore\allowbreak{}i\\
+0x100044 & REG & \hyperref[sec:app.modulation.staticSignal.q]{app.\allowbreak{}modulation.\allowbreak{}staticSignal.\allowbreak{}q} & app\textunderscore\allowbreak{}modulation\textunderscore\allowbreak{}staticSignal\textunderscore\allowbreak{}q\\
+0x100050 & REG & \hyperref[sec:app.modulation.ftwH1main]{app.\allowbreak{}modulation.\allowbreak{}ftwH1main} & app\textunderscore\allowbreak{}modulation\textunderscore\allowbreak{}ftwH1main\\
+0x100058 & REG & \hyperref[sec:app.modulation.ftwH1on]{app.\allowbreak{}modulation.\allowbreak{}ftwH1on} & app\textunderscore\allowbreak{}modulation\textunderscore\allowbreak{}ftwH1on\\
+0x100060 & REG & \hyperref[sec:app.modulation.dftwH1slip0]{app.\allowbreak{}modulation.\allowbreak{}dftwH1slip0} & app\textunderscore\allowbreak{}modulation\textunderscore\allowbreak{}dftwH1slip0\\
+0x100064 & REG & \hyperref[sec:app.modulation.dftwH1slip1]{app.\allowbreak{}modulation.\allowbreak{}dftwH1slip1} & app\textunderscore\allowbreak{}modulation\textunderscore\allowbreak{}dftwH1slip1\\
+0x100068 & REG & \hyperref[sec:app.modulation.latches]{app.\allowbreak{}modulation.\allowbreak{}latches} & app\textunderscore\allowbreak{}modulation\textunderscore\allowbreak{}latches\\
+\end{memmap}
+
+\subsection{For Space bar4}
+\begin{memmap}
+0x00000000-0x000fffff & SUBMAP & fgc\textunderscore\allowbreak{}ddr & fgc\textunderscore\allowbreak{}ddr\\
+0x00000000-0x000fffff & MEMORY & fgc\textunderscore\allowbreak{}ddr.\allowbreak{}data64 & fgc\textunderscore\allowbreak{}ddr\textunderscore\allowbreak{}data64\\
+ +0x00000000 & REG & \hyperref[sec:fgc_ddr.data64.data64]{fgc\textunderscore\allowbreak{}ddr.\allowbreak{}data64.\allowbreak{}data64} & fgc\textunderscore\allowbreak{}ddr\textunderscore\allowbreak{}data64\textunderscore\allowbreak{}data64\\
+0x20000000-0x3fffffff & SUBMAP & acq\textunderscore\allowbreak{}ddr & acq\textunderscore\allowbreak{}ddr\\
+0x20000000-0x3fffffff & MEMORY & acq\textunderscore\allowbreak{}ddr.\allowbreak{}data32 & acq\textunderscore\allowbreak{}ddr\textunderscore\allowbreak{}data32\\
+ +0x20000000 & REG & \hyperref[sec:acq_ddr.data32.data32]{acq\textunderscore\allowbreak{}ddr.\allowbreak{}data32.\allowbreak{}data32} & acq\textunderscore\allowbreak{}ddr\textunderscore\allowbreak{}data32\textunderscore\allowbreak{}data32\\
+0x80000000-0x8001ffff & SUBMAP & acq\textunderscore\allowbreak{}ram & acq\textunderscore\allowbreak{}ram\\
+0x80000000-0x8001ffff & MEMORY & acq\textunderscore\allowbreak{}ram.\allowbreak{}data32 & acq\textunderscore\allowbreak{}ram\textunderscore\allowbreak{}data32\\
+ +0x80000000 & REG & \hyperref[sec:acq_ram.data32.data32]{acq\textunderscore\allowbreak{}ram.\allowbreak{}data32.\allowbreak{}data32} & acq\textunderscore\allowbreak{}ram\textunderscore\allowbreak{}data32\textunderscore\allowbreak{}data32\\
+\end{memmap}
+
+\subsection{Register Description for Space bar0}
+
+\subsubsection{hwInfo.\allowbreak{}stdVersion}
+\label{sec:hwInfo.stdVersion}
+\begin{regsummary}
+HW Prefix & hwInfo\textunderscore\allowbreak{}stdVersion\\
+HW Address & 0x0\\
+C Prefix & hwInfo.\allowbreak{}stdVersion\\
+C Block Offset & 0x0\\
+\end{regsummary}
+
+\begin{regdraw}
+31 & 30 & 29 & 28 & 27 & 26 & 25 & 24 \\
+\SetCell[c=8]{c, bg=lightgray} platform[7:0] \\
+23 & 22 & 21 & 20 & 19 & 18 & 17 & 16 \\
+\SetCell[c=8]{c, bg=lightgray} major[7:0] \\
+15 & 14 & 13 & 12 & 11 & 10 & 9 & 8 \\
+\SetCell[c=8]{c, bg=lightgray} minor[7:0] \\
+7 & 6 & 5 & 4 & 3 & 2 & 1 & 0 \\
+\SetCell[c=8]{c, bg=lightgray} patch[7:0] \\
+\end{regdraw}
+
+\begin{regdesc}
+31:24 & ro & platform & Identifying which platform the version belongs to (i.\allowbreak{}e.\allowbreak{} pci, lhc\textunderscore\allowbreak{}vme, vme64, .\allowbreak{}.\allowbreak{}.\allowbreak{})\\
+23:16 & ro & major & Major version indicating incompatible changes\\
+15:8 & ro & minor & Minor version indicating feature enhancements\\
+7:0 & ro & patch & Patch indicating bug fixes\\
+\end{regdesc}
+
+
+\subsubsection{hwInfo.\allowbreak{}serialNumber}
+\label{sec:hwInfo.serialNumber}
+\begin{regsummary}
+HW Prefix & hwInfo\textunderscore\allowbreak{}serialNumber\\
+HW Address & 0x8\\
+C Prefix & hwInfo.\allowbreak{}serialNumber\\
+C Block Offset & 0x8\\
+\end{regsummary}
+
+\begin{regdraw}
+63 & 62 & 61 & 60 & 59 & 58 & 57 & 56 \\
+\SetCell[c=8]{c, bg=lightgray} serialNumber[63:56] \\
+55 & 54 & 53 & 52 & 51 & 50 & 49 & 48 \\
+\SetCell[c=8]{c, bg=lightgray} serialNumber[55:48] \\
+47 & 46 & 45 & 44 & 43 & 42 & 41 & 40 \\
+\SetCell[c=8]{c, bg=lightgray} serialNumber[47:40] \\
+39 & 38 & 37 & 36 & 35 & 34 & 33 & 32 \\
+\SetCell[c=8]{c, bg=lightgray} serialNumber[39:32] \\
+31 & 30 & 29 & 28 & 27 & 26 & 25 & 24 \\
+\SetCell[c=8]{c, bg=lightgray} serialNumber[31:24] \\
+23 & 22 & 21 & 20 & 19 & 18 & 17 & 16 \\
+\SetCell[c=8]{c, bg=lightgray} serialNumber[23:16] \\
+15 & 14 & 13 & 12 & 11 & 10 & 9 & 8 \\
+\SetCell[c=8]{c, bg=lightgray} serialNumber[15:8] \\
+7 & 6 & 5 & 4 & 3 & 2 & 1 & 0 \\
+\SetCell[c=8]{c, bg=lightgray} serialNumber[7:0] \\
+\end{regdraw}
+
+\begin{regdesc}
+63:0 & ro & serialNumber & HW serial number\\
+\end{regdesc}
+
+
+\subsubsection{hwInfo.\allowbreak{}firmwareVersion}
+\label{sec:hwInfo.firmwareVersion}
+\begin{regsummary}
+HW Prefix & hwInfo\textunderscore\allowbreak{}firmwareVersion\\
+HW Address & 0x10\\
+C Prefix & hwInfo.\allowbreak{}firmwareVersion\\
+C Block Offset & 0x10\\
+\end{regsummary}
+
+\begin{regdraw}
+31 & 30 & 29 & 28 & 27 & 26 & 25 & 24 \\
+- & - & - & - & - & - & - & - \\
+23 & 22 & 21 & 20 & 19 & 18 & 17 & 16 \\
+\SetCell[c=8]{c, bg=lightgray} major[7:0] \\
+15 & 14 & 13 & 12 & 11 & 10 & 9 & 8 \\
+\SetCell[c=8]{c, bg=lightgray} minor[7:0] \\
+7 & 6 & 5 & 4 & 3 & 2 & 1 & 0 \\
+\SetCell[c=8]{c, bg=lightgray} patch[7:0] \\
+\end{regdraw}
+
+\begin{regdesc}
+23:16 & ro & major & Major version indicating incompatible changes\\
+15:8 & ro & minor & Minor version indicating feature enhancements\\
+7:0 & ro & patch & Patch indicating bug fixes\\
+\end{regdesc}
+
+
+\subsubsection{hwInfo.\allowbreak{}memMapVersion}
+\label{sec:hwInfo.memMapVersion}
+\begin{regsummary}
+HW Prefix & hwInfo\textunderscore\allowbreak{}memMapVersion\\
+HW Address & 0x14\\
+C Prefix & hwInfo.\allowbreak{}memMapVersion\\
+C Block Offset & 0x14\\
+\end{regsummary}
+
+\begin{regdraw}
+31 & 30 & 29 & 28 & 27 & 26 & 25 & 24 \\
+- & - & - & - & - & - & - & - \\
+23 & 22 & 21 & 20 & 19 & 18 & 17 & 16 \\
+\SetCell[c=8]{c, bg=lightgray} major[7:0] \\
+15 & 14 & 13 & 12 & 11 & 10 & 9 & 8 \\
+\SetCell[c=8]{c, bg=lightgray} minor[7:0] \\
+7 & 6 & 5 & 4 & 3 & 2 & 1 & 0 \\
+\SetCell[c=8]{c, bg=lightgray} patch[7:0] \\
+\end{regdraw}
+
+\begin{regdesc}
+23:16 & ro & major & \\
+15:8 & ro & minor & \\
+7:0 & ro & patch & \\
+\end{regdesc}
+
+
+\subsubsection{hwInfo.\allowbreak{}echo}
+\label{sec:hwInfo.echo}
+\begin{regsummary}
+HW Prefix & hwInfo\textunderscore\allowbreak{}echo\\
+HW Address & 0x18\\
+C Prefix & hwInfo.\allowbreak{}echo\\
+C Block Offset & 0x18\\
+\end{regsummary}
+
+\begin{regdraw}
+31 & 30 & 29 & 28 & 27 & 26 & 25 & 24 \\
+\SetCell[c=8]{c, bg=lightgray} echo[31:24] \\
+23 & 22 & 21 & 20 & 19 & 18 & 17 & 16 \\
+\SetCell[c=8]{c, bg=lightgray} echo[23:16] \\
+15 & 14 & 13 & 12 & 11 & 10 & 9 & 8 \\
+\SetCell[c=8]{c, bg=lightgray} echo[15:8] \\
+7 & 6 & 5 & 4 & 3 & 2 & 1 & 0 \\
+\SetCell[c=8]{c, bg=lightgray} echo[7:0] \\
+\end{regdraw}
+
+\begin{regdesc}
+31:0 & rw & echo & Echo register.\allowbreak{} This version of the standard foresees only 8bits linked to real memoryRegister used solely by software.\allowbreak{} No interaction with the firmware foreseen.\allowbreak{}
+The idea is to use this register as "flag" in the hardware to remember your actions from the software side.\allowbreak{}
+
+Reading 0xFF often happens when the board is not even reachable (i.\allowbreak{}e.\allowbreak{} bus problems on VME)
+
+On the other hand if the board is reachable the usual state of flipflops are 0x00.\allowbreak{} Thus this would indicate that no initialization has been attempted yet.\allowbreak{}
+
+At start of your software (FESA class) you should set the value 0x40 indicating that initialization is in progress.\allowbreak{} 
+This is important for you to later one check if you can read this value back before finally setting it to 0x80 (the value previously used with Cheburashka).\allowbreak{}
+
+If your initialization failed but you want to continue anyway you should set the register to 0xC0 to indicate this error 
+
+This register is in particular useful if you have several entities interacting with the hardware.\allowbreak{} In this case several bits could be assigned to this entities (bits 5.\allowbreak{}.\allowbreak{}0) to signalize that they have done there part successful and a main entity checks all the expected bits.\allowbreak{}\\
+\end{regdesc}
+
+
+\subsubsection{app.\allowbreak{}modulation.\allowbreak{}ipInfo.\allowbreak{}stdVersion}
+\label{sec:app.modulation.ipInfo.stdVersion}
+\begin{regsummary}
+HW Prefix & app\textunderscore\allowbreak{}modulation\textunderscore\allowbreak{}ipInfo\textunderscore\allowbreak{}stdVersion\\
+HW Address & 0x100000\\
+C Prefix & app.\allowbreak{}modulation.\allowbreak{}ipInfo.\allowbreak{}stdVersion\\
+C Block Offset & 0x0\\
+\end{regsummary}
+
+\begin{regdraw}
+31 & 30 & 29 & 28 & 27 & 26 & 25 & 24 \\
+- & - & - & - & - & - & - & - \\
+23 & 22 & 21 & 20 & 19 & 18 & 17 & 16 \\
+\SetCell[c=8]{c, bg=lightgray} major[7:0] \\
+15 & 14 & 13 & 12 & 11 & 10 & 9 & 8 \\
+\SetCell[c=8]{c, bg=lightgray} minor[7:0] \\
+7 & 6 & 5 & 4 & 3 & 2 & 1 & 0 \\
+\SetCell[c=8]{c, bg=lightgray} patch[7:0] \\
+\end{regdraw}
+
+\begin{regdesc}
+23:16 & ro & major & Major version indicating incompatible changes\\
+15:8 & ro & minor & Minor version indicating feature enhancements\\
+7:0 & ro & patch & Patch indicating bug fixes\\
+\end{regdesc}
+
+
+\subsubsection{app.\allowbreak{}modulation.\allowbreak{}ipInfo.\allowbreak{}ident}
+\label{sec:app.modulation.ipInfo.ident}
+\begin{regsummary}
+HW Prefix & app\textunderscore\allowbreak{}modulation\textunderscore\allowbreak{}ipInfo\textunderscore\allowbreak{}ident\\
+HW Address & 0x100004\\
+C Prefix & app.\allowbreak{}modulation.\allowbreak{}ipInfo.\allowbreak{}ident\\
+C Block Offset & 0x4\\
+\end{regsummary}
+
+\begin{regdraw}
+31 & 30 & 29 & 28 & 27 & 26 & 25 & 24 \\
+\SetCell[c=8]{c, bg=lightgray} ident[31:24] \\
+23 & 22 & 21 & 20 & 19 & 18 & 17 & 16 \\
+\SetCell[c=8]{c, bg=lightgray} ident[23:16] \\
+15 & 14 & 13 & 12 & 11 & 10 & 9 & 8 \\
+\SetCell[c=8]{c, bg=lightgray} ident[15:8] \\
+7 & 6 & 5 & 4 & 3 & 2 & 1 & 0 \\
+\SetCell[c=8]{c, bg=lightgray} ident[7:0] \\
+\end{regdraw}
+
+\begin{regdesc}
+31:0 & ro & ident & IP Ident code\\
+\end{regdesc}
+
+
+\subsubsection{app.\allowbreak{}modulation.\allowbreak{}ipInfo.\allowbreak{}firmwareVersion}
+\label{sec:app.modulation.ipInfo.firmwareVersion}
+\begin{regsummary}
+HW Prefix & app\textunderscore\allowbreak{}modulation\textunderscore\allowbreak{}ipInfo\textunderscore\allowbreak{}firmwareVersion\\
+HW Address & 0x100008\\
+C Prefix & app.\allowbreak{}modulation.\allowbreak{}ipInfo.\allowbreak{}firmwareVersion\\
+C Block Offset & 0x8\\
+\end{regsummary}
+
+\begin{regdraw}
+31 & 30 & 29 & 28 & 27 & 26 & 25 & 24 \\
+- & - & - & - & - & - & - & - \\
+23 & 22 & 21 & 20 & 19 & 18 & 17 & 16 \\
+\SetCell[c=8]{c, bg=lightgray} major[7:0] \\
+15 & 14 & 13 & 12 & 11 & 10 & 9 & 8 \\
+\SetCell[c=8]{c, bg=lightgray} minor[7:0] \\
+7 & 6 & 5 & 4 & 3 & 2 & 1 & 0 \\
+\SetCell[c=8]{c, bg=lightgray} patch[7:0] \\
+\end{regdraw}
+
+\begin{regdesc}
+23:16 & ro & major & Major version indicating incompatible changes\\
+15:8 & ro & minor & Minor version indicating feature enhancements\\
+7:0 & ro & patch & Patch indicating bug fixes\\
+\end{regdesc}
+
+
+\subsubsection{app.\allowbreak{}modulation.\allowbreak{}ipInfo.\allowbreak{}memMapVersion}
+\label{sec:app.modulation.ipInfo.memMapVersion}
+\begin{regsummary}
+HW Prefix & app\textunderscore\allowbreak{}modulation\textunderscore\allowbreak{}ipInfo\textunderscore\allowbreak{}memMapVersion\\
+HW Address & 0x10000c\\
+C Prefix & app.\allowbreak{}modulation.\allowbreak{}ipInfo.\allowbreak{}memMapVersion\\
+C Block Offset & 0xc\\
+\end{regsummary}
+
+\begin{regdraw}
+31 & 30 & 29 & 28 & 27 & 26 & 25 & 24 \\
+- & - & - & - & - & - & - & - \\
+23 & 22 & 21 & 20 & 19 & 18 & 17 & 16 \\
+\SetCell[c=8]{c, bg=lightgray} major[7:0] \\
+15 & 14 & 13 & 12 & 11 & 10 & 9 & 8 \\
+\SetCell[c=8]{c, bg=lightgray} minor[7:0] \\
+7 & 6 & 5 & 4 & 3 & 2 & 1 & 0 \\
+\SetCell[c=8]{c, bg=lightgray} patch[7:0] \\
+\end{regdraw}
+
+\begin{regdesc}
+23:16 & ro & major & Major version indicating incompatible changes\\
+15:8 & ro & minor & Minor version indicating feature enhancements\\
+7:0 & ro & patch & Patch indicating bug fixes\\
+\end{regdesc}
+
+
+\subsubsection{app.\allowbreak{}modulation.\allowbreak{}ipInfo.\allowbreak{}echo}
+\label{sec:app.modulation.ipInfo.echo}
+\begin{regsummary}
+HW Prefix & app\textunderscore\allowbreak{}modulation\textunderscore\allowbreak{}ipInfo\textunderscore\allowbreak{}echo\\
+HW Address & 0x100010\\
+C Prefix & app.\allowbreak{}modulation.\allowbreak{}ipInfo.\allowbreak{}echo\\
+C Block Offset & 0x10\\
+\end{regsummary}
+
+\begin{regdraw}
+31 & 30 & 29 & 28 & 27 & 26 & 25 & 24 \\
+- & - & - & - & - & - & - & - \\
+23 & 22 & 21 & 20 & 19 & 18 & 17 & 16 \\
+- & - & - & - & - & - & - & - \\
+15 & 14 & 13 & 12 & 11 & 10 & 9 & 8 \\
+- & - & - & - & - & - & - & - \\
+7 & 6 & 5 & 4 & 3 & 2 & 1 & 0 \\
+\SetCell[c=8]{c, bg=lightgray} echo[7:0] \\
+\end{regdraw}
+
+\begin{regdesc}
+7:0 & rw & echo & This version of the standard foresees only 8bits linked to real memory\\
+\end{regdesc}
+
+
+\subsubsection{app.\allowbreak{}modulation.\allowbreak{}control}
+\label{sec:app.modulation.control}
+\begin{regsummary}
+HW Prefix & app\textunderscore\allowbreak{}modulation\textunderscore\allowbreak{}control\\
+HW Address & 0x100020\\
+C Prefix & app.\allowbreak{}modulation.\allowbreak{}control\\
+C Block Offset & 0x20\\
+\end{regsummary}
+
+\begin{regdraw}
+31 & 30 & 29 & 28 & 27 & 26 & 25 & 24 \\
+- & - & - & - & - & - & - & - \\
+23 & 22 & 21 & 20 & 19 & 18 & 17 & 16 \\
+- & - & - & - & - & - & - & - \\
+15 & 14 & 13 & 12 & 11 & 10 & 9 & 8 \\
+\SetCell{bg=lightgray} clearBPLatches & \SetCell[c=3]{c, bg=lightgray} rate[2:0] & \SetCell{bg=lightgray} wrInputsValidLatch & \SetCell{bg=lightgray} wrRresetFSK & \SetCell{bg=lightgray} wrResetSlip & \SetCell{bg=lightgray} wrResetNCO \\
+7 & 6 & 5 & 4 & 3 & 2 & 1 & 0 \\
+\SetCell{bg=lightgray} wrInputsValid & \SetCell{bg=lightgray} bypassMod & \SetCell{bg=lightgray} bypassDemod & - & - & \SetCell{bg=lightgray} useStaticSignal & \SetCell{bg=lightgray} useImpulse & \SetCell{bg=lightgray} useTestSignal \\
+\end{regdraw}
+
+\begin{regdesc}
+0 & rw & useTestSignal & Use DDS generated test signal instead of ADC input as demodulation inputTest signal is synthezied with additional internal DDS, test signals frequency given by ftw\textunderscore\allowbreak{}RF.\allowbreak{}\\
+1 & rw & useImpulse & Use impulse instead of demodulation output\\
+2 & rw & useStaticSignal & Use static signal from register instead of demodulation output\\
+5 & rw & bypassDemod & Bypass demodulator\\
+6 & rw & bypassMod & Bypass modulator\\
+7 & rw & wrInputsValid & transmit WR frame\\
+11 & rw & wrInputsValidLatch & transmit WR no autoclear\\
+8 & rw & wrResetNCO & activate WR frame control bit\\
+9 & rw & wrResetSlip & activate WR frame control bit\\
+10 & rw & wrRresetFSK & activate WR frame control bit\\
+14:12 & rw & rate & \\
+15 & rw & clearBPLatches & \\
+\end{regdesc}
+
+
+\subsubsection{app.\allowbreak{}modulation.\allowbreak{}testSignal.\allowbreak{}amplitude}
+\label{sec:app.modulation.testSignal.amplitude}
+\begin{regsummary}
+HW Prefix & app\textunderscore\allowbreak{}modulation\textunderscore\allowbreak{}testSignal\textunderscore\allowbreak{}amplitude\\
+HW Address & 0x100030\\
+C Prefix & app.\allowbreak{}modulation.\allowbreak{}testSignal.\allowbreak{}amplitude\\
+C Block Offset & 0x0\\
+\end{regsummary}
+
+\begin{regdraw}
+15 & 14 & 13 & 12 & 11 & 10 & 9 & 8 \\
+\SetCell[c=8]{c, bg=lightgray} amplitude[15:8] \\
+7 & 6 & 5 & 4 & 3 & 2 & 1 & 0 \\
+\SetCell[c=8]{c, bg=lightgray} amplitude[7:0] \\
+\end{regdraw}
+
+\begin{regdesc}
+15:0 & rw & amplitude & Amplitude for the test signal\\
+\end{regdesc}
+
+
+\subsubsection{app.\allowbreak{}modulation.\allowbreak{}testSignal.\allowbreak{}ftw}
+\label{sec:app.modulation.testSignal.ftw}
+\begin{regsummary}
+HW Prefix & app\textunderscore\allowbreak{}modulation\textunderscore\allowbreak{}testSignal\textunderscore\allowbreak{}ftw\\
+HW Address & 0x100038\\
+C Prefix & app.\allowbreak{}modulation.\allowbreak{}testSignal.\allowbreak{}ftw\\
+C Block Offset & 0x8\\
+\end{regsummary}
+
+\begin{regdraw}
+63 & 62 & 61 & 60 & 59 & 58 & 57 & 56 \\
+\SetCell[c=8]{c, bg=lightgray} ftw[63:56] \\
+55 & 54 & 53 & 52 & 51 & 50 & 49 & 48 \\
+\SetCell[c=8]{c, bg=lightgray} ftw[55:48] \\
+47 & 46 & 45 & 44 & 43 & 42 & 41 & 40 \\
+\SetCell[c=8]{c, bg=lightgray} ftw[47:40] \\
+39 & 38 & 37 & 36 & 35 & 34 & 33 & 32 \\
+\SetCell[c=8]{c, bg=lightgray} ftw[39:32] \\
+31 & 30 & 29 & 28 & 27 & 26 & 25 & 24 \\
+\SetCell[c=8]{c, bg=lightgray} ftw[31:24] \\
+23 & 22 & 21 & 20 & 19 & 18 & 17 & 16 \\
+\SetCell[c=8]{c, bg=lightgray} ftw[23:16] \\
+15 & 14 & 13 & 12 & 11 & 10 & 9 & 8 \\
+\SetCell[c=8]{c, bg=lightgray} ftw[15:8] \\
+7 & 6 & 5 & 4 & 3 & 2 & 1 & 0 \\
+\SetCell[c=8]{c, bg=lightgray} ftw[7:0] \\
+\end{regdraw}
+
+\begin{regdesc}
+63:0 & rw & ftw & FTW of the test signal (frequency relative to fs)\\
+\end{regdesc}
+
+
+\subsubsection{app.\allowbreak{}modulation.\allowbreak{}staticSignal.\allowbreak{}i}
+\label{sec:app.modulation.staticSignal.i}
+\begin{regsummary}
+HW Prefix & app\textunderscore\allowbreak{}modulation\textunderscore\allowbreak{}staticSignal\textunderscore\allowbreak{}i\\
+HW Address & 0x100040\\
+C Prefix & app.\allowbreak{}modulation.\allowbreak{}staticSignal.\allowbreak{}i\\
+C Block Offset & 0x0\\
+\end{regsummary}
+
+\begin{regdraw}
+15 & 14 & 13 & 12 & 11 & 10 & 9 & 8 \\
+\SetCell[c=8]{c, bg=lightgray} i[15:8] \\
+7 & 6 & 5 & 4 & 3 & 2 & 1 & 0 \\
+\SetCell[c=8]{c, bg=lightgray} i[7:0] \\
+\end{regdraw}
+
+\begin{regdesc}
+15:0 & rw & i & Constant to be used as OTF input for channel I\\
+\end{regdesc}
+
+
+\subsubsection{app.\allowbreak{}modulation.\allowbreak{}staticSignal.\allowbreak{}q}
+\label{sec:app.modulation.staticSignal.q}
+\begin{regsummary}
+HW Prefix & app\textunderscore\allowbreak{}modulation\textunderscore\allowbreak{}staticSignal\textunderscore\allowbreak{}q\\
+HW Address & 0x100044\\
+C Prefix & app.\allowbreak{}modulation.\allowbreak{}staticSignal.\allowbreak{}q\\
+C Block Offset & 0x4\\
+\end{regsummary}
+
+\begin{regdraw}
+15 & 14 & 13 & 12 & 11 & 10 & 9 & 8 \\
+\SetCell[c=8]{c, bg=lightgray} q[15:8] \\
+7 & 6 & 5 & 4 & 3 & 2 & 1 & 0 \\
+\SetCell[c=8]{c, bg=lightgray} q[7:0] \\
+\end{regdraw}
+
+\begin{regdesc}
+15:0 & rw & q & Constant to be used as OTF input for channel Q\\
+\end{regdesc}
+
+
+\subsubsection{app.\allowbreak{}modulation.\allowbreak{}ftwH1main}
+\label{sec:app.modulation.ftwH1main}
+\begin{regsummary}
+HW Prefix & app\textunderscore\allowbreak{}modulation\textunderscore\allowbreak{}ftwH1main\\
+HW Address & 0x100050\\
+C Prefix & app.\allowbreak{}modulation.\allowbreak{}ftwH1main\\
+C Block Offset & 0x50\\
+\end{regsummary}
+
+\begin{regdraw}
+63 & 62 & 61 & 60 & 59 & 58 & 57 & 56 \\
+\SetCell[c=8]{c, bg=lightgray} ftwH1main[63:56] \\
+55 & 54 & 53 & 52 & 51 & 50 & 49 & 48 \\
+\SetCell[c=8]{c, bg=lightgray} ftwH1main[55:48] \\
+47 & 46 & 45 & 44 & 43 & 42 & 41 & 40 \\
+\SetCell[c=8]{c, bg=lightgray} ftwH1main[47:40] \\
+39 & 38 & 37 & 36 & 35 & 34 & 33 & 32 \\
+\SetCell[c=8]{c, bg=lightgray} ftwH1main[39:32] \\
+31 & 30 & 29 & 28 & 27 & 26 & 25 & 24 \\
+\SetCell[c=8]{c, bg=lightgray} ftwH1main[31:24] \\
+23 & 22 & 21 & 20 & 19 & 18 & 17 & 16 \\
+\SetCell[c=8]{c, bg=lightgray} ftwH1main[23:16] \\
+15 & 14 & 13 & 12 & 11 & 10 & 9 & 8 \\
+\SetCell[c=8]{c, bg=lightgray} ftwH1main[15:8] \\
+7 & 6 & 5 & 4 & 3 & 2 & 1 & 0 \\
+\SetCell[c=8]{c, bg=lightgray} ftwH1main[7:0] \\
+\end{regdraw}
+
+\begin{regdesc}
+63:0 & rw & ftwH1main & \\
+\end{regdesc}
+
+
+\subsubsection{app.\allowbreak{}modulation.\allowbreak{}ftwH1on}
+\label{sec:app.modulation.ftwH1on}
+\begin{regsummary}
+HW Prefix & app\textunderscore\allowbreak{}modulation\textunderscore\allowbreak{}ftwH1on\\
+HW Address & 0x100058\\
+C Prefix & app.\allowbreak{}modulation.\allowbreak{}ftwH1on\\
+C Block Offset & 0x58\\
+\end{regsummary}
+
+\begin{regdraw}
+63 & 62 & 61 & 60 & 59 & 58 & 57 & 56 \\
+\SetCell[c=8]{c, bg=lightgray} ftwH1on[63:56] \\
+55 & 54 & 53 & 52 & 51 & 50 & 49 & 48 \\
+\SetCell[c=8]{c, bg=lightgray} ftwH1on[55:48] \\
+47 & 46 & 45 & 44 & 43 & 42 & 41 & 40 \\
+\SetCell[c=8]{c, bg=lightgray} ftwH1on[47:40] \\
+39 & 38 & 37 & 36 & 35 & 34 & 33 & 32 \\
+\SetCell[c=8]{c, bg=lightgray} ftwH1on[39:32] \\
+31 & 30 & 29 & 28 & 27 & 26 & 25 & 24 \\
+\SetCell[c=8]{c, bg=lightgray} ftwH1on[31:24] \\
+23 & 22 & 21 & 20 & 19 & 18 & 17 & 16 \\
+\SetCell[c=8]{c, bg=lightgray} ftwH1on[23:16] \\
+15 & 14 & 13 & 12 & 11 & 10 & 9 & 8 \\
+\SetCell[c=8]{c, bg=lightgray} ftwH1on[15:8] \\
+7 & 6 & 5 & 4 & 3 & 2 & 1 & 0 \\
+\SetCell[c=8]{c, bg=lightgray} ftwH1on[7:0] \\
+\end{regdraw}
+
+\begin{regdesc}
+63:0 & rw & ftwH1on & \\
+\end{regdesc}
+
+
+\subsubsection{app.\allowbreak{}modulation.\allowbreak{}dftwH1slip0}
+\label{sec:app.modulation.dftwH1slip0}
+\begin{regsummary}
+HW Prefix & app\textunderscore\allowbreak{}modulation\textunderscore\allowbreak{}dftwH1slip0\\
+HW Address & 0x100060\\
+C Prefix & app.\allowbreak{}modulation.\allowbreak{}dftwH1slip0\\
+C Block Offset & 0x60\\
+\end{regsummary}
+
+\begin{regdraw}
+31 & 30 & 29 & 28 & 27 & 26 & 25 & 24 \\
+\SetCell[c=8]{c, bg=lightgray} dftwH1slip0[31:24] \\
+23 & 22 & 21 & 20 & 19 & 18 & 17 & 16 \\
+\SetCell[c=8]{c, bg=lightgray} dftwH1slip0[23:16] \\
+15 & 14 & 13 & 12 & 11 & 10 & 9 & 8 \\
+\SetCell[c=8]{c, bg=lightgray} dftwH1slip0[15:8] \\
+7 & 6 & 5 & 4 & 3 & 2 & 1 & 0 \\
+\SetCell[c=8]{c, bg=lightgray} dftwH1slip0[7:0] \\
+\end{regdraw}
+
+\begin{regdesc}
+31:0 & rw & dftwH1slip0 & \\
+\end{regdesc}
+
+
+\subsubsection{app.\allowbreak{}modulation.\allowbreak{}dftwH1slip1}
+\label{sec:app.modulation.dftwH1slip1}
+\begin{regsummary}
+HW Prefix & app\textunderscore\allowbreak{}modulation\textunderscore\allowbreak{}dftwH1slip1\\
+HW Address & 0x100064\\
+C Prefix & app.\allowbreak{}modulation.\allowbreak{}dftwH1slip1\\
+C Block Offset & 0x64\\
+\end{regsummary}
+
+\begin{regdraw}
+31 & 30 & 29 & 28 & 27 & 26 & 25 & 24 \\
+\SetCell[c=8]{c, bg=lightgray} dftwH1slip1[31:24] \\
+23 & 22 & 21 & 20 & 19 & 18 & 17 & 16 \\
+\SetCell[c=8]{c, bg=lightgray} dftwH1slip1[23:16] \\
+15 & 14 & 13 & 12 & 11 & 10 & 9 & 8 \\
+\SetCell[c=8]{c, bg=lightgray} dftwH1slip1[15:8] \\
+7 & 6 & 5 & 4 & 3 & 2 & 1 & 0 \\
+\SetCell[c=8]{c, bg=lightgray} dftwH1slip1[7:0] \\
+\end{regdraw}
+
+\begin{regdesc}
+31:0 & rw & dftwH1slip1 & \\
+\end{regdesc}
+
+
+\subsubsection{app.\allowbreak{}modulation.\allowbreak{}latches}
+\label{sec:app.modulation.latches}
+\begin{regsummary}
+HW Prefix & app\textunderscore\allowbreak{}modulation\textunderscore\allowbreak{}latches\\
+HW Address & 0x100068\\
+C Prefix & app.\allowbreak{}modulation.\allowbreak{}latches\\
+C Block Offset & 0x68\\
+\end{regsummary}
+
+\begin{regdraw}
+31 & 30 & 29 & 28 & 27 & 26 & 25 & 24 \\
+- & - & - & - & - & - & - & - \\
+23 & 22 & 21 & 20 & 19 & 18 & 17 & 16 \\
+- & - & - & - & - & - & - & - \\
+15 & 14 & 13 & 12 & 11 & 10 & 9 & 8 \\
+- & - & - & - & - & - & - & - \\
+7 & 6 & 5 & 4 & 3 & 2 & 1 & 0 \\
+\SetCell[c=8]{c, bg=lightgray} backplane[7:0] \\
+\end{regdraw}
+
+\begin{regdesc}
+7:0 & rw & backplane & \\
+\end{regdesc}
+
+
+\subsection{Register Description for Space bar4}
+
+\subsubsection{fgc\textunderscore\allowbreak{}ddr.\allowbreak{}data64.\allowbreak{}data64}
+\label{sec:fgc_ddr.data64.data64}
+\begin{regsummary}
+HW Prefix & fgc\textunderscore\allowbreak{}ddr\textunderscore\allowbreak{}data64\textunderscore\allowbreak{}data64\\
+HW Address & 0x0\\
+C Prefix & fgc\textunderscore\allowbreak{}ddr.\allowbreak{}data64.\allowbreak{}data64\\
+C Block Offset & 0x0\\
+\end{regsummary}
+
+\begin{regdraw}
+63 & 62 & 61 & 60 & 59 & 58 & 57 & 56 \\
+\SetCell[c=8]{c, bg=lightgray} upper[31:24] \\
+55 & 54 & 53 & 52 & 51 & 50 & 49 & 48 \\
+\SetCell[c=8]{c, bg=lightgray} upper[23:16] \\
+47 & 46 & 45 & 44 & 43 & 42 & 41 & 40 \\
+\SetCell[c=8]{c, bg=lightgray} upper[15:8] \\
+39 & 38 & 37 & 36 & 35 & 34 & 33 & 32 \\
+\SetCell[c=8]{c, bg=lightgray} upper[7:0] \\
+31 & 30 & 29 & 28 & 27 & 26 & 25 & 24 \\
+\SetCell[c=8]{c, bg=lightgray} lower[31:24] \\
+23 & 22 & 21 & 20 & 19 & 18 & 17 & 16 \\
+\SetCell[c=8]{c, bg=lightgray} lower[23:16] \\
+15 & 14 & 13 & 12 & 11 & 10 & 9 & 8 \\
+\SetCell[c=8]{c, bg=lightgray} lower[15:8] \\
+7 & 6 & 5 & 4 & 3 & 2 & 1 & 0 \\
+\SetCell[c=8]{c, bg=lightgray} lower[7:0] \\
+\end{regdraw}
+
+\begin{regdesc}
+63:32 & rw & upper & \\
+31:0 & rw & lower & \\
+\end{regdesc}
+
+
+\subsubsection{acq\textunderscore\allowbreak{}ddr.\allowbreak{}data32.\allowbreak{}data32}
+\label{sec:acq_ddr.data32.data32}
+\begin{regsummary}
+HW Prefix & acq\textunderscore\allowbreak{}ddr\textunderscore\allowbreak{}data32\textunderscore\allowbreak{}data32\\
+HW Address & 0x20000000\\
+C Prefix & acq\textunderscore\allowbreak{}ddr.\allowbreak{}data32.\allowbreak{}data32\\
+C Block Offset & 0x0\\
+\end{regsummary}
+
+\begin{regdraw}
+31 & 30 & 29 & 28 & 27 & 26 & 25 & 24 \\
+\SetCell[c=8]{c, bg=lightgray} upper[15:8] \\
+23 & 22 & 21 & 20 & 19 & 18 & 17 & 16 \\
+\SetCell[c=8]{c, bg=lightgray} upper[7:0] \\
+15 & 14 & 13 & 12 & 11 & 10 & 9 & 8 \\
+\SetCell[c=8]{c, bg=lightgray} lower[15:8] \\
+7 & 6 & 5 & 4 & 3 & 2 & 1 & 0 \\
+\SetCell[c=8]{c, bg=lightgray} lower[7:0] \\
+\end{regdraw}
+
+\begin{regdesc}
+31:16 & rw & upper & \\
+15:0 & rw & lower & \\
+\end{regdesc}
+
+
+\subsubsection{acq\textunderscore\allowbreak{}ram.\allowbreak{}data32.\allowbreak{}data32}
+\label{sec:acq_ram.data32.data32}
+\begin{regsummary}
+HW Prefix & acq\textunderscore\allowbreak{}ram\textunderscore\allowbreak{}data32\textunderscore\allowbreak{}data32\\
+HW Address & 0x80000000\\
+C Prefix & acq\textunderscore\allowbreak{}ram.\allowbreak{}data32.\allowbreak{}data32\\
+C Block Offset & 0x0\\
+\end{regsummary}
+
+\begin{regdraw}
+31 & 30 & 29 & 28 & 27 & 26 & 25 & 24 \\
+\SetCell[c=8]{c, bg=lightgray} upper[15:8] \\
+23 & 22 & 21 & 20 & 19 & 18 & 17 & 16 \\
+\SetCell[c=8]{c, bg=lightgray} upper[7:0] \\
+15 & 14 & 13 & 12 & 11 & 10 & 9 & 8 \\
+\SetCell[c=8]{c, bg=lightgray} lower[15:8] \\
+7 & 6 & 5 & 4 & 3 & 2 & 1 & 0 \\
+\SetCell[c=8]{c, bg=lightgray} lower[7:0] \\
+\end{regdraw}
+
+\begin{regdesc}
+31:16 & rw & upper & \\
+15:0 & rw & lower & \\
+\end{regdesc}
+
+

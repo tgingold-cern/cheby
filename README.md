@@ -50,6 +50,8 @@ Output comments for 'repeat' when iogroup is true (issue#130)
 
 Fix crash in doc generation for nested repeat (github issue#4)
 
+Add support for Latex generation
+
 ## Version 1.5
 
 Fix a crash when address lines are not used by cernbus (issue#95)
