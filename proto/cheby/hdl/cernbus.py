@@ -73,8 +73,8 @@ class CERNBEBus(BusGen):
         if root.get_extension('x_hdl', 'busgroup'):
             parser.warning(root, "busgroup on '{}' is ignored for cern-be-vme".format(
                 root.get_path()))
-        if root.get_extension('x_hdl', 'report-error'):
-            parser.warning(root, "report-error on '{}' is ignored for cern-be-vme".format(
+        if root.get_extension('x_hdl', 'bus-error'):
+            parser.warning(root, "bus-error on '{}' is ignored for cern-be-vme".format(
                 root.get_path()))
 
         bus = [('clk', HDLPort("Clk")),

@@ -269,7 +269,7 @@ bus start at 0 (but those extra bits are ignored).  The default is
 bus and ignored by the other buses.  The purpose of this option is for
 compatibility with Xilinx Vivado graphical tools.
 
-`report-error`:: Use the dedicated bus features to signal an error in case of
+`bus-error`:: Use the dedicated bus features to signal an error in case of
 an addressing error, i.e. when accessing an address without corresponding
 mapping. The value is a boolean. By default this option is disabled. Only the
 following bus interfaces are supported:

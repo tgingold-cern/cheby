@@ -1,8 +1,8 @@
 memory-map:
   bus: BUS
-  name: reperr_NAME
+  name: buserr_NAME
   x-hdl:
-    report-error: True
+    bus-error: True
   children:
   - reg:
       name: reg1

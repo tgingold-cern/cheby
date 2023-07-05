@@ -74,7 +74,7 @@ class AXI4LiteBus(BusGen):
 
         proc = HDLSync(root.h_bus['clk'], root.h_bus['brst'], rst_sync=gconfig.rst_sync)
         proc.rst_stmts.append(HDLAssign(ibus.wr_req, bit_0))
-        if opts.report_error:
+        if opts.bus_error:
             # During reset, all handshaking signals are set in a way to accept
             # all handshakes while returning an error on the BRESP signal.
             # This allows the bus to remain accessible despite being in reset
@@ -86,7 +86,7 @@ class AXI4LiteBus(BusGen):
             proc.rst_stmts.append(HDLAssign(axi_wdone, bit_1))
             proc.rst_stmts.append(HDLAssign(axi_werr, RESP_SLVERR))
         else:
-            # Without error reporting, use behaviour of original implementation
+            # Without bus error, use behaviour of original implementation
             proc.rst_stmts.append(HDLAssign(axi_awset, bit_0))
             proc.rst_stmts.append(HDLAssign(axi_wset, bit_0))
             proc.rst_stmts.append(HDLAssign(axi_wdone, bit_0))
@@ -94,7 +94,7 @@ class AXI4LiteBus(BusGen):
             module.stmts.append(HDLAssign(axi_werr, RESP_OKAY))
 
         proc.sync_stmts.append(HDLAssign(ibus.wr_req, bit_0))
-        if opts.report_error:
+        if opts.bus_error:
             # Stop accepting handshake as soon as reset is over
             proc.sync_stmts.append(HDLAssign(axi_wdone, bit_0))
             # Reset BRESP signal
@@ -125,7 +125,7 @@ class AXI4LiteBus(BusGen):
         proc_if = HDLIfElse(HDLEq(HDLParen(HDLAnd(axi_wdone, root.h_bus['bready'])), bit_1))
         proc_if.then_stmts.append(HDLAssign(axi_wset, bit_0))
         proc_if.then_stmts.append(HDLAssign(axi_awset, bit_0))
-        if not opts.report_error:
+        if not opts.bus_error:
             proc_if.then_stmts.append(HDLAssign(axi_wdone, bit_0))
         proc_if.else_stmts = None
         proc.sync_stmts.append(proc_if)
@@ -135,7 +135,7 @@ class AXI4LiteBus(BusGen):
         proc_if = HDLIfElse(HDLEq(ibus.wr_ack, bit_1))
         proc_if.then_stmts.append(HDLAssign(axi_wdone, bit_1))
 
-        if opts.report_error:
+        if opts.bus_error:
             # Set BRESP signal indicating possible address error by returning
             # SLVERR (0b10) in case of an error
             proc_if_err = HDLIfElse(HDLEq(ibus.wr_err, bit_0))
@@ -150,7 +150,7 @@ class AXI4LiteBus(BusGen):
 
         # Maintain assignment order of original implementation (before adding
         # the report error feature)
-        if opts.report_error:
+        if opts.bus_error:
             module.stmts.append(HDLAssign(root.h_bus['bresp'], axi_werr))
         else:
             module.stmts.append(HDLAssign(root.h_bus['bresp'], RESP_OKAY))
@@ -177,7 +177,7 @@ class AXI4LiteBus(BusGen):
 
         proc = HDLSync(root.h_bus['clk'], root.h_bus['brst'], rst_sync=gconfig.rst_sync)
         proc.rst_stmts.append(HDLAssign(ibus.rd_req, bit_0))
-        if opts.report_error:
+        if opts.bus_error:
             # During reset, all handshaking signals are set in a way to accept
             # all handshakes while returning an error on the BRESP signal.
             # This allows the bus to remain accessible despite being in reset
@@ -188,7 +188,7 @@ class AXI4LiteBus(BusGen):
             proc.rst_stmts.append(HDLAssign(axi_rdone, bit_1))
             proc.rst_stmts.append(HDLAssign(axi_rerr, RESP_SLVERR))
         else:
-            # Without error reporting, use behaviour of original implementation
+            # Without bus error, use behaviour of original implementation
             proc.rst_stmts.append(HDLAssign(axi_arset, bit_0))
             proc.rst_stmts.append(HDLAssign(axi_rdone, bit_0))
 
@@ -197,7 +197,7 @@ class AXI4LiteBus(BusGen):
             HDLAssign(root.h_bus['rdata'], HDLReplicate(bit_0, root.c_addr_bits)))
 
         proc.sync_stmts.append(HDLAssign(ibus.rd_req, bit_0))
-        if opts.report_error:
+        if opts.bus_error:
             # Stop accepting handshake as soon as reset is over
             proc.sync_stmts.append(HDLAssign(axi_rdone, bit_0))
             # Reset RRESP signal
@@ -217,7 +217,7 @@ class AXI4LiteBus(BusGen):
         # Clear 'set' bit at the end of the transaction
         proc_if = HDLIfElse(HDLEq(HDLParen(HDLAnd(axi_rdone, root.h_bus['rready'])), bit_1))
         proc_if.then_stmts.append(HDLAssign(axi_arset, bit_0))
-        if not opts.report_error:
+        if not opts.bus_error:
             proc_if.then_stmts.append(HDLAssign(axi_rdone, bit_0))
         proc_if.else_stmts = None
         proc.sync_stmts.append(proc_if)
@@ -228,7 +228,7 @@ class AXI4LiteBus(BusGen):
         proc_if.then_stmts.append(HDLAssign(axi_rdone, bit_1))
         proc_if.then_stmts.append(HDLAssign(root.h_bus['rdata'], ibus.rd_dat))
 
-        if opts.report_error:
+        if opts.bus_error:
             # Set RRESP signal indicating possible address error by returning
             # SLVERR (0b10) in case of an error
             proc_if_err = HDLIfElse(HDLEq(ibus.rd_err, bit_0))
@@ -243,7 +243,7 @@ class AXI4LiteBus(BusGen):
 
         # Maintain assignment order of original implementation (before adding
         # the report error feature)
-        if opts.report_error:
+        if opts.bus_error:
             module.stmts.append(HDLAssign(root.h_bus['rresp'], axi_rerr))
         else:
             module.stmts.append(HDLAssign(root.h_bus['rresp'], RESP_OKAY))

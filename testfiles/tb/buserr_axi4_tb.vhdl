@@ -5,11 +5,11 @@ use ieee.numeric_std.all;
 use work.axi4_tb_pkg.all;
 
 
-entity reperr_axi4_tb is
-end reperr_axi4_tb;
+entity buserr_axi4_tb is
+end buserr_axi4_tb;
 
 
-architecture tb of reperr_axi4_tb is
+architecture tb of buserr_axi4_tb is
   signal rst_n  : std_logic;
   signal clk    : std_logic;
   signal wr_in  : t_axi4lite_write_master_in;
@@ -38,7 +38,7 @@ begin
 
   rst_n <= '0' after 0 ns, '1' after 20 ns;
 
-  dut : entity work.reperr_axi4
+  dut : entity work.buserr_axi4
     port map (
       aclk     => clk,
       areset_n => rst_n,

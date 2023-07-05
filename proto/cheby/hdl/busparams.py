@@ -9,7 +9,7 @@ class BusOptions:
         self.root = root
         # Extract x-hdl options for :param bus:
         self.busgroup = bus.get_extension('x_hdl', 'busgroup')
-        self.report_error = bus.get_extension('x_hdl', 'report-error')
+        self.bus_error = bus.get_extension('x_hdl', 'bus-error')
 
         # External size.  There might be some extra unused bits for address.
         # The default rule is to restrict the address bus to only the used bits.

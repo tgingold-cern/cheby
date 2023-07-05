@@ -6,11 +6,11 @@ use work.wishbone_pkg.all;
 use work.wb_tb_pkg.all;
 
 
-entity reperr_wb_tb is
-end reperr_wb_tb;
+entity buserr_wb_tb is
+end buserr_wb_tb;
 
 
-architecture tb of reperr_wb_tb is
+architecture tb of buserr_wb_tb is
   signal rst_n  : std_logic;
   signal clk    : std_logic;
   signal wb_in  : t_wishbone_slave_in;
@@ -37,7 +37,7 @@ begin
 
   rst_n <= '0' after 0 ns, '1' after 20 ns;
 
-  dut : entity work.reperr_wb
+  dut : entity work.buserr_wb
     port map (
       rst_n_i    => rst_n,
       clk_i      => clk,

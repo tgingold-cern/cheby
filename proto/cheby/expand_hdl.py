@@ -184,7 +184,7 @@ def expand_x_hdl_root(n, dct):
         if k in ['busgroup',
                  'reg_prefix', 'reg-prefix', 'block_prefix', 'block-prefix',
                  'name-suffix',
-                 'report-error']:
+                 'bus-error']:
             pass
         elif k == 'iogroup':
             n.hdl_iogroup = parser.read_text(n, k, v)

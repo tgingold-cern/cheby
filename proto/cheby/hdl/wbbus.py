@@ -34,7 +34,7 @@ class WBBus(BusGen):
         module.stmts.append(proc)
         return HDLAnd(stb, HDLNot(wb_xip))
 
-    def add_decode_wb(self, root, module, ibus, busgroup, report_error):
+    def add_decode_wb(self, root, module, ibus, busgroup, bus_error):
         "Generate internal signals used by decoder/processes from WB bus."
         ibus.addr_size = root.c_addr_bits
         ibus.addr_low = root.c_addr_word_bits
@@ -81,7 +81,7 @@ class WBBus(BusGen):
         module.stmts.append(HDLAssign(ibus.wr_req, wr_req))
         module.stmts.append(HDLComment(None))
 
-        if report_error:
+        if bus_error:
             # Acknowledge or Error
             proc = HDLComb()
             proc.sensitivity.extend([ibus.rd_ack, ibus.wr_ack, ack_int, ibus.rd_err, ibus.wr_err, err_int])
@@ -199,7 +199,7 @@ class WBBus(BusGen):
         root.h_bus = {}
 
         busgroup = root.get_extension('x_hdl', 'busgroup')
-        report_error = root.get_extension('x_hdl', 'report-error')
+        bus_error = root.get_extension('x_hdl', 'bus-error')
 
         root.h_bus.update(self.gen_wishbone(
             module, module, 'wb', root.c_addr_bits, root.c_addr_word_bits,
@@ -209,7 +209,7 @@ class WBBus(BusGen):
         # Bus access
         module.stmts.append(HDLComment('WB decode signals'))
         self.add_decode_wb(
-            root, module, ibus, busgroup is True, report_error is True)
+            root, module, ibus, busgroup is True, bus_error is True)
 
     def gen_bus_slave(self, root, module, prefix, n, opts):
         # Create the bus for a submap or a memory

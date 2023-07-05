@@ -89,8 +89,8 @@ class AvalonBus(BusGen):
         if root.get_extension('x_hdl', 'busgroup'):
             parser.warning(root, "busgroup on '{}' is ignored for avalon-lite".format(
                 root.get_path()))
-        if root.get_extension('x_hdl', 'report-error'):
-            parser.warning(root, "report-error on '{}' is ignored for avalon-lite".format(
+        if root.get_extension('x_hdl', 'bus-error'):
+            parser.warning(root, "bus-error on '{}' is ignored for avalon-lite".format(
                 root.get_path()))
 
         bus = [('clk', HDLPort("clk")),
@@ -125,8 +125,8 @@ class AvalonBus(BusGen):
         if opts.busgroup:
             parser.warning(root, "busgroup on '{}' is ignored for avalon".format(
                 root.get_path()))
-        if opts.report_error:
-            parser.warning(root, "report-error on '{}' is ignored for avalon".format(
+        if opts.bus_error:
+            parser.warning(root, "bus-error on '{}' is ignored for avalon".format(
                 root.get_path()))
 
         n.h_busgroup = opts.busgroup
