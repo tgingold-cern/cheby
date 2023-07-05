@@ -19,11 +19,13 @@ class Ibus:
         # Read signals (in and out)
         self.rd_req = None
         self.rd_ack = None
+        self.rd_err = None
         self.rd_dat = None
         self.rd_adr = None
         # Write signals (in and out)
         self.wr_req = None
         self.wr_ack = None
+        self.wr_err = None
         self.wr_dat = None
         self.wr_adr = None
         self.wr_sel = None
@@ -46,6 +48,7 @@ class Ibus:
                       ('rd_adr', c_ri, 'i', self.addr_size, self.addr_low)])
         c_ro = 'rd-out' in conds
         names.extend([('rd_ack', c_ro, 'o', None, None),
+                      ('rd_err', c_ro, 'o', None, None),
                       ('rd_dat', c_ro, 'o', self.data_size, 0)])
         c_wi = 'wr-in' in conds
         copy_wa = (self.rd_adr == self.wr_adr) and (c_wi == c_ri)
@@ -54,7 +57,8 @@ class Ibus:
                       ('wr_dat', c_wi, 'i', self.data_size, 0),
                       ('wr_sel', c_wi, 'i', self.data_size // tree.BYTE_SIZE, 0)])
         c_wo = 'wr-out' in conds
-        names.extend([('wr_ack', c_wo, 'o', None, None)])
+        names.extend([('wr_ack', c_wo, 'o', None, None),
+                      ('wr_err', c_wo, 'o', None, None)])
         module.stmts.append(HDLComment("pipelining for {}".format('+'.join(conds))))
         proc = HDLSync(root.h_bus['clk'], root.h_bus['brst'],
                        rst_sync=gconfig.rst_sync)

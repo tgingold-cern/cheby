@@ -20,7 +20,9 @@ class AvalonBus(BusGen):
         """Generate internal signals used by decoder/processes from
         Avalon bus."""
         ibus.rd_ack = module.new_HDLSignal('rd_ack_int')    # Ack for read
+        ibus.rd_err = module.new_HDLSignal('rd_err_int')    # Error for read (not supported)
         ibus.wr_ack = module.new_HDLSignal('wr_ack_int')    # Ack for write
+        ibus.wr_err = module.new_HDLSignal('wr_err_int')    # Error for write (not supported)
         ibus.rd_req = module.new_HDLSignal('rd_req_int')    # Read access
         ibus.wr_req = module.new_HDLSignal('wr_req_int')    # Write access
 
@@ -87,6 +89,10 @@ class AvalonBus(BusGen):
         if root.get_extension('x_hdl', 'busgroup'):
             parser.warning(root, "busgroup on '{}' is ignored for avalon-lite".format(
                 root.get_path()))
+        if root.get_extension('x_hdl', 'bus-error'):
+            parser.warning(root, "bus-error on '{}' is ignored for avalon-lite".format(
+                root.get_path()))
+
         bus = [('clk', HDLPort("clk")),
                ('brst', HDLPort("reset"))]
         bus.extend(self.gen_avalon_bus(
@@ -119,6 +125,10 @@ class AvalonBus(BusGen):
         if opts.busgroup:
             parser.warning(root, "busgroup on '{}' is ignored for avalon".format(
                 root.get_path()))
+        if opts.bus_error:
+            parser.warning(root, "bus-error on '{}' is ignored for avalon".format(
+                root.get_path()))
+
         n.h_busgroup = opts.busgroup
         ports = self.gen_avalon_bus(
             lambda name, sz=None, lo=0, dir='IN':

@@ -269,6 +269,17 @@ bus start at 0 (but those extra bits are ignored).  The default is
 bus and ignored by the other buses.  The purpose of this option is for
 compatibility with Xilinx Vivado graphical tools.
 
+`bus-error`:: Use the dedicated bus features to signal an error in case of
+an addressing error, i.e. when accessing an address without corresponding
+mapping. The value is a boolean. By default this option is disabled. Only the
+following bus interfaces are supported:
+
+** `wb-*`: In case of an addressing error, the request is not acknowledged (`ACK`
+stays deasserted) but instead an error is returned (`ERR` is asserted).
+
+** `axi4-lite-32`: In case of an addressing error, the AXI4 Lite response signal
+(`BRESP` or `RRESP`) is non-zero returning `SLVERR` (`0b10`).
+
 === Registers
 
 A register uses one (usual case) or two (for 64-bit registers) words address.

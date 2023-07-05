@@ -439,13 +439,16 @@ class GenReg(ElGen):
                 # Default values for the strobe
                 v = self.strobe_init()
                 rdproc.stmts.append(HDLAssign(n.h_rreq_port, v))
-        # Ack
+
+        # Acknowledge and address error
         if n.h_rack_port is not None:
             rack = n.h_rack_port
             rack = self.strobe_index(off, rack)
         else:
             rack = ibus.rd_req
         s.append(HDLAssign(ibus.rd_ack, rack))
+        s.append(HDLAssign(ibus.rd_err, bit_0))
+
         # Data
         if n.access == 'wo':
             # No data are returned for wo.
@@ -485,10 +488,12 @@ class GenReg(ElGen):
                 # Default values for the strobe
                 v = self.strobe_init()
                 wrproc.stmts.append(HDLAssign(n.h_wreq, v))
-        # Ack
+
+        # Acknowledge and address error
         wack = n.h_wack_port or n.h_wack
         if wack is not None:
             wack = self.strobe_index(off, wack)
         else:
             wack = ibus.wr_req
         s.append(HDLAssign(ibus.wr_ack, wack))
+        s.append(HDLAssign(ibus.wr_err, bit_0))

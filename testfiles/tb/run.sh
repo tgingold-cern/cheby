@@ -138,6 +138,24 @@ build_wb_reg_orclr()
     build_wb_any reg8orclr
 }
 
+build_buserr()
+{
+    echo "## Testing bus error"
+
+    sed -e '/bus:/s/BUS/axi4-lite-32/' -e '/name:/s/NAME/axi4/' < buserr.cheby > buserr_axi4.cheby
+    sed -e '/bus:/s/BUS/wb-32/' -e '/name:/s/NAME/wb/' < buserr.cheby > buserr_wb.cheby
+
+    $CHEBY --no-header --gen-hdl=buserr_axi4.vhdl -i buserr_axi4.cheby
+    $CHEBY --no-header --gen-hdl=buserr_wb.vhdl -i buserr_wb.cheby
+
+    $GHDL -a $GHDL_FLAGS buserr_axi4.vhdl
+    $GHDL -a $GHDL_FLAGS buserr_axi4_tb.vhdl
+    $GHDL --elab-run $GHDL_FLAGS buserr_axi4_tb --assert-level=error --wave=buserr_axi4_tb.ghw
+    $GHDL -a $GHDL_FLAGS buserr_wb.vhdl
+    $GHDL -a $GHDL_FLAGS buserr_wb_tb.vhdl
+    $GHDL --elab-run $GHDL_FLAGS buserr_wb_tb --assert-level=error --wave=buserr_wb_tb.ghw
+}
+
 build_all2()
 {
     $CHEBY --no-header --gen-hdl=sub2_axi4.vhdl -i sub2_axi4.cheby
@@ -178,6 +196,9 @@ do
     build_axi4
     build_cernbe
 done
+
+# Test buses with bus error
+build_buserr
 
 build_all2
 

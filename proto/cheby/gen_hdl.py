@@ -173,7 +173,10 @@ def add_read_mux_process(root, module, ibus):
             s.append(HDLComment("{} {}".format(n.NAME, n.c_name)))
             n.h_gen.gen_read(s, off, ibus, rdproc)
         else:
+            # By default, acknowledge request to unknown address but return
+            # error
             s.append(HDLAssign(ibus.rd_ack, ibus.rd_req))
+            s.append(HDLAssign(ibus.rd_err, ibus.rd_req))
 
     stmts = []
     add_decoder(root, stmts, rd_adr, root, add_read)
@@ -196,8 +199,10 @@ def add_write_mux_process(root, module, ibus):
             s.append(HDLComment("{} {}".format(n.NAME, n.c_name)))
             n.h_gen.gen_write(s, off, ibus, wrproc)
         else:
-            # By default, ack unknown requests.
+            # By default, acknowledge request to unknown address but return
+            # error
             s.append(HDLAssign(ibus.wr_ack, ibus.wr_req))
+            s.append(HDLAssign(ibus.wr_err, ibus.wr_req))
 
     stmts = []
     add_decoder(root, stmts, wr_adr, root, add_write)

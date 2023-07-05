@@ -64,7 +64,23 @@ package axi4_tb_pkg is
       signal bus_o : out t_axi4lite_write_master_out;
       signal bus_i : in  t_axi4lite_write_master_in;
       addr         : in  std_logic_vector(31 downto 0);
+      data         : in  std_logic_vector(datalen - 1 downto 0);
+      resp         : in  std_logic_vector(1 downto 0));
+
+  procedure axi4lite_write (
+      signal clk_i : in  std_logic;
+      signal bus_o : out t_axi4lite_write_master_out;
+      signal bus_i : in  t_axi4lite_write_master_in;
+      addr         : in  std_logic_vector(31 downto 0);
       data         : in  std_logic_vector(datalen - 1 downto 0));
+
+  procedure axi4lite_read (
+      signal clk_i : in  std_logic;
+      signal bus_o : out t_axi4lite_read_master_out;
+      signal bus_i : in  t_axi4lite_read_master_in;
+      addr         : in  std_logic_vector(31 downto 0);
+      data         : out std_logic_vector(datalen - 1 downto 0);
+      resp         : in  std_logic_vector(1 downto 0));
 
   procedure axi4lite_read (
       signal clk_i : in  std_logic;
@@ -74,6 +90,19 @@ package axi4_tb_pkg is
       data         : out std_logic_vector(datalen - 1 downto 0));
 
   --  Simultaneous read and write (for testing purposes).
+  procedure axi4lite_rw (
+      signal clk_i : in  std_logic;
+      signal rbus_o : out t_axi4lite_read_master_out;
+      signal rbus_i : in  t_axi4lite_read_master_in;
+      signal wbus_o : out t_axi4lite_write_master_out;
+      signal wbus_i : in  t_axi4lite_write_master_in;
+      raddr         : in  std_logic_vector(31 downto 0);
+      rdata         : out std_logic_vector(datalen - 1 downto 0);
+      rresp         : in  std_logic_vector(1 downto 0);
+      waddr         : in  std_logic_vector(31 downto 0);
+      wdata         : in  std_logic_vector(datalen - 1 downto 0);
+      wresp         : in  std_logic_vector(1 downto 0));
+
   procedure axi4lite_rw (
       signal clk_i : in  std_logic;
       signal rbus_o : out t_axi4lite_read_master_out;
@@ -106,7 +135,8 @@ package body axi4_tb_pkg is
       signal bus_o : out t_axi4lite_write_master_out;
       signal bus_i : in  t_axi4lite_write_master_in;
       addr         : in  std_logic_vector(31 downto 0);
-      data         : in  std_logic_vector(datalen - 1 downto 0)) is
+      data         : in  std_logic_vector(datalen - 1 downto 0);
+      resp         : in  std_logic_vector(1 downto 0)) is
   begin
     --  Write request
     wait until rising_edge(clk_i);
@@ -138,9 +168,19 @@ package body axi4_tb_pkg is
     bus_o.bready <= '0';
 
     --  Check response.
-    if bus_i.bresp /= C_AXI4_RESP_OK then
-      report "got error reply" severity warning;
+    if bus_i.bresp /= resp then
+      report "Got wrong response, expected " & to_string(resp) & ", got " & to_string(bus_i.bresp) severity error;
     end if;
+  end axi4lite_write;
+
+  procedure axi4lite_write (
+      signal clk_i : in  std_logic;
+      signal bus_o : out t_axi4lite_write_master_out;
+      signal bus_i : in  t_axi4lite_write_master_in;
+      addr         : in  std_logic_vector(31 downto 0);
+      data         : in  std_logic_vector(datalen - 1 downto 0)) is
+  begin
+    axi4lite_write(clk_i, bus_o, bus_i, addr, data, C_AXI4_RESP_OK);
   end axi4lite_write;
 
   procedure axi4lite_rd_init (signal bus_o : out t_axi4lite_read_master_out) is
@@ -156,7 +196,8 @@ package body axi4_tb_pkg is
       signal bus_o : out t_axi4lite_read_master_out;
       signal bus_i : in  t_axi4lite_read_master_in;
       addr         : in  std_logic_vector(31 downto 0);
-      data         : out std_logic_vector(datalen - 1 downto 0))
+      data         : out std_logic_vector(datalen - 1 downto 0);
+      resp         : in  std_logic_vector(1 downto 0))
   is
     variable ardone : boolean := False;
   begin
@@ -182,15 +223,25 @@ package body axi4_tb_pkg is
       wait until rising_edge(clk_i);
     end loop;
     assert ardone report "missing arready" severity error;
-    
+
     bus_o.rready <= '0';
 
     -- Done. Check for errors
-    if bus_i.rresp /= C_AXI4_RESP_OK then
-      report "got error reply" severity warning;
+    if bus_i.rresp /= resp then
+      report "Got wrong response, expected " & to_string(resp) & ", got " & to_string(bus_i.rresp) severity error;
     else
       data := bus_i.rdata;
     end if;
+  end axi4lite_read;
+
+  procedure axi4lite_read (
+      signal clk_i : in  std_logic;
+      signal bus_o : out t_axi4lite_read_master_out;
+      signal bus_i : in  t_axi4lite_read_master_in;
+      addr         : in  std_logic_vector(31 downto 0);
+      data         : out std_logic_vector(datalen - 1 downto 0)) is
+  begin
+    axi4lite_read(clk_i, bus_o, bus_i, addr, data, C_AXI4_RESP_OK);
   end axi4lite_read;
 
   procedure axi4lite_rw (
@@ -201,8 +252,10 @@ package body axi4_tb_pkg is
     signal wbus_i : in  t_axi4lite_write_master_in;
     raddr         : in  std_logic_vector(31 downto 0);
     rdata         : out std_logic_vector(datalen - 1 downto 0);
+    rresp         : in  std_logic_vector(1 downto 0);
     waddr         : in  std_logic_vector(31 downto 0);
-    wdata         : in  std_logic_vector(datalen - 1 downto 0))
+    wdata         : in  std_logic_vector(datalen - 1 downto 0);
+    wresp         : in  std_logic_vector(1 downto 0))
   is
     variable rdone : boolean;
     variable wdone : boolean;
@@ -247,8 +300,8 @@ package body axi4_tb_pkg is
         wbus_o.bready <= '0';
 
         --  Check response.
-        assert wbus_i.bresp = C_AXI4_RESP_OK
-          report "got error reply" severity warning;
+        assert wbus_i.bresp = wresp
+          report "Got wrong write response, expected " & to_string(wresp) & ", got " & to_string(wbus_i.bresp) severity error;
       end if;
 
       if not rdone and rbus_i.rvalid = '1' then
@@ -256,12 +309,27 @@ package body axi4_tb_pkg is
         rbus_o.rready <= '0';
 
         -- Done. Check for errors
-        if rbus_i.rresp /= C_AXI4_RESP_OK then
-          report "got error reply" severity warning;
+        if rbus_i.rresp /= rresp then
+          report "Got wrong read response, expected " & to_string(rresp) & ", got " & to_string(rbus_i.rresp) severity error;
         else
           rdata := rbus_i.rdata;
         end if;
       end if;
     end loop;
   end axi4lite_rw;
+
+  procedure axi4lite_rw (
+    signal clk_i : in  std_logic;
+    signal rbus_o : out t_axi4lite_read_master_out;
+    signal rbus_i : in  t_axi4lite_read_master_in;
+    signal wbus_o : out t_axi4lite_write_master_out;
+    signal wbus_i : in  t_axi4lite_write_master_in;
+    raddr         : in  std_logic_vector(31 downto 0);
+    rdata         : out std_logic_vector(datalen - 1 downto 0);
+    waddr         : in  std_logic_vector(31 downto 0);
+    wdata         : in  std_logic_vector(datalen - 1 downto 0)) is
+  begin
+    axi4lite_rw(clk_i, rbus_o, rbus_i, wbus_o, wbus_i, raddr, rdata, C_AXI4_RESP_OK, waddr, wdata, C_AXI4_RESP_OK);
+  end axi4lite_rw;
+
 end axi4_tb_pkg;
