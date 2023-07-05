@@ -34,7 +34,7 @@ class WBBus(BusGen):
         module.stmts.append(proc)
         return HDLAnd(stb, HDLNot(wb_xip))
 
-    def add_decode_wb(self, root, module, ibus, busgroup):
+    def add_decode_wb(self, root, module, ibus, busgroup, report_error):
         "Generate internal signals used by decoder/processes from WB bus."
         ibus.addr_size = root.c_addr_bits
         ibus.addr_low = root.c_addr_word_bits
@@ -56,10 +56,13 @@ class WBBus(BusGen):
         ibus.rd_req = module.new_HDLSignal('rd_req_int')    # Read access
         ibus.wr_req = module.new_HDLSignal('wr_req_int')    # Write access
         ibus.rd_ack = module.new_HDLSignal('rd_ack_int')    # Ack for read
+        ibus.rd_err = module.new_HDLSignal('rd_err_int')    # Error for read
         ibus.wr_ack = module.new_HDLSignal('wr_ack_int')    # Ack for write
+        ibus.wr_err = module.new_HDLSignal('wr_err_int')    # Error for write
         # Internal signals for wb.
         wb_en = module.new_HDLSignal('wb_en')
-        ack_int = module.new_HDLSignal('ack_int')      # Ack
+        ack_int = module.new_HDLSignal('ack_int')  # Ack
+        err_int = module.new_HDLSignal('err_int')  # Err
         module.stmts.append(
             HDLAssign(wb_en, HDLAnd(root.h_bus['cyc'], root.h_bus['stb'])))
         module.stmts.append(HDLComment(None))
@@ -78,18 +81,46 @@ class WBBus(BusGen):
         module.stmts.append(HDLAssign(ibus.wr_req, wr_req))
         module.stmts.append(HDLComment(None))
 
-        # Ack
-        module.stmts.append(HDLAssign(ack_int,
-                                      HDLOr(ibus.rd_ack, ibus.wr_ack)))
-        module.stmts.append(HDLAssign(root.h_bus['ack'], ack_int))
+        if report_error:
+            # Acknowledge or Error
+            proc = HDLComb()
+            proc.sensitivity.extend([ibus.rd_ack, ibus.wr_ack, ack_int, ibus.rd_err, ibus.wr_err, err_int])
 
-        # Stall
-        module.stmts.append(
-            HDLAssign(root.h_bus['stall'],
-                      HDLAnd(HDLNot(ack_int), wb_en)))
-        # No retry, no errors.
-        module.stmts.append(HDLAssign(root.h_bus['rty'], bit_0))
-        module.stmts.append(HDLAssign(root.h_bus['err'], bit_0))
+            proc.stmts.append(HDLAssign(ack_int, HDLOr(ibus.rd_ack, ibus.wr_ack)))
+            proc.stmts.append(HDLAssign(err_int, HDLOr(ibus.rd_err, ibus.wr_err)))
+            ack_err = HDLIfElse(HDLEq(err_int, bit_0))
+            ack_err.then_stmts.append(HDLAssign(root.h_bus['ack'], ack_int))
+            ack_err.then_stmts.append(HDLAssign(root.h_bus['err'], bit_0))
+            ack_err.else_stmts.append(HDLAssign(root.h_bus['ack'], bit_0))
+            ack_err.else_stmts.append(HDLAssign(root.h_bus['err'], ack_int))
+            proc.stmts.append(ack_err)
+
+            module.stmts.append(proc)
+
+            # No retry
+            module.stmts.append(HDLAssign(root.h_bus['rty'], bit_0))
+
+            # Stall
+            module.stmts.append(
+                HDLAssign(root.h_bus['stall'],
+                          HDLAnd(HDLNot(ack_int), wb_en)))
+
+        else:
+            # Acknowledge
+            module.stmts.append(HDLAssign(ack_int, HDLOr(ibus.rd_ack, ibus.wr_ack)))
+            module.stmts.append(HDLAssign(root.h_bus['ack'], ack_int))
+
+            # Stall
+            # (maintain assignment order of original implementation (before
+            #  adding the report error feature)
+            module.stmts.append(
+                HDLAssign(root.h_bus['stall'],
+                          HDLAnd(HDLNot(ack_int), wb_en)))
+
+            # No retry, no errors.
+            module.stmts.append(HDLAssign(root.h_bus['rty'], bit_0))
+            module.stmts.append(HDLAssign(root.h_bus['err'], bit_0))
+
 
     def gen_wishbone_bus(self, build_port, addr_bits, lo_addr,
                          data_bits, is_master):
@@ -98,7 +129,7 @@ class WBBus(BusGen):
         #  except for system verilog interfaces...
         res = {}
         inp, out = ('IN', 'OUT') if not is_master else ('OUT', 'IN')
-       
+
         res['brst'] = build_port('rst_n', None, dir='EXT')
         res['clk'] = build_port('clk', None, dir='EXT')
 
@@ -168,6 +199,7 @@ class WBBus(BusGen):
         root.h_bus = {}
 
         busgroup = root.get_extension('x_hdl', 'busgroup')
+        report_error = root.get_extension('x_hdl', 'report-error')
 
         root.h_bus.update(self.gen_wishbone(
             module, module, 'wb', root.c_addr_bits, root.c_addr_word_bits,
@@ -176,7 +208,8 @@ class WBBus(BusGen):
 
         # Bus access
         module.stmts.append(HDLComment('WB decode signals'))
-        self.add_decode_wb(root, module, ibus, busgroup is True)
+        self.add_decode_wb(
+            root, module, ibus, busgroup is True, report_error is True)
 
     def gen_bus_slave(self, root, module, prefix, n, opts):
         # Create the bus for a submap or a memory

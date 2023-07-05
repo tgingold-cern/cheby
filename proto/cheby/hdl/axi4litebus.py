@@ -12,6 +12,10 @@ from cheby.hdl.globals import gconfig, dirname
 from cheby.hdl.ibus import add_bus
 from cheby.hdl.busparams import BusOptions
 
+# AXI Lite response codes (BRESP, RRESP)
+RESP_OKAY = HDLBinConst(0, 2)
+RESP_SLVERR = HDLBinConst(2, 2)
+
 
 class AXI4LiteBus(BusGen):
     def __init__(self, name):
@@ -49,6 +53,7 @@ class AXI4LiteBus(BusGen):
         """Sub-routine of expand_bus: the write part"""
         ibus.wr_req = module.new_HDLSignal('wr_req')  # Write access
         ibus.wr_ack = module.new_HDLSignal('wr_ack')  # Ack for write
+        ibus.wr_err = module.new_HDLSignal('wr_err')  # Error for write
         ibus.wr_adr = module.new_HDLSignal('wr_addr', root.c_addr_bits,
                                            lo_idx=root.c_addr_word_bits)
         ibus.wr_dat = module.new_HDLSignal('wr_data', root.c_word_bits)
@@ -62,15 +67,39 @@ class AXI4LiteBus(BusGen):
         axi_awset = module.new_HDLSignal('axi_awset')
         axi_wset = module.new_HDLSignal('axi_wset')
         axi_wdone = module.new_HDLSignal('axi_wdone')
+        axi_werr = module.new_HDLSignal('axi_werr', 2)
         module.stmts.append(HDLAssign(root.h_bus['awready'], HDLNot(axi_awset)))
         module.stmts.append(HDLAssign(root.h_bus['wready'], HDLNot(axi_wset)))
         module.stmts.append(HDLAssign(root.h_bus['bvalid'], axi_wdone))
+
         proc = HDLSync(root.h_bus['clk'], root.h_bus['brst'], rst_sync=gconfig.rst_sync)
         proc.rst_stmts.append(HDLAssign(ibus.wr_req, bit_0))
-        proc.rst_stmts.append(HDLAssign(axi_awset, bit_0))
-        proc.rst_stmts.append(HDLAssign(axi_wset, bit_0))
-        proc.rst_stmts.append(HDLAssign(axi_wdone, bit_0))
+        if opts.report_error:
+            # During reset, all handshaking signals are set in a way to accept
+            # all handshakes while returning an error on the BRESP signal.
+            # This allows the bus to remain accessible despite being in reset
+            # and without stalling the bus.
+            proc.rst_stmts.append(HDLComment(
+                "During reset, accept all handshakes and return error"))
+            proc.rst_stmts.append(HDLAssign(axi_awset, bit_0))
+            proc.rst_stmts.append(HDLAssign(axi_wset, bit_0))
+            proc.rst_stmts.append(HDLAssign(axi_wdone, bit_1))
+            proc.rst_stmts.append(HDLAssign(axi_werr, RESP_SLVERR))
+        else:
+            # Without error reporting, use behaviour of original implementation
+            proc.rst_stmts.append(HDLAssign(axi_awset, bit_0))
+            proc.rst_stmts.append(HDLAssign(axi_wset, bit_0))
+            proc.rst_stmts.append(HDLAssign(axi_wdone, bit_0))
+
+            module.stmts.append(HDLAssign(axi_werr, RESP_OKAY))
+
         proc.sync_stmts.append(HDLAssign(ibus.wr_req, bit_0))
+        if opts.report_error:
+            # Stop accepting handshake as soon as reset is over
+            proc.sync_stmts.append(HDLAssign(axi_wdone, bit_0))
+            # Reset BRESP signal
+            proc.sync_stmts.append(HDLAssign(axi_werr, RESP_OKAY))
+
         # Load AWADDR (and acknowledge the AW request)
         proc_if = HDLIfElse(HDLAnd(HDLEq(root.h_bus['awvalid'], bit_1),
                                    HDLEq(axi_awset, bit_0)))
@@ -91,26 +120,46 @@ class AXI4LiteBus(BusGen):
             HDLAssign(ibus.wr_req, HDLOr(axi_awset, root.h_bus['awvalid'])))  # Start if AW
         proc_if.else_stmts = None
         proc.sync_stmts.append(proc_if)
+
         # Clear 'set' bits at the end of the transaction
         proc_if = HDLIfElse(HDLEq(HDLParen(HDLAnd(axi_wdone, root.h_bus['bready'])), bit_1))
         proc_if.then_stmts.append(HDLAssign(axi_wset, bit_0))
         proc_if.then_stmts.append(HDLAssign(axi_awset, bit_0))
-        proc_if.then_stmts.append(HDLAssign(axi_wdone, bit_0))
+        if not opts.report_error:
+            proc_if.then_stmts.append(HDLAssign(axi_wdone, bit_0))
         proc_if.else_stmts = None
         proc.sync_stmts.append(proc_if)
+
         # WDONE indicates that the write is done on the slave part (so waiting to
         # be acknowledged by the master). WDONE is set on ack, cleared on BREADY.
         proc_if = HDLIfElse(HDLEq(ibus.wr_ack, bit_1))
         proc_if.then_stmts.append(HDLAssign(axi_wdone, bit_1))
+
+        if opts.report_error:
+            # Set BRESP signal indicating possible address error by returning
+            # SLVERR (0b10) in case of an error
+            proc_if_err = HDLIfElse(HDLEq(ibus.wr_err, bit_0))
+            proc_if_err.then_stmts.append(HDLAssign(axi_werr, RESP_OKAY))
+            proc_if_err.else_stmts.append(HDLAssign(axi_werr, RESP_SLVERR))
+            proc_if.then_stmts.append(proc_if_err)
+
         proc_if.else_stmts = None
         proc.sync_stmts.append(proc_if)
+
         module.stmts.append(proc)
-        module.stmts.append(HDLAssign(root.h_bus['bresp'], HDLConst(0, 2)))
+
+        # Maintain assignment order of original implementation (before adding
+        # the report error feature)
+        if opts.report_error:
+            module.stmts.append(HDLAssign(root.h_bus['bresp'], axi_werr))
+        else:
+            module.stmts.append(HDLAssign(root.h_bus['bresp'], RESP_OKAY))
 
     def expand_bus_r(self, root, module, ibus, opts):
         """Sub-routine of expand_bus: the read part"""
         ibus.rd_req = module.new_HDLSignal('rd_req')  # Read access
         ibus.rd_ack = module.new_HDLSignal('rd_ack')  # Ack for read
+        ibus.rd_err = module.new_HDLSignal('rd_err')  # Error for read
         ibus.rd_adr = module.new_HDLSignal('rd_addr', root.c_addr_bits,
                                            lo_idx=root.c_addr_word_bits)
         ibus.rd_dat = module.new_HDLSignal('rd_data', root.c_word_bits)
@@ -122,15 +171,38 @@ class AXI4LiteBus(BusGen):
         module.stmts.append(HDLComment("AR and R channels"))
         axi_arset = module.new_HDLSignal('axi_arset')
         axi_rdone = module.new_HDLSignal('axi_rdone')
+        axi_rerr = module.new_HDLSignal('axi_rerr', 2)
         module.stmts.append(HDLAssign(root.h_bus['arready'], HDLNot(axi_arset)))
         module.stmts.append(HDLAssign(root.h_bus['rvalid'], axi_rdone))
+
         proc = HDLSync(root.h_bus['clk'], root.h_bus['brst'], rst_sync=gconfig.rst_sync)
         proc.rst_stmts.append(HDLAssign(ibus.rd_req, bit_0))
-        proc.rst_stmts.append(HDLAssign(axi_arset, bit_0))
-        proc.rst_stmts.append(HDLAssign(axi_rdone, bit_0))
+        if opts.report_error:
+            # During reset, all handshaking signals are set in a way to accept
+            # all handshakes while returning an error on the BRESP signal.
+            # This allows the bus to remain accessible despite being in reset
+            # and without stalling the bus.
+            proc.rst_stmts.append(HDLComment(
+                "During reset, accept all handshakes and return error"))
+            proc.rst_stmts.append(HDLAssign(axi_arset, bit_0))
+            proc.rst_stmts.append(HDLAssign(axi_rdone, bit_1))
+            proc.rst_stmts.append(HDLAssign(axi_rerr, RESP_SLVERR))
+        else:
+            # Without error reporting, use behaviour of original implementation
+            proc.rst_stmts.append(HDLAssign(axi_arset, bit_0))
+            proc.rst_stmts.append(HDLAssign(axi_rdone, bit_0))
+
+            module.stmts.append(HDLAssign(axi_rerr, RESP_OKAY))
         proc.rst_stmts.append(
             HDLAssign(root.h_bus['rdata'], HDLReplicate(bit_0, root.c_addr_bits)))
+
         proc.sync_stmts.append(HDLAssign(ibus.rd_req, bit_0))
+        if opts.report_error:
+            # Stop accepting handshake as soon as reset is over
+            proc.sync_stmts.append(HDLAssign(axi_rdone, bit_0))
+            # Reset RRESP signal
+            proc.sync_stmts.append(HDLAssign(axi_rerr, RESP_OKAY))
+
         # Load ARADDR (and acknowledge the AR request)
         proc_if = HDLIfElse(HDLAnd(HDLEq(root.h_bus['arvalid'], bit_1),
                                    HDLEq(axi_arset, bit_0)))
@@ -141,21 +213,40 @@ class AXI4LiteBus(BusGen):
         proc_if.then_stmts.append(HDLAssign(ibus.rd_req, bit_1))
         proc_if.else_stmts = None
         proc.sync_stmts.append(proc_if)
+
         # Clear 'set' bit at the end of the transaction
         proc_if = HDLIfElse(HDLEq(HDLParen(HDLAnd(axi_rdone, root.h_bus['rready'])), bit_1))
         proc_if.then_stmts.append(HDLAssign(axi_arset, bit_0))
-        proc_if.then_stmts.append(HDLAssign(axi_rdone, bit_0))
+        if not opts.report_error:
+            proc_if.then_stmts.append(HDLAssign(axi_rdone, bit_0))
         proc_if.else_stmts = None
         proc.sync_stmts.append(proc_if)
+
         # RDONE indicates that the read is done on the slave part (so waiting to
         # be acknowledged by the master). RDONE is set on ack, cleared on RREADY.
         proc_if = HDLIfElse(HDLEq(ibus.rd_ack, bit_1))
         proc_if.then_stmts.append(HDLAssign(axi_rdone, bit_1))
         proc_if.then_stmts.append(HDLAssign(root.h_bus['rdata'], ibus.rd_dat))
+
+        if opts.report_error:
+            # Set RRESP signal indicating possible address error by returning
+            # SLVERR (0b10) in case of an error
+            proc_if_err = HDLIfElse(HDLEq(ibus.rd_err, bit_0))
+            proc_if_err.then_stmts.append(HDLAssign(axi_rerr, RESP_OKAY))
+            proc_if_err.else_stmts.append(HDLAssign(axi_rerr, RESP_SLVERR))
+            proc_if.then_stmts.append(proc_if_err)
+
         proc_if.else_stmts = None
         proc.sync_stmts.append(proc_if)
+
         module.stmts.append(proc)
-        module.stmts.append(HDLAssign(root.h_bus['rresp'], HDLConst(0, 2)))
+
+        # Maintain assignment order of original implementation (before adding
+        # the report error feature)
+        if opts.report_error:
+            module.stmts.append(HDLAssign(root.h_bus['rresp'], axi_rerr))
+        else:
+            module.stmts.append(HDLAssign(root.h_bus['rresp'], RESP_OKAY))
 
     def add_xilinx_attributes(self, bus, portname):
         for name, port in bus:

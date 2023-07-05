@@ -27,7 +27,9 @@ class CERNBEBus(BusGen):
         ibus.rd_req = root.h_bus['rd']
         ibus.wr_req = root.h_bus['wr']
         ibus.rd_ack = module.new_HDLSignal('rd_ack_int')    # Ack for read
+        ibus.rd_err = module.new_HDLSignal('rd_err_int')    # Error for read (not supported)
         ibus.wr_ack = module.new_HDLSignal('wr_ack_int')    # Ack for write
+        ibus.wr_err = module.new_HDLSignal('wr_err_int')    # Error for write (not supported)
         module.stmts.append(HDLAssign(root.h_bus['rack'], ibus.rd_ack))
         module.stmts.append(HDLAssign(root.h_bus['wack'], ibus.wr_ack))
 
@@ -71,6 +73,10 @@ class CERNBEBus(BusGen):
         if root.get_extension('x_hdl', 'busgroup'):
             parser.warning(root, "busgroup on '{}' is ignored for cern-be-vme".format(
                 root.get_path()))
+        if root.get_extension('x_hdl', 'report-error'):
+            parser.warning(root, "report-error on '{}' is ignored for cern-be-vme".format(
+                root.get_path()))
+
         bus = [('clk', HDLPort("Clk")),
                ('brst', HDLPort("Rst"))]
         bus.extend(self.gen_cern_bus(

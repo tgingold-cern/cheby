@@ -1,0 +1,24 @@
+memory-map:
+  bus: BUS
+  name: reperr_NAME
+  x-hdl:
+    report-error: True
+  children:
+  - reg:
+      name: reg1
+      type: unsigned
+      width: 32
+      access: rw
+      preset: 0x12345678
+  - reg:
+      name: reg2
+      type: unsigned
+      width: 32
+      access: rw
+      preset: 0x12345678
+  - reg:
+      name: reg3
+      type: unsigned
+      width: 32
+      access: rw
+      preset: 0x12345678
