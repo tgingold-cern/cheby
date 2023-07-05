@@ -4,7 +4,7 @@ from cheby.hdltree import (HDLPort,
                            bit_1, bit_0,
                            HDLAnd, HDLOr, HDLNot, HDLEq,
                            HDLSlice, HDLReplicate,
-                           HDLConst, HDLBinConst, HDLParen)
+                           HDLBinConst, HDLParen)
 from cheby.hdl.busgen import BusGen
 import cheby.tree as tree
 import cheby.parser as parser
@@ -74,6 +74,8 @@ class AXI4LiteBus(BusGen):
 
         proc = HDLSync(root.h_bus['clk'], root.h_bus['brst'], rst_sync=gconfig.rst_sync)
         proc.rst_stmts.append(HDLAssign(ibus.wr_req, bit_0))
+        proc.rst_stmts.append(HDLAssign(axi_awset, bit_0))
+        proc.rst_stmts.append(HDLAssign(axi_wset, bit_0))
         if opts.bus_error:
             # During reset, all handshaking signals are set in a way to accept
             # all handshakes while returning an error on the BRESP signal.
@@ -81,14 +83,10 @@ class AXI4LiteBus(BusGen):
             # and without stalling the bus.
             proc.rst_stmts.append(HDLComment(
                 "During reset, accept all handshakes and return error"))
-            proc.rst_stmts.append(HDLAssign(axi_awset, bit_0))
-            proc.rst_stmts.append(HDLAssign(axi_wset, bit_0))
             proc.rst_stmts.append(HDLAssign(axi_wdone, bit_1))
             proc.rst_stmts.append(HDLAssign(axi_werr, RESP_SLVERR))
         else:
             # Without bus error, use behaviour of original implementation
-            proc.rst_stmts.append(HDLAssign(axi_awset, bit_0))
-            proc.rst_stmts.append(HDLAssign(axi_wset, bit_0))
             proc.rst_stmts.append(HDLAssign(axi_wdone, bit_0))
 
             module.stmts.append(HDLAssign(axi_werr, RESP_OKAY))
@@ -149,11 +147,12 @@ class AXI4LiteBus(BusGen):
         module.stmts.append(proc)
 
         # Maintain assignment order of original implementation (before adding
-        # the report error feature)
+        # the bus error feature)
         if opts.bus_error:
-            module.stmts.append(HDLAssign(root.h_bus['bresp'], axi_werr))
+            bresp = axi_werr
         else:
-            module.stmts.append(HDLAssign(root.h_bus['bresp'], RESP_OKAY))
+            bresp = RESP_OKAY
+        module.stmts.append(HDLAssign(root.h_bus['bresp'], bresp))
 
     def expand_bus_r(self, root, module, ibus, opts):
         """Sub-routine of expand_bus: the read part"""
@@ -177,6 +176,7 @@ class AXI4LiteBus(BusGen):
 
         proc = HDLSync(root.h_bus['clk'], root.h_bus['brst'], rst_sync=gconfig.rst_sync)
         proc.rst_stmts.append(HDLAssign(ibus.rd_req, bit_0))
+        proc.rst_stmts.append(HDLAssign(axi_arset, bit_0))
         if opts.bus_error:
             # During reset, all handshaking signals are set in a way to accept
             # all handshakes while returning an error on the BRESP signal.
@@ -184,12 +184,10 @@ class AXI4LiteBus(BusGen):
             # and without stalling the bus.
             proc.rst_stmts.append(HDLComment(
                 "During reset, accept all handshakes and return error"))
-            proc.rst_stmts.append(HDLAssign(axi_arset, bit_0))
             proc.rst_stmts.append(HDLAssign(axi_rdone, bit_1))
             proc.rst_stmts.append(HDLAssign(axi_rerr, RESP_SLVERR))
         else:
             # Without bus error, use behaviour of original implementation
-            proc.rst_stmts.append(HDLAssign(axi_arset, bit_0))
             proc.rst_stmts.append(HDLAssign(axi_rdone, bit_0))
 
             module.stmts.append(HDLAssign(axi_rerr, RESP_OKAY))
@@ -242,11 +240,12 @@ class AXI4LiteBus(BusGen):
         module.stmts.append(proc)
 
         # Maintain assignment order of original implementation (before adding
-        # the report error feature)
+        # the bus error feature)
         if opts.bus_error:
-            module.stmts.append(HDLAssign(root.h_bus['rresp'], axi_rerr))
+            rresp = axi_rerr
         else:
-            module.stmts.append(HDLAssign(root.h_bus['rresp'], RESP_OKAY))
+            rresp = RESP_OKAY
+        module.stmts.append(HDLAssign(root.h_bus['rresp'], rresp))
 
     def add_xilinx_attributes(self, bus, portname):
         for name, port in bus:

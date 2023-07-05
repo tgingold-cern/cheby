@@ -96,29 +96,22 @@ class WBBus(BusGen):
             proc.stmts.append(ack_err)
 
             module.stmts.append(proc)
-
-            # No retry
-            module.stmts.append(HDLAssign(root.h_bus['rty'], bit_0))
-
-            # Stall
-            module.stmts.append(
-                HDLAssign(root.h_bus['stall'],
-                          HDLAnd(HDLNot(ack_int), wb_en)))
-
         else:
             # Acknowledge
             module.stmts.append(HDLAssign(ack_int, HDLOr(ibus.rd_ack, ibus.wr_ack)))
             module.stmts.append(HDLAssign(root.h_bus['ack'], ack_int))
 
-            # Stall
-            # (maintain assignment order of original implementation (before
-            #  adding the report error feature)
-            module.stmts.append(
-                HDLAssign(root.h_bus['stall'],
-                          HDLAnd(HDLNot(ack_int), wb_en)))
+        # Stall
+        module.stmts.append(
+            HDLAssign(root.h_bus['stall'], HDLAnd(HDLNot(ack_int), wb_en)))
 
-            # No retry, no errors.
-            module.stmts.append(HDLAssign(root.h_bus['rty'], bit_0))
+        # No retry
+        module.stmts.append(HDLAssign(root.h_bus['rty'], bit_0))
+
+        if not bus_error:
+            # No error
+            # (maintain assignment order of original implementation (before
+            #  adding the bus error feature)
             module.stmts.append(HDLAssign(root.h_bus['err'], bit_0))
 
 
