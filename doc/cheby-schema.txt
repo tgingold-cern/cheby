@@ -72,14 +72,15 @@ node is 'memory-map', there is only one root node, and it has these attributes:
 bus: string
   Define the physical interface for the memory map as well as the physical
   representation of data.  Must be one of:
+  "apb-32": APB bus using 32 bit words.
+  "axi4-lite-32": AXI4 lite bus using 32 bit words.
   "be-vme-32": CERN-BE specific VME-like interface. 32 bit words, stored in
     big-endian.
   "wb-32-be": Wishbone bus using 32 bit words stored in big-endian.
-  "axi4-lite-32": AXI4 lite bus using 32 bit words.
 word-endian:
   Define the endianness of register longer than one word.
   The default value is defined by the bus (big-endian for be-vme and wb-32-be,
-  little-endian for axi4-lite-32'), but can be overriden by this attribute.
+  little-endian for apb-32 and axi4-lite-32'), but can be overriden by this attribute.
   The value can be: 'little', 'big' or 'none'.  'none' means that no
   register can be longer than a word.
 name: string

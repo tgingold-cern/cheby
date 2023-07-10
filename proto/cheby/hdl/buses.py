@@ -1,6 +1,7 @@
 from cheby.hdl.wbbus import WBBus
 from cheby.hdl.cernbus import CERNBEBus
 from cheby.hdl.srambus import SRAMBus
+from cheby.hdl.apbbus import APBBus
 from cheby.hdl.axi4litebus import AXI4LiteBus
 from cheby.hdl.avalonbus import AvalonBus
 
@@ -8,6 +9,8 @@ from cheby.hdl.avalonbus import AvalonBus
 def name_to_busgen(name):
     if name.startswith('wb-'):
         return WBBus(name)
+    elif name.startswith('apb-'):
+        return APBBus(name)
     elif name == 'axi4-lite-32':
         return AXI4LiteBus(name)
     elif name == 'avalon-lite-32':

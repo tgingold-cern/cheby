@@ -9,6 +9,8 @@ use work.wishbone_pkg.all;
 use work.axi4_tb_pkg.all;
 use work.cernbe_tb_pkg.all;
 use work.avalon_tb_pkg.all;
+use work.apb_tb_pkg.all;
+
 
 architecture behav of all1_axi4_tb is
   signal rst_n   : std_logic;
@@ -44,6 +46,10 @@ architecture behav of all1_axi4_tb is
   --  For sub4
   signal sub4_in      : t_avmm_master_out;
   signal sub4_out     : t_avmm_master_in;
+
+  --  For sub5: APB
+  signal sub5_in  : t_apb_slave_in;
+  signal sub5_out : t_apb_slave_out;
 
   signal end_of_test : boolean := False;
 begin
@@ -146,8 +152,18 @@ begin
       sub4_avalon_read_o  => sub4_in.read,
       sub4_avalon_write_o => sub4_in.write,
       sub4_avalon_readdatavalid_i => sub4_out.readdatavalid,
-      sub4_avalon_waitrequest_i => sub4_out.waitrequest
-      );
+      sub4_avalon_waitrequest_i => sub4_out.waitrequest,
+
+      sub5_apb_paddr_o   => sub5_in.paddr(11 downto 2),
+      sub5_apb_psel_o    => sub5_in.psel,
+      sub5_apb_pwrite_o  => sub5_in.pwrite,
+      sub5_apb_penable_o => sub5_in.penable,
+      sub5_apb_pready_i  => sub5_out.pready,
+      sub5_apb_pwdata_o  => sub5_in.pwdata,
+      sub5_apb_pstrb_o   => sub5_in.pstrb,
+      sub5_apb_prdata_i  => sub5_out.prdata,
+      sub5_apb_pslverr_i => sub5_out.pslverr
+    );
 
   --  WB target
   b1: entity work.block1_wb
@@ -179,6 +195,14 @@ begin
               av_in => sub4_in,
               av_out => sub4_out);
 
+  -- APB target
+  b5 : entity work.block1_apb
+    port map (
+      clk     => clk,
+      rst_n   => rst_n,
+      bus_in  => sub5_in,
+      bus_out => sub5_out);
+
   bram2 : entity work.sram2
     port map (clk_i => clk,
               addr_i => ram2_addr,
@@ -205,7 +229,11 @@ begin
   end process;
 
   process
-    procedure test_bus(name : string; addr : std_logic_vector(31 downto 0))
+    procedure test_bus (
+      name    : string;
+      addr    : std_logic_vector(31 downto 0);
+      test_rw : boolean := True
+    )
     is
       variable v : std_logic_vector(31 downto 0);
     begin
@@ -245,22 +273,25 @@ begin
       assert v = x"04fb_fb04" severity error;
 
       --  Simultaneous R&W
-      report "Testing " & name & " (read+write)" severity note;
-      axi4lite_rw(clk, rd_out, rd_in, wr_out, wr_in,
-                  addr or x"0000_0008", v,
-                  addr, addr or x"8765_cdef");
-      assert v = x"02fd_fd02" severity error;
+      if test_rw then
+        report "Testing " & name & " (read+write)" severity note;
+        axi4lite_rw(clk, rd_out, rd_in, wr_out, wr_in,
+                    addr or x"0000_0008", v,
+                    addr, addr or x"8765_cdef");
+        assert v = x"02fd_fd02" severity error;
 
-      axi4lite_rw(clk, rd_out, rd_in, wr_out, wr_in,
-                  addr or x"0000_0000", v,
-                  addr or x"0000_000c",  x"fc03_03fc");
-      assert v = (addr or x"8765_cdef");
+        axi4lite_rw(clk, rd_out, rd_in, wr_out, wr_in,
+                    addr or x"0000_0000", v,
+                    addr or x"0000_000c",  x"fc03_03fc");
+        assert v = (addr or x"8765_cdef");
 
-      axi4lite_rw(clk, rd_out, rd_in, wr_out, wr_in,
-                  addr or x"0000_0010", v,
-                  addr or x"0000_0014",  x"fa05_05fa");
-      assert v = x"04fb_fb04" severity error;
+        axi4lite_rw(clk, rd_out, rd_in, wr_out, wr_in,
+                    addr or x"0000_0010", v,
+                    addr or x"0000_0014",  x"fa05_05fa");
+        assert v = x"04fb_fb04" severity error;
+      end if;
     end test_bus;
+
     variable v : std_logic_vector(31 downto 0);
   begin
     axi4lite_wr_init(wr_out);
@@ -318,6 +349,9 @@ begin
     --  Testing AVALON
     test_bus ("avalon", x"0000_4000");
 
+    --  Testing APB
+    test_bus ("apb", x"0000_5000", False);
+
     --  Test bug when first writing a reg and then read in a submap.
     --  Check with the wb submap.
     axi4lite_write (clk, wr_out, wr_in, x"0000_1000", x"def7_0000");
@@ -348,7 +382,7 @@ begin
   --  Watchdog.
   process
   begin
-    wait until end_of_test for 7 us;
+    wait until end_of_test for 8 us;
     assert end_of_test report "timeout" severity failure;
     wait;
   end process;
