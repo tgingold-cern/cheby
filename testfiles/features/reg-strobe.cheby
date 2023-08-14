@@ -1,0 +1,17 @@
+memory-map:
+  bus: wb-32-be
+  name: reg_strobe
+  description: An example of a cheby memory map
+  children:
+    - reg:
+        name: regA
+        description: The first register (with some fields)
+        width: 32
+        access: rw
+        x-hdl:
+          write-strobe: True
+        children:
+          - field:
+              name: field0
+              description: 1-bit field
+              range: 1
