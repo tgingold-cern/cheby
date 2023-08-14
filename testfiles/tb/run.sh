@@ -8,18 +8,31 @@ set -e
 
 build_infra()
 {
- $GHDL -a $GHDL_FLAGS wishbone_pkg.vhd
- $GHDL -a $GHDL_FLAGS cheby_pkg.vhd
- $GHDL -a $GHDL_FLAGS axi4_tb_pkg.vhdl
- $GHDL -a $GHDL_FLAGS wb_tb_pkg.vhdl
- $GHDL -a $GHDL_FLAGS cernbe_tb_pkg.vhdl
- $GHDL -a $GHDL_FLAGS avalon_tb_pkg.vhdl
- $GHDL -a $GHDL_FLAGS dpssram.vhdl
- $GHDL -a $GHDL_FLAGS block1_axi4.vhdl
- $GHDL -a $GHDL_FLAGS block1_wb.vhdl
- $GHDL -a $GHDL_FLAGS block1_cernbe.vhdl
- $GHDL -a $GHDL_FLAGS block1_avmm.vhdl
- $GHDL -a $GHDL_FLAGS sram2.vhdl
+    $GHDL -a $GHDL_FLAGS wishbone_pkg.vhd
+    $GHDL -a $GHDL_FLAGS cheby_pkg.vhd
+    $GHDL -a $GHDL_FLAGS apb_tb_pkg.vhdl
+    $GHDL -a $GHDL_FLAGS axi4_tb_pkg.vhdl
+    $GHDL -a $GHDL_FLAGS wb_tb_pkg.vhdl
+    $GHDL -a $GHDL_FLAGS cernbe_tb_pkg.vhdl
+    $GHDL -a $GHDL_FLAGS avalon_tb_pkg.vhdl
+    $GHDL -a $GHDL_FLAGS dpssram.vhdl
+    $GHDL -a $GHDL_FLAGS block1_apb.vhdl
+    $GHDL -a $GHDL_FLAGS block1_axi4.vhdl
+    $GHDL -a $GHDL_FLAGS block1_wb.vhdl
+    $GHDL -a $GHDL_FLAGS block1_cernbe.vhdl
+    $GHDL -a $GHDL_FLAGS block1_avmm.vhdl
+    $GHDL -a $GHDL_FLAGS sram2.vhdl
+}
+
+build_apb()
+{
+    echo "## Testing APB"
+
+    sed -e '/bus:/s/BUS/apb-32/' -e '/name:/s/NAME/apb/' < all1_BUS.cheby > all1_apb.cheby
+    $CHEBY --no-header --gen-hdl=all1_apb.vhdl -i all1_apb.cheby
+    $GHDL -a $GHDL_FLAGS all1_apb.vhdl
+    $GHDL -a $GHDL_FLAGS all1_apb_tb.vhdl
+    $GHDL --elab-run $GHDL_FLAGS all1_apb_tb --assert-level=error --wave=all1_apb_tb.ghw
 }
 
 build_axi4_addrwidth()
@@ -142,12 +155,17 @@ build_buserr()
 {
     echo "## Testing bus error"
 
+    sed -e '/bus:/s/BUS/apb-32/' -e '/name:/s/NAME/apb/' < buserr.cheby > buserr_apb.cheby
     sed -e '/bus:/s/BUS/axi4-lite-32/' -e '/name:/s/NAME/axi4/' < buserr.cheby > buserr_axi4.cheby
     sed -e '/bus:/s/BUS/wb-32/' -e '/name:/s/NAME/wb/' < buserr.cheby > buserr_wb.cheby
 
+    $CHEBY --no-header --gen-hdl=buserr_apb.vhdl -i buserr_apb.cheby
     $CHEBY --no-header --gen-hdl=buserr_axi4.vhdl -i buserr_axi4.cheby
     $CHEBY --no-header --gen-hdl=buserr_wb.vhdl -i buserr_wb.cheby
 
+    $GHDL -a $GHDL_FLAGS buserr_apb.vhdl
+    $GHDL -a $GHDL_FLAGS buserr_apb_tb.vhdl
+    $GHDL --elab-run $GHDL_FLAGS buserr_apb_tb --assert-level=error --wave=buserr_apb_tb.ghw
     $GHDL -a $GHDL_FLAGS buserr_axi4.vhdl
     $GHDL -a $GHDL_FLAGS buserr_axi4_tb.vhdl
     $GHDL --elab-run $GHDL_FLAGS buserr_axi4_tb --assert-level=error --wave=buserr_axi4_tb.ghw
@@ -182,6 +200,7 @@ build_wb_reg_orclr
 # Test buses without pipeline.
 sed -e '/PIPELINE/d' < all1_xxx.cheby > all1_BUS.cheby
 build_wb
+build_apb
 build_axi4
 build_cernbe
 build_avalon
@@ -193,6 +212,7 @@ do
     echo "### Testing pipeline $pl"
     sed -e "s/PIPELINE/$pl/" < all1_xxx.cheby > all1_BUS.cheby
     build_wb
+    build_apb
     build_axi4
     build_cernbe
 done

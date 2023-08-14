@@ -9,6 +9,8 @@ use work.wishbone_pkg.all;
 use work.axi4_tb_pkg.all;
 use work.cernbe_tb_pkg.all;
 use work.avalon_tb_pkg.all;
+use work.apb_tb_pkg.all;
+
 
 architecture behav of all1_avalon_tb is
   signal rst, rst_n   : std_logic;
@@ -42,6 +44,10 @@ architecture behav of all1_avalon_tb is
   --  For sub4
   signal sub4_in      : t_avmm_master_out;
   signal sub4_out     : t_avmm_master_in;
+
+  --  For sub5: APB
+  signal sub5_in  : t_apb_slave_in;
+  signal sub5_out : t_apb_slave_out;
 
   signal end_of_test : boolean := False;
 begin
@@ -134,8 +140,18 @@ begin
       sub4_avalon_read_o  => sub4_in.read,
       sub4_avalon_write_o => sub4_in.write,
       sub4_avalon_readdatavalid_i => sub4_out.readdatavalid,
-      sub4_avalon_waitrequest_i => sub4_out.waitrequest
-      );
+      sub4_avalon_waitrequest_i => sub4_out.waitrequest,
+
+      sub5_apb_paddr_o   => sub5_in.paddr(11 downto 2),
+      sub5_apb_psel_o    => sub5_in.psel,
+      sub5_apb_pwrite_o  => sub5_in.pwrite,
+      sub5_apb_penable_o => sub5_in.penable,
+      sub5_apb_pready_i  => sub5_out.pready,
+      sub5_apb_pwdata_o  => sub5_in.pwdata,
+      sub5_apb_pstrb_o   => sub5_in.pstrb,
+      sub5_apb_prdata_i  => sub5_out.prdata,
+      sub5_apb_pslverr_i => sub5_out.pslverr
+    );
 
   --  WB target
   b1: entity work.block1_wb
@@ -166,6 +182,14 @@ begin
               rst_n => rst_n,
               av_in => sub4_in,
               av_out => sub4_out);
+
+  -- APB target
+  b5 : entity work.block1_apb
+    port map (
+      clk     => clk,
+      rst_n   => rst_n,
+      bus_in  => sub5_in,
+      bus_out => sub5_out);
 
   bram2 : entity work.sram2
     port map (clk_i => clk,
@@ -287,6 +311,9 @@ begin
 
     --  Testing AVALON
     test_bus ("avalon", x"0000_4000");
+
+    --  Testing APB
+    test_bus ("apb", x"0000_5000");
 
     wait until rising_edge(clk);
 

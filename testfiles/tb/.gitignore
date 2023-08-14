@@ -1,3 +1,7 @@
+all1_apb.cheby
+all1_apb.vhdl
+buserr_apb.cheby
+buserr_apb.vhdl
 *.o
 *.ghw
 *_tb

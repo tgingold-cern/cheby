@@ -38,7 +38,7 @@ value read has no meaning.
 * Memories. A memory is like a RAM memory except that hardware also
 has access to it (through a second port, hence the name dual
 port).  Memories are used when a certain amount of data has to be
-transfered or to configure hardware for data transfers (like DMA
+transferred or to configure hardware for data transfers (like DMA
 descriptors).  To avoid possible conflicts, memories are usually one
 direction: the software can read and the hardware can write, or the
 software can write and the hardwire can read.
@@ -67,7 +67,7 @@ coherency between them.
 == User Starting Guide
 
 Let's work on a very simple design: a counter.  The hardware
-increments a countewr every cycle until it reaches a maximal value,
+increments a counter every cycle until it reaches a maximal value,
 then it starts again from 0.
 
 As a designer, you have to implement the counter but you can use Cheby
@@ -94,7 +94,7 @@ The description of the file format is documented later in this guide.
 
 For the hardware designer, cheby can generate the hardware interface:
 for VHDL this is an entity and its associated architecture and for
-verilog this is a module.  The hardware interface contains the wishbone bus,
+Verilog this is a module.  The hardware interface contains the wishbone bus,
 the registers described in the file, the decoding logic, and ports for the
 registers.
 
@@ -128,7 +128,7 @@ include::srcs/counter.h[]
 The absolute address of the counter is determined by the instantiation
 of this module, but you can refer directly to the registers.
 
-In order for the end-user or a developper to have a better view of the design,
+In order for the end-user or a developer to have a better view of the design,
 it is better to read a documentation.  A doc can be generated from the
 description file:
 
@@ -145,7 +145,7 @@ include::srcs/counter-reindent.md[]
 
 === General Structure
 
-The Cheby file format represent a hierachy of nodes.  A node contains
+The Cheby file format represent a hierarchy of nodes.  A node contains
 a list of attribute and children.  An attribute is designated by a name and
 has a value (a string, a boolean or an integer).  The children are nodes,
 organized as a list.
@@ -176,8 +176,8 @@ documentation.
 * `address`: An optional byte address relative to the parent.  The address must
 be correctly aligned.  If not provided or it the value is `next`, then the
 address is computed using the previous one and the alignment.  It is possible
-to go backward by providing explicit address (eg: the first child has address 4
-and the second one has address 0), but this is not recommended and be a source
+to go backward by providing explicit address (e.g.: the first child has address
+4 and the second one has address 0), but this is not recommended and be a source
 of errors (in particular with automatic addresses that are always computed
 from the previous node). Overlapping addresses are detected by the tools.
 
@@ -199,26 +199,28 @@ this name is to easily refuse a random YAML file.
 The `bus` attribute specifies which bus will be used to interface the CPU with
 the HW module.  It can be:
 
-* wb-32-be: non-pipelined wishbone with 32 bit of data using the big-endian
-convention
-
-* wb-16, wb-32: non-pipelined wishbone using 16 or 32 bit of data and big-endian convention by default
-
-* axi4-lite-32: AIX4 lite bus with 32 bit of data
+* apb-32: APB bus with 32 bit of data
 
 * avalon-lite-32: AVALON bus with 32 bit of data
+
+* axi4-lite-32: AIX4 lite bus with 32 bit of data
 
 * cern-be-vme-SZ: CERN VME-like bus using `SZ` data bit.  `SZ` can be
 8, 16 or 32.
 
 * cern-be-vme-split-SZ: CERN vme-like bus with split read and write address lines
 
+* wb-32-be: non-pipelined wishbone with 32 bit of data using the big-endian
+convention
+
+* wb-16, wb-32: non-pipelined wishbone using 16 or 32 bit of data and big-endian convention by default
+
 The attribute `word-endian` can be used to specify the word endianness
-(how multi-word registers are laid out in memory).  It is optionnal,
+(how multi-word registers are laid out in memory).  It is optional,
 and the default is set according to the bus: `big` by default for
-`wb-32-be` and `cern-be-vme`, `little` for `axi4-lite-32`.  It is also
+`wb-32-be` and `cern-be-vme`, `little` for `apb-32`, and `axi4-lite-32`.  It is
 possible to use `none` to disallow any multi-word registers, and thus having
-a portable memory map.
+also a portable memory map.
 
 If you need to reserve area in a module, you can use the `size` attribute to
 specify the size (in bytes) of the memory space used by the module.  The suffixes
@@ -257,6 +259,9 @@ There are also aliases: "wr" is for "wr-in,wr-out", "rd" for "rd-in,rd-out",
 Finally it is possible to use "none" not to use any pipelining.
 The pipelining is a single barrier of registers inserted on an internal bus,
 which is created from the external bus.
+Please note, that without any pipelinging the `apb-32` interface might
+complete its write and read request without the access phase and hence, in a
+single clock cycle only (contrary to the standard's specifications).
 
 `name-suffix`:: The name of the hdl entity or module is by default the name of
 the memory map.  This attribute adds a suffix to those names.
@@ -562,7 +567,7 @@ Example of an included submap:
 
 For all buses, only word accesses are supported.  Sub-word (byte or half-word)
 accesses are considered as word accesses (which can lead to error when
-writting).
+writing).
 
 Addresses are byte addresses unless `bus-granularity` is set to `word`.
 
@@ -644,7 +649,7 @@ The `cheby` tool can also generate the C and header files for DSP access:
 This will creates `DSP/include/MemMapDSP_X.h`, `DSP/include/vmeacc_X.h` and
 `DSP/vmeacc_X.c` (where `X` is the name of the design.
 
-You can also gnerate each file individually:
+You can also generate each file individually:
 
 [source]
 ----
@@ -736,7 +741,7 @@ design stored in a different file. In the header file generated, the
 structure for the referenced design is not redefined, but imported
 through an `include` directive, using the `DESIGN.h` name (without any
 directory).  So it is expected that either all the headers are stored
-in the same directory or that the include pathes are specified to the
+in the same directory or that the include paths are specified to the
 C compiler (using `-I` for example).
 
 The generated header files use the standard integer types defined in
