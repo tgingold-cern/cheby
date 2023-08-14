@@ -48,9 +48,11 @@ Add support for any construct in an address-space (issue#129)
 
 Output comments for 'repeat' when iogroup is true (issue#130)
 
-Fix crash in doc generation for nested repeat (github issue#4)
+Fix crash in doc generation for nested repeat (issue#67, github PR #4)
 
-Add support for Latex generation
+Add support for Latex generation (github PR #5)
+
+Add support for the APB bus (github PR #11)
 
 ## Version 1.5
 
