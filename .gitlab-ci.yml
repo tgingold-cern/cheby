@@ -1,18 +1,31 @@
-test-v2:
-    stage: build
-    image: python:3
-    script:
+.python_venv:
+  image: python:3
+  before_script:
+    - python3 -m venv .venv
+    - source .venv/bin/activate
     - python -V
-    - pip install pyyaml
+    - pip install -r requirements.txt
+
+test_generation:
+  stage: test
+  extends: .python_venv
+  script:
     - cd proto
     - python tests.py
 
+test_interaction:
+  stage: test
+  extends: .python_venv
+  script:
+    - cd testfiles/tb
+    - ./run.sh
+
 deploy:
-    stage: deploy
-    only:
+  stage: deploy
+  only:
     - master
     - tags
-    tags:
+  tags:
     - cheby-cd
-    script:
+  script:
     - source integration/cern-ci.sh
