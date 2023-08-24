@@ -15,7 +15,7 @@ test_generation:
 
 test_interaction:
   rules:
-    - if $NO_GHDL == null
+    - if: $NO_GHDL == null
   stage: test
   extends: .python_venv
   script:
