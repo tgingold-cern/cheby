@@ -445,6 +445,10 @@ def generate_stmts(fd, stmts, indent):
             w(fd, sindent)
             generate_assign(fd, s)
         elif isinstance(s, hdltree.HDLComb):
+            # Print processes only if they contain statements
+            if not s.stmts:
+                continue
+
             w(fd, sindent)
             if s.name is not None:
                 w(fd, '{}: '.format(s.name))
