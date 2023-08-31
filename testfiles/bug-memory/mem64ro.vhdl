@@ -31,6 +31,7 @@ entity mem64ro is
 end mem64ro;
 
 architecture syn of mem64ro is
+  signal wr_sel                         : std_logic_vector(31 downto 0);
   signal rd_req_int                     : std_logic;
   signal wr_req_int                     : std_logic;
   signal rd_ack_int                     : std_logic;
@@ -55,10 +56,18 @@ architecture syn of mem64ro is
   signal wr_req_d0                      : std_logic;
   signal wr_adr_d0                      : std_logic_vector(9 downto 2);
   signal wr_dat_d0                      : std_logic_vector(31 downto 0);
-  signal wr_sel_d0                      : std_logic_vector(3 downto 0);
+  signal wr_sel_d0                      : std_logic_vector(31 downto 0);
+  signal DdrCapturesIndex_sel_int       : std_logic_vector(3 downto 0);
+  signal DdrCapturesIndex_sel_int       : std_logic_vector(3 downto 0);
 begin
 
   -- WB decode signals
+  process (wb_sel_i) begin
+    wr_sel(7 downto 0) <= (others => wb_sel_i(0));
+    wr_sel(15 downto 8) <= (others => wb_sel_i(1));
+    wr_sel(23 downto 16) <= (others => wb_sel_i(2));
+    wr_sel(31 downto 24) <= (others => wb_sel_i(3));
+  end process;
   wb_en <= wb_cyc_i and wb_stb_i;
 
   process (clk_i) begin
@@ -101,7 +110,7 @@ begin
         wr_req_d0 <= wr_req_int;
         wr_adr_d0 <= wb_adr_i;
         wr_dat_d0 <= wb_dat_i;
-        wr_sel_d0 <= wb_sel_i;
+        wr_sel_d0 <= wr_sel;
       end if;
     end if;
   end process;
@@ -135,7 +144,7 @@ begin
       clk_a_i              => clk_i,
       clk_b_i              => clk_i,
       addr_a_i             => wb_adr_i(8 downto 3),
-      bwsel_a_i            => wr_sel_d0,
+      bwsel_a_i            => DdrCapturesIndex_sel_int,
       data_a_i             => (others => 'X'),
       data_a_o             => DdrCapturesIndex_DdrCaptures_int_dato0,
       rd_a_i               => DdrCapturesIndex_DdrCaptures_rreq0,
@@ -148,6 +157,21 @@ begin
       wr_b_i               => DdrCapturesIndex_DdrCaptures_we_i
     );
   
+  process (wr_sel_d0) begin
+    DdrCapturesIndex_sel_int <= (others => '0');
+    if not (wr_sel_d0(7 downto 0) = (7 downto 0 => '0')) then
+      DdrCapturesIndex_sel_int(0) <= '1';
+    end if;
+    if not (wr_sel_d0(15 downto 8) = (7 downto 0 => '0')) then
+      DdrCapturesIndex_sel_int(1) <= '1';
+    end if;
+    if not (wr_sel_d0(23 downto 16) = (7 downto 0 => '0')) then
+      DdrCapturesIndex_sel_int(2) <= '1';
+    end if;
+    if not (wr_sel_d0(31 downto 24) = (7 downto 0 => '0')) then
+      DdrCapturesIndex_sel_int(3) <= '1';
+    end if;
+  end process;
   DdrCapturesIndex_DdrCaptures_raminst1: cheby_dpssram
     generic map (
       g_data_width         => 32,
@@ -160,7 +184,7 @@ begin
       clk_a_i              => clk_i,
       clk_b_i              => clk_i,
       addr_a_i             => wb_adr_i(8 downto 3),
-      bwsel_a_i            => wr_sel_d0,
+      bwsel_a_i            => DdrCapturesIndex_sel_int,
       data_a_i             => (others => 'X'),
       data_a_o             => DdrCapturesIndex_DdrCaptures_int_dato1,
       rd_a_i               => DdrCapturesIndex_DdrCaptures_rreq1,
@@ -173,6 +197,21 @@ begin
       wr_b_i               => DdrCapturesIndex_DdrCaptures_we_i
     );
   
+  process (wr_sel_d0) begin
+    DdrCapturesIndex_sel_int <= (others => '0');
+    if not (wr_sel_d0(7 downto 0) = (7 downto 0 => '0')) then
+      DdrCapturesIndex_sel_int(0) <= '1';
+    end if;
+    if not (wr_sel_d0(15 downto 8) = (7 downto 0 => '0')) then
+      DdrCapturesIndex_sel_int(1) <= '1';
+    end if;
+    if not (wr_sel_d0(23 downto 16) = (7 downto 0 => '0')) then
+      DdrCapturesIndex_sel_int(2) <= '1';
+    end if;
+    if not (wr_sel_d0(31 downto 24) = (7 downto 0 => '0')) then
+      DdrCapturesIndex_sel_int(3) <= '1';
+    end if;
+  end process;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
