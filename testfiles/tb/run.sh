@@ -24,15 +24,18 @@ build_infra()
     $GHDL -a $GHDL_FLAGS sram2.vhdl
 }
 
-build_apb()
+build_interface()
 {
-    echo "## Testing APB"
+    name="$1"
+    name_short="$2"
 
-    sed -e '/bus:/s/BUS/apb-32/' -e '/name:/s/NAME/apb/' < all1_BUS.cheby > all1_apb.cheby
-    $CHEBY --no-header --gen-hdl=all1_apb.vhdl -i all1_apb.cheby
-    $GHDL -a $GHDL_FLAGS all1_apb.vhdl
-    $GHDL -a $GHDL_FLAGS all1_apb_tb.vhdl
-    $GHDL --elab-run $GHDL_FLAGS all1_apb_tb --assert-level=error --wave=all1_apb_tb.ghw
+    echo "## Testing interface '${name}'"
+
+    sed -e '/bus:/s/BUS/'"${name}"'/' -e '/name:/s/NAME/'"${name_short}"'/' < all1_BUS.cheby > all1_${name_short}.cheby
+    $CHEBY --no-header --gen-hdl=all1_${name_short}.vhdl -i all1_${name_short}.cheby
+    $GHDL -a $GHDL_FLAGS all1_${name_short}.vhdl
+    $GHDL -a $GHDL_FLAGS all1_${name_short}_tb.vhdl
+    $GHDL --elab-run $GHDL_FLAGS all1_${name_short}_tb --assert-level=error --wave=all1_${name_short}_tb.ghw
 }
 
 build_axi4_addrwidth()
@@ -53,52 +56,13 @@ build_axi4_addrwidth()
     $GHDL --elab-run $GHDL_FLAGS addrwidth_axi4_${1}_tb --assert-level=error --wave=addrwidth_axi4_${1}_tb.ghw
 }
 
-build_axi4()
+build_avalon_reg2()
 {
- echo "## Testing AXI4"
+    echo "## Testing Avalon (reg2)"
 
- sed -e '/bus:/s/BUS/axi4-lite-32/' -e '/name:/s/NAME/axi4/' < all1_BUS.cheby > all1_axi4.cheby
- $CHEBY --no-header --gen-hdl=all1_axi4.vhdl -i all1_axi4.cheby
- $GHDL -a $GHDL_FLAGS all1_axi4.vhdl
- $GHDL -a $GHDL_FLAGS all1_axi4_tb.vhdl
- $GHDL --elab-run $GHDL_FLAGS all1_axi4_tb --assert-level=error --wave=all1_axi4_tb.ghw
-}
-
-build_wb()
-{
- echo "## Testing WB"
-
-  sed -e '/bus:/s/BUS/wb-32-be/' -e '/name:/s/NAME/wb/' < all1_BUS.cheby > all1_wb.cheby
- $CHEBY --no-header --gen-hdl=all1_wb.vhdl -i all1_wb.cheby
- $GHDL -a $GHDL_FLAGS all1_wb.vhdl
- $GHDL -a $GHDL_FLAGS all1_wb_tb.vhdl
- $GHDL --elab-run $GHDL_FLAGS all1_wb_tb --assert-level=error --wave=all1_wb_tb.ghw
-}
-
-build_cernbe()
-{
- echo "## Testing CERN-BE"
-
- sed -e '/bus:/s/BUS/cern-be-vme-32/' -e '/name:/s/NAME/cernbe/' < all1_BUS.cheby > all1_cernbe.cheby
- $CHEBY --no-header --gen-hdl=all1_cernbe.vhdl -i all1_cernbe.cheby
- $GHDL -a $GHDL_FLAGS all1_cernbe.vhdl
- $GHDL -a $GHDL_FLAGS all1_cernbe_tb.vhdl
- $GHDL --elab-run $GHDL_FLAGS all1_cernbe_tb --assert-level=error --wave=all1_cernbe_tb.ghw
-}
-
-build_avalon()
-{
-  echo "## Testing Avalon (reg2)"
-
-  sed -e '/bus:/s/BUS/avalon-lite-32/' -e '/name:/s/NAME/avalon/' < all1_BUS.cheby > all1_avalon.cheby
-  $CHEBY --no-header --gen-hdl=all1_avalon.vhdl -i all1_avalon.cheby
-  $GHDL -a $GHDL_FLAGS all1_avalon.vhdl
-  $GHDL -a $GHDL_FLAGS all1_avalon_tb.vhdl
-  $GHDL --elab-run $GHDL_FLAGS all1_avalon_tb --assert-level=error --wave=all1_avalon_tb.ghw
-
- sed -e '/bus:/s/BUS/avalon-lite-32/' -e '/name:/s/NAME/avalon/' \
+    sed -e '/bus:/s/BUS/avalon-lite-32/' -e '/name:/s/NAME/avalon/' \
         -e '/pipeline:/d' -e '/^  x-hdl:$/d' \
-          < reg2_xxx.cheby > reg2_avalon.cheby
+        < reg2_xxx.cheby > reg2_avalon.cheby
     $CHEBY --no-header --gen-hdl=reg2_avalon.vhdl -i reg2_avalon.cheby
     $GHDL -a $GHDL_FLAGS reg2_avalon.vhdl
     $GHDL -a $GHDL_FLAGS reg2_avalon_tb.vhdl
@@ -151,27 +115,26 @@ build_wb_reg_orclr()
     build_wb_any reg8orclr
 }
 
+build_buserr_any()
+{
+    name="$1"
+    name_short="$2"
+
+    sed -e '/bus:/s/BUS/'"${name}"'/' -e '/name:/s/NAME/'"${name_short}"'/' < buserr.cheby > buserr_${name_short}.cheby
+
+    $CHEBY --no-header --gen-hdl=buserr_${name_short}.vhdl -i buserr_${name_short}.cheby
+
+    $GHDL -a $GHDL_FLAGS buserr_${name_short}.vhdl
+    $GHDL -a $GHDL_FLAGS buserr_${name_short}_tb.vhdl
+    $GHDL --elab-run $GHDL_FLAGS buserr_${name_short}_tb --assert-level=error --wave=buserr_${name_short}_tb.ghw
+}
+
 build_buserr()
 {
     echo "## Testing bus error"
-
-    sed -e '/bus:/s/BUS/apb-32/' -e '/name:/s/NAME/apb/' < buserr.cheby > buserr_apb.cheby
-    sed -e '/bus:/s/BUS/axi4-lite-32/' -e '/name:/s/NAME/axi4/' < buserr.cheby > buserr_axi4.cheby
-    sed -e '/bus:/s/BUS/wb-32/' -e '/name:/s/NAME/wb/' < buserr.cheby > buserr_wb.cheby
-
-    $CHEBY --no-header --gen-hdl=buserr_apb.vhdl -i buserr_apb.cheby
-    $CHEBY --no-header --gen-hdl=buserr_axi4.vhdl -i buserr_axi4.cheby
-    $CHEBY --no-header --gen-hdl=buserr_wb.vhdl -i buserr_wb.cheby
-
-    $GHDL -a $GHDL_FLAGS buserr_apb.vhdl
-    $GHDL -a $GHDL_FLAGS buserr_apb_tb.vhdl
-    $GHDL --elab-run $GHDL_FLAGS buserr_apb_tb --assert-level=error --wave=buserr_apb_tb.ghw
-    $GHDL -a $GHDL_FLAGS buserr_axi4.vhdl
-    $GHDL -a $GHDL_FLAGS buserr_axi4_tb.vhdl
-    $GHDL --elab-run $GHDL_FLAGS buserr_axi4_tb --assert-level=error --wave=buserr_axi4_tb.ghw
-    $GHDL -a $GHDL_FLAGS buserr_wb.vhdl
-    $GHDL -a $GHDL_FLAGS buserr_wb_tb.vhdl
-    $GHDL --elab-run $GHDL_FLAGS buserr_wb_tb --assert-level=error --wave=buserr_wb_tb.ghw
+    build_buserr_any "apb-32" "apb"
+    build_buserr_any "axi4-lite-32" "axi4"
+    build_buserr_any "wb-32-be" "wb"
 }
 
 build_all2()
@@ -184,42 +147,55 @@ build_all2()
     $GHDL --elab-run $GHDL_FLAGS all2_axi4_tb --assert-level=error --wave=all2_axi4_tb.ghw
 }
 
+
+# Build packages
 build_infra
 
-# AXI4 byte/word addresses.
+
+# Avalon Reg 2
+build_avalon_reg2
+
+# AXI4 byte/word addresses
 build_axi4_addrwidth byte byte
 build_axi4_addrwidth word byte
 build_axi4_addrwidth byte word
 
+# Wishbone registers
 build_wb_reg_simple
 build_wb_reg
 build_wb_reg_ac
 build_wb_reg_const
 build_wb_reg_orclr
 
-# Test buses without pipeline.
-sed -e '/PIPELINE/d' < all1_xxx.cheby > all1_BUS.cheby
-build_wb
-build_apb
-build_axi4
-build_cernbe
-build_avalon
-
-# Test buses with various pipelining.
-for pl in "none" "rd" "wr" "in" "out" "rd-in" "rd-out" "wr-in" "wr-out" \
-          "wr-in,rd-out" "rd-in,wr-out" "in,out" "all"
-do
-    echo "### Testing pipeline $pl"
-    sed -e "s/PIPELINE/$pl/" < all1_xxx.cheby > all1_BUS.cheby
-    build_wb
-    build_apb
-    build_axi4
-    build_cernbe
-done
-
 # Test buses with bus error
 build_buserr
 
+#
 build_all2
+
+
+# Test buses without pipeline
+echo "# Testing without pipeline"
+sed -e '/PIPELINE/d' < all1_xxx.cheby > all1_BUS.cheby
+
+build_interface "apb-32" "apb"
+build_interface "avalon-lite-32" "avalon"
+build_interface "axi4-lite-32" "axi4"
+build_interface "cern-be-vme-32" "cernbe"
+build_interface "wb-32-be" "wb"
+
+# Test buses with various pipelining
+for pl in "none" "rd" "wr" "in" "out" "rd-in" "rd-out" "wr-in" "wr-out" \
+          "wr-in,rd-out" "rd-in,wr-out" "in,out" "all"
+do
+    echo "# Testing pipeline $pl"
+    sed -e "s/PIPELINE/$pl/" < all1_xxx.cheby > all1_BUS.cheby
+
+    build_interface "apb-32" "apb"
+    build_interface "avalon-lite-32" "avalon"
+    build_interface "axi4-lite-32" "axi4"
+    build_interface "cern-be-vme-32" "cernbe"
+    build_interface "wb-32-be" "wb"
+done
 
 echo "SUCCESS"
