@@ -45,14 +45,20 @@ begin
 
     variable addr_a : natural;
     variable addr_b : natural;
+    variable mask_a : std_logic_vector(g_data_width-1 downto 0);
+    variable mask_b : std_logic_vector(g_data_width-1 downto 0);
   begin
     wait until rising_edge(clk_a_i) or rising_edge(clk_b_i);
 
+    for idx in mask_a'range loop
+      mask_a(idx) := bwsel_a_i(idx / 8);
+      mask_b(idx) := bwsel_b_i(idx / 8);
+    end loop ;
+
     if rising_edge(clk_a_i) then
       if wr_a_i = '1' then
-        --  TODO: handle wbsel.
         addr_a := to_integer(unsigned(addr_a_i));
-        ram(addr_a) := data_a_i;
+        ram(addr_a) := (ram(addr_a) and not(mask_a)) or (data_a_i and mask_a);
       end if;
       if rd_a_i = '1' then
         addr_a := to_integer(unsigned(addr_a_i));
@@ -62,9 +68,8 @@ begin
 
     if rising_edge(clk_b_i) then
       if wr_b_i = '1' then
-        --  TODO: handle wbsel.
         addr_b := to_integer(unsigned(addr_b_i));
-        ram(addr_b) := data_b_i;
+        ram(addr_b) := (ram(addr_b) and not(mask_b)) or (data_b_i and mask_b);
       end if;
       if rd_a_i = '1' then
         addr_b := to_integer(unsigned(addr_b_i));

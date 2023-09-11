@@ -1,6 +1,4 @@
-from cheby.hdltree import (HDLAssign, HDLSync, HDLComment,
-                           bit_0)
-import cheby.tree as tree
+from cheby.hdltree import HDLAssign, HDLSync, HDLComment, bit_0
 from cheby.hdl.globals import gconfig
 
 
@@ -55,7 +53,12 @@ class Ibus:
         names.extend([('wr_req', c_wi, 'i', None, None),
                       ('wr_adr', c_wi, 'i', self.addr_size, self.addr_low),
                       ('wr_dat', c_wi, 'i', self.data_size, 0),
-                      ('wr_sel', c_wi, 'i', self.data_size // tree.BYTE_SIZE, 0)])
+                      # The write mask of the internal bus operates on a per bit level.
+                      # In case of a more coarse selection at an upper interface
+                      # driving the internal bus, it is supposed that the EDA tool will
+                      # make the necessary optimizations to propagate the reduce mask
+                      # width down to the application of it in the internal bus.
+                      ('wr_sel', c_wi, 'i', self.data_size, 0)])
         c_wo = 'wr-out' in conds
         names.extend([('wr_ack', c_wo, 'o', None, None),
                       ('wr_err', c_wo, 'o', None, None)])

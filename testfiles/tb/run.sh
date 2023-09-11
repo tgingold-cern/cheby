@@ -170,6 +170,17 @@ build_buserr_any()
     build_any "buserr_${name_short}"
 }
 
+build_wmask_any()
+{
+    name="$1"
+    name_short="$2"
+
+    echo "## Testing register write mask for interface '${name}'"
+    sed -e '/bus:/s/BUS/'"${name}"'/' -e '/name:/s/NAME/'"${name_short}"'/' < wmask.cheby > wmask_${name_short}.cheby
+
+    build_any "wmask_${name_short}"
+}
+
 # Build packages
 build_infra
 
@@ -206,5 +217,11 @@ build_all2
 build_buserr_any "apb-32" "apb"
 build_buserr_any "axi4-lite-32" "axi4"
 build_buserr_any "wb-32-be" "wb"
+
+# Test buses with register write mask
+build_wmask_any "apb-32" "apb"
+build_wmask_any "avalon-lite-32" "avalon"
+build_wmask_any "axi4-lite-32" "axi4"
+build_wmask_any "wb-32-be" "wb"
 
 echo "SUCCESS"

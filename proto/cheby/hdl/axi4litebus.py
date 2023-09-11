@@ -1,10 +1,21 @@
-from cheby.hdltree import (HDLPort,
-                           HDLAssign, HDLSync, HDLComment,
-                           HDLIfElse,
-                           bit_1, bit_0,
-                           HDLAnd, HDLOr, HDLNot, HDLEq,
-                           HDLSlice, HDLReplicate,
-                           HDLBinConst, HDLParen)
+from cheby.hdltree import (
+    HDLPort,
+    HDLAssign,
+    HDLSync,
+    HDLComb,
+    HDLComment,
+    HDLIfElse,
+    bit_1,
+    bit_0,
+    HDLAnd,
+    HDLOr,
+    HDLNot,
+    HDLEq,
+    HDLSlice,
+    HDLReplicate,
+    HDLBinConst,
+    HDLParen,
+)
 from cheby.hdl.busgen import BusGen
 import cheby.tree as tree
 import cheby.parser as parser
@@ -57,7 +68,7 @@ class AXI4LiteBus(BusGen):
         ibus.wr_adr = module.new_HDLSignal('wr_addr', root.c_addr_bits,
                                            lo_idx=root.c_addr_word_bits)
         ibus.wr_dat = module.new_HDLSignal('wr_data', root.c_word_bits)
-        ibus.wr_sel = module.new_HDLSignal('wr_strb', root.c_word_bits // tree.BYTE_SIZE)
+        ibus.wr_sel = module.new_HDLSignal('wr_sel', root.c_word_bits)
         # For the write accesses:
         # AWREADY and WREADY default to asserted and are deasserted one cycle after AWVALID and
         # WVALID are set, respectively. AWADDR, WDATA and WSEL are registred at the same time.
@@ -108,11 +119,26 @@ class AXI4LiteBus(BusGen):
         proc_if.then_stmts.append(HDLAssign(ibus.wr_req, axi_wset))  # Start if W already set
         proc_if.else_stmts = None
         proc.sync_stmts.append(proc_if)
+
         # Load WDATA and WSEL (and acknowledge the W request)
         proc_if = HDLIfElse(HDLAnd(HDLEq(root.h_bus['wvalid'], bit_1),
                                    HDLEq(axi_wset, bit_0)))
         proc_if.then_stmts.append(HDLAssign(ibus.wr_dat, root.h_bus['wdata']))
-        proc_if.then_stmts.append(HDLAssign(ibus.wr_sel, root.h_bus['wstrb']))
+
+        #   Translate Byte-wise write mask of AXI4Lite bus to bit-wise write mask of
+        #   internal bus
+        for idx in range(root.c_word_bits // tree.BYTE_SIZE):
+            proc_if.then_stmts.append(
+                HDLAssign(
+                    HDLSlice(ibus.wr_sel, idx * tree.BYTE_SIZE, tree.BYTE_SIZE),
+                    HDLReplicate(
+                        HDLSlice(root.h_bus['wstrb'], idx, None),
+                        tree.BYTE_SIZE,
+                        True,
+                    ),
+                )
+            )
+
         proc_if.then_stmts.append(HDLAssign(axi_wset, bit_1))
         proc_if.then_stmts.append(
             HDLAssign(ibus.wr_req, HDLOr(axi_awset, root.h_bus['awvalid'])))  # Start if AW
@@ -327,7 +353,41 @@ class AXI4LiteBus(BusGen):
         stmts.append(HDLAssign(n.h_bus['awprot'], HDLBinConst(0, 3)))
         stmts.append(HDLAssign(n.h_bus['wvalid'], n.h_w_val))
         stmts.append(HDLAssign(n.h_bus['wdata'], ibus.wr_dat))
-        stmts.append(HDLAssign(n.h_bus['wstrb'], ibus.wr_sel or HDLReplicate(bit_1, 4)))
+
+        if ibus.wr_sel is not None:
+            # Translate bit-wise write mask of internal bus to Byte-wise write mask of
+            # AXI4Lite bus
+            proc = HDLComb()
+            proc.sensitivity.extend([ibus.wr_sel])
+            proc.stmts.append(
+                HDLAssign(
+                    n.h_bus['wstrb'],
+                    HDLReplicate(bit_0, root.c_word_bits // tree.BYTE_SIZE),
+                )
+            )
+            for idx in range(root.c_word_bits // tree.BYTE_SIZE):
+                if_stmt = HDLIfElse(
+                    HDLNot(
+                        HDLEq(
+                            HDLSlice(ibus.wr_sel, idx * tree.BYTE_SIZE, tree.BYTE_SIZE),
+                            HDLReplicate(bit_0, tree.BYTE_SIZE, False),
+                        )
+                    )
+                )
+                if_stmt.then_stmts.append(
+                    HDLAssign(HDLSlice(n.h_bus['wstrb'], idx, None), bit_1)
+                )
+                if_stmt.else_stmts = None
+                proc.stmts.append(if_stmt)
+            stmts.append(proc)
+        else:
+            stmts.append(
+                HDLAssign(
+                    n.h_bus['wstrb'],
+                    HDLReplicate(bit_1, root.c_word_bits // tree.BYTE_SIZE),
+                )
+            )
+
         stmts.append(HDLAssign(n.h_bus['bready'], bit_1))
 
         stmts.append(HDLAssign(n.h_bus['arvalid'], n.h_ar_val))

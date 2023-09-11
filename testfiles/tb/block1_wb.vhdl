@@ -21,8 +21,8 @@ begin
 
     process(clk)
       --  One line of memory.
-      variable mem : std_logic_vector(31 downto 0) := x"0000_1000";
-
+      variable mem     : std_logic_vector(31 downto 0) := x"0000_1000";
+      variable mask    : std_logic_vector(31 downto 0);
       variable pattern : std_logic_vector(31 downto 0);
 
       constant max_ws : natural := 3;
@@ -39,10 +39,15 @@ begin
           else
             --  Handle the transaction.
             if sub1_wb_in.we = '1' then
-              --  That's a write.
+              -- Write request
+              --   Write mask
+              for idx in 3 downto 0 loop
+                mask((idx+1)*8-1 downto idx*8) := (others => sub1_wb_in.sel(idx));
+              end loop;
+
               if sub1_wb_in.adr(11 downto 2) = (11 downto 2 => '0') then
-                --  Write mem.
-                mem := sub1_wb_in.dat;
+                --  Write mem
+                mem := (mem and not(mask)) or (sub1_wb_in.dat and mask);
               else
                 --  Check pattern
                 pattern( 7 downto  0) := not sub1_wb_in.adr(9 downto 2);
@@ -54,7 +59,7 @@ begin
                   report "block1_wb: write error" severity error;
               end if;
             else
-              --  That's a read.
+              -- Read request
               if sub1_wb_in.adr(11 downto 2) = (11 downto 2 => '0') then
                 --  Read mem
                 sub1_wb_out.dat <= mem;

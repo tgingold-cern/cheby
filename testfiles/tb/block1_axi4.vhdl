@@ -24,8 +24,8 @@ begin
       variable rdata_set : boolean;
 
       --  One line of memory.
-      variable mem : std_logic_vector(31 downto 0) := x"0000_2000";
-
+      variable mem     : std_logic_vector(31 downto 0) := x"0000_2000";
+      variable mask    : std_logic_vector(31 downto 0);
       variable pattern : std_logic_vector(31 downto 0);
 
       --  Wait states
@@ -92,8 +92,14 @@ begin
           end if;
 
           if sub2_wr_in.wvalid = '1' then
-            wdata := sub2_wr_in.wdata;
             wdata_set := true;
+            wdata     := sub2_wr_in.wdata;
+
+            -- Write mask
+            for idx in 3 downto 0 loop
+              mask((idx+1)*8-1 downto idx*8) := (others => sub2_wr_in.wstrb(idx));
+            end loop;
+
             sub2_wr_out.wready <= '0';
           end if;
 
@@ -102,7 +108,7 @@ begin
               wws := wws + 1;
             elsif wws = cur_wws then
               if awaddr = "0000000000" then
-                mem := wdata;
+                mem := (mem and not(mask)) or (wdata and mask);
               else
                 pattern( 7 downto  0) := not awaddr(9 downto 2);
                 pattern(15 downto  8) := awaddr(9 downto 2);

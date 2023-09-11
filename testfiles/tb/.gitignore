@@ -58,3 +58,11 @@ reg7const_wb.vhdl
 reg8orclr_wb.cheby
 reg8orclr_wb.vhdl
 sub2_axi4.vhdl
+wmask_apb.cheby
+wmask_apb.vhdl
+wmask_avalon.cheby
+wmask_avalon.vhdl
+wmask_axi4.cheby
+wmask_axi4.vhdl
+wmask_wb.cheby
+wmask_wb.vhdl

@@ -43,7 +43,24 @@ class WBBus(BusGen):
         ibus.rst = root.h_bus['brst']
         ibus.rd_dat = root.h_bus['dato']
         ibus.wr_dat = root.h_bus['dati']
-        ibus.wr_sel = root.h_bus['sel']
+
+        # Translate Byte-wise write mask of Wishbone bus to bit-wise write mask of ibus
+        ibus.wr_sel = module.new_HDLSignal('wr_sel', root.c_word_bits)
+        proc = HDLComb()
+        proc.sensitivity.extend([root.h_bus['sel']])
+        for idx in range(root.c_word_bits // tree.BYTE_SIZE):
+            proc.stmts.append(
+                HDLAssign(
+                    HDLSlice(ibus.wr_sel, idx * tree.BYTE_SIZE, tree.BYTE_SIZE),
+                    HDLReplicate(
+                        HDLSlice(root.h_bus['sel'], idx, None),
+                        tree.BYTE_SIZE,
+                        True,
+                    ),
+                )
+            )
+        module.stmts.append(proc)
+
         if ibus.addr_size > 0:
             if busgroup:
                 addr = module.new_HDLSignal('adr_int', ibus.addr_size, lo_idx=ibus.addr_low)
@@ -299,7 +316,41 @@ class WBBus(BusGen):
             else:
                 stmts.append(HDLAssign(n.h_bus['adr'],
                                     self.slice_addr(ibus.rd_adr, root, n)))
-        stmts.append(HDLAssign(n.h_bus['sel'], ibus.wr_sel or HDLReplicate(bit_1, 4)))
+
+        if ibus.wr_sel is not None:
+            # Translate bit-wise write mask of internal bus to Byte-wise write mask of
+            # Wishbone bus
+            proc = HDLComb()
+            proc.sensitivity.extend([ibus.wr_sel])
+            proc.stmts.append(
+                HDLAssign(
+                    n.h_bus['sel'],
+                    HDLReplicate(bit_0, root.c_word_bits // tree.BYTE_SIZE),
+                )
+            )
+            for idx in range(root.c_word_bits // tree.BYTE_SIZE):
+                proc_if = HDLIfElse(
+                    HDLNot(
+                        HDLEq(
+                            HDLSlice(ibus.wr_sel, idx * tree.BYTE_SIZE, tree.BYTE_SIZE),
+                            HDLReplicate(bit_0, tree.BYTE_SIZE, False),
+                        )
+                    )
+                )
+                proc_if.then_stmts.append(
+                    HDLAssign(HDLSlice(n.h_bus['sel'], idx, None), bit_1)
+                )
+                proc_if.else_stmts = None
+                proc.stmts.append(proc_if)
+            stmts.append(proc)
+        else:
+            stmts.append(
+                HDLAssign(
+                    n.h_bus['sel'],
+                    HDLReplicate(bit_1, root.c_word_bits // tree.BYTE_SIZE),
+                )
+            )
+
         stmts.append(HDLAssign(n.h_bus['we'], n.h_wt))
         stmts.append(HDLAssign(n.h_bus['dati'], ibus.wr_dat))
 
