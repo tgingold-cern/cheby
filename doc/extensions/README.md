@@ -88,11 +88,21 @@ TBD: For now this is just the list of existing attributes, further documentation
 * driver-version-suffix
 * schema-version
 * description
+* device-info
+* interrupt-controllers
+* generate: set to False to exclude this block/reg from the driver
+* fifo
+* block-prefix
+* expand
+* include: set to False when a direct included submap ('True') does not have a parent `block`
+
+Might be added at some point:
 * default-pci-bar-name
 * generate-separate-library
-* dma-mode
-* pci-device-info
 
+
+### bus-type
+Currently supported: VME, PCI, VME64x, PLATFORM
 
 ### driver-version
 Even there is no clean solution and clear solution yet on the CCDE side, it is possible to specify a specific version to be used for a specific hardware type. On the driver (generation) side versioniong is now supported. It therefore is mandatory to specify a version for your driver.
@@ -102,8 +112,7 @@ The GUI makes sure the version follows the constraints of MAJOR.MINO.PATCH forma
 With the limitation to MAJOR.MINO.PATCH for production the feature of re-releasing a driver is prevented by intention. In order to deal with this during development, this attribute allows  the use of an arbitrary suffix i.e. "_dev".
 
 
-
-### pci-device-info
+### device-info
 
 The PCI device info is mandatory for PCI modules as the kernel idenifies the board with this ID in order to know which driver to load to access the hardware.
 
@@ -115,12 +124,16 @@ It is possible to not add all of the attributes if you have a driver which fits 
 * device-id
 * subvendor-id
 * subdevice-id
+* revision-id (for VME64x)
 
 ### x-drive-edge child
 Beside the attributes above x-driver-edge provides to elements (children) to be specified
 
-* pci-bars
-* ip-core-descriptions
+* number
+* addr-mode
+* data-width
+* size
+* dma-mode
 
 #### pci-bars
 Obviously, declartion of this element is only necessary for PCI based platforms. Add as many bars as you have defined in your (Vivado) project.
@@ -129,8 +142,17 @@ Each bar needs to have a (unique) name and (unique) number according to the PCI 
 * name : String, unique name. Best practice is barX where X is the bar number
 * number : Positive integer number in the range of valid bars according to the PCI standard
 * description : Allows to put a description how this bar is used
-* base-addr : Allow to specify an offset to every single element (submap, register, etc.) added to this bar
 
+#### interrupt-controllers
+With the following attributes, for each interrupt-controller:
+* name
+* description
+* type: INTC_SR, INTC_CR
+* chained
+* args: enable-mask, ack-mask
+* reg-role
+  * type: IRQ_V, IRQ_L, ASSERT
+  * args: min-val, max-val
 
 ## x-conversions
 

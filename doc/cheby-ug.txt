@@ -191,6 +191,8 @@ backward compatibility issues.
 
 * `x-wbgen`: Extensions for wbgen compatibility.
 
+More extensions and their arguments are documented in the `doc/extensions/README.md` file.
+
 === Header
 
 A cheby file is an associative array named `memory-map`.  The only purpose of
@@ -594,6 +596,22 @@ Example of an included submap:
         filename: demo_all_sub.cheby
         include: True
 ----
+
+=== Address-space
+
+This concept was introduced for more complex memory maps where there might be
+an address overlap software-side due to the use of for instance PCI BARs.
+It is mainly used in conjunction with the `x-driver-edge` extension.
+
+Its use is restricted to the top level only. For HDL generation the address-
+space needs to be specified as follows:
+
+[source]
+---
+cheby --gen-hdl --address-space bar0 -i INPUT.cheby
+---
+
+An address-space requires a `name` and `children` nodes.
 
 ==  Generated HDL
 
