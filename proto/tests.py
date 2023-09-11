@@ -27,8 +27,8 @@ import cheby.print_markdown as print_markdown
 import cheby.print_latex as print_latex
 import cheby.print_rest as print_rest
 import cheby.gen_custom as gen_custom
+import cheby.gen_edge3 as gen_edge3
 from cheby.hdl.globals import gconfig
-
 
 srcdir = os.path.join(os.path.dirname(os.path.realpath(__file__)),
                       '../testfiles/')
@@ -950,6 +950,19 @@ def test_custom():
             error('custom generation error for {}'.format(f))
         nbr_tests += 1
 
+def test_edge3():
+    global nbr_tests
+    # don't test 'issue84/sps200CavityControl', too incompatible to rework
+    for f in ['issue124/project', 'issue129/acdipole_ip']:
+        if verbose:
+            print('test edge3: {}'.format(f))
+        chebfile = srcdir + f + '.cheby'
+        # simple test for no exceptions
+        t = parse_ok(chebfile)
+        layout_ok(t)
+        buf = write_buffer()
+        gen_edge3.generate_edge3(buf, t)
+        nbr_tests += 1
 
 def main():
     global args
@@ -986,6 +999,7 @@ def main():
         test_consts()
         test_doc()
         test_custom()
+        test_edge3()
         print("Done ({} tests)!".format(nbr_tests))
     except TestError as e:
         werr(e.msg)
