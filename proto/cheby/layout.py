@@ -649,12 +649,14 @@ def layout_bus(root, name):
        * c_align_reg
        * c_bussplit
        * c_buserr
+       * c_wmask_reg
        And deduce:
        * c_addr_word_bits
        * c_word_bits"""
     root.c_align_reg = True
     root.c_buserr = False
     root.c_bussplit = False
+    root.c_wmask_reg = False
     if name is None:    # default
         root.c_word_size = 4
         root.c_word_endian = 'big'
@@ -733,6 +735,7 @@ def copy_bus(dst, src):
     dst.c_align_reg = src.c_align_reg
     dst.c_bussplit = src.c_bussplit
     dst.c_buserr = src.c_buserr
+    dst.c_wmask_reg = src.c_wmask_reg
     dst.c_addr_word_bits = src.c_addr_word_bits
     dst.c_word_bits = src.c_word_bits
 
