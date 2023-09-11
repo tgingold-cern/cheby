@@ -752,13 +752,13 @@ def test_consts():
               'features/enums1', 'features/enums2']:
         if verbose:
             print('test consts: {}'.format(f))
-        cheby_file = srcdir + f + '.cheby'
+        chebfile = srcdir + f + '.cheby'
         vhdl_file = srcdir + f + '-consts.vhdl'
         vhdl_ohwr_file = srcdir + f + '-consts.vhdl-ohwr'
         verilog_file = srcdir + f + '-consts.v'
         systemverilog_file = srcdir + f + '-consts.sv'
         c_file = srcdir + f + '-consts.h'
-        t = parse_ok(cheby_file)
+        t = parse_ok(chebfile)
         layout_ok(t)
         expand_hdl.expand_hdl(t)
         gen_name.gen_name_memmap(t)
@@ -779,12 +779,12 @@ def test_doc():
     for f in ['issue9/test', 'features/semver1', 'issue84/sps200CavityControl_as', 'issue67/repeatInRepeat']:
         if verbose:
             print('test doc: {}'.format(f))
-        cheby_file = srcdir + f + '.cheby'
+        chebfile = srcdir + f + '.cheby'
         html_file = srcdir + f + '.html'
         md_file = srcdir + f + '.md'
         rst_file = srcdir + f + '.rst'
         latex_file = srcdir + f + '.tex'
-        t = parse_ok(cheby_file)
+        t = parse_ok(chebfile)
         layout_ok(t)
         expand_hdl.expand_hdl(t)
         gen_name.gen_name_memmap(t)
@@ -807,9 +807,9 @@ def test_custom():
     for f in ['custom/fidsErrMiss']:
         if verbose:
             print('test custom: {}'.format(f))
-        cheby_file = srcdir + f + '.cheby'
+        chebfile = srcdir + f + '.cheby'
         c_file = srcdir + f + '.h'
-        t = parse_ok(cheby_file)
+        t = parse_ok(chebfile)
         layout_ok(t)
         buf = write_buffer()
         # We need to change working directory
