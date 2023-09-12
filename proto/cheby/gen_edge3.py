@@ -356,13 +356,13 @@ def process_body(b, n, offset, res_name, name_prefix=[], block_prefix=[], name_s
         elif isinstance(el, tree.Repeat):
             if len(el.children) == 1 and isinstance(el.children[0], tree.Reg):
                 r = el.children[0]
-                b.append_reg(r, el_name, el_addr, r.access, r.c_size, el.count, '', el.description)
-            else:
-                # TODO
-                b2 = EncoreBlock(b.encore, el, el_name, res_name)
-                process_body(b2, el, 0, res_name)
                 for i in range(0, el.count):
-                    b.instantiate("{}_{}".format(el_name, i), b2, offset + el.c_abs_addr + i * el.c_elsize)
+                    b.append_reg(r, "{}_{}".format(el_name, i), el_addr+i, r.access, r.c_size)
+            else:
+                b2 = EncoreBlock(b.encore, el, el_name, res_name)
+                b.append_block(b2, el_name, el_addr, el.description)
+                for i in range(0, el.count):
+                    process_body(b2, el, i*el.c_elsize, res_name, name_suffix=[str(i)])
 
         elif isinstance(el, (tree.Block, tree.Submap)):
             use_block_prefix = get_extension(el, 'block-prefix', True)
