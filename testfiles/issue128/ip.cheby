@@ -1,0 +1,485 @@
+memory-map:
+  name: acdipole_ip
+  bus: axi4-lite-32
+  size: 4k
+  x-hdl:
+    reg-prefix: true
+    block-prefix: false
+    pipeline: wr
+  children:
+    - reg:
+        name: revision
+        width: 32
+        access: ro
+        address: 0x0
+        x-hdl:
+          port: reg
+        children:
+          - field:
+              name: hw_type
+              range: 27-24
+              preset: 0x5
+          - field:
+              name: hw_revision
+              range: 23-20
+              preset: 0x1
+          - field:
+              name: logic_revision
+              range: 15-0
+              preset: 0x214
+    - reg:
+        name: control
+        width: 32
+        access: rw
+        address: next
+        x-hdl:
+          port: reg
+          write-strobe: true
+          type: wire
+        children:
+          - field:
+              name: pll_status
+              comment: high if pll locked
+              range: 22
+          - field:
+              name: inhibit_status
+              comment: high if 1m trigger inhibition active
+              range: 21
+          - field:
+              name: dcm_status
+              comment: high if DCM locked
+              range: 20
+          - field:
+              name: acq_status
+              comment: high if acquisition in progress
+              range: 19
+          - field:
+              name: run_status
+              comment: high if waveform is generated
+              range: 18
+          - field:
+              name: dac_run
+              comment: high to run, allows data capture
+              range: 16
+          - field:
+              name: arm
+              comment: high to allow trigger; auto-reset upon trigger
+              range: 15
+          - field:
+              name: ampli_status
+              comment: high to switch amplifiers on (to PLC)
+              range: 13
+          - field:
+              name: ampli_control
+              comment: high if ac-dipole relay open
+              range: 12
+          - field:
+              name: adc_test
+              comment: high to write test data to mem; low for ADC data
+              range: 5
+          - field:
+              name: soft_trig
+              comment: high to send soft-trigger; auto-reset upon trigger; obsolete
+              range: 3
+          - field:
+              name: ext_trig_inhib
+              comment: high to inhibit external trigger
+              range: 2
+          - field:
+              name: adc_run
+              comment: high to run, allows data capture
+              range: 1
+          - field:
+              name: soft_reset
+              comment: high to reset user part of FPGA
+              range: 0
+    - reg:
+        name: test
+        width: 32
+        access: ro
+        address: next
+    - reg:
+        name: temperature
+        width: 32
+        access: ro
+        address: next
+        x-hdl:
+          port: reg
+        children:
+          - field:
+              name: temperature
+              type: signed
+              range: 15-0
+              comment: unit 0.0625 deg. C.
+    - reg:
+        name: temp_warning
+        comment: clear warning on read
+        width: 32
+        access: rw
+        address: next
+        preset: 0x460
+    - reg:
+        name: temp_failure
+        comment: clear warning on read
+        width: 32
+        access: rw
+        address: next
+        preset: 0x460
+    - reg:
+        name: ram_acq_addr
+        description: Acquisition RAM address
+        width: 32
+        access: rw
+        address: next
+    - reg:
+        name: ram_acq_data
+        description: Acquisition RAM data
+        width: 32
+        access: ro
+        address: next
+        x-hdl:
+          read-strobe: true
+          read-ack: true
+    - reg:
+        name: pll_control
+        description: PLL clock control, obsolete
+        width: 32
+        access: rw
+        address: next
+    - reg:
+        name: clock_distr_intf
+        description: Clock distribution interface, obsolete
+        width: 32
+        access: rw
+        address: next
+    - reg:
+        name: pll_intf
+        description: PLL interface, obsolete
+        width: 32
+        access: rw
+        address: next
+    - reg:
+        name: adc_ch_en
+        description: ADC channel enables
+        width: 32
+        access: rw
+        address: next
+    - reg:
+        name: dac_ch_en
+        description: DAC channel enables
+        width: 32
+        access: rw
+        address: next
+    - reg:
+        name: reserved0
+        width: 32
+        access: rw
+        address: next
+    - reg:
+        name: ram_dac_addr
+        description: DAC RAM address
+        width: 32
+        access: rw
+        address: next
+    - reg:
+        name: ram_dac_data
+        description: DAC RAM data
+        width: 32
+        access: rw
+        address: next
+        x-hdl:
+          port: reg
+          write-strobe: true
+          write-ack: true
+        children:
+          - field:
+              name: sample1
+              range: 31-16
+          - field:
+              name: sample0
+              range: 15-0
+    - reg:
+        name: adc_ampli_en
+        description: ADC Amplifier enables
+        width: 32
+        access: rw
+        address: next
+    - reg:
+        name: dac_controls
+        description: DAC controls
+        width: 32
+        access: rw
+        address: next
+        x-hdl:
+          port: reg
+        children:
+          - field:
+              name: feedback
+              description: DAC outputs are loopback of ADC values
+              range: 6
+    - reg:
+        name: adc_controls
+        description: ADC controls
+        width: 32
+        access: rw
+        address: next
+    - reg:
+        name: trig_ctrl_adc
+        description: trigger control ADC
+        width: 32
+        access: rw
+        address: 0x5c
+        x-hdl:
+          port: reg
+        children:
+          - field:
+              name: ext_trig_en
+              description: external trigger enable
+              range: 31
+          - field:
+              name: mode
+              description: "trigger mode, framed/unframed"
+              range: 30
+          - field:
+              name: points
+              description: points to collect
+              range: 15-0
+    - reg:
+        name: trig_ctrl_dac
+        description: trigger control DAC
+        width: 32
+        access: rw
+        address: next
+        x-hdl:
+          port: reg
+        children:
+          - field:
+              name: ext_trig_en
+              description: external trigger enable
+              range: 31
+          - field:
+              name: mode
+              description: "trigger mode, framed/unframed"
+              range: 30
+          - field:
+              name: points
+              description: points to collect
+              range: 15-0
+    - reg:
+        name: dac_decimation
+        description: DAC decimation
+        width: 32
+        access: rw
+        address: next
+        x-hdl:
+          port: reg
+        children:
+          - field:
+              name: factor
+              description: decimation factor
+              range: 11-0
+    - reg:
+        name: adc_decimation
+        description: ADC decimation
+        width: 32
+        access: rw
+        address: next
+        x-hdl:
+          port: reg
+        children:
+          - field:
+              name: factor
+              description: decimation factor
+              range: 11-0
+    - repeat:
+        count: 16
+        name: adc_gain_corr
+        description: ADC gain error correction
+        align: false
+        address: 0x80
+        x-hdl:
+          iogroup: adcgc
+          reg-prefix: true
+        children:
+          - reg:
+              name: adc_gain_corr
+              description: ADC gain error correction
+              width: 32
+              access: rw
+              x-hdl:
+                port: reg
+              children:
+                - field:
+                    name: correction
+                    range: 17-0
+                    preset: 0x10000
+    - repeat:
+        count: 8
+        name: adc_offset_corr
+        description: ADC offset error correction
+        align: false
+        address: 0xc0
+        x-hdl:
+          iogroup: adcoc
+          reg-prefix: true
+        children:
+          - reg:
+              name: adc_offset_corr
+              description: ADC offset error correction
+              width: 32
+              access: rw
+              x-hdl:
+                port: reg
+              children:
+                - field:
+                    name: correction
+                    range: 15-0
+          - reg:
+              name: test_for_edge
+              description: ensures better code coverage (separate block generation)
+              width: 32
+              access: rw
+    - repeat:
+        count: 8
+        name: dac_gain_corr
+        description: DAC gain error correction
+        align: false
+        address: 0x100
+        x-hdl:
+          iogroup: dacgc
+          reg-prefix: true
+        children:
+          - reg:
+              name: dac_gain_corr
+              description: DAC gain error correction
+              width: 32
+              access: rw
+              x-hdl:
+                port: reg
+              children:
+                - field:
+                    name: correction
+                    range: 17-0
+                    preset: 0x10000
+    - repeat:
+        count: 8
+        name: dac_offset_corr
+        description: DAC offset error correction
+        align: false
+        address: 0x140
+        x-hdl:
+          iogroup: dacoc
+          reg-prefix: true
+        children:
+          - reg:
+              name: dac_offset_corr
+              description: DAC offset error correction
+              width: 32
+              access: rw
+              x-hdl:
+                port: reg
+              children:
+                - field:
+                    name: correction
+                    range: 15-0
+    - reg:
+        name: adc0_config
+        description: ADC device 0 configuration register
+        width: 32
+        access: rw
+        address: 0x180
+        x-hdl:
+          port: reg
+          write-strobe: true
+        children:
+          - field:
+              name: configuration
+              comment: preset to sample diff channels IN0/1, IN2/3 with sequencer
+              range: 15-0
+              preset: 0xA7FF
+    - reg:
+        name: adc1_config
+        description: ADC device 0 configuration register
+        width: 32
+        access: rw
+        address: next
+        x-hdl:
+          port: reg
+          write-strobe: true
+        children:
+          - field:
+              name: configuration
+              comment: preset to sample diff channels IN0/1, IN2/3 with sequencer
+              range: 15-0
+              preset: 0xA7FF
+    - reg:
+        name: adc2_config
+        description: ADC device 0 configuration register
+        width: 32
+        access: rw
+        address: next
+        x-hdl:
+          port: reg
+          write-strobe: true
+        children:
+          - field:
+              name: configuration
+              comment: preset to sample diff channels IN0/1, IN2/3 with sequencer
+              range: 15-0
+              preset: 0xA7FF
+    - reg:
+        name: adc3_config
+        description: ADC device 0 configuration register
+        width: 32
+        access: rw
+        address: next
+        x-hdl:
+          port: reg
+          write-strobe: true
+        children:
+          - field:
+              name: configuration
+              comment: preset to sample diff channels IN0/1, IN2/3 with sequencer
+              range: 15-0
+              preset: 0xA7FF
+    - reg:
+        name: adc_fifo_debug
+        description: ADC FIFO debug info
+        width: 32
+        access: rw
+        address: 0x1f0
+        x-hdl:
+          port: reg
+        children:
+          - field:
+              name: fifo_empty
+              range: 31
+          - field:
+              name: rd_count
+              range: 8-0
+    - reg:
+        name: sine_gen_ram_addr
+        description: DAC sine gen RAM current address
+        width: 32
+        access: rw
+        address: next
+        x-hdl:
+          port: reg
+        children:
+          - field:
+              name: address
+              range: 24-0
+    - reg:
+        name: clk_freq
+        description: system clock frequency
+        comment: in Hz, requires pps signal
+        width: 32
+        access: rw
+        address: next
+    - reg:
+        name: fs_freq
+        description: sampling clock frequency
+        comment:  in Hz, requires pps signal
+        width: 32
+        access: rw
+        address: next

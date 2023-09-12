@@ -824,7 +824,7 @@ def test_custom():
 def test_edge3():
     global nbr_tests
     # don't test 'issue84/sps200CavityControl', too incompatible to rework
-    for f in ['issue124/project', 'issue129/acdipole_ip']:
+    for f in ['issue124/project', 'issue129/acdipole_ip', 'issue128/acdipole_ip']:
         if verbose:
             print('test edge3: {}'.format(f))
         chebfile = srcdir + f + '.cheby'
