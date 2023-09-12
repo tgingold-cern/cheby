@@ -828,11 +828,18 @@ def test_edge3():
         if verbose:
             print('test edge3: {}'.format(f))
         chebfile = srcdir + f + '.cheby'
-        # simple test for no exceptions
+        edgefile = srcdir + f + '.csv'
+        # simple test for no exceptions if no edgefile
         t = parse_ok(chebfile)
         layout_ok(t)
         buf = write_buffer()
         gen_edge3.generate_edge3(buf, t)
+        print(edgefile)
+        if os.path.exists(edgefile):
+            if verbose:
+                print('testing with edge3 file: {}'.format(edgefile))
+            if not compare_buffer_and_file(buf, edgefile):
+                error('edge3 generation error for {}'.format(f))
         nbr_tests += 1
 
 def main():
