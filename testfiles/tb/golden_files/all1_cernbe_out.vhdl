@@ -378,7 +378,7 @@ begin
   sub5_apb_wr <= sub5_apb_wr_reg or sub5_apb_wr_req;
   sub5_apb_rd <= sub5_apb_rd_reg or sub5_apb_rd_req;
   sub5_apb_psel_o <= sub5_apb_wr or sub5_apb_rd;
-  sub5_apb_penable_o <= sub5_apb_wr or sub5_apb_rd;
+  sub5_apb_penable_o <= (not VMEWrMem and sub5_apb_wr) or (not VMERdMem and sub5_apb_rd);
   sub5_apb_pwrite_o <= sub5_apb_wr;
   process (sub5_apb_wr, VMEAddr, VMEAddr) begin
     if sub5_apb_wr = '1' then

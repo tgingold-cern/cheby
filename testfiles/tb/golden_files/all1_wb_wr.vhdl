@@ -461,7 +461,7 @@ begin
   sub5_apb_wr <= sub5_apb_wr_reg or sub5_apb_wr_req;
   sub5_apb_rd <= sub5_apb_rd_reg or sub5_apb_rd_req;
   sub5_apb_psel_o <= sub5_apb_wr or sub5_apb_rd;
-  sub5_apb_penable_o <= sub5_apb_wr or sub5_apb_rd;
+  sub5_apb_penable_o <= (not wr_req_d0 and sub5_apb_wr) or (not rd_req_int and sub5_apb_rd);
   sub5_apb_pwrite_o <= sub5_apb_wr;
   process (sub5_apb_wr, wr_adr_d0, adr_int) begin
     if sub5_apb_wr = '1' then

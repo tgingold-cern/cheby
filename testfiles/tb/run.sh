@@ -3,6 +3,7 @@
 GHDL=${GHDL:-ghdl}
 GHDL_FLAGS=--std=08
 CHEBY=${CHEBY:-../../proto/cheby.py}
+REGEN=${REGEN:false}
 
 set -e
 
@@ -23,8 +24,6 @@ build_infra()
     $GHDL -a $GHDL_FLAGS block1_avmm.vhdl
     $GHDL -a $GHDL_FLAGS sram2.vhdl
 }
-
-GENERATE=false
 
 build_any()
 {
@@ -53,7 +52,7 @@ build_any()
         $CHEBY --no-header -i "${file_names[$i]}.cheby" --gen-hdl="${file_names[$i]}.vhdl"
     done
 
-    if [ "${GENERATE}" = true ]; then
+    if [[ "${REGEN}" == "true" || "${REGEN}" == true ]]; then
         echo "### Update output"
         for (( i = 0; i < ${#file_names[@]}; i++ )); do
             cp "${file_names[$i]}.vhdl" "golden_files/${file_names_ext[$i]}.vhdl"
