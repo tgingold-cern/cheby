@@ -93,7 +93,7 @@ TBD: For now this is just the list of existing attributes, further documentation
 * generate: set to False to exclude this block/reg from the driver
 * fifo
 * block-prefix
-* expand
+* expand: set to True to expand block, submap or repeat (with single reg) nodes instead of having a single line with increased depth
 * include: set to False when a direct included submap ('True') does not have a parent `block`
 
 Might be added at some point:
