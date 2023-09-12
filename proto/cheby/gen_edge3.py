@@ -354,10 +354,14 @@ def process_body(b, n, offset, res_name, name_prefix=[], block_prefix=[], name_s
             b.append_reg(r, el_name, el_addr, r.access, r.c_size, el.c_depth, flags, el.description)
 
         elif isinstance(el, tree.Repeat):
+            # TODO: expand should be able to work on any repeat structure but full size can't be easily calculated here
             if len(el.children) == 1 and isinstance(el.children[0], tree.Reg):
                 r = el.children[0]
-                for i in range(0, el.count):
-                    b.append_reg(r, "{}_{}".format(el_name, i), el_addr+(i*r.c_size), r.access, r.c_size)
+                if not get_extension(el, 'expand', False):
+                    b.append_reg(r, el_name, el_addr, r.access, r.c_size, el.count, '', el.description)
+                else:
+                    for i in range(0, el.count):
+                        b.append_reg(r, "{}_{}".format(el_name, i), el_addr+(i*r.c_size), r.access, r.c_size)
             else:
                 b2 = EncoreBlock(b.encore, el, el_name, res_name)
                 b.append_block(b2, el_name, el_addr, el.description)
