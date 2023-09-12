@@ -300,19 +300,14 @@ memory-map:
         x-hdl:
           iogroup: adcgc
           reg-prefix: true
+        x-driver-edge:
+          expand: true
         children:
           - reg:
               name: adc_gain_corr
               description: ADC gain error correction
               width: 32
               access: rw
-              x-hdl:
-                port: reg
-              children:
-                - field:
-                    name: correction
-                    range: 17-0
-                    preset: 0x10000
     - repeat:
         count: 8
         name: adc_offset_corr
@@ -348,6 +343,8 @@ memory-map:
         x-hdl:
           iogroup: dacgc
           reg-prefix: true
+        x-driver-edge:
+          expand: true
         children:
           - reg:
               name: dac_gain_corr
