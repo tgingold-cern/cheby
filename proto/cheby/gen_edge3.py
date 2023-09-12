@@ -333,13 +333,13 @@ def required_access_mode(n):
         return 'rw'
 
 
-def process_body(b, n, offset, res_name, name_prefix=[], block_prefix=[], top=False):
+def process_body(b, n, offset, res_name, name_prefix=[], block_prefix=[], name_suffix=[], top=False):
     for el in n.children:
         if not get_extension(el, 'generate', True):
             continue
 
-        el_name_prefix = name_prefix + [el.name]
-        el_name = '_'.join(el_name_prefix)
+        el_name_cat = name_prefix + [el.name] + name_suffix
+        el_name = '_'.join(el_name_cat)
 
         el_addr = offset + el.c_address
 
@@ -397,7 +397,7 @@ def process_body(b, n, offset, res_name, name_prefix=[], block_prefix=[], top=Fa
             include = get_extension(el, 'include', include)
 
             if include:
-                process_body(b, node, el_addr, res_name, el_name_prefix if use_block_prefix else name_prefix, prefix)
+                process_body(b, node, el_addr, res_name, el_name_cat if use_block_prefix else name_prefix, prefix)
             else:
                 b2 = EncoreBlock(b.encore, el, name, res_name)
                 b.append_block(b2, el_name, el_addr, el.description)
