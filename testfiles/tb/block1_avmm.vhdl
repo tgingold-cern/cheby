@@ -17,10 +17,9 @@ architecture behav of block1_avmm is
 begin
     process(clk)
       --  One line of memory.
-      variable mem : std_logic_vector(31 downto 0) := x"0000_4000";
-
-      variable pattern : std_logic_vector(31 downto 0);
-
+      variable mem          : std_logic_vector(31 downto 0) := x"0000_4000";
+      variable mask         : std_logic_vector(31 downto 0);
+      variable pattern      : std_logic_vector(31 downto 0);
       variable addr, datain : std_logic_vector(31 downto 0);
 
       --  Transactions.
@@ -40,16 +39,25 @@ begin
           rt := false;
         else
           if not rt and not wt then
+            -- Prepare read request
             if av_in.read = '1' then
               assert av_in.write = '0' severity failure;
               rt := True;
               av_out.waitrequest <= '1';
               addr := av_in.address;
+
+            -- Prepare write request
             elsif av_in.write = '1' then
               wt := True;
               av_out.waitrequest <= '1';
-              addr := av_in.address;
+
+              addr   := av_in.address;
               datain := av_in.writedata;
+
+              -- Write mask
+              for idx in 3 downto 0 loop
+                mask((idx+1)*8-1 downto idx*8) := (others => av_in.byteenable(idx));
+              end loop;
             end if;
           end if;
 
@@ -57,7 +65,7 @@ begin
             if ws < cur_ws then
               ws := ws + 1;
             elsif ws = cur_ws then
-              --  It's a read.
+              -- Read request
               if addr(11 downto 2) = (11 downto 2 => '0') then
                 av_out.readdata <= mem;
               else
@@ -83,9 +91,9 @@ begin
             if ws < cur_ws then
               ws := ws + 1;
             elsif ws = cur_ws then
-              --  It's a write.
+              -- Write request
               if addr(11 downto 2) = (11 downto 2 => '0') then
-                mem := datain;
+                mem := (mem and not(mask)) or (datain and mask);
               else
                 pattern( 7 downto  0) := not addr(9 downto 2);
                 pattern(15 downto  8) := addr(9 downto 2);

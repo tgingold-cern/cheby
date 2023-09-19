@@ -12,6 +12,7 @@ module crossbar_wb
     // WB bus bran
     t_wishbone.master bran
   );
+  reg [31:0] wr_sel;
   wire [17:2] adr_int;
   wire rd_req_int;
   wire wr_req_int;
@@ -47,9 +48,16 @@ module crossbar_wb
   reg wr_req_d0;
   reg [17:2] wr_adr_d0;
   reg [31:0] wr_dat_d0;
-  reg [3:0] wr_sel_d0;
+  reg [31:0] wr_sel_d0;
 
   // WB decode signals
+  always @(wb.sel)
+      begin
+        wr_sel[7:0] <= {8{wb.sel[0]}};
+        wr_sel[15:8] <= {8{wb.sel[1]}};
+        wr_sel[23:16] <= {8{wb.sel[2]}};
+        wr_sel[31:24] <= {8{wb.sel[3]}};
+      end
   assign adr_int = wb.adr[17:2];
   assign wb_en = wb.cyc & wb.stb;
 
@@ -92,7 +100,7 @@ module crossbar_wb
         wr_req_d0 <= wr_req_int;
         wr_adr_d0 <= adr_int;
         wr_dat_d0 <= wb.dato;
-        wr_sel_d0 <= wb.sel;
+        wr_sel_d0 <= wr_sel;
       end
   end
 
@@ -116,7 +124,18 @@ module crossbar_wb
   assign jesdavalon_wack = jesdavalon.ack & jesdavalon_wt;
   assign jesdavalon_rack = jesdavalon.ack & jesdavalon_rt;
   assign jesdavalon.adr = {22'b0, adr_int[9:2], 2'b0};
-  assign jesdavalon.sel = wr_sel_d0;
+  always @(wr_sel_d0)
+      begin
+        jesdavalon.sel <= 4'b0;
+        if (!(wr_sel_d0[7:0] == 8'b0))
+          jesdavalon.sel[0] <= 1'b1;
+        if (!(wr_sel_d0[15:8] == 8'b0))
+          jesdavalon.sel[1] <= 1'b1;
+        if (!(wr_sel_d0[23:16] == 8'b0))
+          jesdavalon.sel[2] <= 1'b1;
+        if (!(wr_sel_d0[31:24] == 8'b0))
+          jesdavalon.sel[3] <= 1'b1;
+      end
   assign jesdavalon.we = jesdavalon_wt;
   assign jesdavalon.dato = wr_dat_d0;
 
@@ -140,7 +159,18 @@ module crossbar_wb
   assign i2ctowb_wack = i2ctowb.ack & i2ctowb_wt;
   assign i2ctowb_rack = i2ctowb.ack & i2ctowb_rt;
   assign i2ctowb.adr = {18'b0, adr_int[13:2], 2'b0};
-  assign i2ctowb.sel = wr_sel_d0;
+  always @(wr_sel_d0)
+      begin
+        i2ctowb.sel <= 4'b0;
+        if (!(wr_sel_d0[7:0] == 8'b0))
+          i2ctowb.sel[0] <= 1'b1;
+        if (!(wr_sel_d0[15:8] == 8'b0))
+          i2ctowb.sel[1] <= 1'b1;
+        if (!(wr_sel_d0[23:16] == 8'b0))
+          i2ctowb.sel[2] <= 1'b1;
+        if (!(wr_sel_d0[31:24] == 8'b0))
+          i2ctowb.sel[3] <= 1'b1;
+      end
   assign i2ctowb.we = i2ctowb_wt;
   assign i2ctowb.dato = wr_dat_d0;
 
@@ -164,7 +194,18 @@ module crossbar_wb
   assign bran_wack = bran.ack & bran_wt;
   assign bran_rack = bran.ack & bran_rt;
   assign bran.adr = {15'b0, adr_int[16:2], 2'b0};
-  assign bran.sel = wr_sel_d0;
+  always @(wr_sel_d0)
+      begin
+        bran.sel <= 4'b0;
+        if (!(wr_sel_d0[7:0] == 8'b0))
+          bran.sel[0] <= 1'b1;
+        if (!(wr_sel_d0[15:8] == 8'b0))
+          bran.sel[1] <= 1'b1;
+        if (!(wr_sel_d0[23:16] == 8'b0))
+          bran.sel[2] <= 1'b1;
+        if (!(wr_sel_d0[31:24] == 8'b0))
+          bran.sel[3] <= 1'b1;
+      end
   assign bran.we = bran_wt;
   assign bran.dato = wr_dat_d0;
 

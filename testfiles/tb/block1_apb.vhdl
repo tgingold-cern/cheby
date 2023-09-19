@@ -18,6 +18,7 @@ begin
   process(bus_in)
     -- Preload single memory row with modules address
     variable mem     : std_logic_vector(31 downto 0) := x"0000_5000";
+    variable mask    : std_logic_vector(31 downto 0);
     variable pattern : std_logic_vector(31 downto 0);
   begin
     bus_out.pready  <= '0';
@@ -31,9 +32,14 @@ begin
 
       -- Write transaction
       if bus_in.pwrite = '1' then
+        -- Write mask
+        for idx in 3 downto 0 loop
+          mask((idx+1)*8-1 downto idx*8) := (others => bus_in.pstrb(idx));
+        end loop;
+
         if bus_in.paddr(11 downto 2) = (11 downto 2 => '0') then
           -- Write to memory
-          mem := bus_in.pwdata;
+          mem := (mem and not(mask)) or (bus_in.pwdata and mask);
         else
           -- Check pattern
           pattern( 7 downto  0) := not bus_in.paddr(9 downto 2);

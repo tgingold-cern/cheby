@@ -15,6 +15,23 @@ package wb_tb_pkg is
     signal wb_in   : inout t_wishbone_slave_in;
     addr           : in    std_logic_vector (31 downto 0);
     data           : in    std_logic_vector (31 downto 0);
+    mask           : in    std_logic_vector (3 downto 0);
+    err            : in    std_logic);
+
+  procedure wb_writel (
+    signal clk     : in    std_logic;
+    signal wb_out  : in    t_wishbone_slave_out;
+    signal wb_in   : inout t_wishbone_slave_in;
+    addr           : in    std_logic_vector (31 downto 0);
+    data           : in    std_logic_vector (31 downto 0);
+    mask           : in    std_logic_vector (3 downto 0));
+
+  procedure wb_writel (
+    signal clk     : in    std_logic;
+    signal wb_out  : in    t_wishbone_slave_out;
+    signal wb_in   : inout t_wishbone_slave_in;
+    addr           : in    std_logic_vector (31 downto 0);
+    data           : in    std_logic_vector (31 downto 0);
     err            : in    std_logic);
 
   procedure wb_writel (
@@ -56,12 +73,13 @@ package body wb_tb_pkg is
     signal wb_out  : in    t_wishbone_slave_out;
     addr           : in    std_logic_vector (31 downto 0);
     rdata          : out   std_logic_vector (31 downto 0);
+    mask           : in    std_logic_vector (3 downto 0);
     err            : in    std_logic) is
   begin
     wb_in.cyc <= '1';
     wb_in.stb <= '1';
     wb_in.adr <= addr;
-    wb_in.sel <= "1111";
+    wb_in.sel <= mask;
 
     wait until rising_edge(clk);
 
@@ -92,15 +110,39 @@ package body wb_tb_pkg is
     signal wb_in   : inout t_wishbone_slave_in;
     addr           : in    std_logic_vector (31 downto 0);
     data           : in    std_logic_vector (31 downto 0);
+    mask           : in    std_logic_vector (3 downto 0);
     err            : in    std_logic)
   is
     variable rdata : std_logic_vector (31 downto 0);
   begin
     --  W transfer
-    wb_in.we <= '1';
+    wb_in.we  <= '1';
     wb_in.dat <= data;
+    wb_in.sel <= mask;
 
-    wb_cycle(clk, wb_in, wb_out, addr, rdata, err);
+    wb_cycle(clk, wb_in, wb_out, addr, rdata, mask, err);
+  end wb_writel;
+
+  procedure wb_writel (
+    signal clk     : in    std_logic;
+    signal wb_out  : in    t_wishbone_slave_out;
+    signal wb_in   : inout t_wishbone_slave_in;
+    addr           : in    std_logic_vector (31 downto 0);
+    data           : in    std_logic_vector (31 downto 0);
+    mask           : in    std_logic_vector (3 downto 0)) is
+  begin
+    wb_writel(clk, wb_out, wb_in, addr, data, mask, '0');
+  end wb_writel;
+
+  procedure wb_writel (
+    signal clk     : in    std_logic;
+    signal wb_out  : in    t_wishbone_slave_out;
+    signal wb_in   : inout t_wishbone_slave_in;
+    addr           : in    std_logic_vector (31 downto 0);
+    data           : in    std_logic_vector (31 downto 0);
+    err            : in    std_logic) is
+  begin
+    wb_writel(clk, wb_out, wb_in, addr, data, (others => '1'), err);
   end wb_writel;
 
   procedure wb_writel (
@@ -110,7 +152,7 @@ package body wb_tb_pkg is
     addr           : in    std_logic_vector (31 downto 0);
     data           : in    std_logic_vector (31 downto 0)) is
   begin
-    wb_writel(clk, wb_out, wb_in, addr, data, '0');
+    wb_writel(clk, wb_out, wb_in, addr, data, (others => '1'), '0');
   end wb_writel;
 
   procedure wb_readl (
@@ -124,7 +166,7 @@ package body wb_tb_pkg is
     --  R transfer
     wb_in.we <= '0';
 
-    wb_cycle(clk, wb_in, wb_out, addr, data, err);
+    wb_cycle(clk, wb_in, wb_out, addr, data, (others => '1'), err);
   end wb_readl;
 
   procedure wb_readl (

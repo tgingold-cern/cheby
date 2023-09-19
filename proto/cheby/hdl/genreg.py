@@ -63,14 +63,23 @@ class GenFieldBase(object):
         else:
             return Slice_or_Index(val, lo, w)
 
+    def extract_mask2(self, val, lo, w):
+        if val is None:
+            return None
+        else:
+            return self.extract_dat2(val, lo, w)
+
     def extract_reg(self, off, val):
         lo, w = self.extract_reg_bounds(off)
         return self.extract_reg2(val, lo, w)
 
-    def extract_reg_dat(self, off, reg, dat):
+    def extract_reg_dat(self, off, reg, dat, mask):
         lo, w = self.extract_reg_bounds(off)
-        return (self.extract_reg2(reg, lo, w),
-                self.extract_dat2(dat, self.field.lo + lo - off, w))
+        return (
+            self.extract_reg2(reg, lo, w),
+            self.extract_dat2(dat, self.field.lo + lo - off, w),
+            self.extract_mask2(mask, self.field.lo + lo - off, w),
+        )
 
     def get_offset_range(self):
         """Return an iterator on the address offsets for this register."""
@@ -117,8 +126,20 @@ class GenFieldReg(GenFieldBase):
         stmts.append(HDLAssign(self.field.h_oport, self.field.h_reg))
 
     def assign_reg(self, then_stmts, else_stmts, off, ibus):
-        reg, dat = self.extract_reg_dat(off, self.field.h_reg, ibus.wr_dat)
-        then_stmts.append(HDLAssign(reg, dat))
+        reg, dat, mask = self.extract_reg_dat(
+            off, self.field.h_reg, ibus.wr_dat, ibus.wr_sel
+        )
+        if self.root.c_wmask_reg and mask is not None:
+            then_stmts.append(
+                HDLAssign(
+                    reg,
+                    HDLOr(
+                        HDLParen(HDLAnd(reg, HDLNot(mask))), HDLParen(HDLAnd(dat, mask))
+                    ),
+                )
+            )
+        else:
+            then_stmts.append(HDLAssign(reg, dat))
 
 class GenFieldWire(GenFieldBase):
     def need_iport(self):
@@ -133,8 +154,21 @@ class GenFieldWire(GenFieldBase):
     def connect_output(self, stmts, ibus):
         # Handle wire fields: create connections between the bus and the outputs.
         for off in self.get_offset_range():
-            reg, dat = self.extract_reg_dat(off, self.field.h_oport, ibus.wr_dat)
-            stmts.append(HDLAssign(reg, dat))
+            reg, dat, mask = self.extract_reg_dat(
+                off, self.field.h_oport, ibus.wr_dat, ibus.wr_sel
+            )
+            if self.root.c_wmask_reg and mask is not None:
+                stmts.append(
+                    HDLAssign(
+                        reg,
+                        HDLOr(
+                            HDLParen(HDLAnd(reg, HDLNot(mask))),
+                            HDLParen(HDLAnd(dat, mask)),
+                        ),
+                    )
+                )
+            else:
+                stmts.append(HDLAssign(reg, dat))
 
 class GenFieldConst(GenFieldBase):
     def get_input(self, off):
@@ -155,10 +189,21 @@ class GenFieldAutoclear(GenFieldBase):
         return HDLConst(0, w if w != 1 else None)
 
     def assign_reg(self, then_stmts, else_stmts, off, ibus):
-        lo, w = self.extract_reg_bounds(off)
-        reg = self.extract_reg2(self.field.h_reg, lo, w)
-        dat = self.extract_dat2(ibus.wr_dat, self.field.lo + lo - off, w)
-        then_stmts.append(HDLAssign(reg, dat))
+        _, w = self.extract_reg_bounds(off)
+        reg, dat, mask = self.extract_reg_dat(
+            off, self.field.h_reg, ibus.wr_dat, ibus.wr_sel
+        )
+        if self.root.c_wmask_reg and mask is not None:
+            then_stmts.append(
+                HDLAssign(
+                    reg,
+                    HDLOr(
+                        HDLParen(HDLAnd(reg, HDLNot(mask))), HDLParen(HDLAnd(dat, mask))
+                    ),
+                )
+            )
+        else:
+            then_stmts.append(HDLAssign(reg, dat))
         else_stmts.append(HDLAssign(reg, HDLConst(0, w if w != 1 else None)))
 
     def connect_output(self, stmts, ibus):
@@ -180,6 +225,8 @@ class GenFieldOrClr(GenFieldBase):
         inp = self.extract_reg2(self.field.h_iport, lo, w)
         reg = self.extract_reg2(self.field.h_reg, lo, w)
         dat = self.extract_dat2(ibus.wr_dat, self.field.lo + lo - off, w)
+        # Since a write request to the register is used to clear individual bits (and
+        # not to store a new value), the mask is not applied
         then_stmts.append(HDLAssign(reg, HDLOr(inp, HDLParen(HDLAnd(reg, HDLNot(dat))))))
         else_stmts.append(HDLAssign(reg, HDLOr(inp, reg)))
 

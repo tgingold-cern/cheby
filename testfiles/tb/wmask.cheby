@@ -1,0 +1,18 @@
+memory-map:
+  bus: BUS
+  name: wmask_NAME
+  children:
+  - reg:
+      name: reg1
+      type: unsigned
+      width: 32
+      access: rw
+      preset: 0x00000000
+  - memory:
+      name: ram1
+      memsize: 32
+      children:
+      - reg:
+          name: row1
+          access: rw
+          width: 32

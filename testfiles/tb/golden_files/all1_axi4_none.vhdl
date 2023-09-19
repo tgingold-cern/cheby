@@ -118,7 +118,7 @@ architecture syn of all1_axi4 is
   signal wr_ack                         : std_logic;
   signal wr_addr                        : std_logic_vector(14 downto 2);
   signal wr_data                        : std_logic_vector(31 downto 0);
-  signal wr_strb                        : std_logic_vector(3 downto 0);
+  signal wr_sel                         : std_logic_vector(31 downto 0);
   signal axi_awset                      : std_logic;
   signal axi_wset                       : std_logic;
   signal axi_wdone                      : std_logic;
@@ -185,6 +185,8 @@ architecture syn of all1_axi4 is
   signal ram1_wr                        : std_logic;
   signal ram1_wreq                      : std_logic;
   signal ram1_adr_int                   : std_logic_vector(2 downto 0);
+  signal ram1_sel_int                   : std_logic_vector(3 downto 0);
+  signal ram_ro_sel_int                 : std_logic_vector(3 downto 0);
   signal ram2_wp                        : std_logic;
   signal ram2_we                        : std_logic;
 begin
@@ -209,7 +211,10 @@ begin
         end if;
         if wvalid = '1' and axi_wset = '0' then
           wr_data <= wdata;
-          wr_strb <= wstrb;
+          wr_sel(7 downto 0) <= (others => wstrb(0));
+          wr_sel(15 downto 8) <= (others => wstrb(1));
+          wr_sel(23 downto 16) <= (others => wstrb(2));
+          wr_sel(31 downto 24) <= (others => wstrb(3));
           axi_wset <= '1';
           wr_req <= axi_awset or awvalid;
         end if;
@@ -310,7 +315,7 @@ begin
       clk_a_i              => aclk,
       clk_b_i              => aclk,
       addr_a_i             => ram1_adr_int,
-      bwsel_a_i            => wr_strb,
+      bwsel_a_i            => ram1_sel_int,
       data_a_i             => wr_data,
       data_a_o             => ram1_val_int_dato,
       rd_a_i               => ram1_val_rreq,
@@ -323,6 +328,21 @@ begin
       wr_b_i               => '0'
     );
   
+  process (wr_sel) begin
+    ram1_sel_int <= (others => '0');
+    if not (wr_sel(7 downto 0) = (7 downto 0 => '0')) then
+      ram1_sel_int(0) <= '1';
+    end if;
+    if not (wr_sel(15 downto 8) = (7 downto 0 => '0')) then
+      ram1_sel_int(1) <= '1';
+    end if;
+    if not (wr_sel(23 downto 16) = (7 downto 0 => '0')) then
+      ram1_sel_int(2) <= '1';
+    end if;
+    if not (wr_sel(31 downto 24) = (7 downto 0 => '0')) then
+      ram1_sel_int(3) <= '1';
+    end if;
+  end process;
   process (aclk) begin
     if rising_edge(aclk) then
       if areset_n = '0' then
@@ -346,7 +366,7 @@ begin
       clk_a_i              => aclk,
       clk_b_i              => aclk,
       addr_a_i             => rd_addr(4 downto 2),
-      bwsel_a_i            => wr_strb,
+      bwsel_a_i            => ram_ro_sel_int,
       data_a_i             => (others => 'X'),
       data_a_o             => ram_ro_val_int_dato,
       rd_a_i               => ram_ro_val_rreq,
@@ -359,6 +379,21 @@ begin
       wr_b_i               => ram_ro_val_we_i
     );
   
+  process (wr_sel) begin
+    ram_ro_sel_int <= (others => '0');
+    if not (wr_sel(7 downto 0) = (7 downto 0 => '0')) then
+      ram_ro_sel_int(0) <= '1';
+    end if;
+    if not (wr_sel(15 downto 8) = (7 downto 0 => '0')) then
+      ram_ro_sel_int(1) <= '1';
+    end if;
+    if not (wr_sel(23 downto 16) = (7 downto 0 => '0')) then
+      ram_ro_sel_int(2) <= '1';
+    end if;
+    if not (wr_sel(31 downto 24) = (7 downto 0 => '0')) then
+      ram_ro_sel_int(3) <= '1';
+    end if;
+  end process;
   process (aclk) begin
     if rising_edge(aclk) then
       if areset_n = '0' then
@@ -426,7 +461,21 @@ begin
       sub1_wb_adr_o <= rd_addr(11 downto 2);
     end if;
   end process;
-  sub1_wb_sel_o <= wr_strb;
+  process (wr_sel) begin
+    sub1_wb_sel_o <= (others => '0');
+    if not (wr_sel(7 downto 0) = (7 downto 0 => '0')) then
+      sub1_wb_sel_o(0) <= '1';
+    end if;
+    if not (wr_sel(15 downto 8) = (7 downto 0 => '0')) then
+      sub1_wb_sel_o(1) <= '1';
+    end if;
+    if not (wr_sel(23 downto 16) = (7 downto 0 => '0')) then
+      sub1_wb_sel_o(2) <= '1';
+    end if;
+    if not (wr_sel(31 downto 24) = (7 downto 0 => '0')) then
+      sub1_wb_sel_o(3) <= '1';
+    end if;
+  end process;
   sub1_wb_we_o <= sub1_wb_wt;
   sub1_wb_dat_o <= wr_data;
 
@@ -436,7 +485,21 @@ begin
   sub2_axi4_awprot_o <= "000";
   sub2_axi4_wvalid_o <= sub2_axi4_w_val;
   sub2_axi4_wdata_o <= wr_data;
-  sub2_axi4_wstrb_o <= wr_strb;
+  process (wr_sel) begin
+    sub2_axi4_wstrb_o <= (others => '0');
+    if not (wr_sel(7 downto 0) = (7 downto 0 => '0')) then
+      sub2_axi4_wstrb_o(0) <= '1';
+    end if;
+    if not (wr_sel(15 downto 8) = (7 downto 0 => '0')) then
+      sub2_axi4_wstrb_o(1) <= '1';
+    end if;
+    if not (wr_sel(23 downto 16) = (7 downto 0 => '0')) then
+      sub2_axi4_wstrb_o(2) <= '1';
+    end if;
+    if not (wr_sel(31 downto 24) = (7 downto 0 => '0')) then
+      sub2_axi4_wstrb_o(3) <= '1';
+    end if;
+  end process;
   sub2_axi4_bready_o <= '1';
   sub2_axi4_arvalid_o <= sub2_axi4_ar_val;
   sub2_axi4_araddr_o <= rd_addr(11 downto 2);
@@ -508,7 +571,21 @@ begin
       sub4_avalon_address_o <= rd_addr(11 downto 2);
     end if;
   end process;
-  sub4_avalon_byteenable_o <= wr_strb;
+  process (wr_sel) begin
+    sub4_avalon_byteenable_o <= (others => '0');
+    if not (wr_sel(7 downto 0) = (7 downto 0 => '0')) then
+      sub4_avalon_byteenable_o(0) <= '1';
+    end if;
+    if not (wr_sel(15 downto 8) = (7 downto 0 => '0')) then
+      sub4_avalon_byteenable_o(1) <= '1';
+    end if;
+    if not (wr_sel(23 downto 16) = (7 downto 0 => '0')) then
+      sub4_avalon_byteenable_o(2) <= '1';
+    end if;
+    if not (wr_sel(31 downto 24) = (7 downto 0 => '0')) then
+      sub4_avalon_byteenable_o(3) <= '1';
+    end if;
+  end process;
   sub4_avalon_write_o <= sub4_avalon_wr;
   sub4_avalon_read_o <= sub4_avalon_rr;
   sub4_avalon_writedata_o <= wr_data;
@@ -546,7 +623,21 @@ begin
     end if;
   end process;
   sub5_apb_pwdata_o <= wr_data;
-  sub5_apb_pstrb_o <= wr_strb;
+  process (wr_sel) begin
+    sub5_apb_pstrb_o <= (others => '0');
+    if not (wr_sel(7 downto 0) = (7 downto 0 => '0')) then
+      sub5_apb_pstrb_o(0) <= '1';
+    end if;
+    if not (wr_sel(15 downto 8) = (7 downto 0 => '0')) then
+      sub5_apb_pstrb_o(1) <= '1';
+    end if;
+    if not (wr_sel(23 downto 16) = (7 downto 0 => '0')) then
+      sub5_apb_pstrb_o(2) <= '1';
+    end if;
+    if not (wr_sel(31 downto 24) = (7 downto 0 => '0')) then
+      sub5_apb_pstrb_o(3) <= '1';
+    end if;
+  end process;
 
   -- Process for write requests.
   process (wr_addr, wr_req, reg1_wack, reg2_wack, ram2_we, sub1_wb_wack,

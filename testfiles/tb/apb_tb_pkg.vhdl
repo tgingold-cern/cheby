@@ -31,6 +31,23 @@ package apb_tb_pkg is
     signal bus_i : in  t_apb_master_in;
     addr         : in  std_logic_vector(31 downto 0);
     data         : in  std_logic_vector(datalen - 1 downto 0);
+    mask         : in  std_logic_vector(datalen/8 - 1 downto 0);
+    slverr       : in  std_logic);
+
+  procedure apb_write (
+    signal clk_i : in  std_logic;
+    signal bus_o : out t_apb_master_out;
+    signal bus_i : in  t_apb_master_in;
+    addr         : in  std_logic_vector(31 downto 0);
+    data         : in  std_logic_vector(datalen - 1 downto 0);
+    mask         : in  std_logic_vector(datalen/8 - 1 downto 0));
+
+  procedure apb_write (
+    signal clk_i : in  std_logic;
+    signal bus_o : out t_apb_master_out;
+    signal bus_i : in  t_apb_master_in;
+    addr         : in  std_logic_vector(31 downto 0);
+    data         : in  std_logic_vector(datalen - 1 downto 0);
     slverr       : in  std_logic);
 
   procedure apb_write (
@@ -81,6 +98,7 @@ package body apb_tb_pkg is
       signal bus_i : in  t_apb_master_in;
       addr         : in  std_logic_vector(31 downto 0);
       data         : in  std_logic_vector(datalen - 1 downto 0);
+      mask         : in  std_logic_vector(datalen/8 - 1 downto 0);
       slverr       : in  std_logic) is
   begin
     wait until rising_edge(clk_i);
@@ -93,7 +111,7 @@ package body apb_tb_pkg is
       pwrite  => '1',
       penable => '0',
       pwdata  => data,
-      pstrb   => (others => '1')
+      pstrb   => mask
     );
 
     wait until rising_edge(clk_i);
@@ -123,9 +141,31 @@ package body apb_tb_pkg is
       signal bus_o : out t_apb_master_out;
       signal bus_i : in  t_apb_master_in;
       addr         : in  std_logic_vector(31 downto 0);
+      data         : in  std_logic_vector(datalen - 1 downto 0);
+      mask         : in  std_logic_vector(datalen/8 - 1 downto 0)) is
+  begin
+    apb_write(clk_i, bus_o, bus_i, addr, data, mask, '0');
+  end apb_write;
+
+  procedure apb_write (
+      signal clk_i : in  std_logic;
+      signal bus_o : out t_apb_master_out;
+      signal bus_i : in  t_apb_master_in;
+      addr         : in  std_logic_vector(31 downto 0);
+      data         : in  std_logic_vector(datalen - 1 downto 0);
+      slverr       : in  std_logic) is
+  begin
+    apb_write(clk_i, bus_o, bus_i, addr, data, (others => '1'), slverr);
+  end apb_write;
+
+  procedure apb_write (
+      signal clk_i : in  std_logic;
+      signal bus_o : out t_apb_master_out;
+      signal bus_i : in  t_apb_master_in;
+      addr         : in  std_logic_vector(31 downto 0);
       data         : in  std_logic_vector(datalen - 1 downto 0)) is
   begin
-    apb_write(clk_i, bus_o, bus_i, addr, data, '0');
+    apb_write(clk_i, bus_o, bus_i, addr, data, (others => '1'), '0');
   end apb_write;
 
   procedure apb_read (

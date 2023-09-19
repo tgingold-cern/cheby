@@ -57,7 +57,7 @@ architecture syn of addrwidth_axi4_byte is
   signal wr_ack                         : std_logic;
   signal wr_addr                        : std_logic_vector(3 downto 2);
   signal wr_data                        : std_logic_vector(31 downto 0);
-  signal wr_strb                        : std_logic_vector(3 downto 0);
+  signal wr_sel                         : std_logic_vector(31 downto 0);
   signal axi_awset                      : std_logic;
   signal axi_wset                       : std_logic;
   signal axi_wdone                      : std_logic;
@@ -80,7 +80,7 @@ architecture syn of addrwidth_axi4_byte is
   signal wr_req_d0                      : std_logic;
   signal wr_adr_d0                      : std_logic_vector(3 downto 2);
   signal wr_dat_d0                      : std_logic_vector(31 downto 0);
-  signal wr_sel_d0                      : std_logic_vector(3 downto 0);
+  signal wr_sel_d0                      : std_logic_vector(31 downto 0);
 begin
 
   -- AW, W and B channels
@@ -103,7 +103,10 @@ begin
         end if;
         if wvalid = '1' and axi_wset = '0' then
           wr_data <= wdata;
-          wr_strb <= wstrb;
+          wr_sel(7 downto 0) <= (others => wstrb(0));
+          wr_sel(15 downto 8) <= (others => wstrb(1));
+          wr_sel(23 downto 16) <= (others => wstrb(2));
+          wr_sel(31 downto 24) <= (others => wstrb(3));
           axi_wset <= '1';
           wr_req <= axi_awset or awvalid;
         end if;
@@ -162,7 +165,7 @@ begin
         wr_req_d0 <= wr_req;
         wr_adr_d0 <= wr_addr;
         wr_dat_d0 <= wr_data;
-        wr_sel_d0 <= wr_strb;
+        wr_sel_d0 <= wr_sel;
       end if;
     end if;
   end process;
@@ -189,7 +192,21 @@ begin
   sub2_axi4_awprot_o <= "000";
   sub2_axi4_wvalid_o <= sub2_axi4_w_val;
   sub2_axi4_wdata_o <= wr_dat_d0;
-  sub2_axi4_wstrb_o <= wr_sel_d0;
+  process (wr_sel_d0) begin
+    sub2_axi4_wstrb_o <= (others => '0');
+    if not (wr_sel_d0(7 downto 0) = (7 downto 0 => '0')) then
+      sub2_axi4_wstrb_o(0) <= '1';
+    end if;
+    if not (wr_sel_d0(15 downto 8) = (7 downto 0 => '0')) then
+      sub2_axi4_wstrb_o(1) <= '1';
+    end if;
+    if not (wr_sel_d0(23 downto 16) = (7 downto 0 => '0')) then
+      sub2_axi4_wstrb_o(2) <= '1';
+    end if;
+    if not (wr_sel_d0(31 downto 24) = (7 downto 0 => '0')) then
+      sub2_axi4_wstrb_o(3) <= '1';
+    end if;
+  end process;
   sub2_axi4_bready_o <= '1';
   sub2_axi4_arvalid_o <= sub2_axi4_ar_val;
   sub2_axi4_araddr_o <= rd_addr(2 downto 2) & "00";

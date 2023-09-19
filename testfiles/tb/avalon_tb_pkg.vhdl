@@ -20,11 +20,20 @@ package avalon_tb_pkg is
                       signal avmm_in  : t_avmm_master_in;
                       signal avmm_out   : inout t_avmm_master_out);
 
-  procedure avmm_writel (signal clk     : std_logic;
-                         signal avmm_in  : t_avmm_master_in;
-                         signal avmm_out   : inout t_avmm_master_out;
-                         addr : std_logic_vector (31 downto 0);
-                         data : std_logic_vector (31 downto 0));
+  procedure avmm_writel(
+    signal clk      : in  std_logic;
+    signal avmm_in  : in  t_avmm_master_in;
+    signal avmm_out : out t_avmm_master_out;
+    addr            : in  std_logic_vector(31 downto 0);
+    data            : in  std_logic_vector(31 downto 0);
+    mask            : in  std_logic_vector(3 downto 0));
+
+  procedure avmm_writel(
+    signal clk      : in  std_logic;
+    signal avmm_in  : in  t_avmm_master_in;
+    signal avmm_out : out t_avmm_master_out;
+    addr            : in  std_logic_vector(31 downto 0);
+    data            : in  std_logic_vector(31 downto 0));
 
   procedure avmm_readl (signal clk     : std_logic;
                         signal avmm_in  : t_avmm_master_in;
@@ -42,36 +51,49 @@ package body avalon_tb_pkg is
     avmm_out.write <= '0';
   end avmm_init;
 
-  procedure avmm_writel (signal clk     : std_logic;
-                         signal avmm_in  : t_avmm_master_in;
-                         signal avmm_out   : inout t_avmm_master_out;
-                         addr : std_logic_vector (31 downto 0);
-                         data : std_logic_vector (31 downto 0))
-    is
-      variable rdata : std_logic_vector (31 downto 0);
-    begin
-      --  W transfer
-      avmm_out.write <= '1';
-      avmm_out.writedata <= data;
-      avmm_out.address <= addr;
-      avmm_out.byteenable <= "1111";
+  procedure avmm_writel(
+    signal clk      : in  std_logic;
+    signal avmm_in  : in  t_avmm_master_in;
+    signal avmm_out : out t_avmm_master_out;
+    addr            : in  std_logic_vector(31 downto 0);
+    data            : in  std_logic_vector(31 downto 0);
+    mask            : in  std_logic_vector(3 downto 0)) is
 
-      --  Wait until the request is accepted
-      loop
-        wait until rising_edge(clk);
-        exit when avmm_in.waitrequest = '0';
-      end loop;
+    variable rdata : std_logic_vector (31 downto 0);
+  begin
+    --  W transfer
+    avmm_out.write      <= '1';
+    avmm_out.writedata  <= data;
+    avmm_out.address    <= addr;
+    avmm_out.byteenable <= mask;
 
-      avmm_out.write <= '0';
-      avmm_out.writedata <= (others => 'X');
-      avmm_out.address <= (others => 'X');
+    --  Wait until the request is accepted
+    loop
+      wait until rising_edge(clk);
+      exit when avmm_in.waitrequest = '0';
+    end loop;
 
-      --  Wait until the bus is free (or until the request has been handled).
-      loop
-        wait until rising_edge(clk);
-        exit when avmm_in.waitrequest = '0';
-      end loop;
-    end avmm_writel;
+    avmm_out.write      <= '0';
+    avmm_out.writedata  <= (others => 'X');
+    avmm_out.address    <= (others => 'X');
+    avmm_out.byteenable <= (others => 'X');
+
+    --  Wait until the bus is free (or until the request has been handled).
+    loop
+      wait until rising_edge(clk);
+      exit when avmm_in.waitrequest = '0';
+    end loop;
+  end avmm_writel;
+
+  procedure avmm_writel(
+    signal clk      : in  std_logic;
+    signal avmm_in  : in  t_avmm_master_in;
+    signal avmm_out : out t_avmm_master_out;
+    addr            : in  std_logic_vector(31 downto 0);
+    data            : in  std_logic_vector(31 downto 0)) is
+  begin
+    avmm_writel(clk, avmm_in, avmm_out, addr, data, (others => '1'));
+  end avmm_writel;
 
     procedure avmm_readl (signal clk     : std_logic;
                         signal avmm_in  : t_avmm_master_in;

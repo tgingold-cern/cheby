@@ -42,6 +42,7 @@ entity axi4_submap_wb is
 end axi4_submap_wb;
 
 architecture syn of axi4_submap_wb is
+  signal wr_sel                         : std_logic_vector(31 downto 0);
   signal rd_req_int                     : std_logic;
   signal wr_req_int                     : std_logic;
   signal rd_ack_int                     : std_logic;
@@ -60,10 +61,16 @@ architecture syn of axi4_submap_wb is
   signal wr_req_d0                      : std_logic;
   signal wr_adr_d0                      : std_logic_vector(2 downto 2);
   signal wr_dat_d0                      : std_logic_vector(31 downto 0);
-  signal wr_sel_d0                      : std_logic_vector(3 downto 0);
+  signal wr_sel_d0                      : std_logic_vector(31 downto 0);
 begin
 
   -- WB decode signals
+  process (wb_sel_i) begin
+    wr_sel(7 downto 0) <= (others => wb_sel_i(0));
+    wr_sel(15 downto 8) <= (others => wb_sel_i(1));
+    wr_sel(23 downto 16) <= (others => wb_sel_i(2));
+    wr_sel(31 downto 24) <= (others => wb_sel_i(3));
+  end process;
   wb_en <= wb_cyc_i and wb_stb_i;
 
   process (clk_i) begin
@@ -106,7 +113,7 @@ begin
         wr_req_d0 <= wr_req_int;
         wr_adr_d0 <= wb_adr_i;
         wr_dat_d0 <= wb_dat_i;
-        wr_sel_d0 <= wb_sel_i;
+        wr_sel_d0 <= wr_sel;
       end if;
     end if;
   end process;
@@ -117,7 +124,21 @@ begin
   blk_awprot_o <= "000";
   blk_wvalid_o <= blk_w_val;
   blk_wdata_o <= wr_dat_d0;
-  blk_wstrb_o <= wr_sel_d0;
+  process (wr_sel_d0) begin
+    blk_wstrb_o <= (others => '0');
+    if not (wr_sel_d0(7 downto 0) = (7 downto 0 => '0')) then
+      blk_wstrb_o(0) <= '1';
+    end if;
+    if not (wr_sel_d0(15 downto 8) = (7 downto 0 => '0')) then
+      blk_wstrb_o(1) <= '1';
+    end if;
+    if not (wr_sel_d0(23 downto 16) = (7 downto 0 => '0')) then
+      blk_wstrb_o(2) <= '1';
+    end if;
+    if not (wr_sel_d0(31 downto 24) = (7 downto 0 => '0')) then
+      blk_wstrb_o(3) <= '1';
+    end if;
+  end process;
   blk_bready_o <= '1';
   blk_arvalid_o <= blk_ar_val;
   blk_araddr_o <= wb_adr_i(2 downto 2) & "00";
