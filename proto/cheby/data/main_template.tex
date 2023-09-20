@@ -18,11 +18,15 @@
 \usepackage[colorlinks=true,linkcolor=blue]{hyperref}
 \usepackage{xcolor}
 
+% Remove table caption for longtblr tables
+\DefTblrTemplate{firsthead, middlehead, lasthead}{default}{}
+
 % Memory Map
 \newenvironment{memmap}{
   \centering
   \begin{longtblr}{
     width    = \textwidth,
+    rowhead  = {1},
     hline{1} = {1pt},
     hline{2} = {0.5pt},
     hline{Z} = {1pt},
@@ -62,8 +66,9 @@
 % Register Description
 \newenvironment{regdesc}{
   \centering
-  \begin{tblr}{
+  \begin{longtblr}{
     width    = \textwidth,
+    rowhead  = {1},
     hline{1} = {1pt},
     hline{2} = {0.5pt},
     hline{Z} = {1pt},
