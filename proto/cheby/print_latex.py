@@ -27,7 +27,12 @@ def escape_printable(text):
     return text
 
 
-def print_reg(fd, r, raw, print_reg_drawing):
+def print_reg(fd, r, raw, print_reg_drawing, word_size):
+    ACCESSES = {
+        "rw": "read/write",
+        "wo": "write-only",
+        "ro": "read-only",
+    }
 
     # Register Summary
     wln(fd, "\\begin{regsummary}")
@@ -35,6 +40,7 @@ def print_reg(fd, r, raw, print_reg_drawing):
     wln(fd, "HW Address & 0x{:x}\\\\".format(raw.abs_addr))
     wln(fd, "C Prefix & {}\\\\".format(escape_printable(raw.name)))
     wln(fd, "C Block Offset & 0x{:x}\\\\".format(r.c_address))
+    wln(fd, "Access & {}\\\\".format(ACCESSES[r.access]))
     wln(fd, "\\end{regsummary}\n")
 
     # Register description
@@ -83,9 +89,6 @@ def print_reg(fd, r, raw, print_reg_drawing):
             w(fd, '{}:{} & '.format(f.hi, f.lo))
         else:
             w(fd, '{} & '.format(f.lo))
-
-        # Access
-        w(fd, '{} & '.format(r.access or ''))
 
         # Name
         w(fd, '{} & '.format(escape_printable(desc_src.name)))
