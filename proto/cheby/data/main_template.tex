@@ -20,7 +20,6 @@
 
 % Memory Map
 \newenvironment{memmap}{
-  \vspace{5mm}
   \centering
   \begin{longtblr}{
     width    = \textwidth,
@@ -47,7 +46,6 @@
 
 % Register Drawing
 \newenvironment{regdraw}{
-  \vspace{5mm}
   \begin{center}
   \begin{tblr}{
     width    = \textwidth,
@@ -63,7 +61,6 @@
 
 % Register Description
 \newenvironment{regdesc}{
-  \vspace{5mm}
   \centering
   \begin{tblr}{
     width    = \textwidth,
@@ -74,7 +71,7 @@
   }
   Bits & R/W & Name & Description \\
 }{
-  \end{tblr}
+  \end{longtblr}
 }
 
 \begin{document}
