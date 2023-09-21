@@ -1,0 +1,45 @@
+memory-map:
+  bus: apb-32
+  name: padding_block_reg
+  x-hdl:
+    iogroup: regs
+    pipeline: rd-out
+    bus-error: True
+  description: 'Register map with a padding block.'
+  children:
+    - reg:
+        name: version
+        description: 'Hardware version.'
+        type: unsigned
+        width: 32
+        x-hdl:
+          type: const
+        access: ro
+        preset: 0x3
+    - reg:
+        name: control
+        description: 'Control register.'
+        width: 32
+        access: rw
+    - repeat:
+        name: subunit
+        count: 8
+        align: False
+        address: 0x100
+        x-hdl:
+          iogroup: subunit_regs
+        children:
+          - reg:
+              name: status
+              width: 32
+              access: ro
+          - reg:
+              name: control
+              description: 'Control stuff'
+              width: 32
+              access: wo
+          - block:
+              # Dummy block to align addresses to 0x80 grid
+              name: padding
+              align: false
+              size: 0x78
