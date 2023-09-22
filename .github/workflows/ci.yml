@@ -1,0 +1,45 @@
+on: [push, pull_request]
+
+name: CI
+
+jobs:
+  generation:
+    name: Generation
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - name: Setup Python venv
+        run: |
+          python3 -m venv .venv
+          source .venv/bin/activate
+          python -V
+          pip install -r requirements.txt
+
+      - name: Test Generation
+        run: |
+          cd proto
+          python3 tests.py
+
+  interaction:
+    name: Interaction
+    runs-on: ubuntu-22.04
+    steps:
+      - name: Install GHDL
+        run: sudo apt-get install ghdl
+
+      - name: Checkout sources
+        uses: actions/checkout@v4
+
+      - name: Setup Python venv
+        run: |
+          python3 -m venv .venv
+          source .venv/bin/activate
+          python -V
+          pip install -r requirements.txt
+
+      - name: Test Generation
+        run: |
+          cd testfiles/tb
+          ./run.sh

@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 
 GHDL=${GHDL:-ghdl}
 GHDL_FLAGS=--std=08
