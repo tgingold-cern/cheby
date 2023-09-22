@@ -4,10 +4,10 @@ Test AXI4-Lite interface
 \begin{memmap}
 0x00 & REG & \hyperref[sec:register1]{register1} & register1\\
 0x10-0x1f & BLOCK & block1 & block1\\
-0x10 & REG & \hyperref[sec:block1.register2]{block1.\allowbreak{}register2} & block1\textunderscore\allowbreak{}register2\\
-0x14 & REG & \hyperref[sec:block1.register3]{block1.\allowbreak{}register3} & block1\textunderscore\allowbreak{}register3\\
-0x18-0x1b & BLOCK & block1.\allowbreak{}block2 & block1\textunderscore\allowbreak{}block2\\
-0x18 & REG & \hyperref[sec:block1.block2.register4]{block1.\allowbreak{}block2.\allowbreak{}register4} & block1\textunderscore\allowbreak{}block2\textunderscore\allowbreak{}register4\\
+0x10 & REG & \hyperref[sec:block1.register2]{block1.\allowbreak{}register2} & block1\_\allowbreak{}register2\\
+0x14 & REG & \hyperref[sec:block1.register3]{block1.\allowbreak{}register3} & block1\_\allowbreak{}register3\\
+0x18-0x1b & BLOCK & block1.\allowbreak{}block2 & block1\_\allowbreak{}block2\\
+0x18 & REG & \hyperref[sec:block1.block2.register4]{block1.\allowbreak{}block2.\allowbreak{}register4} & block1\_\allowbreak{}block2\_\allowbreak{}register4\\
 \end{memmap}
 
 \section{Register Description}
@@ -18,6 +18,7 @@ HW Prefix & register1\\
 HW Address & 0x0\\
 C Prefix & register1\\
 C Block Offset & 0x0\\
+Access & write-only\\
 \end{regsummary}
 
 \begin{regdraw}
@@ -32,18 +33,21 @@ C Block Offset & 0x0\\
 \end{regdraw}
 
 \begin{regdesc}
-31:0 & wo & register1 & Test register 1\\
+31:0 & register1 & {Test register 1}\\
 \end{regdesc}
 
 
 \subsubsection{block1.\allowbreak{}register2}
 \label{sec:block1.register2}
 \begin{regsummary}
-HW Prefix & block1\textunderscore\allowbreak{}register2\\
+HW Prefix & block1\_\allowbreak{}register2\\
 HW Address & 0x10\\
 C Prefix & block1.\allowbreak{}register2\\
 C Block Offset & 0x0\\
+Access & read-only\\
 \end{regsummary}
+
+Test register 2
 
 \begin{regdraw}
 31 & 30 & 29 & 28 & 27 & 26 & 25 & 24 \\
@@ -57,18 +61,19 @@ C Block Offset & 0x0\\
 \end{regdraw}
 
 \begin{regdesc}
-0 & ro & field1 & Test field 1\\
-3:1 & ro & field2 & Test field 2\\
+0 & field1 & {Test field 1}\\
+3:1 & field2 & {Test field 2}\\
 \end{regdesc}
 
 
 \subsubsection{block1.\allowbreak{}register3}
 \label{sec:block1.register3}
 \begin{regsummary}
-HW Prefix & block1\textunderscore\allowbreak{}register3\\
+HW Prefix & block1\_\allowbreak{}register3\\
 HW Address & 0x14\\
 C Prefix & block1.\allowbreak{}register3\\
 C Block Offset & 0x4\\
+Access & read/write\\
 \end{regsummary}
 
 \begin{regdraw}
@@ -83,18 +88,21 @@ C Block Offset & 0x4\\
 \end{regdraw}
 
 \begin{regdesc}
-31:0 & rw & register3 & Test register 3\\
+31:0 & register3 & {Test register 3}\\
 \end{regdesc}
 
 
 \subsubsection{block1.\allowbreak{}block2.\allowbreak{}register4}
 \label{sec:block1.block2.register4}
 \begin{regsummary}
-HW Prefix & block1\textunderscore\allowbreak{}block2\textunderscore\allowbreak{}register4\\
+HW Prefix & block1\_\allowbreak{}block2\_\allowbreak{}register4\\
 HW Address & 0x18\\
 C Prefix & block1.\allowbreak{}block2.\allowbreak{}register4\\
 C Block Offset & 0x0\\
+Access & read-only\\
 \end{regsummary}
+
+Test register 4
 
 \begin{regdraw}
 31 & 30 & 29 & 28 & 27 & 26 & 25 & 24 \\
@@ -108,8 +116,8 @@ C Block Offset & 0x0\\
 \end{regdraw}
 
 \begin{regdesc}
-0 & ro & field3 & Test field 3\\
-3:1 & ro & field4 & Test field 4\\
+0 & field3 & {Test field 3}\\
+3:1 & field4 & {Test field 4}\\
 \end{regdesc}
 
 

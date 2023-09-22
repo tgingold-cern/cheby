@@ -374,20 +374,16 @@
  <td class="td_field" colspan="8">patch[7:0]</td>
 </tr>
 </table>
-<ul>
-<li><b>
-platform
-</b>[<i>ro</i>]: Identifying which platform the version belongs to (i.e. pci, lhc_vme, vme64, ...)
-<li><b>
-major
-</b>[<i>ro</i>]: Major version indicating incompatible changes
-<li><b>
-minor
-</b>[<i>ro</i>]: Minor version indicating feature enhancements
-<li><b>
-patch
-</b>[<i>ro</i>]: Patch indicating bug fixes
-</ul>
+<dl>
+  <dt><b>platform</b> [<i>ro</i>]</dt>
+  <dd>Identifying which platform the version belongs to (i.e. pci, lhc_vme, vme64, ...)</dd>
+  <dt><b>major</b> [<i>ro</i>]</dt>
+  <dd>Major version indicating incompatible changes</dd>
+  <dt><b>minor</b> [<i>ro</i>]</dt>
+  <dd>Minor version indicating feature enhancements</dd>
+  <dt><b>patch</b> [<i>ro</i>]</dt>
+  <dd>Patch indicating bug fixes</dd>
+</dl>
 <a name="hwInfo.serialNumber"></a>
 <h3>2.1.2. hwInfo.serialNumber</h3>
 <table cellpadding=0 cellspacing=0 border=0>
@@ -505,11 +501,10 @@ HW serial number
  <td class="td_field" colspan="8">serialNumber[7:0]</td>
 </tr>
 </table>
-<ul>
-<li><b>
-serialNumber
-</b>[<i>ro</i>]: HW serial number
-</ul>
+<dl>
+  <dt><b>serialNumber</b> [<i>ro</i>]</dt>
+  <dd>HW serial number</dd>
+</dl>
 <a name="hwInfo.firmwareVersion"></a>
 <h3>2.1.3. hwInfo.firmwareVersion</h3>
 <table cellpadding=0 cellspacing=0 border=0>
@@ -582,17 +577,14 @@ Firmware Version
  <td class="td_field" colspan="8">patch[7:0]</td>
 </tr>
 </table>
-<ul>
-<li><b>
-major
-</b>[<i>ro</i>]: Major version indicating incompatible changes
-<li><b>
-minor
-</b>[<i>ro</i>]: Minor version indicating feature enhancements
-<li><b>
-patch
-</b>[<i>ro</i>]: Patch indicating bug fixes
-</ul>
+<dl>
+  <dt><b>major</b> [<i>ro</i>]</dt>
+  <dd>Major version indicating incompatible changes</dd>
+  <dt><b>minor</b> [<i>ro</i>]</dt>
+  <dd>Minor version indicating feature enhancements</dd>
+  <dt><b>patch</b> [<i>ro</i>]</dt>
+  <dd>Patch indicating bug fixes</dd>
+</dl>
 <a name="hwInfo.memMapVersion"></a>
 <h3>2.1.4. hwInfo.memMapVersion</h3>
 <table cellpadding=0 cellspacing=0 border=0>
@@ -665,17 +657,14 @@ Memory Map Version
  <td class="td_field" colspan="8">patch[7:0]</td>
 </tr>
 </table>
-<ul>
-<li><b>
-major
-</b>[<i>ro</i>]: Memory Map Version
-<li><b>
-minor
-</b>[<i>ro</i>]: Memory Map Version
-<li><b>
-patch
-</b>[<i>ro</i>]: Memory Map Version
-</ul>
+<dl>
+  <dt><b>major</b> [<i>ro</i>]</dt>
+  <dd>Memory Map Version</dd>
+  <dt><b>minor</b> [<i>ro</i>]</dt>
+  <dd>Memory Map Version</dd>
+  <dt><b>patch</b> [<i>ro</i>]</dt>
+  <dd>Memory Map Version</dd>
+</dl>
 <a name="hwInfo.echo"></a>
 <h3>2.1.5. hwInfo.echo</h3>
 <table cellpadding=0 cellspacing=0 border=0>
@@ -741,12 +730,10 @@ Echo register. This version of the standard foresees only 8bits linked to real m
  <td class="td_field" colspan="8">echo[7:0]</td>
 </tr>
 </table>
-<ul>
-<li><b>
-echo
-</b>[<i>rw</i>]: Echo register. This version of the standard foresees only 8bits linked to real memory
-<br>Register used solely by software. No interaction with the firmware foreseen.<br>The idea is to use this register as "flag" in the hardware to remember your actions from the software side.<br><br>Reading 0xFF often happens when the board is not even reachable (i.e. bus problems on VME)<br><br>On the other hand if the board is reachable the usual state of flipflops are 0x00. Thus this would indicate that no initialization has been attempted yet.<br><br>At start of your software (FESA class) you should set the value 0x40 indicating that initialization is in progress. <br>This is important for you to later one check if you can read this value back before finally setting it to 0x80 (the value previously used with Cheburashka).<br><br>If your initialization failed but you want to continue anyway you should set the register to 0xC0 to indicate this error <br><br>This register is in particular useful if you have several entities interacting with the hardware. In this case several bits could be assigned to this entities (bits 5..0) to signalize that they have done there part successful and a main entity checks all the expected bits.
-</ul>
+<dl>
+  <dt><b>echo</b> [<i>rw</i>]</dt>
+  <dd>Echo register. This version of the standard foresees only 8bits linked to real memory<br><br>Register used solely by software. No interaction with the firmware foreseen.<br>The idea is to use this register as "flag" in the hardware to remember your actions from the software side.<br><br>Reading 0xFF often happens when the board is not even reachable (i.e. bus problems on VME)<br><br>On the other hand if the board is reachable the usual state of flipflops are 0x00. Thus this would indicate that no initialization has been attempted yet.<br><br>At start of your software (FESA class) you should set the value 0x40 indicating that initialization is in progress. <br>This is important for you to later one check if you can read this value back before finally setting it to 0x80 (the value previously used with Cheburashka).<br><br>If your initialization failed but you want to continue anyway you should set the register to 0xC0 to indicate this error <br><br>This register is in particular useful if you have several entities interacting with the hardware. In this case several bits could be assigned to this entities (bits 5..0) to signalize that they have done there part successful and a main entity checks all the expected bits.</dd>
+</dl>
 <a name="app.modulation.ipInfo.stdVersion"></a>
 <h3>2.1.6. app.modulation.ipInfo.stdVersion</h3>
 <table cellpadding=0 cellspacing=0 border=0>
@@ -816,17 +803,14 @@ echo
  <td class="td_field" colspan="8">patch[7:0]</td>
 </tr>
 </table>
-<ul>
-<li><b>
-major
-</b>[<i>ro</i>]: Major version indicating incompatible changes
-<li><b>
-minor
-</b>[<i>ro</i>]: Minor version indicating feature enhancements
-<li><b>
-patch
-</b>[<i>ro</i>]: Patch indicating bug fixes
-</ul>
+<dl>
+  <dt><b>major</b> [<i>ro</i>]</dt>
+  <dd>Major version indicating incompatible changes</dd>
+  <dt><b>minor</b> [<i>ro</i>]</dt>
+  <dd>Minor version indicating feature enhancements</dd>
+  <dt><b>patch</b> [<i>ro</i>]</dt>
+  <dd>Patch indicating bug fixes</dd>
+</dl>
 <a name="app.modulation.ipInfo.ident"></a>
 <h3>2.1.7. app.modulation.ipInfo.ident</h3>
 <table cellpadding=0 cellspacing=0 border=0>
@@ -892,11 +876,10 @@ IP Ident code
  <td class="td_field" colspan="8">ident[7:0]</td>
 </tr>
 </table>
-<ul>
-<li><b>
-ident
-</b>[<i>ro</i>]: IP Ident code
-</ul>
+<dl>
+  <dt><b>ident</b> [<i>ro</i>]</dt>
+  <dd>IP Ident code</dd>
+</dl>
 <a name="app.modulation.ipInfo.firmwareVersion"></a>
 <h3>2.1.8. app.modulation.ipInfo.firmwareVersion</h3>
 <table cellpadding=0 cellspacing=0 border=0>
@@ -969,17 +952,14 @@ Firmware Version
  <td class="td_field" colspan="8">patch[7:0]</td>
 </tr>
 </table>
-<ul>
-<li><b>
-major
-</b>[<i>ro</i>]: Major version indicating incompatible changes
-<li><b>
-minor
-</b>[<i>ro</i>]: Minor version indicating feature enhancements
-<li><b>
-patch
-</b>[<i>ro</i>]: Patch indicating bug fixes
-</ul>
+<dl>
+  <dt><b>major</b> [<i>ro</i>]</dt>
+  <dd>Major version indicating incompatible changes</dd>
+  <dt><b>minor</b> [<i>ro</i>]</dt>
+  <dd>Minor version indicating feature enhancements</dd>
+  <dt><b>patch</b> [<i>ro</i>]</dt>
+  <dd>Patch indicating bug fixes</dd>
+</dl>
 <a name="app.modulation.ipInfo.memMapVersion"></a>
 <h3>2.1.9. app.modulation.ipInfo.memMapVersion</h3>
 <table cellpadding=0 cellspacing=0 border=0>
@@ -1052,17 +1032,14 @@ Memory Map Version
  <td class="td_field" colspan="8">patch[7:0]</td>
 </tr>
 </table>
-<ul>
-<li><b>
-major
-</b>[<i>ro</i>]: Major version indicating incompatible changes
-<li><b>
-minor
-</b>[<i>ro</i>]: Minor version indicating feature enhancements
-<li><b>
-patch
-</b>[<i>ro</i>]: Patch indicating bug fixes
-</ul>
+<dl>
+  <dt><b>major</b> [<i>ro</i>]</dt>
+  <dd>Major version indicating incompatible changes</dd>
+  <dt><b>minor</b> [<i>ro</i>]</dt>
+  <dd>Minor version indicating feature enhancements</dd>
+  <dt><b>patch</b> [<i>ro</i>]</dt>
+  <dd>Patch indicating bug fixes</dd>
+</dl>
 <a name="app.modulation.ipInfo.echo"></a>
 <h3>2.1.10. app.modulation.ipInfo.echo</h3>
 <table cellpadding=0 cellspacing=0 border=0>
@@ -1149,11 +1126,10 @@ Echo register. This version of the standard foresees only 8bits linked to real m
  <td class="td_field" colspan="8">echo[7:0]</td>
 </tr>
 </table>
-<ul>
-<li><b>
-echo
-</b>[<i>rw</i>]: This version of the standard foresees only 8bits linked to real memory
-</ul>
+<dl>
+  <dt><b>echo</b> [<i>rw</i>]</dt>
+  <dd>This version of the standard foresees only 8bits linked to real memory</dd>
+</dl>
 <a name="app.modulation.control"></a>
 <h3>2.1.11. app.modulation.control</h3>
 <table cellpadding=0 cellspacing=0 border=0>
@@ -1242,45 +1218,32 @@ echo
  <td class="td_field" colspan="1">useTestSignal</td>
 </tr>
 </table>
-<ul>
-<li><b>
-useTestSignal
-</b>[<i>rw</i>]: Use DDS generated test signal instead of ADC input as demodulation input
-<br>Test signal is synthezied with additional internal DDS, test signals frequency given by ftw_RF.
-<li><b>
-useImpulse
-</b>[<i>rw</i>]: Use impulse instead of demodulation output
-<li><b>
-useStaticSignal
-</b>[<i>rw</i>]: Use static signal from register instead of demodulation output
-<li><b>
-bypassDemod
-</b>[<i>rw</i>]: Bypass demodulator
-<li><b>
-bypassMod
-</b>[<i>rw</i>]: Bypass modulator
-<li><b>
-wrInputsValid
-</b>[<i>rw</i>]: transmit WR frame
-<li><b>
-wrInputsValidLatch
-</b>[<i>rw</i>]: transmit WR no autoclear
-<li><b>
-wrResetNCO
-</b>[<i>rw</i>]: activate WR frame control bit
-<li><b>
-wrResetSlip
-</b>[<i>rw</i>]: activate WR frame control bit
-<li><b>
-wrRresetFSK
-</b>[<i>rw</i>]: activate WR frame control bit
-<li><b>
-rate
-</b>[<i>rw</i>]: 
-<li><b>
-clearBPLatches
-</b>[<i>rw</i>]: 
-</ul>
+<dl>
+  <dt><b>useTestSignal</b> [<i>rw</i>]</dt>
+  <dd>Use DDS generated test signal instead of ADC input as demodulation input<br><br>Test signal is synthezied with additional internal DDS, test signals frequency given by ftw_RF.</dd>
+  <dt><b>useImpulse</b> [<i>rw</i>]</dt>
+  <dd>Use impulse instead of demodulation output</dd>
+  <dt><b>useStaticSignal</b> [<i>rw</i>]</dt>
+  <dd>Use static signal from register instead of demodulation output</dd>
+  <dt><b>bypassDemod</b> [<i>rw</i>]</dt>
+  <dd>Bypass demodulator</dd>
+  <dt><b>bypassMod</b> [<i>rw</i>]</dt>
+  <dd>Bypass modulator</dd>
+  <dt><b>wrInputsValid</b> [<i>rw</i>]</dt>
+  <dd>transmit WR frame</dd>
+  <dt><b>wrInputsValidLatch</b> [<i>rw</i>]</dt>
+  <dd>transmit WR no autoclear</dd>
+  <dt><b>wrResetNCO</b> [<i>rw</i>]</dt>
+  <dd>activate WR frame control bit</dd>
+  <dt><b>wrResetSlip</b> [<i>rw</i>]</dt>
+  <dd>activate WR frame control bit</dd>
+  <dt><b>wrRresetFSK</b> [<i>rw</i>]</dt>
+  <dd>activate WR frame control bit</dd>
+  <dt><b>rate</b> [<i>rw</i>]</dt>
+  <dd></dd>
+  <dt><b>clearBPLatches</b> [<i>rw</i>]</dt>
+  <dd></dd>
+</dl>
 <a name="app.modulation.testSignal.amplitude"></a>
 <h3>2.1.12. app.modulation.testSignal.amplitude</h3>
 <table cellpadding=0 cellspacing=0 border=0>
@@ -1320,11 +1283,10 @@ Amplitude for the test signal
  <td class="td_field" colspan="8">amplitude[7:0]</td>
 </tr>
 </table>
-<ul>
-<li><b>
-amplitude
-</b>[<i>rw</i>]: Amplitude for the test signal
-</ul>
+<dl>
+  <dt><b>amplitude</b> [<i>rw</i>]</dt>
+  <dd>Amplitude for the test signal</dd>
+</dl>
 <a name="app.modulation.testSignal.ftw"></a>
 <h3>2.1.13. app.modulation.testSignal.ftw</h3>
 <table cellpadding=0 cellspacing=0 border=0>
@@ -1442,11 +1404,10 @@ FTW of the test signal (frequency relative to fs)
  <td class="td_field" colspan="8">ftw[7:0]</td>
 </tr>
 </table>
-<ul>
-<li><b>
-ftw
-</b>[<i>rw</i>]: FTW of the test signal (frequency relative to fs)
-</ul>
+<dl>
+  <dt><b>ftw</b> [<i>rw</i>]</dt>
+  <dd>FTW of the test signal (frequency relative to fs)</dd>
+</dl>
 <a name="app.modulation.staticSignal.i"></a>
 <h3>2.1.14. app.modulation.staticSignal.i</h3>
 <table cellpadding=0 cellspacing=0 border=0>
@@ -1486,11 +1447,10 @@ Constant to be used as OTF input for channel I
  <td class="td_field" colspan="8">i[7:0]</td>
 </tr>
 </table>
-<ul>
-<li><b>
-i
-</b>[<i>rw</i>]: Constant to be used as OTF input for channel I
-</ul>
+<dl>
+  <dt><b>i</b> [<i>rw</i>]</dt>
+  <dd>Constant to be used as OTF input for channel I</dd>
+</dl>
 <a name="app.modulation.staticSignal.q"></a>
 <h3>2.1.15. app.modulation.staticSignal.q</h3>
 <table cellpadding=0 cellspacing=0 border=0>
@@ -1530,11 +1490,10 @@ Constant to be used as OTF input for channel Q
  <td class="td_field" colspan="8">q[7:0]</td>
 </tr>
 </table>
-<ul>
-<li><b>
-q
-</b>[<i>rw</i>]: Constant to be used as OTF input for channel Q
-</ul>
+<dl>
+  <dt><b>q</b> [<i>rw</i>]</dt>
+  <dd>Constant to be used as OTF input for channel Q</dd>
+</dl>
 <a name="app.modulation.ftwH1main"></a>
 <h3>2.1.16. app.modulation.ftwH1main</h3>
 <table cellpadding=0 cellspacing=0 border=0>
@@ -1649,11 +1608,10 @@ q
  <td class="td_field" colspan="8">ftwH1main[7:0]</td>
 </tr>
 </table>
-<ul>
-<li><b>
-ftwH1main
-</b>[<i>rw</i>]: 
-</ul>
+<dl>
+  <dt><b>ftwH1main</b> [<i>rw</i>]</dt>
+  <dd></dd>
+</dl>
 <a name="app.modulation.ftwH1on"></a>
 <h3>2.1.17. app.modulation.ftwH1on</h3>
 <table cellpadding=0 cellspacing=0 border=0>
@@ -1768,11 +1726,10 @@ ftwH1main
  <td class="td_field" colspan="8">ftwH1on[7:0]</td>
 </tr>
 </table>
-<ul>
-<li><b>
-ftwH1on
-</b>[<i>rw</i>]: 
-</ul>
+<dl>
+  <dt><b>ftwH1on</b> [<i>rw</i>]</dt>
+  <dd></dd>
+</dl>
 <a name="app.modulation.dftwH1slip0"></a>
 <h3>2.1.18. app.modulation.dftwH1slip0</h3>
 <table cellpadding=0 cellspacing=0 border=0>
@@ -1835,11 +1792,10 @@ ftwH1on
  <td class="td_field" colspan="8">dftwH1slip0[7:0]</td>
 </tr>
 </table>
-<ul>
-<li><b>
-dftwH1slip0
-</b>[<i>rw</i>]: 
-</ul>
+<dl>
+  <dt><b>dftwH1slip0</b> [<i>rw</i>]</dt>
+  <dd></dd>
+</dl>
 <a name="app.modulation.dftwH1slip1"></a>
 <h3>2.1.19. app.modulation.dftwH1slip1</h3>
 <table cellpadding=0 cellspacing=0 border=0>
@@ -1902,11 +1858,10 @@ dftwH1slip0
  <td class="td_field" colspan="8">dftwH1slip1[7:0]</td>
 </tr>
 </table>
-<ul>
-<li><b>
-dftwH1slip1
-</b>[<i>rw</i>]: 
-</ul>
+<dl>
+  <dt><b>dftwH1slip1</b> [<i>rw</i>]</dt>
+  <dd></dd>
+</dl>
 <a name="app.modulation.latches"></a>
 <h3>2.1.20. app.modulation.latches</h3>
 <table cellpadding=0 cellspacing=0 border=0>
@@ -1990,11 +1945,10 @@ dftwH1slip1
  <td class="td_field" colspan="8">backplane[7:0]</td>
 </tr>
 </table>
-<ul>
-<li><b>
-backplane
-</b>[<i>rw</i>]: 
-</ul>
+<dl>
+  <dt><b>backplane</b> [<i>rw</i>]</dt>
+  <dd></dd>
+</dl>
 
 <h3>2.2 Register description for address space bar4</h3>
 <a name="fgc_ddr.data64.data64"></a>
@@ -2111,14 +2065,12 @@ backplane
  <td class="td_field" colspan="8">lower[7:0]</td>
 </tr>
 </table>
-<ul>
-<li><b>
-upper
-</b>[<i>rw</i>]: 
-<li><b>
-lower
-</b>[<i>rw</i>]: 
-</ul>
+<dl>
+  <dt><b>upper</b> [<i>rw</i>]</dt>
+  <dd></dd>
+  <dt><b>lower</b> [<i>rw</i>]</dt>
+  <dd></dd>
+</dl>
 <a name="acq_ddr.data32.data32"></a>
 <h3>2.2.2. acq_ddr.data32.data32</h3>
 <table cellpadding=0 cellspacing=0 border=0>
@@ -2181,14 +2133,12 @@ lower
  <td class="td_field" colspan="8">lower[7:0]</td>
 </tr>
 </table>
-<ul>
-<li><b>
-upper
-</b>[<i>rw</i>]: 
-<li><b>
-lower
-</b>[<i>rw</i>]: 
-</ul>
+<dl>
+  <dt><b>upper</b> [<i>rw</i>]</dt>
+  <dd></dd>
+  <dt><b>lower</b> [<i>rw</i>]</dt>
+  <dd></dd>
+</dl>
 <a name="acq_ram.data32.data32"></a>
 <h3>2.2.3. acq_ram.data32.data32</h3>
 <table cellpadding=0 cellspacing=0 border=0>
@@ -2251,14 +2201,12 @@ lower
  <td class="td_field" colspan="8">lower[7:0]</td>
 </tr>
 </table>
-<ul>
-<li><b>
-upper
-</b>[<i>rw</i>]: 
-<li><b>
-lower
-</b>[<i>rw</i>]: 
-</ul>
+<dl>
+  <dt><b>upper</b> [<i>rw</i>]</dt>
+  <dd></dd>
+  <dt><b>lower</b> [<i>rw</i>]</dt>
+  <dd></dd>
+</dl>
 
 
 </BODY>
