@@ -129,7 +129,7 @@ def layout_err(t):
 def test_layout():
     global nbr_tests
     hfiles = []
-    for f in ['demo', 'features/block1', 'features/array1', 'features/array2',
+    for f in ['padding-block/reg', 'demo', 'features/block1', 'features/array1', 'features/array2',
               'bug-gen-c/fids-errmiss',
               'bug-gen-c-02/mbox_regs',
               'bug-gen-c-02/fip_urv_regs',
