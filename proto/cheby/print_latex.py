@@ -27,7 +27,7 @@ def escape_printable(text):
     return text
 
 
-def print_reg(fd, r, raw, print_reg_drawing, word_size):
+def print_reg(fd, r, raw, print_reg_drawing):
     ACCESSES = {
         "rw": "read/write",
         "wo": "write-only",
