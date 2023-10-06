@@ -492,6 +492,8 @@ class GenReg(ElGen):
         if n.h_rack_port is not None:
             rack = n.h_rack_port
             rack = self.strobe_index(off, rack)
+        elif ibus.rd_req_del:
+            rack = ibus.rd_req_del
         else:
             rack = ibus.rd_req
         s.append(HDLAssign(ibus.rd_ack, rack))
@@ -549,6 +551,8 @@ class GenReg(ElGen):
         wack = n.h_wack_port or n.h_wack
         if wack is not None:
             wack = self.strobe_index(off, wack)
+        elif ibus.wr_req_del:
+            wack = ibus.wr_req_del
         else:
             wack = ibus.wr_req
         s.append(HDLAssign(ibus.wr_ack, wack))
