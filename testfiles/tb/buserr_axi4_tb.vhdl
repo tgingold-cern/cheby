@@ -17,9 +17,11 @@ architecture tb of buserr_axi4_tb is
   signal rd_in  : t_axi4lite_read_master_in;
   signal rd_out : t_axi4lite_read_master_out;
 
-  signal reg1   : std_logic_vector(31 downto 0);
-  signal reg2   : std_logic_vector(31 downto 0);
-  signal reg3   : std_logic_vector(31 downto 0);
+  signal reg_rw0 : std_logic_vector(31 downto 0);
+  signal reg_rw1 : std_logic_vector(31 downto 0);
+  signal reg_rw2 : std_logic_vector(31 downto 0);
+  signal reg_ro0 : std_logic_vector(31 downto 0);
+  signal reg_wo0 : std_logic_vector(31 downto 0);
 
   signal end_of_test : boolean := False;
 begin
@@ -44,7 +46,7 @@ begin
       areset_n => rst_n,
       awvalid  => wr_out.awvalid,
       awready  => wr_in.awready,
-      awaddr   => wr_out.awaddr(3 downto 2),
+      awaddr   => wr_out.awaddr(4 downto 2),
       awprot   => "010",
       wvalid   => wr_out.wvalid,
       wready   => wr_in.wready,
@@ -55,17 +57,21 @@ begin
       bresp    => wr_in.bresp,
       arvalid  => rd_out.arvalid,
       arready  => rd_in.arready,
-      araddr   => rd_out.araddr(3 downto 2),
+      araddr   => rd_out.araddr(4 downto 2),
       arprot   => "010",
       rvalid   => rd_in.rvalid,
       rready   => rd_out.rready,
       rdata    => rd_in.rdata,
       rresp    => rd_in.rresp,
 
-      reg1_o   => reg1,
-      reg2_o   => reg2,
-      reg3_o   => reg3
+      rw0_o    => reg_rw0,
+      rw1_o    => reg_rw1,
+      rw2_o    => reg_rw2,
+      ro0_i    => reg_ro0,
+      wo0_o    => reg_wo0
     );
+
+  reg_ro0 <= x"4567_89ab";
 
   main : process is
     variable v : std_logic_vector(31 downto 0);
@@ -92,30 +98,50 @@ begin
 
     --  Testing regular read
     report "Testing regular read" severity note;
-    axi4lite_read (clk, rd_out, rd_in, x"0000_0000", v, C_AXI4_RESP_OK);
-    assert reg1 = x"1234_5678" severity error;
+    axi4lite_read(clk, rd_out, rd_in, x"0000_0000", v, C_AXI4_RESP_OK);
+    assert reg_rw0 = x"1234_5678" severity error;
     assert v = x"1234_5678" severity error;
 
     -- Testing regular write
     report "Testing regular write" severity note;
-    axi4lite_write (clk, wr_out, wr_in, x"0000_0004", x"9abc_def0", C_AXI4_RESP_OK);
-    assert reg2 = x"9abc_def0" severity error;
-    axi4lite_read (clk, rd_out, rd_in, x"0000_0004", v, C_AXI4_RESP_OK);
+    axi4lite_write(clk, wr_out, wr_in, x"0000_0004", x"9abc_def0", C_AXI4_RESP_OK);
+    assert reg_rw1 = x"9abc_def0" severity error;
+    axi4lite_read(clk, rd_out, rd_in, x"0000_0004", v, C_AXI4_RESP_OK);
     assert v = x"9abc_def0" severity error;
 
     --  Testing erroneous read
     report "Testing erroneous read" severity note;
-    axi4lite_read (clk, rd_out, rd_in, x"0000_000c", v, C_AXI4_RESP_SLVERR);
+    axi4lite_read(clk, rd_out, rd_in, x"0000_0014", v, C_AXI4_RESP_SLVERR);
 
     --  Testing regular read 2
     report "Testing regular read 2" severity note;
-    axi4lite_read (clk, rd_out, rd_in, x"0000_0008", v, C_AXI4_RESP_OK);
-    assert reg3 = x"1234_5678" severity error;
-    assert v = x"1234_5678" severity error;
+    axi4lite_read(clk, rd_out, rd_in, x"0000_0008", v, C_AXI4_RESP_OK);
+    assert reg_rw2 = x"3456_789a" severity error;
+    assert v = x"3456_789a" severity error;
 
     --  Testing erroneous write
     report "Testing erroneous write" severity note;
-    axi4lite_write (clk, wr_out, wr_in, x"0000_000c", x"5678_9abc", C_AXI4_RESP_SLVERR);
+    axi4lite_write(clk, wr_out, wr_in, x"0000_0014", x"5678_9abc", C_AXI4_RESP_SLVERR);
+
+    --  Testing regular read 3
+    report "Testing regular read 3" severity note;
+    axi4lite_read(clk, rd_out, rd_in, x"0000_000c", v, C_AXI4_RESP_OK);
+    assert reg_ro0 = x"4567_89ab" severity error;
+    assert v = x"4567_89ab" severity error;
+
+    --  Testing erroneous write to read-only register
+    report "Testing erroneous write to read-only register" severity note;
+    axi4lite_write(clk, wr_out, wr_in, x"0000_000c", x"1234_5678", C_AXI4_RESP_SLVERR);
+
+    --  Testing regular write 2
+    report "Testing regular write 2" severity note;
+    axi4lite_write(clk, wr_out, wr_in, x"0000_0010", x"1234_5678", C_AXI4_RESP_OK);
+    wait until rising_edge(clk);
+    assert reg_wo0 = x"1234_5678" severity error;
+
+    --  Testing erroneous read to write-only register
+    report "Testing erroneous read to write-only register" severity note;
+    axi4lite_read(clk, rd_out, rd_in, x"0000_0010", v, C_AXI4_RESP_SLVERR);
 
     wait until rising_edge(clk);
     wait until rising_edge(clk);

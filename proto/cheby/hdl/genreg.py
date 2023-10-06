@@ -479,6 +479,7 @@ class GenReg(ElGen):
 
     def gen_read(self, s, off, ibus, rdproc):
         n = self.n
+
         # Strobe
         if n.h_rreq_port is not None:
             s.append(HDLAssign(self.strobe_index(off, n.h_rreq_port), ibus.rd_req))
@@ -487,14 +488,21 @@ class GenReg(ElGen):
                 v = self.strobe_init()
                 rdproc.stmts.append(HDLAssign(n.h_rreq_port, v))
 
-        # Acknowledge and address error
+        # Acknowledge
         if n.h_rack_port is not None:
             rack = n.h_rack_port
             rack = self.strobe_index(off, rack)
         else:
             rack = ibus.rd_req
         s.append(HDLAssign(ibus.rd_ack, rack))
-        s.append(HDLAssign(ibus.rd_err, bit_0))
+
+        # Error
+        if n.access == 'wo':
+            # Return error if read request to write-only register is made
+            s.append(HDLAssign(ibus.rd_err, rack))
+        else:
+            # Return no error
+            s.append(HDLAssign(ibus.rd_err, bit_0))
 
         # Data
         if n.access == 'wo':
@@ -528,6 +536,7 @@ class GenReg(ElGen):
 
     def gen_write(self, s, off, ibus, wrproc):
         n = self.n
+
         # Strobe
         if n.h_wreq is not None:
             s.append(HDLAssign(self.strobe_index(off, n.h_wreq), ibus.wr_req))
@@ -536,11 +545,18 @@ class GenReg(ElGen):
                 v = self.strobe_init()
                 wrproc.stmts.append(HDLAssign(n.h_wreq, v))
 
-        # Acknowledge and address error
+        # Acknowledge
         wack = n.h_wack_port or n.h_wack
         if wack is not None:
             wack = self.strobe_index(off, wack)
         else:
             wack = ibus.wr_req
         s.append(HDLAssign(ibus.wr_ack, wack))
-        s.append(HDLAssign(ibus.wr_err, bit_0))
+
+        # Error
+        if n.access == 'ro':
+            # Return error if write request to read-only register is made
+            s.append(HDLAssign(ibus.wr_err, wack))
+        else:
+            # Return no error
+            s.append(HDLAssign(ibus.wr_err, bit_0))
