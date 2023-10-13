@@ -14,15 +14,27 @@ def escape_printable(text):
     # Remove whitespaces at start and end of string
     text = text.strip()
 
-    # Escape special characters
-    SPECIAL_CHARS = ['\\', '&', '%', '$', '#', '_', '{', '}', '~', '^']
-    for char in SPECIAL_CHARS:
-        text = text.replace(char, '\\' + char)
+    # Escape text only if not between two `$` signs (i.e., an equation)
+    pattern = r'(?<!\\)\$'
+    text = re.split(pattern, text)
 
-    # Allow line breaks after '_' and '.' in long strings
-    ALLOW_BREAK_CHARS = ['.', '_']
-    for char in ALLOW_BREAK_CHARS:
-        text = text.replace(char, char + '\\allowbreak{}')
+    # Escape only chars in text parts, which are not an equation
+    for idx, text_part in enumerate(text):
+        if idx % 2 == 0:
+
+            # Escape special characters
+            SPECIAL_CHARS = ['\\', '&', '%', '#', '_', '{', '}', '~', '^']  # '$'
+            for char in SPECIAL_CHARS:
+                text_part = text_part.replace(char, '\\' + char)
+
+            # Allow line breaks after '_' and '.' in long strings
+            ALLOW_BREAK_CHARS = ['.', '_']
+            for char in ALLOW_BREAK_CHARS:
+                text_part = text_part.replace(char, char + '\\allowbreak{}')
+
+            text[idx] = text_part
+
+    text = '$'.join(text)
 
     return text
 
