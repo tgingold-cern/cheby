@@ -15,19 +15,24 @@ class Ibus:
         self.addr_size = None
         self.addr_low = None
         # Read signals (in and out)
-        self.rd_req = None
-        self.rd_ack = None
-        self.rd_err = None
-        self.rd_dat = None
-        self.rd_adr = None
+        self.rd_req = None      # Read request
+        self.rd_req_del = None  # Delayed read request
+                                # (sometimes used to delay acknowledges in case of
+                                #  request errors)
+        self.rd_ack = None      # Read acknowledge
+        self.rd_err = None      # Read error
+        self.rd_adr = None      # Read address
+        self.rd_dat = None      # Read data
         # Write signals (in and out)
-        self.wr_req = None
-        self.wr_ack = None
-        self.wr_err = None
-        self.wr_dat = None
-        self.wr_adr = None
-        self.wr_sel = None
-
+        self.wr_req = None      # Write request
+        self.wr_req_del = None  # Delayed write request
+                                # (sometimes used to delay acknowledges in case of
+                                #  request errors)
+        self.wr_ack = None      # Write acknowledge
+        self.wr_err = None      # Write error
+        self.wr_adr = None      # Write address
+        self.wr_dat = None      # Write data
+        self.wr_sel = None      # Write mask
 
     def pipeline(self, root, module, conds, suffix):
         """Create a new ibus by adding registers to self according to :param conds:
@@ -43,6 +48,7 @@ class Ibus:
         names = []
         c_ri = 'rd-in' in conds
         names.extend([('rd_req', c_ri, 'i', None, None),
+                      ('rd_req_del', c_ri, 'i', None, None),
                       ('rd_adr', c_ri, 'i', self.addr_size, self.addr_low)])
         c_ro = 'rd-out' in conds
         names.extend([('rd_ack', c_ro, 'o', None, None),
@@ -51,6 +57,7 @@ class Ibus:
         c_wi = 'wr-in' in conds
         copy_wa = (self.rd_adr == self.wr_adr) and (c_wi == c_ri)
         names.extend([('wr_req', c_wi, 'i', None, None),
+                      ('wr_req_del', c_wi, 'i', None, None),
                       ('wr_adr', c_wi, 'i', self.addr_size, self.addr_low),
                       ('wr_dat', c_wi, 'i', self.data_size, 0),
                       # The write mask of the internal bus operates on a per bit level.

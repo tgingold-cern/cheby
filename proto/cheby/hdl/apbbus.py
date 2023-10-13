@@ -86,6 +86,22 @@ class APBBus(BusGen):
         module.stmts.append(HDLAssign(ibus.wr_adr, root.h_bus["paddr"]))
         module.stmts.append(HDLAssign(ibus.wr_dat, root.h_bus["pwdata"]))
 
+        if opts.bus_error:
+            # Delay write request: Used in case of a read request to a write only
+            # register. In such a case, the write request is directly returned in form
+            # of the write acknowledge. Thereby and without pipelining, the PREADY
+            # signal is already and only asserted during the setup phase. Hence, one
+            # cycle to early. Delaying the signal circumvents this problem.
+            ibus.wr_req_del = module.new_HDLSignal("wr_req_del")
+
+            proc = HDLSync(
+                root.h_bus["clk"], root.h_bus["brst"], rst_sync=gconfig.rst_sync
+            )
+            proc.rst_stmts.append(HDLAssign(ibus.wr_req_del, bit_0))
+            proc.sync_stmts.append(HDLAssign(ibus.wr_req_del, ibus.wr_req))
+
+            module.stmts.append(proc)
+
         # Translate Byte-wise write mask of APB bus to bit-wise write mask of ibus
         proc = HDLComb()
         proc.sensitivity.extend([root.h_bus["pstrb"]])
