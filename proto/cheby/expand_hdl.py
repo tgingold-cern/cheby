@@ -73,6 +73,7 @@ def init_x_hdl_field(f):
         f.hdl_type = 'reg'
 
     f.hdl_lock = None
+    f.hdl_lock_value = None
 
 
 def expand_x_hdl_field_type(n, v):
@@ -100,6 +101,8 @@ def expand_x_hdl_field_kv(f, n, k, v):
         f.hdl_port_name = v
     elif k == 'lock':
         f.hdl_lock = parser.read_bool(n, k, v)
+    elif k == 'lock-value':
+        f.hdl_lock_value = parser.read_int(n, k, v)
     else:
         parser.error("unhandled '{}' in x-hdl of field {}".format(
             k, n.get_path()))
@@ -135,6 +138,22 @@ def expand_x_hdl_field_validate(f):
     if (f.hdl_type and f.hdl_type != "reg") and f.hdl_lock:
         parser.error(
             "{}: '{}' x-hdl.type cannot be lockable".format(f.get_path(), f.hdl_type)
+        )
+    if (f.hdl_type and f.hdl_type not in ["reg", "wire"]) and f.hdl_lock_value:
+        parser.error(
+            "{}: '{}' x-hdl.type cannot have lock value".format(
+                f.get_path(), f.hdl_type
+            )
+        )
+    if f.hdl_lock and f.hdl_lock_value:
+        parser.error(
+            "{}: cannot have 'lock' and 'lock-value' simultaneously".format(
+                f.get_path()
+            )
+        )
+    if f.hdl_lock_value is not None and f.hdl_lock_value >= (1 << f.c_rwidth):
+        parser.error("{}: incorrect lock value '{}'".format(
+            f.get_path(), f.hdl_lock_value)
         )
 
 

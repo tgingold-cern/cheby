@@ -303,7 +303,8 @@ disabled. Only the following bus interfaces are supported:
 
 `lock-port`:: Adds a single-bit input port to the interface used as a lock
 indication. If asserted, all registers and fields with a `lock` attribute
-cannot be written to and their value remains constant.
+cannot be written to and their value remains constant or changes to a
+predefined value.
 
 === Registers
 
@@ -384,9 +385,10 @@ to the value of the map-version.  Likewise for `ident-code`.
 
 Setting the `lock` attribute to true, a writable register or field can be
 temporarily locked. While being locked, the register or field maintains its
-current value and ignores any write requests. The locking behavior is
-controlled via an external signal (defined through the `lock-port` attribute
-on the memory map).
+current value and ignores any write requests. Furthermore, while being locked,
+the output can also be altered to a predetermined value set via `lock-value`
+attribute. The locking behavior is controlled via an external signal (defined
+through the `lock-port` attribute on the memory map).
 
 The `type` attribute within `x-hdl` is available and behaves as
 defined below in the section for fields.
