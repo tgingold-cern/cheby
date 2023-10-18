@@ -194,6 +194,8 @@ def expand_x_hdl_root(n, dct):
     n.hdl_pipeline = None
     n.hdl_bus_attribute = None
     n.hdl_iogroup = None
+    n.hdl_wmask = False
+
     for k, v in dct.items():
         if k in ['busgroup',
                  'reg_prefix', 'reg-prefix', 'block_prefix', 'block-prefix',
@@ -202,6 +204,8 @@ def expand_x_hdl_root(n, dct):
             pass
         elif k == 'iogroup':
             n.hdl_iogroup = parser.read_text(n, k, v)
+        elif k == 'wmask':
+            n.hdl_wmask = parser.read_bool(n, k, v)
         elif k == 'bus-attribute':
             if v in ('Xilinx',):
                 n.hdl_bus_attribute = v
@@ -217,6 +221,7 @@ def expand_x_hdl_root(n, dct):
         else:
             parser.error("unhandled '{}' in x-hdl of root {}".format(
                 k, n.get_path()))
+
     # Default pipeline
     if n.hdl_pipeline is None:
         if n.bus == 'avalon-lite-32':
@@ -225,9 +230,21 @@ def expand_x_hdl_root(n, dct):
         else:
             pl = ['wr-in', 'rd-out']
         n.hdl_pipeline = pl
+
     # Set name of the module.
     suffix = dct.get('name-suffix', '')
     n.hdl_module_name = n.name + suffix
+
+    expand_x_hdl_root_validate(n)
+
+
+def expand_x_hdl_root_validate(r):
+    # Validate x-hdl attributes
+    if r.hdl_wmask and not any(
+        r.bus.startswith(bus) for bus in ["apb-", "avalon-lite-", "axi4-lite-", "wb-"]
+    ):
+        parser.error("Bus '{}' does not support the write mask feature".format(r.bus))
+
 
 
 def expand_x_hdl_submap(n, dct):

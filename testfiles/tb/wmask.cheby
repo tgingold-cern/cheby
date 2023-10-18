@@ -1,6 +1,8 @@
 memory-map:
   bus: BUS
   name: wmask_NAME
+  x-hdl:
+    wmask: True
   children:
   - reg:
       name: reg1

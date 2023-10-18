@@ -289,6 +289,18 @@ or `RRESP`) is non-zero returning `SLVERR` (`0b10`).
 ** `wb-*`: In case of an error, the request is not acknowledged (`ACK` stays
 deasserted) but instead an error is returned (`ERR` is asserted).
 
+`wmask`:: Enable the masking of the write data in a write request through the
+dedicated bus features. The value is a boolean. By default this option is
+disabled. Only the following bus interfaces are supported:
+
+** `apb-32`: Using the `PSTRB` signal a Byte-wise mask is applied.
+
+** `avalon-lite-32`: Using the `BE` signal a Byte-wise mask is applied.
+
+** `axi4-lite-32`: Using the `WSTRB` signal a Byte-wise mask is applied.
+
+** `wb-*`: Using the `SEL` signal a Byte-wise mask is applied.
+
 === Registers
 
 A register uses one (usual case) or two (for 64-bit registers) words address.

@@ -129,7 +129,7 @@ class GenFieldReg(GenFieldBase):
         reg, dat, mask = self.extract_reg_dat(
             off, self.field.h_reg, ibus.wr_dat, ibus.wr_sel
         )
-        if self.root.c_wmask_reg and mask is not None:
+        if hasattr(self.root, "hdl_wmask") and self.root.hdl_wmask and mask is not None:
             then_stmts.append(
                 HDLAssign(
                     reg,
@@ -154,7 +154,7 @@ class GenFieldNoPort(GenFieldBase):
         reg, dat, mask = self.extract_reg_dat(
             off, self.field.h_reg, ibus.wr_dat, ibus.wr_sel
         )
-        if self.root.c_wmask_reg and mask is not None:
+        if hasattr(self.root, "hdl_wmask") and self.root.hdl_wmask and mask is not None:
             then_stmts.append(
                 HDLAssign(
                     reg,
@@ -183,7 +183,11 @@ class GenFieldWire(GenFieldBase):
             reg, dat, mask = self.extract_reg_dat(
                 off, self.field.h_oport, ibus.wr_dat, ibus.wr_sel
             )
-            if self.root.c_wmask_reg and mask is not None:
+            if (
+                hasattr(self.root, "hdl_wmask")
+                and self.root.hdl_wmask
+                and mask is not None
+            ):
                 stmts.append(
                     HDLAssign(
                         reg,
@@ -219,7 +223,7 @@ class GenFieldAutoclear(GenFieldBase):
         reg, dat, mask = self.extract_reg_dat(
             off, self.field.h_reg, ibus.wr_dat, ibus.wr_sel
         )
-        if self.root.c_wmask_reg and mask is not None:
+        if hasattr(self.root, "hdl_wmask") and self.root.hdl_wmask and mask is not None:
             then_stmts.append(
                 HDLAssign(
                     reg,
