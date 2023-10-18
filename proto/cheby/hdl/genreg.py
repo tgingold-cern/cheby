@@ -129,17 +129,29 @@ class GenFieldReg(GenFieldBase):
         reg, dat, mask = self.extract_reg_dat(
             off, self.field.h_reg, ibus.wr_dat, ibus.wr_sel
         )
+
+        # Regular assignment
+        field_assign = HDLAssign(reg, dat)
+
+        # Apply mask to assignment
         if hasattr(self.root, "hdl_wmask") and self.root.hdl_wmask and mask is not None:
-            then_stmts.append(
-                HDLAssign(
+            field_assign = HDLAssign(
                     reg,
                     HDLOr(
                         HDLParen(HDLAnd(reg, HDLNot(mask))), HDLParen(HDLAnd(dat, mask))
                     ),
                 )
-            )
-        else:
-            then_stmts.append(HDLAssign(reg, dat))
+
+        # Apply lock signal
+        if self.field.hdl_lock and (
+            hasattr(self.root, "h_lock_port") and self.root.h_lock_port
+        ):
+            lock_if = HDLIfElse(HDLEq(self.root.h_lock_port, bit_0))
+            lock_if.then_stmts.append(field_assign)
+            lock_if.else_stmts = None
+            field_assign = lock_if
+
+        then_stmts.append(field_assign)
 
 
 class GenFieldNoPort(GenFieldBase):

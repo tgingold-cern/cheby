@@ -14,12 +14,22 @@
    The _i/_o suffixes are also used for ports, so the ports of the bus can
    also have conflicts with user names.
 """
-from cheby.hdltree import (HDLModule,
-                           HDLAssign, HDLComb, HDLComment, HDLConstant,
-                           HDLSwitch, HDLChoiceExpr, HDLChoiceDefault,
-                           bit_x,
-                           HDLSlice, HDLReplicate,
-                           HDLConst, HDLNumber)
+from cheby.hdltree import (
+    HDLModule,
+    HDLAssign,
+    HDLComb,
+    HDLComment,
+    HDLConstant,
+    HDLSwitch,
+    HDLChoiceExpr,
+    HDLChoiceDefault,
+    bit_x,
+    HDLSlice,
+    HDLReplicate,
+    HDLConst,
+    HDLNumber,
+    HDLPort,
+)
 import cheby.tree as tree
 import cheby.hdlutils as hdlutils
 import cheby.hdlopt as hdlopt
@@ -224,6 +234,12 @@ def gen_hdl_header(root, ibus=None):
     # Note: also called from gen_gena_regctrl but without ibus.
     module = HDLModule()
     module.name = root.hdl_module_name
+
+    # Create additional ports
+    if hasattr(root, "hdl_lock_port") and root.hdl_lock_port:
+        lock_port = HDLPort(name=root.hdl_lock_port, size=None, dir='IN')
+        module.ports.append(lock_port)
+        root.h_lock_port = lock_port
 
     # Create the bus
     root.h_busgen = name_to_busgen(root.bus)
