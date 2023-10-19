@@ -405,6 +405,9 @@ The `type` attribute within `x-hdl` is available.  It can be set to:
 bus.  The value of the register is available on the ports.  This is
 the default unless register access type is `ro`.
 
+`no-port`:: A register is created that can be read or written from the bus but
+has no input or output ports. It can be used like a small memory.
+
 `wire`:: No logic is created.  In case of read from the bus, the current
 value on the input ports is returned.  The output ports are directly connected
 to the data bus.  It doesn't make sense not to also have a strobe port for
