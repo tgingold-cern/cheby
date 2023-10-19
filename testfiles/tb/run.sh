@@ -181,6 +181,17 @@ build_wmask_any()
     build_any "wmask_${name_short}"
 }
 
+build_lock_any()
+{
+    name="$1"
+    name_short="$2"
+
+    echo "## Testing locking for interface '${name}'"
+    sed -e '/bus:/s/BUS/'"${name}"'/' -e '/name:/s/NAME/'"${name_short}"'/' < lock.cheby > lock_${name_short}.cheby
+
+    build_any "lock_${name_short}"
+}
+
 # Build packages
 build_infra
 
@@ -223,5 +234,8 @@ build_wmask_any "apb-32" "apb"
 build_wmask_any "avalon-lite-32" "avalon"
 build_wmask_any "axi4-lite-32" "axi4"
 build_wmask_any "wb-32-be" "wb"
+
+# Test locking
+build_lock_any "apb-32" "apb"
 
 echo "SUCCESS"

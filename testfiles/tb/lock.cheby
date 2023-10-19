@@ -1,0 +1,40 @@
+memory-map:
+  bus: BUS
+  name: lock_NAME
+  x-hdl:
+    lock-port: scantest
+  children:
+    - reg:
+        name: reg0
+        type: unsigned
+        width: 32
+        access: rw
+        preset: 0x12345678
+        x-hdl:
+          lock: True
+    - reg:
+        name: reg1
+        type: unsigned
+        width: 32
+        access: rw
+        preset: 0x23456789
+        x-hdl:
+          lock-value: 0x98765432
+    - reg:
+        name: reg2
+        type: unsigned
+        width: 32
+        access: rw
+        children:
+          - field:
+              name: field0
+              range: 3-0
+              preset: 0x3
+              x-hdl:
+                lock: True
+          - field:
+              name: field1
+              range: 7-4
+              preset: 0x4
+              x-hdl:
+                lock-value: 0x5

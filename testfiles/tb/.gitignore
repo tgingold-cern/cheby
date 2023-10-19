@@ -29,6 +29,8 @@ buserr_axi4.cheby
 buserr_axi4.vhdl
 buserr_wb.cheby
 buserr_wb.vhdl
+lock_apb.cheby
+lock_apb.vhdl
 reg2_avalon.cheby
 reg2_avalon.vhdl
 reg2_wb.cheby
