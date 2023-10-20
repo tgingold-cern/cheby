@@ -76,9 +76,16 @@ def expand_x_hdl_field_type(n, v):
     """Decode and check attribute 'type' with value :arg v:
     :arg n: node for error"""
     res = parser.read_text(n, 'type', v)
-    if res not in ['wire', 'reg', 'const', 'autoclear', 'or-clr', 'or-clr-out']:
-        parser.error("incorrect value for 'type' in x-hdl of {}".format(
-            n.get_path()))
+    if res not in [
+        "reg",
+        "no-port",
+        "wire",
+        "const",
+        "autoclear",
+        "or-clr",
+        "or-clr-out",
+    ]:
+        parser.error("incorrect value for 'type' in x-hdl of {}".format(n.get_path()))
     return res
 
 
@@ -94,6 +101,13 @@ def expand_x_hdl_field_kv(f, n, k, v):
 
 def expand_x_hdl_field_validate(f):
     # Validate x-hdl attributes
+    if f.hdl_type == "no-port":
+        if f.parent.access != "rw":
+            parser.error(
+                "{}: 'no-port' x-hdl.type not allowed for '{}' access".format(
+                    f.get_path(), f.parent.access
+                )
+            )
     if f.hdl_type == 'const':
         if f.parent.access == 'wo':
             parser.error("{}: 'const' x-hdl.type not allowed for 'wo' access".format(

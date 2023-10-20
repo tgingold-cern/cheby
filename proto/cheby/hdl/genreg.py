@@ -141,6 +141,32 @@ class GenFieldReg(GenFieldBase):
         else:
             then_stmts.append(HDLAssign(reg, dat))
 
+
+class GenFieldNoPort(GenFieldBase):
+    """No-port register having no input and output ports"""
+    def need_reg(self):
+        return True
+
+    def get_input(self, off):
+        return self.extract_reg(off, self.field.h_reg)
+
+    def assign_reg(self, then_stmts, else_stmts, off, ibus):
+        reg, dat, mask = self.extract_reg_dat(
+            off, self.field.h_reg, ibus.wr_dat, ibus.wr_sel
+        )
+        if self.root.c_wmask_reg and mask is not None:
+            then_stmts.append(
+                HDLAssign(
+                    reg,
+                    HDLOr(
+                        HDLParen(HDLAnd(reg, HDLNot(mask))), HDLParen(HDLAnd(dat, mask))
+                    ),
+                )
+            )
+        else:
+            then_stmts.append(HDLAssign(reg, dat))
+
+
 class GenFieldWire(GenFieldBase):
     def need_iport(self):
         return self.reg.access in ['ro', 'rw']
@@ -241,12 +267,14 @@ class GenFieldOrClrOut(GenFieldOrClr):
 
 class GenReg(ElGen):
     FIELD_GEN = {
-        'reg': GenFieldReg,
-        'wire': GenFieldWire,
-        'const': GenFieldConst,
-        'autoclear': GenFieldAutoclear,
-        'or-clr': GenFieldOrClr,
-        'or-clr-out': GenFieldOrClrOut}
+        "reg": GenFieldReg,
+        "no-port": GenFieldNoPort,
+        "wire": GenFieldWire,
+        "const": GenFieldConst,
+        "autoclear": GenFieldAutoclear,
+        "or-clr": GenFieldOrClr,
+        "or-clr-out": GenFieldOrClrOut,
+    }
 
     def field_decode(self, f, off, dat):
         """Handle multi-word accesses.  Slice (if needed) VAL and DAT for offset
