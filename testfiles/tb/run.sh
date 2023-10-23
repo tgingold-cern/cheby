@@ -175,24 +175,10 @@ build_wmask_any()
     name="$1"
     name_short="$2"
 
-    local file="../../proto/cheby/layout.py"
-    local setting="root\.c_wmask_reg"
-
-    # Change default setting temporarily to enable write mask for all supporting interfaces
-    local prev_setting=$(grep "${setting}" "${file}" | awk '{print $NF}')
-    if [[ -n "${prev_setting}" && "${prev_setting}" == "False" ]]; then
-        sed -i "s|${setting} = ${prev_setting}|${setting} = True|" "${file}"
-    fi
-
     echo "## Testing register write mask for interface '${name}'"
     sed -e '/bus:/s/BUS/'"${name}"'/' -e '/name:/s/NAME/'"${name_short}"'/' < wmask.cheby > wmask_${name_short}.cheby
 
     build_any "wmask_${name_short}"
-
-    # Restore previous write mask setting
-    if [[ -n "${prev_setting}" && "${prev_setting}" == "False" ]]; then
-        sed -i "s|${setting} = True|${setting} = ${prev_setting}|" "${file}"
-    fi
 }
 
 # Build packages
