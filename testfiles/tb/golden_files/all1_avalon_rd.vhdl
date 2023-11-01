@@ -212,7 +212,9 @@ begin
     if rising_edge(clk) then
       if rst_n = '0' then
         rd_req_d0 <= '0';
+        rd_adr_d0 <= "0000000000000";
         rd_ack <= '0';
+        readdata <= "00000000000000000000000000000000";
       else
         rd_req_d0 <= rd_req;
         rd_adr_d0 <= adr;

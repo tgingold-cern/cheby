@@ -44,7 +44,10 @@ begin
     if rising_edge(Clk) then
       if rst_n = '0' then
         rd_ack_int <= '0';
+        VMERdData <= "0000000000000000";
         wr_req_d0 <= '0';
+        wr_adr_d0 <= "0";
+        wr_dat_d0 <= "0000000000000000";
       else
         rd_ack_int <= rd_ack_d0;
         VMERdData <= rd_dat_d0;

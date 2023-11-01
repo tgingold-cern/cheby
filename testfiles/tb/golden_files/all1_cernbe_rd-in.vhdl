@@ -165,6 +165,7 @@ begin
     if rising_edge(Clk) then
       if rst_n = '0' then
         rd_req_d0 <= '0';
+        rd_adr_d0 <= "0000000000000";
       else
         rd_req_d0 <= VMERdMem;
         rd_adr_d0 <= VMEAddr;

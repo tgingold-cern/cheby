@@ -93,8 +93,11 @@ begin
       if presetn = '0' then
         rd_ack <= '0';
         rd_err <= '0';
+        rd_data <= "00000000000000000000000000000000";
         wr_req_d0 <= '0';
         wr_req_del_d0 <= '0';
+        wr_adr_d0 <= "000";
+        wr_dat_d0 <= "00000000000000000000000000000000";
       else
         rd_ack <= rd_ack_d0;
         rd_err <= rd_err_d0;

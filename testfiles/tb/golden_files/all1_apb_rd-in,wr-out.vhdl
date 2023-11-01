@@ -202,6 +202,7 @@ begin
     if rising_edge(pclk) then
       if presetn = '0' then
         rd_req_d0 <= '0';
+        rd_adr_d0 <= "0000000000000";
         wr_ack <= '0';
       else
         rd_req_d0 <= rd_req;

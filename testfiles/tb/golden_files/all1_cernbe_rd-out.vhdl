@@ -158,6 +158,7 @@ begin
     if rising_edge(Clk) then
       if rst_n = '0' then
         rd_ack_int <= '0';
+        VMERdData <= "00000000000000000000000000000000";
       else
         rd_ack_int <= rd_ack_d0;
         VMERdData <= rd_dat_d0;

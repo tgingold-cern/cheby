@@ -202,6 +202,7 @@ begin
     if rising_edge(pclk) then
       if presetn = '0' then
         rd_ack <= '0';
+        rd_data <= "00000000000000000000000000000000";
         wr_ack <= '0';
       else
         rd_ack <= rd_ack_d0;
