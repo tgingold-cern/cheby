@@ -73,6 +73,14 @@ def generate_interface_modport(fd, itf, dirn, dirname):
             w(fd, " {}".format(p.name))
     return not first
 
+# Check if the interface has a port with the given direction dirn
+def generate_interface_has_dir(itf, dirn):
+    for p in itf.ports:
+        if p.dir == dirn:
+            return True
+    return False
+
+
 def generate_interface(fd, itf, indent):
     generate_decl_comment(fd, itf.comment, indent)
     windent(fd, indent)
@@ -81,16 +89,19 @@ def generate_interface(fd, itf, indent):
         windent(fd, indent + 1)
         wln(fd, "logic {}{};".format(generate_verilog_type(p), p.name))
     windent(fd, indent + 1)
+
+    has_in = generate_interface_has_dir(itf, 'IN')
+    has_out = generate_interface_has_dir(itf, 'OUT')
     w(fd, "modport master(")
     p = generate_interface_modport(fd, itf, 'IN', 'input')
-    if p:
+    if has_in and has_out:
         w(fd, ', ')
     generate_interface_modport(fd, itf, 'OUT', 'output')
     wln(fd, ');')
     windent(fd, indent + 1)
     w(fd, "modport slave(")
     p = generate_interface_modport(fd, itf, 'IN', 'output')
-    if p:
+    if has_in and has_out:
         w(fd, ', ')
     generate_interface_modport(fd, itf, 'OUT', 'input')
     wln(fd, ');')
@@ -148,7 +159,7 @@ def generate_decl(fd, d, indent):
 
 operator = {hdltree.HDLAnd: (' & ', 4),
             hdltree.HDLOr:  (' | ', 3),
-            hdltree.HDLNot: ('!', 5),
+            hdltree.HDLNot: ('~', 5),
             hdltree.HDLSub: ('-', 1),
             hdltree.HDLMul: ('*', 2),
             hdltree.HDLEq:  (' == ', 5),

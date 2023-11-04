@@ -248,15 +248,21 @@ class WBBus(BusGen):
     def slice_addr(self, addr, root, n):
         """Slice the input :param addr: (from the root bus) so that is can be
         assigned to the slave.  Take care of various sizes."""
-        res = HDLSlice(addr, root.c_addr_word_bits, n.c_addr_bits)
-        if not n.h_busgroup:
-            return res
-        if n.c_addr_bits < 32:
-            res = HDLConcat(HDLReplicate(
-                bit_0, 32 - root.c_addr_word_bits - n.c_addr_bits, False), res)
-        if root.c_addr_word_bits > 0:
-            res = HDLConcat(res,
-                            HDLReplicate(bit_0, root.c_addr_word_bits, False))
+        if n.c_addr_bits > 0:
+            res = HDLSlice(addr, root.c_addr_word_bits, n.c_addr_bits)
+        else:
+            res = None
+
+        if n.h_busgroup:
+            if n.c_addr_bits < 32:
+                repl = HDLReplicate(bit_0, 32 - root.c_addr_word_bits - n.c_addr_bits, False)
+                res = repl if res is None else HDLConcat(repl, res)
+            if root.c_addr_word_bits > 0:
+                repl = HDLReplicate(bit_0, root.c_addr_word_bits, False)
+                res = repl if res is None else HDLConcat(res, repl)
+
+        if res is None:
+            raise AssertionError('Sliced address is empty')
         return res
 
     def wire_bus_slave(self, root, module, n, ibus):

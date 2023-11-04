@@ -218,7 +218,7 @@ class AXI4LiteBus(BusGen):
 
             module.stmts.append(HDLAssign(axi_rerr, RESP_OKAY))
         proc.rst_stmts.append(
-            HDLAssign(root.h_bus['rdata'], HDLReplicate(bit_0, root.c_addr_bits)))
+            HDLAssign(root.h_bus['rdata'], HDLReplicate(bit_0, root.c_word_bits)))
 
         proc.sync_stmts.append(HDLAssign(ibus.rd_req, bit_0))
         if opts.bus_error:

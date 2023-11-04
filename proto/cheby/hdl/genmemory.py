@@ -138,8 +138,9 @@ class GenMemory(ElGen):
             if ibus.wr_sel is not None:
                 # Translate bit-wise write mask of internal bus to Byte-wise write mask
                 # of memory
+                mem_name = mem.c_name + '_' + str(i) if multiword else mem.c_name
                 bwselw_int = self.module.new_HDLSignal(
-                    mem.c_name + "_sel_int", self.root.c_word_bits // tree.BYTE_SIZE
+                    mem_name + "_sel_int", self.root.c_word_bits // tree.BYTE_SIZE
                 )
 
                 proc = HDLComb()
