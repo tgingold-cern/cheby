@@ -37,14 +37,14 @@ module no_port
   reg [31:0] wr_dat_d0;
 
   // Write Channel
-  assign wr_req = (psel & pwrite) & !penable;
+  assign wr_req = (psel & pwrite) & ~penable;
   assign wr_addr = paddr;
   assign wr_data = pwdata;
   always @(pstrb)
       ;
 
   // Read Channel
-  assign rd_req = (psel & !pwrite) & !penable;
+  assign rd_req = (psel & ~pwrite) & ~penable;
   assign rd_addr = paddr;
   assign prdata = rd_data;
   assign pready = wr_ack | rd_ack;

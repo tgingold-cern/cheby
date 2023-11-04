@@ -99,22 +99,22 @@ module csr
     if (!rst_n_i)
       wb_rip <= 1'b0;
     else
-      wb_rip <= (wb_rip | (wb_en & !wb_we_i)) & !rd_ack_int;
+      wb_rip <= (wb_rip | (wb_en & ~wb_we_i)) & ~rd_ack_int;
   end
-  assign rd_req_int = (wb_en & !wb_we_i) & !wb_rip;
+  assign rd_req_int = (wb_en & ~wb_we_i) & ~wb_rip;
 
   always @(posedge(clk_i) or negedge(rst_n_i))
   begin
     if (!rst_n_i)
       wb_wip <= 1'b0;
     else
-      wb_wip <= (wb_wip | (wb_en & wb_we_i)) & !wr_ack_int;
+      wb_wip <= (wb_wip | (wb_en & wb_we_i)) & ~wr_ack_int;
   end
-  assign wr_req_int = (wb_en & wb_we_i) & !wb_wip;
+  assign wr_req_int = (wb_en & wb_we_i) & ~wb_wip;
 
   assign ack_int = rd_ack_int | wr_ack_int;
   assign wb_ack_o = ack_int;
-  assign wb_stall_o = !ack_int & wb_en;
+  assign wb_stall_o = ~ack_int & wb_en;
   assign wb_rty_o = 1'b0;
   assign wb_err_o = 1'b0;
 
@@ -169,8 +169,8 @@ module csr
       end
     else
       begin
-        i2c_master_rt <= (i2c_master_rt | i2c_master_re) & !i2c_master_rack;
-        i2c_master_wt <= (i2c_master_wt | i2c_master_we) & !i2c_master_wack;
+        i2c_master_rt <= (i2c_master_rt | i2c_master_re) & ~i2c_master_rack;
+        i2c_master_wt <= (i2c_master_wt | i2c_master_we) & ~i2c_master_wack;
       end
   end
   assign i2c_master_cyc_o = i2c_master_tr;
@@ -181,13 +181,13 @@ module csr
   always @(wr_sel_d0)
       begin
         i2c_master_sel_o <= 4'b0;
-        if (!(wr_sel_d0[7:0] == 8'b0))
+        if (~(wr_sel_d0[7:0] == 8'b0))
           i2c_master_sel_o[0] <= 1'b1;
-        if (!(wr_sel_d0[15:8] == 8'b0))
+        if (~(wr_sel_d0[15:8] == 8'b0))
           i2c_master_sel_o[1] <= 1'b1;
-        if (!(wr_sel_d0[23:16] == 8'b0))
+        if (~(wr_sel_d0[23:16] == 8'b0))
           i2c_master_sel_o[2] <= 1'b1;
-        if (!(wr_sel_d0[31:24] == 8'b0))
+        if (~(wr_sel_d0[31:24] == 8'b0))
           i2c_master_sel_o[3] <= 1'b1;
       end
   assign i2c_master_we_o = i2c_master_wt;
@@ -221,13 +221,13 @@ module csr
   always @(wr_sel_d0)
       begin
         adc_offs_sel_int <= 4'b0;
-        if (!(wr_sel_d0[7:0] == 8'b0))
+        if (~(wr_sel_d0[7:0] == 8'b0))
           adc_offs_sel_int[0] <= 1'b1;
-        if (!(wr_sel_d0[15:8] == 8'b0))
+        if (~(wr_sel_d0[15:8] == 8'b0))
           adc_offs_sel_int[1] <= 1'b1;
-        if (!(wr_sel_d0[23:16] == 8'b0))
+        if (~(wr_sel_d0[23:16] == 8'b0))
           adc_offs_sel_int[2] <= 1'b1;
-        if (!(wr_sel_d0[31:24] == 8'b0))
+        if (~(wr_sel_d0[31:24] == 8'b0))
           adc_offs_sel_int[3] <= 1'b1;
       end
   always @(posedge(clk_i) or negedge(rst_n_i))
@@ -266,13 +266,13 @@ module csr
   always @(wr_sel_d0)
       begin
         adc_meas_sel_int <= 4'b0;
-        if (!(wr_sel_d0[7:0] == 8'b0))
+        if (~(wr_sel_d0[7:0] == 8'b0))
           adc_meas_sel_int[0] <= 1'b1;
-        if (!(wr_sel_d0[15:8] == 8'b0))
+        if (~(wr_sel_d0[15:8] == 8'b0))
           adc_meas_sel_int[1] <= 1'b1;
-        if (!(wr_sel_d0[23:16] == 8'b0))
+        if (~(wr_sel_d0[23:16] == 8'b0))
           adc_meas_sel_int[2] <= 1'b1;
-        if (!(wr_sel_d0[31:24] == 8'b0))
+        if (~(wr_sel_d0[31:24] == 8'b0))
           adc_meas_sel_int[3] <= 1'b1;
       end
   always @(posedge(clk_i) or negedge(rst_n_i))

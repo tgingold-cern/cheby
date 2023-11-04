@@ -1,8 +1,8 @@
 interface t_noout_inter;
   logic [31:0] reg0;
   logic [31:0] reg1;
-  modport master(input reg0, reg1, );
-  modport slave(output reg0, reg1, );
+  modport master(input reg0, reg1);
+  modport slave(output reg0, reg1);
 endinterface
 
 
@@ -47,22 +47,22 @@ module noout
     if (!rst_n_i)
       wb_rip <= 1'b0;
     else
-      wb_rip <= (wb_rip | (wb_en & !wb_we_i)) & !rd_ack_int;
+      wb_rip <= (wb_rip | (wb_en & ~wb_we_i)) & ~rd_ack_int;
   end
-  assign rd_req_int = (wb_en & !wb_we_i) & !wb_rip;
+  assign rd_req_int = (wb_en & ~wb_we_i) & ~wb_rip;
 
   always @(posedge(clk_i) or negedge(rst_n_i))
   begin
     if (!rst_n_i)
       wb_wip <= 1'b0;
     else
-      wb_wip <= (wb_wip | (wb_en & wb_we_i)) & !wr_ack_int;
+      wb_wip <= (wb_wip | (wb_en & wb_we_i)) & ~wr_ack_int;
   end
-  assign wr_req_int = (wb_en & wb_we_i) & !wb_wip;
+  assign wr_req_int = (wb_en & wb_we_i) & ~wb_wip;
 
   assign ack_int = rd_ack_int | wr_ack_int;
   assign wb_ack_o = ack_int;
-  assign wb_stall_o = !ack_int & wb_en;
+  assign wb_stall_o = ~ack_int & wb_en;
   assign wb_rty_o = 1'b0;
   assign wb_err_o = 1'b0;
 

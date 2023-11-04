@@ -67,8 +67,8 @@ module test
   reg [31:0] wr_dat_d0;
 
   // AW, W and B channels
-  assign awready = !axi_awset;
-  assign wready = !axi_wset;
+  assign awready = ~axi_awset;
+  assign wready = ~axi_wset;
   assign bvalid = axi_wdone;
   always @(posedge(aclk) or negedge(areset_n))
   begin
@@ -107,7 +107,7 @@ module test
   assign bresp = 2'b00;
 
   // AR and R channels
-  assign arready = !axi_arset;
+  assign arready = ~axi_arset;
   assign rvalid = axi_rdone;
   always @(posedge(aclk) or negedge(areset_n))
   begin
@@ -116,7 +116,7 @@ module test
         rd_req <= 1'b0;
         axi_arset <= 1'b0;
         axi_rdone <= 1'b0;
-        rdata <= 3'b0;
+        rdata <= 32'b0;
       end
     else
       begin

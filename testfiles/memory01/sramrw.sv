@@ -39,22 +39,22 @@ module sramrw
     if (!wb.rst_n)
       wb_rip <= 1'b0;
     else
-      wb_rip <= (wb_rip | (wb_en & !wb.we)) & !rd_ack_int;
+      wb_rip <= (wb_rip | (wb_en & ~wb.we)) & ~rd_ack_int;
   end
-  assign rd_req_int = (wb_en & !wb.we) & !wb_rip;
+  assign rd_req_int = (wb_en & ~wb.we) & ~wb_rip;
 
   always @(posedge(wb.clk) or negedge(wb.rst_n))
   begin
     if (!wb.rst_n)
       wb_wip <= 1'b0;
     else
-      wb_wip <= (wb_wip | (wb_en & wb.we)) & !wr_ack_int;
+      wb_wip <= (wb_wip | (wb_en & wb.we)) & ~wr_ack_int;
   end
-  assign wr_req_int = (wb_en & wb.we) & !wb_wip;
+  assign wr_req_int = (wb_en & wb.we) & ~wb_wip;
 
   assign ack_int = rd_ack_int | wr_ack_int;
   assign wb.ack = ack_int;
-  assign wb.stall = !ack_int & wb_en;
+  assign wb.stall = ~ack_int & wb_en;
   assign wb.rty = 1'b0;
   assign wb.err = 1'b0;
 
@@ -82,7 +82,7 @@ module sramrw
     if (!wb.rst_n)
       mymem_rack <= 1'b0;
     else
-      mymem_rack <= mymem_re & !mymem_rack;
+      mymem_rack <= mymem_re & ~mymem_rack;
   end
   assign mymem_data_o = wr_dat_d0;
   always @(posedge(wb.clk) or negedge(wb.rst_n))
@@ -92,7 +92,7 @@ module sramrw
     else
       mymem_wp <= (wr_req_d0 | mymem_wp) & rd_req_int;
   end
-  assign mymem_we = (wr_req_d0 | mymem_wp) & !rd_req_int;
+  assign mymem_we = (wr_req_d0 | mymem_wp) & ~rd_req_int;
   always @(adr_int, wr_adr_d0, mymem_re)
       if (mymem_re == 1'b1)
         mymem_addr_o <= adr_int[7:2];

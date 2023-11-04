@@ -61,8 +61,8 @@ module s1
   reg [31:0] wr_sel_d0;
 
   // AW, W and B channels
-  assign awready = !axi_awset;
-  assign wready = !axi_wset;
+  assign awready = ~axi_awset;
+  assign wready = ~axi_wset;
   assign bvalid = axi_wdone;
   always @(posedge(aclk) or negedge(areset_n))
   begin
@@ -104,7 +104,7 @@ module s1
   assign bresp = 2'b00;
 
   // AR and R channels
-  assign arready = !axi_arset;
+  assign arready = ~axi_arset;
   assign rvalid = axi_rdone;
   always @(posedge(aclk) or negedge(areset_n))
   begin
@@ -113,7 +113,7 @@ module s1
         rd_req <= 1'b0;
         axi_arset <= 1'b0;
         axi_rdone <= 1'b0;
-        rdata <= 0'b0;
+        rdata <= 32'b0;
       end
     else
       begin
@@ -168,10 +168,10 @@ module s1
       end
     else
       begin
-        sub_wr <= (sub_wr | sub_we) & !sub_wack;
-        sub_wt <= (sub_wt | (sub_wr & !sub_tr)) & !sub_wack;
-        sub_rr <= (sub_rr | sub_re) & !sub_rack;
-        sub_rt <= (sub_rt | (sub_rr & !(sub_wr | sub_tr))) & !sub_rack;
+        sub_wr <= (sub_wr | sub_we) & ~sub_wack;
+        sub_wt <= (sub_wt | (sub_wr & ~sub_tr)) & ~sub_wack;
+        sub_rr <= (sub_rr | sub_re) & ~sub_rack;
+        sub_rt <= (sub_rt | (sub_rr & ~(sub_wr | sub_tr))) & ~sub_rack;
       end
   end
   assign sub_cyc_o = sub_tr;
@@ -181,13 +181,13 @@ module s1
   always @(wr_sel_d0)
       begin
         sub_sel_o <= 4'b0;
-        if (!(wr_sel_d0[7:0] == 8'b0))
+        if (~(wr_sel_d0[7:0] == 8'b0))
           sub_sel_o[0] <= 1'b1;
-        if (!(wr_sel_d0[15:8] == 8'b0))
+        if (~(wr_sel_d0[15:8] == 8'b0))
           sub_sel_o[1] <= 1'b1;
-        if (!(wr_sel_d0[23:16] == 8'b0))
+        if (~(wr_sel_d0[23:16] == 8'b0))
           sub_sel_o[2] <= 1'b1;
-        if (!(wr_sel_d0[31:24] == 8'b0))
+        if (~(wr_sel_d0[31:24] == 8'b0))
           sub_sel_o[3] <= 1'b1;
       end
   assign sub_we_o = sub_wt;

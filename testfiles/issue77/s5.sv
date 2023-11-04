@@ -62,22 +62,22 @@ module s5
     if (!rst_n_i)
       wb_rip <= 1'b0;
     else
-      wb_rip <= (wb_rip | (wb_en & !wb_we_i)) & !rd_ack_int;
+      wb_rip <= (wb_rip | (wb_en & ~wb_we_i)) & ~rd_ack_int;
   end
-  assign rd_req_int = (wb_en & !wb_we_i) & !wb_rip;
+  assign rd_req_int = (wb_en & ~wb_we_i) & ~wb_rip;
 
   always @(posedge(clk_i) or negedge(rst_n_i))
   begin
     if (!rst_n_i)
       wb_wip <= 1'b0;
     else
-      wb_wip <= (wb_wip | (wb_en & wb_we_i)) & !wr_ack_int;
+      wb_wip <= (wb_wip | (wb_en & wb_we_i)) & ~wr_ack_int;
   end
-  assign wr_req_int = (wb_en & wb_we_i) & !wb_wip;
+  assign wr_req_int = (wb_en & wb_we_i) & ~wb_wip;
 
   assign ack_int = rd_ack_int | wr_ack_int;
   assign wb_ack_o = ack_int;
-  assign wb_stall_o = !ack_int & wb_en;
+  assign wb_stall_o = ~ack_int & wb_en;
   assign wb_rty_o = 1'b0;
   assign wb_err_o = 1'b0;
 
@@ -128,25 +128,25 @@ module s5
       end
     else
       begin
-        sub_rt <= (sub_rt | sub_re) & !sub_rack;
-        sub_wt <= (sub_wt | sub_we) & !sub_wack;
+        sub_rt <= (sub_rt | sub_re) & ~sub_rack;
+        sub_wt <= (sub_wt | sub_we) & ~sub_wack;
       end
   end
   assign sub.cyc = sub_tr;
   assign sub.stb = sub_tr;
   assign sub_wack = sub.ack & sub_wt;
   assign sub_rack = sub.ack & sub_rt;
-  assign sub.adr = {30'b0, wb_adr_i[1:2], 2'b0};
+  assign sub.adr = {30'b0, 2'b0};
   always @(wr_sel_d0)
       begin
         sub.sel <= 4'b0;
-        if (!(wr_sel_d0[7:0] == 8'b0))
+        if (~(wr_sel_d0[7:0] == 8'b0))
           sub.sel[0] <= 1'b1;
-        if (!(wr_sel_d0[15:8] == 8'b0))
+        if (~(wr_sel_d0[15:8] == 8'b0))
           sub.sel[1] <= 1'b1;
-        if (!(wr_sel_d0[23:16] == 8'b0))
+        if (~(wr_sel_d0[23:16] == 8'b0))
           sub.sel[2] <= 1'b1;
-        if (!(wr_sel_d0[31:24] == 8'b0))
+        if (~(wr_sel_d0[31:24] == 8'b0))
           sub.sel[3] <= 1'b1;
       end
   assign sub.we = sub_wt;

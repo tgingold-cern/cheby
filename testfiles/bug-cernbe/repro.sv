@@ -36,7 +36,7 @@ module example
   reg [15:0] wr_dat_d0;
   reg sm_ws;
   reg sm_wt;
-  assign rst_n = !Rst;
+  assign rst_n = ~Rst;
   assign VMERdDone = rd_ack_int;
   assign VMEWrDone = wr_ack_int;
 
@@ -84,7 +84,7 @@ module example
     if (!rst_n)
       sm_wt <= 1'b0;
     else
-      sm_wt <= (sm_wt | sm_ws) & !sm_VMEWrDone_i;
+      sm_wt <= (sm_wt | sm_ws) & ~sm_VMEWrDone_i;
   end
   assign sm_VMEWrMem_o = sm_ws;
   always @(VMEAddr, wr_adr_d0, sm_wt, sm_ws)

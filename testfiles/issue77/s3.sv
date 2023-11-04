@@ -64,8 +64,8 @@ module s3
   reg [31:0] wr_sel_d0;
 
   // AW, W and B channels
-  assign awready = !axi_awset;
-  assign wready = !axi_wset;
+  assign awready = ~axi_awset;
+  assign wready = ~axi_wset;
   assign bvalid = axi_wdone;
   always @(posedge(aclk) or negedge(areset_n))
   begin
@@ -107,7 +107,7 @@ module s3
   assign bresp = 2'b00;
 
   // AR and R channels
-  assign arready = !axi_arset;
+  assign arready = ~axi_arset;
   assign rvalid = axi_rdone;
   always @(posedge(aclk) or negedge(areset_n))
   begin
@@ -116,7 +116,7 @@ module s3
         rd_req <= 1'b0;
         axi_arset <= 1'b0;
         axi_rdone <= 1'b0;
-        rdata <= 0'b0;
+        rdata <= 32'b0;
       end
     else
       begin
@@ -166,13 +166,13 @@ module s3
   always @(wr_sel_d0)
       begin
         sub_wstrb_o <= 4'b0;
-        if (!(wr_sel_d0[7:0] == 8'b0))
+        if (~(wr_sel_d0[7:0] == 8'b0))
           sub_wstrb_o[0] <= 1'b1;
-        if (!(wr_sel_d0[15:8] == 8'b0))
+        if (~(wr_sel_d0[15:8] == 8'b0))
           sub_wstrb_o[1] <= 1'b1;
-        if (!(wr_sel_d0[23:16] == 8'b0))
+        if (~(wr_sel_d0[23:16] == 8'b0))
           sub_wstrb_o[2] <= 1'b1;
-        if (!(wr_sel_d0[31:24] == 8'b0))
+        if (~(wr_sel_d0[31:24] == 8'b0))
           sub_wstrb_o[3] <= 1'b1;
       end
   assign sub_bready_o = 1'b1;
@@ -189,9 +189,9 @@ module s3
       end
     else
       begin
-        sub_aw_val <= sub_wr | (sub_aw_val & !sub_awready_i);
-        sub_w_val <= sub_wr | (sub_w_val & !sub_wready_i);
-        sub_ar_val <= sub_rd | (sub_ar_val & !sub_arready_i);
+        sub_aw_val <= sub_wr | (sub_aw_val & ~sub_awready_i);
+        sub_w_val <= sub_wr | (sub_w_val & ~sub_wready_i);
+        sub_ar_val <= sub_rd | (sub_ar_val & ~sub_arready_i);
       end
   end
 

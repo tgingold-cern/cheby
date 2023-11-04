@@ -42,22 +42,22 @@ module alt_trigin
     if (!wb.rst_n)
       wb_rip <= 1'b0;
     else
-      wb_rip <= (wb_rip | (wb_en & !wb.we)) & !rd_ack_int;
+      wb_rip <= (wb_rip | (wb_en & ~wb.we)) & ~rd_ack_int;
   end
-  assign rd_req_int = (wb_en & !wb.we) & !wb_rip;
+  assign rd_req_int = (wb_en & ~wb.we) & ~wb_rip;
 
   always @(posedge(wb.clk) or negedge(wb.rst_n))
   begin
     if (!wb.rst_n)
       wb_wip <= 1'b0;
     else
-      wb_wip <= (wb_wip | (wb_en & wb.we)) & !wr_ack_int;
+      wb_wip <= (wb_wip | (wb_en & wb.we)) & ~wr_ack_int;
   end
-  assign wr_req_int = (wb_en & wb.we) & !wb_wip;
+  assign wr_req_int = (wb_en & wb.we) & ~wb_wip;
 
   assign ack_int = rd_ack_int | wr_ack_int;
   assign wb.ack = ack_int;
-  assign wb.stall = !ack_int & wb_en;
+  assign wb.stall = ~ack_int & wb_en;
   assign wb.rty = 1'b0;
   assign wb.err = 1'b0;
 

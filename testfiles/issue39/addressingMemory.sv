@@ -36,7 +36,7 @@ module eda02175v2
   reg [15:0] wr_dat_d0;
   reg acqVP_ws;
   reg acqVP_wt;
-  assign rst_n = !Rst;
+  assign rst_n = ~Rst;
   assign VMERdDone = rd_ack_int;
   assign VMEWrDone = wr_ack_int;
 
@@ -65,7 +65,7 @@ module eda02175v2
     if (!rst_n)
       acqVP_wt <= 1'b0;
     else
-      acqVP_wt <= (acqVP_wt | acqVP_ws) & !acqVP_VMEWrDone_i;
+      acqVP_wt <= (acqVP_wt | acqVP_ws) & ~acqVP_VMEWrDone_i;
   end
   assign acqVP_VMEWrMem_o = acqVP_ws;
   always @(VMEAddr, wr_adr_d0, acqVP_wt, acqVP_ws)

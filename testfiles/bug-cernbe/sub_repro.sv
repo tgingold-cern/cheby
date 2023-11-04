@@ -28,7 +28,7 @@ module sub_repro
   reg wr_req_d0;
   reg [1:1] wr_adr_d0;
   reg [15:0] wr_dat_d0;
-  assign rst_n = !Rst;
+  assign rst_n = ~Rst;
   assign VMERdDone = rd_ack_int;
   assign VMEWrDone = wr_ack_int;
 

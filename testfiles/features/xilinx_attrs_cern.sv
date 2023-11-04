@@ -30,7 +30,7 @@ module xilinx_attrs
   reg [31:0] wr_dat_d0;
   reg subm_ws;
   reg subm_wt;
-  assign rst_n = !Rst;
+  assign rst_n = ~Rst;
   assign VMERdDone = rd_ack_int;
   assign VMEWrDone = wr_ack_int;
 
@@ -59,7 +59,7 @@ module xilinx_attrs
     if (!rst_n)
       subm_wt <= 1'b0;
     else
-      subm_wt <= (subm_wt | subm_ws) & !subm_VMEWrDone_i;
+      subm_wt <= (subm_wt | subm_ws) & ~subm_VMEWrDone_i;
   end
   assign subm_VMEWrMem_o = subm_ws;
   always @(VMEAddr, wr_adr_d0, subm_wt, subm_ws)

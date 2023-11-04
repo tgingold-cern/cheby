@@ -32,7 +32,7 @@ module map1
   wire m1_wr;
   wire m1_wreq;
   reg [5:0] m1_adr_int;
-  assign rst_n = !Rst;
+  assign rst_n = ~Rst;
   assign VMERdDone = rd_ack_int;
   assign VMEWrDone = wr_ack_int;
 

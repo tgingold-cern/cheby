@@ -50,8 +50,8 @@ module mem64ro
   reg [9:2] wr_adr_d0;
   reg [31:0] wr_dat_d0;
   reg [31:0] wr_sel_d0;
-  reg [3:0] DdrCapturesIndex_sel_int;
-  reg [3:0] DdrCapturesIndex_sel_int;
+  reg [3:0] DdrCapturesIndex_0_sel_int;
+  reg [3:0] DdrCapturesIndex_1_sel_int;
 
   // WB decode signals
   always @(wb_sel_i)
@@ -68,22 +68,22 @@ module mem64ro
     if (!rst_n_i)
       wb_rip <= 1'b0;
     else
-      wb_rip <= (wb_rip | (wb_en & !wb_we_i)) & !rd_ack_int;
+      wb_rip <= (wb_rip | (wb_en & ~wb_we_i)) & ~rd_ack_int;
   end
-  assign rd_req_int = (wb_en & !wb_we_i) & !wb_rip;
+  assign rd_req_int = (wb_en & ~wb_we_i) & ~wb_rip;
 
   always @(posedge(clk_i) or negedge(rst_n_i))
   begin
     if (!rst_n_i)
       wb_wip <= 1'b0;
     else
-      wb_wip <= (wb_wip | (wb_en & wb_we_i)) & !wr_ack_int;
+      wb_wip <= (wb_wip | (wb_en & wb_we_i)) & ~wr_ack_int;
   end
-  assign wr_req_int = (wb_en & wb_we_i) & !wb_wip;
+  assign wr_req_int = (wb_en & wb_we_i) & ~wb_wip;
 
   assign ack_int = rd_ack_int | wr_ack_int;
   assign wb_ack_o = ack_int;
-  assign wb_stall_o = !ack_int & wb_en;
+  assign wb_stall_o = ~ack_int & wb_en;
   assign wb_rty_o = 1'b0;
   assign wb_err_o = 1'b0;
 
@@ -135,7 +135,7 @@ module mem64ro
       .clk_a_i(clk_i),
       .clk_b_i(clk_i),
       .addr_a_i(wb_adr_i[8:3]),
-      .bwsel_a_i(DdrCapturesIndex_sel_int),
+      .bwsel_a_i(DdrCapturesIndex_0_sel_int),
       .data_a_i({32{1'bx}}),
       .data_a_o(DdrCapturesIndex_DdrCaptures_int_dato0),
       .rd_a_i(DdrCapturesIndex_DdrCaptures_rreq0),
@@ -150,15 +150,15 @@ module mem64ro
   
   always @(wr_sel_d0)
       begin
-        DdrCapturesIndex_sel_int <= 4'b0;
-        if (!(wr_sel_d0[7:0] == 8'b0))
-          DdrCapturesIndex_sel_int[0] <= 1'b1;
-        if (!(wr_sel_d0[15:8] == 8'b0))
-          DdrCapturesIndex_sel_int[1] <= 1'b1;
-        if (!(wr_sel_d0[23:16] == 8'b0))
-          DdrCapturesIndex_sel_int[2] <= 1'b1;
-        if (!(wr_sel_d0[31:24] == 8'b0))
-          DdrCapturesIndex_sel_int[3] <= 1'b1;
+        DdrCapturesIndex_0_sel_int <= 4'b0;
+        if (~(wr_sel_d0[7:0] == 8'b0))
+          DdrCapturesIndex_0_sel_int[0] <= 1'b1;
+        if (~(wr_sel_d0[15:8] == 8'b0))
+          DdrCapturesIndex_0_sel_int[1] <= 1'b1;
+        if (~(wr_sel_d0[23:16] == 8'b0))
+          DdrCapturesIndex_0_sel_int[2] <= 1'b1;
+        if (~(wr_sel_d0[31:24] == 8'b0))
+          DdrCapturesIndex_0_sel_int[3] <= 1'b1;
       end
   cheby_dpssram #(
       .g_data_width(32),
@@ -171,7 +171,7 @@ module mem64ro
       .clk_a_i(clk_i),
       .clk_b_i(clk_i),
       .addr_a_i(wb_adr_i[8:3]),
-      .bwsel_a_i(DdrCapturesIndex_sel_int),
+      .bwsel_a_i(DdrCapturesIndex_1_sel_int),
       .data_a_i({32{1'bx}}),
       .data_a_o(DdrCapturesIndex_DdrCaptures_int_dato1),
       .rd_a_i(DdrCapturesIndex_DdrCaptures_rreq1),
@@ -186,15 +186,15 @@ module mem64ro
   
   always @(wr_sel_d0)
       begin
-        DdrCapturesIndex_sel_int <= 4'b0;
-        if (!(wr_sel_d0[7:0] == 8'b0))
-          DdrCapturesIndex_sel_int[0] <= 1'b1;
-        if (!(wr_sel_d0[15:8] == 8'b0))
-          DdrCapturesIndex_sel_int[1] <= 1'b1;
-        if (!(wr_sel_d0[23:16] == 8'b0))
-          DdrCapturesIndex_sel_int[2] <= 1'b1;
-        if (!(wr_sel_d0[31:24] == 8'b0))
-          DdrCapturesIndex_sel_int[3] <= 1'b1;
+        DdrCapturesIndex_1_sel_int <= 4'b0;
+        if (~(wr_sel_d0[7:0] == 8'b0))
+          DdrCapturesIndex_1_sel_int[0] <= 1'b1;
+        if (~(wr_sel_d0[15:8] == 8'b0))
+          DdrCapturesIndex_1_sel_int[1] <= 1'b1;
+        if (~(wr_sel_d0[23:16] == 8'b0))
+          DdrCapturesIndex_1_sel_int[2] <= 1'b1;
+        if (~(wr_sel_d0[31:24] == 8'b0))
+          DdrCapturesIndex_1_sel_int[3] <= 1'b1;
       end
   always @(posedge(clk_i) or negedge(rst_n_i))
   begin

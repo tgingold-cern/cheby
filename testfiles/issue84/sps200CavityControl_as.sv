@@ -97,8 +97,8 @@ module sps200CavityControl_regs
   reg [31:0] wr_sel_d0;
 
   // AW, W and B channels
-  assign awready = !axi_awset;
-  assign wready = !axi_wset;
+  assign awready = ~axi_awset;
+  assign wready = ~axi_wset;
   assign bvalid = axi_wdone;
   always @(posedge(aclk) or negedge(areset_n))
   begin
@@ -141,7 +141,7 @@ module sps200CavityControl_regs
   assign bresp = 2'b00;
 
   // AR and R channels
-  assign arready = !axi_arset;
+  assign arready = ~axi_arset;
   assign rvalid = axi_rdone;
   always @(posedge(aclk) or negedge(areset_n))
   begin
@@ -150,7 +150,7 @@ module sps200CavityControl_regs
         rd_req <= 1'b0;
         axi_arset <= 1'b0;
         axi_rdone <= 1'b0;
-        rdata <= 19'b0;
+        rdata <= 32'b0;
       end
     else
       begin
@@ -203,13 +203,13 @@ module sps200CavityControl_regs
   always @(wr_sel_d0)
       begin
         hwInfo_wstrb_o <= 4'b0;
-        if (!(wr_sel_d0[7:0] == 8'b0))
+        if (~(wr_sel_d0[7:0] == 8'b0))
           hwInfo_wstrb_o[0] <= 1'b1;
-        if (!(wr_sel_d0[15:8] == 8'b0))
+        if (~(wr_sel_d0[15:8] == 8'b0))
           hwInfo_wstrb_o[1] <= 1'b1;
-        if (!(wr_sel_d0[23:16] == 8'b0))
+        if (~(wr_sel_d0[23:16] == 8'b0))
           hwInfo_wstrb_o[2] <= 1'b1;
-        if (!(wr_sel_d0[31:24] == 8'b0))
+        if (~(wr_sel_d0[31:24] == 8'b0))
           hwInfo_wstrb_o[3] <= 1'b1;
       end
   assign hwInfo_bready_o = 1'b1;
@@ -227,9 +227,9 @@ module sps200CavityControl_regs
       end
     else
       begin
-        hwInfo_aw_val <= hwInfo_wr | (hwInfo_aw_val & !hwInfo_awready_i);
-        hwInfo_w_val <= hwInfo_wr | (hwInfo_w_val & !hwInfo_wready_i);
-        hwInfo_ar_val <= hwInfo_rd | (hwInfo_ar_val & !hwInfo_arready_i);
+        hwInfo_aw_val <= hwInfo_wr | (hwInfo_aw_val & ~hwInfo_awready_i);
+        hwInfo_w_val <= hwInfo_wr | (hwInfo_w_val & ~hwInfo_wready_i);
+        hwInfo_ar_val <= hwInfo_rd | (hwInfo_ar_val & ~hwInfo_arready_i);
       end
   end
 
@@ -242,13 +242,13 @@ module sps200CavityControl_regs
   always @(wr_sel_d0)
       begin
         app_wstrb_o <= 4'b0;
-        if (!(wr_sel_d0[7:0] == 8'b0))
+        if (~(wr_sel_d0[7:0] == 8'b0))
           app_wstrb_o[0] <= 1'b1;
-        if (!(wr_sel_d0[15:8] == 8'b0))
+        if (~(wr_sel_d0[15:8] == 8'b0))
           app_wstrb_o[1] <= 1'b1;
-        if (!(wr_sel_d0[23:16] == 8'b0))
+        if (~(wr_sel_d0[23:16] == 8'b0))
           app_wstrb_o[2] <= 1'b1;
-        if (!(wr_sel_d0[31:24] == 8'b0))
+        if (~(wr_sel_d0[31:24] == 8'b0))
           app_wstrb_o[3] <= 1'b1;
       end
   assign app_bready_o = 1'b1;
@@ -266,9 +266,9 @@ module sps200CavityControl_regs
       end
     else
       begin
-        app_aw_val <= app_wr | (app_aw_val & !app_awready_i);
-        app_w_val <= app_wr | (app_w_val & !app_wready_i);
-        app_ar_val <= app_rd | (app_ar_val & !app_arready_i);
+        app_aw_val <= app_wr | (app_aw_val & ~app_awready_i);
+        app_w_val <= app_wr | (app_w_val & ~app_wready_i);
+        app_ar_val <= app_rd | (app_ar_val & ~app_arready_i);
       end
   end
 

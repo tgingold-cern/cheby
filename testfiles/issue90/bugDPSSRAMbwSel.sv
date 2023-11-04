@@ -59,8 +59,8 @@ module bugDPSSRAMbwSel
   reg [3:0] mem_sel_int;
 
   // AW, W and B channels
-  assign awready = !axi_awset;
-  assign wready = !axi_wset;
+  assign awready = ~axi_awset;
+  assign wready = ~axi_wset;
   assign bvalid = axi_wdone;
   always @(posedge(aclk) or negedge(areset_n))
   begin
@@ -103,7 +103,7 @@ module bugDPSSRAMbwSel
   assign bresp = 2'b00;
 
   // AR and R channels
-  assign arready = !axi_arset;
+  assign arready = ~axi_arset;
   assign rvalid = axi_rdone;
   always @(posedge(aclk) or negedge(areset_n))
   begin
@@ -112,7 +112,7 @@ module bugDPSSRAMbwSel
         rd_req <= 1'b0;
         axi_arset <= 1'b0;
         axi_rdone <= 1'b0;
-        rdata <= 18'b0;
+        rdata <= 32'b0;
       end
     else
       begin
@@ -191,13 +191,13 @@ module bugDPSSRAMbwSel
   always @(wr_sel_d0)
       begin
         mem_sel_int <= 4'b0;
-        if (!(wr_sel_d0[7:0] == 8'b0))
+        if (~(wr_sel_d0[7:0] == 8'b0))
           mem_sel_int[0] <= 1'b1;
-        if (!(wr_sel_d0[15:8] == 8'b0))
+        if (~(wr_sel_d0[15:8] == 8'b0))
           mem_sel_int[1] <= 1'b1;
-        if (!(wr_sel_d0[23:16] == 8'b0))
+        if (~(wr_sel_d0[23:16] == 8'b0))
           mem_sel_int[2] <= 1'b1;
-        if (!(wr_sel_d0[31:24] == 8'b0))
+        if (~(wr_sel_d0[31:24] == 8'b0))
           mem_sel_int[3] <= 1'b1;
       end
   always @(posedge(aclk) or negedge(areset_n))
@@ -205,7 +205,7 @@ module bugDPSSRAMbwSel
     if (!areset_n)
       mem_r1_rack <= 1'b0;
     else
-      mem_r1_rack <= (mem_r1_rreq & !mem_wreq) & !mem_r1_rack;
+      mem_r1_rack <= (mem_r1_rreq & ~mem_wreq) & ~mem_r1_rack;
   end
 
   // Process for write requests.
@@ -225,7 +225,7 @@ module bugDPSSRAMbwSel
         mem_r1_rreq <= 1'b0;
         // Memory mem
         rd_dat_d0 <= {24'b000000000000000000000000, mem_r1_int_dato};
-        mem_r1_rreq <= rd_req & !mem_wreq;
+        mem_r1_rreq <= rd_req & ~mem_wreq;
         rd_ack_d0 <= mem_r1_rack;
       end
 endmodule

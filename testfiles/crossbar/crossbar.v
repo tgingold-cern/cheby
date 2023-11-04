@@ -66,22 +66,22 @@ module crossbar_wb
     if (!wb.rst_n)
       wb_rip <= 1'b0;
     else
-      wb_rip <= (wb_rip | (wb_en & !wb.we)) & !rd_ack_int;
+      wb_rip <= (wb_rip | (wb_en & ~wb.we)) & ~rd_ack_int;
   end
-  assign rd_req_int = (wb_en & !wb.we) & !wb_rip;
+  assign rd_req_int = (wb_en & ~wb.we) & ~wb_rip;
 
   always @(posedge(wb.clk) or negedge(wb.rst_n))
   begin
     if (!wb.rst_n)
       wb_wip <= 1'b0;
     else
-      wb_wip <= (wb_wip | (wb_en & wb.we)) & !wr_ack_int;
+      wb_wip <= (wb_wip | (wb_en & wb.we)) & ~wr_ack_int;
   end
-  assign wr_req_int = (wb_en & wb.we) & !wb_wip;
+  assign wr_req_int = (wb_en & wb.we) & ~wb_wip;
 
   assign ack_int = rd_ack_int | wr_ack_int;
   assign wb.ack = ack_int;
-  assign wb.stall = !ack_int & wb_en;
+  assign wb.stall = ~ack_int & wb_en;
   assign wb.rty = 1'b0;
   assign wb.err = 1'b0;
 
@@ -115,8 +115,8 @@ module crossbar_wb
       end
     else
       begin
-        jesdavalon_rt <= (jesdavalon_rt | jesdavalon_re) & !jesdavalon_rack;
-        jesdavalon_wt <= (jesdavalon_wt | jesdavalon_we) & !jesdavalon_wack;
+        jesdavalon_rt <= (jesdavalon_rt | jesdavalon_re) & ~jesdavalon_rack;
+        jesdavalon_wt <= (jesdavalon_wt | jesdavalon_we) & ~jesdavalon_wack;
       end
   end
   assign jesdavalon.cyc = jesdavalon_tr;
@@ -127,13 +127,13 @@ module crossbar_wb
   always @(wr_sel_d0)
       begin
         jesdavalon.sel <= 4'b0;
-        if (!(wr_sel_d0[7:0] == 8'b0))
+        if (~(wr_sel_d0[7:0] == 8'b0))
           jesdavalon.sel[0] <= 1'b1;
-        if (!(wr_sel_d0[15:8] == 8'b0))
+        if (~(wr_sel_d0[15:8] == 8'b0))
           jesdavalon.sel[1] <= 1'b1;
-        if (!(wr_sel_d0[23:16] == 8'b0))
+        if (~(wr_sel_d0[23:16] == 8'b0))
           jesdavalon.sel[2] <= 1'b1;
-        if (!(wr_sel_d0[31:24] == 8'b0))
+        if (~(wr_sel_d0[31:24] == 8'b0))
           jesdavalon.sel[3] <= 1'b1;
       end
   assign jesdavalon.we = jesdavalon_wt;
@@ -150,8 +150,8 @@ module crossbar_wb
       end
     else
       begin
-        i2ctowb_rt <= (i2ctowb_rt | i2ctowb_re) & !i2ctowb_rack;
-        i2ctowb_wt <= (i2ctowb_wt | i2ctowb_we) & !i2ctowb_wack;
+        i2ctowb_rt <= (i2ctowb_rt | i2ctowb_re) & ~i2ctowb_rack;
+        i2ctowb_wt <= (i2ctowb_wt | i2ctowb_we) & ~i2ctowb_wack;
       end
   end
   assign i2ctowb.cyc = i2ctowb_tr;
@@ -162,13 +162,13 @@ module crossbar_wb
   always @(wr_sel_d0)
       begin
         i2ctowb.sel <= 4'b0;
-        if (!(wr_sel_d0[7:0] == 8'b0))
+        if (~(wr_sel_d0[7:0] == 8'b0))
           i2ctowb.sel[0] <= 1'b1;
-        if (!(wr_sel_d0[15:8] == 8'b0))
+        if (~(wr_sel_d0[15:8] == 8'b0))
           i2ctowb.sel[1] <= 1'b1;
-        if (!(wr_sel_d0[23:16] == 8'b0))
+        if (~(wr_sel_d0[23:16] == 8'b0))
           i2ctowb.sel[2] <= 1'b1;
-        if (!(wr_sel_d0[31:24] == 8'b0))
+        if (~(wr_sel_d0[31:24] == 8'b0))
           i2ctowb.sel[3] <= 1'b1;
       end
   assign i2ctowb.we = i2ctowb_wt;
@@ -185,8 +185,8 @@ module crossbar_wb
       end
     else
       begin
-        bran_rt <= (bran_rt | bran_re) & !bran_rack;
-        bran_wt <= (bran_wt | bran_we) & !bran_wack;
+        bran_rt <= (bran_rt | bran_re) & ~bran_rack;
+        bran_wt <= (bran_wt | bran_we) & ~bran_wack;
       end
   end
   assign bran.cyc = bran_tr;
@@ -197,13 +197,13 @@ module crossbar_wb
   always @(wr_sel_d0)
       begin
         bran.sel <= 4'b0;
-        if (!(wr_sel_d0[7:0] == 8'b0))
+        if (~(wr_sel_d0[7:0] == 8'b0))
           bran.sel[0] <= 1'b1;
-        if (!(wr_sel_d0[15:8] == 8'b0))
+        if (~(wr_sel_d0[15:8] == 8'b0))
           bran.sel[1] <= 1'b1;
-        if (!(wr_sel_d0[23:16] == 8'b0))
+        if (~(wr_sel_d0[23:16] == 8'b0))
           bran.sel[2] <= 1'b1;
-        if (!(wr_sel_d0[31:24] == 8'b0))
+        if (~(wr_sel_d0[31:24] == 8'b0))
           bran.sel[3] <= 1'b1;
       end
   assign bran.we = bran_wt;

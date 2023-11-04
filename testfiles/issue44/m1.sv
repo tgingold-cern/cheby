@@ -72,22 +72,22 @@ module m1
     if (!rst_n_i)
       wb_rip <= 1'b0;
     else
-      wb_rip <= (wb_rip | (wb_en & !wb_we_i)) & !rd_ack_int;
+      wb_rip <= (wb_rip | (wb_en & ~wb_we_i)) & ~rd_ack_int;
   end
-  assign rd_req_int = (wb_en & !wb_we_i) & !wb_rip;
+  assign rd_req_int = (wb_en & ~wb_we_i) & ~wb_rip;
 
   always @(posedge(clk_i) or negedge(rst_n_i))
   begin
     if (!rst_n_i)
       wb_wip <= 1'b0;
     else
-      wb_wip <= (wb_wip | (wb_en & wb_we_i)) & !wr_ack_int;
+      wb_wip <= (wb_wip | (wb_en & wb_we_i)) & ~wr_ack_int;
   end
-  assign wr_req_int = (wb_en & wb_we_i) & !wb_wip;
+  assign wr_req_int = (wb_en & wb_we_i) & ~wb_wip;
 
   assign ack_int = rd_ack_int | wr_ack_int;
   assign wb_ack_o = ack_int;
-  assign wb_stall_o = !ack_int & wb_en;
+  assign wb_stall_o = ~ack_int & wb_en;
   assign wb_rty_o = 1'b0;
   assign wb_err_o = 1'b0;
 
@@ -116,7 +116,7 @@ module m1
     if (!rst_n_i)
       m0_wt <= 1'b0;
     else
-      m0_wt <= (m0_wt | m0_ws) & !m0_VMEWrDone_i;
+      m0_wt <= (m0_wt | m0_ws) & ~m0_VMEWrDone_i;
   end
   assign m0_VMEWrMem_o = m0_ws;
   always @(wb_adr_i, wr_adr_d0, m0_wt, m0_ws)
@@ -132,7 +132,7 @@ module m1
     if (!rst_n_i)
       m1_wt <= 1'b0;
     else
-      m1_wt <= (m1_wt | m1_ws) & !m1_VMEWrDone_i;
+      m1_wt <= (m1_wt | m1_ws) & ~m1_VMEWrDone_i;
   end
   assign m1_VMEWrMem_o = m1_ws;
   always @(wb_adr_i, wr_adr_d0, m1_wt, m1_ws)
@@ -148,7 +148,7 @@ module m1
     if (!rst_n_i)
       m2_wt <= 1'b0;
     else
-      m2_wt <= (m2_wt | m2_ws) & !m2_VMEWrDone_i;
+      m2_wt <= (m2_wt | m2_ws) & ~m2_VMEWrDone_i;
   end
   assign m2_VMEWrMem_o = m2_ws;
   always @(wb_adr_i, wr_adr_d0, m2_wt, m2_ws)

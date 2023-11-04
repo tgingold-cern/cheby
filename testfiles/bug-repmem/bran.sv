@@ -215,22 +215,22 @@ module bran_wb
     if (!wb.rst_n)
       wb_rip <= 1'b0;
     else
-      wb_rip <= (wb_rip | (wb_en & !wb.we)) & !rd_ack_int;
+      wb_rip <= (wb_rip | (wb_en & ~wb.we)) & ~rd_ack_int;
   end
-  assign rd_req_int = (wb_en & !wb.we) & !wb_rip;
+  assign rd_req_int = (wb_en & ~wb.we) & ~wb_rip;
 
   always @(posedge(wb.clk) or negedge(wb.rst_n))
   begin
     if (!wb.rst_n)
       wb_wip <= 1'b0;
     else
-      wb_wip <= (wb_wip | (wb_en & wb.we)) & !wr_ack_int;
+      wb_wip <= (wb_wip | (wb_en & wb.we)) & ~wr_ack_int;
   end
-  assign wr_req_int = (wb_en & wb.we) & !wb_wip;
+  assign wr_req_int = (wb_en & wb.we) & ~wb_wip;
 
   assign ack_int = rd_ack_int | wr_ack_int;
   assign wb.ack = ack_int;
-  assign wb.stall = !ack_int & wb_en;
+  assign wb.stall = ~ack_int & wb_en;
   assign wb.rty = 1'b0;
   assign wb.err = 1'b0;
 
@@ -503,7 +503,7 @@ module bran_wb
     if (!wb.rst_n)
       RawData0_rack <= 1'b0;
     else
-      RawData0_rack <= RawData0_re & !RawData0_rack;
+      RawData0_rack <= RawData0_re & ~RawData0_rack;
   end
   assign RawData0_addr_o = adr_int[17:2];
 
@@ -513,7 +513,7 @@ module bran_wb
     if (!wb.rst_n)
       RawData1_rack <= 1'b0;
     else
-      RawData1_rack <= RawData1_re & !RawData1_rack;
+      RawData1_rack <= RawData1_re & ~RawData1_rack;
   end
   assign RawData1_addr_o = adr_int[17:2];
 
@@ -523,7 +523,7 @@ module bran_wb
     if (!wb.rst_n)
       RawData2_rack <= 1'b0;
     else
-      RawData2_rack <= RawData2_re & !RawData2_rack;
+      RawData2_rack <= RawData2_re & ~RawData2_rack;
   end
   assign RawData2_addr_o = adr_int[17:2];
 
@@ -533,7 +533,7 @@ module bran_wb
     if (!wb.rst_n)
       RawData3_rack <= 1'b0;
     else
-      RawData3_rack <= RawData3_re & !RawData3_rack;
+      RawData3_rack <= RawData3_re & ~RawData3_rack;
   end
   assign RawData3_addr_o = adr_int[17:2];
 

@@ -143,7 +143,7 @@ begin
   sub_o.stb <= sub_tr;
   sub_wack <= sub_i.ack and sub_wt;
   sub_rack <= sub_i.ack and sub_rt;
-  sub_o.adr <= ((29 downto 0 => '0') & wb_adr_i(1 downto 2)) & (1 downto 0 => '0');
+  sub_o.adr <= (29 downto 0 => '0') & (1 downto 0 => '0');
   process (wr_sel_d0) begin
     sub_o.sel <= (others => '0');
     if not (wr_sel_d0(7 downto 0) = (7 downto 0 => '0')) then

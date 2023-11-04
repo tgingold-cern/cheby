@@ -47,7 +47,7 @@ module mainMap2
   reg subMap1_wt;
   reg subMap2_ws;
   reg subMap2_wt;
-  assign rst_n = !Rst;
+  assign rst_n = ~Rst;
   assign VMERdDone = rd_ack_int;
   assign VMEWrDone = wr_ack_int;
 
@@ -76,7 +76,7 @@ module mainMap2
     if (!rst_n)
       subMap1_wt <= 1'b0;
     else
-      subMap1_wt <= (subMap1_wt | subMap1_ws) & !subMap1_VMEWrDone_i;
+      subMap1_wt <= (subMap1_wt | subMap1_ws) & ~subMap1_VMEWrDone_i;
   end
   assign subMap1_VMEWrMem_o = subMap1_ws;
   always @(VMEAddr, wr_adr_d0, subMap1_wt, subMap1_ws)
@@ -92,7 +92,7 @@ module mainMap2
     if (!rst_n)
       subMap2_wt <= 1'b0;
     else
-      subMap2_wt <= (subMap2_wt | subMap2_ws) & !subMap2_VMEWrDone_i;
+      subMap2_wt <= (subMap2_wt | subMap2_ws) & ~subMap2_VMEWrDone_i;
   end
   assign subMap2_VMEWrMem_o = subMap2_ws;
   always @(VMEAddr, wr_adr_d0, subMap2_wt, subMap2_ws)

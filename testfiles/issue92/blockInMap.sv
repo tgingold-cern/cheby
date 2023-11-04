@@ -17,7 +17,7 @@ module blockInMap
   reg rd_ack_d0;
   reg [31:0] rd_dat_d0;
   reg wr_req_d0;
-  assign rst_n = !Rst;
+  assign rst_n = ~Rst;
   assign VMERdDone = rd_ack_int;
   assign VMEWrDone = wr_ack_int;
 

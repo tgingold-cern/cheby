@@ -54,8 +54,8 @@ module s2
   reg [31:0] wr_dat_d0;
 
   // AW, W and B channels
-  assign awready = !axi_awset;
-  assign wready = !axi_wset;
+  assign awready = ~axi_awset;
+  assign wready = ~axi_wset;
   assign bvalid = axi_wdone;
   always @(posedge(aclk) or negedge(areset_n))
   begin
@@ -93,7 +93,7 @@ module s2
   assign bresp = 2'b00;
 
   // AR and R channels
-  assign arready = !axi_arset;
+  assign arready = ~axi_arset;
   assign rvalid = axi_rdone;
   always @(posedge(aclk) or negedge(areset_n))
   begin
@@ -102,7 +102,7 @@ module s2
         rd_req <= 1'b0;
         axi_arset <= 1'b0;
         axi_rdone <= 1'b0;
-        rdata <= 0'b0;
+        rdata <= 32'b0;
       end
     else
       begin
@@ -156,14 +156,14 @@ module s2
       end
     else
       begin
-        sub_wr <= (sub_wr | sub_we) & !sub_VMEWrDone_i;
-        sub_wt <= (sub_wt | sub_ws) & !sub_VMEWrDone_i;
-        sub_rr <= (sub_rr | sub_re) & !sub_VMERdDone_i;
-        sub_rt <= (sub_rt | sub_rs) & !sub_VMERdDone_i;
+        sub_wr <= (sub_wr | sub_we) & ~sub_VMEWrDone_i;
+        sub_wt <= (sub_wt | sub_ws) & ~sub_VMEWrDone_i;
+        sub_rr <= (sub_rr | sub_re) & ~sub_VMERdDone_i;
+        sub_rt <= (sub_rt | sub_rs) & ~sub_VMERdDone_i;
       end
   end
-  assign sub_rs = sub_rr & !(sub_wr | (sub_rt | sub_wt));
-  assign sub_ws = sub_wr & !(sub_rt | sub_wt);
+  assign sub_rs = sub_rr & ~(sub_wr | (sub_rt | sub_wt));
+  assign sub_ws = sub_wr & ~(sub_rt | sub_wt);
 
   // Process for write requests.
   always @(wr_req_d0, sub_ws, sub_VMEWrDone_i)
