@@ -1,4 +1,4 @@
-from cheby.hdltree import HDLAssign, HDLSync, HDLComment, bit_0
+from cheby.hdltree import HDLAssign, HDLSync, HDLComment, HDLBinConst, bit_0
 from cheby.hdl.globals import gconfig
 
 
@@ -77,26 +77,39 @@ class Ibus:
                 # If wr_adr == rd_adr in both self and future res, do not create a signal,
                 # simply copy it.
                 continue
+
             sig = getattr(self, n)
             if sig is None or sz == 0:
                 # Address signals may not exist.
                 w = None
+
             elif c:
                 w = module.new_HDLSignal(n + suffix, sz, lo)
+
+                # Reset value of pipeline
                 if w.size is None:
-                    if d == 'i':
-                        asgn = HDLAssign(w, bit_0)
-                    else:
-                        asgn = HDLAssign(sig, bit_0)
-                    proc.rst_stmts.append(asgn)
+                    cnst = bit_0
+                else:
+                    cnst = HDLBinConst(0, w.size)
+
+                if d == 'i':
+                    asgn = HDLAssign(w, cnst)
+                else:
+                    asgn = HDLAssign(sig, cnst)
+                proc.rst_stmts.append(asgn)
+
+                # Synchronous assignment of pipeline
                 if d == 'i':
                     asgn = HDLAssign(w, sig)
                 else:
                     asgn = HDLAssign(sig, w)
                 proc.sync_stmts.append(asgn)
+
             else:
                 w = sig
+
             setattr(res, n, w)
+
         if copy_wa:
             res.wr_adr = res.rd_adr
         module.stmts.append(proc)

@@ -70,6 +70,7 @@ begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         rd_ack_int <= '0';
+        wb_o.dat <= "00000000000000000000000000000000";
         wr_req_d0 <= '0';
       else
         rd_ack_int <= rd_ack_d0;

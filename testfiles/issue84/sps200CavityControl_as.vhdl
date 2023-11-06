@@ -178,7 +178,11 @@ begin
     if rising_edge(aclk) then
       if areset_n = '0' then
         rd_ack <= '0';
+        rd_data <= "00000000000000000000000000000000";
         wr_req_d0 <= '0';
+        wr_adr_d0 <= "0000000000000000000";
+        wr_dat_d0 <= "00000000000000000000000000000000";
+        wr_sel_d0 <= "00000000000000000000000000000000";
       else
         rd_ack <= rd_ack_d0;
         rd_data <= rd_dat_d0;

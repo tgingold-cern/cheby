@@ -270,6 +270,9 @@ begin
     if rising_edge(aclk) then
       if areset_n = '0' then
         wr_req_d0 <= '0';
+        wr_adr_d0 <= "0000000000000";
+        wr_dat_d0 <= "00000000000000000000000000000000";
+        wr_sel_d0 <= "00000000000000000000000000000000";
       else
         wr_req_d0 <= wr_req;
         wr_adr_d0 <= wr_addr;

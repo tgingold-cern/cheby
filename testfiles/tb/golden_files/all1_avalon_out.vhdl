@@ -204,6 +204,7 @@ begin
     if rising_edge(clk) then
       if rst_n = '0' then
         rd_ack <= '0';
+        readdata <= "00000000000000000000000000000000";
         wr_ack <= '0';
       else
         rd_ack <= rd_ack_d0;

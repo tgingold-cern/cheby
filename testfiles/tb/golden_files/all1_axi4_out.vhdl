@@ -269,6 +269,7 @@ begin
     if rising_edge(aclk) then
       if areset_n = '0' then
         rd_ack <= '0';
+        rd_data <= "00000000000000000000000000000000";
         wr_ack <= '0';
       else
         rd_ack <= rd_ack_d0;

@@ -198,6 +198,7 @@ begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         rd_ack_int <= '0';
+        wb_o.dat <= "00000000000000000000000000000000";
       else
         rd_ack_int <= rd_ack_d0;
         wb_o.dat <= rd_dat_d0;

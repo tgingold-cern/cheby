@@ -52,7 +52,7 @@ build_any()
         $CHEBY --no-header -i "${file_names[$i]}.cheby" --gen-hdl="${file_names[$i]}.vhdl"
     done
 
-    if [[ "${REGEN}" == "true" || "${REGEN}" == true ]]; then
+    if [[ "${REGEN}" == "true" || "${REGEN}" == true || "${REGEN}" == "1" || "${REGEN}" == 1 ]]; then
         echo "### Update output"
         for (( i = 0; i < ${#file_names[@]}; i++ )); do
             cp "${file_names[$i]}.vhdl" "golden_files/${file_names_ext[$i]}.vhdl"
