@@ -1,0 +1,19 @@
+#!/bin/bash
+# This is a simple wrapper script to transparently run verilator with apptainer.
+# It can be invoked just like the 'verilator' executable.
+# On the first run it will pull (download) the container from docker and store it
+# in this folder. On consecutive runs, the stored container is used.
+
+IMAGE='verilator/verilator:v5.018'
+IMAGE_FILE=$(dirname $0)/verilator.sif
+
+if [ ! -f $IMAGE_FILE ]; then
+    # Pull image on  first run
+    apptainer pull $IMAGE_FILE docker://$IMAGE
+fi
+
+# Supress locale warnings
+export LC_ALL="C"
+
+# Run verilator using apptainer
+apptainer run $IMAGE_FILE $@
