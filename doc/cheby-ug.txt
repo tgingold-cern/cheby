@@ -301,6 +301,11 @@ disabled. Only the following bus interfaces are supported:
 
 ** `wb-*`: Using the `SEL` signal a Byte-wise mask is applied.
 
+`lock-port`:: Adds a single-bit input port to the interface used as a lock
+indication. If asserted, all registers and fields with a `lock` attribute
+cannot be written to and their value remains constant or changes to a
+predefined value.
+
 === Registers
 
 A register uses one (usual case) or two (for 64-bit registers) words address.
@@ -378,6 +383,13 @@ from the root `x-cern-info` mapping.  When the `constant` attribute of
 a register is set to `map-version`, the value of the register is set
 to the value of the map-version.  Likewise for `ident-code`.
 
+Setting the `lock` attribute to true, a writable register or field can be
+temporarily locked. While being locked, the register or field maintains its
+current value and ignores any write requests. Furthermore, while being locked,
+the output can also be altered to a predetermined value set via `lock-value`
+attribute. The locking behavior is controlled via an external signal (defined
+through the `lock-port` attribute on the memory map).
+
 The `type` attribute within `x-hdl` is available and behaves as
 defined below in the section for fields.
 
@@ -402,8 +414,9 @@ The range is a single number if the field is 1 bit, or in the form of `lo-hi`
 where `lo` is the lowest bit and `hi` is the highest bit.  Bits are numbered
 using the little endian convention.
 
-It is possible to define the initial value of a field using the
-`preset` attribute.
+It is possible to define the initial (reset) value of a field using the
+`preset` attribute. It is possible to define the value of a field used during
+an active test using the `test-value` attribute.
 
 It is possible to use a different type than the register type (which acts as
 the default type).  The `float` type is not available for fields.  It is however

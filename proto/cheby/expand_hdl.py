@@ -62,6 +62,7 @@ def expand_x_hdl_reg(n, dct):
 def init_x_hdl_field(f):
     "Set default values for x-hdl attributes of a field"
     f.hdl_port_name = None
+
     if f.parent.hdl_type is not None:
         f.hdl_type = f.parent.hdl_type
     elif f.parent.constant is not None:
@@ -70,6 +71,9 @@ def init_x_hdl_field(f):
         f.hdl_type = 'wire'
     else:
         f.hdl_type = 'reg'
+
+    f.hdl_lock = None
+    f.hdl_lock_value = None
 
 
 def expand_x_hdl_field_type(n, v):
@@ -95,6 +99,10 @@ def expand_x_hdl_field_kv(f, n, k, v):
         f.hdl_type = expand_x_hdl_field_type(n, v)
     elif k == 'port-name':
         f.hdl_port_name = v
+    elif k == 'lock':
+        f.hdl_lock = parser.read_bool(n, k, v)
+    elif k == 'lock-value':
+        f.hdl_lock_value = parser.read_int(n, k, v)
     else:
         parser.error("unhandled '{}' in x-hdl of field {}".format(
             k, n.get_path()))
@@ -116,14 +124,37 @@ def expand_x_hdl_field_validate(f):
             # Check c_preset as preset may be set on the reg (when there is no field)
             parser.error("{}: 'const' x-hdl.type requires a 'preset' value".format(
                 f.get_path()))
+
     if f.hdl_type == 'autoclear':
         if f.parent.access == 'ro':
             parser.error("{}: 'autoclear' x-hdl.type not allowed for 'ro' access".format(
                 f.get_path()))
+
     if f.hdl_type == 'or-clr':
         if f.parent.access != 'rw':
             parser.error("{}: 'or-clr' x-hdl.type requires 'rw' access".format(
                 f.get_path()))
+
+    if (f.hdl_type and f.hdl_type != "reg") and f.hdl_lock:
+        parser.error(
+            "{}: '{}' x-hdl.type cannot be lockable".format(f.get_path(), f.hdl_type)
+        )
+    if (f.hdl_type and f.hdl_type not in ["reg", "wire"]) and f.hdl_lock_value:
+        parser.error(
+            "{}: '{}' x-hdl.type cannot have lock value".format(
+                f.get_path(), f.hdl_type
+            )
+        )
+    if f.hdl_lock and f.hdl_lock_value:
+        parser.error(
+            "{}: cannot have 'lock' and 'lock-value' simultaneously".format(
+                f.get_path()
+            )
+        )
+    if f.hdl_lock_value is not None and f.hdl_lock_value >= (1 << f.c_rwidth):
+        parser.error("{}: incorrect lock value '{}'".format(
+            f.get_path(), f.hdl_lock_value)
+        )
 
 
 def expand_x_hdl_field(f, n, dct):
@@ -195,6 +226,7 @@ def expand_x_hdl_root(n, dct):
     n.hdl_bus_attribute = None
     n.hdl_iogroup = None
     n.hdl_wmask = False
+    n.hdl_lock_port = None
 
     for k, v in dct.items():
         if k in ['busgroup',
@@ -218,6 +250,8 @@ def expand_x_hdl_root(n, dct):
                     n.get_path()))
         elif k == 'pipeline':
             n.hdl_pipeline = expand_pipeline(n, v)
+        elif k == 'lock-port':
+            n.hdl_lock_port = parser.read_text(n, k, v)
         else:
             parser.error("unhandled '{}' in x-hdl of root {}".format(
                 k, n.get_path()))

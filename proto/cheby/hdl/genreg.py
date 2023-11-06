@@ -2,12 +2,25 @@ import cheby.tree as tree
 import cheby.layout as layout
 from cheby.hdl.elgen import ElGen
 from cheby.hdl.globals import gconfig
-from cheby.hdltree import (HDLAssign, HDLSync, HDLComment,
-                           HDLIfElse,
-                           bit_1, bit_0,
-                           HDLEq, HDLAnd, HDLOr, HDLNot, HDLParen,
-                           HDLIndex, HDLReplicate, Slice_or_Index,
-                           HDLConst)
+from cheby.hdltree import (
+    HDLAssign,
+    HDLSync,
+    HDLComb,
+    HDLComment,
+    HDLIfElse,
+    bit_1,
+    bit_0,
+    HDLEq,
+    HDLAnd,
+    HDLOr,
+    HDLNot,
+    HDLParen,
+    HDLIndex,
+    HDLReplicate,
+    Slice_or_Index,
+    HDLConst,
+)
+
 
 class GenFieldBase(object):
     def __init__(self, root, reg, field):
@@ -112,6 +125,7 @@ class GenFieldBase(object):
         """Called if need_reg() was true to connect the register."""
         return
 
+
 class GenFieldReg(GenFieldBase):
     def need_oport(self):
         return True
@@ -123,23 +137,56 @@ class GenFieldReg(GenFieldBase):
         return self.extract_reg(off, self.field.h_reg)
 
     def connect_output(self, stmts, ibus):
-        stmts.append(HDLAssign(self.field.h_oport, self.field.h_reg))
+        f = self.field
+
+        # Overwrite output with lock-value if present
+        if f.hdl_lock_value and (
+            hasattr(self.root, "h_lock_port") and self.root.h_lock_port
+        ):
+            proc = HDLComb()
+            proc.sensitivity.extend([self.root.h_lock_port, f.h_reg])
+            proc.stmts.append(HDLComment("Overwrite output with lock value"))
+            proc_if = HDLIfElse(HDLEq(self.root.h_lock_port, bit_1))
+            proc_if.then_stmts.append(
+                HDLAssign(
+                    f.h_oport,
+                    HDLConst(f.hdl_lock_value, f.c_rwidth if f.c_rwidth != 1 else None),
+                )
+            )
+            proc_if.else_stmts.append(HDLAssign(f.h_oport, f.h_reg))
+            proc.stmts.append(proc_if)
+            stmts.append(proc)
+        else:
+            stmts.append(HDLAssign(f.h_oport, f.h_reg))
+
 
     def assign_reg(self, then_stmts, else_stmts, off, ibus):
         reg, dat, mask = self.extract_reg_dat(
             off, self.field.h_reg, ibus.wr_dat, ibus.wr_sel
         )
+
+        # Regular assignment
+        field_assign = HDLAssign(reg, dat)
+
+        # Apply mask to assignment
         if hasattr(self.root, "hdl_wmask") and self.root.hdl_wmask and mask is not None:
-            then_stmts.append(
-                HDLAssign(
+            field_assign = HDLAssign(
                     reg,
                     HDLOr(
                         HDLParen(HDLAnd(reg, HDLNot(mask))), HDLParen(HDLAnd(dat, mask))
                     ),
                 )
-            )
-        else:
-            then_stmts.append(HDLAssign(reg, dat))
+
+        # Apply lock signal
+        if self.field.hdl_lock and (
+            hasattr(self.root, "h_lock_port") and self.root.h_lock_port
+        ):
+            lock_if = HDLIfElse(HDLEq(self.root.h_lock_port, bit_0))
+            lock_if.then_stmts.append(field_assign)
+            lock_if.else_stmts = None
+            field_assign = lock_if
+
+        then_stmts.append(field_assign)
 
 
 class GenFieldNoPort(GenFieldBase):
@@ -183,22 +230,47 @@ class GenFieldWire(GenFieldBase):
             reg, dat, mask = self.extract_reg_dat(
                 off, self.field.h_oport, ibus.wr_dat, ibus.wr_sel
             )
+
+            # Regular assignment
+            field_assign = HDLAssign(reg, dat)
+
+            # Apply mask to assignment
             if (
                 hasattr(self.root, "hdl_wmask")
                 and self.root.hdl_wmask
                 and mask is not None
             ):
-                stmts.append(
+                field_assign = HDLAssign(
+                    reg,
+                    HDLOr(
+                        HDLParen(HDLAnd(reg, HDLNot(mask))),
+                        HDLParen(HDLAnd(dat, mask)),
+                    )
+                )
+
+            # Apply lock-value signal
+            if self.field.hdl_lock_value and (
+                hasattr(self.root, "h_lock_port") and self.root.h_lock_port
+            ):
+                proc = HDLComb()
+                proc.sensitivity.extend([self.root.h_lock_port, dat])
+                proc.stmts.append(HDLComment("Overwrite output with lock value"))
+                proc_if = HDLIfElse(HDLEq(self.root.h_lock_port, bit_1))
+                proc_if.then_stmts.append(
                     HDLAssign(
                         reg,
-                        HDLOr(
-                            HDLParen(HDLAnd(reg, HDLNot(mask))),
-                            HDLParen(HDLAnd(dat, mask)),
+                        HDLConst(
+                            self.field.hdl_lock_value,
+                            self.field.c_rwidth if self.field.c_rwidth != 1 else None,
                         ),
                     )
                 )
-            else:
-                stmts.append(HDLAssign(reg, dat))
+                proc_if.else_stmts.append(field_assign)
+                proc.stmts.append(proc_if)
+                field_assign = proc
+
+            stmts.append(field_assign)
+
 
 class GenFieldConst(GenFieldBase):
     def get_input(self, off):
