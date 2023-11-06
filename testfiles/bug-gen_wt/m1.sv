@@ -44,7 +44,10 @@ module m1
     if (!rst_n)
       begin
         rd_ack_int <= 1'b0;
+        VMERdData <= 32'b00000000000000000000000000000000;
         wr_req_d0 <= 1'b0;
+        wr_adr_d0 <= 1'b0;
+        wr_dat_d0 <= 32'b00000000000000000000000000000000;
       end
     else
       begin

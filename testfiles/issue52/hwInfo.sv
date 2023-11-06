@@ -49,7 +49,10 @@ module hwInfo
     if (!rst_n)
       begin
         rd_ack_int <= 1'b0;
+        VMERdData <= 16'b0000000000000000;
         wr_req_d0 <= 1'b0;
+        wr_adr_d0 <= 4'b0000;
+        wr_dat_d0 <= 16'b0000000000000000;
       end
     else
       begin
