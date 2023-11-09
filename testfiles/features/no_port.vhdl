@@ -14,10 +14,7 @@ entity no_port is
     pwdata               : in    std_logic_vector(31 downto 0);
     pstrb                : in    std_logic_vector(3 downto 0);
     prdata               : out   std_logic_vector(31 downto 0);
-    pslverr              : out   std_logic;
-
-    -- REG reg1
-    reg1_o               : out   std_logic_vector(31 downto 0)
+    pslverr              : out   std_logic
   );
 end no_port;
 
@@ -90,7 +87,6 @@ begin
   end process;
 
   -- Register reg1
-  reg1_o <= reg1_reg;
   process (pclk) begin
     if rising_edge(pclk) then
       if presetn = '0' then

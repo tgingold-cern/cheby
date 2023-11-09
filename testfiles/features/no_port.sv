@@ -11,10 +11,7 @@ module no_port
     input   wire [31:0] pwdata,
     input   wire [3:0] pstrb,
     output  wire [31:0] prdata,
-    output  wire pslverr,
-
-    // REG reg1
-    output  wire [31:0] reg1_o
+    output  wire pslverr
   );
   wire wr_req;
   wire [2:2] wr_addr;
@@ -88,7 +85,6 @@ module no_port
   end
 
   // Register reg1
-  assign reg1_o = reg1_reg;
   always @(posedge(pclk) or negedge(presetn))
   begin
     if (!presetn)
