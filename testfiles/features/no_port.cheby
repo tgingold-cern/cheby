@@ -13,3 +13,5 @@ memory-map:
         name: reg1
         access: rw
         width: 32
+        x-hdl:
+          type: no-port
