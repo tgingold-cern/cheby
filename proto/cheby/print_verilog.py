@@ -2,6 +2,8 @@
 
 import cheby.hdltree as hdltree
 from cheby.wrutils import w, wln, windent
+from cheby.hdl.globals import gconfig
+
 
 style = None
 
@@ -355,47 +357,81 @@ def generate_comment(fd, n, indent):
         wln(fd, "// {}".format(n.comment))
 
 
+def generate_comb(fd, s, indent=0):
+    windent(fd, indent)
+    if s.name is not None:
+        w(fd, "{}: ".format(s.name))
+
+    if gconfig.hdl_lang and gconfig.hdl_lang == "sv":
+        # SystemVerilog
+        wln(fd, "always_comb")
+    else:
+        # Verilog
+        w(fd, "always @(")
+        first = True
+        for e in s.sensitivity:
+            if first:
+                first = False
+            else:
+                w(fd, ", ")
+            w(fd, generate_expr(e))
+        wln(fd, ")")
+
+    generate_seq_block(fd, s.stmts, indent)
+
+
+def generate_sync(fd, s, indent=0):
+    windent(fd, indent)
+    if s.name is not None:
+        w(fd, "{}: ".format(s.name))
+
+    if gconfig.hdl_lang and gconfig.hdl_lang == "sv":
+        # SystemVerilog
+        always = "always_ff"
+    else:
+        # Verilog
+        always = "always"
+
+    w(fd, "{} @(posedge({})".format(always, generate_expr(s.clk)))
+    if s.rst is not None:
+        assert s.rst_val == 0
+        w(fd, " or negedge({})".format(generate_expr(s.rst)))
+    wln(fd, ")")
+
+    windent(fd, indent)
+    wln(fd, "begin")
+
+    if s.rst is not None:
+        windent(fd, indent + 1)
+        wln(fd, "if (!{})".format(generate_expr(s.rst)))
+        generate_seq_block(fd, s.rst_stmts, indent + 2)
+        windent(fd, indent + 1)
+        wln(fd, "else")
+        generate_seq_block(fd, s.sync_stmts, indent + 2)
+    else:
+        generate_seq_block(fd, s.sync_stmts, indent + 1)
+
+    windent(fd, indent)
+    wln(fd, "end")
+
+
 def generate_stmts(fd, stmts, indent):
     sindent = "  " * indent
     gen_num = 0
     for s in stmts:
         if isinstance(s, hdltree.HDLComment):
             generate_comment(fd, s, indent)
+
         elif isinstance(s, hdltree.HDLAssign):
             w(fd, sindent)
             generate_assign(fd, s)
+
         elif isinstance(s, hdltree.HDLComb):
-            w(fd, sindent)
-            if s.name is not None:
-                w(fd, '{}: '.format(s.name))
-            w(fd, "always @(")
-            first = True
-            for e in s.sensitivity:
-                if first:
-                    first = False
-                else:
-                    w(fd, ", ")
-                w(fd, generate_expr(e))
-            wln(fd, ")")
-            generate_seq_block(fd, s.stmts, indent + 2)
+            generate_comb(fd, s, indent)
+
         elif isinstance(s, hdltree.HDLSync):
-            w(fd, sindent)
-            if s.name is not None:
-                w(fd, '{}: '.format(s.name))
-            w(fd, "always @(posedge({})".format(generate_expr(s.clk)))
-            if s.rst is not None:
-                assert s.rst_val == 0
-                w(fd, " or negedge({})".format(generate_expr(s.rst)))
-            wln(fd, ")")
-            wln(fd, sindent + "begin")
-            if s.rst is not None:
-                wln(fd, sindent + "  if (!{})".format(generate_expr(s.rst)))
-                generate_seq_block(fd, s.rst_stmts, indent + 2)
-                wln(fd, sindent + "  else")
-                generate_seq_block(fd, s.sync_stmts, indent + 2)
-            else:
-                generate_seq_block(fd, s.sync_stmts, indent + 2)
-            wln(fd, sindent + "end")
+            generate_sync(fd, s, indent)
+
         elif isinstance(s, hdltree.HDLInstance):
             w(fd, sindent + "{}".format(s.module_name))
 
@@ -419,12 +455,14 @@ def generate_stmts(fd, stmts, indent):
                 generate_map(s.conns, indent + 1)
                 wln(fd, sindent + "  );")
             wln(fd, sindent)
+
         elif isinstance(s, hdltree.HDLGenIf):
             wln(fd, sindent + "genblock_{}: if ({}) generate".format(
                 gen_num, generate_expr(s.cond)))
             generate_stmts(fd, s.stmts, indent + 1)
             wln(fd, sindent + "end generate genblock_{};".format(gen_num))
             gen_num += 1
+
         else:
             assert False, "unhandled hdl stmt {}".format(s)
 
