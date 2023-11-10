@@ -43,10 +43,10 @@ module inherit
 
   // WB decode signals
   always @(wb_sel_i)
-      ;
+  ;
   assign wb_en = wb_cyc_i & wb_stb_i;
 
-  always @(posedge(clk_i) or negedge(rst_n_i))
+  always @(posedge(clk_i))
   begin
     if (!rst_n_i)
       wb_rip <= 1'b0;
@@ -55,7 +55,7 @@ module inherit
   end
   assign rd_req_int = (wb_en & ~wb_we_i) & ~wb_rip;
 
-  always @(posedge(clk_i) or negedge(rst_n_i))
+  always @(posedge(clk_i))
   begin
     if (!rst_n_i)
       wb_wip <= 1'b0;
@@ -71,7 +71,7 @@ module inherit
   assign wb_err_o = 1'b0;
 
   // pipelining for wr-in+rd-out
-  always @(posedge(clk_i) or negedge(rst_n_i))
+  always @(posedge(clk_i))
   begin
     if (!rst_n_i)
       begin
@@ -93,7 +93,7 @@ module inherit
   assign reg0_field00_o = wr_dat_d0[1];
   assign reg0_field01_o = reg0_field01_reg;
   assign reg0_field02_o = wr_dat_d0[10:8];
-  always @(posedge(clk_i) or negedge(rst_n_i))
+  always @(posedge(clk_i))
   begin
     if (!rst_n_i)
       begin
@@ -111,25 +111,25 @@ module inherit
 
   // Process for write requests.
   always @(wr_req_d0, reg0_wack)
-      begin
-        reg0_wreq <= 1'b0;
-        // Reg reg0
-        reg0_wreq <= wr_req_d0;
-        wr_ack_int <= reg0_wack;
-      end
+  begin
+    reg0_wreq <= 1'b0;
+    // Reg reg0
+    reg0_wreq <= wr_req_d0;
+    wr_ack_int <= reg0_wack;
+  end
 
   // Process for read requests.
   always @(rd_req_int, reg0_field00_i, reg0_field01_reg, reg0_field02_i)
-      begin
-        // By default ack read requests
-        rd_dat_d0 <= {32{1'bx}};
-        // Reg reg0
-        rd_ack_d0 <= rd_req_int;
-        rd_dat_d0[0] <= 1'b0;
-        rd_dat_d0[1] <= reg0_field00_i;
-        rd_dat_d0[3:2] <= 2'b0;
-        rd_dat_d0[7:4] <= reg0_field01_reg;
-        rd_dat_d0[10:8] <= reg0_field02_i;
-        rd_dat_d0[31:11] <= 21'b0;
-      end
+  begin
+    // By default ack read requests
+    rd_dat_d0 <= {32{1'bx}};
+    // Reg reg0
+    rd_ack_d0 <= rd_req_int;
+    rd_dat_d0[0] <= 1'b0;
+    rd_dat_d0[1] <= reg0_field00_i;
+    rd_dat_d0[3:2] <= 2'b0;
+    rd_dat_d0[7:4] <= reg0_field01_reg;
+    rd_dat_d0[10:8] <= reg0_field02_i;
+    rd_dat_d0[31:11] <= 21'b0;
+  end
 endmodule

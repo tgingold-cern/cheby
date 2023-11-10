@@ -29,7 +29,7 @@ module exemple
   assign VMEWrDone = wr_ack_int;
 
   // pipelining for wr-in+rd-out
-  always @(posedge(Clk) or negedge(rst_n))
+  always @(posedge(Clk))
   begin
     if (!rst_n)
       begin
@@ -53,64 +53,64 @@ module exemple
 
   // Process for write requests.
   always @(wr_adr_d0, wr_req_d0)
-      case (wr_adr_d0[19:1])
-      19'b0000000000000000000:
-        // Reg smallReg
-        wr_ack_int <= wr_req_d0;
-      19'b0000000000000000001:
-        // Reg largeReg
-        wr_ack_int <= wr_req_d0;
-      19'b0000000000000000010:
-        // Reg largeReg
-        wr_ack_int <= wr_req_d0;
-      19'b0000000000000000011:
-        // Reg largeReg
-        wr_ack_int <= wr_req_d0;
-      19'b0000000000000000100:
-        // Reg largeReg
-        wr_ack_int <= wr_req_d0;
-      default:
-        wr_ack_int <= wr_req_d0;
-      endcase
+  case (wr_adr_d0[19:1])
+  19'b0000000000000000000:
+    // Reg smallReg
+    wr_ack_int <= wr_req_d0;
+  19'b0000000000000000001:
+    // Reg largeReg
+    wr_ack_int <= wr_req_d0;
+  19'b0000000000000000010:
+    // Reg largeReg
+    wr_ack_int <= wr_req_d0;
+  19'b0000000000000000011:
+    // Reg largeReg
+    wr_ack_int <= wr_req_d0;
+  19'b0000000000000000100:
+    // Reg largeReg
+    wr_ack_int <= wr_req_d0;
+  default:
+    wr_ack_int <= wr_req_d0;
+  endcase
 
   // Process for read requests.
   always @(VMEAddr, VMERdMem, smallReg_i, largeReg_i)
+  begin
+    // By default ack read requests
+    rd_dat_d0 <= {16{1'bx}};
+    case (VMEAddr[19:1])
+    19'b0000000000000000000:
       begin
-        // By default ack read requests
-        rd_dat_d0 <= {16{1'bx}};
-        case (VMEAddr[19:1])
-        19'b0000000000000000000:
-          begin
-            // Reg smallReg
-            rd_ack_d0 <= VMERdMem;
-            rd_dat_d0 <= smallReg_i;
-          end
-        19'b0000000000000000001:
-          begin
-            // Reg largeReg
-            rd_ack_d0 <= VMERdMem;
-            rd_dat_d0 <= largeReg_i[63:48];
-          end
-        19'b0000000000000000010:
-          begin
-            // Reg largeReg
-            rd_ack_d0 <= VMERdMem;
-            rd_dat_d0 <= largeReg_i[47:32];
-          end
-        19'b0000000000000000011:
-          begin
-            // Reg largeReg
-            rd_ack_d0 <= VMERdMem;
-            rd_dat_d0 <= largeReg_i[31:16];
-          end
-        19'b0000000000000000100:
-          begin
-            // Reg largeReg
-            rd_ack_d0 <= VMERdMem;
-            rd_dat_d0 <= largeReg_i[15:0];
-          end
-        default:
-          rd_ack_d0 <= VMERdMem;
-        endcase
+        // Reg smallReg
+        rd_ack_d0 <= VMERdMem;
+        rd_dat_d0 <= smallReg_i;
       end
+    19'b0000000000000000001:
+      begin
+        // Reg largeReg
+        rd_ack_d0 <= VMERdMem;
+        rd_dat_d0 <= largeReg_i[63:48];
+      end
+    19'b0000000000000000010:
+      begin
+        // Reg largeReg
+        rd_ack_d0 <= VMERdMem;
+        rd_dat_d0 <= largeReg_i[47:32];
+      end
+    19'b0000000000000000011:
+      begin
+        // Reg largeReg
+        rd_ack_d0 <= VMERdMem;
+        rd_dat_d0 <= largeReg_i[31:16];
+      end
+    19'b0000000000000000100:
+      begin
+        // Reg largeReg
+        rd_ack_d0 <= VMERdMem;
+        rd_dat_d0 <= largeReg_i[15:0];
+      end
+    default:
+      rd_ack_d0 <= VMERdMem;
+    endcase
+  end
 endmodule

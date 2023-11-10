@@ -52,7 +52,7 @@ module mainMap2
   assign VMEWrDone = wr_ack_int;
 
   // pipelining for wr-in+rd-out
-  always @(posedge(Clk) or negedge(rst_n))
+  always @(posedge(Clk))
   begin
     if (!rst_n)
       begin
@@ -74,7 +74,7 @@ module mainMap2
 
   // Interface subMap1
   assign subMap1_VMEWrData_o = wr_dat_d0;
-  always @(posedge(Clk) or negedge(rst_n))
+  always @(posedge(Clk))
   begin
     if (!rst_n)
       subMap1_wt <= 1'b0;
@@ -83,14 +83,14 @@ module mainMap2
   end
   assign subMap1_VMEWrMem_o = subMap1_ws;
   always @(VMEAddr, wr_adr_d0, subMap1_wt, subMap1_ws)
-      if ((subMap1_ws | subMap1_wt) == 1'b1)
-        subMap1_VMEAddr_o <= wr_adr_d0[12:2];
-      else
-        subMap1_VMEAddr_o <= VMEAddr[12:2];
+  if ((subMap1_ws | subMap1_wt) == 1'b1)
+    subMap1_VMEAddr_o <= wr_adr_d0[12:2];
+  else
+    subMap1_VMEAddr_o <= VMEAddr[12:2];
 
   // Interface subMap2
   assign subMap2_VMEWrData_o = wr_dat_d0;
-  always @(posedge(Clk) or negedge(rst_n))
+  always @(posedge(Clk))
   begin
     if (!rst_n)
       subMap2_wt <= 1'b0;
@@ -99,58 +99,58 @@ module mainMap2
   end
   assign subMap2_VMEWrMem_o = subMap2_ws;
   always @(VMEAddr, wr_adr_d0, subMap2_wt, subMap2_ws)
-      if ((subMap2_ws | subMap2_wt) == 1'b1)
-        subMap2_VMEAddr_o <= wr_adr_d0[12:2];
-      else
-        subMap2_VMEAddr_o <= VMEAddr[12:2];
+  if ((subMap2_ws | subMap2_wt) == 1'b1)
+    subMap2_VMEAddr_o <= wr_adr_d0[12:2];
+  else
+    subMap2_VMEAddr_o <= VMEAddr[12:2];
 
   // Process for write requests.
   always @(wr_adr_d0, wr_req_d0, subMap1_VMEWrDone_i, subMap2_VMEWrDone_i)
+  begin
+    subMap1_ws <= 1'b0;
+    subMap2_ws <= 1'b0;
+    case (wr_adr_d0[14:13])
+    2'b00:
       begin
-        subMap1_ws <= 1'b0;
-        subMap2_ws <= 1'b0;
-        case (wr_adr_d0[14:13])
-        2'b00:
-          begin
-            // Submap subMap1
-            subMap1_ws <= wr_req_d0;
-            wr_ack_int <= subMap1_VMEWrDone_i;
-          end
-        2'b01:
-          begin
-            // Submap subMap2
-            subMap2_ws <= wr_req_d0;
-            wr_ack_int <= subMap2_VMEWrDone_i;
-          end
-        default:
-          wr_ack_int <= wr_req_d0;
-        endcase
+        // Submap subMap1
+        subMap1_ws <= wr_req_d0;
+        wr_ack_int <= subMap1_VMEWrDone_i;
       end
+    2'b01:
+      begin
+        // Submap subMap2
+        subMap2_ws <= wr_req_d0;
+        wr_ack_int <= subMap2_VMEWrDone_i;
+      end
+    default:
+      wr_ack_int <= wr_req_d0;
+    endcase
+  end
 
   // Process for read requests.
   always @(VMEAddr, VMERdMem, subMap1_VMERdData_i, subMap1_VMERdDone_i, subMap2_VMERdData_i, subMap2_VMERdDone_i)
+  begin
+    // By default ack read requests
+    rd_dat_d0 <= {32{1'bx}};
+    subMap1_VMERdMem_o <= 1'b0;
+    subMap2_VMERdMem_o <= 1'b0;
+    case (VMEAddr[14:13])
+    2'b00:
       begin
-        // By default ack read requests
-        rd_dat_d0 <= {32{1'bx}};
-        subMap1_VMERdMem_o <= 1'b0;
-        subMap2_VMERdMem_o <= 1'b0;
-        case (VMEAddr[14:13])
-        2'b00:
-          begin
-            // Submap subMap1
-            subMap1_VMERdMem_o <= VMERdMem;
-            rd_dat_d0 <= subMap1_VMERdData_i;
-            rd_ack_d0 <= subMap1_VMERdDone_i;
-          end
-        2'b01:
-          begin
-            // Submap subMap2
-            subMap2_VMERdMem_o <= VMERdMem;
-            rd_dat_d0 <= subMap2_VMERdData_i;
-            rd_ack_d0 <= subMap2_VMERdDone_i;
-          end
-        default:
-          rd_ack_d0 <= VMERdMem;
-        endcase
+        // Submap subMap1
+        subMap1_VMERdMem_o <= VMERdMem;
+        rd_dat_d0 <= subMap1_VMERdData_i;
+        rd_ack_d0 <= subMap1_VMERdDone_i;
       end
+    2'b01:
+      begin
+        // Submap subMap2
+        subMap2_VMERdMem_o <= VMERdMem;
+        rd_dat_d0 <= subMap2_VMERdData_i;
+        rd_ack_d0 <= subMap2_VMERdDone_i;
+      end
+    default:
+      rd_ack_d0 <= VMERdMem;
+    endcase
+  end
 endmodule

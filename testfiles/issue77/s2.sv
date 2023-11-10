@@ -57,7 +57,7 @@ module s2
   assign awready = ~axi_awset;
   assign wready = ~axi_wset;
   assign bvalid = axi_wdone;
-  always @(posedge(aclk) or negedge(areset_n))
+  always @(posedge(aclk))
   begin
     if (!areset_n)
       begin
@@ -95,7 +95,7 @@ module s2
   // AR and R channels
   assign arready = ~axi_arset;
   assign rvalid = axi_rdone;
-  always @(posedge(aclk) or negedge(areset_n))
+  always @(posedge(aclk))
   begin
     if (!areset_n)
       begin
@@ -127,7 +127,7 @@ module s2
   assign rresp = 2'b00;
 
   // pipelining for wr-in+rd-out
-  always @(posedge(aclk) or negedge(areset_n))
+  always @(posedge(aclk))
   begin
     if (!areset_n)
       begin
@@ -147,7 +147,7 @@ module s2
 
   // Interface sub
   assign sub_VMEWrData_o = wr_dat_d0;
-  always @(posedge(aclk) or negedge(areset_n))
+  always @(posedge(aclk))
   begin
     if (!areset_n)
       begin
@@ -169,26 +169,26 @@ module s2
 
   // Process for write requests.
   always @(wr_req_d0, sub_ws, sub_VMEWrDone_i)
-      begin
-        sub_we <= 1'b0;
-        sub_VMEWrMem_o <= 1'b0;
-        // Submap sub
-        sub_we <= wr_req_d0;
-        sub_VMEWrMem_o <= sub_ws;
-        wr_ack <= sub_VMEWrDone_i;
-      end
+  begin
+    sub_we <= 1'b0;
+    sub_VMEWrMem_o <= 1'b0;
+    // Submap sub
+    sub_we <= wr_req_d0;
+    sub_VMEWrMem_o <= sub_ws;
+    wr_ack <= sub_VMEWrDone_i;
+  end
 
   // Process for read requests.
   always @(rd_req, sub_rs, sub_VMERdData_i, sub_VMERdDone_i)
-      begin
-        // By default ack read requests
-        rd_dat_d0 <= {32{1'bx}};
-        sub_VMERdMem_o <= 1'b0;
-        sub_re <= 1'b0;
-        // Submap sub
-        sub_re <= rd_req;
-        sub_VMERdMem_o <= sub_rs;
-        rd_dat_d0 <= sub_VMERdData_i;
-        rd_ack_d0 <= sub_VMERdDone_i;
-      end
+  begin
+    // By default ack read requests
+    rd_dat_d0 <= {32{1'bx}};
+    sub_VMERdMem_o <= 1'b0;
+    sub_re <= 1'b0;
+    // Submap sub
+    sub_re <= rd_req;
+    sub_VMERdMem_o <= sub_rs;
+    rd_dat_d0 <= sub_VMERdData_i;
+    rd_ack_d0 <= sub_VMERdDone_i;
+  end
 endmodule

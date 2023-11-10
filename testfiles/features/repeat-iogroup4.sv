@@ -2,8 +2,16 @@ interface t_itf;
   logic [31:0] areg;
   logic regf_f0;
   logic regf_f1;
-  modport master(input regf_f0, regf_f1, output areg);
-  modport slave(output regf_f0, regf_f1, input areg);
+  modport master(
+    input regf_f0,
+    input regf_f1,
+    output areg
+  );
+  modport slave(
+    output regf_f0,
+    output regf_f1,
+    input areg
+  );
 endinterface
 
 
@@ -45,10 +53,10 @@ module repeat_iogroup4
 
   // WB decode signals
   always @(wb_sel_i)
-      ;
+  ;
   assign wb_en = wb_cyc_i & wb_stb_i;
 
-  always @(posedge(clk_i) or negedge(rst_n_i))
+  always @(posedge(clk_i))
   begin
     if (!rst_n_i)
       wb_rip <= 1'b0;
@@ -57,7 +65,7 @@ module repeat_iogroup4
   end
   assign rd_req_int = (wb_en & ~wb_we_i) & ~wb_rip;
 
-  always @(posedge(clk_i) or negedge(rst_n_i))
+  always @(posedge(clk_i))
   begin
     if (!rst_n_i)
       wb_wip <= 1'b0;
@@ -73,7 +81,7 @@ module repeat_iogroup4
   assign wb_err_o = 1'b0;
 
   // pipelining for wr-in+rd-out
-  always @(posedge(clk_i) or negedge(rst_n_i))
+  always @(posedge(clk_i))
   begin
     if (!rst_n_i)
       begin
@@ -95,7 +103,7 @@ module repeat_iogroup4
 
   // Register areg0
   assign itf[0].areg = arr1_0_areg_reg;
-  always @(posedge(clk_i) or negedge(rst_n_i))
+  always @(posedge(clk_i))
   begin
     if (!rst_n_i)
       begin
@@ -114,45 +122,45 @@ module repeat_iogroup4
 
   // Process for write requests.
   always @(wr_adr_d0, wr_req_d0, areg0_wack)
+  begin
+    areg0_wreq <= 1'b0;
+    case (wr_adr_d0[2:2])
+    1'b0:
       begin
-        areg0_wreq <= 1'b0;
-        case (wr_adr_d0[2:2])
-        1'b0:
-          begin
-            // Reg areg0
-            areg0_wreq <= wr_req_d0;
-            wr_ack_int <= areg0_wack;
-          end
-        1'b1:
-          // Reg regf0
-          wr_ack_int <= wr_req_d0;
-        default:
-          wr_ack_int <= wr_req_d0;
-        endcase
+        // Reg areg0
+        areg0_wreq <= wr_req_d0;
+        wr_ack_int <= areg0_wack;
       end
+    1'b1:
+      // Reg regf0
+      wr_ack_int <= wr_req_d0;
+    default:
+      wr_ack_int <= wr_req_d0;
+    endcase
+  end
 
   // Process for read requests.
   always @(wb_adr_i, rd_req_int, arr1_0_areg_reg, itf[0].regf_f0, itf[0].regf_f1)
+  begin
+    // By default ack read requests
+    rd_dat_d0 <= {32{1'bx}};
+    case (wb_adr_i[2:2])
+    1'b0:
       begin
-        // By default ack read requests
-        rd_dat_d0 <= {32{1'bx}};
-        case (wb_adr_i[2:2])
-        1'b0:
-          begin
-            // Reg areg0
-            rd_ack_d0 <= rd_req_int;
-            rd_dat_d0 <= arr1_0_areg_reg;
-          end
-        1'b1:
-          begin
-            // Reg regf0
-            rd_ack_d0 <= rd_req_int;
-            rd_dat_d0[0] <= itf[0].regf_f0;
-            rd_dat_d0[1] <= itf[0].regf_f1;
-            rd_dat_d0[31:2] <= 30'b0;
-          end
-        default:
-          rd_ack_d0 <= rd_req_int;
-        endcase
+        // Reg areg0
+        rd_ack_d0 <= rd_req_int;
+        rd_dat_d0 <= arr1_0_areg_reg;
       end
+    1'b1:
+      begin
+        // Reg regf0
+        rd_ack_d0 <= rd_req_int;
+        rd_dat_d0[0] <= itf[0].regf_f0;
+        rd_dat_d0[1] <= itf[0].regf_f1;
+        rd_dat_d0[31:2] <= 30'b0;
+      end
+    default:
+      rd_ack_d0 <= rd_req_int;
+    endcase
+  end
 endmodule

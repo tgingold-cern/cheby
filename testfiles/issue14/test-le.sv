@@ -52,7 +52,7 @@ module test_axi4
   assign awready = ~axi_awset;
   assign wready = ~axi_wset;
   assign bvalid = axi_wdone;
-  always @(posedge(aclk) or negedge(areset_n))
+  always @(posedge(aclk))
   begin
     if (!areset_n)
       begin
@@ -91,7 +91,7 @@ module test_axi4
   // AR and R channels
   assign arready = ~axi_arset;
   assign rvalid = axi_rdone;
-  always @(posedge(aclk) or negedge(areset_n))
+  always @(posedge(aclk))
   begin
     if (!areset_n)
       begin
@@ -124,7 +124,7 @@ module test_axi4
   assign rresp = 2'b00;
 
   // pipelining for wr-in+rd-out
-  always @(posedge(aclk) or negedge(areset_n))
+  always @(posedge(aclk))
   begin
     if (!areset_n)
       begin
@@ -146,7 +146,7 @@ module test_axi4
 
   // Register register1
   assign register1_o = register1_reg;
-  always @(posedge(aclk) or negedge(areset_n))
+  always @(posedge(aclk))
   begin
     if (!areset_n)
       begin
@@ -165,40 +165,40 @@ module test_axi4
 
   // Process for write requests.
   always @(wr_adr_d0, wr_req_d0, register1_wack)
+  begin
+    register1_wreq <= 2'b0;
+    case (wr_adr_d0[2:2])
+    1'b0:
       begin
-        register1_wreq <= 2'b0;
-        case (wr_adr_d0[2:2])
-        1'b0:
-          begin
-            // Reg register1
-            register1_wreq[0] <= wr_req_d0;
-            wr_ack <= register1_wack[0];
-          end
-        1'b1:
-          begin
-            // Reg register1
-            register1_wreq[1] <= wr_req_d0;
-            wr_ack <= register1_wack[1];
-          end
-        default:
-          wr_ack <= wr_req_d0;
-        endcase
+        // Reg register1
+        register1_wreq[0] <= wr_req_d0;
+        wr_ack <= register1_wack[0];
       end
+    1'b1:
+      begin
+        // Reg register1
+        register1_wreq[1] <= wr_req_d0;
+        wr_ack <= register1_wack[1];
+      end
+    default:
+      wr_ack <= wr_req_d0;
+    endcase
+  end
 
   // Process for read requests.
   always @(rd_addr, rd_req)
-      begin
-        // By default ack read requests
-        rd_dat_d0 <= {32{1'bx}};
-        case (rd_addr[2:2])
-        1'b0:
-          // Reg register1
-          rd_ack_d0 <= rd_req;
-        1'b1:
-          // Reg register1
-          rd_ack_d0 <= rd_req;
-        default:
-          rd_ack_d0 <= rd_req;
-        endcase
-      end
+  begin
+    // By default ack read requests
+    rd_dat_d0 <= {32{1'bx}};
+    case (rd_addr[2:2])
+    1'b0:
+      // Reg register1
+      rd_ack_d0 <= rd_req;
+    1'b1:
+      // Reg register1
+      rd_ack_d0 <= rd_req;
+    default:
+      rd_ack_d0 <= rd_req;
+    endcase
+  end
 endmodule

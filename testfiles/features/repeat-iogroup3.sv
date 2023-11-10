@@ -1,8 +1,14 @@
 interface t_itf;
   logic [31:0] areg1i;
   logic [31:0] areg1o;
-  modport master(input areg1i, output areg1o);
-  modport slave(output areg1i, input areg1o);
+  modport master(
+    input areg1i,
+    output areg1o
+  );
+  modport slave(
+    output areg1i,
+    input areg1o
+  );
 endinterface
 
 
@@ -41,10 +47,10 @@ module repeat_iogroup3
 
   // WB decode signals
   always @(wb_sel_i)
-      ;
+  ;
   assign wb_en = wb_cyc_i & wb_stb_i;
 
-  always @(posedge(clk_i) or negedge(rst_n_i))
+  always @(posedge(clk_i))
   begin
     if (!rst_n_i)
       wb_rip <= 1'b0;
@@ -53,7 +59,7 @@ module repeat_iogroup3
   end
   assign rd_req_int = (wb_en & ~wb_we_i) & ~wb_rip;
 
-  always @(posedge(clk_i) or negedge(rst_n_i))
+  always @(posedge(clk_i))
   begin
     if (!rst_n_i)
       wb_wip <= 1'b0;
@@ -69,7 +75,7 @@ module repeat_iogroup3
   assign wb_err_o = 1'b0;
 
   // pipelining for wr-in+rd-out
-  always @(posedge(clk_i) or negedge(rst_n_i))
+  always @(posedge(clk_i))
   begin
     if (!rst_n_i)
       begin
@@ -97,37 +103,37 @@ module repeat_iogroup3
 
   // Process for write requests.
   always @(wr_adr_d0, wr_req_d0)
-      case (wr_adr_d0[2:2])
-      1'b0:
-        // Reg areg10
-        wr_ack_int <= wr_req_d0;
-      1'b1:
-        // Reg areg11
-        wr_ack_int <= wr_req_d0;
-      default:
-        wr_ack_int <= wr_req_d0;
-      endcase
+  case (wr_adr_d0[2:2])
+  1'b0:
+    // Reg areg10
+    wr_ack_int <= wr_req_d0;
+  1'b1:
+    // Reg areg11
+    wr_ack_int <= wr_req_d0;
+  default:
+    wr_ack_int <= wr_req_d0;
+  endcase
 
   // Process for read requests.
   always @(wb_adr_i, rd_req_int, itf[0].areg1i, itf[1].areg1i)
+  begin
+    // By default ack read requests
+    rd_dat_d0 <= {32{1'bx}};
+    case (wb_adr_i[2:2])
+    1'b0:
       begin
-        // By default ack read requests
-        rd_dat_d0 <= {32{1'bx}};
-        case (wb_adr_i[2:2])
-        1'b0:
-          begin
-            // Reg areg10
-            rd_ack_d0 <= rd_req_int;
-            rd_dat_d0 <= itf[0].areg1i;
-          end
-        1'b1:
-          begin
-            // Reg areg11
-            rd_ack_d0 <= rd_req_int;
-            rd_dat_d0 <= itf[1].areg1i;
-          end
-        default:
-          rd_ack_d0 <= rd_req_int;
-        endcase
+        // Reg areg10
+        rd_ack_d0 <= rd_req_int;
+        rd_dat_d0 <= itf[0].areg1i;
       end
+    1'b1:
+      begin
+        // Reg areg11
+        rd_ack_d0 <= rd_req_int;
+        rd_dat_d0 <= itf[1].areg1i;
+      end
+    default:
+      rd_ack_d0 <= rd_req_int;
+    endcase
+  end
 endmodule

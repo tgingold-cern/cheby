@@ -22,7 +22,7 @@ module blockInMap
   assign VMEWrDone = wr_ack_int;
 
   // pipelining for wr-in+rd-out
-  always @(posedge(Clk) or negedge(rst_n))
+  always @(posedge(Clk))
   begin
     if (!rst_n)
       begin
@@ -40,13 +40,13 @@ module blockInMap
 
   // Process for write requests.
   always @(wr_req_d0)
-      wr_ack_int <= wr_req_d0;
+  wr_ack_int <= wr_req_d0;
 
   // Process for read requests.
   always @(VMERdMem)
-      begin
-        // By default ack read requests
-        rd_dat_d0 <= {32{1'bx}};
-        rd_ack_d0 <= VMERdMem;
-      end
+  begin
+    // By default ack read requests
+    rd_dat_d0 <= {32{1'bx}};
+    rd_ack_d0 <= VMERdMem;
+  end
 endmodule

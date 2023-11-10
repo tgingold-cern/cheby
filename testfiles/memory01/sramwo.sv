@@ -25,11 +25,11 @@ module sramwo
 
   // WB decode signals
   always @(wb.sel)
-      ;
+  ;
   assign adr_int = wb.adr[7:2];
   assign wb_en = wb.cyc & wb.stb;
 
-  always @(posedge(wb.clk) or negedge(wb.rst_n))
+  always @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
       wb_rip <= 1'b0;
@@ -38,7 +38,7 @@ module sramwo
   end
   assign rd_req_int = (wb_en & ~wb.we) & ~wb_rip;
 
-  always @(posedge(wb.clk) or negedge(wb.rst_n))
+  always @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
       wb_wip <= 1'b0;
@@ -54,7 +54,7 @@ module sramwo
   assign wb.err = 1'b0;
 
   // pipelining for wr-in+rd-out
-  always @(posedge(wb.clk) or negedge(wb.rst_n))
+  always @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
       begin
@@ -80,19 +80,19 @@ module sramwo
 
   // Process for write requests.
   always @(wr_req_d0)
-      begin
-        mymem_wr_o <= 1'b0;
-        // Memory mymem
-        mymem_wr_o <= wr_req_d0;
-        wr_ack_int <= wr_req_d0;
-      end
+  begin
+    mymem_wr_o <= 1'b0;
+    // Memory mymem
+    mymem_wr_o <= wr_req_d0;
+    wr_ack_int <= wr_req_d0;
+  end
 
   // Process for read requests.
   always @(rd_req_int)
-      begin
-        // By default ack read requests
-        rd_dat_d0 <= {32{1'bx}};
-        // Memory mymem
-        rd_ack_d0 <= rd_req_int;
-      end
+  begin
+    // By default ack read requests
+    rd_dat_d0 <= {32{1'bx}};
+    // Memory mymem
+    rd_ack_d0 <= rd_req_int;
+  end
 endmodule

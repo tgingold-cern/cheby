@@ -61,7 +61,7 @@ module crossbar_wb
   assign adr_int = wb.adr[17:2];
   assign wb_en = wb.cyc & wb.stb;
 
-  always_ff @(posedge(wb.clk) or negedge(wb.rst_n))
+  always_ff @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
       wb_rip <= 1'b0;
@@ -70,7 +70,7 @@ module crossbar_wb
   end
   assign rd_req_int = (wb_en & ~wb.we) & ~wb_rip;
 
-  always_ff @(posedge(wb.clk) or negedge(wb.rst_n))
+  always_ff @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
       wb_wip <= 1'b0;
@@ -86,7 +86,7 @@ module crossbar_wb
   assign wb.err = 1'b0;
 
   // pipelining for wr-in+rd-out
-  always_ff @(posedge(wb.clk) or negedge(wb.rst_n))
+  always_ff @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
       begin
@@ -110,7 +110,7 @@ module crossbar_wb
 
   // Interface jesdavalon
   assign jesdavalon_tr = jesdavalon_wt | jesdavalon_rt;
-  always_ff @(posedge(wb.clk) or negedge(wb.rst_n))
+  always_ff @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
       begin
@@ -145,7 +145,7 @@ module crossbar_wb
 
   // Interface i2ctowb
   assign i2ctowb_tr = i2ctowb_wt | i2ctowb_rt;
-  always_ff @(posedge(wb.clk) or negedge(wb.rst_n))
+  always_ff @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
       begin
@@ -180,7 +180,7 @@ module crossbar_wb
 
   // Interface bran
   assign bran_tr = bran_wt | bran_rt;
-  always_ff @(posedge(wb.clk) or negedge(wb.rst_n))
+  always_ff @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
       begin

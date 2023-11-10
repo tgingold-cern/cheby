@@ -1,8 +1,14 @@
 interface t_noinp_inter;
   logic [31:0] reg0;
   logic [31:0] reg1;
-  modport master(output reg0, reg1);
-  modport slave(input reg0, reg1);
+  modport master(
+    output reg0,
+    output reg1
+  );
+  modport slave(
+    input reg0,
+    input reg1
+  );
 endinterface
 
 
@@ -46,10 +52,10 @@ module noinp
 
   // WB decode signals
   always @(wb_sel_i)
-      ;
+  ;
   assign wb_en = wb_cyc_i & wb_stb_i;
 
-  always @(posedge(clk_i) or negedge(rst_n_i))
+  always @(posedge(clk_i))
   begin
     if (!rst_n_i)
       wb_rip <= 1'b0;
@@ -58,7 +64,7 @@ module noinp
   end
   assign rd_req_int = (wb_en & ~wb_we_i) & ~wb_rip;
 
-  always @(posedge(clk_i) or negedge(rst_n_i))
+  always @(posedge(clk_i))
   begin
     if (!rst_n_i)
       wb_wip <= 1'b0;
@@ -74,7 +80,7 @@ module noinp
   assign wb_err_o = 1'b0;
 
   // pipelining for wr-in+rd-out
-  always @(posedge(clk_i) or negedge(rst_n_i))
+  always @(posedge(clk_i))
   begin
     if (!rst_n_i)
       begin
@@ -96,7 +102,7 @@ module noinp
 
   // Register reg0
   assign noinp_inter.reg0 = reg0_reg;
-  always @(posedge(clk_i) or negedge(rst_n_i))
+  always @(posedge(clk_i))
   begin
     if (!rst_n_i)
       begin
@@ -113,7 +119,7 @@ module noinp
 
   // Register reg1
   assign noinp_inter.reg1 = reg1_reg;
-  always @(posedge(clk_i) or negedge(rst_n_i))
+  always @(posedge(clk_i))
   begin
     if (!rst_n_i)
       begin
@@ -130,41 +136,41 @@ module noinp
 
   // Process for write requests.
   always @(wr_adr_d0, wr_req_d0, reg0_wack, reg1_wack)
+  begin
+    reg0_wreq <= 1'b0;
+    reg1_wreq <= 1'b0;
+    case (wr_adr_d0[2:2])
+    1'b0:
       begin
-        reg0_wreq <= 1'b0;
-        reg1_wreq <= 1'b0;
-        case (wr_adr_d0[2:2])
-        1'b0:
-          begin
-            // Reg reg0
-            reg0_wreq <= wr_req_d0;
-            wr_ack_int <= reg0_wack;
-          end
-        1'b1:
-          begin
-            // Reg reg1
-            reg1_wreq <= wr_req_d0;
-            wr_ack_int <= reg1_wack;
-          end
-        default:
-          wr_ack_int <= wr_req_d0;
-        endcase
+        // Reg reg0
+        reg0_wreq <= wr_req_d0;
+        wr_ack_int <= reg0_wack;
       end
+    1'b1:
+      begin
+        // Reg reg1
+        reg1_wreq <= wr_req_d0;
+        wr_ack_int <= reg1_wack;
+      end
+    default:
+      wr_ack_int <= wr_req_d0;
+    endcase
+  end
 
   // Process for read requests.
   always @(wb_adr_i, rd_req_int)
-      begin
-        // By default ack read requests
-        rd_dat_d0 <= {32{1'bx}};
-        case (wb_adr_i[2:2])
-        1'b0:
-          // Reg reg0
-          rd_ack_d0 <= rd_req_int;
-        1'b1:
-          // Reg reg1
-          rd_ack_d0 <= rd_req_int;
-        default:
-          rd_ack_d0 <= rd_req_int;
-        endcase
-      end
+  begin
+    // By default ack read requests
+    rd_dat_d0 <= {32{1'bx}};
+    case (wb_adr_i[2:2])
+    1'b0:
+      // Reg reg0
+      rd_ack_d0 <= rd_req_int;
+    1'b1:
+      // Reg reg1
+      rd_ack_d0 <= rd_req_int;
+    default:
+      rd_ack_d0 <= rd_req_int;
+    endcase
+  end
 endmodule
