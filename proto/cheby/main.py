@@ -58,7 +58,7 @@ def decode_args():
                          default='neutral', help='select style for --gen-c')
     aparser.add_argument('--gen-c-check-layout', nargs='?', const='-',
                          help='generate c file to check layout of the header')
-    aparser.add_argument('--hdl', choices=['vhdl', 'verilog'], default='vhdl',
+    aparser.add_argument('--hdl', choices=['vhdl', 'verilog', 'sv'], default='vhdl',
                          help='select language for hdl generation')
     aparser.add_argument('--gen-hdl', nargs='?', const='-',
                          help='generate hdl file')
@@ -125,6 +125,7 @@ def decode_args():
                          help='specify path prefix for automatic output files')
 
     args = aparser.parse_args()
+    cheby.hdl.globals.gconfig.hdl_lang = args.hdl
     cheby.hdl.globals.gconfig.rst_sync = (args.ff_reset != 'async')
     layout.word_endianness = args.word_endian
 
@@ -133,7 +134,7 @@ def decode_args():
 def print_hdl(out, lang, h):
     if lang == 'vhdl':
         print_vhdl.print_vhdl(out, h)
-    elif lang == 'verilog':
+    elif lang == 'verilog' or lang == 'sv':
         print_verilog.print_verilog(out, h)
     else:
         raise AssertionError('unknown hdl language {}'.format(lang))
@@ -282,9 +283,9 @@ def handle_file(args, filename):
         with open_filename(args.gen_wbgen_hdl) as f:
             if args.header != 'none':
                 (basename, _) = os.path.splitext(os.path.basename(filename))
-                c = {'vhdl': '--', 'verilog': '//'}[args.hdl]
+                c = {'vhdl': '--', 'verilog': '//', 'sv': '//'}[args.hdl]
                 l = c[0] * 79
-                ext = {'vhdl': 'vhdl', 'verilog': 'v'}[args.hdl]
+                ext = {'vhdl': 'vhdl', 'verilog': 'v', 'sv': 'sv'}[args.hdl]
                 header = """{l}
 {c} Title          : Wishbone slave core for {name}
 {l}
@@ -319,7 +320,7 @@ def handle_file(args, filename):
                 sys.exit(2)
         h = gen_hdl.generate_hdl(top)
         if args.gen_hdl == '+units':
-            if args.hdl == 'verilog':
+            if args.hdl == 'verilog' or args.hdl == 'sv':
                 print_verilog.print_verilog_per_units(h, args.out_prefix)
             else:
                 raise AssertionError('unhandled language {}'.format(args.hdl))
