@@ -292,7 +292,6 @@ def test_hdl():
                 print_vhdl.print_vhdl(fd, h)
         nbr_tests += 1
 
-
 def expand_hdl_err(t):
     try:
         expand_hdl.expand_hdl(t)
@@ -430,6 +429,37 @@ def test_hdl_ref():
             res = subprocess.run([verilator_cmd, '--lint-only', '--top-module', top_entity] + sv_pkgs + [sv_file])
             if res.returncode != 0:
                 error('SV elaboration failed for {}'.format(f))
+
+def test_hdl_ref_async_rst():
+    # Generate HDL with asynchronous reset and compare with a baseline
+    global nbr_tests
+
+    for f in ["features/axi4_byte", "features/axi4_word", "features/axi4_submap_wb"]:
+        if args.verbose:
+            print("test hdl with ref (async rst): {}".format(f))
+
+        cheby_file = srcdir + f + ".cheby"
+        vhdl_file = srcdir + f + "_async_rst.vhdl"
+        sv_file = srcdir + f + "_async_rst.sv"
+
+        gconfig.rst_sync = False
+
+        t = parse_ok(cheby_file)
+        layout_ok(t)
+        expand_hdl.expand_hdl(t)
+        gen_name.gen_name_memmap(t)
+        h = gen_hdl.generate_hdl(t)
+        buf = write_buffer()
+        print_vhdl.print_vhdl(buf, h)
+        if not compare_buffer_and_file(buf, vhdl_file):
+            error("vhdl generation error for {}".format(f))
+        buf_sv = write_buffer()
+        print_verilog.print_verilog(buf_sv, h)
+        if not compare_buffer_and_file(buf_sv, sv_file):
+            error("SV generation error for {}".format(f))
+        nbr_tests += 1
+
+        gconfig.rst_sync = True
 
 def test_verilog_ref():
     # Generate verilog and compare with a baseline.
@@ -905,6 +935,7 @@ def main():
         test_hdl()
         test_hdl_err()
         test_hdl_ref()
+        test_hdl_ref_async_rst()
         test_verilog_ref()
         test_sv_ref()
         test_issue84()
