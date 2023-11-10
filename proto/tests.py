@@ -27,6 +27,8 @@ import cheby.print_markdown as print_markdown
 import cheby.print_latex as print_latex
 import cheby.print_rest as print_rest
 import cheby.gen_custom as gen_custom
+from cheby.hdl.globals import gconfig
+
 
 srcdir = os.path.join(os.path.dirname(os.path.realpath(__file__)),
                       '../testfiles/')
@@ -435,8 +437,10 @@ def test_verilog_ref():
     for f in ['crossbar/crossbar']:
         if args.verbose:
             print('test verilog with ref: {}'.format(f))
+
         cheby_file = srcdir + f + '.cheby'
         vlog_file = srcdir + f + '.v'
+
         t = parse_ok(cheby_file)
         layout_ok(t)
         expand_hdl.expand_hdl(t)
@@ -447,6 +451,31 @@ def test_verilog_ref():
         if not compare_buffer_and_file(buf, vlog_file):
             error('verilog generation error for {}'.format(f))
         nbr_tests += 1
+
+def test_sv_ref():
+    # Generate SystemVerilog and compare with a baseline.
+    global nbr_tests
+    for f in ["crossbar/crossbar"]:
+        if args.verbose:
+            print("test sv with ref: {}".format(f))
+
+        cheby_file = srcdir + f + ".cheby"
+        vlog_file = srcdir + f + ".sv"
+
+        gconfig.hdl_lang = "sv"
+
+        t = parse_ok(cheby_file)
+        layout_ok(t)
+        expand_hdl.expand_hdl(t)
+        gen_name.gen_name_memmap(t)
+        h = gen_hdl.generate_hdl(t)
+        buf = write_buffer()
+        print_verilog.print_verilog(buf, h)
+        if not compare_buffer_and_file(buf, vlog_file):
+            error("sv generation error for {}".format(f))
+        nbr_tests += 1
+
+        gconfig.hdl_lang = None
 
 def test_issue84():
     global nbr_tests
@@ -877,6 +906,7 @@ def main():
         test_hdl_err()
         test_hdl_ref()
         test_verilog_ref()
+        test_sv_ref()
         test_issue84()
         test_gena()
         test_gena_regctrl_err()
