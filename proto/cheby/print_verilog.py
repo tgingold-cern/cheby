@@ -385,6 +385,15 @@ def generate_sync(fd, s, indent=0):
     if s.name is not None:
         w(fd, "{}: ".format(s.name))
 
+    if s.rst is not None:
+        rst_expr = generate_expr(s.rst)
+        if s.rst_val == 0:
+            rst_edge = "negedge({})".format(rst_expr)
+            rst_cond = "!{}".format(rst_expr)
+        else:
+            rst_edge = "posedge({})".format(rst_expr)
+            rst_cond = "{}".format(rst_expr)
+
     if gconfig.hdl_lang and gconfig.hdl_lang == "sv":
         # SystemVerilog
         always = "always_ff"
@@ -392,19 +401,24 @@ def generate_sync(fd, s, indent=0):
         # Verilog
         always = "always"
 
-    w(fd, "{} @(posedge({})".format(always, generate_expr(s.clk)))
-    if s.rst is not None:
-        assert s.rst_val == 0
-        w(fd, " or negedge({})".format(generate_expr(s.rst)))
-    wln(fd, ")")
+    if s.rst_sync or s.rst is None:
+        wln(fd, "{} @(posedge({}))".format(always, generate_expr(s.clk)))
+    else:
+        wln(
+            fd,
+            "{} @(posedge({}) or {})".format(
+                always, generate_expr(s.clk), rst_edge
+            ),
+        )
 
     windent(fd, indent)
     wln(fd, "begin")
 
     if s.rst is not None:
         windent(fd, indent + 1)
-        wln(fd, "if (!{})".format(generate_expr(s.rst)))
+        wln(fd, "if ({})".format(rst_cond))
         generate_seq_block(fd, s.rst_stmts, indent + 2)
+
         windent(fd, indent + 1)
         wln(fd, "else")
         generate_seq_block(fd, s.sync_stmts, indent + 2)
