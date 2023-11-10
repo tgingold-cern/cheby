@@ -61,17 +61,18 @@ def generate_interface_port(fd, itf, dirn, indent):
             wln(fd, "{:<16} : {};".format(p.name, generate_verilog_type(p)))
 
 
-def generate_interface_modport(fd, itf, dirn, dirname):
+def generate_interface_modport(fd, itf, dirn, dirname, indent=0):
     first = True
     for p in itf.ports:
         if p.dir == dirn:
             if first:
-                w(fd, dirname)
                 first = False
             else:
-                w(fd, ',')
-            w(fd, " {}".format(p.name))
-    return not first
+                wln(fd, ",")
+
+            windent(fd, indent + 1)
+            w(fd, "{} {}".format(dirname, p.name))
+
 
 # Check if the interface has a port with the given direction dirn
 def generate_interface_has_dir(itf, dirn):
@@ -88,23 +89,32 @@ def generate_interface(fd, itf, indent):
     for p in itf.ports:
         windent(fd, indent + 1)
         wln(fd, "logic {}{};".format(generate_verilog_type(p), p.name))
-    windent(fd, indent + 1)
 
-    has_in = generate_interface_has_dir(itf, 'IN')
-    has_out = generate_interface_has_dir(itf, 'OUT')
-    w(fd, "modport master(")
-    p = generate_interface_modport(fd, itf, 'IN', 'input')
-    if has_in and has_out:
-        w(fd, ', ')
-    generate_interface_modport(fd, itf, 'OUT', 'output')
-    wln(fd, ');')
+    has_in = generate_interface_has_dir(itf, "IN")
+    has_out = generate_interface_has_dir(itf, "OUT")
+
     windent(fd, indent + 1)
-    w(fd, "modport slave(")
-    p = generate_interface_modport(fd, itf, 'IN', 'output')
+    wln(fd, "modport master(")
+    generate_interface_modport(fd, itf, "IN", "input", indent + 1)
     if has_in and has_out:
-        w(fd, ', ')
-    generate_interface_modport(fd, itf, 'OUT', 'input')
-    wln(fd, ');')
+        wln(fd, ",")
+    generate_interface_modport(fd, itf, "OUT", "output", indent + 1)
+    if has_in or has_out:
+        wln(fd)
+    windent(fd, indent + 1)
+    wln(fd, ");")
+
+    windent(fd, indent + 1)
+    wln(fd, "modport slave(")
+    generate_interface_modport(fd, itf, "IN", "output", indent + 1)
+    if has_in and has_out:
+        wln(fd, ",")
+    generate_interface_modport(fd, itf, "OUT", "input", indent + 1)
+    if has_in or has_out:
+        wln(fd)
+    windent(fd, indent + 1)
+    wln(fd, ");")
+
     windent(fd, indent)
     wln(fd, "endinterface")
 
