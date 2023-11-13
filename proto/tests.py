@@ -400,35 +400,59 @@ def test_hdl_ref():
             print('test hdl with ref: {}'.format(f))
         cheby_file = srcdir + f + '.cheby'
         vhdl_file = srcdir + f + '.vhdl'
+        verilog_file = srcdir + f + '.v'
         sv_file = srcdir + f + '.sv'
         t = parse_ok(cheby_file)
         layout_ok(t)
         expand_hdl.expand_hdl(t)
         gen_name.gen_name_memmap(t)
         h = gen_hdl.generate_hdl(t)
-        buf = write_buffer()
-        print_vhdl.print_vhdl(buf, h)
-        if not compare_buffer_and_file(buf, vhdl_file):
+
+        # Generate VHDL
+        buf_vhdl = write_buffer()
+        print_vhdl.print_vhdl(buf_vhdl, h)
+        if not compare_buffer_and_file(buf_vhdl, vhdl_file):
             error('vhdl generation error for {}'.format(f))
+
+        # Generate SV
+        gconfig.hdl_lang = 'sv'
         buf_sv = write_buffer()
         print_verilog.print_verilog(buf_sv, h)
         if not compare_buffer_and_file(buf_sv, sv_file):
             error('SV generation error for {}'.format(f))
+
+        # Generate Verilog
+        gconfig.hdl_lang = 'verilog'
+        buf_verilog = write_buffer()
+        print_verilog.print_verilog(buf_verilog, h)
+        if not compare_buffer_and_file(buf_verilog, verilog_file):
+            error('Verilog generation error for {}'.format(f))
+        gconfig.hdl_lang = None
+
         nbr_tests += 1
 
         if args.elaborate:
             # Elaboration tests
             top_entity = t.hdl_module_name
 
+            # Elaborate VHDL usign GHDL
             vhdl_pkgs = [srcdir + 'tb/cheby_pkg.vhd', srcdir + 'tb/wishbone_pkg.vhd']
             res = subprocess.run(['ghdl', '-s'] + vhdl_pkgs + [vhdl_file])
             if res.returncode != 0:
                 error('VHDL elaboration failed for {}'.format(f))
 
+            # Elaborate SV using Verilator
             sv_pkgs = [srcdir + 'tb/dpssram.sv', srcdir + 'tb/wishbone_pkg.sv']
             res = subprocess.run([verilator_cmd, '--lint-only', '--top-module', top_entity] + sv_pkgs + [sv_file])
             if res.returncode != 0:
                 error('SV elaboration failed for {}'.format(f))
+
+            # Elaborate Verilog using Verilator
+            res = subprocess.run([verilator_cmd, '--lint-only', '--top-module', top_entity] + sv_pkgs + [verilog_file])
+            if res.returncode != 0:
+                error('Verilog elaboration failed for {}'.format(f))
+
+            nbr_tests += 1
 
 def test_hdl_ref_async_rst():
     # Generate HDL with asynchronous reset and compare with a baseline
