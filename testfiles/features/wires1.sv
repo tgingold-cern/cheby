@@ -53,10 +53,10 @@ module wires1
 
   // WB decode signals
   always @(wb_sel_i)
-      ;
+  ;
   assign wb_en = wb_cyc_i & wb_stb_i;
 
-  always @(posedge(clk_i) or negedge(rst_n_i))
+  always @(posedge(clk_i))
   begin
     if (!rst_n_i)
       wb_rip <= 1'b0;
@@ -65,7 +65,7 @@ module wires1
   end
   assign rd_req_int = (wb_en & ~wb_we_i) & ~wb_rip;
 
-  always @(posedge(clk_i) or negedge(rst_n_i))
+  always @(posedge(clk_i))
   begin
     if (!rst_n_i)
       wb_wip <= 1'b0;
@@ -81,7 +81,7 @@ module wires1
   assign wb_err_o = 1'b0;
 
   // pipelining for wr-in+rd-out
-  always @(posedge(clk_i) or negedge(rst_n_i))
+  always @(posedge(clk_i))
   begin
     if (!rst_n_i)
       begin
@@ -103,7 +103,7 @@ module wires1
 
   // Register strobe
   assign strobe_o = strobe_reg;
-  always @(posedge(clk_i) or negedge(rst_n_i))
+  always @(posedge(clk_i))
   begin
     if (!rst_n_i)
       begin
@@ -128,62 +128,62 @@ module wires1
 
   // Process for write requests.
   always @(wr_adr_d0, wr_req_d0, strobe_wack, acks_wack_i)
+  begin
+    strobe_wreq <= 1'b0;
+    acks_wreq <= 1'b0;
+    case (wr_adr_d0[3:2])
+    2'b00:
       begin
-        strobe_wreq <= 1'b0;
-        acks_wreq <= 1'b0;
-        case (wr_adr_d0[3:2])
-        2'b00:
-          begin
-            // Reg strobe
-            strobe_wreq <= wr_req_d0;
-            wr_ack_int <= strobe_wack;
-          end
-        2'b01:
-          // Reg wires
-          wr_ack_int <= wr_req_d0;
-        2'b10:
-          begin
-            // Reg acks
-            acks_wreq <= wr_req_d0;
-            wr_ack_int <= acks_wack_i;
-          end
-        default:
-          wr_ack_int <= wr_req_d0;
-        endcase
+        // Reg strobe
+        strobe_wreq <= wr_req_d0;
+        wr_ack_int <= strobe_wack;
       end
+    2'b01:
+      // Reg wires
+      wr_ack_int <= wr_req_d0;
+    2'b10:
+      begin
+        // Reg acks
+        acks_wreq <= wr_req_d0;
+        wr_ack_int <= acks_wack_i;
+      end
+    default:
+      wr_ack_int <= wr_req_d0;
+    endcase
+  end
 
   // Process for read requests.
   always @(wb_adr_i, rd_req_int, strobe_reg, wires_i, acks_rack_i, acks_i)
+  begin
+    // By default ack read requests
+    rd_dat_d0 <= {32{1'bx}};
+    strobe_rd_o <= 1'b0;
+    wires_rd_o <= 1'b0;
+    acks_rd_o <= 1'b0;
+    case (wb_adr_i[3:2])
+    2'b00:
       begin
-        // By default ack read requests
-        rd_dat_d0 <= {32{1'bx}};
-        strobe_rd_o <= 1'b0;
-        wires_rd_o <= 1'b0;
-        acks_rd_o <= 1'b0;
-        case (wb_adr_i[3:2])
-        2'b00:
-          begin
-            // Reg strobe
-            strobe_rd_o <= rd_req_int;
-            rd_ack_d0 <= rd_req_int;
-            rd_dat_d0 <= strobe_reg;
-          end
-        2'b01:
-          begin
-            // Reg wires
-            wires_rd_o <= rd_req_int;
-            rd_ack_d0 <= rd_req_int;
-            rd_dat_d0 <= wires_i;
-          end
-        2'b10:
-          begin
-            // Reg acks
-            acks_rd_o <= rd_req_int;
-            rd_ack_d0 <= acks_rack_i;
-            rd_dat_d0 <= acks_i;
-          end
-        default:
-          rd_ack_d0 <= rd_req_int;
-        endcase
+        // Reg strobe
+        strobe_rd_o <= rd_req_int;
+        rd_ack_d0 <= rd_req_int;
+        rd_dat_d0 <= strobe_reg;
       end
+    2'b01:
+      begin
+        // Reg wires
+        wires_rd_o <= rd_req_int;
+        rd_ack_d0 <= rd_req_int;
+        rd_dat_d0 <= wires_i;
+      end
+    2'b10:
+      begin
+        // Reg acks
+        acks_rd_o <= rd_req_int;
+        rd_ack_d0 <= acks_rack_i;
+        rd_dat_d0 <= acks_i;
+      end
+    default:
+      rd_ack_d0 <= rd_req_int;
+    endcase
+  end
 endmodule

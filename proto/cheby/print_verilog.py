@@ -2,6 +2,8 @@
 
 import cheby.hdltree as hdltree
 from cheby.wrutils import w, wln, windent
+from cheby.hdl.globals import gconfig
+
 
 style = None
 
@@ -61,17 +63,18 @@ def generate_interface_port(fd, itf, dirn, indent):
             wln(fd, "{:<16} : {};".format(p.name, generate_verilog_type(p)))
 
 
-def generate_interface_modport(fd, itf, dirn, dirname):
+def generate_interface_modport(fd, itf, dirn, dirname, indent=0):
     first = True
     for p in itf.ports:
         if p.dir == dirn:
             if first:
-                w(fd, dirname)
                 first = False
             else:
-                w(fd, ',')
-            w(fd, " {}".format(p.name))
-    return not first
+                wln(fd, ",")
+
+            windent(fd, indent + 1)
+            w(fd, "{} {}".format(dirname, p.name))
+
 
 # Check if the interface has a port with the given direction dirn
 def generate_interface_has_dir(itf, dirn):
@@ -88,23 +91,32 @@ def generate_interface(fd, itf, indent):
     for p in itf.ports:
         windent(fd, indent + 1)
         wln(fd, "logic {}{};".format(generate_verilog_type(p), p.name))
-    windent(fd, indent + 1)
 
-    has_in = generate_interface_has_dir(itf, 'IN')
-    has_out = generate_interface_has_dir(itf, 'OUT')
-    w(fd, "modport master(")
-    p = generate_interface_modport(fd, itf, 'IN', 'input')
-    if has_in and has_out:
-        w(fd, ', ')
-    generate_interface_modport(fd, itf, 'OUT', 'output')
-    wln(fd, ');')
+    has_in = generate_interface_has_dir(itf, "IN")
+    has_out = generate_interface_has_dir(itf, "OUT")
+
     windent(fd, indent + 1)
-    w(fd, "modport slave(")
-    p = generate_interface_modport(fd, itf, 'IN', 'output')
+    wln(fd, "modport master(")
+    generate_interface_modport(fd, itf, "IN", "input", indent + 1)
     if has_in and has_out:
-        w(fd, ', ')
-    generate_interface_modport(fd, itf, 'OUT', 'input')
-    wln(fd, ');')
+        wln(fd, ",")
+    generate_interface_modport(fd, itf, "OUT", "output", indent + 1)
+    if has_in or has_out:
+        wln(fd)
+    windent(fd, indent + 1)
+    wln(fd, ");")
+
+    windent(fd, indent + 1)
+    wln(fd, "modport slave(")
+    generate_interface_modport(fd, itf, "IN", "output", indent + 1)
+    if has_in and has_out:
+        wln(fd, ",")
+    generate_interface_modport(fd, itf, "OUT", "input", indent + 1)
+    if has_in or has_out:
+        wln(fd)
+    windent(fd, indent + 1)
+    wln(fd, ");")
+
     windent(fd, indent)
     wln(fd, "endinterface")
 
@@ -345,47 +357,95 @@ def generate_comment(fd, n, indent):
         wln(fd, "// {}".format(n.comment))
 
 
+def generate_comb(fd, s, indent=0):
+    windent(fd, indent)
+    if s.name is not None:
+        w(fd, "{}: ".format(s.name))
+
+    if gconfig.hdl_lang and gconfig.hdl_lang == "sv":
+        # SystemVerilog
+        wln(fd, "always_comb")
+    else:
+        # Verilog
+        w(fd, "always @(")
+        first = True
+        for e in s.sensitivity:
+            if first:
+                first = False
+            else:
+                w(fd, ", ")
+            w(fd, generate_expr(e))
+        wln(fd, ")")
+
+    generate_seq_block(fd, s.stmts, indent)
+
+
+def generate_sync(fd, s, indent=0):
+    windent(fd, indent)
+    if s.name is not None:
+        w(fd, "{}: ".format(s.name))
+
+    if s.rst is not None:
+        rst_expr = generate_expr(s.rst)
+        if s.rst_val == 0:
+            rst_edge = "negedge({})".format(rst_expr)
+            rst_cond = "!{}".format(rst_expr)
+        else:
+            rst_edge = "posedge({})".format(rst_expr)
+            rst_cond = "{}".format(rst_expr)
+
+    if gconfig.hdl_lang and gconfig.hdl_lang == "sv":
+        # SystemVerilog
+        always = "always_ff"
+    else:
+        # Verilog
+        always = "always"
+
+    if s.rst_sync or s.rst is None:
+        wln(fd, "{} @(posedge({}))".format(always, generate_expr(s.clk)))
+    else:
+        wln(
+            fd,
+            "{} @(posedge({}) or {})".format(
+                always, generate_expr(s.clk), rst_edge
+            ),
+        )
+
+    windent(fd, indent)
+    wln(fd, "begin")
+
+    if s.rst is not None:
+        windent(fd, indent + 1)
+        wln(fd, "if ({})".format(rst_cond))
+        generate_seq_block(fd, s.rst_stmts, indent + 2)
+
+        windent(fd, indent + 1)
+        wln(fd, "else")
+        generate_seq_block(fd, s.sync_stmts, indent + 2)
+    else:
+        generate_seq_block(fd, s.sync_stmts, indent + 1)
+
+    windent(fd, indent)
+    wln(fd, "end")
+
+
 def generate_stmts(fd, stmts, indent):
     sindent = "  " * indent
     gen_num = 0
     for s in stmts:
         if isinstance(s, hdltree.HDLComment):
             generate_comment(fd, s, indent)
+
         elif isinstance(s, hdltree.HDLAssign):
             w(fd, sindent)
             generate_assign(fd, s)
+
         elif isinstance(s, hdltree.HDLComb):
-            w(fd, sindent)
-            if s.name is not None:
-                w(fd, '{}: '.format(s.name))
-            w(fd, "always @(")
-            first = True
-            for e in s.sensitivity:
-                if first:
-                    first = False
-                else:
-                    w(fd, ", ")
-                w(fd, generate_expr(e))
-            wln(fd, ")")
-            generate_seq_block(fd, s.stmts, indent + 2)
+            generate_comb(fd, s, indent)
+
         elif isinstance(s, hdltree.HDLSync):
-            w(fd, sindent)
-            if s.name is not None:
-                w(fd, '{}: '.format(s.name))
-            w(fd, "always @(posedge({})".format(generate_expr(s.clk)))
-            if s.rst is not None:
-                assert s.rst_val == 0
-                w(fd, " or negedge({})".format(generate_expr(s.rst)))
-            wln(fd, ")")
-            wln(fd, sindent + "begin")
-            if s.rst is not None:
-                wln(fd, sindent + "  if (!{})".format(generate_expr(s.rst)))
-                generate_seq_block(fd, s.rst_stmts, indent + 2)
-                wln(fd, sindent + "  else")
-                generate_seq_block(fd, s.sync_stmts, indent + 2)
-            else:
-                generate_seq_block(fd, s.sync_stmts, indent + 2)
-            wln(fd, sindent + "end")
+            generate_sync(fd, s, indent)
+
         elif isinstance(s, hdltree.HDLInstance):
             w(fd, sindent + "{}".format(s.module_name))
 
@@ -409,12 +469,14 @@ def generate_stmts(fd, stmts, indent):
                 generate_map(s.conns, indent + 1)
                 wln(fd, sindent + "  );")
             wln(fd, sindent)
+
         elif isinstance(s, hdltree.HDLGenIf):
             wln(fd, sindent + "genblock_{}: if ({}) generate".format(
                 gen_num, generate_expr(s.cond)))
             generate_stmts(fd, s.stmts, indent + 1)
             wln(fd, sindent + "end generate genblock_{};".format(gen_num))
             gen_num += 1
+
         else:
             assert False, "unhandled hdl stmt {}".format(s)
 

@@ -36,10 +36,10 @@ module orclrout
 
   // WB decode signals
   always @(wb_sel_i)
-      ;
+  ;
   assign wb_en = wb_cyc_i & wb_stb_i;
 
-  always @(posedge(clk_i) or negedge(rst_n_i))
+  always @(posedge(clk_i))
   begin
     if (!rst_n_i)
       wb_rip <= 1'b0;
@@ -48,7 +48,7 @@ module orclrout
   end
   assign rd_req_int = (wb_en & ~wb_we_i) & ~wb_rip;
 
-  always @(posedge(clk_i) or negedge(rst_n_i))
+  always @(posedge(clk_i))
   begin
     if (!rst_n_i)
       wb_wip <= 1'b0;
@@ -64,7 +64,7 @@ module orclrout
   assign wb_err_o = 1'b0;
 
   // pipelining for wr-in+rd-out
-  always @(posedge(clk_i) or negedge(rst_n_i))
+  always @(posedge(clk_i))
   begin
     if (!rst_n_i)
       begin
@@ -84,7 +84,7 @@ module orclrout
 
   // Register breg
   assign breg_o = breg_reg;
-  always @(posedge(clk_i) or negedge(rst_n_i))
+  always @(posedge(clk_i))
   begin
     if (!rst_n_i)
       begin
@@ -103,20 +103,20 @@ module orclrout
 
   // Process for write requests.
   always @(wr_req_d0, breg_wack)
-      begin
-        breg_wreq <= 1'b0;
-        // Reg breg
-        breg_wreq <= wr_req_d0;
-        wr_ack_int <= breg_wack;
-      end
+  begin
+    breg_wreq <= 1'b0;
+    // Reg breg
+    breg_wreq <= wr_req_d0;
+    wr_ack_int <= breg_wack;
+  end
 
   // Process for read requests.
   always @(rd_req_int, breg_reg)
-      begin
-        // By default ack read requests
-        rd_dat_d0 <= {32{1'bx}};
-        // Reg breg
-        rd_ack_d0 <= rd_req_int;
-        rd_dat_d0 <= breg_reg;
-      end
+  begin
+    // By default ack read requests
+    rd_dat_d0 <= {32{1'bx}};
+    // Reg breg
+    rd_ack_d0 <= rd_req_int;
+    rd_dat_d0 <= breg_reg;
+  end
 endmodule

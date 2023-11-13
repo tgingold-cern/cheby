@@ -44,7 +44,7 @@ module hwInfo
   assign VMEWrDone = wr_ack_int;
 
   // pipelining for wr-in+rd-out
-  always @(posedge(Clk) or negedge(rst_n))
+  always @(posedge(Clk))
   begin
     if (!rst_n)
       begin
@@ -74,7 +74,7 @@ module hwInfo
 
   // Register echo
   assign echo_echo_o = echo_echo_reg;
-  always @(posedge(Clk) or negedge(rst_n))
+  always @(posedge(Clk))
   begin
     if (!rst_n)
       begin
@@ -91,143 +91,143 @@ module hwInfo
 
   // Process for write requests.
   always @(wr_adr_d0, wr_req_d0, echo_wack)
+  begin
+    echo_wreq <= 2'b0;
+    case (wr_adr_d0[4:1])
+    4'b0000:
+      // Reg stdVersion
+      wr_ack_int <= wr_req_d0;
+    4'b0001:
+      // Reg stdVersion
+      wr_ack_int <= wr_req_d0;
+    4'b0010:
+      // Reg serialNumber
+      wr_ack_int <= wr_req_d0;
+    4'b0011:
+      // Reg serialNumber
+      wr_ack_int <= wr_req_d0;
+    4'b0100:
+      // Reg serialNumber
+      wr_ack_int <= wr_req_d0;
+    4'b0101:
+      // Reg serialNumber
+      wr_ack_int <= wr_req_d0;
+    4'b0110:
+      // Reg firmwareVersion
+      wr_ack_int <= wr_req_d0;
+    4'b0111:
+      // Reg firmwareVersion
+      wr_ack_int <= wr_req_d0;
+    4'b1000:
+      // Reg memMapVersion
+      wr_ack_int <= wr_req_d0;
+    4'b1001:
+      // Reg memMapVersion
+      wr_ack_int <= wr_req_d0;
+    4'b1010:
       begin
-        echo_wreq <= 2'b0;
-        case (wr_adr_d0[4:1])
-        4'b0000:
-          // Reg stdVersion
-          wr_ack_int <= wr_req_d0;
-        4'b0001:
-          // Reg stdVersion
-          wr_ack_int <= wr_req_d0;
-        4'b0010:
-          // Reg serialNumber
-          wr_ack_int <= wr_req_d0;
-        4'b0011:
-          // Reg serialNumber
-          wr_ack_int <= wr_req_d0;
-        4'b0100:
-          // Reg serialNumber
-          wr_ack_int <= wr_req_d0;
-        4'b0101:
-          // Reg serialNumber
-          wr_ack_int <= wr_req_d0;
-        4'b0110:
-          // Reg firmwareVersion
-          wr_ack_int <= wr_req_d0;
-        4'b0111:
-          // Reg firmwareVersion
-          wr_ack_int <= wr_req_d0;
-        4'b1000:
-          // Reg memMapVersion
-          wr_ack_int <= wr_req_d0;
-        4'b1001:
-          // Reg memMapVersion
-          wr_ack_int <= wr_req_d0;
-        4'b1010:
-          begin
-            // Reg echo
-            echo_wreq[1] <= wr_req_d0;
-            wr_ack_int <= echo_wack[1];
-          end
-        4'b1011:
-          begin
-            // Reg echo
-            echo_wreq[0] <= wr_req_d0;
-            wr_ack_int <= echo_wack[0];
-          end
-        default:
-          wr_ack_int <= wr_req_d0;
-        endcase
+        // Reg echo
+        echo_wreq[1] <= wr_req_d0;
+        wr_ack_int <= echo_wack[1];
       end
+    4'b1011:
+      begin
+        // Reg echo
+        echo_wreq[0] <= wr_req_d0;
+        wr_ack_int <= echo_wack[0];
+      end
+    default:
+      wr_ack_int <= wr_req_d0;
+    endcase
+  end
 
   // Process for read requests.
   always @(VMEAddr, VMERdMem, serialNumber_i, firmwareVersion_major_i, firmwareVersion_patch_i, firmwareVersion_minor_i, memMapVersion_major_i, memMapVersion_patch_i, memMapVersion_minor_i, echo_echo_reg)
+  begin
+    // By default ack read requests
+    rd_dat_d0 <= {16{1'bx}};
+    case (VMEAddr[4:1])
+    4'b0000:
       begin
-        // By default ack read requests
-        rd_dat_d0 <= {16{1'bx}};
-        case (VMEAddr[4:1])
-        4'b0000:
-          begin
-            // Reg stdVersion
-            rd_ack_d0 <= VMERdMem;
-            rd_dat_d0[7:0] <= 8'b00000001;
-            rd_dat_d0[15:8] <= 8'b0;
-          end
-        4'b0001:
-          begin
-            // Reg stdVersion
-            rd_ack_d0 <= VMERdMem;
-            rd_dat_d0[7:0] <= 8'b00000000;
-            rd_dat_d0[15:8] <= 8'b00000000;
-          end
-        4'b0010:
-          begin
-            // Reg serialNumber
-            rd_ack_d0 <= VMERdMem;
-            rd_dat_d0 <= serialNumber_i[63:48];
-          end
-        4'b0011:
-          begin
-            // Reg serialNumber
-            rd_ack_d0 <= VMERdMem;
-            rd_dat_d0 <= serialNumber_i[47:32];
-          end
-        4'b0100:
-          begin
-            // Reg serialNumber
-            rd_ack_d0 <= VMERdMem;
-            rd_dat_d0 <= serialNumber_i[31:16];
-          end
-        4'b0101:
-          begin
-            // Reg serialNumber
-            rd_ack_d0 <= VMERdMem;
-            rd_dat_d0 <= serialNumber_i[15:0];
-          end
-        4'b0110:
-          begin
-            // Reg firmwareVersion
-            rd_ack_d0 <= VMERdMem;
-            rd_dat_d0[7:0] <= firmwareVersion_major_i;
-            rd_dat_d0[15:8] <= 8'b0;
-          end
-        4'b0111:
-          begin
-            // Reg firmwareVersion
-            rd_ack_d0 <= VMERdMem;
-            rd_dat_d0[7:0] <= firmwareVersion_patch_i;
-            rd_dat_d0[15:8] <= firmwareVersion_minor_i;
-          end
-        4'b1000:
-          begin
-            // Reg memMapVersion
-            rd_ack_d0 <= VMERdMem;
-            rd_dat_d0[7:0] <= memMapVersion_major_i;
-            rd_dat_d0[15:8] <= 8'b0;
-          end
-        4'b1001:
-          begin
-            // Reg memMapVersion
-            rd_ack_d0 <= VMERdMem;
-            rd_dat_d0[7:0] <= memMapVersion_patch_i;
-            rd_dat_d0[15:8] <= memMapVersion_minor_i;
-          end
-        4'b1010:
-          begin
-            // Reg echo
-            rd_ack_d0 <= VMERdMem;
-            rd_dat_d0[15:0] <= 16'b0;
-          end
-        4'b1011:
-          begin
-            // Reg echo
-            rd_ack_d0 <= VMERdMem;
-            rd_dat_d0[7:0] <= echo_echo_reg;
-            rd_dat_d0[15:8] <= 8'b0;
-          end
-        default:
-          rd_ack_d0 <= VMERdMem;
-        endcase
+        // Reg stdVersion
+        rd_ack_d0 <= VMERdMem;
+        rd_dat_d0[7:0] <= 8'b00000001;
+        rd_dat_d0[15:8] <= 8'b0;
       end
+    4'b0001:
+      begin
+        // Reg stdVersion
+        rd_ack_d0 <= VMERdMem;
+        rd_dat_d0[7:0] <= 8'b00000000;
+        rd_dat_d0[15:8] <= 8'b00000000;
+      end
+    4'b0010:
+      begin
+        // Reg serialNumber
+        rd_ack_d0 <= VMERdMem;
+        rd_dat_d0 <= serialNumber_i[63:48];
+      end
+    4'b0011:
+      begin
+        // Reg serialNumber
+        rd_ack_d0 <= VMERdMem;
+        rd_dat_d0 <= serialNumber_i[47:32];
+      end
+    4'b0100:
+      begin
+        // Reg serialNumber
+        rd_ack_d0 <= VMERdMem;
+        rd_dat_d0 <= serialNumber_i[31:16];
+      end
+    4'b0101:
+      begin
+        // Reg serialNumber
+        rd_ack_d0 <= VMERdMem;
+        rd_dat_d0 <= serialNumber_i[15:0];
+      end
+    4'b0110:
+      begin
+        // Reg firmwareVersion
+        rd_ack_d0 <= VMERdMem;
+        rd_dat_d0[7:0] <= firmwareVersion_major_i;
+        rd_dat_d0[15:8] <= 8'b0;
+      end
+    4'b0111:
+      begin
+        // Reg firmwareVersion
+        rd_ack_d0 <= VMERdMem;
+        rd_dat_d0[7:0] <= firmwareVersion_patch_i;
+        rd_dat_d0[15:8] <= firmwareVersion_minor_i;
+      end
+    4'b1000:
+      begin
+        // Reg memMapVersion
+        rd_ack_d0 <= VMERdMem;
+        rd_dat_d0[7:0] <= memMapVersion_major_i;
+        rd_dat_d0[15:8] <= 8'b0;
+      end
+    4'b1001:
+      begin
+        // Reg memMapVersion
+        rd_ack_d0 <= VMERdMem;
+        rd_dat_d0[7:0] <= memMapVersion_patch_i;
+        rd_dat_d0[15:8] <= memMapVersion_minor_i;
+      end
+    4'b1010:
+      begin
+        // Reg echo
+        rd_ack_d0 <= VMERdMem;
+        rd_dat_d0[15:0] <= 16'b0;
+      end
+    4'b1011:
+      begin
+        // Reg echo
+        rd_ack_d0 <= VMERdMem;
+        rd_dat_d0[7:0] <= echo_echo_reg;
+        rd_dat_d0[15:8] <= 8'b0;
+      end
+    default:
+      rd_ack_d0 <= VMERdMem;
+    endcase
+  end
 endmodule

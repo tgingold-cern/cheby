@@ -1,8 +1,14 @@
 interface t_noout_inter;
   logic [31:0] reg0;
   logic [31:0] reg1;
-  modport master(input reg0, reg1);
-  modport slave(output reg0, reg1);
+  modport master(
+    input reg0,
+    input reg1
+  );
+  modport slave(
+    output reg0,
+    output reg1
+  );
 endinterface
 
 
@@ -39,10 +45,10 @@ module noout
 
   // WB decode signals
   always @(wb_sel_i)
-      ;
+  ;
   assign wb_en = wb_cyc_i & wb_stb_i;
 
-  always @(posedge(clk_i) or negedge(rst_n_i))
+  always @(posedge(clk_i))
   begin
     if (!rst_n_i)
       wb_rip <= 1'b0;
@@ -51,7 +57,7 @@ module noout
   end
   assign rd_req_int = (wb_en & ~wb_we_i) & ~wb_rip;
 
-  always @(posedge(clk_i) or negedge(rst_n_i))
+  always @(posedge(clk_i))
   begin
     if (!rst_n_i)
       wb_wip <= 1'b0;
@@ -67,7 +73,7 @@ module noout
   assign wb_err_o = 1'b0;
 
   // pipelining for wr-in+rd-out
-  always @(posedge(clk_i) or negedge(rst_n_i))
+  always @(posedge(clk_i))
   begin
     if (!rst_n_i)
       begin
@@ -91,37 +97,37 @@ module noout
 
   // Process for write requests.
   always @(wr_adr_d0, wr_req_d0)
-      case (wr_adr_d0[2:2])
-      1'b0:
-        // Reg reg0
-        wr_ack_int <= wr_req_d0;
-      1'b1:
-        // Reg reg1
-        wr_ack_int <= wr_req_d0;
-      default:
-        wr_ack_int <= wr_req_d0;
-      endcase
+  case (wr_adr_d0[2:2])
+  1'b0:
+    // Reg reg0
+    wr_ack_int <= wr_req_d0;
+  1'b1:
+    // Reg reg1
+    wr_ack_int <= wr_req_d0;
+  default:
+    wr_ack_int <= wr_req_d0;
+  endcase
 
   // Process for read requests.
   always @(wb_adr_i, rd_req_int, noout_inter.reg0, noout_inter.reg1)
+  begin
+    // By default ack read requests
+    rd_dat_d0 <= {32{1'bx}};
+    case (wb_adr_i[2:2])
+    1'b0:
       begin
-        // By default ack read requests
-        rd_dat_d0 <= {32{1'bx}};
-        case (wb_adr_i[2:2])
-        1'b0:
-          begin
-            // Reg reg0
-            rd_ack_d0 <= rd_req_int;
-            rd_dat_d0 <= noout_inter.reg0;
-          end
-        1'b1:
-          begin
-            // Reg reg1
-            rd_ack_d0 <= rd_req_int;
-            rd_dat_d0 <= noout_inter.reg1;
-          end
-        default:
-          rd_ack_d0 <= rd_req_int;
-        endcase
+        // Reg reg0
+        rd_ack_d0 <= rd_req_int;
+        rd_dat_d0 <= noout_inter.reg0;
       end
+    1'b1:
+      begin
+        // Reg reg1
+        rd_ack_d0 <= rd_req_int;
+        rd_dat_d0 <= noout_inter.reg1;
+      end
+    default:
+      rd_ack_d0 <= rd_req_int;
+    endcase
+  end
 endmodule

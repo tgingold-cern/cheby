@@ -5,7 +5,7 @@ module sreg
     input   wire areset_n,
     input   wire awvalid,
     output  wire awready,
-    input   wire [2:2] awaddr,
+    input   wire [2:0] awaddr,
     input   wire [2:0] awprot,
     input   wire wvalid,
     output  wire wready,
@@ -16,7 +16,7 @@ module sreg
     output  wire [1:0] bresp,
     input   wire arvalid,
     output  wire arready,
-    input   wire [2:2] araddr,
+    input   wire [2:0] araddr,
     input   wire [2:0] arprot,
     output  wire rvalid,
     input   wire rready,
@@ -58,7 +58,7 @@ module sreg
   assign awready = ~axi_awset;
   assign wready = ~axi_wset;
   assign bvalid = axi_wdone;
-  always @(posedge(aclk))
+  always @(posedge(aclk) or negedge(areset_n))
   begin
     if (!areset_n)
       begin
@@ -72,7 +72,7 @@ module sreg
         wr_req <= 1'b0;
         if (awvalid == 1'b1 & axi_awset == 1'b0)
           begin
-            wr_addr <= awaddr;
+            wr_addr <= awaddr[2:2];
             axi_awset <= 1'b1;
             wr_req <= axi_wset;
           end
@@ -97,7 +97,7 @@ module sreg
   // AR and R channels
   assign arready = ~axi_arset;
   assign rvalid = axi_rdone;
-  always @(posedge(aclk))
+  always @(posedge(aclk) or negedge(areset_n))
   begin
     if (!areset_n)
       begin
@@ -111,7 +111,7 @@ module sreg
         rd_req <= 1'b0;
         if (arvalid == 1'b1 & axi_arset == 1'b0)
           begin
-            rd_addr <= araddr;
+            rd_addr <= araddr[2:2];
             axi_arset <= 1'b1;
             rd_req <= 1'b1;
           end
@@ -130,7 +130,7 @@ module sreg
   assign rresp = 2'b00;
 
   // pipelining for wr-in+rd-out
-  always @(posedge(aclk))
+  always @(posedge(aclk) or negedge(areset_n))
   begin
     if (!areset_n)
       begin
@@ -152,7 +152,7 @@ module sreg
 
   // Register areg
   assign areg_o = areg_reg;
-  always @(posedge(aclk))
+  always @(posedge(aclk) or negedge(areset_n))
   begin
     if (!areset_n)
       begin
@@ -169,7 +169,7 @@ module sreg
 
   // Register breg
   assign breg_o = breg_reg;
-  always @(posedge(aclk))
+  always @(posedge(aclk) or negedge(areset_n))
   begin
     if (!areset_n)
       begin

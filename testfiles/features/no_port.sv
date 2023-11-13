@@ -38,7 +38,7 @@ module no_port
   assign wr_addr = paddr;
   assign wr_data = pwdata;
   always @(pstrb)
-      ;
+  ;
 
   // Read Channel
   assign rd_req = (psel & ~pwrite) & ~penable;
@@ -48,7 +48,7 @@ module no_port
   assign pslverr = 1'b0;
 
   // pipelining for wr-in+rd-out
-  always @(posedge(pclk) or negedge(presetn))
+  always @(posedge(pclk))
   begin
     if (!presetn)
       begin
@@ -69,7 +69,7 @@ module no_port
   end
 
   // Register reg0
-  always @(posedge(pclk) or negedge(presetn))
+  always @(posedge(pclk))
   begin
     if (!presetn)
       begin
@@ -85,7 +85,7 @@ module no_port
   end
 
   // Register reg1
-  always @(posedge(pclk) or negedge(presetn))
+  always @(posedge(pclk))
   begin
     if (!presetn)
       begin
@@ -102,47 +102,47 @@ module no_port
 
   // Process for write requests.
   always @(wr_adr_d0, wr_req_d0, reg0_wack, reg1_wack)
+  begin
+    reg0_wreq <= 1'b0;
+    reg1_wreq <= 1'b0;
+    case (wr_adr_d0[2:2])
+    1'b0:
       begin
-        reg0_wreq <= 1'b0;
-        reg1_wreq <= 1'b0;
-        case (wr_adr_d0[2:2])
-        1'b0:
-          begin
-            // Reg reg0
-            reg0_wreq <= wr_req_d0;
-            wr_ack <= reg0_wack;
-          end
-        1'b1:
-          begin
-            // Reg reg1
-            reg1_wreq <= wr_req_d0;
-            wr_ack <= reg1_wack;
-          end
-        default:
-          wr_ack <= wr_req_d0;
-        endcase
+        // Reg reg0
+        reg0_wreq <= wr_req_d0;
+        wr_ack <= reg0_wack;
       end
+    1'b1:
+      begin
+        // Reg reg1
+        reg1_wreq <= wr_req_d0;
+        wr_ack <= reg1_wack;
+      end
+    default:
+      wr_ack <= wr_req_d0;
+    endcase
+  end
 
   // Process for read requests.
   always @(rd_addr, rd_req, reg0_reg, reg1_reg)
+  begin
+    // By default ack read requests
+    rd_dat_d0 <= {32{1'bx}};
+    case (rd_addr[2:2])
+    1'b0:
       begin
-        // By default ack read requests
-        rd_dat_d0 <= {32{1'bx}};
-        case (rd_addr[2:2])
-        1'b0:
-          begin
-            // Reg reg0
-            rd_ack_d0 <= rd_req;
-            rd_dat_d0 <= reg0_reg;
-          end
-        1'b1:
-          begin
-            // Reg reg1
-            rd_ack_d0 <= rd_req;
-            rd_dat_d0 <= reg1_reg;
-          end
-        default:
-          rd_ack_d0 <= rd_req;
-        endcase
+        // Reg reg0
+        rd_ack_d0 <= rd_req;
+        rd_dat_d0 <= reg0_reg;
       end
+    1'b1:
+      begin
+        // Reg reg1
+        rd_ack_d0 <= rd_req;
+        rd_dat_d0 <= reg1_reg;
+      end
+    default:
+      rd_ack_d0 <= rd_req;
+    endcase
+  end
 endmodule

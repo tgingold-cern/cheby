@@ -58,7 +58,7 @@ module sreg
   assign awready = ~axi_awset;
   assign wready = ~axi_wset;
   assign bvalid = axi_wdone;
-  always @(posedge(aclk))
+  always @(posedge(aclk) or negedge(areset_n))
   begin
     if (!areset_n)
       begin
@@ -97,7 +97,7 @@ module sreg
   // AR and R channels
   assign arready = ~axi_arset;
   assign rvalid = axi_rdone;
-  always @(posedge(aclk))
+  always @(posedge(aclk) or negedge(areset_n))
   begin
     if (!areset_n)
       begin
@@ -130,7 +130,7 @@ module sreg
   assign rresp = 2'b00;
 
   // pipelining for wr-in+rd-out
-  always @(posedge(aclk))
+  always @(posedge(aclk) or negedge(areset_n))
   begin
     if (!areset_n)
       begin
@@ -152,7 +152,7 @@ module sreg
 
   // Register areg
   assign areg_o = areg_reg;
-  always @(posedge(aclk))
+  always @(posedge(aclk) or negedge(areset_n))
   begin
     if (!areset_n)
       begin
@@ -169,7 +169,7 @@ module sreg
 
   // Register breg
   assign breg_o = breg_reg;
-  always @(posedge(aclk))
+  always @(posedge(aclk) or negedge(areset_n))
   begin
     if (!areset_n)
       begin

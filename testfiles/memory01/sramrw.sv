@@ -30,11 +30,11 @@ module sramrw
 
   // WB decode signals
   always @(wb.sel)
-      ;
+  ;
   assign adr_int = wb.adr[7:2];
   assign wb_en = wb.cyc & wb.stb;
 
-  always @(posedge(wb.clk) or negedge(wb.rst_n))
+  always @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
       wb_rip <= 1'b0;
@@ -43,7 +43,7 @@ module sramrw
   end
   assign rd_req_int = (wb_en & ~wb.we) & ~wb_rip;
 
-  always @(posedge(wb.clk) or negedge(wb.rst_n))
+  always @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
       wb_wip <= 1'b0;
@@ -59,7 +59,7 @@ module sramrw
   assign wb.err = 1'b0;
 
   // pipelining for wr-in+rd-out
-  always @(posedge(wb.clk) or negedge(wb.rst_n))
+  always @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
       begin
@@ -80,7 +80,7 @@ module sramrw
   end
 
   // Interface mymem
-  always @(posedge(wb.clk) or negedge(wb.rst_n))
+  always @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
       mymem_rack <= 1'b0;
@@ -88,7 +88,7 @@ module sramrw
       mymem_rack <= mymem_re & ~mymem_rack;
   end
   assign mymem_data_o = wr_dat_d0;
-  always @(posedge(wb.clk) or negedge(wb.rst_n))
+  always @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
       mymem_wp <= 1'b0;
@@ -97,29 +97,29 @@ module sramrw
   end
   assign mymem_we = (wr_req_d0 | mymem_wp) & ~rd_req_int;
   always @(adr_int, wr_adr_d0, mymem_re)
-      if (mymem_re == 1'b1)
-        mymem_addr_o <= adr_int[7:2];
-      else
-        mymem_addr_o <= wr_adr_d0[7:2];
+  if (mymem_re == 1'b1)
+    mymem_addr_o <= adr_int[7:2];
+  else
+    mymem_addr_o <= wr_adr_d0[7:2];
 
   // Process for write requests.
   always @(mymem_we)
-      begin
-        mymem_wr_o <= 1'b0;
-        // Memory mymem
-        mymem_wr_o <= mymem_we;
-        wr_ack_int <= mymem_we;
-      end
+  begin
+    mymem_wr_o <= 1'b0;
+    // Memory mymem
+    mymem_wr_o <= mymem_we;
+    wr_ack_int <= mymem_we;
+  end
 
   // Process for read requests.
   always @(mymem_data_i, mymem_rack, rd_req_int)
-      begin
-        // By default ack read requests
-        rd_dat_d0 <= {32{1'bx}};
-        mymem_re <= 1'b0;
-        // Memory mymem
-        rd_dat_d0 <= mymem_data_i;
-        rd_ack_d0 <= mymem_rack;
-        mymem_re <= rd_req_int;
-      end
+  begin
+    // By default ack read requests
+    rd_dat_d0 <= {32{1'bx}};
+    mymem_re <= 1'b0;
+    // Memory mymem
+    rd_dat_d0 <= mymem_data_i;
+    rd_ack_d0 <= mymem_rack;
+    mymem_re <= rd_req_int;
+  end
 endmodule

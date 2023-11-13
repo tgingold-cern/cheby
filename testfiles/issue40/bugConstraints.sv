@@ -36,7 +36,7 @@ module bugConstraintFields
   assign VMEWrDone = wr_ack_int;
 
   // pipelining for wr-in+rd-out
-  always @(posedge(Clk) or negedge(rst_n))
+  always @(posedge(Clk))
   begin
     if (!rst_n)
       begin
@@ -58,7 +58,7 @@ module bugConstraintFields
 
   // Register r1
   assign r1_o = r1_reg;
-  always @(posedge(Clk) or negedge(rst_n))
+  always @(posedge(Clk))
   begin
     if (!rst_n)
       begin
@@ -75,7 +75,7 @@ module bugConstraintFields
 
   // Register r2
   assign r2_r2_o = r2_r2_reg;
-  always @(posedge(Clk) or negedge(rst_n))
+  always @(posedge(Clk))
   begin
     if (!rst_n)
       begin
@@ -92,48 +92,48 @@ module bugConstraintFields
 
   // Process for write requests.
   always @(wr_adr_d0, wr_req_d0, r1_wack, r2_wack)
+  begin
+    r1_wreq <= 1'b0;
+    r2_wreq <= 1'b0;
+    case (wr_adr_d0[2:2])
+    1'b0:
       begin
-        r1_wreq <= 1'b0;
-        r2_wreq <= 1'b0;
-        case (wr_adr_d0[2:2])
-        1'b0:
-          begin
-            // Reg r1
-            r1_wreq <= wr_req_d0;
-            wr_ack_int <= r1_wack;
-          end
-        1'b1:
-          begin
-            // Reg r2
-            r2_wreq <= wr_req_d0;
-            wr_ack_int <= r2_wack;
-          end
-        default:
-          wr_ack_int <= wr_req_d0;
-        endcase
+        // Reg r1
+        r1_wreq <= wr_req_d0;
+        wr_ack_int <= r1_wack;
       end
+    1'b1:
+      begin
+        // Reg r2
+        r2_wreq <= wr_req_d0;
+        wr_ack_int <= r2_wack;
+      end
+    default:
+      wr_ack_int <= wr_req_d0;
+    endcase
+  end
 
   // Process for read requests.
   always @(VMEAddr, VMERdMem, r1_reg, r2_r2_reg)
+  begin
+    // By default ack read requests
+    rd_dat_d0 <= {32{1'bx}};
+    case (VMEAddr[2:2])
+    1'b0:
       begin
-        // By default ack read requests
-        rd_dat_d0 <= {32{1'bx}};
-        case (VMEAddr[2:2])
-        1'b0:
-          begin
-            // Reg r1
-            rd_ack_d0 <= VMERdMem;
-            rd_dat_d0 <= r1_reg;
-          end
-        1'b1:
-          begin
-            // Reg r2
-            rd_ack_d0 <= VMERdMem;
-            rd_dat_d0[10:0] <= r2_r2_reg;
-            rd_dat_d0[31:11] <= 21'b0;
-          end
-        default:
-          rd_ack_d0 <= VMERdMem;
-        endcase
+        // Reg r1
+        rd_ack_d0 <= VMERdMem;
+        rd_dat_d0 <= r1_reg;
       end
+    1'b1:
+      begin
+        // Reg r2
+        rd_ack_d0 <= VMERdMem;
+        rd_dat_d0[10:0] <= r2_r2_reg;
+        rd_dat_d0[31:11] <= 21'b0;
+      end
+    default:
+      rd_ack_d0 <= VMERdMem;
+    endcase
+  end
 endmodule

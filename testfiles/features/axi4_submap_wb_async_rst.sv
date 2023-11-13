@@ -67,7 +67,7 @@ module axi4_submap_wb
   end
   assign wb_en = wb_cyc_i & wb_stb_i;
 
-  always @(posedge(clk_i))
+  always @(posedge(clk_i) or negedge(rst_n_i))
   begin
     if (!rst_n_i)
       wb_rip <= 1'b0;
@@ -76,7 +76,7 @@ module axi4_submap_wb
   end
   assign rd_req_int = (wb_en & ~wb_we_i) & ~wb_rip;
 
-  always @(posedge(clk_i))
+  always @(posedge(clk_i) or negedge(rst_n_i))
   begin
     if (!rst_n_i)
       wb_wip <= 1'b0;
@@ -92,7 +92,7 @@ module axi4_submap_wb
   assign wb_err_o = 1'b0;
 
   // pipelining for wr-in+rd-out
-  always @(posedge(clk_i))
+  always @(posedge(clk_i) or negedge(rst_n_i))
   begin
     if (!rst_n_i)
       begin
@@ -137,7 +137,7 @@ module axi4_submap_wb
   assign blk_araddr_o = {wb_adr_i[2:2], 2'b00};
   assign blk_arprot_o = 3'b000;
   assign blk_rready_o = 1'b1;
-  always @(posedge(clk_i))
+  always @(posedge(clk_i) or negedge(rst_n_i))
   begin
     if (!rst_n_i)
       begin

@@ -51,7 +51,7 @@ module crossbar_wb
   reg [31:0] wr_sel_d0;
 
   // WB decode signals
-  always @(wb.sel)
+  always_comb
   begin
     wr_sel[7:0] <= {8{wb.sel[0]}};
     wr_sel[15:8] <= {8{wb.sel[1]}};
@@ -61,7 +61,7 @@ module crossbar_wb
   assign adr_int = wb.adr[17:2];
   assign wb_en = wb.cyc & wb.stb;
 
-  always @(posedge(wb.clk))
+  always_ff @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
       wb_rip <= 1'b0;
@@ -70,7 +70,7 @@ module crossbar_wb
   end
   assign rd_req_int = (wb_en & ~wb.we) & ~wb_rip;
 
-  always @(posedge(wb.clk))
+  always_ff @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
       wb_wip <= 1'b0;
@@ -86,7 +86,7 @@ module crossbar_wb
   assign wb.err = 1'b0;
 
   // pipelining for wr-in+rd-out
-  always @(posedge(wb.clk))
+  always_ff @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
       begin
@@ -110,7 +110,7 @@ module crossbar_wb
 
   // Interface jesdavalon
   assign jesdavalon_tr = jesdavalon_wt | jesdavalon_rt;
-  always @(posedge(wb.clk))
+  always_ff @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
       begin
@@ -128,7 +128,7 @@ module crossbar_wb
   assign jesdavalon_wack = jesdavalon.ack & jesdavalon_wt;
   assign jesdavalon_rack = jesdavalon.ack & jesdavalon_rt;
   assign jesdavalon.adr = {22'b0, adr_int[9:2], 2'b0};
-  always @(wr_sel_d0)
+  always_comb
   begin
     jesdavalon.sel <= 4'b0;
     if (~(wr_sel_d0[7:0] == 8'b0))
@@ -145,7 +145,7 @@ module crossbar_wb
 
   // Interface i2ctowb
   assign i2ctowb_tr = i2ctowb_wt | i2ctowb_rt;
-  always @(posedge(wb.clk))
+  always_ff @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
       begin
@@ -163,7 +163,7 @@ module crossbar_wb
   assign i2ctowb_wack = i2ctowb.ack & i2ctowb_wt;
   assign i2ctowb_rack = i2ctowb.ack & i2ctowb_rt;
   assign i2ctowb.adr = {18'b0, adr_int[13:2], 2'b0};
-  always @(wr_sel_d0)
+  always_comb
   begin
     i2ctowb.sel <= 4'b0;
     if (~(wr_sel_d0[7:0] == 8'b0))
@@ -180,7 +180,7 @@ module crossbar_wb
 
   // Interface bran
   assign bran_tr = bran_wt | bran_rt;
-  always @(posedge(wb.clk))
+  always_ff @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
       begin
@@ -198,7 +198,7 @@ module crossbar_wb
   assign bran_wack = bran.ack & bran_wt;
   assign bran_rack = bran.ack & bran_rt;
   assign bran.adr = {15'b0, adr_int[16:2], 2'b0};
-  always @(wr_sel_d0)
+  always_comb
   begin
     bran.sel <= 4'b0;
     if (~(wr_sel_d0[7:0] == 8'b0))
@@ -214,7 +214,7 @@ module crossbar_wb
   assign bran.dato = wr_dat_d0;
 
   // Process for write requests.
-  always @(wr_adr_d0, wr_req_d0, jesdavalon_wack, i2ctowb_wack, bran_wack)
+  always_comb
   begin
     jesdavalon_we <= 1'b0;
     i2ctowb_we <= 1'b0;
@@ -249,7 +249,7 @@ module crossbar_wb
   end
 
   // Process for read requests.
-  always @(adr_int, rd_req_int, jesdavalon.dati, jesdavalon_rack, i2ctowb.dati, i2ctowb_rack, bran.dati, bran_rack)
+  always_comb
   begin
     // By default ack read requests
     rd_dat_d0 <= {32{1'bx}};

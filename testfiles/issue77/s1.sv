@@ -64,7 +64,7 @@ module s1
   assign awready = ~axi_awset;
   assign wready = ~axi_wset;
   assign bvalid = axi_wdone;
-  always @(posedge(aclk) or negedge(areset_n))
+  always @(posedge(aclk))
   begin
     if (!areset_n)
       begin
@@ -106,7 +106,7 @@ module s1
   // AR and R channels
   assign arready = ~axi_arset;
   assign rvalid = axi_rdone;
-  always @(posedge(aclk) or negedge(areset_n))
+  always @(posedge(aclk))
   begin
     if (!areset_n)
       begin
@@ -138,7 +138,7 @@ module s1
   assign rresp = 2'b00;
 
   // pipelining for wr-in+rd-out
-  always @(posedge(aclk) or negedge(areset_n))
+  always @(posedge(aclk))
   begin
     if (!areset_n)
       begin
@@ -160,7 +160,7 @@ module s1
 
   // Interface sub
   assign sub_tr = sub_wt | sub_rt;
-  always @(posedge(aclk) or negedge(areset_n))
+  always @(posedge(aclk))
   begin
     if (!areset_n)
       begin
@@ -182,38 +182,38 @@ module s1
   assign sub_wack = sub_ack_i & sub_wt;
   assign sub_rack = sub_ack_i & sub_rt;
   always @(wr_sel_d0)
-      begin
-        sub_sel_o <= 4'b0;
-        if (~(wr_sel_d0[7:0] == 8'b0))
-          sub_sel_o[0] <= 1'b1;
-        if (~(wr_sel_d0[15:8] == 8'b0))
-          sub_sel_o[1] <= 1'b1;
-        if (~(wr_sel_d0[23:16] == 8'b0))
-          sub_sel_o[2] <= 1'b1;
-        if (~(wr_sel_d0[31:24] == 8'b0))
-          sub_sel_o[3] <= 1'b1;
-      end
+  begin
+    sub_sel_o <= 4'b0;
+    if (~(wr_sel_d0[7:0] == 8'b0))
+      sub_sel_o[0] <= 1'b1;
+    if (~(wr_sel_d0[15:8] == 8'b0))
+      sub_sel_o[1] <= 1'b1;
+    if (~(wr_sel_d0[23:16] == 8'b0))
+      sub_sel_o[2] <= 1'b1;
+    if (~(wr_sel_d0[31:24] == 8'b0))
+      sub_sel_o[3] <= 1'b1;
+  end
   assign sub_we_o = sub_wt;
   assign sub_dat_o = wr_dat_d0;
 
   // Process for write requests.
   always @(wr_req_d0, sub_wack)
-      begin
-        sub_we <= 1'b0;
-        // Submap sub
-        sub_we <= wr_req_d0;
-        wr_ack <= sub_wack;
-      end
+  begin
+    sub_we <= 1'b0;
+    // Submap sub
+    sub_we <= wr_req_d0;
+    wr_ack <= sub_wack;
+  end
 
   // Process for read requests.
   always @(rd_req, sub_dat_i, sub_rack)
-      begin
-        // By default ack read requests
-        rd_dat_d0 <= {32{1'bx}};
-        sub_re <= 1'b0;
-        // Submap sub
-        sub_re <= rd_req;
-        rd_dat_d0 <= sub_dat_i;
-        rd_ack_d0 <= sub_rack;
-      end
+  begin
+    // By default ack read requests
+    rd_dat_d0 <= {32{1'bx}};
+    sub_re <= 1'b0;
+    // Submap sub
+    sub_re <= rd_req;
+    rd_dat_d0 <= sub_dat_i;
+    rd_ack_d0 <= sub_rack;
+  end
 endmodule

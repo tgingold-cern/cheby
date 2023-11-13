@@ -36,10 +36,10 @@ module sreg
 
   // WB decode signals
   always @(wb_sel_i)
-      ;
+  ;
   assign wb_en = wb_cyc_i & wb_stb_i;
 
-  always @(posedge(clk_i) or negedge(rst_n_i))
+  always @(posedge(clk_i))
   begin
     if (!rst_n_i)
       wb_rip <= 1'b0;
@@ -48,7 +48,7 @@ module sreg
   end
   assign rd_req_int = (wb_en & ~wb_we_i) & ~wb_rip;
 
-  always @(posedge(clk_i) or negedge(rst_n_i))
+  always @(posedge(clk_i))
   begin
     if (!rst_n_i)
       wb_wip <= 1'b0;
@@ -64,7 +64,7 @@ module sreg
   assign wb_err_o = 1'b0;
 
   // pipelining for wr-in+rd-out
-  always @(posedge(clk_i) or negedge(rst_n_i))
+  always @(posedge(clk_i))
   begin
     if (!rst_n_i)
       begin
@@ -85,7 +85,7 @@ module sreg
   // Register i1Thresholds
   assign i1Thresholds_o[31:16] = i1Thresholds_highThreshold_reg;
   assign i1Thresholds_o[15:0] = i1Thresholds_lowThreshold_reg;
-  always @(posedge(clk_i) or negedge(rst_n_i))
+  always @(posedge(clk_i))
   begin
     if (!rst_n_i)
       begin
@@ -106,21 +106,21 @@ module sreg
 
   // Process for write requests.
   always @(wr_req_d0, i1Thresholds_wack)
-      begin
-        i1Thresholds_wreq <= 1'b0;
-        // Reg i1Thresholds
-        i1Thresholds_wreq <= wr_req_d0;
-        wr_ack_int <= i1Thresholds_wack;
-      end
+  begin
+    i1Thresholds_wreq <= 1'b0;
+    // Reg i1Thresholds
+    i1Thresholds_wreq <= wr_req_d0;
+    wr_ack_int <= i1Thresholds_wack;
+  end
 
   // Process for read requests.
   always @(rd_req_int, i1Thresholds_lowThreshold_reg, i1Thresholds_highThreshold_reg)
-      begin
-        // By default ack read requests
-        rd_dat_d0 <= {32{1'bx}};
-        // Reg i1Thresholds
-        rd_ack_d0 <= rd_req_int;
-        rd_dat_d0[15:0] <= i1Thresholds_lowThreshold_reg;
-        rd_dat_d0[31:16] <= i1Thresholds_highThreshold_reg;
-      end
+  begin
+    // By default ack read requests
+    rd_dat_d0 <= {32{1'bx}};
+    // Reg i1Thresholds
+    rd_ack_d0 <= rd_req_int;
+    rd_dat_d0[15:0] <= i1Thresholds_lowThreshold_reg;
+    rd_dat_d0[31:16] <= i1Thresholds_highThreshold_reg;
+  end
 endmodule
