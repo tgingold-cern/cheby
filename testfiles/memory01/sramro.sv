@@ -23,12 +23,12 @@ module sramro
   reg wr_req_d0;
 
   // WB decode signals
-  always @(wb.sel)
+  always_comb
   ;
   assign adr_int = wb.adr[7:2];
   assign wb_en = wb.cyc & wb.stb;
 
-  always @(posedge(wb.clk))
+  always_ff @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
       wb_rip <= 1'b0;
@@ -37,7 +37,7 @@ module sramro
   end
   assign rd_req_int = (wb_en & ~wb.we) & ~wb_rip;
 
-  always @(posedge(wb.clk))
+  always_ff @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
       wb_wip <= 1'b0;
@@ -53,7 +53,7 @@ module sramro
   assign wb.err = 1'b0;
 
   // pipelining for wr-in+rd-out
-  always @(posedge(wb.clk))
+  always_ff @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
       begin
@@ -70,7 +70,7 @@ module sramro
   end
 
   // Interface mymem
-  always @(posedge(wb.clk))
+  always_ff @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
       mymem_rack <= 1'b0;
@@ -80,19 +80,19 @@ module sramro
   assign mymem_addr_o = adr_int[7:2];
 
   // Process for write requests.
-  always @(wr_req_d0)
+  always_comb
   // Memory mymem
-  wr_ack_int <= wr_req_d0;
+  wr_ack_int = wr_req_d0;
 
   // Process for read requests.
-  always @(mymem_data_i, mymem_rack, rd_req_int)
+  always_comb
   begin
     // By default ack read requests
-    rd_dat_d0 <= {32{1'bx}};
-    mymem_re <= 1'b0;
+    rd_dat_d0 = {32{1'bx}};
+    mymem_re = 1'b0;
     // Memory mymem
-    rd_dat_d0 <= mymem_data_i;
-    rd_ack_d0 <= mymem_rack;
-    mymem_re <= rd_req_int;
+    rd_dat_d0 = mymem_data_i;
+    rd_ack_d0 = mymem_rack;
+    mymem_re = rd_req_int;
   end
 endmodule

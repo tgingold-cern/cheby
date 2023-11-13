@@ -32,12 +32,12 @@ module alt_trigin
   reg [31:0] wr_dat_d0;
 
   // WB decode signals
-  always @(wb.sel)
+  always_comb
   ;
   assign adr_int = wb.adr[4:2];
   assign wb_en = wb.cyc & wb.stb;
 
-  always @(posedge(wb.clk))
+  always_ff @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
       wb_rip <= 1'b0;
@@ -46,7 +46,7 @@ module alt_trigin
   end
   assign rd_req_int = (wb_en & ~wb.we) & ~wb_rip;
 
-  always @(posedge(wb.clk))
+  always_ff @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
       wb_wip <= 1'b0;
@@ -62,7 +62,7 @@ module alt_trigin
   assign wb.err = 1'b0;
 
   // pipelining for wr-in+rd-out
-  always @(posedge(wb.clk))
+  always_ff @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
       begin
@@ -91,94 +91,94 @@ module alt_trigin
   // Register cycles
 
   // Process for write requests.
-  always @(wr_adr_d0, wr_req_d0)
+  always_comb
   begin
-    ctrl_wreq <= 1'b0;
+    ctrl_wreq = 1'b0;
     case (wr_adr_d0[4:3])
     2'b00:
       case (wr_adr_d0[2:2])
       1'b0:
         begin
           // Reg ctrl
-          ctrl_wreq <= wr_req_d0;
-          wr_ack_int <= wr_req_d0;
+          ctrl_wreq = wr_req_d0;
+          wr_ack_int = wr_req_d0;
         end
       default:
-        wr_ack_int <= wr_req_d0;
+        wr_ack_int = wr_req_d0;
       endcase
     2'b01:
       case (wr_adr_d0[2:2])
       1'b0:
         // Reg seconds
-        wr_ack_int <= wr_req_d0;
+        wr_ack_int = wr_req_d0;
       1'b1:
         // Reg seconds
-        wr_ack_int <= wr_req_d0;
+        wr_ack_int = wr_req_d0;
       default:
-        wr_ack_int <= wr_req_d0;
+        wr_ack_int = wr_req_d0;
       endcase
     2'b10:
       case (wr_adr_d0[2:2])
       1'b0:
         // Reg cycles
-        wr_ack_int <= wr_req_d0;
+        wr_ack_int = wr_req_d0;
       default:
-        wr_ack_int <= wr_req_d0;
+        wr_ack_int = wr_req_d0;
       endcase
     default:
-      wr_ack_int <= wr_req_d0;
+      wr_ack_int = wr_req_d0;
     endcase
   end
 
   // Process for read requests.
-  always @(adr_int, rd_req_int, ctrl_enable_i, seconds_i, cycles_i)
+  always_comb
   begin
     // By default ack read requests
-    rd_dat_d0 <= {32{1'bx}};
+    rd_dat_d0 = {32{1'bx}};
     case (adr_int[4:3])
     2'b00:
       case (adr_int[2:2])
       1'b0:
         begin
           // Reg ctrl
-          rd_ack_d0 <= rd_req_int;
-          rd_dat_d0[0] <= 1'b0;
-          rd_dat_d0[1] <= ctrl_enable_i;
-          rd_dat_d0[31:2] <= 30'b0;
+          rd_ack_d0 = rd_req_int;
+          rd_dat_d0[0] = 1'b0;
+          rd_dat_d0[1] = ctrl_enable_i;
+          rd_dat_d0[31:2] = 30'b0;
         end
       default:
-        rd_ack_d0 <= rd_req_int;
+        rd_ack_d0 = rd_req_int;
       endcase
     2'b01:
       case (adr_int[2:2])
       1'b0:
         begin
           // Reg seconds
-          rd_ack_d0 <= rd_req_int;
-          rd_dat_d0 <= seconds_i[63:32];
+          rd_ack_d0 = rd_req_int;
+          rd_dat_d0 = seconds_i[63:32];
         end
       1'b1:
         begin
           // Reg seconds
-          rd_ack_d0 <= rd_req_int;
-          rd_dat_d0 <= seconds_i[31:0];
+          rd_ack_d0 = rd_req_int;
+          rd_dat_d0 = seconds_i[31:0];
         end
       default:
-        rd_ack_d0 <= rd_req_int;
+        rd_ack_d0 = rd_req_int;
       endcase
     2'b10:
       case (adr_int[2:2])
       1'b0:
         begin
           // Reg cycles
-          rd_ack_d0 <= rd_req_int;
-          rd_dat_d0 <= cycles_i;
+          rd_ack_d0 = rd_req_int;
+          rd_dat_d0 = cycles_i;
         end
       default:
-        rd_ack_d0 <= rd_req_int;
+        rd_ack_d0 = rd_req_int;
       endcase
     default:
-      rd_ack_d0 <= rd_req_int;
+      rd_ack_d0 = rd_req_int;
     endcase
   end
 endmodule

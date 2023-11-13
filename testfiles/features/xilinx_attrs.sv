@@ -74,7 +74,7 @@ module xilinx_attrs
   assign awready = ~axi_awset;
   assign wready = ~axi_wset;
   assign bvalid = axi_wdone;
-  always @(posedge(aclk))
+  always_ff @(posedge(aclk))
   begin
     if (!areset_n)
       begin
@@ -117,7 +117,7 @@ module xilinx_attrs
   // AR and R channels
   assign arready = ~axi_arset;
   assign rvalid = axi_rdone;
-  always @(posedge(aclk))
+  always_ff @(posedge(aclk))
   begin
     if (!areset_n)
       begin
@@ -150,7 +150,7 @@ module xilinx_attrs
   assign rresp = 2'b00;
 
   // pipelining for wr-in+rd-out
-  always @(posedge(aclk))
+  always_ff @(posedge(aclk))
   begin
     if (!areset_n)
       begin
@@ -178,24 +178,24 @@ module xilinx_attrs
   assign subm_awprot_o = 3'b000;
   assign subm_wvalid_o = subm_w_val;
   assign subm_wdata_o = wr_dat_d0;
-  always @(wr_sel_d0)
+  always_comb
   begin
-    subm_wstrb_o <= 4'b0;
+    subm_wstrb_o = 4'b0;
     if (~(wr_sel_d0[7:0] == 8'b0))
-      subm_wstrb_o[0] <= 1'b1;
+      subm_wstrb_o[0] = 1'b1;
     if (~(wr_sel_d0[15:8] == 8'b0))
-      subm_wstrb_o[1] <= 1'b1;
+      subm_wstrb_o[1] = 1'b1;
     if (~(wr_sel_d0[23:16] == 8'b0))
-      subm_wstrb_o[2] <= 1'b1;
+      subm_wstrb_o[2] = 1'b1;
     if (~(wr_sel_d0[31:24] == 8'b0))
-      subm_wstrb_o[3] <= 1'b1;
+      subm_wstrb_o[3] = 1'b1;
   end
   assign subm_bready_o = 1'b1;
   assign subm_arvalid_o = subm_ar_val;
   assign subm_araddr_o = rd_addr[2:2];
   assign subm_arprot_o = 3'b000;
   assign subm_rready_o = 1'b1;
-  always @(posedge(aclk))
+  always_ff @(posedge(aclk))
   begin
     if (!areset_n)
       begin
@@ -212,23 +212,23 @@ module xilinx_attrs
   end
 
   // Process for write requests.
-  always @(wr_req_d0, subm_bvalid_i)
+  always_comb
   begin
-    subm_wr <= 1'b0;
+    subm_wr = 1'b0;
     // Submap subm
-    subm_wr <= wr_req_d0;
-    wr_ack <= subm_bvalid_i;
+    subm_wr = wr_req_d0;
+    wr_ack = subm_bvalid_i;
   end
 
   // Process for read requests.
-  always @(rd_req, subm_rdata_i, subm_rvalid_i)
+  always_comb
   begin
     // By default ack read requests
-    rd_dat_d0 <= {32{1'bx}};
-    subm_rd <= 1'b0;
+    rd_dat_d0 = {32{1'bx}};
+    subm_rd = 1'b0;
     // Submap subm
-    subm_rd <= rd_req;
-    rd_dat_d0 <= subm_rdata_i;
-    rd_ack_d0 <= subm_rvalid_i;
+    subm_rd = rd_req;
+    rd_dat_d0 = subm_rdata_i;
+    rd_ack_d0 = subm_rvalid_i;
   end
 endmodule

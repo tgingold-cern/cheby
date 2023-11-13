@@ -41,7 +41,7 @@ module eda02175v2
   assign VMEWrDone = wr_ack_int;
 
   // pipelining for wr-in+rd-out
-  always @(posedge(Clk))
+  always_ff @(posedge(Clk))
   begin
     if (!rst_n)
       begin
@@ -63,7 +63,7 @@ module eda02175v2
 
   // Interface acqVP
   assign acqVP_VMEWrData_o = wr_dat_d0;
-  always @(posedge(Clk))
+  always_ff @(posedge(Clk))
   begin
     if (!rst_n)
       acqVP_wt <= 1'b0;
@@ -71,15 +71,15 @@ module eda02175v2
       acqVP_wt <= (acqVP_wt | acqVP_ws) & ~acqVP_VMEWrDone_i;
   end
   assign acqVP_VMEWrMem_o = acqVP_ws;
-  always @(VMEAddr, wr_adr_d0, acqVP_wt, acqVP_ws)
+  always_comb
   if ((acqVP_ws | acqVP_wt) == 1'b1)
-    acqVP_VMEAddr_o <= wr_adr_d0[16:1];
+    acqVP_VMEAddr_o = wr_adr_d0[16:1];
   else
-    acqVP_VMEAddr_o <= VMEAddr[16:1];
+    acqVP_VMEAddr_o = VMEAddr[16:1];
 
   // Register softReset
   assign softReset_reset_o = softReset_reset_reg;
-  always @(posedge(Clk))
+  always_ff @(posedge(Clk))
   begin
     if (!rst_n)
       begin
@@ -95,61 +95,61 @@ module eda02175v2
   end
 
   // Process for write requests.
-  always @(wr_adr_d0, wr_req_d0, acqVP_VMEWrDone_i, softReset_wack)
+  always_comb
   begin
-    acqVP_ws <= 1'b0;
-    softReset_wreq <= 1'b0;
+    acqVP_ws = 1'b0;
+    softReset_wreq = 1'b0;
     case (wr_adr_d0[20:20])
     1'b0:
       begin
         // Memory acqVP
-        acqVP_ws <= wr_req_d0;
-        wr_ack_int <= acqVP_VMEWrDone_i;
+        acqVP_ws = wr_req_d0;
+        wr_ack_int = acqVP_VMEWrDone_i;
       end
     1'b1:
       case (wr_adr_d0[19:1])
       19'b0000000000000000000:
         begin
           // Reg softReset
-          softReset_wreq <= wr_req_d0;
-          wr_ack_int <= softReset_wack;
+          softReset_wreq = wr_req_d0;
+          wr_ack_int = softReset_wack;
         end
       default:
-        wr_ack_int <= wr_req_d0;
+        wr_ack_int = wr_req_d0;
       endcase
     default:
-      wr_ack_int <= wr_req_d0;
+      wr_ack_int = wr_req_d0;
     endcase
   end
 
   // Process for read requests.
-  always @(VMEAddr, VMERdMem, acqVP_VMERdData_i, acqVP_VMERdDone_i, softReset_reset_reg)
+  always_comb
   begin
     // By default ack read requests
-    rd_dat_d0 <= {16{1'bx}};
-    acqVP_VMERdMem_o <= 1'b0;
+    rd_dat_d0 = {16{1'bx}};
+    acqVP_VMERdMem_o = 1'b0;
     case (VMEAddr[20:20])
     1'b0:
       begin
         // Memory acqVP
-        acqVP_VMERdMem_o <= VMERdMem;
-        rd_dat_d0 <= acqVP_VMERdData_i;
-        rd_ack_d0 <= acqVP_VMERdDone_i;
+        acqVP_VMERdMem_o = VMERdMem;
+        rd_dat_d0 = acqVP_VMERdData_i;
+        rd_ack_d0 = acqVP_VMERdDone_i;
       end
     1'b1:
       case (VMEAddr[19:1])
       19'b0000000000000000000:
         begin
           // Reg softReset
-          rd_ack_d0 <= VMERdMem;
-          rd_dat_d0[0] <= softReset_reset_reg;
-          rd_dat_d0[15:1] <= 15'b0;
+          rd_ack_d0 = VMERdMem;
+          rd_dat_d0[0] = softReset_reset_reg;
+          rd_dat_d0[15:1] = 15'b0;
         end
       default:
-        rd_ack_d0 <= VMERdMem;
+        rd_ack_d0 = VMERdMem;
       endcase
     default:
-      rd_ack_d0 <= VMERdMem;
+      rd_ack_d0 = VMERdMem;
     endcase
   end
 endmodule

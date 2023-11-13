@@ -41,7 +41,7 @@ module example
   assign VMEWrDone = wr_ack_int;
 
   // pipelining for wr-in+rd-out
-  always @(posedge(Clk))
+  always_ff @(posedge(Clk))
   begin
     if (!rst_n)
       begin
@@ -63,7 +63,7 @@ module example
 
   // Register regA
   assign regA_o = regA_reg;
-  always @(posedge(Clk))
+  always_ff @(posedge(Clk))
   begin
     if (!rst_n)
       begin
@@ -82,7 +82,7 @@ module example
 
   // Interface sm
   assign sm_VMEWrData_o = wr_dat_d0;
-  always @(posedge(Clk))
+  always_ff @(posedge(Clk))
   begin
     if (!rst_n)
       sm_wt <= 1'b0;
@@ -90,79 +90,79 @@ module example
       sm_wt <= (sm_wt | sm_ws) & ~sm_VMEWrDone_i;
   end
   assign sm_VMEWrMem_o = sm_ws;
-  always @(VMEAddr, wr_adr_d0, sm_wt, sm_ws)
+  always_comb
   if ((sm_ws | sm_wt) == 1'b1)
-    sm_VMEAddr_o <= wr_adr_d0[1:1];
+    sm_VMEAddr_o = wr_adr_d0[1:1];
   else
-    sm_VMEAddr_o <= VMEAddr[1:1];
+    sm_VMEAddr_o = VMEAddr[1:1];
 
   // Process for write requests.
-  always @(wr_adr_d0, wr_req_d0, regA_wack, sm_VMEWrDone_i)
+  always_comb
   begin
-    regA_wreq <= 2'b0;
-    sm_ws <= 1'b0;
+    regA_wreq = 2'b0;
+    sm_ws = 1'b0;
     case (wr_adr_d0[2:2])
     1'b0:
       case (wr_adr_d0[1:1])
       1'b0:
         begin
           // Reg regA
-          regA_wreq[1] <= wr_req_d0;
-          wr_ack_int <= regA_wack[1];
+          regA_wreq[1] = wr_req_d0;
+          wr_ack_int = regA_wack[1];
         end
       1'b1:
         begin
           // Reg regA
-          regA_wreq[0] <= wr_req_d0;
-          wr_ack_int <= regA_wack[0];
+          regA_wreq[0] = wr_req_d0;
+          wr_ack_int = regA_wack[0];
         end
       default:
-        wr_ack_int <= wr_req_d0;
+        wr_ack_int = wr_req_d0;
       endcase
     1'b1:
       begin
         // Submap sm
-        sm_ws <= wr_req_d0;
-        wr_ack_int <= sm_VMEWrDone_i;
+        sm_ws = wr_req_d0;
+        wr_ack_int = sm_VMEWrDone_i;
       end
     default:
-      wr_ack_int <= wr_req_d0;
+      wr_ack_int = wr_req_d0;
     endcase
   end
 
   // Process for read requests.
-  always @(VMEAddr, VMERdMem, regA_reg, sm_VMERdData_i, sm_VMERdDone_i)
+  always_comb
   begin
     // By default ack read requests
-    rd_dat_d0 <= {16{1'bx}};
-    sm_VMERdMem_o <= 1'b0;
+    rd_dat_d0 = {16{1'bx}};
+    sm_VMERdMem_o = 1'b0;
     case (VMEAddr[2:2])
     1'b0:
       case (VMEAddr[1:1])
       1'b0:
         begin
           // Reg regA
-          rd_ack_d0 <= VMERdMem;
-          rd_dat_d0 <= regA_reg[31:16];
+          rd_ack_d0 = VMERdMem;
+          rd_dat_d0 = regA_reg[31:16];
         end
       1'b1:
         begin
           // Reg regA
-          rd_ack_d0 <= VMERdMem;
-          rd_dat_d0 <= regA_reg[15:0];
+          rd_ack_d0 = VMERdMem;
+          rd_dat_d0 = regA_reg[15:0];
         end
       default:
-        rd_ack_d0 <= VMERdMem;
+        rd_ack_d0 = VMERdMem;
       endcase
     1'b1:
       begin
         // Submap sm
-        sm_VMERdMem_o <= VMERdMem;
-        rd_dat_d0 <= sm_VMERdData_i;
-        rd_ack_d0 <= sm_VMERdDone_i;
+        sm_VMERdMem_o = VMERdMem;
+        rd_dat_d0 = sm_VMERdData_i;
+        rd_ack_d0 = sm_VMERdDone_i;
       end
     default:
-      rd_ack_d0 <= VMERdMem;
+      rd_ack_d0 = VMERdMem;
     endcase
   end
 endmodule

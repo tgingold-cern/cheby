@@ -35,7 +35,7 @@ module xilinx_attrs
   assign VMEWrDone = wr_ack_int;
 
   // pipelining for wr-in+rd-out
-  always @(posedge(Clk))
+  always_ff @(posedge(Clk))
   begin
     if (!rst_n)
       begin
@@ -57,7 +57,7 @@ module xilinx_attrs
 
   // Interface subm
   assign subm_VMEWrData_o = wr_dat_d0;
-  always @(posedge(Clk))
+  always_ff @(posedge(Clk))
   begin
     if (!rst_n)
       subm_wt <= 1'b0;
@@ -65,30 +65,30 @@ module xilinx_attrs
       subm_wt <= (subm_wt | subm_ws) & ~subm_VMEWrDone_i;
   end
   assign subm_VMEWrMem_o = subm_ws;
-  always @(VMEAddr, wr_adr_d0, subm_wt, subm_ws)
+  always_comb
   if ((subm_ws | subm_wt) == 1'b1)
-    subm_VMEAddr_o <= wr_adr_d0[2:2];
+    subm_VMEAddr_o = wr_adr_d0[2:2];
   else
-    subm_VMEAddr_o <= VMEAddr[2:2];
+    subm_VMEAddr_o = VMEAddr[2:2];
 
   // Process for write requests.
-  always @(wr_req_d0, subm_VMEWrDone_i)
+  always_comb
   begin
-    subm_ws <= 1'b0;
+    subm_ws = 1'b0;
     // Submap subm
-    subm_ws <= wr_req_d0;
-    wr_ack_int <= subm_VMEWrDone_i;
+    subm_ws = wr_req_d0;
+    wr_ack_int = subm_VMEWrDone_i;
   end
 
   // Process for read requests.
-  always @(VMERdMem, subm_VMERdData_i, subm_VMERdDone_i)
+  always_comb
   begin
     // By default ack read requests
-    rd_dat_d0 <= {32{1'bx}};
-    subm_VMERdMem_o <= 1'b0;
+    rd_dat_d0 = {32{1'bx}};
+    subm_VMERdMem_o = 1'b0;
     // Submap subm
-    subm_VMERdMem_o <= VMERdMem;
-    rd_dat_d0 <= subm_VMERdData_i;
-    rd_ack_d0 <= subm_VMERdDone_i;
+    subm_VMERdMem_o = VMERdMem;
+    rd_dat_d0 = subm_VMERdData_i;
+    rd_ack_d0 = subm_VMERdDone_i;
   end
 endmodule

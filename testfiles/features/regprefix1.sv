@@ -52,11 +52,11 @@ module regprefix1
   reg [31:0] wr_dat_d0;
 
   // WB decode signals
-  always @(wb_sel_i)
+  always_comb
   ;
   assign wb_en = wb_cyc_i & wb_stb_i;
 
-  always @(posedge(clk_i))
+  always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       wb_rip <= 1'b0;
@@ -65,7 +65,7 @@ module regprefix1
   end
   assign rd_req_int = (wb_en & ~wb_we_i) & ~wb_rip;
 
-  always @(posedge(clk_i))
+  always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       wb_wip <= 1'b0;
@@ -81,7 +81,7 @@ module regprefix1
   assign wb_err_o = 1'b0;
 
   // pipelining for wr-in+rd-out
-  always @(posedge(clk_i))
+  always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       begin
@@ -104,7 +104,7 @@ module regprefix1
   // Register r1
   assign f1_o = f1_reg;
   assign f2_o = f2_reg;
-  always @(posedge(clk_i))
+  always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       begin
@@ -126,7 +126,7 @@ module regprefix1
   // Register r2
   assign f3_o = f3_reg;
   assign f4_o = f4_reg;
-  always @(posedge(clk_i))
+  always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       begin
@@ -147,7 +147,7 @@ module regprefix1
 
   // Register r3
   assign r3_o = r3_reg;
-  always @(posedge(clk_i))
+  always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       begin
@@ -163,67 +163,67 @@ module regprefix1
   end
 
   // Process for write requests.
-  always @(wr_adr_d0, wr_req_d0, r1_wack, r2_wack, r3_wack)
+  always_comb
   begin
-    r1_wreq <= 1'b0;
-    r2_wreq <= 1'b0;
-    r3_wreq <= 1'b0;
+    r1_wreq = 1'b0;
+    r2_wreq = 1'b0;
+    r3_wreq = 1'b0;
     case (wr_adr_d0[3:2])
     2'b00:
       begin
         // Reg r1
-        r1_wreq <= wr_req_d0;
-        wr_ack_int <= r1_wack;
+        r1_wreq = wr_req_d0;
+        wr_ack_int = r1_wack;
       end
     2'b01:
       begin
         // Reg r2
-        r2_wreq <= wr_req_d0;
-        wr_ack_int <= r2_wack;
+        r2_wreq = wr_req_d0;
+        wr_ack_int = r2_wack;
       end
     2'b10:
       begin
         // Reg r3
-        r3_wreq <= wr_req_d0;
-        wr_ack_int <= r3_wack;
+        r3_wreq = wr_req_d0;
+        wr_ack_int = r3_wack;
       end
     default:
-      wr_ack_int <= wr_req_d0;
+      wr_ack_int = wr_req_d0;
     endcase
   end
 
   // Process for read requests.
-  always @(wb_adr_i, rd_req_int, f1_reg, f2_reg, f3_reg, f4_reg, r3_reg)
+  always_comb
   begin
     // By default ack read requests
-    rd_dat_d0 <= {32{1'bx}};
+    rd_dat_d0 = {32{1'bx}};
     case (wb_adr_i[3:2])
     2'b00:
       begin
         // Reg r1
-        rd_ack_d0 <= rd_req_int;
-        rd_dat_d0[2:0] <= f1_reg;
-        rd_dat_d0[3] <= 1'b0;
-        rd_dat_d0[4] <= f2_reg;
-        rd_dat_d0[31:5] <= 27'b0;
+        rd_ack_d0 = rd_req_int;
+        rd_dat_d0[2:0] = f1_reg;
+        rd_dat_d0[3] = 1'b0;
+        rd_dat_d0[4] = f2_reg;
+        rd_dat_d0[31:5] = 27'b0;
       end
     2'b01:
       begin
         // Reg r2
-        rd_ack_d0 <= rd_req_int;
-        rd_dat_d0[2:0] <= f3_reg;
-        rd_dat_d0[3] <= 1'b0;
-        rd_dat_d0[4] <= f4_reg;
-        rd_dat_d0[31:5] <= 27'b0;
+        rd_ack_d0 = rd_req_int;
+        rd_dat_d0[2:0] = f3_reg;
+        rd_dat_d0[3] = 1'b0;
+        rd_dat_d0[4] = f4_reg;
+        rd_dat_d0[31:5] = 27'b0;
       end
     2'b10:
       begin
         // Reg r3
-        rd_ack_d0 <= rd_req_int;
-        rd_dat_d0 <= r3_reg;
+        rd_ack_d0 = rd_req_int;
+        rd_dat_d0 = r3_reg;
       end
     default:
-      rd_ack_d0 <= rd_req_int;
+      rd_ack_d0 = rd_req_int;
     endcase
   end
 endmodule

@@ -206,15 +206,15 @@ module sps200CavityControl_regs
   assign hwInfo_wdata_o = wr_dat_d0;
   always @(wr_sel_d0)
   begin
-    hwInfo_wstrb_o <= 4'b0;
+    hwInfo_wstrb_o = 4'b0;
     if (~(wr_sel_d0[7:0] == 8'b0))
-      hwInfo_wstrb_o[0] <= 1'b1;
+      hwInfo_wstrb_o[0] = 1'b1;
     if (~(wr_sel_d0[15:8] == 8'b0))
-      hwInfo_wstrb_o[1] <= 1'b1;
+      hwInfo_wstrb_o[1] = 1'b1;
     if (~(wr_sel_d0[23:16] == 8'b0))
-      hwInfo_wstrb_o[2] <= 1'b1;
+      hwInfo_wstrb_o[2] = 1'b1;
     if (~(wr_sel_d0[31:24] == 8'b0))
-      hwInfo_wstrb_o[3] <= 1'b1;
+      hwInfo_wstrb_o[3] = 1'b1;
   end
   assign hwInfo_bready_o = 1'b1;
   assign hwInfo_arvalid_o = hwInfo_ar_val;
@@ -245,15 +245,15 @@ module sps200CavityControl_regs
   assign app_wdata_o = wr_dat_d0;
   always @(wr_sel_d0)
   begin
-    app_wstrb_o <= 4'b0;
+    app_wstrb_o = 4'b0;
     if (~(wr_sel_d0[7:0] == 8'b0))
-      app_wstrb_o[0] <= 1'b1;
+      app_wstrb_o[0] = 1'b1;
     if (~(wr_sel_d0[15:8] == 8'b0))
-      app_wstrb_o[1] <= 1'b1;
+      app_wstrb_o[1] = 1'b1;
     if (~(wr_sel_d0[23:16] == 8'b0))
-      app_wstrb_o[2] <= 1'b1;
+      app_wstrb_o[2] = 1'b1;
     if (~(wr_sel_d0[31:24] == 8'b0))
-      app_wstrb_o[3] <= 1'b1;
+      app_wstrb_o[3] = 1'b1;
   end
   assign app_bready_o = 1'b1;
   assign app_arvalid_o = app_ar_val;
@@ -279,23 +279,23 @@ module sps200CavityControl_regs
   // Process for write requests.
   always @(wr_adr_d0, wr_req_d0, hwInfo_bvalid_i, app_bvalid_i)
   begin
-    hwInfo_wr <= 1'b0;
-    app_wr <= 1'b0;
+    hwInfo_wr = 1'b0;
+    app_wr = 1'b0;
     case (wr_adr_d0[20:19])
     2'b00:
       begin
         // Submap hwInfo
-        hwInfo_wr <= wr_req_d0;
-        wr_ack <= hwInfo_bvalid_i;
+        hwInfo_wr = wr_req_d0;
+        wr_ack = hwInfo_bvalid_i;
       end
     2'b10:
       begin
         // Submap app
-        app_wr <= wr_req_d0;
-        wr_ack <= app_bvalid_i;
+        app_wr = wr_req_d0;
+        wr_ack = app_bvalid_i;
       end
     default:
-      wr_ack <= wr_req_d0;
+      wr_ack = wr_req_d0;
     endcase
   end
 
@@ -303,26 +303,26 @@ module sps200CavityControl_regs
   always @(rd_addr, rd_req, hwInfo_rdata_i, hwInfo_rvalid_i, app_rdata_i, app_rvalid_i)
   begin
     // By default ack read requests
-    rd_dat_d0 <= {32{1'bx}};
-    hwInfo_rd <= 1'b0;
-    app_rd <= 1'b0;
+    rd_dat_d0 = {32{1'bx}};
+    hwInfo_rd = 1'b0;
+    app_rd = 1'b0;
     case (rd_addr[20:19])
     2'b00:
       begin
         // Submap hwInfo
-        hwInfo_rd <= rd_req;
-        rd_dat_d0 <= hwInfo_rdata_i;
-        rd_ack_d0 <= hwInfo_rvalid_i;
+        hwInfo_rd = rd_req;
+        rd_dat_d0 = hwInfo_rdata_i;
+        rd_ack_d0 = hwInfo_rvalid_i;
       end
     2'b10:
       begin
         // Submap app
-        app_rd <= rd_req;
-        rd_dat_d0 <= app_rdata_i;
-        rd_ack_d0 <= app_rvalid_i;
+        app_rd = rd_req;
+        rd_dat_d0 = app_rdata_i;
+        rd_ack_d0 = app_rvalid_i;
       end
     default:
-      rd_ack_d0 <= rd_req;
+      rd_ack_d0 = rd_req;
     endcase
   end
 endmodule

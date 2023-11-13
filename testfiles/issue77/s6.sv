@@ -23,11 +23,11 @@ module s6
   reg [31:0] wr_dat_d0;
 
   // WB decode signals
-  always @(wb.sel)
+  always_comb
   ;
   assign wb_en = wb.cyc & wb.stb;
 
-  always @(posedge(wb.clk))
+  always_ff @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
       wb_rip <= 1'b0;
@@ -36,7 +36,7 @@ module s6
   end
   assign rd_req_int = (wb_en & ~wb.we) & ~wb_rip;
 
-  always @(posedge(wb.clk))
+  always_ff @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
       wb_wip <= 1'b0;
@@ -52,7 +52,7 @@ module s6
   assign wb.err = 1'b0;
 
   // pipelining for wr-in+rd-out
-  always @(posedge(wb.clk))
+  always_ff @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
       begin
@@ -72,7 +72,7 @@ module s6
 
   // Register r1
   assign r1_o = r1_reg;
-  always @(posedge(wb.clk))
+  always_ff @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
       begin
@@ -88,21 +88,21 @@ module s6
   end
 
   // Process for write requests.
-  always @(wr_req_d0, r1_wack)
+  always_comb
   begin
-    r1_wreq <= 1'b0;
+    r1_wreq = 1'b0;
     // Reg r1
-    r1_wreq <= wr_req_d0;
-    wr_ack_int <= r1_wack;
+    r1_wreq = wr_req_d0;
+    wr_ack_int = r1_wack;
   end
 
   // Process for read requests.
-  always @(rd_req_int, r1_reg)
+  always_comb
   begin
     // By default ack read requests
-    rd_dat_d0 <= {32{1'bx}};
+    rd_dat_d0 = {32{1'bx}};
     // Reg r1
-    rd_ack_d0 <= rd_req_int;
-    rd_dat_d0 <= r1_reg;
+    rd_ack_d0 = rd_req_int;
+    rd_dat_d0 = r1_reg;
   end
 endmodule

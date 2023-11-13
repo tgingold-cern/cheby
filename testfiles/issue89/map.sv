@@ -37,7 +37,7 @@ module map1
   assign VMEWrDone = wr_ack_int;
 
   // pipelining for wr-in+rd-out
-  always @(posedge(Clk))
+  always_ff @(posedge(Clk))
   begin
     if (!rst_n)
       begin
@@ -58,11 +58,11 @@ module map1
   end
 
   // Memory m1
-  always @(VMEAddr, wr_adr_d0, m1_wr)
+  always_comb
   if (m1_wr == 1'b1)
-    m1_adr_int <= wr_adr_d0[7:2];
+    m1_adr_int = wr_adr_d0[7:2];
   else
-    m1_adr_int <= VMEAddr[7:2];
+    m1_adr_int = VMEAddr[7:2];
   assign m1_wreq = m1_r1_int_wr;
   assign m1_wr = m1_wreq;
   cheby_dpssram #(
@@ -89,7 +89,7 @@ module map1
       .wr_b_i(1'b0)
     );
   
-  always @(posedge(Clk))
+  always_ff @(posedge(Clk))
   begin
     if (!rst_n)
       m1_r1_rack <= 1'b0;
@@ -98,23 +98,23 @@ module map1
   end
 
   // Process for write requests.
-  always @(wr_req_d0)
+  always_comb
   begin
-    m1_r1_int_wr <= 1'b0;
+    m1_r1_int_wr = 1'b0;
     // Memory m1
-    m1_r1_int_wr <= wr_req_d0;
-    wr_ack_int <= wr_req_d0;
+    m1_r1_int_wr = wr_req_d0;
+    wr_ack_int = wr_req_d0;
   end
 
   // Process for read requests.
-  always @(m1_r1_int_dato, VMERdMem, m1_r1_rack)
+  always_comb
   begin
     // By default ack read requests
-    rd_dat_d0 <= {32{1'bx}};
-    m1_r1_rreq <= 1'b0;
+    rd_dat_d0 = {32{1'bx}};
+    m1_r1_rreq = 1'b0;
     // Memory m1
-    rd_dat_d0 <= {16'b0000000000000000, m1_r1_int_dato};
-    m1_r1_rreq <= VMERdMem;
-    rd_ack_d0 <= m1_r1_rack;
+    rd_dat_d0 = {16'b0000000000000000, m1_r1_int_dato};
+    m1_r1_rreq = VMERdMem;
+    rd_ack_d0 = m1_r1_rack;
   end
 endmodule

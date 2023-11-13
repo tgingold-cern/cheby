@@ -57,16 +57,16 @@ module s4
   reg [31:0] wr_sel_d0;
 
   // WB decode signals
-  always @(wb_sel_i)
+  always_comb
   begin
-    wr_sel[7:0] <= {8{wb_sel_i[0]}};
-    wr_sel[15:8] <= {8{wb_sel_i[1]}};
-    wr_sel[23:16] <= {8{wb_sel_i[2]}};
-    wr_sel[31:24] <= {8{wb_sel_i[3]}};
+    wr_sel[7:0] = {8{wb_sel_i[0]}};
+    wr_sel[15:8] = {8{wb_sel_i[1]}};
+    wr_sel[23:16] = {8{wb_sel_i[2]}};
+    wr_sel[31:24] = {8{wb_sel_i[3]}};
   end
   assign wb_en = wb_cyc_i & wb_stb_i;
 
-  always @(posedge(clk_i))
+  always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       wb_rip <= 1'b0;
@@ -75,7 +75,7 @@ module s4
   end
   assign rd_req_int = (wb_en & ~wb_we_i) & ~wb_rip;
 
-  always @(posedge(clk_i))
+  always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       wb_wip <= 1'b0;
@@ -91,7 +91,7 @@ module s4
   assign wb_err_o = 1'b0;
 
   // pipelining for wr-in+rd-out
-  always @(posedge(clk_i))
+  always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       begin
@@ -115,7 +115,7 @@ module s4
 
   // Register r1
   assign r1_o = r1_reg;
-  always @(posedge(clk_i))
+  always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       begin
@@ -132,7 +132,7 @@ module s4
 
   // Interface sub
   assign sub_tr = sub_wt | sub_rt;
-  always @(posedge(clk_i))
+  always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       begin
@@ -149,66 +149,66 @@ module s4
   assign sub_stb_o = sub_tr;
   assign sub_wack = sub_ack_i & sub_wt;
   assign sub_rack = sub_ack_i & sub_rt;
-  always @(wr_sel_d0)
+  always_comb
   begin
-    sub_sel_o <= 4'b0;
+    sub_sel_o = 4'b0;
     if (~(wr_sel_d0[7:0] == 8'b0))
-      sub_sel_o[0] <= 1'b1;
+      sub_sel_o[0] = 1'b1;
     if (~(wr_sel_d0[15:8] == 8'b0))
-      sub_sel_o[1] <= 1'b1;
+      sub_sel_o[1] = 1'b1;
     if (~(wr_sel_d0[23:16] == 8'b0))
-      sub_sel_o[2] <= 1'b1;
+      sub_sel_o[2] = 1'b1;
     if (~(wr_sel_d0[31:24] == 8'b0))
-      sub_sel_o[3] <= 1'b1;
+      sub_sel_o[3] = 1'b1;
   end
   assign sub_we_o = sub_wt;
   assign sub_dat_o = wr_dat_d0;
 
   // Process for write requests.
-  always @(wr_adr_d0, wr_req_d0, r1_wack, sub_wack)
+  always_comb
   begin
-    r1_wreq <= 1'b0;
-    sub_we <= 1'b0;
+    r1_wreq = 1'b0;
+    sub_we = 1'b0;
     case (wr_adr_d0[2:2])
     1'b0:
       begin
         // Reg r1
-        r1_wreq <= wr_req_d0;
-        wr_ack_int <= r1_wack;
+        r1_wreq = wr_req_d0;
+        wr_ack_int = r1_wack;
       end
     1'b1:
       begin
         // Submap sub
-        sub_we <= wr_req_d0;
-        wr_ack_int <= sub_wack;
+        sub_we = wr_req_d0;
+        wr_ack_int = sub_wack;
       end
     default:
-      wr_ack_int <= wr_req_d0;
+      wr_ack_int = wr_req_d0;
     endcase
   end
 
   // Process for read requests.
-  always @(wb_adr_i, rd_req_int, r1_reg, sub_dat_i, sub_rack)
+  always_comb
   begin
     // By default ack read requests
-    rd_dat_d0 <= {32{1'bx}};
-    sub_re <= 1'b0;
+    rd_dat_d0 = {32{1'bx}};
+    sub_re = 1'b0;
     case (wb_adr_i[2:2])
     1'b0:
       begin
         // Reg r1
-        rd_ack_d0 <= rd_req_int;
-        rd_dat_d0 <= r1_reg;
+        rd_ack_d0 = rd_req_int;
+        rd_dat_d0 = r1_reg;
       end
     1'b1:
       begin
         // Submap sub
-        sub_re <= rd_req_int;
-        rd_dat_d0 <= sub_dat_i;
-        rd_ack_d0 <= sub_rack;
+        sub_re = rd_req_int;
+        rd_dat_d0 = sub_dat_i;
+        rd_ack_d0 = sub_rack;
       end
     default:
-      rd_ack_d0 <= rd_req_int;
+      rd_ack_d0 = rd_req_int;
     endcase
   end
 endmodule

@@ -39,7 +39,7 @@ module m1
   assign VMEWrDone = wr_ack_int;
 
   // pipelining for wr-in+rd-out
-  always @(posedge(Clk))
+  always_ff @(posedge(Clk))
   begin
     if (!rst_n)
       begin
@@ -61,7 +61,7 @@ module m1
 
   // Register r1
   assign r1_o = r1_reg;
-  always @(posedge(Clk))
+  always_ff @(posedge(Clk))
   begin
     if (!rst_n)
       begin
@@ -81,50 +81,50 @@ module m1
   assign sm2_VMEWrMem_o = sm2_ws;
 
   // Process for write requests.
-  always @(wr_adr_d0, wr_req_d0, r1_wack, sm2_VMEWrDone_i)
+  always_comb
   begin
-    r1_wreq <= 1'b0;
-    sm2_ws <= 1'b0;
+    r1_wreq = 1'b0;
+    sm2_ws = 1'b0;
     case (wr_adr_d0[2:2])
     1'b0:
       begin
         // Reg r1
-        r1_wreq <= wr_req_d0;
-        wr_ack_int <= r1_wack;
+        r1_wreq = wr_req_d0;
+        wr_ack_int = r1_wack;
       end
     1'b1:
       begin
         // Submap sm2
-        sm2_ws <= wr_req_d0;
-        wr_ack_int <= sm2_VMEWrDone_i;
+        sm2_ws = wr_req_d0;
+        wr_ack_int = sm2_VMEWrDone_i;
       end
     default:
-      wr_ack_int <= wr_req_d0;
+      wr_ack_int = wr_req_d0;
     endcase
   end
 
   // Process for read requests.
-  always @(VMEAddr, VMERdMem, r1_reg, sm2_VMERdData_i, sm2_VMERdDone_i)
+  always_comb
   begin
     // By default ack read requests
-    rd_dat_d0 <= {32{1'bx}};
-    sm2_VMERdMem_o <= 1'b0;
+    rd_dat_d0 = {32{1'bx}};
+    sm2_VMERdMem_o = 1'b0;
     case (VMEAddr[2:2])
     1'b0:
       begin
         // Reg r1
-        rd_ack_d0 <= VMERdMem;
-        rd_dat_d0 <= r1_reg;
+        rd_ack_d0 = VMERdMem;
+        rd_dat_d0 = r1_reg;
       end
     1'b1:
       begin
         // Submap sm2
-        sm2_VMERdMem_o <= VMERdMem;
-        rd_dat_d0 <= sm2_VMERdData_i;
-        rd_ack_d0 <= sm2_VMERdDone_i;
+        sm2_VMERdMem_o = VMERdMem;
+        rd_dat_d0 = sm2_VMERdData_i;
+        rd_ack_d0 = sm2_VMERdDone_i;
       end
     default:
-      rd_ack_d0 <= VMERdMem;
+      rd_ack_d0 = VMERdMem;
     endcase
   end
 endmodule

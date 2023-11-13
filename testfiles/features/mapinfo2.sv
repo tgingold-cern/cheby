@@ -32,7 +32,7 @@ module mapinfo2
   assign VMEWrDone = wr_ack_int;
 
   // pipelining for wr-in+rd-out
-  always @(posedge(Clk))
+  always_ff @(posedge(Clk))
   begin
     if (!rst_n)
       begin
@@ -54,7 +54,7 @@ module mapinfo2
 
   // Register test1
   assign test1_o = test1_reg;
-  always @(posedge(Clk))
+  always_ff @(posedge(Clk))
   begin
     if (!rst_n)
       begin
@@ -74,53 +74,53 @@ module mapinfo2
   // Register icode
 
   // Process for write requests.
-  always @(wr_adr_d0, wr_req_d0, test1_wack)
+  always_comb
   begin
-    test1_wreq <= 1'b0;
+    test1_wreq = 1'b0;
     case (wr_adr_d0[19:2])
     18'b000000000000000000:
       begin
         // Reg test1
-        test1_wreq <= wr_req_d0;
-        wr_ack_int <= test1_wack;
+        test1_wreq = wr_req_d0;
+        wr_ack_int = test1_wack;
       end
     18'b000000000000000001:
       // Reg mapver
-      wr_ack_int <= wr_req_d0;
+      wr_ack_int = wr_req_d0;
     18'b000000000000000010:
       // Reg icode
-      wr_ack_int <= wr_req_d0;
+      wr_ack_int = wr_req_d0;
     default:
-      wr_ack_int <= wr_req_d0;
+      wr_ack_int = wr_req_d0;
     endcase
   end
 
   // Process for read requests.
-  always @(VMEAddr, VMERdMem, test1_reg)
+  always_comb
   begin
     // By default ack read requests
-    rd_dat_d0 <= {32{1'bx}};
+    rd_dat_d0 = {32{1'bx}};
     case (VMEAddr[19:2])
     18'b000000000000000000:
       begin
         // Reg test1
-        rd_ack_d0 <= VMERdMem;
-        rd_dat_d0 <= test1_reg;
+        rd_ack_d0 = VMERdMem;
+        rd_dat_d0 = test1_reg;
       end
     18'b000000000000000001:
       begin
         // Reg mapver
-        rd_ack_d0 <= VMERdMem;
-        rd_dat_d0 <= 32'b00000000000000010000001000000011;
+        rd_ack_d0 = VMERdMem;
+        rd_dat_d0 = 32'b00000000000000010000001000000011;
       end
     18'b000000000000000010:
       begin
         // Reg icode
-        rd_ack_d0 <= VMERdMem;
-        rd_dat_d0 <= 32'b00000000000000000000000000010001;
+        rd_ack_d0 = VMERdMem;
+        rd_dat_d0 = 32'b00000000000000000000000000010001;
       end
     default:
-      rd_ack_d0 <= VMERdMem;
+      rd_ack_d0 = VMERdMem;
     endcase
   end
 endmodule

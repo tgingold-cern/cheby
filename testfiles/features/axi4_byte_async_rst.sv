@@ -187,23 +187,23 @@ module sreg
   // Process for write requests.
   always @(wr_adr_d0, wr_req_d0, areg_wack, breg_wack)
   begin
-    areg_wreq <= 1'b0;
-    breg_wreq <= 1'b0;
+    areg_wreq = 1'b0;
+    breg_wreq = 1'b0;
     case (wr_adr_d0[2:2])
     1'b0:
       begin
         // Reg areg
-        areg_wreq <= wr_req_d0;
-        wr_ack <= areg_wack;
+        areg_wreq = wr_req_d0;
+        wr_ack = areg_wack;
       end
     1'b1:
       begin
         // Reg breg
-        breg_wreq <= wr_req_d0;
-        wr_ack <= breg_wack;
+        breg_wreq = wr_req_d0;
+        wr_ack = breg_wack;
       end
     default:
-      wr_ack <= wr_req_d0;
+      wr_ack = wr_req_d0;
     endcase
   end
 
@@ -211,22 +211,22 @@ module sreg
   always @(rd_addr, rd_req, areg_reg, breg_reg)
   begin
     // By default ack read requests
-    rd_dat_d0 <= {32{1'bx}};
+    rd_dat_d0 = {32{1'bx}};
     case (rd_addr[2:2])
     1'b0:
       begin
         // Reg areg
-        rd_ack_d0 <= rd_req;
-        rd_dat_d0 <= areg_reg;
+        rd_ack_d0 = rd_req;
+        rd_dat_d0 = areg_reg;
       end
     1'b1:
       begin
         // Reg breg
-        rd_ack_d0 <= rd_req;
-        rd_dat_d0 <= breg_reg;
+        rd_ack_d0 = rd_req;
+        rd_dat_d0 = breg_reg;
       end
     default:
-      rd_ack_d0 <= rd_req;
+      rd_ack_d0 = rd_req;
     endcase
   end
 endmodule

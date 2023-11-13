@@ -31,7 +31,7 @@ module mainMap
   assign VMEWrDone = wr_ack_int;
 
   // pipelining for wr-in+rd-out
-  always @(posedge(Clk))
+  always_ff @(posedge(Clk))
   begin
     if (!rst_n)
       begin
@@ -72,7 +72,7 @@ module mainMap
       .wr_b_i(acqVP_value_we_i)
     );
   
-  always @(posedge(Clk))
+  always_ff @(posedge(Clk))
   begin
     if (!rst_n)
       acqVP_value_rack <= 1'b0;
@@ -81,19 +81,19 @@ module mainMap
   end
 
   // Process for write requests.
-  always @(wr_req_d0)
+  always_comb
   // Memory acqVP
-  wr_ack_int <= wr_req_d0;
+  wr_ack_int = wr_req_d0;
 
   // Process for read requests.
-  always @(acqVP_value_int_dato, VMERdMem, acqVP_value_rack)
+  always_comb
   begin
     // By default ack read requests
-    rd_dat_d0 <= {32{1'bx}};
-    acqVP_value_rreq <= 1'b0;
+    rd_dat_d0 = {32{1'bx}};
+    acqVP_value_rreq = 1'b0;
     // Memory acqVP
-    rd_dat_d0 <= {16'b0000000000000000, acqVP_value_int_dato};
-    acqVP_value_rreq <= VMERdMem;
-    rd_ack_d0 <= acqVP_value_rack;
+    rd_dat_d0 = {16'b0000000000000000, acqVP_value_int_dato};
+    acqVP_value_rreq = VMERdMem;
+    rd_ack_d0 = acqVP_value_rack;
   end
 endmodule

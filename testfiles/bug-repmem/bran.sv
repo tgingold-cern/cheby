@@ -205,12 +205,12 @@ module bran_wb
   reg [31:0] wr_dat_d0;
 
   // WB decode signals
-  always @(wb.sel)
+  always_comb
   ;
   assign adr_int = wb.adr[20:2];
   assign wb_en = wb.cyc & wb.stb;
 
-  always @(posedge(wb.clk))
+  always_ff @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
       wb_rip <= 1'b0;
@@ -219,7 +219,7 @@ module bran_wb
   end
   assign rd_req_int = (wb_en & ~wb.we) & ~wb_rip;
 
-  always @(posedge(wb.clk))
+  always_ff @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
       wb_wip <= 1'b0;
@@ -235,7 +235,7 @@ module bran_wb
   assign wb.err = 1'b0;
 
   // pipelining for wr-in+rd-out
-  always @(posedge(wb.clk))
+  always_ff @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
       begin
@@ -264,7 +264,7 @@ module bran_wb
   assign DisableADCStream_o = DisableADCStream_reg;
   assign EnableTurnEmulator_o = EnableTurnEmulator_reg;
   assign LHC_timing = LHCTiming_reg;
-  always @(posedge(wb.clk))
+  always_ff @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
       begin
@@ -304,7 +304,7 @@ module bran_wb
 
   // Register TurnPeriod
   assign TurnPeriod_o = TurnPeriod_reg;
-  always @(posedge(wb.clk))
+  always_ff @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
       begin
@@ -322,7 +322,7 @@ module bran_wb
 
   // Register TurnLength
   assign TurnLength_o = TurnLength_reg;
-  always @(posedge(wb.clk))
+  always_ff @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
       begin
@@ -343,7 +343,7 @@ module bran_wb
   // Register FmcPower
   assign FmcPowerEnable_o = FmcPowerEnable_reg;
   assign DCDCSyncEnable_o = DCDCSyncEnable_reg;
-  always @(posedge(wb.clk))
+  always_ff @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
       begin
@@ -364,7 +364,7 @@ module bran_wb
 
   // Register ADCPatternCheckCtrl
   assign PatternRst_o = PatternRst_reg;
-  always @(posedge(wb.clk))
+  always_ff @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
       begin
@@ -384,7 +384,7 @@ module bran_wb
   assign ADCEnable_o = ADCEnable_reg;
   assign ADCManualSync_o = ADCManualSync_reg;
   assign ADCDisableAutoSync_o = ADCDisableAutoSync_reg;
-  always @(posedge(wb.clk))
+  always_ff @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
       begin
@@ -415,7 +415,7 @@ module bran_wb
   assign SixxRst_o = SixxRst_reg;
   assign JesdLinkReady_o = JesdLinkReady_reg;
   assign JesdEnableSysref_o = JesdEnableSysref_reg;
-  always @(posedge(wb.clk))
+  always_ff @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
       begin
@@ -446,7 +446,7 @@ module bran_wb
 
   // Register AdcSpiWrite
   assign AdcSpiWrite_o = AdcSpiWrite_reg;
-  always @(posedge(wb.clk))
+  always_ff @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
       begin
@@ -468,7 +468,7 @@ module bran_wb
 
   // Register CummulativeTurns
   assign cummulative_turns_b32 = CummulativeTurns_reg;
-  always @(posedge(wb.clk))
+  always_ff @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
       begin
@@ -485,7 +485,7 @@ module bran_wb
 
   // Register Debug
   assign OverrideTurnEmulatorTiming = OverrideTurnEmulatorTiming_reg;
-  always @(posedge(wb.clk))
+  always_ff @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
       begin
@@ -501,7 +501,7 @@ module bran_wb
   end
 
   // Interface RawData0
-  always @(posedge(wb.clk))
+  always_ff @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
       RawData0_rack <= 1'b0;
@@ -511,7 +511,7 @@ module bran_wb
   assign RawData0_addr_o = adr_int[17:2];
 
   // Interface RawData1
-  always @(posedge(wb.clk))
+  always_ff @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
       RawData1_rack <= 1'b0;
@@ -521,7 +521,7 @@ module bran_wb
   assign RawData1_addr_o = adr_int[17:2];
 
   // Interface RawData2
-  always @(posedge(wb.clk))
+  always_ff @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
       RawData2_rack <= 1'b0;
@@ -531,7 +531,7 @@ module bran_wb
   assign RawData2_addr_o = adr_int[17:2];
 
   // Interface RawData3
-  always @(posedge(wb.clk))
+  always_ff @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
       RawData3_rack <= 1'b0;
@@ -541,311 +541,311 @@ module bran_wb
   assign RawData3_addr_o = adr_int[17:2];
 
   // Process for write requests.
-  always @(wr_adr_d0, wr_req_d0, Ctrl_wack, TurnPeriod_wack, TurnLength_wack, FmcPower_wack, ADCPatternCheckCtrl_wack, ADCCtrl_wack, JesdLink_wack, AdcSpiWrite_wack, CummulativeTurns_wack, Debug_wack)
+  always_comb
   begin
-    Ctrl_wreq <= 1'b0;
-    TurnPeriod_wreq <= 1'b0;
-    TurnLength_wreq <= 1'b0;
-    FmcPower_wreq <= 1'b0;
-    ADCPatternCheckCtrl_wreq <= 1'b0;
-    ADCCtrl_wreq <= 1'b0;
-    JesdLink_wreq <= 1'b0;
-    AdcSpiWrite_wreq <= 1'b0;
-    CummulativeTurns_wreq <= 1'b0;
-    Debug_wreq <= 1'b0;
+    Ctrl_wreq = 1'b0;
+    TurnPeriod_wreq = 1'b0;
+    TurnLength_wreq = 1'b0;
+    FmcPower_wreq = 1'b0;
+    ADCPatternCheckCtrl_wreq = 1'b0;
+    ADCCtrl_wreq = 1'b0;
+    JesdLink_wreq = 1'b0;
+    AdcSpiWrite_wreq = 1'b0;
+    CummulativeTurns_wreq = 1'b0;
+    Debug_wreq = 1'b0;
     case (wr_adr_d0[20:18])
     3'b000:
       case (wr_adr_d0[17:2])
       16'b0000000000000000:
         // Reg Token
-        wr_ack_int <= wr_req_d0;
+        wr_ack_int = wr_req_d0;
       16'b0000000000000001:
         begin
           // Reg Ctrl
-          Ctrl_wreq <= wr_req_d0;
-          wr_ack_int <= Ctrl_wack;
+          Ctrl_wreq = wr_req_d0;
+          wr_ack_int = Ctrl_wack;
         end
       16'b0000000000000010:
         // Reg Stat
-        wr_ack_int <= wr_req_d0;
+        wr_ack_int = wr_req_d0;
       16'b0000000000000011:
         // Reg SysrefTicks
-        wr_ack_int <= wr_req_d0;
+        wr_ack_int = wr_req_d0;
       16'b0000000000000100:
         // Reg GWRevision
-        wr_ack_int <= wr_req_d0;
+        wr_ack_int = wr_req_d0;
       16'b0000000000000101:
         begin
           // Reg TurnPeriod
-          TurnPeriod_wreq <= wr_req_d0;
-          wr_ack_int <= TurnPeriod_wack;
+          TurnPeriod_wreq = wr_req_d0;
+          wr_ack_int = TurnPeriod_wack;
         end
       16'b0000000000000110:
         begin
           // Reg TurnLength
-          TurnLength_wreq <= wr_req_d0;
-          wr_ack_int <= TurnLength_wack;
+          TurnLength_wreq = wr_req_d0;
+          wr_ack_int = TurnLength_wack;
         end
       16'b0000000000000111:
         // Reg TurnsIntercepted
-        wr_ack_int <= wr_req_d0;
+        wr_ack_int = wr_req_d0;
       16'b0000000000001000:
         begin
           // Reg FmcPower
-          FmcPower_wreq <= wr_req_d0;
-          wr_ack_int <= FmcPower_wack;
+          FmcPower_wreq = wr_req_d0;
+          wr_ack_int = FmcPower_wack;
         end
       16'b0000000000001001:
         begin
           // Reg ADCPatternCheckCtrl
-          ADCPatternCheckCtrl_wreq <= wr_req_d0;
-          wr_ack_int <= ADCPatternCheckCtrl_wack;
+          ADCPatternCheckCtrl_wreq = wr_req_d0;
+          wr_ack_int = ADCPatternCheckCtrl_wack;
         end
       16'b0000000000001010:
         begin
           // Reg ADCCtrl
-          ADCCtrl_wreq <= wr_req_d0;
-          wr_ack_int <= ADCCtrl_wack;
+          ADCCtrl_wreq = wr_req_d0;
+          wr_ack_int = ADCCtrl_wack;
         end
       16'b0000000000001011:
         begin
           // Reg JesdLink
-          JesdLink_wreq <= wr_req_d0;
-          wr_ack_int <= JesdLink_wack;
+          JesdLink_wreq = wr_req_d0;
+          wr_ack_int = JesdLink_wack;
         end
       16'b0000000000001100:
         begin
           // Reg AdcSpiWrite
-          AdcSpiWrite_wreq <= wr_req_d0;
-          wr_ack_int <= AdcSpiWrite_wack;
+          AdcSpiWrite_wreq = wr_req_d0;
+          wr_ack_int = AdcSpiWrite_wack;
         end
       16'b0000000000001101:
         // Reg AdcSpiRead
-        wr_ack_int <= wr_req_d0;
+        wr_ack_int = wr_req_d0;
       16'b0000000000001110:
         // Reg SpiStatus
-        wr_ack_int <= wr_req_d0;
+        wr_ack_int = wr_req_d0;
       16'b0000000000001111:
         begin
           // Reg CummulativeTurns
-          CummulativeTurns_wreq <= wr_req_d0;
-          wr_ack_int <= CummulativeTurns_wack;
+          CummulativeTurns_wreq = wr_req_d0;
+          wr_ack_int = CummulativeTurns_wack;
         end
       16'b0000000000010000:
         begin
           // Reg Debug
-          Debug_wreq <= wr_req_d0;
-          wr_ack_int <= Debug_wack;
+          Debug_wreq = wr_req_d0;
+          wr_ack_int = Debug_wack;
         end
       default:
-        wr_ack_int <= wr_req_d0;
+        wr_ack_int = wr_req_d0;
       endcase
     3'b100:
       // Memory RawData0
-      wr_ack_int <= wr_req_d0;
+      wr_ack_int = wr_req_d0;
     3'b101:
       // Memory RawData1
-      wr_ack_int <= wr_req_d0;
+      wr_ack_int = wr_req_d0;
     3'b110:
       // Memory RawData2
-      wr_ack_int <= wr_req_d0;
+      wr_ack_int = wr_req_d0;
     3'b111:
       // Memory RawData3
-      wr_ack_int <= wr_req_d0;
+      wr_ack_int = wr_req_d0;
     default:
-      wr_ack_int <= wr_req_d0;
+      wr_ack_int = wr_req_d0;
     endcase
   end
 
   // Process for read requests.
-  always @(adr_int, rd_req_int, Token_i, Enable_reg, DisableADCStream_reg, EnableTurnEmulator_reg, LHCTiming_reg, VoltageFail_i, JesdRXNotReady_i, TurnEmulatorPLLError_i, TurnEmulatorError_i, NoTurnDetected_i, VfmcDisabled_i, std_bst_desynced, GBTPLLLol_i, std_fa_in_reset, PatternFail_i, DCDCSyncEnabled_i, SysrefFail_i, FmcLol_i, FmcLos_i, SysrefTicks_i, GWRevision_i, TurnPeriod_reg, TurnLength_reg, TurnsIntercepted_b32, FmcPowerEnable_reg, DCDCSyncEnable_reg, PatternRst_reg, ADCRst_reg, ADCEnable_reg, ADCManualSync_reg, ADCDisableAutoSync_reg, JesdXcvrRst_reg, JesdLinkRst_reg, JesdPLLRst_reg, JesdAvsRst_reg, SixxRst_reg, JesdLinkReady_reg, JesdEnableSysref_reg, AdcSpiRead_i, AdcSpiBusy_i, CummulativeTurns_reg, OverrideTurnEmulatorTiming_reg, RawData0_data_i, RawData0_rack, RawData1_data_i, RawData1_rack, RawData2_data_i, RawData2_rack, RawData3_data_i, RawData3_rack)
+  always_comb
   begin
     // By default ack read requests
-    rd_dat_d0 <= {32{1'bx}};
-    RawData0_re <= 1'b0;
-    RawData1_re <= 1'b0;
-    RawData2_re <= 1'b0;
-    RawData3_re <= 1'b0;
+    rd_dat_d0 = {32{1'bx}};
+    RawData0_re = 1'b0;
+    RawData1_re = 1'b0;
+    RawData2_re = 1'b0;
+    RawData3_re = 1'b0;
     case (adr_int[20:18])
     3'b000:
       case (adr_int[17:2])
       16'b0000000000000000:
         begin
           // Reg Token
-          rd_ack_d0 <= rd_req_int;
-          rd_dat_d0 <= Token_i;
+          rd_ack_d0 = rd_req_int;
+          rd_dat_d0 = Token_i;
         end
       16'b0000000000000001:
         begin
           // Reg Ctrl
-          rd_ack_d0 <= rd_req_int;
-          rd_dat_d0[0] <= Enable_reg;
-          rd_dat_d0[1] <= 1'b0;
-          rd_dat_d0[2] <= 1'b0;
-          rd_dat_d0[3] <= 1'b0;
-          rd_dat_d0[4] <= DisableADCStream_reg;
-          rd_dat_d0[5] <= 1'b0;
-          rd_dat_d0[6] <= EnableTurnEmulator_reg;
-          rd_dat_d0[9:7] <= 3'b0;
-          rd_dat_d0[10] <= LHCTiming_reg;
-          rd_dat_d0[31:11] <= 21'b0;
+          rd_ack_d0 = rd_req_int;
+          rd_dat_d0[0] = Enable_reg;
+          rd_dat_d0[1] = 1'b0;
+          rd_dat_d0[2] = 1'b0;
+          rd_dat_d0[3] = 1'b0;
+          rd_dat_d0[4] = DisableADCStream_reg;
+          rd_dat_d0[5] = 1'b0;
+          rd_dat_d0[6] = EnableTurnEmulator_reg;
+          rd_dat_d0[9:7] = 3'b0;
+          rd_dat_d0[10] = LHCTiming_reg;
+          rd_dat_d0[31:11] = 21'b0;
         end
       16'b0000000000000010:
         begin
           // Reg Stat
-          rd_ack_d0 <= rd_req_int;
-          rd_dat_d0[7:0] <= VoltageFail_i;
-          rd_dat_d0[15:8] <= JesdRXNotReady_i;
-          rd_dat_d0[16] <= TurnEmulatorPLLError_i;
-          rd_dat_d0[17] <= 1'b0;
-          rd_dat_d0[18] <= TurnEmulatorError_i;
-          rd_dat_d0[19] <= NoTurnDetected_i;
-          rd_dat_d0[21:20] <= 2'b0;
-          rd_dat_d0[22] <= VfmcDisabled_i;
-          rd_dat_d0[23] <= std_bst_desynced;
-          rd_dat_d0[24] <= 1'b0;
-          rd_dat_d0[25] <= GBTPLLLol_i;
-          rd_dat_d0[26] <= std_fa_in_reset;
-          rd_dat_d0[27] <= PatternFail_i;
-          rd_dat_d0[28] <= DCDCSyncEnabled_i;
-          rd_dat_d0[29] <= SysrefFail_i;
-          rd_dat_d0[30] <= FmcLol_i;
-          rd_dat_d0[31] <= FmcLos_i;
+          rd_ack_d0 = rd_req_int;
+          rd_dat_d0[7:0] = VoltageFail_i;
+          rd_dat_d0[15:8] = JesdRXNotReady_i;
+          rd_dat_d0[16] = TurnEmulatorPLLError_i;
+          rd_dat_d0[17] = 1'b0;
+          rd_dat_d0[18] = TurnEmulatorError_i;
+          rd_dat_d0[19] = NoTurnDetected_i;
+          rd_dat_d0[21:20] = 2'b0;
+          rd_dat_d0[22] = VfmcDisabled_i;
+          rd_dat_d0[23] = std_bst_desynced;
+          rd_dat_d0[24] = 1'b0;
+          rd_dat_d0[25] = GBTPLLLol_i;
+          rd_dat_d0[26] = std_fa_in_reset;
+          rd_dat_d0[27] = PatternFail_i;
+          rd_dat_d0[28] = DCDCSyncEnabled_i;
+          rd_dat_d0[29] = SysrefFail_i;
+          rd_dat_d0[30] = FmcLol_i;
+          rd_dat_d0[31] = FmcLos_i;
         end
       16'b0000000000000011:
         begin
           // Reg SysrefTicks
-          rd_ack_d0 <= rd_req_int;
-          rd_dat_d0 <= SysrefTicks_i;
+          rd_ack_d0 = rd_req_int;
+          rd_dat_d0 = SysrefTicks_i;
         end
       16'b0000000000000100:
         begin
           // Reg GWRevision
-          rd_ack_d0 <= rd_req_int;
-          rd_dat_d0 <= GWRevision_i;
+          rd_ack_d0 = rd_req_int;
+          rd_dat_d0 = GWRevision_i;
         end
       16'b0000000000000101:
         begin
           // Reg TurnPeriod
-          rd_ack_d0 <= rd_req_int;
-          rd_dat_d0 <= TurnPeriod_reg;
+          rd_ack_d0 = rd_req_int;
+          rd_dat_d0 = TurnPeriod_reg;
         end
       16'b0000000000000110:
         begin
           // Reg TurnLength
-          rd_ack_d0 <= rd_req_int;
-          rd_dat_d0 <= TurnLength_reg;
+          rd_ack_d0 = rd_req_int;
+          rd_dat_d0 = TurnLength_reg;
         end
       16'b0000000000000111:
         begin
           // Reg TurnsIntercepted
-          rd_ack_d0 <= rd_req_int;
-          rd_dat_d0 <= TurnsIntercepted_b32;
+          rd_ack_d0 = rd_req_int;
+          rd_dat_d0 = TurnsIntercepted_b32;
         end
       16'b0000000000001000:
         begin
           // Reg FmcPower
-          rd_ack_d0 <= rd_req_int;
-          rd_dat_d0[0] <= FmcPowerEnable_reg;
-          rd_dat_d0[1] <= DCDCSyncEnable_reg;
-          rd_dat_d0[31:2] <= 30'b0;
+          rd_ack_d0 = rd_req_int;
+          rd_dat_d0[0] = FmcPowerEnable_reg;
+          rd_dat_d0[1] = DCDCSyncEnable_reg;
+          rd_dat_d0[31:2] = 30'b0;
         end
       16'b0000000000001001:
         begin
           // Reg ADCPatternCheckCtrl
-          rd_ack_d0 <= rd_req_int;
-          rd_dat_d0[0] <= PatternRst_reg;
-          rd_dat_d0[31:1] <= 31'b0;
+          rd_ack_d0 = rd_req_int;
+          rd_dat_d0[0] = PatternRst_reg;
+          rd_dat_d0[31:1] = 31'b0;
         end
       16'b0000000000001010:
         begin
           // Reg ADCCtrl
-          rd_ack_d0 <= rd_req_int;
-          rd_dat_d0[0] <= ADCRst_reg;
-          rd_dat_d0[1] <= ADCEnable_reg;
-          rd_dat_d0[5:2] <= 4'b0;
-          rd_dat_d0[6] <= ADCManualSync_reg;
-          rd_dat_d0[7] <= ADCDisableAutoSync_reg;
-          rd_dat_d0[31:8] <= 24'b0;
+          rd_ack_d0 = rd_req_int;
+          rd_dat_d0[0] = ADCRst_reg;
+          rd_dat_d0[1] = ADCEnable_reg;
+          rd_dat_d0[5:2] = 4'b0;
+          rd_dat_d0[6] = ADCManualSync_reg;
+          rd_dat_d0[7] = ADCDisableAutoSync_reg;
+          rd_dat_d0[31:8] = 24'b0;
         end
       16'b0000000000001011:
         begin
           // Reg JesdLink
-          rd_ack_d0 <= rd_req_int;
-          rd_dat_d0[0] <= JesdXcvrRst_reg;
-          rd_dat_d0[1] <= 1'b0;
-          rd_dat_d0[2] <= JesdLinkRst_reg;
-          rd_dat_d0[3] <= 1'b0;
-          rd_dat_d0[4] <= JesdPLLRst_reg;
-          rd_dat_d0[5] <= JesdAvsRst_reg;
-          rd_dat_d0[6] <= SixxRst_reg;
-          rd_dat_d0[7] <= 1'b0;
-          rd_dat_d0[8] <= JesdLinkReady_reg;
-          rd_dat_d0[9] <= JesdEnableSysref_reg;
-          rd_dat_d0[31:10] <= 22'b0;
+          rd_ack_d0 = rd_req_int;
+          rd_dat_d0[0] = JesdXcvrRst_reg;
+          rd_dat_d0[1] = 1'b0;
+          rd_dat_d0[2] = JesdLinkRst_reg;
+          rd_dat_d0[3] = 1'b0;
+          rd_dat_d0[4] = JesdPLLRst_reg;
+          rd_dat_d0[5] = JesdAvsRst_reg;
+          rd_dat_d0[6] = SixxRst_reg;
+          rd_dat_d0[7] = 1'b0;
+          rd_dat_d0[8] = JesdLinkReady_reg;
+          rd_dat_d0[9] = JesdEnableSysref_reg;
+          rd_dat_d0[31:10] = 22'b0;
         end
       16'b0000000000001100:
         // Reg AdcSpiWrite
-        rd_ack_d0 <= rd_req_int;
+        rd_ack_d0 = rd_req_int;
       16'b0000000000001101:
         begin
           // Reg AdcSpiRead
-          rd_ack_d0 <= rd_req_int;
-          rd_dat_d0 <= AdcSpiRead_i;
+          rd_ack_d0 = rd_req_int;
+          rd_dat_d0 = AdcSpiRead_i;
         end
       16'b0000000000001110:
         begin
           // Reg SpiStatus
-          rd_ack_d0 <= rd_req_int;
-          rd_dat_d0[0] <= AdcSpiBusy_i;
-          rd_dat_d0[31:1] <= 31'b0;
+          rd_ack_d0 = rd_req_int;
+          rd_dat_d0[0] = AdcSpiBusy_i;
+          rd_dat_d0[31:1] = 31'b0;
         end
       16'b0000000000001111:
         begin
           // Reg CummulativeTurns
-          rd_ack_d0 <= rd_req_int;
-          rd_dat_d0 <= CummulativeTurns_reg;
+          rd_ack_d0 = rd_req_int;
+          rd_dat_d0 = CummulativeTurns_reg;
         end
       16'b0000000000010000:
         begin
           // Reg Debug
-          rd_ack_d0 <= rd_req_int;
-          rd_dat_d0[0] <= OverrideTurnEmulatorTiming_reg;
-          rd_dat_d0[31:1] <= 31'b0;
+          rd_ack_d0 = rd_req_int;
+          rd_dat_d0[0] = OverrideTurnEmulatorTiming_reg;
+          rd_dat_d0[31:1] = 31'b0;
         end
       default:
-        rd_ack_d0 <= rd_req_int;
+        rd_ack_d0 = rd_req_int;
       endcase
     3'b100:
       begin
         // Memory RawData0
-        rd_dat_d0 <= RawData0_data_i;
-        rd_ack_d0 <= RawData0_rack;
-        RawData0_re <= rd_req_int;
+        rd_dat_d0 = RawData0_data_i;
+        rd_ack_d0 = RawData0_rack;
+        RawData0_re = rd_req_int;
       end
     3'b101:
       begin
         // Memory RawData1
-        rd_dat_d0 <= RawData1_data_i;
-        rd_ack_d0 <= RawData1_rack;
-        RawData1_re <= rd_req_int;
+        rd_dat_d0 = RawData1_data_i;
+        rd_ack_d0 = RawData1_rack;
+        RawData1_re = rd_req_int;
       end
     3'b110:
       begin
         // Memory RawData2
-        rd_dat_d0 <= RawData2_data_i;
-        rd_ack_d0 <= RawData2_rack;
-        RawData2_re <= rd_req_int;
+        rd_dat_d0 = RawData2_data_i;
+        rd_ack_d0 = RawData2_rack;
+        RawData2_re = rd_req_int;
       end
     3'b111:
       begin
         // Memory RawData3
-        rd_dat_d0 <= RawData3_data_i;
-        rd_ack_d0 <= RawData3_rack;
-        RawData3_re <= rd_req_int;
+        rd_dat_d0 = RawData3_data_i;
+        rd_ack_d0 = RawData3_rack;
+        RawData3_re = rd_req_int;
       end
     default:
-      rd_ack_d0 <= rd_req_int;
+      rd_ack_d0 = rd_req_int;
     endcase
   end
 endmodule

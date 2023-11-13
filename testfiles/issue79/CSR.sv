@@ -85,16 +85,16 @@ module csr
   reg [3:0] adc_meas_sel_int;
 
   // WB decode signals
-  always @(wb_sel_i)
+  always_comb
   begin
-    wr_sel[7:0] <= {8{wb_sel_i[0]}};
-    wr_sel[15:8] <= {8{wb_sel_i[1]}};
-    wr_sel[23:16] <= {8{wb_sel_i[2]}};
-    wr_sel[31:24] <= {8{wb_sel_i[3]}};
+    wr_sel[7:0] = {8{wb_sel_i[0]}};
+    wr_sel[15:8] = {8{wb_sel_i[1]}};
+    wr_sel[23:16] = {8{wb_sel_i[2]}};
+    wr_sel[31:24] = {8{wb_sel_i[3]}};
   end
   assign wb_en = wb_cyc_i & wb_stb_i;
 
-  always @(posedge(clk_i))
+  always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       wb_rip <= 1'b0;
@@ -103,7 +103,7 @@ module csr
   end
   assign rd_req_int = (wb_en & ~wb_we_i) & ~wb_rip;
 
-  always @(posedge(clk_i))
+  always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       wb_wip <= 1'b0;
@@ -119,7 +119,7 @@ module csr
   assign wb_err_o = 1'b0;
 
   // pipelining for wr-in+rd-out
-  always @(posedge(clk_i))
+  always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       begin
@@ -147,7 +147,7 @@ module csr
 
   // Register cal_ctrl
   assign cal_ctrl_cal_sel_o = cal_ctrl_cal_sel_reg;
-  always @(posedge(clk_i))
+  always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       begin
@@ -164,7 +164,7 @@ module csr
 
   // Interface i2c_master
   assign i2c_master_tr = i2c_master_wt | i2c_master_rt;
-  always @(posedge(clk_i))
+  always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       begin
@@ -182,17 +182,17 @@ module csr
   assign i2c_master_wack = i2c_master_ack_i & i2c_master_wt;
   assign i2c_master_rack = i2c_master_ack_i & i2c_master_rt;
   assign i2c_master_adr_o = wb_adr_i[4:2];
-  always @(wr_sel_d0)
+  always_comb
   begin
-    i2c_master_sel_o <= 4'b0;
+    i2c_master_sel_o = 4'b0;
     if (~(wr_sel_d0[7:0] == 8'b0))
-      i2c_master_sel_o[0] <= 1'b1;
+      i2c_master_sel_o[0] = 1'b1;
     if (~(wr_sel_d0[15:8] == 8'b0))
-      i2c_master_sel_o[1] <= 1'b1;
+      i2c_master_sel_o[1] = 1'b1;
     if (~(wr_sel_d0[23:16] == 8'b0))
-      i2c_master_sel_o[2] <= 1'b1;
+      i2c_master_sel_o[2] = 1'b1;
     if (~(wr_sel_d0[31:24] == 8'b0))
-      i2c_master_sel_o[3] <= 1'b1;
+      i2c_master_sel_o[3] = 1'b1;
   end
   assign i2c_master_we_o = i2c_master_wt;
   assign i2c_master_dat_o = wr_dat_d0;
@@ -222,19 +222,19 @@ module csr
       .wr_b_i(adc_offs_data_we_i)
     );
   
-  always @(wr_sel_d0)
+  always_comb
   begin
-    adc_offs_sel_int <= 4'b0;
+    adc_offs_sel_int = 4'b0;
     if (~(wr_sel_d0[7:0] == 8'b0))
-      adc_offs_sel_int[0] <= 1'b1;
+      adc_offs_sel_int[0] = 1'b1;
     if (~(wr_sel_d0[15:8] == 8'b0))
-      adc_offs_sel_int[1] <= 1'b1;
+      adc_offs_sel_int[1] = 1'b1;
     if (~(wr_sel_d0[23:16] == 8'b0))
-      adc_offs_sel_int[2] <= 1'b1;
+      adc_offs_sel_int[2] = 1'b1;
     if (~(wr_sel_d0[31:24] == 8'b0))
-      adc_offs_sel_int[3] <= 1'b1;
+      adc_offs_sel_int[3] = 1'b1;
   end
-  always @(posedge(clk_i))
+  always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       adc_offs_data_rack <= 1'b0;
@@ -267,19 +267,19 @@ module csr
       .wr_b_i(adc_meas_data_we_i)
     );
   
-  always @(wr_sel_d0)
+  always_comb
   begin
-    adc_meas_sel_int <= 4'b0;
+    adc_meas_sel_int = 4'b0;
     if (~(wr_sel_d0[7:0] == 8'b0))
-      adc_meas_sel_int[0] <= 1'b1;
+      adc_meas_sel_int[0] = 1'b1;
     if (~(wr_sel_d0[15:8] == 8'b0))
-      adc_meas_sel_int[1] <= 1'b1;
+      adc_meas_sel_int[1] = 1'b1;
     if (~(wr_sel_d0[23:16] == 8'b0))
-      adc_meas_sel_int[2] <= 1'b1;
+      adc_meas_sel_int[2] = 1'b1;
     if (~(wr_sel_d0[31:24] == 8'b0))
-      adc_meas_sel_int[3] <= 1'b1;
+      adc_meas_sel_int[3] = 1'b1;
   end
-  always @(posedge(clk_i))
+  always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       adc_meas_data_rack <= 1'b0;
@@ -288,10 +288,10 @@ module csr
   end
 
   // Process for write requests.
-  always @(wr_adr_d0, wr_req_d0, cal_ctrl_wack, i2c_master_wack)
+  always_comb
   begin
-    cal_ctrl_wreq <= 1'b0;
-    i2c_master_we <= 1'b0;
+    cal_ctrl_wreq = 1'b0;
+    i2c_master_we = 1'b0;
     case (wr_adr_d0[15:14])
     2'b00:
       case (wr_adr_d0[13:5])
@@ -301,58 +301,58 @@ module csr
           case (wr_adr_d0[2:2])
           1'b0:
             // Reg ident
-            wr_ack_int <= wr_req_d0;
+            wr_ack_int = wr_req_d0;
           1'b1:
             // Reg ident
-            wr_ack_int <= wr_req_d0;
+            wr_ack_int = wr_req_d0;
           default:
-            wr_ack_int <= wr_req_d0;
+            wr_ack_int = wr_req_d0;
           endcase
         2'b01:
           case (wr_adr_d0[2:2])
           1'b0:
             // Reg version
-            wr_ack_int <= wr_req_d0;
+            wr_ack_int = wr_req_d0;
           1'b1:
             begin
               // Reg cal_ctrl
-              cal_ctrl_wreq <= wr_req_d0;
-              wr_ack_int <= cal_ctrl_wack;
+              cal_ctrl_wreq = wr_req_d0;
+              wr_ack_int = cal_ctrl_wack;
             end
           default:
-            wr_ack_int <= wr_req_d0;
+            wr_ack_int = wr_req_d0;
           endcase
         default:
-          wr_ack_int <= wr_req_d0;
+          wr_ack_int = wr_req_d0;
         endcase
       9'b000000001:
         begin
           // Submap i2c_master
-          i2c_master_we <= wr_req_d0;
-          wr_ack_int <= i2c_master_wack;
+          i2c_master_we = wr_req_d0;
+          wr_ack_int = i2c_master_wack;
         end
       default:
-        wr_ack_int <= wr_req_d0;
+        wr_ack_int = wr_req_d0;
       endcase
     2'b01:
       // Memory adc_offs
-      wr_ack_int <= wr_req_d0;
+      wr_ack_int = wr_req_d0;
     2'b10:
       // Memory adc_meas
-      wr_ack_int <= wr_req_d0;
+      wr_ack_int = wr_req_d0;
     default:
-      wr_ack_int <= wr_req_d0;
+      wr_ack_int = wr_req_d0;
     endcase
   end
 
   // Process for read requests.
-  always @(wb_adr_i, rd_req_int, ident_i, version_i, cal_ctrl_cal_sel_reg, i2c_master_dat_i, i2c_master_rack, adc_offs_data_int_dato, adc_offs_data_rack, adc_meas_data_int_dato, adc_meas_data_rack)
+  always_comb
   begin
     // By default ack read requests
-    rd_dat_d0 <= {32{1'bx}};
-    i2c_master_re <= 1'b0;
-    adc_offs_data_rreq <= 1'b0;
-    adc_meas_data_rreq <= 1'b0;
+    rd_dat_d0 = {32{1'bx}};
+    i2c_master_re = 1'b0;
+    adc_offs_data_rreq = 1'b0;
+    adc_meas_data_rreq = 1'b0;
     case (wb_adr_i[15:14])
     2'b00:
       case (wb_adr_i[13:5])
@@ -363,65 +363,65 @@ module csr
           1'b0:
             begin
               // Reg ident
-              rd_ack_d0 <= rd_req_int;
-              rd_dat_d0 <= ident_i[63:32];
+              rd_ack_d0 = rd_req_int;
+              rd_dat_d0 = ident_i[63:32];
             end
           1'b1:
             begin
               // Reg ident
-              rd_ack_d0 <= rd_req_int;
-              rd_dat_d0 <= ident_i[31:0];
+              rd_ack_d0 = rd_req_int;
+              rd_dat_d0 = ident_i[31:0];
             end
           default:
-            rd_ack_d0 <= rd_req_int;
+            rd_ack_d0 = rd_req_int;
           endcase
         2'b01:
           case (wb_adr_i[2:2])
           1'b0:
             begin
               // Reg version
-              rd_ack_d0 <= rd_req_int;
-              rd_dat_d0 <= version_i;
+              rd_ack_d0 = rd_req_int;
+              rd_dat_d0 = version_i;
             end
           1'b1:
             begin
               // Reg cal_ctrl
-              rd_ack_d0 <= rd_req_int;
-              rd_dat_d0[1:0] <= cal_ctrl_cal_sel_reg;
-              rd_dat_d0[31:2] <= 30'b0;
+              rd_ack_d0 = rd_req_int;
+              rd_dat_d0[1:0] = cal_ctrl_cal_sel_reg;
+              rd_dat_d0[31:2] = 30'b0;
             end
           default:
-            rd_ack_d0 <= rd_req_int;
+            rd_ack_d0 = rd_req_int;
           endcase
         default:
-          rd_ack_d0 <= rd_req_int;
+          rd_ack_d0 = rd_req_int;
         endcase
       9'b000000001:
         begin
           // Submap i2c_master
-          i2c_master_re <= rd_req_int;
-          rd_dat_d0 <= i2c_master_dat_i;
-          rd_ack_d0 <= i2c_master_rack;
+          i2c_master_re = rd_req_int;
+          rd_dat_d0 = i2c_master_dat_i;
+          rd_ack_d0 = i2c_master_rack;
         end
       default:
-        rd_ack_d0 <= rd_req_int;
+        rd_ack_d0 = rd_req_int;
       endcase
     2'b01:
       begin
         // Memory adc_offs
-        rd_dat_d0 <= adc_offs_data_int_dato;
-        adc_offs_data_rreq <= rd_req_int;
-        rd_ack_d0 <= adc_offs_data_rack;
+        rd_dat_d0 = adc_offs_data_int_dato;
+        adc_offs_data_rreq = rd_req_int;
+        rd_ack_d0 = adc_offs_data_rack;
       end
     2'b10:
       begin
         // Memory adc_meas
-        rd_dat_d0 <= adc_meas_data_int_dato;
-        adc_meas_data_rreq <= rd_req_int;
-        rd_ack_d0 <= adc_meas_data_rack;
+        rd_dat_d0 = adc_meas_data_int_dato;
+        adc_meas_data_rreq = rd_req_int;
+        rd_ack_d0 = adc_meas_data_rack;
       end
     default:
-      rd_ack_d0 <= rd_req_int;
+      rd_ack_d0 = rd_req_int;
     endcase
   end
 endmodule

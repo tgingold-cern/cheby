@@ -34,11 +34,11 @@ module sreg_map
   reg [31:0] wr_dat_d0;
 
   // WB decode signals
-  always @(wb_sel_i)
+  always_comb
   ;
   assign wb_en = wb_cyc_i & wb_stb_i;
 
-  always @(posedge(clk_i))
+  always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       wb_rip <= 1'b0;
@@ -47,7 +47,7 @@ module sreg_map
   end
   assign rd_req_int = (wb_en & ~wb_we_i) & ~wb_rip;
 
-  always @(posedge(clk_i))
+  always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       wb_wip <= 1'b0;
@@ -63,7 +63,7 @@ module sreg_map
   assign wb_err_o = 1'b0;
 
   // pipelining for wr-in+rd-out
-  always @(posedge(clk_i))
+  always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       begin
@@ -83,7 +83,7 @@ module sreg_map
 
   // Register areg
   assign areg_o = areg_reg;
-  always @(posedge(clk_i))
+  always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       begin
@@ -99,21 +99,21 @@ module sreg_map
   end
 
   // Process for write requests.
-  always @(wr_req_d0, areg_wack)
+  always_comb
   begin
-    areg_wreq <= 1'b0;
+    areg_wreq = 1'b0;
     // Reg areg
-    areg_wreq <= wr_req_d0;
-    wr_ack_int <= areg_wack;
+    areg_wreq = wr_req_d0;
+    wr_ack_int = areg_wack;
   end
 
   // Process for read requests.
-  always @(rd_req_int, areg_reg)
+  always_comb
   begin
     // By default ack read requests
-    rd_dat_d0 <= {32{1'bx}};
+    rd_dat_d0 = {32{1'bx}};
     // Reg areg
-    rd_ack_d0 <= rd_req_int;
-    rd_dat_d0 <= areg_reg;
+    rd_ack_d0 = rd_req_int;
+    rd_dat_d0 = areg_reg;
   end
 endmodule

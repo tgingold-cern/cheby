@@ -47,7 +47,7 @@ module m1
   assign awready = ~axi_awset;
   assign wready = ~axi_wset;
   assign bvalid = axi_wdone;
-  always @(posedge(aclk))
+  always_ff @(posedge(aclk))
   begin
     if (!areset_n)
       begin
@@ -85,7 +85,7 @@ module m1
   // AR and R channels
   assign arready = ~axi_arset;
   assign rvalid = axi_rdone;
-  always @(posedge(aclk))
+  always_ff @(posedge(aclk))
   begin
     if (!areset_n)
       begin
@@ -117,7 +117,7 @@ module m1
   assign rresp = 2'b00;
 
   // pipelining for wr-in+rd-out
-  always @(posedge(aclk))
+  always_ff @(posedge(aclk))
   begin
     if (!areset_n)
       begin
@@ -137,7 +137,7 @@ module m1
 
   // Register r1
   assign r1_o = r1_reg;
-  always @(posedge(aclk))
+  always_ff @(posedge(aclk))
   begin
     if (!areset_n)
       begin
@@ -153,21 +153,21 @@ module m1
   end
 
   // Process for write requests.
-  always @(wr_req_d0, r1_wack)
+  always_comb
   begin
-    r1_wreq <= 1'b0;
+    r1_wreq = 1'b0;
     // Reg r1
-    r1_wreq <= wr_req_d0;
-    wr_ack <= r1_wack;
+    r1_wreq = wr_req_d0;
+    wr_ack = r1_wack;
   end
 
   // Process for read requests.
-  always @(rd_req, r1_reg)
+  always_comb
   begin
     // By default ack read requests
-    rd_dat_d0 <= {32{1'bx}};
+    rd_dat_d0 = {32{1'bx}};
     // Reg r1
-    rd_ack_d0 <= rd_req;
-    rd_dat_d0 <= r1_reg;
+    rd_ack_d0 = rd_req;
+    rd_dat_d0 = r1_reg;
   end
 endmodule

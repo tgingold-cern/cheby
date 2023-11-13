@@ -72,11 +72,11 @@ module blkprefix4
   reg [31:0] wr_dat_d0;
 
   // WB decode signals
-  always @(wb_sel_i)
+  always_comb
   ;
   assign wb_en = wb_cyc_i & wb_stb_i;
 
-  always @(posedge(clk_i))
+  always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       wb_rip <= 1'b0;
@@ -85,7 +85,7 @@ module blkprefix4
   end
   assign rd_req_int = (wb_en & ~wb_we_i) & ~wb_rip;
 
-  always @(posedge(clk_i))
+  always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       wb_wip <= 1'b0;
@@ -101,7 +101,7 @@ module blkprefix4
   assign wb_err_o = 1'b0;
 
   // pipelining for wr-in+rd-out
-  always @(posedge(clk_i))
+  always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       begin
@@ -123,7 +123,7 @@ module blkprefix4
 
   // Register r5
   assign r5_o = r5_reg;
-  always @(posedge(clk_i))
+  always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       begin
@@ -140,7 +140,7 @@ module blkprefix4
 
   // Register sub1_r1
   assign sub1_r1_o = blk_sub1_r1_reg;
-  always @(posedge(clk_i))
+  always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       begin
@@ -157,7 +157,7 @@ module blkprefix4
 
   // Register sub1_b1_r2
   assign sub1_b1_r2_o = blk_sub1_b1_r2_reg;
-  always @(posedge(clk_i))
+  always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       begin
@@ -174,7 +174,7 @@ module blkprefix4
 
   // Register sub1_b2_r3
   assign sub1_b2_r3_o = blk_sub1_b2_r3_reg;
-  always @(posedge(clk_i))
+  always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       begin
@@ -191,7 +191,7 @@ module blkprefix4
 
   // Register sub2_r1
   assign sub2_r1_o = blk_sub2_r1_reg;
-  always @(posedge(clk_i))
+  always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       begin
@@ -208,7 +208,7 @@ module blkprefix4
 
   // Register sub2_b1_r2
   assign sub2_b1_r2_o = blk_sub2_b1_r2_reg;
-  always @(posedge(clk_i))
+  always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       begin
@@ -225,7 +225,7 @@ module blkprefix4
 
   // Register sub2_b2_r3
   assign sub2_b2_r3_o = blk_sub2_b2_r3_reg;
-  always @(posedge(clk_i))
+  always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       begin
@@ -241,113 +241,113 @@ module blkprefix4
   end
 
   // Process for write requests.
-  always @(wr_adr_d0, wr_req_d0, r5_wack, sub1_r1_wack, sub1_b1_r2_wack, sub1_b2_r3_wack, sub2_r1_wack, sub2_b1_r2_wack, sub2_b2_r3_wack)
+  always_comb
   begin
-    r5_wreq <= 1'b0;
-    sub1_r1_wreq <= 1'b0;
-    sub1_b1_r2_wreq <= 1'b0;
-    sub1_b2_r3_wreq <= 1'b0;
-    sub2_r1_wreq <= 1'b0;
-    sub2_b1_r2_wreq <= 1'b0;
-    sub2_b2_r3_wreq <= 1'b0;
+    r5_wreq = 1'b0;
+    sub1_r1_wreq = 1'b0;
+    sub1_b1_r2_wreq = 1'b0;
+    sub1_b2_r3_wreq = 1'b0;
+    sub2_r1_wreq = 1'b0;
+    sub2_b1_r2_wreq = 1'b0;
+    sub2_b2_r3_wreq = 1'b0;
     case (wr_adr_d0[5:2])
     4'b0000:
       begin
         // Reg r5
-        r5_wreq <= wr_req_d0;
-        wr_ack_int <= r5_wack;
+        r5_wreq = wr_req_d0;
+        wr_ack_int = r5_wack;
       end
     4'b1000:
       begin
         // Reg sub1_r1
-        sub1_r1_wreq <= wr_req_d0;
-        wr_ack_int <= sub1_r1_wack;
+        sub1_r1_wreq = wr_req_d0;
+        wr_ack_int = sub1_r1_wack;
       end
     4'b1001:
       begin
         // Reg sub1_b1_r2
-        sub1_b1_r2_wreq <= wr_req_d0;
-        wr_ack_int <= sub1_b1_r2_wack;
+        sub1_b1_r2_wreq = wr_req_d0;
+        wr_ack_int = sub1_b1_r2_wack;
       end
     4'b1010:
       begin
         // Reg sub1_b2_r3
-        sub1_b2_r3_wreq <= wr_req_d0;
-        wr_ack_int <= sub1_b2_r3_wack;
+        sub1_b2_r3_wreq = wr_req_d0;
+        wr_ack_int = sub1_b2_r3_wack;
       end
     4'b1100:
       begin
         // Reg sub2_r1
-        sub2_r1_wreq <= wr_req_d0;
-        wr_ack_int <= sub2_r1_wack;
+        sub2_r1_wreq = wr_req_d0;
+        wr_ack_int = sub2_r1_wack;
       end
     4'b1101:
       begin
         // Reg sub2_b1_r2
-        sub2_b1_r2_wreq <= wr_req_d0;
-        wr_ack_int <= sub2_b1_r2_wack;
+        sub2_b1_r2_wreq = wr_req_d0;
+        wr_ack_int = sub2_b1_r2_wack;
       end
     4'b1110:
       begin
         // Reg sub2_b2_r3
-        sub2_b2_r3_wreq <= wr_req_d0;
-        wr_ack_int <= sub2_b2_r3_wack;
+        sub2_b2_r3_wreq = wr_req_d0;
+        wr_ack_int = sub2_b2_r3_wack;
       end
     default:
-      wr_ack_int <= wr_req_d0;
+      wr_ack_int = wr_req_d0;
     endcase
   end
 
   // Process for read requests.
-  always @(wb_adr_i, rd_req_int, r5_reg, blk_sub1_r1_reg, blk_sub1_b1_r2_reg, blk_sub1_b2_r3_reg, blk_sub2_r1_reg, blk_sub2_b1_r2_reg, blk_sub2_b2_r3_reg)
+  always_comb
   begin
     // By default ack read requests
-    rd_dat_d0 <= {32{1'bx}};
+    rd_dat_d0 = {32{1'bx}};
     case (wb_adr_i[5:2])
     4'b0000:
       begin
         // Reg r5
-        rd_ack_d0 <= rd_req_int;
-        rd_dat_d0 <= r5_reg;
+        rd_ack_d0 = rd_req_int;
+        rd_dat_d0 = r5_reg;
       end
     4'b1000:
       begin
         // Reg sub1_r1
-        rd_ack_d0 <= rd_req_int;
-        rd_dat_d0 <= blk_sub1_r1_reg;
+        rd_ack_d0 = rd_req_int;
+        rd_dat_d0 = blk_sub1_r1_reg;
       end
     4'b1001:
       begin
         // Reg sub1_b1_r2
-        rd_ack_d0 <= rd_req_int;
-        rd_dat_d0 <= blk_sub1_b1_r2_reg;
+        rd_ack_d0 = rd_req_int;
+        rd_dat_d0 = blk_sub1_b1_r2_reg;
       end
     4'b1010:
       begin
         // Reg sub1_b2_r3
-        rd_ack_d0 <= rd_req_int;
-        rd_dat_d0 <= blk_sub1_b2_r3_reg;
+        rd_ack_d0 = rd_req_int;
+        rd_dat_d0 = blk_sub1_b2_r3_reg;
       end
     4'b1100:
       begin
         // Reg sub2_r1
-        rd_ack_d0 <= rd_req_int;
-        rd_dat_d0 <= blk_sub2_r1_reg;
+        rd_ack_d0 = rd_req_int;
+        rd_dat_d0 = blk_sub2_r1_reg;
       end
     4'b1101:
       begin
         // Reg sub2_b1_r2
-        rd_ack_d0 <= rd_req_int;
-        rd_dat_d0 <= blk_sub2_b1_r2_reg;
+        rd_ack_d0 = rd_req_int;
+        rd_dat_d0 = blk_sub2_b1_r2_reg;
       end
     4'b1110:
       begin
         // Reg sub2_b2_r3
-        rd_ack_d0 <= rd_req_int;
-        rd_dat_d0 <= blk_sub2_b2_r3_reg;
+        rd_ack_d0 = rd_req_int;
+        rd_dat_d0 = blk_sub2_b2_r3_reg;
       end
     default:
-      rd_ack_d0 <= rd_req_int;
+      rd_ack_d0 = rd_req_int;
     endcase
   end
 endmodule
