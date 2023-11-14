@@ -169,7 +169,10 @@ to make it more readable.  This attribute is not required but it is recommended
 to always provide it.
 
 * `description`: This is a longer text that will be copied into the generated
-documentation.
+documentation. Newlines are honored according to the YAML specification. In
+regular strings, you can add an empty line to generate a newline.
+Alternatively, you can also explicitly add them in double-quoted strings,
+e.g. `description: "line1 \n line2"`.
 
 * `children`: For nodes that have children, this is a list of the children.
 
