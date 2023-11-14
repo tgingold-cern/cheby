@@ -58,16 +58,16 @@ module axi4_submap_wb
   reg [31:0] wr_sel_d0;
 
   // WB decode signals
-  always @(wb_sel_i)
+  always_comb
   begin
-    wr_sel[7:0] <= {8{wb_sel_i[0]}};
-    wr_sel[15:8] <= {8{wb_sel_i[1]}};
-    wr_sel[23:16] <= {8{wb_sel_i[2]}};
-    wr_sel[31:24] <= {8{wb_sel_i[3]}};
+    wr_sel[7:0] = {8{wb_sel_i[0]}};
+    wr_sel[15:8] = {8{wb_sel_i[1]}};
+    wr_sel[23:16] = {8{wb_sel_i[2]}};
+    wr_sel[31:24] = {8{wb_sel_i[3]}};
   end
   assign wb_en = wb_cyc_i & wb_stb_i;
 
-  always @(posedge(clk_i))
+  always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       wb_rip <= 1'b0;
@@ -76,7 +76,7 @@ module axi4_submap_wb
   end
   assign rd_req_int = (wb_en & ~wb_we_i) & ~wb_rip;
 
-  always @(posedge(clk_i))
+  always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       wb_wip <= 1'b0;
@@ -92,7 +92,7 @@ module axi4_submap_wb
   assign wb_err_o = 1'b0;
 
   // pipelining for wr-in+rd-out
-  always @(posedge(clk_i))
+  always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       begin
@@ -120,24 +120,24 @@ module axi4_submap_wb
   assign blk_awprot_o = 3'b000;
   assign blk_wvalid_o = blk_w_val;
   assign blk_wdata_o = wr_dat_d0;
-  always @(wr_sel_d0)
+  always_comb
   begin
-    blk_wstrb_o <= 4'b0;
+    blk_wstrb_o = 4'b0;
     if (~(wr_sel_d0[7:0] == 8'b0))
-      blk_wstrb_o[0] <= 1'b1;
+      blk_wstrb_o[0] = 1'b1;
     if (~(wr_sel_d0[15:8] == 8'b0))
-      blk_wstrb_o[1] <= 1'b1;
+      blk_wstrb_o[1] = 1'b1;
     if (~(wr_sel_d0[23:16] == 8'b0))
-      blk_wstrb_o[2] <= 1'b1;
+      blk_wstrb_o[2] = 1'b1;
     if (~(wr_sel_d0[31:24] == 8'b0))
-      blk_wstrb_o[3] <= 1'b1;
+      blk_wstrb_o[3] = 1'b1;
   end
   assign blk_bready_o = 1'b1;
   assign blk_arvalid_o = blk_ar_val;
   assign blk_araddr_o = {wb_adr_i[2:2], 2'b00};
   assign blk_arprot_o = 3'b000;
   assign blk_rready_o = 1'b1;
-  always @(posedge(clk_i))
+  always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       begin
@@ -154,23 +154,23 @@ module axi4_submap_wb
   end
 
   // Process for write requests.
-  always @(wr_req_d0, blk_bvalid_i)
+  always_comb
   begin
-    blk_wr <= 1'b0;
+    blk_wr = 1'b0;
     // Submap blk
-    blk_wr <= wr_req_d0;
-    wr_ack_int <= blk_bvalid_i;
+    blk_wr = wr_req_d0;
+    wr_ack_int = blk_bvalid_i;
   end
 
   // Process for read requests.
-  always @(rd_req_int, blk_rdata_i, blk_rvalid_i)
+  always_comb
   begin
     // By default ack read requests
-    rd_dat_d0 <= {32{1'bx}};
-    blk_rd <= 1'b0;
+    rd_dat_d0 = {32{1'bx}};
+    blk_rd = 1'b0;
     // Submap blk
-    blk_rd <= rd_req_int;
-    rd_dat_d0 <= blk_rdata_i;
-    rd_ack_d0 <= blk_rvalid_i;
+    blk_rd = rd_req_int;
+    rd_dat_d0 = blk_rdata_i;
+    rd_ack_d0 = blk_rvalid_i;
   end
 endmodule

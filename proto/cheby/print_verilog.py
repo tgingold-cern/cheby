@@ -283,7 +283,7 @@ def generate_assign(fd, s):
     wln(fd, "assign {} = {};".format(targ, expr))
 
 
-def generate_seq_block(fd, stmts, level):
+def generate_seq_block(fd, stmts, is_comb, level):
     # Count number of statements.  FIXME: use functional syntax ?
     nbr_stmts = 0
     for s in stmts:
@@ -294,7 +294,7 @@ def generate_seq_block(fd, stmts, level):
         # At most one statement: do not use blocks, but there can be several
         # comments.
         for s in stmts:
-            generate_seq(fd, s, level)
+            generate_seq(fd, s, is_comb, level)
         if nbr_stmts == 0:
             # null (there is no statement)
             w(fd, '  ' * level)
@@ -304,22 +304,24 @@ def generate_seq_block(fd, stmts, level):
         indent = '  ' * level
         wln(fd, indent + "begin")
         for s in stmts:
-            generate_seq(fd, s, level + 1)
+            generate_seq(fd, s, is_comb, level + 1)
         wln(fd, indent + "end")
 
 
-def generate_seq(fd, s, level):
+def generate_seq(fd, s, is_comb, level):
     indent = '  ' * level
     if isinstance(s, hdltree.HDLAssign):
         w(fd, indent)
         targ = generate_expr(s.target)
         expr = generate_expr(s.expr)
-        wln(fd, "{} <= {};".format(targ, expr))
+        # Use blocking '=' for combinational logic, non-blocking '<=' for sync logic
+        assign_op = '=' if is_comb else '<='
+        wln(fd, "{} {} {};".format(targ, assign_op, expr))
     elif isinstance(s, hdltree.HDLIfElse):
         w(fd, indent)
         while True:
             wln(fd, "if ({})".format(generate_expr(s.cond)))
-            generate_seq_block(fd, s.then_stmts, level + 1)
+            generate_seq_block(fd, s.then_stmts, is_comb, level + 1)
             if s.else_stmts is None:
                 break
             w(fd, indent)
@@ -329,7 +331,7 @@ def generate_seq(fd, s, level):
                 s = s.else_stmts[0]
             else:
                 wln(fd, "else")
-                generate_seq_block(fd, s.else_stmts, level + 1)
+                generate_seq_block(fd, s.else_stmts, is_comb, level + 1)
                 break
     elif isinstance(s, hdltree.HDLSwitch):
         w(fd, indent)
@@ -340,7 +342,7 @@ def generate_seq(fd, s, level):
                 wln(fd, "{}:".format(generate_expr(c.expr)))
             elif isinstance(c, hdltree.HDLChoiceDefault):
                 wln(fd, "default:")
-            generate_seq_block(fd, c.stmts, level + 1)
+            generate_seq_block(fd, c.stmts, is_comb, level + 1)
         wln(fd, indent + "endcase")
     elif isinstance(s, hdltree.HDLComment):
         w(fd, indent)
@@ -377,7 +379,7 @@ def generate_comb(fd, s, indent=0):
             w(fd, generate_expr(e))
         wln(fd, ")")
 
-    generate_seq_block(fd, s.stmts, indent)
+    generate_seq_block(fd, s.stmts, True, indent)
 
 
 def generate_sync(fd, s, indent=0):
@@ -417,13 +419,13 @@ def generate_sync(fd, s, indent=0):
     if s.rst is not None:
         windent(fd, indent + 1)
         wln(fd, "if ({})".format(rst_cond))
-        generate_seq_block(fd, s.rst_stmts, indent + 2)
+        generate_seq_block(fd, s.rst_stmts, False, indent + 2)
 
         windent(fd, indent + 1)
         wln(fd, "else")
-        generate_seq_block(fd, s.sync_stmts, indent + 2)
+        generate_seq_block(fd, s.sync_stmts, False, indent + 2)
     else:
-        generate_seq_block(fd, s.sync_stmts, indent + 1)
+        generate_seq_block(fd, s.sync_stmts, False, indent + 1)
 
     windent(fd, indent)
     wln(fd, "end")

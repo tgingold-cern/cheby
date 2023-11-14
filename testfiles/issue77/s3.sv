@@ -67,7 +67,7 @@ module s3
   assign awready = ~axi_awset;
   assign wready = ~axi_wset;
   assign bvalid = axi_wdone;
-  always @(posedge(aclk))
+  always_ff @(posedge(aclk))
   begin
     if (!areset_n)
       begin
@@ -109,7 +109,7 @@ module s3
   // AR and R channels
   assign arready = ~axi_arset;
   assign rvalid = axi_rdone;
-  always @(posedge(aclk))
+  always_ff @(posedge(aclk))
   begin
     if (!areset_n)
       begin
@@ -141,7 +141,7 @@ module s3
   assign rresp = 2'b00;
 
   // pipelining for wr-in+rd-out
-  always @(posedge(aclk))
+  always_ff @(posedge(aclk))
   begin
     if (!areset_n)
       begin
@@ -166,23 +166,23 @@ module s3
   assign sub_awprot_o = 3'b000;
   assign sub_wvalid_o = sub_w_val;
   assign sub_wdata_o = wr_dat_d0;
-  always @(wr_sel_d0)
+  always_comb
   begin
-    sub_wstrb_o <= 4'b0;
+    sub_wstrb_o = 4'b0;
     if (~(wr_sel_d0[7:0] == 8'b0))
-      sub_wstrb_o[0] <= 1'b1;
+      sub_wstrb_o[0] = 1'b1;
     if (~(wr_sel_d0[15:8] == 8'b0))
-      sub_wstrb_o[1] <= 1'b1;
+      sub_wstrb_o[1] = 1'b1;
     if (~(wr_sel_d0[23:16] == 8'b0))
-      sub_wstrb_o[2] <= 1'b1;
+      sub_wstrb_o[2] = 1'b1;
     if (~(wr_sel_d0[31:24] == 8'b0))
-      sub_wstrb_o[3] <= 1'b1;
+      sub_wstrb_o[3] = 1'b1;
   end
   assign sub_bready_o = 1'b1;
   assign sub_arvalid_o = sub_ar_val;
   assign sub_arprot_o = 3'b000;
   assign sub_rready_o = 1'b1;
-  always @(posedge(aclk))
+  always_ff @(posedge(aclk))
   begin
     if (!areset_n)
       begin
@@ -199,23 +199,23 @@ module s3
   end
 
   // Process for write requests.
-  always @(wr_req_d0, sub_bvalid_i)
+  always_comb
   begin
-    sub_wr <= 1'b0;
+    sub_wr = 1'b0;
     // Submap sub
-    sub_wr <= wr_req_d0;
-    wr_ack <= sub_bvalid_i;
+    sub_wr = wr_req_d0;
+    wr_ack = sub_bvalid_i;
   end
 
   // Process for read requests.
-  always @(rd_req, sub_rdata_i, sub_rvalid_i)
+  always_comb
   begin
     // By default ack read requests
-    rd_dat_d0 <= {32{1'bx}};
-    sub_rd <= 1'b0;
+    rd_dat_d0 = {32{1'bx}};
+    sub_rd = 1'b0;
     // Submap sub
-    sub_rd <= rd_req;
-    rd_dat_d0 <= sub_rdata_i;
-    rd_ack_d0 <= sub_rvalid_i;
+    sub_rd = rd_req;
+    rd_dat_d0 = sub_rdata_i;
+    rd_ack_d0 = sub_rvalid_i;
   end
 endmodule

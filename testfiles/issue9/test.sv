@@ -70,7 +70,7 @@ module test
   assign awready = ~axi_awset;
   assign wready = ~axi_wset;
   assign bvalid = axi_wdone;
-  always @(posedge(aclk))
+  always_ff @(posedge(aclk))
   begin
     if (!areset_n)
       begin
@@ -109,7 +109,7 @@ module test
   // AR and R channels
   assign arready = ~axi_arset;
   assign rvalid = axi_rdone;
-  always @(posedge(aclk))
+  always_ff @(posedge(aclk))
   begin
     if (!areset_n)
       begin
@@ -142,7 +142,7 @@ module test
   assign rresp = 2'b00;
 
   // pipelining for wr-in+rd-out
-  always @(posedge(aclk))
+  always_ff @(posedge(aclk))
   begin
     if (!areset_n)
       begin
@@ -164,7 +164,7 @@ module test
 
   // Register register1
   assign register1_o = register1_reg;
-  always @(posedge(aclk))
+  always_ff @(posedge(aclk))
   begin
     if (!areset_n)
       begin
@@ -183,7 +183,7 @@ module test
 
   // Register block1_register3
   assign block1_register3_o = block1_register3_reg;
-  always @(posedge(aclk))
+  always_ff @(posedge(aclk))
   begin
     if (!areset_n)
       begin
@@ -201,67 +201,67 @@ module test
   // Register block1_block2_register4
 
   // Process for write requests.
-  always @(wr_adr_d0, wr_req_d0, register1_wack, block1_register3_wack)
+  always_comb
   begin
-    register1_wreq <= 1'b0;
-    block1_register3_wreq <= 1'b0;
+    register1_wreq = 1'b0;
+    block1_register3_wreq = 1'b0;
     case (wr_adr_d0[4:2])
     3'b000:
       begin
         // Reg register1
-        register1_wreq <= wr_req_d0;
-        wr_ack <= register1_wack;
+        register1_wreq = wr_req_d0;
+        wr_ack = register1_wack;
       end
     3'b100:
       // Reg block1_register2
-      wr_ack <= wr_req_d0;
+      wr_ack = wr_req_d0;
     3'b101:
       begin
         // Reg block1_register3
-        block1_register3_wreq <= wr_req_d0;
-        wr_ack <= block1_register3_wack;
+        block1_register3_wreq = wr_req_d0;
+        wr_ack = block1_register3_wack;
       end
     3'b110:
       // Reg block1_block2_register4
-      wr_ack <= wr_req_d0;
+      wr_ack = wr_req_d0;
     default:
-      wr_ack <= wr_req_d0;
+      wr_ack = wr_req_d0;
     endcase
   end
 
   // Process for read requests.
-  always @(rd_addr, rd_req, block1_register2_field1_i, block1_register2_field2_i, block1_register3_reg, block1_block2_register4_field3_i, block1_block2_register4_field4_i)
+  always_comb
   begin
     // By default ack read requests
-    rd_dat_d0 <= {32{1'bx}};
+    rd_dat_d0 = {32{1'bx}};
     case (rd_addr[4:2])
     3'b000:
       // Reg register1
-      rd_ack_d0 <= rd_req;
+      rd_ack_d0 = rd_req;
     3'b100:
       begin
         // Reg block1_register2
-        rd_ack_d0 <= rd_req;
-        rd_dat_d0[0] <= block1_register2_field1_i;
-        rd_dat_d0[3:1] <= block1_register2_field2_i;
-        rd_dat_d0[31:4] <= 28'b0;
+        rd_ack_d0 = rd_req;
+        rd_dat_d0[0] = block1_register2_field1_i;
+        rd_dat_d0[3:1] = block1_register2_field2_i;
+        rd_dat_d0[31:4] = 28'b0;
       end
     3'b101:
       begin
         // Reg block1_register3
-        rd_ack_d0 <= rd_req;
-        rd_dat_d0 <= block1_register3_reg;
+        rd_ack_d0 = rd_req;
+        rd_dat_d0 = block1_register3_reg;
       end
     3'b110:
       begin
         // Reg block1_block2_register4
-        rd_ack_d0 <= rd_req;
-        rd_dat_d0[0] <= block1_block2_register4_field3_i;
-        rd_dat_d0[3:1] <= block1_block2_register4_field4_i;
-        rd_dat_d0[31:4] <= 28'b0;
+        rd_ack_d0 = rd_req;
+        rd_dat_d0[0] = block1_block2_register4_field3_i;
+        rd_dat_d0[3:1] = block1_block2_register4_field4_i;
+        rd_dat_d0[31:4] = 28'b0;
       end
     default:
-      rd_ack_d0 <= rd_req;
+      rd_ack_d0 = rd_req;
     endcase
   end
 endmodule

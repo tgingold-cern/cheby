@@ -62,7 +62,7 @@ module bugDPSSRAMbwSel
   assign awready = ~axi_awset;
   assign wready = ~axi_wset;
   assign bvalid = axi_wdone;
-  always @(posedge(aclk))
+  always_ff @(posedge(aclk))
   begin
     if (!areset_n)
       begin
@@ -105,7 +105,7 @@ module bugDPSSRAMbwSel
   // AR and R channels
   assign arready = ~axi_arset;
   assign rvalid = axi_rdone;
-  always @(posedge(aclk))
+  always_ff @(posedge(aclk))
   begin
     if (!areset_n)
       begin
@@ -138,7 +138,7 @@ module bugDPSSRAMbwSel
   assign rresp = 2'b00;
 
   // pipelining for wr-in+rd-out
-  always @(posedge(aclk))
+  always_ff @(posedge(aclk))
   begin
     if (!areset_n)
       begin
@@ -161,11 +161,11 @@ module bugDPSSRAMbwSel
   end
 
   // Memory mem
-  always @(rd_addr, wr_adr_d0, mem_wr)
+  always_comb
   if (mem_wr == 1'b1)
-    mem_adr_int <= wr_adr_d0[11:2];
+    mem_adr_int = wr_adr_d0[11:2];
   else
-    mem_adr_int <= rd_addr[11:2];
+    mem_adr_int = rd_addr[11:2];
   assign mem_wreq = mem_r1_int_wr;
   assign mem_wr = mem_wreq;
   cheby_dpssram #(
@@ -192,19 +192,19 @@ module bugDPSSRAMbwSel
       .wr_b_i(1'b0)
     );
   
-  always @(wr_sel_d0)
+  always_comb
   begin
-    mem_sel_int <= 4'b0;
+    mem_sel_int = 4'b0;
     if (~(wr_sel_d0[7:0] == 8'b0))
-      mem_sel_int[0] <= 1'b1;
+      mem_sel_int[0] = 1'b1;
     if (~(wr_sel_d0[15:8] == 8'b0))
-      mem_sel_int[1] <= 1'b1;
+      mem_sel_int[1] = 1'b1;
     if (~(wr_sel_d0[23:16] == 8'b0))
-      mem_sel_int[2] <= 1'b1;
+      mem_sel_int[2] = 1'b1;
     if (~(wr_sel_d0[31:24] == 8'b0))
-      mem_sel_int[3] <= 1'b1;
+      mem_sel_int[3] = 1'b1;
   end
-  always @(posedge(aclk))
+  always_ff @(posedge(aclk))
   begin
     if (!areset_n)
       mem_r1_rack <= 1'b0;
@@ -213,23 +213,23 @@ module bugDPSSRAMbwSel
   end
 
   // Process for write requests.
-  always @(wr_req_d0)
+  always_comb
   begin
-    mem_r1_int_wr <= 1'b0;
+    mem_r1_int_wr = 1'b0;
     // Memory mem
-    mem_r1_int_wr <= wr_req_d0;
-    wr_ack <= wr_req_d0;
+    mem_r1_int_wr = wr_req_d0;
+    wr_ack = wr_req_d0;
   end
 
   // Process for read requests.
-  always @(mem_r1_int_dato, rd_req, mem_wreq, mem_r1_rack)
+  always_comb
   begin
     // By default ack read requests
-    rd_dat_d0 <= {32{1'bx}};
-    mem_r1_rreq <= 1'b0;
+    rd_dat_d0 = {32{1'bx}};
+    mem_r1_rreq = 1'b0;
     // Memory mem
-    rd_dat_d0 <= {24'b000000000000000000000000, mem_r1_int_dato};
-    mem_r1_rreq <= rd_req & ~mem_wreq;
-    rd_ack_d0 <= mem_r1_rack;
+    rd_dat_d0 = {24'b000000000000000000000000, mem_r1_int_dato};
+    mem_r1_rreq = rd_req & ~mem_wreq;
+    rd_ack_d0 = mem_r1_rack;
   end
 endmodule

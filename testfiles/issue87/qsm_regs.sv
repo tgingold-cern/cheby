@@ -93,12 +93,12 @@ module qsm_regs
   reg [31:0] wr_dat_d0;
 
   // WB decode signals
-  always @(wb.sel)
+  always_comb
   ;
   assign adr_int = wb.adr[10:2];
   assign wb_en = wb.cyc & wb.stb;
 
-  always @(posedge(wb.clk))
+  always_ff @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
       wb_rip <= 1'b0;
@@ -107,7 +107,7 @@ module qsm_regs
   end
   assign rd_req_int = (wb_en & ~wb.we) & ~wb_rip;
 
-  always @(posedge(wb.clk))
+  always_ff @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
       wb_wip <= 1'b0;
@@ -123,7 +123,7 @@ module qsm_regs
   assign wb.err = 1'b0;
 
   // pipelining for wr-in+rd-out
-  always @(posedge(wb.clk))
+  always_ff @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
       begin
@@ -149,7 +149,7 @@ module qsm_regs
   assign regs_0_control_last_reg_adr_o = regs_0_control_last_reg_adr_reg;
   assign regs_0_control_max_dim_no_o = regs_0_control_max_dim_no_reg;
   assign regs_0_control_read_delay_o = regs_0_control_read_delay_reg;
-  always @(posedge(wb.clk))
+  always_ff @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
       begin
@@ -187,7 +187,7 @@ module qsm_regs
   assign regs_1_control_last_reg_adr_o = regs_1_control_last_reg_adr_reg;
   assign regs_1_control_max_dim_no_o = regs_1_control_max_dim_no_reg;
   assign regs_1_control_read_delay_o = regs_1_control_read_delay_reg;
-  always @(posedge(wb.clk))
+  always_ff @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
       begin
@@ -220,7 +220,7 @@ module qsm_regs
   // Register regs_1_status
 
   // Interface memory_0_mem_readout
-  always @(posedge(wb.clk))
+  always_ff @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
       memory_0_mem_readout_rack <= 1'b0;
@@ -230,7 +230,7 @@ module qsm_regs
   assign memory_0_mem_readout_addr_o = adr_int[8:2];
 
   // Interface memory_1_mem_readout
-  always @(posedge(wb.clk))
+  always_ff @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
       memory_1_mem_readout_rack <= 1'b0;
@@ -240,118 +240,118 @@ module qsm_regs
   assign memory_1_mem_readout_addr_o = adr_int[8:2];
 
   // Process for write requests.
-  always @(wr_adr_d0, wr_req_d0, regs_0_control_wack, regs_1_control_wack)
+  always_comb
   begin
-    regs_0_control_wreq <= 1'b0;
-    regs_1_control_wreq <= 1'b0;
+    regs_0_control_wreq = 1'b0;
+    regs_1_control_wreq = 1'b0;
     case (wr_adr_d0[10:9])
     2'b00:
       case (wr_adr_d0[8:2])
       7'b0000000:
         begin
           // Reg regs_0_control
-          regs_0_control_wreq <= wr_req_d0;
-          wr_ack_int <= regs_0_control_wack;
+          regs_0_control_wreq = wr_req_d0;
+          wr_ack_int = regs_0_control_wack;
         end
       7'b0000001:
         // Reg regs_0_status
-        wr_ack_int <= wr_req_d0;
+        wr_ack_int = wr_req_d0;
       7'b0000010:
         begin
           // Reg regs_1_control
-          regs_1_control_wreq <= wr_req_d0;
-          wr_ack_int <= regs_1_control_wack;
+          regs_1_control_wreq = wr_req_d0;
+          wr_ack_int = regs_1_control_wack;
         end
       7'b0000011:
         // Reg regs_1_status
-        wr_ack_int <= wr_req_d0;
+        wr_ack_int = wr_req_d0;
       default:
-        wr_ack_int <= wr_req_d0;
+        wr_ack_int = wr_req_d0;
       endcase
     2'b10:
       // Memory memory_0_mem_readout
-      wr_ack_int <= wr_req_d0;
+      wr_ack_int = wr_req_d0;
     2'b11:
       // Memory memory_1_mem_readout
-      wr_ack_int <= wr_req_d0;
+      wr_ack_int = wr_req_d0;
     default:
-      wr_ack_int <= wr_req_d0;
+      wr_ack_int = wr_req_d0;
     endcase
   end
 
   // Process for read requests.
-  always @(adr_int, rd_req_int, regs_0_control_last_reg_adr_reg, regs_0_control_max_dim_no_reg, regs_0_control_read_delay_reg, regs_0_status_busy_i, regs_0_status_done_i, regs_0_status_err_many_i, regs_0_status_err_fb_i, regs_0_status_dim_count_i, regs_1_control_last_reg_adr_reg, regs_1_control_max_dim_no_reg, regs_1_control_read_delay_reg, regs_1_status_busy_i, regs_1_status_done_i, regs_1_status_err_many_i, regs_1_status_err_fb_i, regs_1_status_dim_count_i, memory_0_mem_readout_data_i, memory_0_mem_readout_rack, memory_1_mem_readout_data_i, memory_1_mem_readout_rack)
+  always_comb
   begin
     // By default ack read requests
-    rd_dat_d0 <= {32{1'bx}};
-    memory_0_mem_readout_re <= 1'b0;
-    memory_1_mem_readout_re <= 1'b0;
+    rd_dat_d0 = {32{1'bx}};
+    memory_0_mem_readout_re = 1'b0;
+    memory_1_mem_readout_re = 1'b0;
     case (adr_int[10:9])
     2'b00:
       case (adr_int[8:2])
       7'b0000000:
         begin
           // Reg regs_0_control
-          rd_ack_d0 <= rd_req_int;
-          rd_dat_d0[0] <= 1'b0;
-          rd_dat_d0[1] <= 1'b0;
-          rd_dat_d0[5:2] <= regs_0_control_last_reg_adr_reg;
-          rd_dat_d0[9:6] <= regs_0_control_max_dim_no_reg;
-          rd_dat_d0[19:10] <= regs_0_control_read_delay_reg;
-          rd_dat_d0[31:20] <= 12'b0;
+          rd_ack_d0 = rd_req_int;
+          rd_dat_d0[0] = 1'b0;
+          rd_dat_d0[1] = 1'b0;
+          rd_dat_d0[5:2] = regs_0_control_last_reg_adr_reg;
+          rd_dat_d0[9:6] = regs_0_control_max_dim_no_reg;
+          rd_dat_d0[19:10] = regs_0_control_read_delay_reg;
+          rd_dat_d0[31:20] = 12'b0;
         end
       7'b0000001:
         begin
           // Reg regs_0_status
-          rd_ack_d0 <= rd_req_int;
-          rd_dat_d0[0] <= regs_0_status_busy_i;
-          rd_dat_d0[1] <= regs_0_status_done_i;
-          rd_dat_d0[2] <= regs_0_status_err_many_i;
-          rd_dat_d0[3] <= regs_0_status_err_fb_i;
-          rd_dat_d0[7:4] <= regs_0_status_dim_count_i;
-          rd_dat_d0[31:8] <= 24'b0;
+          rd_ack_d0 = rd_req_int;
+          rd_dat_d0[0] = regs_0_status_busy_i;
+          rd_dat_d0[1] = regs_0_status_done_i;
+          rd_dat_d0[2] = regs_0_status_err_many_i;
+          rd_dat_d0[3] = regs_0_status_err_fb_i;
+          rd_dat_d0[7:4] = regs_0_status_dim_count_i;
+          rd_dat_d0[31:8] = 24'b0;
         end
       7'b0000010:
         begin
           // Reg regs_1_control
-          rd_ack_d0 <= rd_req_int;
-          rd_dat_d0[0] <= 1'b0;
-          rd_dat_d0[1] <= 1'b0;
-          rd_dat_d0[5:2] <= regs_1_control_last_reg_adr_reg;
-          rd_dat_d0[9:6] <= regs_1_control_max_dim_no_reg;
-          rd_dat_d0[19:10] <= regs_1_control_read_delay_reg;
-          rd_dat_d0[31:20] <= 12'b0;
+          rd_ack_d0 = rd_req_int;
+          rd_dat_d0[0] = 1'b0;
+          rd_dat_d0[1] = 1'b0;
+          rd_dat_d0[5:2] = regs_1_control_last_reg_adr_reg;
+          rd_dat_d0[9:6] = regs_1_control_max_dim_no_reg;
+          rd_dat_d0[19:10] = regs_1_control_read_delay_reg;
+          rd_dat_d0[31:20] = 12'b0;
         end
       7'b0000011:
         begin
           // Reg regs_1_status
-          rd_ack_d0 <= rd_req_int;
-          rd_dat_d0[0] <= regs_1_status_busy_i;
-          rd_dat_d0[1] <= regs_1_status_done_i;
-          rd_dat_d0[2] <= regs_1_status_err_many_i;
-          rd_dat_d0[3] <= regs_1_status_err_fb_i;
-          rd_dat_d0[7:4] <= regs_1_status_dim_count_i;
-          rd_dat_d0[31:8] <= 24'b0;
+          rd_ack_d0 = rd_req_int;
+          rd_dat_d0[0] = regs_1_status_busy_i;
+          rd_dat_d0[1] = regs_1_status_done_i;
+          rd_dat_d0[2] = regs_1_status_err_many_i;
+          rd_dat_d0[3] = regs_1_status_err_fb_i;
+          rd_dat_d0[7:4] = regs_1_status_dim_count_i;
+          rd_dat_d0[31:8] = 24'b0;
         end
       default:
-        rd_ack_d0 <= rd_req_int;
+        rd_ack_d0 = rd_req_int;
       endcase
     2'b10:
       begin
         // Memory memory_0_mem_readout
-        rd_dat_d0[15:0] <= memory_0_mem_readout_data_i;
-        rd_ack_d0 <= memory_0_mem_readout_rack;
-        memory_0_mem_readout_re <= rd_req_int;
+        rd_dat_d0[15:0] = memory_0_mem_readout_data_i;
+        rd_ack_d0 = memory_0_mem_readout_rack;
+        memory_0_mem_readout_re = rd_req_int;
       end
     2'b11:
       begin
         // Memory memory_1_mem_readout
-        rd_dat_d0[15:0] <= memory_1_mem_readout_data_i;
-        rd_ack_d0 <= memory_1_mem_readout_rack;
-        memory_1_mem_readout_re <= rd_req_int;
+        rd_dat_d0[15:0] = memory_1_mem_readout_data_i;
+        rd_ack_d0 = memory_1_mem_readout_rack;
+        memory_1_mem_readout_re = rd_req_int;
       end
     default:
-      rd_ack_d0 <= rd_req_int;
+      rd_ack_d0 = rd_req_int;
     endcase
   end
 endmodule

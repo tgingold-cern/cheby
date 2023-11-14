@@ -50,11 +50,11 @@ module igroup2
   reg [31:0] wr_dat_d0;
 
   // WB decode signals
-  always @(wb_sel_i)
+  always_comb
   ;
   assign wb_en = wb_cyc_i & wb_stb_i;
 
-  always @(posedge(clk_i))
+  always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       wb_rip <= 1'b0;
@@ -63,7 +63,7 @@ module igroup2
   end
   assign rd_req_int = (wb_en & ~wb_we_i) & ~wb_rip;
 
-  always @(posedge(clk_i))
+  always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       wb_wip <= 1'b0;
@@ -79,7 +79,7 @@ module igroup2
   assign wb_err_o = 1'b0;
 
   // pipelining for wr-in+rd-out
-  always @(posedge(clk_i))
+  always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       begin
@@ -101,7 +101,7 @@ module igroup2
 
   // Register areg
   assign areg_o = areg_reg;
-  always @(posedge(clk_i))
+  always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       begin
@@ -118,7 +118,7 @@ module igroup2
 
   // Register blk_breg
   assign blk.breg = blk_breg_reg;
-  always @(posedge(clk_i))
+  always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       begin
@@ -134,48 +134,48 @@ module igroup2
   end
 
   // Process for write requests.
-  always @(wr_adr_d0, wr_req_d0, areg_wack, blk_breg_wack)
+  always_comb
   begin
-    areg_wreq <= 1'b0;
-    blk_breg_wreq <= 1'b0;
+    areg_wreq = 1'b0;
+    blk_breg_wreq = 1'b0;
     case (wr_adr_d0[2:2])
     1'b0:
       begin
         // Reg areg
-        areg_wreq <= wr_req_d0;
-        wr_ack_int <= areg_wack;
+        areg_wreq = wr_req_d0;
+        wr_ack_int = areg_wack;
       end
     1'b1:
       begin
         // Reg blk_breg
-        blk_breg_wreq <= wr_req_d0;
-        wr_ack_int <= blk_breg_wack;
+        blk_breg_wreq = wr_req_d0;
+        wr_ack_int = blk_breg_wack;
       end
     default:
-      wr_ack_int <= wr_req_d0;
+      wr_ack_int = wr_req_d0;
     endcase
   end
 
   // Process for read requests.
-  always @(wb_adr_i, rd_req_int, areg_reg, blk_breg_reg)
+  always_comb
   begin
     // By default ack read requests
-    rd_dat_d0 <= {32{1'bx}};
+    rd_dat_d0 = {32{1'bx}};
     case (wb_adr_i[2:2])
     1'b0:
       begin
         // Reg areg
-        rd_ack_d0 <= rd_req_int;
-        rd_dat_d0 <= areg_reg;
+        rd_ack_d0 = rd_req_int;
+        rd_dat_d0 = areg_reg;
       end
     1'b1:
       begin
         // Reg blk_breg
-        rd_ack_d0 <= rd_req_int;
-        rd_dat_d0 <= blk_breg_reg;
+        rd_ack_d0 = rd_req_int;
+        rd_dat_d0 = blk_breg_reg;
       end
     default:
-      rd_ack_d0 <= rd_req_int;
+      rd_ack_d0 = rd_req_int;
     endcase
   end
 endmodule

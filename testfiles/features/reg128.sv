@@ -36,11 +36,11 @@ module reg128
   reg [31:0] wr_dat_d0;
 
   // WB decode signals
-  always @(wb_sel_i)
+  always_comb
   ;
   assign wb_en = wb_cyc_i & wb_stb_i;
 
-  always @(posedge(clk_i))
+  always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       wb_rip <= 1'b0;
@@ -49,7 +49,7 @@ module reg128
   end
   assign rd_req_int = (wb_en & ~wb_we_i) & ~wb_rip;
 
-  always @(posedge(clk_i))
+  always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       wb_wip <= 1'b0;
@@ -65,7 +65,7 @@ module reg128
   assign wb_err_o = 1'b0;
 
   // pipelining for wr-in+rd-out
-  always @(posedge(clk_i))
+  always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       begin
@@ -87,7 +87,7 @@ module reg128
 
   // Register areg
   assign areg_o = areg_reg;
-  always @(posedge(clk_i))
+  always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       begin
@@ -109,71 +109,71 @@ module reg128
   end
 
   // Process for write requests.
-  always @(wr_adr_d0, wr_req_d0, areg_wack)
+  always_comb
   begin
-    areg_wreq <= 4'b0;
+    areg_wreq = 4'b0;
     case (wr_adr_d0[3:2])
     2'b00:
       begin
         // Reg areg
-        areg_wreq[3] <= wr_req_d0;
-        wr_ack_int <= areg_wack[3];
+        areg_wreq[3] = wr_req_d0;
+        wr_ack_int = areg_wack[3];
       end
     2'b01:
       begin
         // Reg areg
-        areg_wreq[2] <= wr_req_d0;
-        wr_ack_int <= areg_wack[2];
+        areg_wreq[2] = wr_req_d0;
+        wr_ack_int = areg_wack[2];
       end
     2'b10:
       begin
         // Reg areg
-        areg_wreq[1] <= wr_req_d0;
-        wr_ack_int <= areg_wack[1];
+        areg_wreq[1] = wr_req_d0;
+        wr_ack_int = areg_wack[1];
       end
     2'b11:
       begin
         // Reg areg
-        areg_wreq[0] <= wr_req_d0;
-        wr_ack_int <= areg_wack[0];
+        areg_wreq[0] = wr_req_d0;
+        wr_ack_int = areg_wack[0];
       end
     default:
-      wr_ack_int <= wr_req_d0;
+      wr_ack_int = wr_req_d0;
     endcase
   end
 
   // Process for read requests.
-  always @(wb_adr_i, rd_req_int, areg_reg)
+  always_comb
   begin
     // By default ack read requests
-    rd_dat_d0 <= {32{1'bx}};
+    rd_dat_d0 = {32{1'bx}};
     case (wb_adr_i[3:2])
     2'b00:
       begin
         // Reg areg
-        rd_ack_d0 <= rd_req_int;
-        rd_dat_d0 <= areg_reg[127:96];
+        rd_ack_d0 = rd_req_int;
+        rd_dat_d0 = areg_reg[127:96];
       end
     2'b01:
       begin
         // Reg areg
-        rd_ack_d0 <= rd_req_int;
-        rd_dat_d0 <= areg_reg[95:64];
+        rd_ack_d0 = rd_req_int;
+        rd_dat_d0 = areg_reg[95:64];
       end
     2'b10:
       begin
         // Reg areg
-        rd_ack_d0 <= rd_req_int;
-        rd_dat_d0 <= areg_reg[63:32];
+        rd_ack_d0 = rd_req_int;
+        rd_dat_d0 = areg_reg[63:32];
       end
     2'b11:
       begin
         // Reg areg
-        rd_ack_d0 <= rd_req_int;
-        rd_dat_d0 <= areg_reg[31:0];
+        rd_ack_d0 = rd_req_int;
+        rd_dat_d0 = areg_reg[31:0];
       end
     default:
-      rd_ack_d0 <= rd_req_int;
+      rd_ack_d0 = rd_req_int;
     endcase
   end
 endmodule

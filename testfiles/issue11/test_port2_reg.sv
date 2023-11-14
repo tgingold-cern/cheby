@@ -30,11 +30,11 @@ module sreg
   reg wr_req_d0;
 
   // WB decode signals
-  always @(wb_sel_i)
+  always_comb
   ;
   assign wb_en = wb_cyc_i & wb_stb_i;
 
-  always @(posedge(clk_i))
+  always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       wb_rip <= 1'b0;
@@ -43,7 +43,7 @@ module sreg
   end
   assign rd_req_int = (wb_en & ~wb_we_i) & ~wb_rip;
 
-  always @(posedge(clk_i))
+  always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       wb_wip <= 1'b0;
@@ -59,7 +59,7 @@ module sreg
   assign wb_err_o = 1'b0;
 
   // pipelining for wr-in+rd-out
-  always @(posedge(clk_i))
+  always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       begin
@@ -78,18 +78,18 @@ module sreg
   // Register i1Thresholds
 
   // Process for write requests.
-  always @(wr_req_d0)
+  always_comb
   // Reg i1Thresholds
-  wr_ack_int <= wr_req_d0;
+  wr_ack_int = wr_req_d0;
 
   // Process for read requests.
-  always @(rd_req_int, i1Thresholds_i)
+  always_comb
   begin
     // By default ack read requests
-    rd_dat_d0 <= {32{1'bx}};
+    rd_dat_d0 = {32{1'bx}};
     // Reg i1Thresholds
-    rd_ack_d0 <= rd_req_int;
-    rd_dat_d0[15:0] <= i1Thresholds_i[15:0];
-    rd_dat_d0[31:16] <= i1Thresholds_i[31:16];
+    rd_ack_d0 = rd_req_int;
+    rd_dat_d0[15:0] = i1Thresholds_i[15:0];
+    rd_dat_d0[31:16] = i1Thresholds_i[31:16];
   end
 endmodule

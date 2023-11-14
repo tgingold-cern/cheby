@@ -46,16 +46,16 @@ module mem64rodual
   reg [3:0] DdrCapturesIndex_1_sel_int;
 
   // WB decode signals
-  always @(wb_sel_i)
+  always_comb
   begin
-    wr_sel[7:0] <= {8{wb_sel_i[0]}};
-    wr_sel[15:8] <= {8{wb_sel_i[1]}};
-    wr_sel[23:16] <= {8{wb_sel_i[2]}};
-    wr_sel[31:24] <= {8{wb_sel_i[3]}};
+    wr_sel[7:0] = {8{wb_sel_i[0]}};
+    wr_sel[15:8] = {8{wb_sel_i[1]}};
+    wr_sel[23:16] = {8{wb_sel_i[2]}};
+    wr_sel[31:24] = {8{wb_sel_i[3]}};
   end
   assign wb_en = wb_cyc_i & wb_stb_i;
 
-  always @(posedge(clk_i))
+  always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       wb_rip <= 1'b0;
@@ -64,7 +64,7 @@ module mem64rodual
   end
   assign rd_req_int = (wb_en & ~wb_we_i) & ~wb_rip;
 
-  always @(posedge(clk_i))
+  always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       wb_wip <= 1'b0;
@@ -80,7 +80,7 @@ module mem64rodual
   assign wb_err_o = 1'b0;
 
   // pipelining for wr-in+rd-out
-  always @(posedge(clk_i))
+  always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       begin
@@ -123,17 +123,17 @@ module mem64rodual
       .wr_b_i(DdrCapturesIndex_DdrCaptures_we_i)
     );
   
-  always @(wr_sel_d0)
+  always_comb
   begin
-    DdrCapturesIndex_0_sel_int <= 4'b0;
+    DdrCapturesIndex_0_sel_int = 4'b0;
     if (~(wr_sel_d0[7:0] == 8'b0))
-      DdrCapturesIndex_0_sel_int[0] <= 1'b1;
+      DdrCapturesIndex_0_sel_int[0] = 1'b1;
     if (~(wr_sel_d0[15:8] == 8'b0))
-      DdrCapturesIndex_0_sel_int[1] <= 1'b1;
+      DdrCapturesIndex_0_sel_int[1] = 1'b1;
     if (~(wr_sel_d0[23:16] == 8'b0))
-      DdrCapturesIndex_0_sel_int[2] <= 1'b1;
+      DdrCapturesIndex_0_sel_int[2] = 1'b1;
     if (~(wr_sel_d0[31:24] == 8'b0))
-      DdrCapturesIndex_0_sel_int[3] <= 1'b1;
+      DdrCapturesIndex_0_sel_int[3] = 1'b1;
   end
   cheby_dpssram #(
       .g_data_width(32),
@@ -159,19 +159,19 @@ module mem64rodual
       .wr_b_i(DdrCapturesIndex_DdrCaptures_we_i)
     );
   
-  always @(wr_sel_d0)
+  always_comb
   begin
-    DdrCapturesIndex_1_sel_int <= 4'b0;
+    DdrCapturesIndex_1_sel_int = 4'b0;
     if (~(wr_sel_d0[7:0] == 8'b0))
-      DdrCapturesIndex_1_sel_int[0] <= 1'b1;
+      DdrCapturesIndex_1_sel_int[0] = 1'b1;
     if (~(wr_sel_d0[15:8] == 8'b0))
-      DdrCapturesIndex_1_sel_int[1] <= 1'b1;
+      DdrCapturesIndex_1_sel_int[1] = 1'b1;
     if (~(wr_sel_d0[23:16] == 8'b0))
-      DdrCapturesIndex_1_sel_int[2] <= 1'b1;
+      DdrCapturesIndex_1_sel_int[2] = 1'b1;
     if (~(wr_sel_d0[31:24] == 8'b0))
-      DdrCapturesIndex_1_sel_int[3] <= 1'b1;
+      DdrCapturesIndex_1_sel_int[3] = 1'b1;
   end
-  always @(posedge(clk_i))
+  always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       begin
@@ -186,30 +186,30 @@ module mem64rodual
   end
 
   // Process for write requests.
-  always @(wr_req_d0)
+  always_comb
   // Memory DdrCapturesIndex
-  wr_ack_int <= wr_req_d0;
+  wr_ack_int = wr_req_d0;
 
   // Process for read requests.
-  always @(wb_adr_i, DdrCapturesIndex_DdrCaptures_int_dato0, rd_req_int, DdrCapturesIndex_DdrCaptures_rack0, DdrCapturesIndex_DdrCaptures_int_dato1, DdrCapturesIndex_DdrCaptures_rack1)
+  always_comb
   begin
     // By default ack read requests
-    rd_dat_d0 <= {32{1'bx}};
-    DdrCapturesIndex_DdrCaptures_rreq0 <= 1'b0;
-    DdrCapturesIndex_DdrCaptures_rreq1 <= 1'b0;
+    rd_dat_d0 = {32{1'bx}};
+    DdrCapturesIndex_DdrCaptures_rreq0 = 1'b0;
+    DdrCapturesIndex_DdrCaptures_rreq1 = 1'b0;
     // Memory DdrCapturesIndex
     case (wb_adr_i[2:2])
     1'b0:
       begin
-        rd_dat_d0 <= DdrCapturesIndex_DdrCaptures_int_dato0;
-        DdrCapturesIndex_DdrCaptures_rreq0 <= rd_req_int;
-        rd_ack_d0 <= DdrCapturesIndex_DdrCaptures_rack0;
+        rd_dat_d0 = DdrCapturesIndex_DdrCaptures_int_dato0;
+        DdrCapturesIndex_DdrCaptures_rreq0 = rd_req_int;
+        rd_ack_d0 = DdrCapturesIndex_DdrCaptures_rack0;
       end
     1'b1:
       begin
-        rd_dat_d0 <= DdrCapturesIndex_DdrCaptures_int_dato1;
-        DdrCapturesIndex_DdrCaptures_rreq1 <= rd_req_int;
-        rd_ack_d0 <= DdrCapturesIndex_DdrCaptures_rack1;
+        rd_dat_d0 = DdrCapturesIndex_DdrCaptures_int_dato1;
+        DdrCapturesIndex_DdrCaptures_rreq1 = rd_req_int;
+        rd_ack_d0 = DdrCapturesIndex_DdrCaptures_rack1;
       end
     default:
       ;

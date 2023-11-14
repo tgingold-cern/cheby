@@ -76,11 +76,11 @@ module iogroup1
   reg [31:0] wr_dat_d0;
 
   // WB decode signals
-  always @(wb_sel_i)
+  always_comb
   ;
   assign wb_en = wb_cyc_i & wb_stb_i;
 
-  always @(posedge(clk_i))
+  always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       wb_rip <= 1'b0;
@@ -89,7 +89,7 @@ module iogroup1
   end
   assign rd_req_int = (wb_en & ~wb_we_i) & ~wb_rip;
 
-  always @(posedge(clk_i))
+  always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       wb_wip <= 1'b0;
@@ -105,7 +105,7 @@ module iogroup1
   assign wb_err_o = 1'b0;
 
   // pipelining for wr-in+rd-out
-  always @(posedge(clk_i))
+  always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       begin
@@ -127,7 +127,7 @@ module iogroup1
 
   // Register areg1
   assign ios.areg1 = areg1_reg;
-  always @(posedge(clk_i))
+  always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       begin
@@ -146,7 +146,7 @@ module iogroup1
 
   // Register areg3
   assign ios.areg3 = areg3_reg;
-  always @(posedge(clk_i))
+  always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       begin
@@ -167,69 +167,69 @@ module iogroup1
   assign ios.areg4_wr = areg4_wreq;
 
   // Process for write requests.
-  always @(wr_adr_d0, wr_req_d0, areg1_wack, areg3_wack, ios.areg4_wack)
+  always_comb
   begin
-    areg1_wreq <= 1'b0;
-    areg3_wreq <= 1'b0;
-    areg4_wreq <= 1'b0;
+    areg1_wreq = 1'b0;
+    areg3_wreq = 1'b0;
+    areg4_wreq = 1'b0;
     case (wr_adr_d0[3:2])
     2'b00:
       begin
         // Reg areg1
-        areg1_wreq <= wr_req_d0;
-        wr_ack_int <= areg1_wack;
+        areg1_wreq = wr_req_d0;
+        wr_ack_int = areg1_wack;
       end
     2'b01:
       // Reg areg2
-      wr_ack_int <= wr_req_d0;
+      wr_ack_int = wr_req_d0;
     2'b10:
       begin
         // Reg areg3
-        areg3_wreq <= wr_req_d0;
-        wr_ack_int <= areg3_wack;
+        areg3_wreq = wr_req_d0;
+        wr_ack_int = areg3_wack;
       end
     2'b11:
       begin
         // Reg areg4
-        areg4_wreq <= wr_req_d0;
-        wr_ack_int <= ios.areg4_wack;
+        areg4_wreq = wr_req_d0;
+        wr_ack_int = ios.areg4_wack;
       end
     default:
-      wr_ack_int <= wr_req_d0;
+      wr_ack_int = wr_req_d0;
     endcase
   end
 
   // Process for read requests.
-  always @(wb_adr_i, rd_req_int, areg1_reg, ios.areg2, ios.areg4_rack, ios.areg4i)
+  always_comb
   begin
     // By default ack read requests
-    rd_dat_d0 <= {32{1'bx}};
-    ios.areg4_rd <= 1'b0;
+    rd_dat_d0 = {32{1'bx}};
+    ios.areg4_rd = 1'b0;
     case (wb_adr_i[3:2])
     2'b00:
       begin
         // Reg areg1
-        rd_ack_d0 <= rd_req_int;
-        rd_dat_d0 <= areg1_reg;
+        rd_ack_d0 = rd_req_int;
+        rd_dat_d0 = areg1_reg;
       end
     2'b01:
       begin
         // Reg areg2
-        rd_ack_d0 <= rd_req_int;
-        rd_dat_d0 <= ios.areg2;
+        rd_ack_d0 = rd_req_int;
+        rd_dat_d0 = ios.areg2;
       end
     2'b10:
       // Reg areg3
-      rd_ack_d0 <= rd_req_int;
+      rd_ack_d0 = rd_req_int;
     2'b11:
       begin
         // Reg areg4
-        ios.areg4_rd <= rd_req_int;
-        rd_ack_d0 <= ios.areg4_rack;
-        rd_dat_d0 <= ios.areg4i;
+        ios.areg4_rd = rd_req_int;
+        rd_ack_d0 = ios.areg4_rack;
+        rd_dat_d0 = ios.areg4i;
       end
     default:
-      rd_ack_d0 <= rd_req_int;
+      rd_ack_d0 = rd_req_int;
     endcase
   end
 endmodule

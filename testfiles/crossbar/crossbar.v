@@ -53,10 +53,10 @@ module crossbar_wb
   // WB decode signals
   always @(wb.sel)
   begin
-    wr_sel[7:0] <= {8{wb.sel[0]}};
-    wr_sel[15:8] <= {8{wb.sel[1]}};
-    wr_sel[23:16] <= {8{wb.sel[2]}};
-    wr_sel[31:24] <= {8{wb.sel[3]}};
+    wr_sel[7:0] = {8{wb.sel[0]}};
+    wr_sel[15:8] = {8{wb.sel[1]}};
+    wr_sel[23:16] = {8{wb.sel[2]}};
+    wr_sel[31:24] = {8{wb.sel[3]}};
   end
   assign adr_int = wb.adr[17:2];
   assign wb_en = wb.cyc & wb.stb;
@@ -130,15 +130,15 @@ module crossbar_wb
   assign jesdavalon.adr = {22'b0, adr_int[9:2], 2'b0};
   always @(wr_sel_d0)
   begin
-    jesdavalon.sel <= 4'b0;
+    jesdavalon.sel = 4'b0;
     if (~(wr_sel_d0[7:0] == 8'b0))
-      jesdavalon.sel[0] <= 1'b1;
+      jesdavalon.sel[0] = 1'b1;
     if (~(wr_sel_d0[15:8] == 8'b0))
-      jesdavalon.sel[1] <= 1'b1;
+      jesdavalon.sel[1] = 1'b1;
     if (~(wr_sel_d0[23:16] == 8'b0))
-      jesdavalon.sel[2] <= 1'b1;
+      jesdavalon.sel[2] = 1'b1;
     if (~(wr_sel_d0[31:24] == 8'b0))
-      jesdavalon.sel[3] <= 1'b1;
+      jesdavalon.sel[3] = 1'b1;
   end
   assign jesdavalon.we = jesdavalon_wt;
   assign jesdavalon.dato = wr_dat_d0;
@@ -165,15 +165,15 @@ module crossbar_wb
   assign i2ctowb.adr = {18'b0, adr_int[13:2], 2'b0};
   always @(wr_sel_d0)
   begin
-    i2ctowb.sel <= 4'b0;
+    i2ctowb.sel = 4'b0;
     if (~(wr_sel_d0[7:0] == 8'b0))
-      i2ctowb.sel[0] <= 1'b1;
+      i2ctowb.sel[0] = 1'b1;
     if (~(wr_sel_d0[15:8] == 8'b0))
-      i2ctowb.sel[1] <= 1'b1;
+      i2ctowb.sel[1] = 1'b1;
     if (~(wr_sel_d0[23:16] == 8'b0))
-      i2ctowb.sel[2] <= 1'b1;
+      i2ctowb.sel[2] = 1'b1;
     if (~(wr_sel_d0[31:24] == 8'b0))
-      i2ctowb.sel[3] <= 1'b1;
+      i2ctowb.sel[3] = 1'b1;
   end
   assign i2ctowb.we = i2ctowb_wt;
   assign i2ctowb.dato = wr_dat_d0;
@@ -200,15 +200,15 @@ module crossbar_wb
   assign bran.adr = {15'b0, adr_int[16:2], 2'b0};
   always @(wr_sel_d0)
   begin
-    bran.sel <= 4'b0;
+    bran.sel = 4'b0;
     if (~(wr_sel_d0[7:0] == 8'b0))
-      bran.sel[0] <= 1'b1;
+      bran.sel[0] = 1'b1;
     if (~(wr_sel_d0[15:8] == 8'b0))
-      bran.sel[1] <= 1'b1;
+      bran.sel[1] = 1'b1;
     if (~(wr_sel_d0[23:16] == 8'b0))
-      bran.sel[2] <= 1'b1;
+      bran.sel[2] = 1'b1;
     if (~(wr_sel_d0[31:24] == 8'b0))
-      bran.sel[3] <= 1'b1;
+      bran.sel[3] = 1'b1;
   end
   assign bran.we = bran_wt;
   assign bran.dato = wr_dat_d0;
@@ -216,35 +216,35 @@ module crossbar_wb
   // Process for write requests.
   always @(wr_adr_d0, wr_req_d0, jesdavalon_wack, i2ctowb_wack, bran_wack)
   begin
-    jesdavalon_we <= 1'b0;
-    i2ctowb_we <= 1'b0;
-    bran_we <= 1'b0;
+    jesdavalon_we = 1'b0;
+    i2ctowb_we = 1'b0;
+    bran_we = 1'b0;
     case (wr_adr_d0[17:17])
     1'b0:
       case (wr_adr_d0[16:14])
       3'b000:
         begin
           // Submap jesdavalon
-          jesdavalon_we <= wr_req_d0;
-          wr_ack_int <= jesdavalon_wack;
+          jesdavalon_we = wr_req_d0;
+          wr_ack_int = jesdavalon_wack;
         end
       3'b001:
         begin
           // Submap i2ctowb
-          i2ctowb_we <= wr_req_d0;
-          wr_ack_int <= i2ctowb_wack;
+          i2ctowb_we = wr_req_d0;
+          wr_ack_int = i2ctowb_wack;
         end
       default:
-        wr_ack_int <= wr_req_d0;
+        wr_ack_int = wr_req_d0;
       endcase
     1'b1:
       begin
         // Submap bran
-        bran_we <= wr_req_d0;
-        wr_ack_int <= bran_wack;
+        bran_we = wr_req_d0;
+        wr_ack_int = bran_wack;
       end
     default:
-      wr_ack_int <= wr_req_d0;
+      wr_ack_int = wr_req_d0;
     endcase
   end
 
@@ -252,39 +252,39 @@ module crossbar_wb
   always @(adr_int, rd_req_int, jesdavalon.dati, jesdavalon_rack, i2ctowb.dati, i2ctowb_rack, bran.dati, bran_rack)
   begin
     // By default ack read requests
-    rd_dat_d0 <= {32{1'bx}};
-    jesdavalon_re <= 1'b0;
-    i2ctowb_re <= 1'b0;
-    bran_re <= 1'b0;
+    rd_dat_d0 = {32{1'bx}};
+    jesdavalon_re = 1'b0;
+    i2ctowb_re = 1'b0;
+    bran_re = 1'b0;
     case (adr_int[17:17])
     1'b0:
       case (adr_int[16:14])
       3'b000:
         begin
           // Submap jesdavalon
-          jesdavalon_re <= rd_req_int;
-          rd_dat_d0 <= jesdavalon.dati;
-          rd_ack_d0 <= jesdavalon_rack;
+          jesdavalon_re = rd_req_int;
+          rd_dat_d0 = jesdavalon.dati;
+          rd_ack_d0 = jesdavalon_rack;
         end
       3'b001:
         begin
           // Submap i2ctowb
-          i2ctowb_re <= rd_req_int;
-          rd_dat_d0 <= i2ctowb.dati;
-          rd_ack_d0 <= i2ctowb_rack;
+          i2ctowb_re = rd_req_int;
+          rd_dat_d0 = i2ctowb.dati;
+          rd_ack_d0 = i2ctowb_rack;
         end
       default:
-        rd_ack_d0 <= rd_req_int;
+        rd_ack_d0 = rd_req_int;
       endcase
     1'b1:
       begin
         // Submap bran
-        bran_re <= rd_req_int;
-        rd_dat_d0 <= bran.dati;
-        rd_ack_d0 <= bran_rack;
+        bran_re = rd_req_int;
+        rd_dat_d0 = bran.dati;
+        rd_ack_d0 = bran_rack;
       end
     default:
-      rd_ack_d0 <= rd_req_int;
+      rd_ack_d0 = rd_req_int;
     endcase
   end
 endmodule

@@ -36,7 +36,7 @@ module bugBlockRegField
   assign VMEWrDone = wr_ack_int;
 
   // pipelining for wr-in+rd-out
-  always @(posedge(Clk))
+  always_ff @(posedge(Clk))
   begin
     if (!rst_n)
       begin
@@ -60,7 +60,7 @@ module bugBlockRegField
   assign b1_r1_f3_o = b1_r1_f3_reg;
   assign b1_r1_f4_o = b1_r1_f4_reg;
   assign b1_r1_f5_o = b1_r1_f5_reg;
-  always @(posedge(Clk))
+  always_ff @(posedge(Clk))
   begin
     if (!rst_n)
       begin
@@ -86,26 +86,26 @@ module bugBlockRegField
   end
 
   // Process for write requests.
-  always @(wr_req_d0, b1_r1_wack)
+  always_comb
   begin
-    b1_r1_wreq <= 1'b0;
+    b1_r1_wreq = 1'b0;
     // Reg b1_r1
-    b1_r1_wreq <= wr_req_d0;
-    wr_ack_int <= b1_r1_wack;
+    b1_r1_wreq = wr_req_d0;
+    wr_ack_int = b1_r1_wack;
   end
 
   // Process for read requests.
-  always @(VMERdMem, b1_r1_f1_reg, b1_r1_f4_reg, b1_r1_f3_reg, b1_r1_f2_reg, b1_r1_f5_reg)
+  always_comb
   begin
     // By default ack read requests
-    rd_dat_d0 <= {32{1'bx}};
+    rd_dat_d0 = {32{1'bx}};
     // Reg b1_r1
-    rd_ack_d0 <= VMERdMem;
-    rd_dat_d0[0] <= b1_r1_f1_reg;
-    rd_dat_d0[1] <= b1_r1_f4_reg;
-    rd_dat_d0[2] <= b1_r1_f3_reg;
-    rd_dat_d0[12:3] <= b1_r1_f2_reg;
-    rd_dat_d0[13] <= b1_r1_f5_reg;
-    rd_dat_d0[31:14] <= 18'b0;
+    rd_ack_d0 = VMERdMem;
+    rd_dat_d0[0] = b1_r1_f1_reg;
+    rd_dat_d0[1] = b1_r1_f4_reg;
+    rd_dat_d0[2] = b1_r1_f3_reg;
+    rd_dat_d0[12:3] = b1_r1_f2_reg;
+    rd_dat_d0[13] = b1_r1_f5_reg;
+    rd_dat_d0[31:14] = 18'b0;
   end
 endmodule

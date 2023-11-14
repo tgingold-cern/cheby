@@ -28,7 +28,7 @@ module test8
   assign VMEWrDone = wr_ack_int;
 
   // pipelining for wr-in+rd-out
-  always @(posedge(Clk))
+  always_ff @(posedge(Clk))
   begin
     if (!rst_n)
       begin
@@ -48,7 +48,7 @@ module test8
 
   // Register r1
   assign r1_o = r1_reg;
-  always @(posedge(Clk))
+  always_ff @(posedge(Clk))
   begin
     if (!rst_n)
       begin
@@ -64,22 +64,22 @@ module test8
   end
 
   // Process for write requests.
-  always @(wr_req_d0, r1_wack)
+  always_comb
   begin
-    r1_wreq <= 1'b0;
+    r1_wreq = 1'b0;
     // Reg r1
-    r1_wreq <= wr_req_d0;
-    wr_ack_int <= r1_wack;
+    r1_wreq = wr_req_d0;
+    wr_ack_int = r1_wack;
   end
 
   // Process for read requests.
-  always @(VMERdMem, r1_reg)
+  always_comb
   begin
     // By default ack read requests
-    rd_dat_d0 <= {32{1'bx}};
+    rd_dat_d0 = {32{1'bx}};
     // Reg r1
-    rd_ack_d0 <= VMERdMem;
-    rd_dat_d0[15:0] <= r1_reg;
-    rd_dat_d0[31:16] <= 16'b0;
+    rd_ack_d0 = VMERdMem;
+    rd_dat_d0[15:0] = r1_reg;
+    rd_dat_d0[31:16] = 16'b0;
   end
 endmodule

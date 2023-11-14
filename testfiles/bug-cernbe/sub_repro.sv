@@ -33,7 +33,7 @@ module sub_repro
   assign VMEWrDone = wr_ack_int;
 
   // pipelining for wr-in+rd-out
-  always @(posedge(Clk))
+  always_ff @(posedge(Clk))
   begin
     if (!rst_n)
       begin
@@ -55,7 +55,7 @@ module sub_repro
 
   // Register subrA
   assign subrA_o = subrA_reg;
-  always @(posedge(Clk))
+  always_ff @(posedge(Clk))
   begin
     if (!rst_n)
       begin
@@ -73,44 +73,44 @@ module sub_repro
   // Register subrB
 
   // Process for write requests.
-  always @(wr_adr_d0, wr_req_d0, subrA_wack)
+  always_comb
   begin
-    subrA_wreq <= 1'b0;
+    subrA_wreq = 1'b0;
     case (wr_adr_d0[1:1])
     1'b0:
       begin
         // Reg subrA
-        subrA_wreq <= wr_req_d0;
-        wr_ack_int <= subrA_wack;
+        subrA_wreq = wr_req_d0;
+        wr_ack_int = subrA_wack;
       end
     1'b1:
       // Reg subrB
-      wr_ack_int <= wr_req_d0;
+      wr_ack_int = wr_req_d0;
     default:
-      wr_ack_int <= wr_req_d0;
+      wr_ack_int = wr_req_d0;
     endcase
   end
 
   // Process for read requests.
-  always @(VMEAddr, VMERdMem, subrA_reg, subrB_i)
+  always_comb
   begin
     // By default ack read requests
-    rd_dat_d0 <= {16{1'bx}};
+    rd_dat_d0 = {16{1'bx}};
     case (VMEAddr[1:1])
     1'b0:
       begin
         // Reg subrA
-        rd_ack_d0 <= VMERdMem;
-        rd_dat_d0 <= subrA_reg;
+        rd_ack_d0 = VMERdMem;
+        rd_dat_d0 = subrA_reg;
       end
     1'b1:
       begin
         // Reg subrB
-        rd_ack_d0 <= VMERdMem;
-        rd_dat_d0 <= subrB_i;
+        rd_ack_d0 = VMERdMem;
+        rd_dat_d0 = subrB_i;
       end
     default:
-      rd_ack_d0 <= VMERdMem;
+      rd_ack_d0 = VMERdMem;
     endcase
   end
 endmodule
