@@ -75,10 +75,14 @@ def parse_name(node, els):
     name = els.get('name', None)
     if name is not None and isstr(name):
         node.name = name
+        if ' ' in name:
+            error("found a space in `name` field of {}".format(node.get_path()))
 
 def parse_named(node, key, val):
     if key == 'name':
         node.name = read_text(node, key, val, allow_empty=True)
+        if ' ' in node.name:
+            error("found a space in `name` field of {}".format(node.get_path()))
     elif key == 'description':
         node.description = read_text(node, key, val)
     elif key == 'comment':
