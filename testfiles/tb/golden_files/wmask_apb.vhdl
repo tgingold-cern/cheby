@@ -29,12 +29,14 @@ entity wmask_apb is
     -- REG wire_rw
     wire_rw_i            : in    std_logic_vector(31 downto 0);
     wire_rw_o            : out   std_logic_vector(31 downto 0);
+    wire_rw_wmask_o      : out   std_logic_vector(31 downto 0);
 
     -- REG wire_ro
     wire_ro_i            : in    std_logic_vector(31 downto 0);
 
     -- REG wire_wo
     wire_wo_o            : out   std_logic_vector(31 downto 0);
+    wire_wo_wmask_o      : out   std_logic_vector(31 downto 0);
 
     -- RAM port for ram1
     ram1_adr_i           : in    std_logic_vector(2 downto 0);
@@ -150,12 +152,14 @@ begin
   end process;
 
   -- Register wire_rw
-  wire_rw_o <= (wire_rw_i and not wr_sel_d0) or (wr_dat_d0 and wr_sel_d0);
+  wire_rw_o <= wr_dat_d0;
+  wire_rw_wmask_o <= wr_sel_d0;
 
   -- Register wire_ro
 
   -- Register wire_wo
   wire_wo_o <= wr_dat_d0;
+  wire_wo_wmask_o <= wr_sel_d0;
 
   -- Memory ram1
   process (rd_addr, wr_adr_d0, ram1_wr) begin

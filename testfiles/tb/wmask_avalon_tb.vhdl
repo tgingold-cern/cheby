@@ -15,8 +15,10 @@ architecture tb of wmask_avalon_tb is
   signal avalon_in  : t_avmm_master_in;
   signal avalon_out : t_avmm_master_out;
 
-  signal reg_rw  : std_logic_vector(31 downto 0);
-  signal wire_rw : std_logic_vector(31 downto 0);
+  signal reg_rw       : std_logic_vector(31 downto 0);
+  signal wire_rw_in   : std_logic_vector(31 downto 0);
+  signal wire_rw_out  : std_logic_vector(31 downto 0);
+  signal wire_rw_mask : std_logic_vector(31 downto 0);
 
   signal end_of_test : boolean := False;
 begin
@@ -51,14 +53,18 @@ begin
       reg_rw_o        => reg_rw,
       reg_ro_i        => (others => '0'),
       reg_wo_o        => open,
-      wire_rw_i       => wire_rw,
-      wire_rw_o       => wire_rw,
+      wire_rw_i       => wire_rw_in,
+      wire_rw_o       => wire_rw_out,
+      wire_rw_wmask_o => wire_rw_mask,
       wire_ro_i       => (others => '0'),
       wire_wo_o       => open,
+      wire_wo_wmask_o => open,
       ram1_adr_i      => (others => '0'),
       ram1_row1_rd_i  => '0',
       ram1_row1_dat_o => open
     );
+
+  wire_rw_in <= wire_rw_out;
 
   main : process is
     variable v : std_logic_vector(31 downto 0);
@@ -88,6 +94,18 @@ begin
     assert reg_rw = x"9a34_de78" severity error;
     avmm_readl(clk, avalon_in, avalon_out, x"0000_0000", v);
     assert v = x"9a34_de78" severity error;
+
+    -- Wire
+    -- Testing regular write write
+    report "Testing regular wire write" severity note;
+    avmm_writel(clk, avalon_in, avalon_out, x"0000_0008", x"3456_789a", "1111");
+    assert wire_rw_out = x"3456_789a" severity error;
+    assert wire_rw_mask = x"ffff_ffff" severity error;
+
+    report "Testing wire write with mask" severity note;
+    avmm_writel(clk, avalon_in, avalon_out, x"0000_0008", x"bcde_f012", "0101");
+    assert wire_rw_out = x"bcde_f012" severity error;
+    assert wire_rw_mask = x"00ff_00ff" severity error;
 
     -- Memory
     -- Testing regular memory write
