@@ -16,8 +16,24 @@ entity wmask_avalon is
     readdatavalid        : out   std_logic;
     waitrequest          : out   std_logic;
 
-    -- REG reg1
-    reg1_o               : out   std_logic_vector(31 downto 0);
+    -- REG reg_rw
+    reg_rw_o             : out   std_logic_vector(31 downto 0);
+
+    -- REG reg_ro
+    reg_ro_i             : in    std_logic_vector(31 downto 0);
+
+    -- REG reg_wo
+    reg_wo_o             : out   std_logic_vector(31 downto 0);
+
+    -- REG wire_rw
+    wire_rw_i            : in    std_logic_vector(31 downto 0);
+    wire_rw_o            : out   std_logic_vector(31 downto 0);
+
+    -- REG wire_ro
+    wire_ro_i            : in    std_logic_vector(31 downto 0);
+
+    -- REG wire_wo
+    wire_wo_o            : out   std_logic_vector(31 downto 0);
 
     -- RAM port for ram1
     ram1_adr_i           : in    std_logic_vector(2 downto 0);
@@ -37,9 +53,12 @@ architecture syn of wmask_avalon is
   signal wait_int                       : std_logic;
   signal sel_int                        : std_logic_vector(31 downto 0);
   signal adr                            : std_logic_vector(5 downto 2);
-  signal reg1_reg                       : std_logic_vector(31 downto 0);
-  signal reg1_wreq                      : std_logic;
-  signal reg1_wack                      : std_logic;
+  signal reg_rw_reg                     : std_logic_vector(31 downto 0);
+  signal reg_rw_wreq                    : std_logic;
+  signal reg_rw_wack                    : std_logic;
+  signal reg_wo_reg                     : std_logic_vector(31 downto 0);
+  signal reg_wo_wreq                    : std_logic;
+  signal reg_wo_wack                    : std_logic;
   signal ram1_row1_int_dato             : std_logic_vector(31 downto 0);
   signal ram1_row1_ext_dat              : std_logic_vector(31 downto 0);
   signal ram1_row1_rreq                 : std_logic;
@@ -86,21 +105,47 @@ begin
   readdatavalid <= rd_ack;
   waitrequest <= wait_int;
 
-  -- Register reg1
-  reg1_o <= reg1_reg;
+  -- Register reg_rw
+  reg_rw_o <= reg_rw_reg;
   process (clk) begin
     if rising_edge(clk) then
       if rst_n = '0' then
-        reg1_reg <= "00000000000000000000000000000000";
-        reg1_wack <= '0';
+        reg_rw_reg <= "00000000000000000000000000000000";
+        reg_rw_wack <= '0';
       else
-        if reg1_wreq = '1' then
-          reg1_reg <= (reg1_reg and not wr_sel) or (wr_dat and wr_sel);
+        if reg_rw_wreq = '1' then
+          reg_rw_reg <= (reg_rw_reg and not wr_sel) or (wr_dat and wr_sel);
         end if;
-        reg1_wack <= reg1_wreq;
+        reg_rw_wack <= reg_rw_wreq;
       end if;
     end if;
   end process;
+
+  -- Register reg_ro
+
+  -- Register reg_wo
+  reg_wo_o <= reg_wo_reg;
+  process (clk) begin
+    if rising_edge(clk) then
+      if rst_n = '0' then
+        reg_wo_reg <= "00000000000000000000000000000000";
+        reg_wo_wack <= '0';
+      else
+        if reg_wo_wreq = '1' then
+          reg_wo_reg <= (reg_wo_reg and not wr_sel) or (wr_dat and wr_sel);
+        end if;
+        reg_wo_wack <= reg_wo_wreq;
+      end if;
+    end if;
+  end process;
+
+  -- Register wire_rw
+  wire_rw_o <= (wire_rw_i and not wr_sel) or (wr_dat and wr_sel);
+
+  -- Register wire_ro
+
+  -- Register wire_wo
+  wire_wo_o <= wr_dat;
 
   -- Memory ram1
   ram1_row1_raminst: cheby_dpssram
@@ -154,16 +199,33 @@ begin
   end process;
 
   -- Process for write requests.
-  process (adr, wr_req, reg1_wack) begin
-    reg1_wreq <= '0';
+  process (adr, wr_req, reg_rw_wack, reg_wo_wack) begin
+    reg_rw_wreq <= '0';
+    reg_wo_wreq <= '0';
     ram1_row1_int_wr <= '0';
     case adr(5 downto 5) is
     when "0" =>
       case adr(4 downto 2) is
       when "000" =>
-        -- Reg reg1
-        reg1_wreq <= wr_req;
-        wr_ack <= reg1_wack;
+        -- Reg reg_rw
+        reg_rw_wreq <= wr_req;
+        wr_ack <= reg_rw_wack;
+      when "001" =>
+        -- Reg reg_ro
+        wr_ack <= wr_req;
+      when "010" =>
+        -- Reg reg_wo
+        reg_wo_wreq <= wr_req;
+        wr_ack <= reg_wo_wack;
+      when "011" =>
+        -- Reg wire_rw
+        wr_ack <= wr_req;
+      when "100" =>
+        -- Reg wire_ro
+        wr_ack <= wr_req;
+      when "101" =>
+        -- Reg wire_wo
+        wr_ack <= wr_req;
       when others =>
         wr_ack <= wr_req;
       end case;
@@ -177,7 +239,8 @@ begin
   end process;
 
   -- Process for read requests.
-  process (adr, rd_req, reg1_reg, ram1_row1_int_dato, ram1_row1_rack) begin
+  process (adr, rd_req, reg_rw_reg, reg_ro_i, wire_rw_i, wire_ro_i, ram1_row1_int_dato,
+           ram1_row1_rack) begin
     -- By default ack read requests
     readdata <= (others => 'X');
     ram1_row1_rreq <= '0';
@@ -185,9 +248,27 @@ begin
     when "0" =>
       case adr(4 downto 2) is
       when "000" =>
-        -- Reg reg1
+        -- Reg reg_rw
         rd_ack <= rd_req;
-        readdata <= reg1_reg;
+        readdata <= reg_rw_reg;
+      when "001" =>
+        -- Reg reg_ro
+        rd_ack <= rd_req;
+        readdata <= reg_ro_i;
+      when "010" =>
+        -- Reg reg_wo
+        rd_ack <= rd_req;
+      when "011" =>
+        -- Reg wire_rw
+        rd_ack <= rd_req;
+        readdata <= wire_rw_i;
+      when "100" =>
+        -- Reg wire_ro
+        rd_ack <= rd_req;
+        readdata <= wire_ro_i;
+      when "101" =>
+        -- Reg wire_wo
+        rd_ack <= rd_req;
       when others =>
         rd_ack <= rd_req;
       end case;

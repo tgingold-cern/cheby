@@ -17,7 +17,8 @@ architecture tb of wmask_axi4_tb is
   signal rd_in  : t_axi4lite_read_master_in;
   signal rd_out : t_axi4lite_read_master_out;
 
-  signal reg1   : std_logic_vector(31 downto 0);
+  signal reg_rw  : std_logic_vector(31 downto 0);
+  signal wire_rw : std_logic_vector(31 downto 0);
 
   signal end_of_test : boolean := False;
 begin
@@ -60,7 +61,13 @@ begin
       rdata           => rd_in.rdata,
       rresp           => rd_in.rresp,
 
-      reg1_o          => reg1,
+      reg_rw_o        => reg_rw,
+      reg_ro_i        => (others => '0'),
+      reg_wo_o        => open,
+      wire_rw_i       => wire_rw,
+      wire_rw_o       => wire_rw,
+      wire_ro_i       => (others => '0'),
+      wire_wo_o       => open,
       ram1_adr_i      => (others => '0'),
       ram1_row1_rd_i  => '0',
       ram1_row1_dat_o => open
@@ -79,20 +86,20 @@ begin
     -- Testing regular register read
     report "Testing regular register read" severity note;
     axi4lite_read(clk, rd_out, rd_in, x"0000_0000", v);
-    assert reg1 = x"0000_0000" severity error;
+    assert reg_rw = x"0000_0000" severity error;
     assert v = x"0000_0000" severity error;
 
     -- Testing regular register write
     report "Testing regular register write" severity note;
     axi4lite_write(clk, wr_out, wr_in, x"0000_0000", x"1234_5678", "1111", C_AXI4_RESP_OK);
-    assert reg1 = x"1234_5678" severity error;
+    assert reg_rw = x"1234_5678" severity error;
     axi4lite_read(clk, rd_out, rd_in, x"0000_0000", v);
     assert v = x"1234_5678" severity error;
 
     --  Testing register write with mask
     report "Testing register write with mask" severity note;
     axi4lite_write(clk, wr_out, wr_in, x"0000_0000", x"9abc_def0", "1010", C_AXI4_RESP_OK);
-    assert reg1 = x"9a34_de78" severity error;
+    assert reg_rw = x"9a34_de78" severity error;
     axi4lite_read(clk, rd_out, rd_in, x"0000_0000", v);
     assert v = x"9a34_de78" severity error;
 
@@ -100,14 +107,14 @@ begin
     -- Testing regular memory write
     report "Testing regular memory write" severity note;
     axi4lite_write(clk, wr_out, wr_in, x"0010_0000", x"1234_5678", "1111", C_AXI4_RESP_OK);
-    assert reg1 = x"1234_5678" severity error;
+    assert reg_rw = x"1234_5678" severity error;
     axi4lite_read(clk, rd_out, rd_in, x"0010_0000", v);
     assert v = x"1234_5678" severity error;
 
     -- Testing memory write with mask
     report "Testing memory write with mask" severity note;
     axi4lite_write(clk, wr_out, wr_in, x"0010_0000", x"9abc_def0", "1010", C_AXI4_RESP_OK);
-    assert reg1 = x"9a34_de78" severity error;
+    assert reg_rw = x"9a34_de78" severity error;
     axi4lite_read(clk, rd_out, rd_in, x"0010_0000", v);
     assert v = x"9a34_de78" severity error;
 
