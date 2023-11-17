@@ -227,44 +227,23 @@ class GenFieldWire(GenFieldBase):
     def connect_output(self, stmts, ibus):
         # Handle wire fields: create connections between the bus and the outputs.
         for off in self.get_offset_range():
-            lo, w = self.extract_reg_bounds(off)
+            reg, dat, mask = self.extract_reg_dat(
+                off, self.field.h_oport, ibus.wr_dat, ibus.wr_sel
+            )
 
-            wire_out = self.extract_reg2(self.field.h_oport, lo, w)
-            wire_in = self.extract_reg2(self.field.h_iport, lo, w)
-            w_data = self.extract_dat2(ibus.wr_dat, self.field.lo + lo - off, w)
-            w_mask = self.extract_mask2(ibus.wr_sel, self.field.lo + lo - off, w)
-
-            # Regular assignment
-            field_assign = HDLAssign(wire_out, w_data)
-            field_depend = [w_data]
-
-            # Apply mask to assignment (only for rw, i.e. if wire_in exists)
-            if (
-                hasattr(self.root, "hdl_wmask")
-                and self.root.hdl_wmask
-                and w_mask is not None
-                and wire_in
-            ):
-                field_assign = HDLAssign(
-                    wire_out,
-                    HDLOr(
-                        HDLParen(HDLAnd(wire_in, HDLNot(w_mask))),
-                        HDLParen(HDLAnd(w_data, w_mask)),
-                    ),
-                )
-                field_depend = [wire_in, w_data, w_mask]
+            field_assign = HDLAssign(reg, dat)
 
             # Apply lock-value signal
             if self.field.hdl_lock_value and (
                 hasattr(self.root, "h_lock_port") and self.root.h_lock_port
             ):
                 proc = HDLComb()
-                proc.sensitivity.extend([self.root.h_lock_port] + field_depend)
+                proc.sensitivity.extend([self.root.h_lock_port, dat])
                 proc.stmts.append(HDLComment("Overwrite output with lock value"))
                 proc_if = HDLIfElse(HDLEq(self.root.h_lock_port, bit_1))
                 proc_if.then_stmts.append(
                     HDLAssign(
-                        wire_out,
+                        reg,
                         HDLConst(
                             self.field.hdl_lock_value,
                             self.field.c_rwidth if self.field.c_rwidth != 1 else None,
@@ -276,6 +255,10 @@ class GenFieldWire(GenFieldBase):
                 field_assign = proc
 
             stmts.append(field_assign)
+
+            # Output mask on separate port if available (and wmask active)
+            if mask is not None and self.field.h_wmask_port is not None:
+                stmts.append(HDLAssign(self.field.h_wmask_port, mask))
 
 
 class GenFieldConst(GenFieldBase):
@@ -474,14 +457,15 @@ class GenReg(ElGen):
 
     def gen_ports(self):
         """Add ports and wires for register or fields of :param n:
-           :field h_reg: the register.
-           :field h_wreq: the internal write request signal.
-           :field h_iport: the input port.
-           :field h_oport: the output port.
-           :field h_wreq_port: the write strobe port.
-           :field h_rreq_port: the read strobe port.
-           :field h_rack_port: the read ack port.
-           :field h_wack_port: the write ack port.
+        :field h_reg: the register.
+        :field h_wreq: the internal write request signal.
+        :field h_iport: the input port.
+        :field h_oport: the output port.
+        :field h_wreq_port: the write strobe port.
+        :field h_rreq_port: the read strobe port.
+        :field h_rack_port: the read ack port.
+        :field h_wack_port: the write ack port.
+        :field h_wmask_port: the write mask output port.
         """
         n = self.n
         # Single port when 'port: reg' is set.
@@ -526,21 +510,59 @@ class GenReg(ElGen):
                 f.h_iport = None
 
             # Output
+            f.h_wmask_port = None
+
             if need_oport:
-                if n.hdl_port == 'reg':
+                if n.hdl_port == "reg":
                     # One port used for all fields.
                     if oport is None:
-                        name = self.get_port_name(n, '', 'o', need_iport)
-                        oport = self.add_module_port(name, n.width, dir='OUT')
+                        oport_name = self.get_port_name(n, "", "o", need_iport)
+                        oport = self.add_module_port(oport_name, n.width, dir="OUT")
                         oport.comment = comment
                         comment = None
+
+                        # Write mask port
+                        # (only used by wo/rw wire fields with active wmask)
+                        if (
+                            f.hdl_type == "wire"
+                            and hasattr(self.root, "hdl_wmask")
+                            and self.root.hdl_wmask
+                        ):
+                            wmask_port_name = self.get_port_name(
+                                n, "_wmask", "o", need_iport
+                            )
+                            wmask_port = self.add_module_port(
+                                wmask_port_name, n.width, dir="OUT"
+                            )
+
                     f.h_oport = Slice_or_Index(oport, f.lo, w)
+
+                    if (
+                        f.hdl_type == "wire"
+                        and hasattr(self.root, "hdl_wmask")
+                        and self.root.hdl_wmask
+                    ):
+                        f.h_wmask_port = Slice_or_Index(wmask_port, f.lo, w)
+
                 else:
                     # One port per field.
-                    name = self.get_port_name(f, '', 'o', need_iport)
-                    f.h_oport = self.add_module_port(name, w, dir='OUT')
+                    oport_name = self.get_port_name(f, "", "o", need_iport)
+                    f.h_oport = self.add_module_port(oport_name, w, dir="OUT")
                     f.h_oport.comment = comment
                     comment = None
+
+                    # Write mask port (only used by wo/rw wire fields with active wmask)
+                    if (
+                        f.hdl_type == "wire"
+                        and hasattr(self.root, "hdl_wmask")
+                        and self.root.hdl_wmask
+                    ):
+                        wmask_port_name = self.get_port_name(
+                            f, "_wmask", "o", need_iport
+                        )
+                        f.h_wmask_port = self.add_module_port(
+                            wmask_port_name, w, dir="OUT"
+                        )
             else:
                 f.h_oport = None
 
