@@ -28,12 +28,14 @@ entity wmask_avalon is
     -- REG wire_rw
     wire_rw_i            : in    std_logic_vector(31 downto 0);
     wire_rw_o            : out   std_logic_vector(31 downto 0);
+    wire_rw_wmask_o      : out   std_logic_vector(31 downto 0);
 
     -- REG wire_ro
     wire_ro_i            : in    std_logic_vector(31 downto 0);
 
     -- REG wire_wo
     wire_wo_o            : out   std_logic_vector(31 downto 0);
+    wire_wo_wmask_o      : out   std_logic_vector(31 downto 0);
 
     -- RAM port for ram1
     ram1_adr_i           : in    std_logic_vector(2 downto 0);
@@ -140,12 +142,14 @@ begin
   end process;
 
   -- Register wire_rw
-  wire_rw_o <= (wire_rw_i and not wr_sel) or (wr_dat and wr_sel);
+  wire_rw_o <= wr_dat;
+  wire_rw_wmask_o <= wr_sel;
 
   -- Register wire_ro
 
   -- Register wire_wo
   wire_wo_o <= wr_dat;
+  wire_wo_wmask_o <= wr_sel;
 
   -- Memory ram1
   ram1_row1_raminst: cheby_dpssram
