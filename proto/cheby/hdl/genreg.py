@@ -227,38 +227,44 @@ class GenFieldWire(GenFieldBase):
     def connect_output(self, stmts, ibus):
         # Handle wire fields: create connections between the bus and the outputs.
         for off in self.get_offset_range():
-            reg, dat, mask = self.extract_reg_dat(
-                off, self.field.h_oport, ibus.wr_dat, ibus.wr_sel
-            )
+            lo, w = self.extract_reg_bounds(off)
+
+            wire_out = self.extract_reg2(self.field.h_oport, lo, w)
+            wire_in = self.extract_reg2(self.field.h_iport, lo, w)
+            w_data = self.extract_dat2(ibus.wr_dat, self.field.lo + lo - off, w)
+            w_mask = self.extract_mask2(ibus.wr_sel, self.field.lo + lo - off, w)
 
             # Regular assignment
-            field_assign = HDLAssign(reg, dat)
+            field_assign = HDLAssign(wire_out, w_data)
+            field_depend = [w_data]
 
-            # Apply mask to assignment
+            # Apply mask to assignment (only for rw, i.e. if wire_in exists)
             if (
                 hasattr(self.root, "hdl_wmask")
                 and self.root.hdl_wmask
-                and mask is not None
+                and w_mask is not None
+                and wire_in
             ):
                 field_assign = HDLAssign(
-                    reg,
+                    wire_out,
                     HDLOr(
-                        HDLParen(HDLAnd(reg, HDLNot(mask))),
-                        HDLParen(HDLAnd(dat, mask)),
-                    )
+                        HDLParen(HDLAnd(wire_in, HDLNot(w_mask))),
+                        HDLParen(HDLAnd(w_data, w_mask)),
+                    ),
                 )
+                field_depend = [wire_in, w_data, w_mask]
 
             # Apply lock-value signal
             if self.field.hdl_lock_value and (
                 hasattr(self.root, "h_lock_port") and self.root.h_lock_port
             ):
                 proc = HDLComb()
-                proc.sensitivity.extend([self.root.h_lock_port, dat])
+                proc.sensitivity.extend([self.root.h_lock_port] + field_depend)
                 proc.stmts.append(HDLComment("Overwrite output with lock value"))
                 proc_if = HDLIfElse(HDLEq(self.root.h_lock_port, bit_1))
                 proc_if.then_stmts.append(
                     HDLAssign(
-                        reg,
+                        wire_out,
                         HDLConst(
                             self.field.hdl_lock_value,
                             self.field.c_rwidth if self.field.c_rwidth != 1 else None,
