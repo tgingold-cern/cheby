@@ -17,8 +17,26 @@ entity wmask_apb is
     prdata               : out   std_logic_vector(31 downto 0);
     pslverr              : out   std_logic;
 
-    -- REG reg1
-    reg1_o               : out   std_logic_vector(31 downto 0);
+    -- REG reg_rw
+    reg_rw_o             : out   std_logic_vector(31 downto 0);
+
+    -- REG reg_ro
+    reg_ro_i             : in    std_logic_vector(31 downto 0);
+
+    -- REG reg_wo
+    reg_wo_o             : out   std_logic_vector(31 downto 0);
+
+    -- REG wire_rw
+    wire_rw_i            : in    std_logic_vector(31 downto 0);
+    wire_rw_o            : out   std_logic_vector(31 downto 0);
+    wire_rw_wmask_o      : out   std_logic_vector(31 downto 0);
+
+    -- REG wire_ro
+    wire_ro_i            : in    std_logic_vector(31 downto 0);
+
+    -- REG wire_wo
+    wire_wo_o            : out   std_logic_vector(31 downto 0);
+    wire_wo_wmask_o      : out   std_logic_vector(31 downto 0);
 
     -- RAM port for ram1
     ram1_adr_i           : in    std_logic_vector(2 downto 0);
@@ -37,9 +55,12 @@ architecture syn of wmask_apb is
   signal rd_data                        : std_logic_vector(31 downto 0);
   signal wr_ack                         : std_logic;
   signal rd_ack                         : std_logic;
-  signal reg1_reg                       : std_logic_vector(31 downto 0);
-  signal reg1_wreq                      : std_logic;
-  signal reg1_wack                      : std_logic;
+  signal reg_rw_reg                     : std_logic_vector(31 downto 0);
+  signal reg_rw_wreq                    : std_logic;
+  signal reg_rw_wack                    : std_logic;
+  signal reg_wo_reg                     : std_logic_vector(31 downto 0);
+  signal reg_wo_wreq                    : std_logic;
+  signal reg_wo_wack                    : std_logic;
   signal ram1_row1_int_dato             : std_logic_vector(31 downto 0);
   signal ram1_row1_ext_dat              : std_logic_vector(31 downto 0);
   signal ram1_row1_rreq                 : std_logic;
@@ -96,21 +117,49 @@ begin
     end if;
   end process;
 
-  -- Register reg1
-  reg1_o <= reg1_reg;
+  -- Register reg_rw
+  reg_rw_o <= reg_rw_reg;
   process (pclk) begin
     if rising_edge(pclk) then
       if presetn = '0' then
-        reg1_reg <= "00000000000000000000000000000000";
-        reg1_wack <= '0';
+        reg_rw_reg <= "00000000000000000000000000000000";
+        reg_rw_wack <= '0';
       else
-        if reg1_wreq = '1' then
-          reg1_reg <= (reg1_reg and not wr_sel_d0) or (wr_dat_d0 and wr_sel_d0);
+        if reg_rw_wreq = '1' then
+          reg_rw_reg <= (reg_rw_reg and not wr_sel_d0) or (wr_dat_d0 and wr_sel_d0);
         end if;
-        reg1_wack <= reg1_wreq;
+        reg_rw_wack <= reg_rw_wreq;
       end if;
     end if;
   end process;
+
+  -- Register reg_ro
+
+  -- Register reg_wo
+  reg_wo_o <= reg_wo_reg;
+  process (pclk) begin
+    if rising_edge(pclk) then
+      if presetn = '0' then
+        reg_wo_reg <= "00000000000000000000000000000000";
+        reg_wo_wack <= '0';
+      else
+        if reg_wo_wreq = '1' then
+          reg_wo_reg <= (reg_wo_reg and not wr_sel_d0) or (wr_dat_d0 and wr_sel_d0);
+        end if;
+        reg_wo_wack <= reg_wo_wreq;
+      end if;
+    end if;
+  end process;
+
+  -- Register wire_rw
+  wire_rw_o <= wr_dat_d0;
+  wire_rw_wmask_o <= wr_sel_d0;
+
+  -- Register wire_ro
+
+  -- Register wire_wo
+  wire_wo_o <= wr_dat_d0;
+  wire_wo_wmask_o <= wr_sel_d0;
 
   -- Memory ram1
   process (rd_addr, wr_adr_d0, ram1_wr) begin
@@ -173,16 +222,33 @@ begin
   end process;
 
   -- Process for write requests.
-  process (wr_adr_d0, wr_req_d0, reg1_wack) begin
-    reg1_wreq <= '0';
+  process (wr_adr_d0, wr_req_d0, reg_rw_wack, reg_wo_wack) begin
+    reg_rw_wreq <= '0';
+    reg_wo_wreq <= '0';
     ram1_row1_int_wr <= '0';
     case wr_adr_d0(5 downto 5) is
     when "0" =>
       case wr_adr_d0(4 downto 2) is
       when "000" =>
-        -- Reg reg1
-        reg1_wreq <= wr_req_d0;
-        wr_ack <= reg1_wack;
+        -- Reg reg_rw
+        reg_rw_wreq <= wr_req_d0;
+        wr_ack <= reg_rw_wack;
+      when "001" =>
+        -- Reg reg_ro
+        wr_ack <= wr_req_d0;
+      when "010" =>
+        -- Reg reg_wo
+        reg_wo_wreq <= wr_req_d0;
+        wr_ack <= reg_wo_wack;
+      when "011" =>
+        -- Reg wire_rw
+        wr_ack <= wr_req_d0;
+      when "100" =>
+        -- Reg wire_ro
+        wr_ack <= wr_req_d0;
+      when "101" =>
+        -- Reg wire_wo
+        wr_ack <= wr_req_d0;
       when others =>
         wr_ack <= wr_req_d0;
       end case;
@@ -196,7 +262,8 @@ begin
   end process;
 
   -- Process for read requests.
-  process (rd_addr, rd_req, reg1_reg, ram1_row1_int_dato, ram1_wreq, ram1_row1_rack) begin
+  process (rd_addr, rd_req, reg_rw_reg, reg_ro_i, wire_rw_i, wire_ro_i,
+           ram1_row1_int_dato, ram1_wreq, ram1_row1_rack) begin
     -- By default ack read requests
     rd_dat_d0 <= (others => 'X');
     ram1_row1_rreq <= '0';
@@ -204,9 +271,27 @@ begin
     when "0" =>
       case rd_addr(4 downto 2) is
       when "000" =>
-        -- Reg reg1
+        -- Reg reg_rw
         rd_ack_d0 <= rd_req;
-        rd_dat_d0 <= reg1_reg;
+        rd_dat_d0 <= reg_rw_reg;
+      when "001" =>
+        -- Reg reg_ro
+        rd_ack_d0 <= rd_req;
+        rd_dat_d0 <= reg_ro_i;
+      when "010" =>
+        -- Reg reg_wo
+        rd_ack_d0 <= rd_req;
+      when "011" =>
+        -- Reg wire_rw
+        rd_ack_d0 <= rd_req;
+        rd_dat_d0 <= wire_rw_i;
+      when "100" =>
+        -- Reg wire_ro
+        rd_ack_d0 <= rd_req;
+        rd_dat_d0 <= wire_ro_i;
+      when "101" =>
+        -- Reg wire_wo
+        rd_ack_d0 <= rd_req;
       when others =>
         rd_ack_d0 <= rd_req;
       end case;

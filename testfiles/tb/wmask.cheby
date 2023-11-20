@@ -5,11 +5,45 @@ memory-map:
     wmask: True
   children:
   - reg:
-      name: reg1
+      name: reg_rw
       type: unsigned
       width: 32
       access: rw
       preset: 0x00000000
+  - reg:
+      name: reg_ro
+      type: unsigned
+      width: 32
+      access: ro
+      preset: 0x00000000
+  - reg:
+      name: reg_wo
+      type: unsigned
+      width: 32
+      access: wo
+  - reg:
+      name: wire_rw
+      type: unsigned
+      width: 32
+      access: rw
+      preset: 0x00000000
+      x-hdl:
+        type: wire
+  - reg:
+      name: wire_ro
+      type: unsigned
+      width: 32
+      access: ro
+      preset: 0x00000000
+      x-hdl:
+        type: wire
+  - reg:
+      name: wire_wo
+      type: unsigned
+      width: 32
+      access: wo
+      x-hdl:
+        type: wire
   - memory:
       name: ram1
       memsize: 32
