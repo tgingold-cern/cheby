@@ -1,3 +1,6 @@
+library ieee;
+use ieee.std_logic_1164.all;
+
 package semver1_consts_pkg is
   constant c_SEMVER1_SIZE : Natural := 4;
   constant c_SEMVER1_VERSION : Natural := 16#10000#;
