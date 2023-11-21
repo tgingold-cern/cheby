@@ -130,18 +130,27 @@ class ConstsPrinterVHDL(ConstsPrinter):
         self.pkg_name = root.hdl_module_name + '_Consts'
 
     def pr_header(self):
-        # Enums use std_logic_vector.
-        if self.root.x_enums:
-            self.pr_raw("library ieee;\n")
-            self.pr_raw("use ieee.std_logic_1164.all;\n")
-            self.pr_raw("\n")
+        # Enums and constants use std_logic_vector.
+        self.pr_raw("library ieee;\n")
+        self.pr_raw("use ieee.std_logic_1164.all;\n")
+        self.pr_raw("\n")
+
         self.pr_raw("package {} is\n".format(self.pkg_name))
 
     def pr_const(self, name, val):
         self.pr_raw("  constant {} : Natural := {};\n".format(name, val))
 
+    def pr_const_width(self, name, val, width):
+        self.pr_raw("  constant {} : std_logic_vector({}-1 downto 0) := {};\n".format(name, width, val))
+
     def pr_hex_const(self, name, val):
         self.pr_const(name, "16#{:x}#".format(val))
+
+    def pr_hex_data(self, name, val, reg):
+        hex_width = round(reg.width / 4)
+        assert(4*hex_width == reg.width)
+        hex_val = "{:x}".format(val).zfill(hex_width)
+        self.pr_const_width(name, "x\"{}\"".format(hex_val), reg.width)
 
     def pr_field_mask(self, f):
         # Not printed as a mask may overflow a natural.
@@ -160,7 +169,10 @@ class ConstsPrinterVHDLOhwr(ConstsPrinterVHDL):
         self.pkg_name = root.hdl_module_name + '_consts_pkg'
 
     def pr_const(self, name, val):
-        self.pr_raw("  constant c_{} : Natural := {};\n".format(name, val))
+        super().pr_const("c_" + name, val)
+
+    def pr_const_width(self, name, val, width):
+        super().pr_const_width("c_" + name, val, width)
 
     def pr_address(self, n):
         # ADDR is a suffix.
