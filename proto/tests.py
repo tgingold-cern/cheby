@@ -71,6 +71,27 @@ class write_buffer(object):
     def get(self):
         return self.buffer
 
+def elab_vhdl(vhdl_file):
+    """Function to elaborate VHDL"""
+    vhdl_pkgs = [srcdir + 'tb/cheby_pkg.vhd', srcdir + 'tb/wishbone_pkg.vhd']
+    res = subprocess.run(['ghdl', '-s', '-Werror=runtime-error'] + vhdl_pkgs + [vhdl_file])
+    if res.returncode != 0:
+        error('VHDL elaboration failed for {}'.format(vhdl_file))
+
+def elab_sv(sv_file, top_entity):
+    """Function to elaborate SV/Verilog"""
+    # Allow the definition of a different verilator command
+    if 'VERILATOR' in os.environ:
+        verilator_cmd = os.environ['VERILATOR']
+    else:
+        verilator_cmd = 'verilator'
+    if args.verbose:
+        print('Running elaboration with verilator command {}.'.format(verilator_cmd))
+
+    sv_pkgs = [srcdir + 'tb/dpssram.sv', srcdir + 'tb/wishbone_pkg.sv']
+    res = subprocess.run([verilator_cmd, '--lint-only', '--top-module', top_entity] + sv_pkgs + [sv_file])
+    if res.returncode != 0:
+        error('SV/Verilog elaboration failed for {}'.format(sv_file))
 
 def parse_ok(f):
     try:
@@ -348,15 +369,6 @@ def test_hdl_ref():
     # Generate HDL, compare with a baseline and potentially elaborate.
     global nbr_tests
 
-    if args.elaborate:
-        # Allow the definition of a different verilator command
-        if 'VERILATOR' in os.environ:
-            verilator_cmd = os.environ['VERILATOR']
-        else:
-            verilator_cmd = 'verilator'
-        if args.verbose:
-            print('Running elaboration with verilator command {}.'.format(verilator_cmd))
-
     for f in ['fmc-adc01/fmc_adc_alt_trigin', 'fmc-adc01/fmc_adc_alt_trigout',
               'issue9/test', 'issue10/test',
               'issue8/simpleMap_bug', 'issue8/simpleMap_noBug',
@@ -435,22 +447,12 @@ def test_hdl_ref():
             # Elaboration tests
             top_entity = t.hdl_module_name
 
-            # Elaborate VHDL usign GHDL
-            vhdl_pkgs = [srcdir + 'tb/cheby_pkg.vhd', srcdir + 'tb/wishbone_pkg.vhd']
-            res = subprocess.run(['ghdl', '-s'] + vhdl_pkgs + [vhdl_file])
-            if res.returncode != 0:
-                error('VHDL elaboration failed for {}'.format(f))
+            # Elaborate VHDL using GHDL
+            elab_vhdl(vhdl_file)
 
-            # Elaborate SV using Verilator
-            sv_pkgs = [srcdir + 'tb/dpssram.sv', srcdir + 'tb/wishbone_pkg.sv']
-            res = subprocess.run([verilator_cmd, '--lint-only', '--top-module', top_entity] + sv_pkgs + [sv_file])
-            if res.returncode != 0:
-                error('SV elaboration failed for {}'.format(f))
-
-            # Elaborate Verilog using Verilator
-            res = subprocess.run([verilator_cmd, '--lint-only', '--top-module', top_entity] + sv_pkgs + [verilog_file])
-            if res.returncode != 0:
-                error('Verilog elaboration failed for {}'.format(f))
+            # Elaborate SV and Verilog using Verilator
+            elab_sv(sv_file, top_entity)
+            elab_sv(verilog_file, top_entity)
 
             nbr_tests += 1
 
@@ -864,9 +866,10 @@ def test_wbgen2cheby():
 def test_consts():
     # Generate constants and compare with a baseline.
     global nbr_tests
+
     for f in ['demo_all', 'features/semver1', 'features/mapinfo1',
               'issue64/simple_reg1', 'bug-consts/blkpfx',
-              'features/enums1', 'features/enums2']:
+              'features/enums1', 'features/enums2', 'bug-const-range/const_range']:
         if args.verbose:
             print('test consts: {}'.format(f))
         cheby_file = srcdir + f + '.cheby'
@@ -887,8 +890,17 @@ def test_consts():
             print_consts.pconsts_cheby(buf, t, style)
             if not compare_buffer_and_file(buf, file):
                 error('consts {} generation error for {}'.format(style, f))
-        nbr_tests += 1
 
+            if args.elaborate:
+                # Elaboration tests
+
+                if style == 'vhdl' or style == 'vhdl-ohwr':
+                    # Elaborate VHDL using GHDL
+                    elab_vhdl(file)
+
+                # We don't test SV elaboration here because Verilator requires a top-level instance
+
+        nbr_tests += 1
 
 def test_doc():
     # Generate html and md, compare with a baseline.

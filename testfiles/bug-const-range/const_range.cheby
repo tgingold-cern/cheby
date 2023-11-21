@@ -1,0 +1,29 @@
+memory-map:
+  bus: apb-32
+  name: const_range
+  x-hdl:
+    pipeline: rd-out
+    bus-error: True
+    wmask: True
+  description: 'Register with 32-bit wide preset values.'
+  children:
+    - reg:
+        name: large_val_0
+        width: 32
+        preset: 0xf38243bb
+        access: rw
+    - reg:
+        name: large_val_1
+        width: 32
+        preset: 4294967287
+        access: rw
+    - reg:
+        name: super_large_val
+        width: 64
+        preset: 0x818734fa9b1e0cf4
+        access: rw
+    - reg:
+        name: small_val
+        width: 32
+        preset: 0x1
+        access: rw
