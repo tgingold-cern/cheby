@@ -954,7 +954,7 @@ def test_edge3():
     global nbr_tests
     # don't test 'issue84/sps200CavityControl', too incompatible to rework
     for f in ['issue124/project', 'issue129/acdipole_ip', 'issue128/acdipole_ip']:
-        if verbose:
+        if args.verbose:
             print('test edge3: {}'.format(f))
         chebfile = srcdir + f + '.cheby'
         edgefile = srcdir + f + '.csv'
@@ -965,7 +965,7 @@ def test_edge3():
         gen_edge3.generate_edge3(buf, t)
         print(edgefile)
         if os.path.exists(edgefile):
-            if verbose:
+            if args.verbose:
                 print('testing with edge3 file: {}'.format(edgefile))
             if not compare_buffer_and_file(buf, edgefile):
                 error('edge3 generation error for {}'.format(f))
