@@ -65,6 +65,15 @@ package axi4_tb_pkg is
       signal bus_i : in  t_axi4lite_write_master_in;
       addr         : in  std_logic_vector(31 downto 0);
       data         : in  std_logic_vector(datalen - 1 downto 0);
+      mask         : in  std_logic_vector(datalen/8 - 1 downto 0);
+      resp         : in  std_logic_vector(1 downto 0));
+
+  procedure axi4lite_write (
+      signal clk_i : in  std_logic;
+      signal bus_o : out t_axi4lite_write_master_out;
+      signal bus_i : in  t_axi4lite_write_master_in;
+      addr         : in  std_logic_vector(31 downto 0);
+      data         : in  std_logic_vector(datalen - 1 downto 0);
       resp         : in  std_logic_vector(1 downto 0));
 
   procedure axi4lite_write (
@@ -90,6 +99,32 @@ package axi4_tb_pkg is
       data         : out std_logic_vector(datalen - 1 downto 0));
 
   --  Simultaneous read and write (for testing purposes).
+  procedure axi4lite_rw (
+      signal clk_i : in  std_logic;
+      signal rbus_o : out t_axi4lite_read_master_out;
+      signal rbus_i : in  t_axi4lite_read_master_in;
+      signal wbus_o : out t_axi4lite_write_master_out;
+      signal wbus_i : in  t_axi4lite_write_master_in;
+      raddr         : in  std_logic_vector(31 downto 0);
+      rdata         : out std_logic_vector(datalen - 1 downto 0);
+      rresp         : in  std_logic_vector(1 downto 0);
+      waddr         : in  std_logic_vector(31 downto 0);
+      wdata         : in  std_logic_vector(datalen - 1 downto 0);
+      wmask         : in  std_logic_vector(datalen/8 - 1 downto 0);
+      wresp         : in  std_logic_vector(1 downto 0));
+
+  procedure axi4lite_rw (
+      signal clk_i : in  std_logic;
+      signal rbus_o : out t_axi4lite_read_master_out;
+      signal rbus_i : in  t_axi4lite_read_master_in;
+      signal wbus_o : out t_axi4lite_write_master_out;
+      signal wbus_i : in  t_axi4lite_write_master_in;
+      raddr         : in  std_logic_vector(31 downto 0);
+      rdata         : out std_logic_vector(datalen - 1 downto 0);
+      waddr         : in  std_logic_vector(31 downto 0);
+      wdata         : in  std_logic_vector(datalen - 1 downto 0);
+      wmask         : in  std_logic_vector(datalen/8 - 1 downto 0));
+
   procedure axi4lite_rw (
       signal clk_i : in  std_logic;
       signal rbus_o : out t_axi4lite_read_master_out;
@@ -136,6 +171,7 @@ package body axi4_tb_pkg is
       signal bus_i : in  t_axi4lite_write_master_in;
       addr         : in  std_logic_vector(31 downto 0);
       data         : in  std_logic_vector(datalen - 1 downto 0);
+      mask         : in  std_logic_vector(datalen/8 - 1 downto 0);
       resp         : in  std_logic_vector(1 downto 0)) is
   begin
     --  Write request
@@ -143,7 +179,7 @@ package body axi4_tb_pkg is
     bus_o <= (awaddr  => addr,
               wdata   => data,
               awprot  => (others => '0'),
-              wstrb   => (others => '1'),
+              wstrb   => mask,
               awvalid => '1',
               wvalid  => '1',
               bready  => '1');
@@ -178,9 +214,20 @@ package body axi4_tb_pkg is
       signal bus_o : out t_axi4lite_write_master_out;
       signal bus_i : in  t_axi4lite_write_master_in;
       addr         : in  std_logic_vector(31 downto 0);
+      data         : in  std_logic_vector(datalen - 1 downto 0);
+      resp         : in  std_logic_vector(1 downto 0)) is
+  begin
+    axi4lite_write(clk_i, bus_o, bus_i, addr, data, (others => '1'), resp);
+  end axi4lite_write;
+
+  procedure axi4lite_write (
+      signal clk_i : in  std_logic;
+      signal bus_o : out t_axi4lite_write_master_out;
+      signal bus_i : in  t_axi4lite_write_master_in;
+      addr         : in  std_logic_vector(31 downto 0);
       data         : in  std_logic_vector(datalen - 1 downto 0)) is
   begin
-    axi4lite_write(clk_i, bus_o, bus_i, addr, data, C_AXI4_RESP_OK);
+    axi4lite_write(clk_i, bus_o, bus_i, addr, data, (others => '1'), C_AXI4_RESP_OK);
   end axi4lite_write;
 
   procedure axi4lite_rd_init (signal bus_o : out t_axi4lite_read_master_out) is
@@ -255,6 +302,7 @@ package body axi4_tb_pkg is
     rresp         : in  std_logic_vector(1 downto 0);
     waddr         : in  std_logic_vector(31 downto 0);
     wdata         : in  std_logic_vector(datalen - 1 downto 0);
+    wmask         : in  std_logic_vector(datalen/8 - 1 downto 0);
     wresp         : in  std_logic_vector(1 downto 0))
   is
     variable rdone : boolean;
@@ -272,7 +320,7 @@ package body axi4_tb_pkg is
     wbus_o <= (awaddr  => waddr,
                wdata   => wdata,
                awprot  => (others => '0'),
-               wstrb   => (others => '1'),
+               wstrb   => wmask,
                awvalid => '1',
                wvalid  => '1',
                bready  => '1');
@@ -327,9 +375,40 @@ package body axi4_tb_pkg is
     raddr         : in  std_logic_vector(31 downto 0);
     rdata         : out std_logic_vector(datalen - 1 downto 0);
     waddr         : in  std_logic_vector(31 downto 0);
+    wdata         : in  std_logic_vector(datalen - 1 downto 0);
+    wmask         : in  std_logic_vector(datalen/8 - 1 downto 0)) is
+  begin
+    axi4lite_rw(clk_i, rbus_o, rbus_i, wbus_o, wbus_i, raddr, rdata, C_AXI4_RESP_OK, waddr, wdata, wmask, C_AXI4_RESP_OK);
+  end axi4lite_rw;
+
+  procedure axi4lite_rw (
+    signal clk_i : in  std_logic;
+    signal rbus_o : out t_axi4lite_read_master_out;
+    signal rbus_i : in  t_axi4lite_read_master_in;
+    signal wbus_o : out t_axi4lite_write_master_out;
+    signal wbus_i : in  t_axi4lite_write_master_in;
+    raddr         : in  std_logic_vector(31 downto 0);
+    rdata         : out std_logic_vector(datalen - 1 downto 0);
+    rresp         : in  std_logic_vector(1 downto 0);
+    waddr         : in  std_logic_vector(31 downto 0);
+    wdata         : in  std_logic_vector(datalen - 1 downto 0);
+    wresp         : in  std_logic_vector(1 downto 0)) is
+  begin
+    axi4lite_rw(clk_i, rbus_o, rbus_i, wbus_o, wbus_i, raddr, rdata, rresp, waddr, wdata, (others => '1'), wresp);
+  end axi4lite_rw;
+
+  procedure axi4lite_rw (
+    signal clk_i : in  std_logic;
+    signal rbus_o : out t_axi4lite_read_master_out;
+    signal rbus_i : in  t_axi4lite_read_master_in;
+    signal wbus_o : out t_axi4lite_write_master_out;
+    signal wbus_i : in  t_axi4lite_write_master_in;
+    raddr         : in  std_logic_vector(31 downto 0);
+    rdata         : out std_logic_vector(datalen - 1 downto 0);
+    waddr         : in  std_logic_vector(31 downto 0);
     wdata         : in  std_logic_vector(datalen - 1 downto 0)) is
   begin
-    axi4lite_rw(clk_i, rbus_o, rbus_i, wbus_o, wbus_i, raddr, rdata, C_AXI4_RESP_OK, waddr, wdata, C_AXI4_RESP_OK);
+    axi4lite_rw(clk_i, rbus_o, rbus_i, wbus_o, wbus_i, raddr, rdata, C_AXI4_RESP_OK, waddr, wdata, (others => '1'), C_AXI4_RESP_OK);
   end axi4lite_rw;
 
 end axi4_tb_pkg;

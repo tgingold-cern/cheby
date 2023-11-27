@@ -1,0 +1,17 @@
+memory-map:
+  bus: apb-32
+  name: no_port
+  description: Submap to be used for tests
+  children:
+    - reg:
+        name: reg0
+        access: rw
+        width: 32
+        x-hdl:
+          type: no-port
+    - reg:
+        name: reg1
+        access: rw
+        width: 32
+        x-hdl:
+          type: no-port

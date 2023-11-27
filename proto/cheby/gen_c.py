@@ -51,31 +51,31 @@ class CPrinter(tree.Visitor):
         self.cp_raw('\n')
 
 
+def maybe_pad(cp, diff, addr, pad_id, pad_target):
+    if diff == 0:
+        return
+    # Pad
+    # Note: the 4 is not related to bus size, but to C types.
+    if addr % 4 == 0 and diff % 4 == 0:
+        sz = 4
+    else:
+        sz = 1
+    cp.cp_txt('')
+    cp.cp_txt('/* padding to: {} Bytes */'.format(pad_target))
+    cp.cp_txt('{} __padding_{}[{}];'.format(
+        cp.utypes[sz], pad_id[0], diff // sz))
+    pad_id[0] += 1
+
 def cprint_children(cp, n, size):
     "Generate declarations for children of :param n:, and pad to :param size:"
     addr = 0
     pad_id = [0]  # Modified in the nested maybe_pad function
 
-    def maybe_pad(diff):
-        if diff == 0:
-            return
-        # Pad
-        # Note: the 4 is not related to bus size, but to C types.
-        if addr % 4 == 0 and diff % 4 == 0:
-            sz = 4
-        else:
-            sz = 1
-        cp.cp_txt('')
-        cp.cp_txt('/* padding to: {} words */'.format(el.c_address // sz))
-        cp.cp_txt('{} __padding_{}[{}];'.format(
-            cp.utypes[sz], pad_id[0], diff // sz))
-        pad_id[0] += 1
-
     for i in range(len(n.c_sorted_children)):
         el = n.c_sorted_children[i]
         diff = el.c_address - addr
         assert diff >= 0
-        maybe_pad(diff)
+        maybe_pad(cp, diff, addr, pad_id, el.c_address)
         if i != 0:
             cp.cp_txt('')
         cp.visit(el)
@@ -90,14 +90,14 @@ def cprint_children(cp, n, size):
                 # and the size of the element * count.
                 rep_size = el.c_elsize * el.count
                 addr = el.c_address + rep_size
-                maybe_pad(el.c_size - rep_size)
+                maybe_pad(cp, el.c_size - rep_size, addr, pad_id, el.c_address)
             elif isinstance(el, tree.Memory):
                 # Likewise.
                 addr = el.c_address + el.memsize_val
-                maybe_pad(el.c_size - el.memsize_val)
+                maybe_pad(cp, el.c_size - el.memsize_val, addr, pad_id, el.c_address)
             addr = el.c_address + el.c_size
     # Last pad
-    maybe_pad(size - addr)
+    maybe_pad(cp, size - addr, addr, pad_id, n.c_address + n.c_size)
 
 
 @CPrinter.register(tree.Reg)

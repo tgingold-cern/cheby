@@ -1,3 +1,6 @@
+library ieee;
+use ieee.std_logic_1164.all;
+
 package semver1_Consts is
   constant SEMVER1_SIZE : Natural := 4;
   constant SEMVER1_MEMMAP_VERSION : Natural := 16#10000#;

@@ -49,9 +49,7 @@ class APBBus(BusGen):
             "wr_addr", root.c_addr_bits, lo_idx=root.c_addr_word_bits
         )
         ibus.wr_dat = module.new_HDLSignal("wr_data", root.c_word_bits)
-        ibus.wr_sel = module.new_HDLSignal(
-            "wr_strb", root.c_word_bits // tree.BYTE_SIZE
-        )
+        ibus.wr_sel = module.new_HDLSignal("wr_sel", root.c_word_bits)
 
         module.stmts.append(HDLComment("Write Channel"))
         # A write transfer consists of two phases, a setup and an access phase. The
@@ -87,7 +85,38 @@ class APBBus(BusGen):
         )
         module.stmts.append(HDLAssign(ibus.wr_adr, root.h_bus["paddr"]))
         module.stmts.append(HDLAssign(ibus.wr_dat, root.h_bus["pwdata"]))
-        module.stmts.append(HDLAssign(ibus.wr_sel, root.h_bus["pstrb"]))
+
+        if opts.bus_error:
+            # Delay write request: Used in case of a read request to a write only
+            # register. In such a case, the write request is directly returned in form
+            # of the write acknowledge. Thereby and without pipelining, the PREADY
+            # signal is already and only asserted during the setup phase. Hence, one
+            # cycle to early. Delaying the signal circumvents this problem.
+            ibus.wr_req_del = module.new_HDLSignal("wr_req_del")
+
+            proc = HDLSync(
+                root.h_bus["clk"], root.h_bus["brst"], rst_sync=gconfig.rst_sync
+            )
+            proc.rst_stmts.append(HDLAssign(ibus.wr_req_del, bit_0))
+            proc.sync_stmts.append(HDLAssign(ibus.wr_req_del, ibus.wr_req))
+
+            module.stmts.append(proc)
+
+        # Translate Byte-wise write mask of APB bus to bit-wise write mask of ibus
+        proc = HDLComb()
+        proc.sensitivity.extend([root.h_bus["pstrb"]])
+        for idx in range(root.c_word_bits // tree.BYTE_SIZE):
+            proc.stmts.append(
+                HDLAssign(
+                    HDLSlice(ibus.wr_sel, idx * tree.BYTE_SIZE, tree.BYTE_SIZE),
+                    HDLReplicate(
+                        HDLSlice(root.h_bus["pstrb"], idx, None),
+                        tree.BYTE_SIZE,
+                        True,
+                    ),
+                )
+            )
+        module.stmts.append(proc)
 
     def expand_bus_r(self, root, module, ibus, opts):
         """Generate internal read bus and connect it with APB signals"""
@@ -316,7 +345,39 @@ class APBBus(BusGen):
             stmts.append(proc)
 
         stmts.append(HDLAssign(n.h_bus["pwdata"], ibus.wr_dat))
-        stmts.append(HDLAssign(n.h_bus["pstrb"], ibus.wr_sel or HDLReplicate(bit_1, 4)))
+
+        if ibus.wr_sel is not None:
+            # Translate bit-wise write mask of ibus to Byte-wise write mask of APB bus
+            proc = HDLComb()
+            proc.sensitivity.extend([ibus.wr_sel])
+            proc.stmts.append(
+                HDLAssign(
+                    n.h_bus["pstrb"],
+                    HDLReplicate(bit_0, root.c_word_bits // tree.BYTE_SIZE),
+                )
+            )
+            for idx in range(root.c_word_bits // tree.BYTE_SIZE):
+                proc_if = HDLIfElse(
+                    HDLNot(
+                        HDLEq(
+                            HDLSlice(ibus.wr_sel, idx * tree.BYTE_SIZE, tree.BYTE_SIZE),
+                            HDLReplicate(bit_0, tree.BYTE_SIZE, False),
+                        )
+                    )
+                )
+                proc_if.then_stmts.append(
+                    HDLAssign(HDLSlice(n.h_bus["pstrb"], idx, None), bit_1)
+                )
+                proc_if.else_stmts = None
+                proc.stmts.append(proc_if)
+            stmts.append(proc)
+        else:
+            stmts.append(
+                HDLAssign(
+                    n.h_bus["pstrb"],
+                    HDLReplicate(bit_1, root.c_word_bits // tree.BYTE_SIZE),
+                )
+            )
 
     def write_bus_slave(self, root, stmts, n, proc, ibus):
         proc.stmts.append(HDLAssign(n.i_wr_req, bit_0))

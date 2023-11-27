@@ -3,6 +3,7 @@
 import sys
 import os
 import subprocess
+import argparse
 import cheby.parser as parser
 import cheby.layout as layout
 import cheby.print_pretty as pprint
@@ -27,12 +28,12 @@ import cheby.print_latex as print_latex
 import cheby.print_rest as print_rest
 import cheby.gen_custom as gen_custom
 import cheby.gen_edge3 as gen_edge3
+from cheby.hdl.globals import gconfig
 
 srcdir = os.path.join(os.path.dirname(os.path.realpath(__file__)),
                       '../testfiles/')
-verbose = False
-flag_regen = False
-flag_keep = False
+
+args = None
 nbr_tests = 0
 
 
@@ -47,7 +48,7 @@ def werr(s):
 
 
 def error(msg):
-    if flag_keep:
+    if args.keep:
         werr('error: {}'.format(msg))
     else:
         raise TestError('error: {}'.format(msg))
@@ -70,6 +71,27 @@ class write_buffer(object):
     def get(self):
         return self.buffer
 
+def elab_vhdl(vhdl_file):
+    """Function to elaborate VHDL"""
+    vhdl_pkgs = [srcdir + 'tb/cheby_pkg.vhd', srcdir + 'tb/wishbone_pkg.vhd']
+    res = subprocess.run(['ghdl', '-s', '-Werror=runtime-error'] + vhdl_pkgs + [vhdl_file])
+    if res.returncode != 0:
+        error('VHDL elaboration failed for {}'.format(vhdl_file))
+
+def elab_sv(sv_file, top_entity):
+    """Function to elaborate SV/Verilog"""
+    # Allow the definition of a different verilator command
+    if 'VERILATOR' in os.environ:
+        verilator_cmd = os.environ['VERILATOR']
+    else:
+        verilator_cmd = 'verilator'
+    if args.verbose:
+        print('Running elaboration with verilator command {}.'.format(verilator_cmd))
+
+    sv_pkgs = [srcdir + 'tb/dpssram.sv', srcdir + 'tb/wishbone_pkg.sv']
+    res = subprocess.run([verilator_cmd, '--lint-only', '--top-module', top_entity] + sv_pkgs + [sv_file])
+    if res.returncode != 0:
+        error('SV/Verilog elaboration failed for {}'.format(sv_file))
 
 def parse_ok(f):
     try:
@@ -92,7 +114,7 @@ def test_parser():
               'features/block1', 'features/submap2', 'features/submap3',
               'features/block4', 'parser/extension1']:
         f += '.cheby'
-        if verbose:
+        if args.verbose:
             print('test parser: {}'.format(f))
         parse_ok(srcdir + f)
         nbr_tests += 1
@@ -106,7 +128,7 @@ def test_parser():
               'parse_err_array1', 'parse_err_array2',
               'parse_err_block1',
               'err_cnt', 'err_cnt2', 'err_extension']:
-        if verbose:
+        if args.verbose:
             print('test parser: {}'.format(f))
         parse_err(srcdir + 'parser/' + f + '.cheby')
         nbr_tests += 1
@@ -130,13 +152,13 @@ def layout_err(t):
 def test_layout():
     global nbr_tests
     hfiles = []
-    for f in ['demo', 'features/block1', 'features/array1', 'features/array2',
+    for f in ['padding-block/reg', 'demo', 'features/block1', 'features/array1', 'features/array2',
               'bug-gen-c/fids-errmiss',
               'bug-gen-c-02/mbox_regs',
               'bug-gen-c-02/fip_urv_regs',
               'issue99/m1', 'issue99/m2']:
         f += '.cheby'
-        if verbose:
+        if args.verbose:
             print('test layout: {}'.format(f))
         t = parse_ok(srcdir + f)
         layout_ok(t)
@@ -177,7 +199,7 @@ def test_layout():
               'issue14/test-err',
               'issue57/m1', 'issue71/m1', 'features/enums3']:
         f += '.cheby'
-        if verbose:
+        if args.verbose:
             print('test layout: {}'.format(f))
         t = parse_ok(srcdir + f)
         layout_err(t)
@@ -209,9 +231,9 @@ def compare_buffer_and_file(buf, filename):
             return True
     except:
         # Usually an IO error.
-        if not flag_regen:
+        if not args.regen:
             raise
-    if flag_regen:
+    if args.regen:
         open(filename, 'w').write(buf)
         werr('Regenerate {}'.format(filename))
         return True
@@ -221,7 +243,7 @@ def compare_buffer_and_file(buf, filename):
     if nlines != len(ref_lines):
         werr('Number of lines mismatch')
         return False
-    if flag_keep:
+    if args.keep:
         return False
     for i in range(nlines):
         if buf_lines[i] == ref_lines[i]:
@@ -276,7 +298,7 @@ def test_hdl():
               'issue95/m1', 'issue95/m2', 'issue95/m3', 'issue95/sm1', 'issue95/sm3',
               'features/avalon-noaddr', 'issue129/acdipole_ip', 'issue129/acdipole_ip-orig',
               'issue67/repeatInRepeat']:
-        if verbose:
+        if args.verbose:
             print('test hdl: {}'.format(f))
         t = parse_ok(srcdir + f + '.cheby')
         layout_ok(t)
@@ -290,7 +312,6 @@ def test_hdl():
                 h = gen_hdl.generate_hdl(sp)
                 print_vhdl.print_vhdl(fd, h)
         nbr_tests += 1
-
 
 def expand_hdl_err(t):
     try:
@@ -316,7 +337,7 @@ def test_hdl_err():
               'access/autoclear_err_ro',
               'access/orclr_err_ro', 'access/orclr_err_wo',
               'issue109/test']:
-        if verbose:
+        if args.verbose:
             print('test hdl error: {}'.format(f))
         t = parse_ok(srcdir + f + '.cheby')
         layout_ok(t)
@@ -325,7 +346,7 @@ def test_hdl_err():
         nbr_tests += 1
     # Error in gen_name
     for f in ['issue65/m1']:
-        if verbose:
+        if args.verbose:
             print('test hdl error: {}'.format(f))
         t = parse_ok(srcdir + f + '.cheby')
         layout_ok(t)
@@ -345,8 +366,9 @@ def test_hdl_err():
         nbr_tests += 1
 
 def test_hdl_ref():
-    # Generate vhdl and compare with a baseline.
+    # Generate HDL, compare with a baseline and potentially elaborate.
     global nbr_tests
+
     for f in ['fmc-adc01/fmc_adc_alt_trigin', 'fmc-adc01/fmc_adc_alt_trigout',
               'issue9/test', 'issue10/test',
               'issue8/simpleMap_bug', 'issue8/simpleMap_noBug',
@@ -371,6 +393,7 @@ def test_hdl_ref():
               'features/iogroup1', 'features/iogroup2', 'features/repeat-iogroup1',
               'features/repeat-iogroup2', 'features/repeat-iogroup3',
               'features/repeat-iogroup4',
+              'features/no_port',
               'issue52/hwInfo',
               'bug-gen_wt/m1',
               'issue59/inherit', 'issue64/simple_reg1', 'issue66/m1',
@@ -385,10 +408,68 @@ def test_hdl_ref():
               'issue92/blockInMap', 'issue90/bugDPSSRAMbwSel',
               'bug-repmem/bran', 'bug-empty/noout', 'bug-empty/noinp',
               'bug-cernbe/repro', 'bug-cernbe/sub_repro']:
-        if verbose:
+        if args.verbose:
             print('test hdl with ref: {}'.format(f))
         cheby_file = srcdir + f + '.cheby'
         vhdl_file = srcdir + f + '.vhdl'
+        verilog_file = srcdir + f + '.v'
+        sv_file = srcdir + f + '.sv'
+        t = parse_ok(cheby_file)
+        layout_ok(t)
+        expand_hdl.expand_hdl(t)
+        gen_name.gen_name_memmap(t)
+        h = gen_hdl.generate_hdl(t)
+
+        # Generate VHDL
+        buf_vhdl = write_buffer()
+        print_vhdl.print_vhdl(buf_vhdl, h)
+        if not compare_buffer_and_file(buf_vhdl, vhdl_file):
+            error('vhdl generation error for {}'.format(f))
+
+        # Generate SV
+        gconfig.hdl_lang = 'sv'
+        buf_sv = write_buffer()
+        print_verilog.print_verilog(buf_sv, h)
+        if not compare_buffer_and_file(buf_sv, sv_file):
+            error('SV generation error for {}'.format(f))
+
+        # Generate Verilog
+        gconfig.hdl_lang = 'verilog'
+        buf_verilog = write_buffer()
+        print_verilog.print_verilog(buf_verilog, h)
+        if not compare_buffer_and_file(buf_verilog, verilog_file):
+            error('Verilog generation error for {}'.format(f))
+        gconfig.hdl_lang = None
+
+        nbr_tests += 1
+
+        if args.elaborate:
+            # Elaboration tests
+            top_entity = t.hdl_module_name
+
+            # Elaborate VHDL using GHDL
+            elab_vhdl(vhdl_file)
+
+            # Elaborate SV and Verilog using Verilator
+            elab_sv(sv_file, top_entity)
+            elab_sv(verilog_file, top_entity)
+
+            nbr_tests += 1
+
+def test_hdl_ref_async_rst():
+    # Generate HDL with asynchronous reset and compare with a baseline
+    global nbr_tests
+
+    for f in ["features/axi4_byte", "features/axi4_word", "features/axi4_submap_wb"]:
+        if args.verbose:
+            print("test hdl with ref (async rst): {}".format(f))
+
+        cheby_file = srcdir + f + ".cheby"
+        vhdl_file = srcdir + f + "_async_rst.vhdl"
+        sv_file = srcdir + f + "_async_rst.sv"
+
+        gconfig.rst_sync = False
+
         t = parse_ok(cheby_file)
         layout_ok(t)
         expand_hdl.expand_hdl(t)
@@ -397,17 +478,25 @@ def test_hdl_ref():
         buf = write_buffer()
         print_vhdl.print_vhdl(buf, h)
         if not compare_buffer_and_file(buf, vhdl_file):
-            error('vhdl generation error for {}'.format(f))
+            error("vhdl generation error for {}".format(f))
+        buf_sv = write_buffer()
+        print_verilog.print_verilog(buf_sv, h)
+        if not compare_buffer_and_file(buf_sv, sv_file):
+            error("SV generation error for {}".format(f))
         nbr_tests += 1
+
+        gconfig.rst_sync = True
 
 def test_verilog_ref():
     # Generate verilog and compare with a baseline.
     global nbr_tests
     for f in ['crossbar/crossbar']:
-        if verbose:
+        if args.verbose:
             print('test verilog with ref: {}'.format(f))
+
         cheby_file = srcdir + f + '.cheby'
         vlog_file = srcdir + f + '.v'
+
         t = parse_ok(cheby_file)
         layout_ok(t)
         expand_hdl.expand_hdl(t)
@@ -419,13 +508,39 @@ def test_verilog_ref():
             error('verilog generation error for {}'.format(f))
         nbr_tests += 1
 
+def test_sv_ref():
+    # Generate SystemVerilog and compare with a baseline.
+    global nbr_tests
+    for f in ["crossbar/crossbar"]:
+        if args.verbose:
+            print("test sv with ref: {}".format(f))
+
+        cheby_file = srcdir + f + ".cheby"
+        vlog_file = srcdir + f + ".sv"
+
+        gconfig.hdl_lang = "sv"
+
+        t = parse_ok(cheby_file)
+        layout_ok(t)
+        expand_hdl.expand_hdl(t)
+        gen_name.gen_name_memmap(t)
+        h = gen_hdl.generate_hdl(t)
+        buf = write_buffer()
+        print_verilog.print_verilog(buf, h)
+        if not compare_buffer_and_file(buf, vlog_file):
+            error("sv generation error for {}".format(f))
+        nbr_tests += 1
+
+        gconfig.hdl_lang = None
+
 def test_issue84():
     global nbr_tests
     for f in ['issue84/sps200CavityControl_as']:
-        if verbose:
+        if args.verbose:
             print('test hdl with ref: {}'.format(f))
         cheby_file = srcdir + f + '.cheby'
         vhdl_file = srcdir + f + '.vhdl'
+        sv_file = srcdir + f + '.sv'
         t = parse_ok(cheby_file)
         layout_ok(t)
         expand_hdl.expand_hdl(t)
@@ -435,12 +550,16 @@ def test_issue84():
         print_vhdl.print_vhdl(buf, h)
         if not compare_buffer_and_file(buf, vhdl_file):
             error('vhdl generation error for {}'.format(f))
+        buf_sv = write_buffer()
+        print_verilog.print_verilog(buf_sv, h)
+        if not compare_buffer_and_file(buf_sv, sv_file):
+            error('SV generation error for {}'.format(f))
         nbr_tests += 1
 
 def test_self():
     """Auto-test"""
     def test(func, func_name):
-        if verbose:
+        if args.verbose:
             print('test self: {}'.format(func_name))
         ok = False
         try:
@@ -507,7 +626,7 @@ def test_gena():
              'Submap', 'Submap_internal',
              'Muxed', 'Muxed2', 'Semver', 'Consts']
     for f in files:
-        if verbose:
+        if args.verbose:
             print('test gena: {}'.format(f))
         # Test Gena to Cheby conversion
         xmlfile = srcdir + 'gena/' + f + '.xml'
@@ -543,7 +662,7 @@ def test_gena_regctrl_err():
     global nbr_tests
     files = ['Muxed_name', 'Muxed_code']
     for f in files:
-        if verbose:
+        if args.verbose:
             print('test gena regctrl err: {}'.format(f))
         # Test Gena to Cheby conversion
         xmlfile = srcdir + 'err_gena/' + f + '.xml'
@@ -576,7 +695,7 @@ def test_gena2cheby():
              'sub_reg_gen', 'sub_reg_gen_ignore',
              'bit_field_gen', 'reg_name_boolean']
     for f in files:
-        if verbose:
+        if args.verbose:
             print('test gena2cheby: {}'.format(f))
         # Test Gena to Cheby conversion
         xmlfile = srcdir + 'gena2cheby/' + f + '.xml'
@@ -601,7 +720,7 @@ def test_gena2cheby_err():
              'err_bit_field_gen', 'err_bit_field_attrs', 'err_bit_field_child',
              'err_bit_field_preset']
     for f in files:
-        if verbose:
+        if args.verbose:
             print('test gena2cheby err: {}'.format(f))
         # Test Gena to Cheby conversion
         xmlfile = srcdir + 'gena2cheby/' + f + '.xml'
@@ -633,7 +752,7 @@ def test_gena2cheby_regressions():
              'issue51/map', 'bug-unit/rfLimiter',
              'bug-note/WB3_DDR', 'bug-note/WB3_DDR-1']
     for f in files:
-        if verbose:
+        if args.verbose:
             print('test gena2cheby regression: {}'.format(f))
         # Test Gena to Cheby conversion
         xmlfile = srcdir + f + '.xml'
@@ -659,7 +778,7 @@ def test_gena_gen_regressions():
              'issue32/memmap', 'gena2cheby/submap_noinc', 'issue49/mainMap', 'issue33e/timing',
              'issue68/m1', 'issue70/m3', 'issue69/m1', 'issue73/yesno2', 'issue102/mainMap']
     for f in files:
-        if verbose:
+        if args.verbose:
             print('test gena regression: {}'.format(f))
         chebfile = srcdir + f + '.cheby'
         # Test parse+layout
@@ -687,7 +806,7 @@ def test_gena_dsp_regressions():
     global nbr_tests
     files = ['issue106/m1']
     for f in files:
-        if verbose:
+        if args.verbose:
             print('test gena regression: {}'.format(f))
         chebfile = srcdir + f + '.cheby'
         # Test parse+layout
@@ -721,7 +840,7 @@ def test_wbgen2cheby():
              '../issue28/wrc_syscon_wb']
     print_vhdl.style = 'wbgen'
     for f in files:
-        if verbose:
+        if args.verbose:
             print('test wbgen2cheby: {}'.format(f))
         # Test Gena to Cheby conversion
         wbfile = srcdir + 'wbgen/' + f + '.wb'
@@ -747,10 +866,11 @@ def test_wbgen2cheby():
 def test_consts():
     # Generate constants and compare with a baseline.
     global nbr_tests
+
     for f in ['demo_all', 'features/semver1', 'features/mapinfo1',
               'issue64/simple_reg1', 'bug-consts/blkpfx',
-              'features/enums1', 'features/enums2']:
-        if verbose:
+              'features/enums1', 'features/enums2', 'bug-const-range/const_range']:
+        if args.verbose:
             print('test consts: {}'.format(f))
         chebfile = srcdir + f + '.cheby'
         vhdl_file = srcdir + f + '-consts.vhdl'
@@ -770,14 +890,23 @@ def test_consts():
             print_consts.pconsts_cheby(buf, t, style)
             if not compare_buffer_and_file(buf, file):
                 error('consts {} generation error for {}'.format(style, f))
-        nbr_tests += 1
 
+            if args.elaborate:
+                # Elaboration tests
+
+                if style == 'vhdl' or style == 'vhdl-ohwr':
+                    # Elaborate VHDL using GHDL
+                    elab_vhdl(file)
+
+                # We don't test SV elaboration here because Verilator requires a top-level instance
+
+        nbr_tests += 1
 
 def test_doc():
     # Generate html and md, compare with a baseline.
     global nbr_tests
     for f in ['issue9/test', 'features/semver1', 'issue84/sps200CavityControl_as', 'issue67/repeatInRepeat']:
-        if verbose:
+        if args.verbose:
             print('test doc: {}'.format(f))
         chebfile = srcdir + f + '.cheby'
         html_file = srcdir + f + '.html'
@@ -805,7 +934,7 @@ def test_doc():
 def test_custom():
     global nbr_tests
     for f in ['custom/fidsErrMiss']:
-        if verbose:
+        if args.verbose:
             print('test custom: {}'.format(f))
         chebfile = srcdir + f + '.cheby'
         c_file = srcdir + f + '.h'
@@ -825,7 +954,7 @@ def test_edge3():
     global nbr_tests
     # don't test 'issue84/sps200CavityControl', too incompatible to rework
     for f in ['issue124/project', 'issue129/acdipole_ip', 'issue128/acdipole_ip']:
-        if verbose:
+        if args.verbose:
             print('test edge3: {}'.format(f))
         chebfile = srcdir + f + '.cheby'
         edgefile = srcdir + f + '.csv'
@@ -836,22 +965,22 @@ def test_edge3():
         gen_edge3.generate_edge3(buf, t)
         print(edgefile)
         if os.path.exists(edgefile):
-            if verbose:
+            if args.verbose:
                 print('testing with edge3 file: {}'.format(edgefile))
             if not compare_buffer_and_file(buf, edgefile):
                 error('edge3 generation error for {}'.format(f))
         nbr_tests += 1
 
 def main():
-    global verbose, flag_regen, flag_keep
+    global args
 
     # Crude
-    if '-v' in sys.argv[1:]:
-        verbose = True
-    if '--regen' in sys.argv[1:]:
-        flag_regen = True
-    if '-k' in sys.argv[1:]:
-        flag_keep = True
+    aparser = argparse.ArgumentParser(description='cheby tests')
+    aparser.add_argument('-v', '--verbose', action='store_true', help='Enable additional prints.')
+    aparser.add_argument('-r', '--regen', action='store_true', help='Regenerate golden test files.')
+    aparser.add_argument('-k', '--keep', action='store_true', help='Keep running tests after an error occured.')
+    aparser.add_argument('-e', '--elaborate', action='store_true', help='Enable elaboration tests.')
+    args = aparser.parse_args()
 
     try:
         test_self()
@@ -862,7 +991,9 @@ def main():
         test_hdl()
         test_hdl_err()
         test_hdl_ref()
+        test_hdl_ref_async_rst()
         test_verilog_ref()
+        test_sv_ref()
         test_issue84()
         test_gena()
         test_gena_regctrl_err()

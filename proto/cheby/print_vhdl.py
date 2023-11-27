@@ -2,6 +2,7 @@
 
 import cheby.hdltree as hdltree
 from cheby.wrutils import w, wln, windent
+import io
 
 
 style = None
@@ -445,6 +446,10 @@ def generate_stmts(fd, stmts, indent):
             w(fd, sindent)
             generate_assign(fd, s)
         elif isinstance(s, hdltree.HDLComb):
+            # Print processes only if they contain statements
+            if not s.stmts:
+                continue
+
             w(fd, sindent)
             if s.name is not None:
                 w(fd, '{}: '.format(s.name))
@@ -526,43 +531,58 @@ def get_interface_name(inter, is_master, is_out):
 def print_inters_list(fd, lst, name, indent):
     if not lst:
         return
-    windent(fd, indent)
-    wln(fd, "{} (".format(name))
-    first = True
+
+    buffer = io.StringIO()
+
+    windent(buffer, indent)
+    wln(buffer, "{} (".format(name))
+
     for p in lst:
-        if first:
-            first = False
-        else:
-            wln(fd, ";")
         if isinstance(p, hdltree.HDLPort):
-            generate_port(fd, p, indent + 1)
+            generate_port(buffer, p, indent + 1)
+            wln(buffer, ";")
+
         elif isinstance(p, hdltree.HDLParam):
-            generate_param(fd, p, indent + 1)
+            generate_param(buffer, p, indent + 1)
+            wln(buffer, ";")
+
         elif isinstance(p, hdltree.HDLInterfaceInstance):
             # External ports of a slave interface become extra normal ports.
             if not p.is_master:
                 for itfp in p.interface.ports:
-                    if itfp.dir == 'EXT':
+                    if itfp.dir == "EXT":
                         typ = generate_vhdl_type(itfp)
-                        windent(fd, indent + 1)
-                        w(fd, "{:<20} : in    {typ}".format(itfp.name + '_i', typ=typ))
-                        wln(fd, ";")
-            # The interface is composed of two records: for the inputs and for the outputs.
-            generate_decl_comment(fd, p.comment, indent + 1)
+                        windent(buffer, indent + 1)
+                        wln(
+                            buffer,
+                            "{:<20} : in    {typ};".format(itfp.name + "_i", typ=typ),
+                        )
+
+            # The interface is composed of two records: for the inputs and for the
+            # outputs.
             has_input, has_output = has_in_out(p.interface, not p.is_master)
+            if has_input or has_output:
+                # Print comment only if ports are available
+                generate_decl_comment(buffer, p.comment, indent + 1)
+
             if has_input:
-                windent(fd, indent + 1)
+                windent(buffer, indent + 1)
                 nam = get_interface_name(p.interface, p.is_master, False)
-                w(fd, "{:<20} : in    {}".format(p.name + '_i', nam))
-                if has_output:
-                    wln(fd, ";")
+                wln(buffer, "{:<20} : in    {};".format(p.name + "_i", nam))
+
             if has_output:
-                windent(fd, indent + 1)
+                windent(buffer, indent + 1)
                 nam = get_interface_name(p.interface, p.is_master, True)
-                w(fd, "{:<20} : out   {}".format(p.name + '_o', nam))
+                wln(buffer, "{:<20} : out   {};".format(p.name + "_o", nam))
+
         else:
             raise AssertionError
-    wln(fd)
+
+    # Get buffer content and remove last semicolon and newline
+    buffer_content = buffer.getvalue()
+    buffer_content = buffer_content[:-2]
+
+    wln(fd, buffer_content)
     windent(fd, indent)
     wln(fd, ");")
 

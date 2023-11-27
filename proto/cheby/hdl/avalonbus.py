@@ -19,12 +19,14 @@ class AvalonBus(BusGen):
     def add_decode_avalon(self, root, module, ibus):
         """Generate internal signals used by decoder/processes from
         Avalon bus."""
-        ibus.rd_ack = module.new_HDLSignal('rd_ack_int')    # Ack for read
-        ibus.rd_err = module.new_HDLSignal('rd_err_int')    # Error for read (not supported)
-        ibus.wr_ack = module.new_HDLSignal('wr_ack_int')    # Ack for write
-        ibus.wr_err = module.new_HDLSignal('wr_err_int')    # Error for write (not supported)
-        ibus.rd_req = module.new_HDLSignal('rd_req_int')    # Read access
-        ibus.wr_req = module.new_HDLSignal('wr_req_int')    # Write access
+        ibus.rd_req = module.new_HDLSignal('rd_req')  # Read access
+        ibus.rd_ack = module.new_HDLSignal('rd_ack')  # Ack for read
+        ibus.rd_err = module.new_HDLSignal('rd_err')  # Error for read (not supported)
+        ibus.wr_req = module.new_HDLSignal('wr_req')  # Write access
+        ibus.wr_ack = module.new_HDLSignal('wr_ack')  # Ack for write
+        ibus.wr_dat = module.new_HDLSignal('wr_dat', root.c_word_bits)  # Write data
+        ibus.wr_sel = module.new_HDLSignal('wr_sel', root.c_word_bits)  # Write mask
+        ibus.wr_err = module.new_HDLSignal('wr_err')  # Error for write (not supported)
 
         # Waitrequest
         # Set on rd or wr, cleared on ack
@@ -37,34 +39,63 @@ class AvalonBus(BusGen):
                          HDLNot(HDLParen(HDLOr(ibus.rd_ack, ibus.wr_ack))))))
         module.stmts.append(proc)
 
-        # address: saved on 'read' or 'write' when waitrequest is not set.
-        # writedata: saved on 'write' when waitrequest is not set.
-        # rd, wr: hold one cycle when waitrequest is not set.
-        if ibus.addr_size > 0:
-            addr = module.new_HDLSignal(
-                'addr_int', root.c_addr_bits, lo_idx=root.c_addr_word_bits)
-        dati = module.new_HDLSignal('dati_int', root.c_word_bits)
-        proc = HDLSync(root.h_bus['clk'], root.h_bus['brst'],
-                       rst_sync=gconfig.rst_sync)
-        proc.rst_stmts.append(HDLAssign(ibus.rd_req, bit_0))
-        proc.rst_stmts.append(HDLAssign(ibus.wr_req, bit_0))
-        if ibus.addr_size > 0:
-            if_stmt = HDLIfElse(
-                HDLEq(HDLAnd(HDLParen(HDLOr(root.h_bus['rd'], root.h_bus['wr'])),
-                             HDLNot(wait)), bit_1))
-            if_stmt.then_stmts.append(HDLAssign(addr, root.h_bus['adr']))
-            proc.sync_stmts.append(if_stmt)
-        if_stmt = HDLIfElse(HDLEq(HDLAnd(root.h_bus['wr'], HDLNot(wait)), bit_1))
-        if_stmt.then_stmts.append(HDLAssign(dati, root.h_bus['dati']))
-        proc.sync_stmts.append(if_stmt)
-        proc.sync_stmts.append(HDLAssign(ibus.rd_req, HDLAnd(root.h_bus['rd'], HDLNot(wait))))
-        proc.sync_stmts.append(HDLAssign(ibus.wr_req, HDLAnd(root.h_bus['wr'], HDLNot(wait))))
+        # Translate Byte-wise write mask of Avalon bus to bit-wise write mask
+        sel = module.new_HDLSignal('sel_int', root.c_word_bits)
+        proc = HDLComb()
+        proc.sensitivity.extend([root.h_bus['be']])
+        for idx in range(root.c_word_bits // tree.BYTE_SIZE):
+            proc.stmts.append(
+                HDLAssign(
+                    HDLSlice(sel, idx * tree.BYTE_SIZE, tree.BYTE_SIZE),
+                    HDLReplicate(
+                        HDLSlice(root.h_bus['be'], idx, None),
+                        tree.BYTE_SIZE,
+                        True,
+                    ),
+                )
+            )
         module.stmts.append(proc)
 
+        proc = HDLSync(root.h_bus['clk'], root.h_bus['brst'], rst_sync=gconfig.rst_sync)
+        proc.rst_stmts.append(HDLAssign(ibus.rd_req, bit_0))
+        proc.rst_stmts.append(HDLAssign(ibus.wr_req, bit_0))
+
         if ibus.addr_size > 0:
+            addr = module.new_HDLSignal(
+                'adr', root.c_addr_bits, lo_idx=root.c_addr_word_bits
+            )
+
+            # address: saved on 'read' or 'write' when wait request is not set.
+            if_stmt = HDLIfElse(
+                HDLEq(
+                    HDLAnd(
+                        HDLParen(HDLOr(root.h_bus['rd'], root.h_bus['wr'])),
+                        HDLNot(wait),
+                    ),
+                    bit_1,
+                )
+            )
+            if_stmt.then_stmts.append(HDLAssign(addr, root.h_bus['adr']))
+            proc.sync_stmts.append(if_stmt)
+
             ibus.rd_adr = addr
             ibus.wr_adr = addr
-        ibus.wr_dat = dati
+
+        # write mask, write data: saved on 'write' when wait request is not set.
+        if_stmt = HDLIfElse(HDLEq(HDLAnd(root.h_bus['wr'], HDLNot(wait)), bit_1))
+        if_stmt.then_stmts.append(HDLAssign(ibus.wr_sel, sel))
+        if_stmt.then_stmts.append(HDLAssign(ibus.wr_dat, root.h_bus['dati']))
+        proc.sync_stmts.append(if_stmt)
+
+        # read request, write request: hold one cycle when wait request is not set.
+        proc.sync_stmts.append(
+            HDLAssign(ibus.rd_req, HDLAnd(root.h_bus['rd'], HDLNot(wait)))
+        )
+        proc.sync_stmts.append(
+            HDLAssign(ibus.wr_req, HDLAnd(root.h_bus['wr'], HDLNot(wait)))
+        )
+
+        module.stmts.append(proc)
 
         module.stmts.append(HDLAssign(root.h_bus['rack'], ibus.rd_ack))
         module.stmts.append(HDLAssign(root.h_bus['wait'], wait))
@@ -262,7 +293,40 @@ class AvalonBus(BusGen):
             else:
                 stmts.append(HDLAssign(n.h_bus['adr'],
                                        self.slice_addr(ibus.rd_adr, root, n)))
-        stmts.append(HDLAssign(n.h_bus['be'], ibus.wr_sel or HDLReplicate(bit_1, 4)))
+
+        if ibus.wr_sel is not None:
+            # Translate bit-wise write mask of ibus to Byte-wise write mask of Avalon bus
+            proc = HDLComb()
+            proc.sensitivity.extend([ibus.wr_sel])
+            proc.stmts.append(
+                HDLAssign(
+                    n.h_bus['be'],
+                    HDLReplicate(bit_0, root.c_word_bits // tree.BYTE_SIZE),
+                )
+            )
+            for idx in range(root.c_word_bits // tree.BYTE_SIZE):
+                if_stmt = HDLIfElse(
+                HDLNot(
+                    HDLEq(
+                        HDLSlice(ibus.wr_sel, idx * tree.BYTE_SIZE, tree.BYTE_SIZE),
+                        HDLReplicate(bit_0, tree.BYTE_SIZE, False),
+                        )
+                    )
+                )
+                if_stmt.then_stmts.append(
+                    HDLAssign(HDLSlice(n.h_bus['be'], idx, None), bit_1)
+                )
+                if_stmt.else_stmts = None
+                proc.stmts.append(if_stmt)
+            module.stmts.append(proc)
+        else:
+            stmts.append(
+                HDLAssign(
+                    n.h_bus['be'],
+                    HDLReplicate(bit_1, root.c_word_bits // tree.BYTE_SIZE),
+                )
+            )
+
         stmts.append(HDLAssign(n.h_bus['wr'], n.h_wr))
         stmts.append(HDLAssign(n.h_bus['rd'], n.h_rr))
         stmts.append(HDLAssign(n.h_bus['dati'], ibus.wr_dat))

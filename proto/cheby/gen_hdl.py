@@ -14,12 +14,22 @@
    The _i/_o suffixes are also used for ports, so the ports of the bus can
    also have conflicts with user names.
 """
-from cheby.hdltree import (HDLModule,
-                           HDLAssign, HDLComb, HDLComment, HDLConstant,
-                           HDLSwitch, HDLChoiceExpr, HDLChoiceDefault,
-                           bit_x,
-                           HDLSlice, HDLReplicate,
-                           HDLConst, HDLNumber)
+from cheby.hdltree import (
+    HDLModule,
+    HDLAssign,
+    HDLComb,
+    HDLComment,
+    HDLConstant,
+    HDLSwitch,
+    HDLChoiceExpr,
+    HDLChoiceDefault,
+    bit_x,
+    HDLSlice,
+    HDLReplicate,
+    HDLConst,
+    HDLNumber,
+    HDLPort,
+)
 import cheby.tree as tree
 import cheby.hdlutils as hdlutils
 import cheby.hdlopt as hdlopt
@@ -173,10 +183,15 @@ def add_read_mux_process(root, module, ibus):
             s.append(HDLComment("{} {}".format(n.NAME, n.c_name)))
             n.h_gen.gen_read(s, off, ibus, rdproc)
         else:
-            # By default, acknowledge request to unknown address but return
-            # error
-            s.append(HDLAssign(ibus.rd_ack, ibus.rd_req))
-            s.append(HDLAssign(ibus.rd_err, ibus.rd_req))
+            # By default, acknowledge request to unknown address but return error:
+            # Use delayed request signal if available
+            if ibus.rd_req_del:
+                rd_req = ibus.rd_req_del
+            else:
+                rd_req = ibus.rd_req
+
+            s.append(HDLAssign(ibus.rd_ack, rd_req))
+            s.append(HDLAssign(ibus.rd_err, rd_req))
 
     stmts = []
     add_decoder(root, stmts, rd_adr, root, add_read)
@@ -199,10 +214,15 @@ def add_write_mux_process(root, module, ibus):
             s.append(HDLComment("{} {}".format(n.NAME, n.c_name)))
             n.h_gen.gen_write(s, off, ibus, wrproc)
         else:
-            # By default, acknowledge request to unknown address but return
-            # error
-            s.append(HDLAssign(ibus.wr_ack, ibus.wr_req))
-            s.append(HDLAssign(ibus.wr_err, ibus.wr_req))
+            # By default, acknowledge request to unknown address but return error
+            # Use delayed request signal if available
+            if ibus.wr_req_del:
+                wr_req = ibus.wr_req_del
+            else:
+                wr_req = ibus.wr_req
+
+            s.append(HDLAssign(ibus.wr_ack, wr_req))
+            s.append(HDLAssign(ibus.wr_err, wr_req))
 
     stmts = []
     add_decoder(root, stmts, wr_adr, root, add_write)
@@ -214,6 +234,12 @@ def gen_hdl_header(root, ibus=None):
     # Note: also called from gen_gena_regctrl but without ibus.
     module = HDLModule()
     module.name = root.hdl_module_name
+
+    # Create additional ports
+    if hasattr(root, "hdl_lock_port") and root.hdl_lock_port:
+        lock_port = HDLPort(name=root.hdl_lock_port, size=None, dir='IN')
+        module.ports.append(lock_port)
+        root.h_lock_port = lock_port
 
     # Create the bus
     root.h_busgen = name_to_busgen(root.bus)

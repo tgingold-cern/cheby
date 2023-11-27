@@ -105,17 +105,27 @@ def print_regdescr_reg(_periph, pfx, raw, num):
         res += '</tr>\n'
     res += '</table>\n'
 
-    res += '<ul>\n'
+    res += '<dl>\n'
     for f in r.children:
-        res += '<li><b>\n'
-        res += f.name or r.name
-        res += '\n</b>[<i>{}</i>]: {}\n'.format(
-            r.access, f.description or r.description or '')
+        name = f.name or r.name
+        access = r.access
+
+        desc = f.description or r.description or ''
         if f.comment is not None:
-            res += '<br>'
-            res += f.comment.replace('\n', '<br>')
-            res += '\n'
-    res += '</ul>\n'
+            comment = f.comment
+            if desc:
+                desc += '\n\n' + comment
+            else:
+                desc = comment
+        desc = desc.replace('\n', '<br>')
+
+        res += '  <dt><b>{name}</b> [<i>{access}</i>]</dt>\n'.format(
+            name=name, access=access
+        )
+        res += '  <dd>{desc}</dd>\n'.format(desc=desc)
+
+    res += '</dl>\n'
+
     return res
 
 

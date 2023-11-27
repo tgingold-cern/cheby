@@ -1,0 +1,772 @@
+<HTML>
+<HEAD>
+<TITLE>wb_ram_io_group_regs</TITLE>
+<STYLE TYPE="text/css" MEDIA="all">
+<!--
+  BODY { background: white; color: black;
+         font-family: Arial,Helvetica; font-size:12; }
+  h1 { font-family: Trebuchet MS,Arial,Helvetica; font-size:30;
+       color:#404040; }
+  h2 { font-family: Trebuchet MS,Arial,Helvetica; font-size:22;
+       color:#404040; }
+  h3 { font-family: Trebuchet MS,Arial,Helvetica; font-size:16;
+       color:#404040; }
+  .td_arrow_left { padding:0px; background: #ffffff; text-align: right;
+                   font-size:12; }
+  .td_arrow_right { padding:0px; background: #ffffff; text-align: left;
+                    font-size:12; }
+  .td_code { font-family:Courier New,Courier; padding: 3px; }
+  .td_desc { padding: 3px; }
+  .td_sym_center { background: #e0e0f0; padding: 3px; }
+  .td_port_name { font-family:Courier New,Courier; background: #e0e0f0;
+                  text-align: right; font-weight:bold;
+                  padding: 3px; width:200px; }
+  .td_pblock_left { font-family:Courier New,Courier; background: #e0e0f0;
+                    padding: 0px; text-align: left; }
+  .td_pblock_right { font-family:Courier New,Courier;
+                     background: #e0e0f0;
+                     padding: 0px; text-align: right; }
+  .td_bit { background: #ffffff; color:#404040;
+            font-size:10; width: 70px;
+            font-family:Courier New,Courier; padding: 3px;
+            text-align:center; }
+  .td_field { background: #e0e0f0; padding: 3px; text-align:center;
+              border: solid 1px black; }
+  .td_unused { background: #a0a0a0; padding: 3px; text-align:center;  }
+  th { font-weight:bold; color:#ffffff; background: #202080;
+       padding:3px; }
+  .tr_even { background: #f0eff0; }
+  .tr_odd { background: #e0e0f0; }
+-->
+</STYLE>
+</HEAD>
+<BODY>
+<h1 class="heading">wb_ram_io_group_regs</h1>
+<h3>RAMs in an IO Group</h3>
+<h3>1. Memory map summary</h3>
+<table cellpadding=2 cellspacing=0 border=0>
+<tr>
+<th>HW address</th>
+<th>Type</th>
+<th>Name</th>
+<th>HDL prefix</th>
+<th>C prefix</th>
+</tr>
+<tr class="tr_odd">
+<td class="td_code">0x0000-0x7fff</td>
+<td>BLOCK</td>
+<td><A href="#rams">rams</a></td>
+<td class="td_code">rams</td>
+<td class="td_code">rams</td>
+</tr>
+<tr class="tr_even">
+<td class="td_code">0x0000-0x0fff</td>
+<td>BLOCK</td>
+<td><A href="#rams.0">rams.0</a></td>
+<td class="td_code">rams_0</td>
+<td class="td_code">rams.0</td>
+</tr>
+<tr class="tr_odd">
+<td class="td_code">0x0000-0x07ff</td>
+<td>MEMORY</td>
+<td><A href="#rams.0.ram_bank">rams.0.ram_bank</a></td>
+<td class="td_code">rams_0_ram_bank</td>
+<td class="td_code">rams.0.ram_bank</td>
+</tr>
+<tr class="tr_even">
+<td class="td_code"> +0x0000</td>
+<td>REG</td>
+<td><A href="#rams.0.ram_bank.data">rams.0.ram_bank.data</a></td>
+<td class="td_code">rams_0_ram_bank_data</td>
+<td class="td_code">rams.0.ram_bank.data</td>
+</tr>
+<tr class="tr_odd">
+<td class="td_code">0x1000-0x1fff</td>
+<td>BLOCK</td>
+<td><A href="#rams.1">rams.1</a></td>
+<td class="td_code">rams_1</td>
+<td class="td_code">rams.1</td>
+</tr>
+<tr class="tr_even">
+<td class="td_code">0x1000-0x17ff</td>
+<td>MEMORY</td>
+<td><A href="#rams.1.ram_bank">rams.1.ram_bank</a></td>
+<td class="td_code">rams_1_ram_bank</td>
+<td class="td_code">rams.1.ram_bank</td>
+</tr>
+<tr class="tr_odd">
+<td class="td_code"> +0x1000</td>
+<td>REG</td>
+<td><A href="#rams.1.ram_bank.data">rams.1.ram_bank.data</a></td>
+<td class="td_code">rams_1_ram_bank_data</td>
+<td class="td_code">rams.1.ram_bank.data</td>
+</tr>
+<tr class="tr_even">
+<td class="td_code">0x2000-0x2fff</td>
+<td>BLOCK</td>
+<td><A href="#rams.2">rams.2</a></td>
+<td class="td_code">rams_2</td>
+<td class="td_code">rams.2</td>
+</tr>
+<tr class="tr_odd">
+<td class="td_code">0x2000-0x27ff</td>
+<td>MEMORY</td>
+<td><A href="#rams.2.ram_bank">rams.2.ram_bank</a></td>
+<td class="td_code">rams_2_ram_bank</td>
+<td class="td_code">rams.2.ram_bank</td>
+</tr>
+<tr class="tr_even">
+<td class="td_code"> +0x2000</td>
+<td>REG</td>
+<td><A href="#rams.2.ram_bank.data">rams.2.ram_bank.data</a></td>
+<td class="td_code">rams_2_ram_bank_data</td>
+<td class="td_code">rams.2.ram_bank.data</td>
+</tr>
+<tr class="tr_odd">
+<td class="td_code">0x3000-0x3fff</td>
+<td>BLOCK</td>
+<td><A href="#rams.3">rams.3</a></td>
+<td class="td_code">rams_3</td>
+<td class="td_code">rams.3</td>
+</tr>
+<tr class="tr_even">
+<td class="td_code">0x3000-0x37ff</td>
+<td>MEMORY</td>
+<td><A href="#rams.3.ram_bank">rams.3.ram_bank</a></td>
+<td class="td_code">rams_3_ram_bank</td>
+<td class="td_code">rams.3.ram_bank</td>
+</tr>
+<tr class="tr_odd">
+<td class="td_code"> +0x3000</td>
+<td>REG</td>
+<td><A href="#rams.3.ram_bank.data">rams.3.ram_bank.data</a></td>
+<td class="td_code">rams_3_ram_bank_data</td>
+<td class="td_code">rams.3.ram_bank.data</td>
+</tr>
+<tr class="tr_even">
+<td class="td_code">0x4000-0x4fff</td>
+<td>BLOCK</td>
+<td><A href="#rams.4">rams.4</a></td>
+<td class="td_code">rams_4</td>
+<td class="td_code">rams.4</td>
+</tr>
+<tr class="tr_odd">
+<td class="td_code">0x4000-0x47ff</td>
+<td>MEMORY</td>
+<td><A href="#rams.4.ram_bank">rams.4.ram_bank</a></td>
+<td class="td_code">rams_4_ram_bank</td>
+<td class="td_code">rams.4.ram_bank</td>
+</tr>
+<tr class="tr_even">
+<td class="td_code"> +0x4000</td>
+<td>REG</td>
+<td><A href="#rams.4.ram_bank.data">rams.4.ram_bank.data</a></td>
+<td class="td_code">rams_4_ram_bank_data</td>
+<td class="td_code">rams.4.ram_bank.data</td>
+</tr>
+<tr class="tr_odd">
+<td class="td_code">0x5000-0x5fff</td>
+<td>BLOCK</td>
+<td><A href="#rams.5">rams.5</a></td>
+<td class="td_code">rams_5</td>
+<td class="td_code">rams.5</td>
+</tr>
+<tr class="tr_even">
+<td class="td_code">0x5000-0x57ff</td>
+<td>MEMORY</td>
+<td><A href="#rams.5.ram_bank">rams.5.ram_bank</a></td>
+<td class="td_code">rams_5_ram_bank</td>
+<td class="td_code">rams.5.ram_bank</td>
+</tr>
+<tr class="tr_odd">
+<td class="td_code"> +0x5000</td>
+<td>REG</td>
+<td><A href="#rams.5.ram_bank.data">rams.5.ram_bank.data</a></td>
+<td class="td_code">rams_5_ram_bank_data</td>
+<td class="td_code">rams.5.ram_bank.data</td>
+</tr>
+<tr class="tr_even">
+<td class="td_code">0x6000-0x6fff</td>
+<td>BLOCK</td>
+<td><A href="#rams.6">rams.6</a></td>
+<td class="td_code">rams_6</td>
+<td class="td_code">rams.6</td>
+</tr>
+<tr class="tr_odd">
+<td class="td_code">0x6000-0x67ff</td>
+<td>MEMORY</td>
+<td><A href="#rams.6.ram_bank">rams.6.ram_bank</a></td>
+<td class="td_code">rams_6_ram_bank</td>
+<td class="td_code">rams.6.ram_bank</td>
+</tr>
+<tr class="tr_even">
+<td class="td_code"> +0x6000</td>
+<td>REG</td>
+<td><A href="#rams.6.ram_bank.data">rams.6.ram_bank.data</a></td>
+<td class="td_code">rams_6_ram_bank_data</td>
+<td class="td_code">rams.6.ram_bank.data</td>
+</tr>
+<tr class="tr_odd">
+<td class="td_code">0x7000-0x7fff</td>
+<td>BLOCK</td>
+<td><A href="#rams.7">rams.7</a></td>
+<td class="td_code">rams_7</td>
+<td class="td_code">rams.7</td>
+</tr>
+<tr class="tr_even">
+<td class="td_code">0x7000-0x77ff</td>
+<td>MEMORY</td>
+<td><A href="#rams.7.ram_bank">rams.7.ram_bank</a></td>
+<td class="td_code">rams_7_ram_bank</td>
+<td class="td_code">rams.7.ram_bank</td>
+</tr>
+<tr class="tr_odd">
+<td class="td_code"> +0x7000</td>
+<td>REG</td>
+<td><A href="#rams.7.ram_bank.data">rams.7.ram_bank.data</a></td>
+<td class="td_code">rams_7_ram_bank_data</td>
+<td class="td_code">rams.7.ram_bank.data</td>
+</tr>
+</table>
+
+<h3><a name="sect_3_0">2. Register description</a></h3>
+<a name="rams.0.ram_bank.data"></a>
+<h3>2.1. rams.0.ram_bank.data</h3>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr><td><b>HW prefix:</b></td><td class="td_code">rams_0_ram_bank_data</td></tr>
+<tr><td><b>HW address:</b></td><td class="td_code">0x0</td></tr>
+<tr><td><b>C prefix:</b></td><td class="td_code">rams.0.ram_bank.data</td></tr>
+<tr><td><b>C block offset:</b></td><td class="td_code">0x0</td></tr>
+</table>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr>
+ <td class="td_bit" colspan="1">31</td>
+ <td class="td_bit" colspan="1">30</td>
+ <td class="td_bit" colspan="1">29</td>
+ <td class="td_bit" colspan="1">28</td>
+ <td class="td_bit" colspan="1">27</td>
+ <td class="td_bit" colspan="1">26</td>
+ <td class="td_bit" colspan="1">25</td>
+ <td class="td_bit" colspan="1">24</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">data[31:24]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">23</td>
+ <td class="td_bit" colspan="1">22</td>
+ <td class="td_bit" colspan="1">21</td>
+ <td class="td_bit" colspan="1">20</td>
+ <td class="td_bit" colspan="1">19</td>
+ <td class="td_bit" colspan="1">18</td>
+ <td class="td_bit" colspan="1">17</td>
+ <td class="td_bit" colspan="1">16</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">data[23:16]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">15</td>
+ <td class="td_bit" colspan="1">14</td>
+ <td class="td_bit" colspan="1">13</td>
+ <td class="td_bit" colspan="1">12</td>
+ <td class="td_bit" colspan="1">11</td>
+ <td class="td_bit" colspan="1">10</td>
+ <td class="td_bit" colspan="1">9</td>
+ <td class="td_bit" colspan="1">8</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">data[15:8]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">7</td>
+ <td class="td_bit" colspan="1">6</td>
+ <td class="td_bit" colspan="1">5</td>
+ <td class="td_bit" colspan="1">4</td>
+ <td class="td_bit" colspan="1">3</td>
+ <td class="td_bit" colspan="1">2</td>
+ <td class="td_bit" colspan="1">1</td>
+ <td class="td_bit" colspan="1">0</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">data[7:0]</td>
+</tr>
+</table>
+<ul>
+<li><b>
+data
+</b>[<i>rw</i>]: 
+</ul>
+<a name="rams.1.ram_bank.data"></a>
+<h3>2.2. rams.1.ram_bank.data</h3>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr><td><b>HW prefix:</b></td><td class="td_code">rams_1_ram_bank_data</td></tr>
+<tr><td><b>HW address:</b></td><td class="td_code">0x1000</td></tr>
+<tr><td><b>C prefix:</b></td><td class="td_code">rams.1.ram_bank.data</td></tr>
+<tr><td><b>C block offset:</b></td><td class="td_code">0x0</td></tr>
+</table>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr>
+ <td class="td_bit" colspan="1">31</td>
+ <td class="td_bit" colspan="1">30</td>
+ <td class="td_bit" colspan="1">29</td>
+ <td class="td_bit" colspan="1">28</td>
+ <td class="td_bit" colspan="1">27</td>
+ <td class="td_bit" colspan="1">26</td>
+ <td class="td_bit" colspan="1">25</td>
+ <td class="td_bit" colspan="1">24</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">data[31:24]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">23</td>
+ <td class="td_bit" colspan="1">22</td>
+ <td class="td_bit" colspan="1">21</td>
+ <td class="td_bit" colspan="1">20</td>
+ <td class="td_bit" colspan="1">19</td>
+ <td class="td_bit" colspan="1">18</td>
+ <td class="td_bit" colspan="1">17</td>
+ <td class="td_bit" colspan="1">16</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">data[23:16]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">15</td>
+ <td class="td_bit" colspan="1">14</td>
+ <td class="td_bit" colspan="1">13</td>
+ <td class="td_bit" colspan="1">12</td>
+ <td class="td_bit" colspan="1">11</td>
+ <td class="td_bit" colspan="1">10</td>
+ <td class="td_bit" colspan="1">9</td>
+ <td class="td_bit" colspan="1">8</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">data[15:8]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">7</td>
+ <td class="td_bit" colspan="1">6</td>
+ <td class="td_bit" colspan="1">5</td>
+ <td class="td_bit" colspan="1">4</td>
+ <td class="td_bit" colspan="1">3</td>
+ <td class="td_bit" colspan="1">2</td>
+ <td class="td_bit" colspan="1">1</td>
+ <td class="td_bit" colspan="1">0</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">data[7:0]</td>
+</tr>
+</table>
+<ul>
+<li><b>
+data
+</b>[<i>rw</i>]: 
+</ul>
+<a name="rams.2.ram_bank.data"></a>
+<h3>2.3. rams.2.ram_bank.data</h3>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr><td><b>HW prefix:</b></td><td class="td_code">rams_2_ram_bank_data</td></tr>
+<tr><td><b>HW address:</b></td><td class="td_code">0x2000</td></tr>
+<tr><td><b>C prefix:</b></td><td class="td_code">rams.2.ram_bank.data</td></tr>
+<tr><td><b>C block offset:</b></td><td class="td_code">0x0</td></tr>
+</table>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr>
+ <td class="td_bit" colspan="1">31</td>
+ <td class="td_bit" colspan="1">30</td>
+ <td class="td_bit" colspan="1">29</td>
+ <td class="td_bit" colspan="1">28</td>
+ <td class="td_bit" colspan="1">27</td>
+ <td class="td_bit" colspan="1">26</td>
+ <td class="td_bit" colspan="1">25</td>
+ <td class="td_bit" colspan="1">24</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">data[31:24]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">23</td>
+ <td class="td_bit" colspan="1">22</td>
+ <td class="td_bit" colspan="1">21</td>
+ <td class="td_bit" colspan="1">20</td>
+ <td class="td_bit" colspan="1">19</td>
+ <td class="td_bit" colspan="1">18</td>
+ <td class="td_bit" colspan="1">17</td>
+ <td class="td_bit" colspan="1">16</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">data[23:16]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">15</td>
+ <td class="td_bit" colspan="1">14</td>
+ <td class="td_bit" colspan="1">13</td>
+ <td class="td_bit" colspan="1">12</td>
+ <td class="td_bit" colspan="1">11</td>
+ <td class="td_bit" colspan="1">10</td>
+ <td class="td_bit" colspan="1">9</td>
+ <td class="td_bit" colspan="1">8</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">data[15:8]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">7</td>
+ <td class="td_bit" colspan="1">6</td>
+ <td class="td_bit" colspan="1">5</td>
+ <td class="td_bit" colspan="1">4</td>
+ <td class="td_bit" colspan="1">3</td>
+ <td class="td_bit" colspan="1">2</td>
+ <td class="td_bit" colspan="1">1</td>
+ <td class="td_bit" colspan="1">0</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">data[7:0]</td>
+</tr>
+</table>
+<ul>
+<li><b>
+data
+</b>[<i>rw</i>]: 
+</ul>
+<a name="rams.3.ram_bank.data"></a>
+<h3>2.4. rams.3.ram_bank.data</h3>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr><td><b>HW prefix:</b></td><td class="td_code">rams_3_ram_bank_data</td></tr>
+<tr><td><b>HW address:</b></td><td class="td_code">0x3000</td></tr>
+<tr><td><b>C prefix:</b></td><td class="td_code">rams.3.ram_bank.data</td></tr>
+<tr><td><b>C block offset:</b></td><td class="td_code">0x0</td></tr>
+</table>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr>
+ <td class="td_bit" colspan="1">31</td>
+ <td class="td_bit" colspan="1">30</td>
+ <td class="td_bit" colspan="1">29</td>
+ <td class="td_bit" colspan="1">28</td>
+ <td class="td_bit" colspan="1">27</td>
+ <td class="td_bit" colspan="1">26</td>
+ <td class="td_bit" colspan="1">25</td>
+ <td class="td_bit" colspan="1">24</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">data[31:24]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">23</td>
+ <td class="td_bit" colspan="1">22</td>
+ <td class="td_bit" colspan="1">21</td>
+ <td class="td_bit" colspan="1">20</td>
+ <td class="td_bit" colspan="1">19</td>
+ <td class="td_bit" colspan="1">18</td>
+ <td class="td_bit" colspan="1">17</td>
+ <td class="td_bit" colspan="1">16</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">data[23:16]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">15</td>
+ <td class="td_bit" colspan="1">14</td>
+ <td class="td_bit" colspan="1">13</td>
+ <td class="td_bit" colspan="1">12</td>
+ <td class="td_bit" colspan="1">11</td>
+ <td class="td_bit" colspan="1">10</td>
+ <td class="td_bit" colspan="1">9</td>
+ <td class="td_bit" colspan="1">8</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">data[15:8]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">7</td>
+ <td class="td_bit" colspan="1">6</td>
+ <td class="td_bit" colspan="1">5</td>
+ <td class="td_bit" colspan="1">4</td>
+ <td class="td_bit" colspan="1">3</td>
+ <td class="td_bit" colspan="1">2</td>
+ <td class="td_bit" colspan="1">1</td>
+ <td class="td_bit" colspan="1">0</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">data[7:0]</td>
+</tr>
+</table>
+<ul>
+<li><b>
+data
+</b>[<i>rw</i>]: 
+</ul>
+<a name="rams.4.ram_bank.data"></a>
+<h3>2.5. rams.4.ram_bank.data</h3>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr><td><b>HW prefix:</b></td><td class="td_code">rams_4_ram_bank_data</td></tr>
+<tr><td><b>HW address:</b></td><td class="td_code">0x4000</td></tr>
+<tr><td><b>C prefix:</b></td><td class="td_code">rams.4.ram_bank.data</td></tr>
+<tr><td><b>C block offset:</b></td><td class="td_code">0x0</td></tr>
+</table>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr>
+ <td class="td_bit" colspan="1">31</td>
+ <td class="td_bit" colspan="1">30</td>
+ <td class="td_bit" colspan="1">29</td>
+ <td class="td_bit" colspan="1">28</td>
+ <td class="td_bit" colspan="1">27</td>
+ <td class="td_bit" colspan="1">26</td>
+ <td class="td_bit" colspan="1">25</td>
+ <td class="td_bit" colspan="1">24</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">data[31:24]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">23</td>
+ <td class="td_bit" colspan="1">22</td>
+ <td class="td_bit" colspan="1">21</td>
+ <td class="td_bit" colspan="1">20</td>
+ <td class="td_bit" colspan="1">19</td>
+ <td class="td_bit" colspan="1">18</td>
+ <td class="td_bit" colspan="1">17</td>
+ <td class="td_bit" colspan="1">16</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">data[23:16]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">15</td>
+ <td class="td_bit" colspan="1">14</td>
+ <td class="td_bit" colspan="1">13</td>
+ <td class="td_bit" colspan="1">12</td>
+ <td class="td_bit" colspan="1">11</td>
+ <td class="td_bit" colspan="1">10</td>
+ <td class="td_bit" colspan="1">9</td>
+ <td class="td_bit" colspan="1">8</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">data[15:8]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">7</td>
+ <td class="td_bit" colspan="1">6</td>
+ <td class="td_bit" colspan="1">5</td>
+ <td class="td_bit" colspan="1">4</td>
+ <td class="td_bit" colspan="1">3</td>
+ <td class="td_bit" colspan="1">2</td>
+ <td class="td_bit" colspan="1">1</td>
+ <td class="td_bit" colspan="1">0</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">data[7:0]</td>
+</tr>
+</table>
+<ul>
+<li><b>
+data
+</b>[<i>rw</i>]: 
+</ul>
+<a name="rams.5.ram_bank.data"></a>
+<h3>2.6. rams.5.ram_bank.data</h3>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr><td><b>HW prefix:</b></td><td class="td_code">rams_5_ram_bank_data</td></tr>
+<tr><td><b>HW address:</b></td><td class="td_code">0x5000</td></tr>
+<tr><td><b>C prefix:</b></td><td class="td_code">rams.5.ram_bank.data</td></tr>
+<tr><td><b>C block offset:</b></td><td class="td_code">0x0</td></tr>
+</table>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr>
+ <td class="td_bit" colspan="1">31</td>
+ <td class="td_bit" colspan="1">30</td>
+ <td class="td_bit" colspan="1">29</td>
+ <td class="td_bit" colspan="1">28</td>
+ <td class="td_bit" colspan="1">27</td>
+ <td class="td_bit" colspan="1">26</td>
+ <td class="td_bit" colspan="1">25</td>
+ <td class="td_bit" colspan="1">24</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">data[31:24]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">23</td>
+ <td class="td_bit" colspan="1">22</td>
+ <td class="td_bit" colspan="1">21</td>
+ <td class="td_bit" colspan="1">20</td>
+ <td class="td_bit" colspan="1">19</td>
+ <td class="td_bit" colspan="1">18</td>
+ <td class="td_bit" colspan="1">17</td>
+ <td class="td_bit" colspan="1">16</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">data[23:16]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">15</td>
+ <td class="td_bit" colspan="1">14</td>
+ <td class="td_bit" colspan="1">13</td>
+ <td class="td_bit" colspan="1">12</td>
+ <td class="td_bit" colspan="1">11</td>
+ <td class="td_bit" colspan="1">10</td>
+ <td class="td_bit" colspan="1">9</td>
+ <td class="td_bit" colspan="1">8</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">data[15:8]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">7</td>
+ <td class="td_bit" colspan="1">6</td>
+ <td class="td_bit" colspan="1">5</td>
+ <td class="td_bit" colspan="1">4</td>
+ <td class="td_bit" colspan="1">3</td>
+ <td class="td_bit" colspan="1">2</td>
+ <td class="td_bit" colspan="1">1</td>
+ <td class="td_bit" colspan="1">0</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">data[7:0]</td>
+</tr>
+</table>
+<ul>
+<li><b>
+data
+</b>[<i>rw</i>]: 
+</ul>
+<a name="rams.6.ram_bank.data"></a>
+<h3>2.7. rams.6.ram_bank.data</h3>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr><td><b>HW prefix:</b></td><td class="td_code">rams_6_ram_bank_data</td></tr>
+<tr><td><b>HW address:</b></td><td class="td_code">0x6000</td></tr>
+<tr><td><b>C prefix:</b></td><td class="td_code">rams.6.ram_bank.data</td></tr>
+<tr><td><b>C block offset:</b></td><td class="td_code">0x0</td></tr>
+</table>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr>
+ <td class="td_bit" colspan="1">31</td>
+ <td class="td_bit" colspan="1">30</td>
+ <td class="td_bit" colspan="1">29</td>
+ <td class="td_bit" colspan="1">28</td>
+ <td class="td_bit" colspan="1">27</td>
+ <td class="td_bit" colspan="1">26</td>
+ <td class="td_bit" colspan="1">25</td>
+ <td class="td_bit" colspan="1">24</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">data[31:24]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">23</td>
+ <td class="td_bit" colspan="1">22</td>
+ <td class="td_bit" colspan="1">21</td>
+ <td class="td_bit" colspan="1">20</td>
+ <td class="td_bit" colspan="1">19</td>
+ <td class="td_bit" colspan="1">18</td>
+ <td class="td_bit" colspan="1">17</td>
+ <td class="td_bit" colspan="1">16</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">data[23:16]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">15</td>
+ <td class="td_bit" colspan="1">14</td>
+ <td class="td_bit" colspan="1">13</td>
+ <td class="td_bit" colspan="1">12</td>
+ <td class="td_bit" colspan="1">11</td>
+ <td class="td_bit" colspan="1">10</td>
+ <td class="td_bit" colspan="1">9</td>
+ <td class="td_bit" colspan="1">8</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">data[15:8]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">7</td>
+ <td class="td_bit" colspan="1">6</td>
+ <td class="td_bit" colspan="1">5</td>
+ <td class="td_bit" colspan="1">4</td>
+ <td class="td_bit" colspan="1">3</td>
+ <td class="td_bit" colspan="1">2</td>
+ <td class="td_bit" colspan="1">1</td>
+ <td class="td_bit" colspan="1">0</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">data[7:0]</td>
+</tr>
+</table>
+<ul>
+<li><b>
+data
+</b>[<i>rw</i>]: 
+</ul>
+<a name="rams.7.ram_bank.data"></a>
+<h3>2.8. rams.7.ram_bank.data</h3>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr><td><b>HW prefix:</b></td><td class="td_code">rams_7_ram_bank_data</td></tr>
+<tr><td><b>HW address:</b></td><td class="td_code">0x7000</td></tr>
+<tr><td><b>C prefix:</b></td><td class="td_code">rams.7.ram_bank.data</td></tr>
+<tr><td><b>C block offset:</b></td><td class="td_code">0x0</td></tr>
+</table>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr>
+ <td class="td_bit" colspan="1">31</td>
+ <td class="td_bit" colspan="1">30</td>
+ <td class="td_bit" colspan="1">29</td>
+ <td class="td_bit" colspan="1">28</td>
+ <td class="td_bit" colspan="1">27</td>
+ <td class="td_bit" colspan="1">26</td>
+ <td class="td_bit" colspan="1">25</td>
+ <td class="td_bit" colspan="1">24</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">data[31:24]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">23</td>
+ <td class="td_bit" colspan="1">22</td>
+ <td class="td_bit" colspan="1">21</td>
+ <td class="td_bit" colspan="1">20</td>
+ <td class="td_bit" colspan="1">19</td>
+ <td class="td_bit" colspan="1">18</td>
+ <td class="td_bit" colspan="1">17</td>
+ <td class="td_bit" colspan="1">16</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">data[23:16]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">15</td>
+ <td class="td_bit" colspan="1">14</td>
+ <td class="td_bit" colspan="1">13</td>
+ <td class="td_bit" colspan="1">12</td>
+ <td class="td_bit" colspan="1">11</td>
+ <td class="td_bit" colspan="1">10</td>
+ <td class="td_bit" colspan="1">9</td>
+ <td class="td_bit" colspan="1">8</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">data[15:8]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">7</td>
+ <td class="td_bit" colspan="1">6</td>
+ <td class="td_bit" colspan="1">5</td>
+ <td class="td_bit" colspan="1">4</td>
+ <td class="td_bit" colspan="1">3</td>
+ <td class="td_bit" colspan="1">2</td>
+ <td class="td_bit" colspan="1">1</td>
+ <td class="td_bit" colspan="1">0</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">data[7:0]</td>
+</tr>
+</table>
+<ul>
+<li><b>
+data
+</b>[<i>rw</i>]: 
+</ul>
+
+
+</BODY>
+</HTML>

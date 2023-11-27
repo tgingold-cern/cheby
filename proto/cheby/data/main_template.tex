@@ -18,12 +18,15 @@
 \usepackage[colorlinks=true,linkcolor=blue]{hyperref}
 \usepackage{xcolor}
 
+% Remove table caption for longtblr tables
+\DefTblrTemplate{firsthead, middlehead, lasthead}{default}{}
+
 % Memory Map
 \newenvironment{memmap}{
-  \vspace{5mm}
   \centering
   \begin{longtblr}{
     width    = \textwidth,
+    rowhead  = {1},
     hline{1} = {1pt},
     hline{2} = {0.5pt},
     hline{Z} = {1pt},
@@ -47,7 +50,6 @@
 
 % Register Drawing
 \newenvironment{regdraw}{
-  \vspace{5mm}
   \begin{center}
   \begin{tblr}{
     width    = \textwidth,
@@ -63,18 +65,18 @@
 
 % Register Description
 \newenvironment{regdesc}{
-  \vspace{5mm}
   \centering
-  \begin{tblr}{
+  \begin{longtblr}{
     width    = \textwidth,
+    rowhead  = {1},
     hline{1} = {1pt},
     hline{2} = {0.5pt},
     hline{Z} = {1pt},
-    colspec  = {X[1] X[1] X[2] X[7]},
+    colspec  = {X[1] X[2] X[7]},
   }
-  Bits & R/W & Name & Description \\
+  Bits & Name & Description \\
 }{
-  \end{tblr}
+  \end{longtblr}
 }
 
 \begin{document}

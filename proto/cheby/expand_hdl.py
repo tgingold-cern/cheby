@@ -62,6 +62,7 @@ def expand_x_hdl_reg(n, dct):
 def init_x_hdl_field(f):
     "Set default values for x-hdl attributes of a field"
     f.hdl_port_name = None
+
     if f.parent.hdl_type is not None:
         f.hdl_type = f.parent.hdl_type
     elif f.parent.constant is not None:
@@ -71,14 +72,24 @@ def init_x_hdl_field(f):
     else:
         f.hdl_type = 'reg'
 
+    f.hdl_lock = None
+    f.hdl_lock_value = None
+
 
 def expand_x_hdl_field_type(n, v):
     """Decode and check attribute 'type' with value :arg v:
     :arg n: node for error"""
     res = parser.read_text(n, 'type', v)
-    if res not in ['wire', 'reg', 'const', 'autoclear', 'or-clr', 'or-clr-out']:
-        parser.error("incorrect value for 'type' in x-hdl of {}".format(
-            n.get_path()))
+    if res not in [
+        "reg",
+        "no-port",
+        "wire",
+        "const",
+        "autoclear",
+        "or-clr",
+        "or-clr-out",
+    ]:
+        parser.error("incorrect value for 'type' in x-hdl of {}".format(n.get_path()))
     return res
 
 
@@ -88,12 +99,23 @@ def expand_x_hdl_field_kv(f, n, k, v):
         f.hdl_type = expand_x_hdl_field_type(n, v)
     elif k == 'port-name':
         f.hdl_port_name = v
+    elif k == 'lock':
+        f.hdl_lock = parser.read_bool(n, k, v)
+    elif k == 'lock-value':
+        f.hdl_lock_value = parser.read_int(n, k, v)
     else:
         parser.error("unhandled '{}' in x-hdl of field {}".format(
             k, n.get_path()))
 
 def expand_x_hdl_field_validate(f):
     # Validate x-hdl attributes
+    if f.hdl_type == "no-port":
+        if f.parent.access != "rw":
+            parser.error(
+                "{}: 'no-port' x-hdl.type not allowed for '{}' access".format(
+                    f.get_path(), f.parent.access
+                )
+            )
     if f.hdl_type == 'const':
         if f.parent.access == 'wo':
             parser.error("{}: 'const' x-hdl.type not allowed for 'wo' access".format(
@@ -102,14 +124,37 @@ def expand_x_hdl_field_validate(f):
             # Check c_preset as preset may be set on the reg (when there is no field)
             parser.error("{}: 'const' x-hdl.type requires a 'preset' value".format(
                 f.get_path()))
+
     if f.hdl_type == 'autoclear':
         if f.parent.access == 'ro':
             parser.error("{}: 'autoclear' x-hdl.type not allowed for 'ro' access".format(
                 f.get_path()))
+
     if f.hdl_type == 'or-clr':
         if f.parent.access != 'rw':
             parser.error("{}: 'or-clr' x-hdl.type requires 'rw' access".format(
                 f.get_path()))
+
+    if (f.hdl_type and f.hdl_type != "reg") and f.hdl_lock:
+        parser.error(
+            "{}: '{}' x-hdl.type cannot be lockable".format(f.get_path(), f.hdl_type)
+        )
+    if (f.hdl_type and f.hdl_type not in ["reg", "wire"]) and f.hdl_lock_value:
+        parser.error(
+            "{}: '{}' x-hdl.type cannot have lock value".format(
+                f.get_path(), f.hdl_type
+            )
+        )
+    if f.hdl_lock and f.hdl_lock_value:
+        parser.error(
+            "{}: cannot have 'lock' and 'lock-value' simultaneously".format(
+                f.get_path()
+            )
+        )
+    if f.hdl_lock_value is not None and f.hdl_lock_value >= (1 << f.c_rwidth):
+        parser.error("{}: incorrect lock value '{}'".format(
+            f.get_path(), f.hdl_lock_value)
+        )
 
 
 def expand_x_hdl_field(f, n, dct):
@@ -180,6 +225,9 @@ def expand_x_hdl_root(n, dct):
     n.hdl_pipeline = None
     n.hdl_bus_attribute = None
     n.hdl_iogroup = None
+    n.hdl_wmask = False
+    n.hdl_lock_port = None
+
     for k, v in dct.items():
         if k in ['busgroup',
                  'reg_prefix', 'reg-prefix', 'block_prefix', 'block-prefix',
@@ -188,6 +236,8 @@ def expand_x_hdl_root(n, dct):
             pass
         elif k == 'iogroup':
             n.hdl_iogroup = parser.read_text(n, k, v)
+        elif k == 'wmask':
+            n.hdl_wmask = parser.read_bool(n, k, v)
         elif k == 'bus-attribute':
             if v in ('Xilinx',):
                 n.hdl_bus_attribute = v
@@ -200,9 +250,12 @@ def expand_x_hdl_root(n, dct):
                     n.get_path()))
         elif k == 'pipeline':
             n.hdl_pipeline = expand_pipeline(n, v)
+        elif k == 'lock-port':
+            n.hdl_lock_port = parser.read_text(n, k, v)
         else:
             parser.error("unhandled '{}' in x-hdl of root {}".format(
                 k, n.get_path()))
+
     # Default pipeline
     if n.hdl_pipeline is None:
         if n.bus == 'avalon-lite-32':
@@ -211,9 +264,21 @@ def expand_x_hdl_root(n, dct):
         else:
             pl = ['wr-in', 'rd-out']
         n.hdl_pipeline = pl
+
     # Set name of the module.
     suffix = dct.get('name-suffix', '')
     n.hdl_module_name = n.name + suffix
+
+    expand_x_hdl_root_validate(n)
+
+
+def expand_x_hdl_root_validate(r):
+    # Validate x-hdl attributes
+    if r.hdl_wmask and not any(
+        r.bus.startswith(bus) for bus in ["apb-", "avalon-lite-", "axi4-lite-", "wb-"]
+    ):
+        parser.error("Bus '{}' does not support the write mask feature".format(r.bus))
+
 
 
 def expand_x_hdl_submap(n, dct):

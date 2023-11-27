@@ -36,6 +36,7 @@ entity s4 is
 end s4;
 
 architecture syn of s4 is
+  signal wr_sel                         : std_logic_vector(31 downto 0);
   signal rd_req_int                     : std_logic;
   signal wr_req_int                     : std_logic;
   signal rd_ack_int                     : std_logic;
@@ -59,10 +60,16 @@ architecture syn of s4 is
   signal wr_req_d0                      : std_logic;
   signal wr_adr_d0                      : std_logic_vector(2 downto 2);
   signal wr_dat_d0                      : std_logic_vector(31 downto 0);
-  signal wr_sel_d0                      : std_logic_vector(3 downto 0);
+  signal wr_sel_d0                      : std_logic_vector(31 downto 0);
 begin
 
   -- WB decode signals
+  process (wb_sel_i) begin
+    wr_sel(7 downto 0) <= (others => wb_sel_i(0));
+    wr_sel(15 downto 8) <= (others => wb_sel_i(1));
+    wr_sel(23 downto 16) <= (others => wb_sel_i(2));
+    wr_sel(31 downto 24) <= (others => wb_sel_i(3));
+  end process;
   wb_en <= wb_cyc_i and wb_stb_i;
 
   process (clk_i) begin
@@ -98,14 +105,18 @@ begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         rd_ack_int <= '0';
+        wb_dat_o <= "00000000000000000000000000000000";
         wr_req_d0 <= '0';
+        wr_adr_d0 <= "0";
+        wr_dat_d0 <= "00000000000000000000000000000000";
+        wr_sel_d0 <= "00000000000000000000000000000000";
       else
         rd_ack_int <= rd_ack_d0;
         wb_dat_o <= rd_dat_d0;
         wr_req_d0 <= wr_req_int;
         wr_adr_d0 <= wb_adr_i;
         wr_dat_d0 <= wb_dat_i;
-        wr_sel_d0 <= wb_sel_i;
+        wr_sel_d0 <= wr_sel;
       end if;
     end if;
   end process;
@@ -143,7 +154,21 @@ begin
   sub_stb_o <= sub_tr;
   sub_wack <= sub_ack_i and sub_wt;
   sub_rack <= sub_ack_i and sub_rt;
-  sub_sel_o <= wr_sel_d0;
+  process (wr_sel_d0) begin
+    sub_sel_o <= (others => '0');
+    if not (wr_sel_d0(7 downto 0) = (7 downto 0 => '0')) then
+      sub_sel_o(0) <= '1';
+    end if;
+    if not (wr_sel_d0(15 downto 8) = (7 downto 0 => '0')) then
+      sub_sel_o(1) <= '1';
+    end if;
+    if not (wr_sel_d0(23 downto 16) = (7 downto 0 => '0')) then
+      sub_sel_o(2) <= '1';
+    end if;
+    if not (wr_sel_d0(31 downto 24) = (7 downto 0 => '0')) then
+      sub_sel_o(3) <= '1';
+    end if;
+  end process;
   sub_we_o <= sub_wt;
   sub_dat_o <= wr_dat_d0;
 

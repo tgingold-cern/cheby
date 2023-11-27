@@ -136,12 +136,45 @@ class GenMemory(ElGen):
             # Use byte select on port A if available.
             bwsel = HDLReplicate(bit_1, wd // tree.BYTE_SIZE)
             if ibus.wr_sel is not None:
+                # Translate bit-wise write mask of internal bus to Byte-wise write mask
+                # of memory
+                mem_name = mem.c_name + '_' + str(i) if multiword else mem.c_name
+                bwselw_int = self.module.new_HDLSignal(
+                    mem_name + "_sel_int", self.root.c_word_bits // tree.BYTE_SIZE
+                )
+
+                proc = HDLComb()
+                proc.sensitivity.extend([ibus.wr_sel])
+                proc.stmts.append(
+                    HDLAssign(
+                        bwselw_int,
+                        HDLReplicate(bit_0, self.root.c_word_bits // tree.BYTE_SIZE),
+                    )
+                )
+                for idx in range(self.root.c_word_bits // tree.BYTE_SIZE):
+                    proc_if = HDLIfElse(
+                        HDLNot(
+                            HDLEq(
+                                HDLSlice(
+                                    ibus.wr_sel, idx * tree.BYTE_SIZE, tree.BYTE_SIZE
+                                ),
+                                HDLReplicate(bit_0, tree.BYTE_SIZE, False),
+                            )
+                        )
+                    )
+                    proc_if.then_stmts.append(
+                        HDLAssign(HDLSlice(bwselw_int, idx, None), bit_1)
+                    )
+                    proc_if.else_stmts = None
+                    proc.stmts.append(proc_if)
+                self.module.stmts.append(proc)
+
                 # May need to use a slice of bit selects if the RAM width is
                 # smaller than the bus width
                 if wd < self.root.c_word_bits:
-                    bwselw = HDLSlice(ibus.wr_sel, 0, wd // tree.BYTE_SIZE)
+                    bwselw = HDLSlice(bwselw_int, 0, wd // tree.BYTE_SIZE)
                 else:
-                    bwselw = ibus.wr_sel
+                    bwselw = bwselw_int
             else:
                 bwselw = bwsel
 
