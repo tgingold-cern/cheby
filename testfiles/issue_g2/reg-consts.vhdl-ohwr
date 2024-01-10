@@ -1,0 +1,12 @@
+library ieee;
+use ieee.std_logic_1164.all;
+
+package header_block_consts_pkg is
+  constant c_HEADER_BLOCK_SIZE : Natural := 8;
+  constant c_HEADER_BLOCK_REG_000_DRAWING_NUMBER_ADDR : Natural := 16#0#;
+  constant c_HEADER_BLOCK_REG_000_DRAWING_NUMBER_PRESET : std_logic_vector(32-1 downto 0) := x"08000101";
+  constant c_HEADER_BLOCK_REG_001_VERSION_REVISION_ADDR : Natural := 16#4#;
+  constant c_HEADER_BLOCK_REG_001_VERSION_REVISION_VERSION_OFFSET : Natural := 0;
+  constant c_HEADER_BLOCK_REG_001_VERSION_REVISION_REVISION_OFFSET : Natural := 4;
+  constant c_HEADER_BLOCK_REG_001_VERSION_REVISION_BUILD_DATE_OFFSET : Natural := 12;
+end package header_block_consts_pkg;
