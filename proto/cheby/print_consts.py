@@ -24,7 +24,7 @@ class ConstsPrinter(object):
         "Unsized hex constant"
         pass
 
-    def pr_hex_data(self, name, val, reg):
+    def pr_hex_data(self, name, val, width):
         "Hex constant using the width of the data"
         self.pr_hex_const(name, val)
 
@@ -63,7 +63,7 @@ class ConstsPrinter(object):
             return
         f = n.children[0]
         if f.c_preset is not None:
-            self.pr_hex_data(self.pr_name(n) + '_PRESET', f.c_preset, n)
+            self.pr_preset(self.pr_name(n), f.c_preset, n.width)
 
     def pr_field_offset(self, f):
         self.pr_dec_const(self.pr_name(f) + "_OFFSET", f.lo)
@@ -76,11 +76,18 @@ class ConstsPrinter(object):
         return mask << f.lo
 
     def pr_field_mask(self, f):
-        self.pr_hex_data(self.pr_name(f), self.compute_mask(f), f._parent)
+        self.pr_hex_data(self.pr_name(f), self.compute_mask(f), f._parent.width)
 
     def pr_field(self, f):
         self.pr_field_offset(f)
         self.pr_field_mask(f)
+
+        if f.c_preset is not None:
+            self.pr_preset(self.pr_name(f), f.c_preset, f.c_rwidth)
+
+    def pr_preset(self, name, preset, width):
+        name = name + '_PRESET'
+        self.pr_hex_data(name, preset, width)
 
     def pr_enum(self, name, val, wd):
         self.pr_hex_const(name, val)
@@ -114,8 +121,8 @@ class ConstsPrinterSystemVerilog(ConstsPrinter):
     def pr_hex_const(self, name, val):
         self.pr_const(name, "'h{:x}".format(val))
 
-    def pr_hex_data(self, name, val, reg):
-        self.pr_const(name, "{}'h{:x}".format(reg.width, val))
+    def pr_hex_data(self, name, val, width):
+        self.pr_const(name, "{}'h{:x}".format(width, val))
 
     def pr_enum(self, name, val, wd):
         self.pr_const (name, "{}'h{:x}".format(wd, val))
@@ -146,11 +153,18 @@ class ConstsPrinterVHDL(ConstsPrinter):
     def pr_hex_const(self, name, val):
         self.pr_const(name, "16#{:x}#".format(val))
 
-    def pr_hex_data(self, name, val, reg):
-        hex_width = round(reg.width / 4)
-        assert(4*hex_width == reg.width)
-        hex_val = "{:x}".format(val).zfill(hex_width)
-        self.pr_const_width(name, "x\"{}\"".format(hex_val), reg.width)
+    def pr_bin_data(self, name, val, width):
+        bin_val = "{:b}".format(val).zfill(width)
+        self.pr_const_width(name, "\"{}\"".format(bin_val), width)
+
+    def pr_hex_data(self, name, val, width):
+        if width % 4 == 0:
+            hex_width = round(width / 4)
+            hex_val = "{:x}".format(val).zfill(hex_width)
+            self.pr_const_width(name, "x\"{}\"".format(hex_val), width)
+        else:
+            # Fall back to a binary constant for improved tool compatibility
+            self.pr_bin_data(name, val, width)
 
     def pr_field_mask(self, f):
         # Not printed as a mask may overflow a natural.
@@ -210,6 +224,9 @@ class ConstsPrinterC(ConstsPrinterH):
             # A multi-bit field
             self.pr_hex_const(self.pr_name(f) + '_MASK', self.compute_mask(f))
             self.pr_dec_const(self.pr_name(f) + "_SHIFT", f.lo)
+
+        if f.c_preset is not None:
+            self.pr_preset(self.pr_name(f), f.c_preset, f.c_rwidth)
 
 
 class ConstsPrinterPython(ConstsPrinter):

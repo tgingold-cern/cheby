@@ -7,6 +7,7 @@ package demo_all_Consts;
   localparam DEMO_ALL_REG0_FIELD01 = 32'hf0;
   localparam DEMO_ALL_REG0_FIELD02_OFFSET = 8;
   localparam DEMO_ALL_REG0_FIELD02 = 32'h700;
+  localparam DEMO_ALL_REG0_FIELD02_PRESET = 3'h2;
   localparam ADDR_DEMO_ALL_REG1 = 'h4;
   localparam DEMO_ALL_REG1_PRESET = 32'h123;
   localparam ADDR_DEMO_ALL_REG2 = 'h8;

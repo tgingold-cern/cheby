@@ -7,6 +7,7 @@ package demo_all_Consts is
   constant DEMO_ALL_REG0_FIELD00_OFFSET : Natural := 1;
   constant DEMO_ALL_REG0_FIELD01_OFFSET : Natural := 4;
   constant DEMO_ALL_REG0_FIELD02_OFFSET : Natural := 8;
+  constant DEMO_ALL_REG0_FIELD02_PRESET : std_logic_vector(3-1 downto 0) := "010";
   constant ADDR_DEMO_ALL_REG1 : Natural := 16#4#;
   constant DEMO_ALL_REG1_PRESET : std_logic_vector(32-1 downto 0) := x"00000123";
   constant ADDR_DEMO_ALL_REG2 : Natural := 16#8#;

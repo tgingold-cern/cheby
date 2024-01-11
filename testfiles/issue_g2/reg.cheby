@@ -1,0 +1,45 @@
+memory-map:
+  bus: axi4-lite-32
+  name: header_block
+  description: A Header Block
+  x-hdl:
+    reg-prefix: true
+  children:
+    # This preset exports to header fine
+    - reg:
+        name: reg_000_drawing_number
+        address: 0x000
+        description: Identifier for the Drawing Number
+        width: 32
+        access: ro
+        preset: 0x08000101
+        x-hdl:
+          type: const
+    # These field presets does not export to header
+    - reg:
+        name: reg_001_version_revision
+        address: 0x004
+        description: Version, Revision and Build Date
+        width: 32
+        access: ro
+        x-hdl:
+          type: const
+        children:
+          - field:
+              name: version
+              range: 3-0
+              preset: 1
+              x-hdl:
+                type: const
+          - field:
+              name: revision
+              range: 11-4
+              preset: 0
+              x-hdl:
+                type: const
+          - field:
+              name: build_date
+              range: 31-12
+              preset: 0x3840f
+              x-hdl:
+                type: const
