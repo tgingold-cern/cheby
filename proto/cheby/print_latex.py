@@ -23,9 +23,12 @@ def escape_printable(text):
         if idx % 2 == 0:
 
             # Escape special characters
-            SPECIAL_CHARS = ['\\', '&', '%', '#', '_', '{', '}', '~', '^']  # '$'
+            SPECIAL_CHARS = ['\\', '&', '%', '#', '_', '{', '}']
             for char in SPECIAL_CHARS:
                 text_part = text_part.replace(char, '\\' + char)
+
+            text_part.replace('~', '\\textasciitilde')
+            text_part.replace('^', '\\textasciicircum')
 
             # Allow line breaks after '_' and '.' in long strings
             ALLOW_BREAK_CHARS = ['.', '_']
