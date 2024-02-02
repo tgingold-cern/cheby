@@ -44,9 +44,12 @@ def clean_args(args, args_list, fmt_list):
 
 class CsvTable(object):
     def __init__(self, *titles):
-        self.titles = titles
+        self.titles = list(titles)
         self.widths = [len(t) for t in titles]
         self.rows = []
+        self.ljustlastcol = True
+        self.comment = ""
+        self.endnewline = True
 
     def append(self, **row):
         self.rows.append(dict(**row))
@@ -55,26 +58,39 @@ class CsvTable(object):
         return len(self.rows)
 
     def write(self, fd):
+        if self.comment != "":
+            fd.write(self.comment)
+            fd.write("\n")
+
         for r in self.rows:
             for i, title in enumerate(self.titles):
                 self.widths[i] = max(self.widths[i],
                                      len(str(r.get(title, ''))))
 
         for title, width in zip(self.titles, self.widths):
-            if title == self.titles[-1]:
+            lastcol = title == self.titles[-1]
+            if self.ljustlastcol and lastcol:
                 fd.write(" {val}".format(val=title))
             else:
-                fd.write(" {val:>{width}},".format(val=title, width=width))
+                fd.write(" {val:>{width}}".format(val=title, width=width))
+            if not lastcol:
+                fd.write(",")
         fd.write("\n")
 
         for r in self.rows:
             for title, width in zip(self.titles, self.widths):
+                lastcol = title == self.titles[-1]
                 val = r.get(title, '')
-                if title == self.titles[-1]:
+                if self.ljustlastcol and lastcol:
                     if val:
                         fd.write(" {val}".format(val=val))
                 else:
-                    fd.write(" {val:>{width}},".format(val=val, width=width))
+                    fd.write(" {val:>{width}}".format(val=val, width=width))
+                if not lastcol:
+                    fd.write(",")
+            fd.write("\n")
+
+        if self.endnewline:
             fd.write("\n")
 
     def write_if_needed(self, fd):
@@ -82,46 +98,49 @@ class CsvTable(object):
             self.write(fd)
 
 
+class DocInfoTable4(CsvTable):
+    def __init__(self):
+        super().__init__("drv_type", "edge_vers")
+        self.comment = "#Document Info table definition"
+        self.ljustlastcol = False
+
+
 class LifTable(CsvTable):
     def __init__(self):
         super().__init__("hw_mod_name", "hw_lif_name", "hw_lif_vers", "edge_vers",
                          "bus", "endian", "description")
+        self.comment = "#LIF (Logical Interface) table definition"
 
-    def write(self, fd):
-        fd.write("#LIF (Logical Interface) table definition\n")
-        super().write(fd)
-        fd.write("\n")
+
+class LifTable4(LifTable):
+    def __init__(self):
+        super().__init__()
+        self.titles.remove("edge_vers")
 
 
 class ResourceTable(CsvTable):
     def __init__(self):
         super().__init__("res_def_name", "type", "res_no", "args", "description")
+        self.comment = "#Resources (Memory(BARs) - DMA - IRQ) table definition"
 
-    def write(self, fd):
-        fd.write("#Resources (Memory(BARs) - DMA - IRQ) table definition\n")
-        super().write(fd)
-        fd.write("\n")
+
+class ResourceTable4(ResourceTable):
+    def __init__(self):
+        super().__init__()
+        self.comment = "#Resources (MEM - DMA - IRQ) table definition"
 
 
 class DeviceIdentTable(CsvTable):
     def __init__(self):
         super().__init__("vendor", "device", "args")
-
-    def write(self, fd):
-        fd.write("#Device Identification table definition\n")
-        super().write(fd)
-        fd.write("\n")
+        self.comment = "#Device Identification table definition"
 
 
 class BlockInstTable(CsvTable):
     def __init__(self):
         super().__init__("block_inst_name", "block_def_name", "res_def_name",
                          "offset", "description")
-
-    def write(self, fd):
-        fd.write("#Block instances table definition\n")
-        super().write(fd)
-        fd.write("\n")
+        self.comment = "#Block instances table definition"
 
 
 class IntcTable(CsvTable):
@@ -129,21 +148,13 @@ class IntcTable(CsvTable):
         super().__init__("intc_name", "type", "reg_name", "block_def_name",
                          "chained_intc_name", "chained_intc_mask", "args",
                          "description")
-
-    def write(self, fd):
-        fd.write("#Interrupt Controller (INTC) table definition\n")
-        super().write(fd)
-        fd.write("\n")
+        self.comment = "#Interrupt Controller (INTC) table definition"
 
 
 class RolesTable(CsvTable):
     def __init__(self):
         super().__init__("reg_role", "reg_name", "block_def_name", "args")
-
-    def write(self, fd):
-        fd.write("#Register Roles table definition\n")
-        super().write(fd)
-        fd.write("\n")
+        self.comment = "#Register Roles table definition"
 
 
 class EdgeReg(object):
@@ -439,8 +450,16 @@ def generate_edge3(fd, root):
 
     fd.write("#Encore Driver GEnerator version: {}\n\n".format(edge_vers))
 
+    edge_major_vers = int(edge_vers.split('.')[0])
+
+    # Document Info table (new in EDGE4)
+    if edge_major_vers >= 4:
+        docinfo_table = DocInfoTable4()
+        docinfo_table.append(drv_type='DRV', edge_vers=edge_vers)
+        docinfo_table.write(fd)
+
     # LIF table
-    lif_table = LifTable()
+    lif_table = LifTable4() if edge_major_vers >= 4 else LifTable()
     lif_table.append(hw_mod_name=hw_mod_name, hw_lif_name=hw_lif_name,
                      hw_lif_vers=hw_lif_vers, edge_vers=edge_vers, bus=bus,
                      endian=endian_map[endian], description=clean_string(description))
@@ -472,7 +491,7 @@ def generate_edge3(fd, root):
 
     # Resource table
     # TODO: PLATFORM bus IRQ/DMA resources
-    rsrc_table = ResourceTable()
+    rsrc_table = ResourceTable4() if edge_major_vers >= 4 else ResourceTable()
 
     for i, el in enumerate(root.children):
         if not isinstance(el, tree.AddressSpace):
