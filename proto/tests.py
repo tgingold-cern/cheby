@@ -868,7 +868,7 @@ def test_consts():
     global nbr_tests
 
     for f in ['demo_all', 'features/semver1', 'features/mapinfo1',
-              'issue64/simple_reg1', 'bug-consts/blkpfx',
+              'issue64/simple_reg1', 'issue_g2/reg', 'bug-consts/blkpfx',
               'features/enums1', 'features/enums2', 'bug-const-range/const_range']:
         if args.verbose:
             print('test consts: {}'.format(f))
