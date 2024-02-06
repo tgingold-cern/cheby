@@ -54,6 +54,8 @@ Add support for Latex generation (github PR #5)
 
 Add support for the APB bus (github PR #11)
 
+Add support for EDGE4
+
 ## Version 1.5
 
 Fix a crash when address lines are not used by cernbus (issue#95)
