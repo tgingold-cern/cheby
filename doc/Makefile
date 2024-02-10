@@ -1,7 +1,6 @@
 NAME=cheby-ug
 CHEBY=../proto/cheby.py
-
-all: $(NAME).pdf
+BUNDLER=bundle
 
 srcs/counter.vhdl: srcs/counter.cheby
 	$(CHEBY) --gen-hdl=$@ -i $<
@@ -18,13 +17,14 @@ srcs/counter.md: srcs/counter.cheby
 srcs/counter-reindent.md: srcs/counter.md
 	sed -e '/^=/s/^=/==/' < $< > $@
 
-$(NAME).xml: $(NAME).txt srcs/counter.cheby srcs/counter_entity.vhdl srcs/counter.h srcs/counter-reindent.md
-	asciidoctor -v -d book -b docbook $<
+$(NAME).pdf: $(NAME).txt srcs/counter.cheby srcs/counter_entity.vhdl srcs/counter.h srcs/counter-reindent.md
+	$(BUNDLER) exec asciidoctor-pdf -d book $<
 
-$(NAME).pdf: $(NAME).xml
-	a2x -f pdf $<
+install:
+	$(BUNDLER) install
+
+all: $(NAME).pdf
 
 clean:
-	$(RM) $(NAME).xml $(NAME).pdf
-	$(RM) srcs/counter.vhdl srcs/counter_entity.vhdl srcs/counter.h
-	$(RM) srcs/counter.md srcs/counter-reindent.md
+	$(RM) srcs/*.vhdl srcs/*.h srcs/*.md
+	$(RM) $(NAME).pdf

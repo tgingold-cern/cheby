@@ -1,0 +1,7 @@
+vendor/bundle/
+srcs/*.h
+srcs/*.md
+srcs/*.vhdl
+
+# Do not enforce a specific version for asciidoctor-pdf
+Gemfile.lock

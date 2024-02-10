@@ -22,6 +22,27 @@ test_interaction:
     - cd testfiles/tb
     - ./run.sh
 
+documentation:
+  stage: build
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH
+      changes:
+      - doc/**/*
+  cache:
+    - key:
+        files:
+          - doc/Gemfile.lock
+      paths:
+        - doc/vendor/bundle
+  artifacts:
+    paths:
+      - doc/*.pdf
+  script:
+    - cd doc
+    - bundle config set --local path 'vendor/bundle'
+    - bundle install
+    - make all
+
 deploy:
   stage: deploy
   only:
