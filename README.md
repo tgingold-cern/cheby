@@ -56,6 +56,8 @@ Add support for the APB bus (github PR #11)
 
 Add support for EDGE4
 
+Add support for memories with multiple registers
+
 ## Version 1.5
 
 Fix a crash when address lines are not used by cernbus (issue#95)
