@@ -30,8 +30,12 @@ class GenBlock(ElGen):
                     n.h_gen = GenSubmap(self.root, self.module, n)
             elif isinstance(n, tree.Memory):
                 if n.interface is not None:
-                    n.c_addr_bits = ilog2(n.c_depth)
-                    n.c_width = n.c_elsize * tree.BYTE_SIZE
+                    if n.c_elsize <= self.root.c_word_size:
+                        n.c_addr_bits = ilog2(n.c_depth)
+                        n.c_width = n.c_elsize * tree.BYTE_SIZE
+                    else:
+                        n.c_addr_bits = ilog2(n.memsize_val) - self.root.c_addr_word_bits
+                        n.c_width = self.root.c_word_size * tree.BYTE_SIZE
                     n.c_bus_access = n.c_mem_access
                     n.h_gen = GenInterface(self.root, self.module, n)
                 else:

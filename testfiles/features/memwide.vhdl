@@ -24,7 +24,7 @@ entity mem64ro is
 
     -- SRAM bus ts
     ts_addr_o            : out   std_logic_vector(6 downto 2);
-    ts_data_i            : in    std_logic_vector(127 downto 0)
+    ts_data_i            : in    std_logic_vector(31 downto 0)
   );
 end mem64ro;
 

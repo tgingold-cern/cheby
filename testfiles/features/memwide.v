@@ -21,7 +21,7 @@ module mem64ro
 
     // SRAM bus ts
     output  wire [6:2] ts_addr_o,
-    input   wire [127:0] ts_data_i
+    input   wire [31:0] ts_data_i
   );
   wire rd_req_int;
   wire wr_req_int;
