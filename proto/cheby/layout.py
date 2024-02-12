@@ -468,9 +468,13 @@ def layout_repeat(lo, n):
 @Layout.register(tree.Memory)
 def layout_memory(lo, n):
     # Sanity checks
-    if len(n.children) != 1 or not isinstance(n.children[0], tree.Reg):
+    if len(n.children) == 0:
         raise LayoutException(
-            n, "memory '{}' must have one element (a register)".format(n.get_path()))
+            n, "memory '{}' must have at least one element (a register)".format(n.get_path()))
+    for c in n.children:
+        if not isinstance(c, tree.Reg):
+            raise LayoutException(
+                n, "memory child '{}' must be a register".format(c.get_path()))
     if n.align is not None and not n.align:
         raise LayoutException(
             n, "memory '{}' must be aligned")
@@ -490,7 +494,7 @@ def layout_memory(lo, n):
     # Compute the depth.
     if n.memsize_val % n.c_elsize != 0:
         raise LayoutException(
-            n, "memory memsize '{}' is not a multiple of the element")
+            n, "memory memsize '{}' is not a multiple of the element".format(n.get_path()))
     if n.interface is None:
         # If there is no interface, then the memory is internal and one port will be exposed
         # to the user.  The width of it is defined by the element size, and the depth derives
