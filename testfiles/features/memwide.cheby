@@ -1,0 +1,36 @@
+memory-map:
+  bus: wb-32-be
+  name: mem64ro
+  description: An example of a cheby memory map
+  children:
+    - reg:
+        name: regA
+        description: The first register (with some fields)
+        width: 32
+        access: rw
+        children:
+          - field:
+              name: field0
+              description: 1-bit field
+              range: 1
+    - memory:
+       name: ts
+       memsize: 128
+       interface: sram
+       children:
+       - reg:
+          name: rise_sec
+          width: 32
+          access: ro
+       - reg:
+          name: rise_ns
+          width: 32
+          access: ro
+       - reg:
+          name: fall_sec
+          width: 32
+          access: ro
+       - reg:
+          name: fall_ns
+          width: 32
+          access: ro

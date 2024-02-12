@@ -393,7 +393,7 @@ def test_hdl_ref():
               'features/iogroup1', 'features/iogroup2', 'features/repeat-iogroup1',
               'features/repeat-iogroup2', 'features/repeat-iogroup3',
               'features/repeat-iogroup4',
-              'features/no_port',
+              'features/no_port', 'features/memwide',
               'issue52/hwInfo',
               'bug-gen_wt/m1',
               'issue59/inherit', 'issue64/simple_reg1', 'issue66/m1',
