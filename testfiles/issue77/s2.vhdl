@@ -24,7 +24,7 @@ entity s2 is
     rdata                : out   std_logic_vector(31 downto 0);
     rresp                : out   std_logic_vector(1 downto 0);
 
-    -- CERN-BE bus sub
+    -- cern-be-vme bus sub
     sub_VMERdData_i      : in    std_logic_vector(31 downto 0);
     sub_VMEWrData_o      : out   std_logic_vector(31 downto 0);
     sub_VMERdMem_o       : out   std_logic;

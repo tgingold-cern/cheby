@@ -14,7 +14,7 @@ entity xilinx_attrs is
     VMERdDone            : out   std_logic;
     VMEWrDone            : out   std_logic;
 
-    -- CERN-BE bus subm
+    -- cern-be-vme bus subm
     subm_VMEAddr_o       : out   std_logic_vector(2 downto 2);
     subm_VMERdData_i     : in    std_logic_vector(31 downto 0);
     subm_VMEWrData_o     : out   std_logic_vector(31 downto 0);

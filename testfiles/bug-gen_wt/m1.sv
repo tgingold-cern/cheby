@@ -14,7 +14,7 @@ module m1
     // REG r1
     output  wire [31:0] r1_o,
 
-    // CERN-BE bus sm2
+    // cern-be-vme bus sm2
     input   wire [31:0] sm2_VMERdData_i,
     output  wire [31:0] sm2_VMEWrData_o,
     output  reg sm2_VMERdMem_o,

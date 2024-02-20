@@ -11,7 +11,7 @@ module xilinx_attrs
     output  wire VMERdDone,
     output  wire VMEWrDone,
 
-    // CERN-BE bus subm
+    // cern-be-vme bus subm
     output  reg [2:2] subm_VMEAddr_o,
     input   wire [31:0] subm_VMERdData_i,
     output  wire [31:0] subm_VMEWrData_o,

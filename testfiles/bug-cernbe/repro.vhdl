@@ -17,7 +17,7 @@ entity example is
     -- The first register (with some fields)
     regA_o               : out   std_logic_vector(31 downto 0);
 
-    -- CERN-BE bus sm
+    -- cern-be-vme bus sm
     sm_VMEAddr_o         : out   std_logic_vector(1 downto 1);
     sm_VMERdData_i       : in    std_logic_vector(15 downto 0);
     sm_VMEWrData_o       : out   std_logic_vector(15 downto 0);

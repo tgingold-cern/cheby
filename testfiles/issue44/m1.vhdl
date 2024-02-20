@@ -18,7 +18,7 @@ entity m1 is
     wb_stall_o           : out   std_logic;
     wb_dat_o             : out   std_logic_vector(31 downto 0);
 
-    -- CERN-BE bus m0
+    -- cern-be-vme bus m0
     m0_VMEAddr_o         : out   std_logic_vector(12 downto 2);
     m0_VMERdData_i       : in    std_logic_vector(31 downto 0);
     m0_VMEWrData_o       : out   std_logic_vector(31 downto 0);
@@ -27,7 +27,7 @@ entity m1 is
     m0_VMERdDone_i       : in    std_logic;
     m0_VMEWrDone_i       : in    std_logic;
 
-    -- CERN-BE bus m1
+    -- cern-be-vme bus m1
     m1_VMEAddr_o         : out   std_logic_vector(11 downto 2);
     m1_VMERdData_i       : in    std_logic_vector(31 downto 0);
     m1_VMEWrData_o       : out   std_logic_vector(31 downto 0);
@@ -36,7 +36,7 @@ entity m1 is
     m1_VMERdDone_i       : in    std_logic;
     m1_VMEWrDone_i       : in    std_logic;
 
-    -- CERN-BE bus m2
+    -- cern-be-vme bus m2
     m2_VMEAddr_o         : out   std_logic_vector(11 downto 2);
     m2_VMERdData_i       : in    std_logic_vector(31 downto 0);
     m2_VMEWrData_o       : out   std_logic_vector(31 downto 0);

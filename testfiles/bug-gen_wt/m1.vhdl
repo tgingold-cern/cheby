@@ -17,7 +17,7 @@ entity m1 is
     -- REG r1
     r1_o                 : out   std_logic_vector(31 downto 0);
 
-    -- CERN-BE bus sm2
+    -- cern-be-vme bus sm2
     sm2_VMERdData_i      : in    std_logic_vector(31 downto 0);
     sm2_VMEWrData_o      : out   std_logic_vector(31 downto 0);
     sm2_VMERdMem_o       : out   std_logic;

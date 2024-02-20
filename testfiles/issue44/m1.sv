@@ -15,7 +15,7 @@ module m1
     output  wire wb_stall_o,
     output  reg [31:0] wb_dat_o,
 
-    // CERN-BE bus m0
+    // cern-be-vme bus m0
     output  reg [12:2] m0_VMEAddr_o,
     input   wire [31:0] m0_VMERdData_i,
     output  wire [31:0] m0_VMEWrData_o,
@@ -24,7 +24,7 @@ module m1
     input   wire m0_VMERdDone_i,
     input   wire m0_VMEWrDone_i,
 
-    // CERN-BE bus m1
+    // cern-be-vme bus m1
     output  reg [11:2] m1_VMEAddr_o,
     input   wire [31:0] m1_VMERdData_i,
     output  wire [31:0] m1_VMEWrData_o,
@@ -33,7 +33,7 @@ module m1
     input   wire m1_VMERdDone_i,
     input   wire m1_VMEWrDone_i,
 
-    // CERN-BE bus m2
+    // cern-be-vme bus m2
     output  reg [11:2] m2_VMEAddr_o,
     input   wire [31:0] m2_VMERdData_i,
     output  wire [31:0] m2_VMEWrData_o,

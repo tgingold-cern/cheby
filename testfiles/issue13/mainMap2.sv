@@ -13,7 +13,7 @@ module mainMap2
     output  wire VMERdError,
     output  wire VMEWrError,
 
-    // CERN-BE bus subMap1
+    // cern-be-vme bus subMap1
     output  reg [12:2] subMap1_VMEAddr_o,
     input   wire [31:0] subMap1_VMERdData_i,
     output  wire [31:0] subMap1_VMEWrData_o,
@@ -24,7 +24,7 @@ module mainMap2
     input   wire subMap1_VMERdError_i,
     input   wire subMap1_VMEWrError_i,
 
-    // CERN-BE bus subMap2
+    // cern-be-vme bus subMap2
     output  reg [12:2] subMap2_VMEAddr_o,
     input   wire [31:0] subMap2_VMERdData_i,
     output  wire [31:0] subMap2_VMEWrData_o,

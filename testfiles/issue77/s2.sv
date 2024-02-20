@@ -21,7 +21,7 @@ module s2
     output  reg [31:0] rdata,
     output  wire [1:0] rresp,
 
-    // CERN-BE bus sub
+    // cern-be-vme bus sub
     input   wire [31:0] sub_VMERdData_i,
     output  wire [31:0] sub_VMEWrData_o,
     output  reg sub_VMERdMem_o,

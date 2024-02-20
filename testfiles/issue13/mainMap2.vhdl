@@ -16,7 +16,7 @@ entity mainMap2 is
     VMERdError           : out   std_logic;
     VMEWrError           : out   std_logic;
 
-    -- CERN-BE bus subMap1
+    -- cern-be-vme bus subMap1
     subMap1_VMEAddr_o    : out   std_logic_vector(12 downto 2);
     subMap1_VMERdData_i  : in    std_logic_vector(31 downto 0);
     subMap1_VMEWrData_o  : out   std_logic_vector(31 downto 0);
@@ -27,7 +27,7 @@ entity mainMap2 is
     subMap1_VMERdError_i : in    std_logic;
     subMap1_VMEWrError_i : in    std_logic;
 
-    -- CERN-BE bus subMap2
+    -- cern-be-vme bus subMap2
     subMap2_VMEAddr_o    : out   std_logic_vector(12 downto 2);
     subMap2_VMERdData_i  : in    std_logic_vector(31 downto 0);
     subMap2_VMEWrData_o  : out   std_logic_vector(31 downto 0);

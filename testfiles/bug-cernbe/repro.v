@@ -14,7 +14,7 @@ module example
     // The first register (with some fields)
     output  wire [31:0] regA_o,
 
-    // CERN-BE bus sm
+    // cern-be-vme bus sm
     output  reg [1:1] sm_VMEAddr_o,
     input   wire [15:0] sm_VMERdData_i,
     output  wire [15:0] sm_VMEWrData_o,
