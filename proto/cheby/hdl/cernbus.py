@@ -28,3 +28,12 @@ class CERNBEBus(SimpleBus):
         'rderr': 'VMERdError',
         'wrerr': 'VMEWrError'
     }
+
+    busname = "cern-be-vme"
+
+    def add_xilinx_attributes(self, bus, portname):
+        for name, port in bus:
+            if name in ('clk', 'brst'):
+                continue
+            port.attributes['X_INTERFACE_INFO'] = "cern.ch:interface:cheburashka:1.0 {} {}".format(
+                portname, name.upper())

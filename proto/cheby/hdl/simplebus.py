@@ -30,7 +30,9 @@ class SimpleBus(BusGen):
         'rderr': 'rderr',
         'wrerr': 'wrerr'
     }
-    
+
+    busname = "simple"
+
     def add_decode_simple_bus(self, root, module, ibus):
         """Generate internal signals used by decoder/processes from the bus"""
         ibus.rd_req = root.h_bus['rd']
@@ -42,9 +44,9 @@ class SimpleBus(BusGen):
         module.stmts.append(HDLAssign(root.h_bus['rack'], ibus.rd_ack))
         module.stmts.append(HDLAssign(root.h_bus['wack'], ibus.wr_ack))
 
-    def gen_cern_bus(self, build_port, addr_bits, lo_addr, data_bits,
+    def gen_bus(self, build_port, addr_bits, lo_addr, data_bits,
                      force_addr, is_split, is_buserr, is_master):
-        """Create CERN-BE interface."""
+        """Create bus interface."""
         inp, out = ('IN', 'OUT') if not is_master else ('OUT', 'IN')
         bus = []
         if force_addr or addr_bits > 0:
@@ -71,24 +73,20 @@ class SimpleBus(BusGen):
         return bus
 
     def add_xilinx_attributes(self, bus, portname):
-        for name, port in bus:
-            if name in ('clk', 'brst'):
-                continue
-            port.attributes['X_INTERFACE_INFO'] = "cern.ch:interface:cheburashka:1.0 {} {}".format(
-                portname, name.upper())
+        pass
 
     def expand_bus(self, root, module, ibus):
-        """Create CERN-BE interface."""
+        """Create bus interface."""
         if root.get_extension('x_hdl', 'busgroup'):
-            parser.warning(root, "busgroup on '{}' is ignored for cern-be-vme".format(
-                root.get_path()))
+            parser.warning(root, "busgroup on '{}' is ignored for {}".format(
+                root.get_path(), self.busname))
         if root.get_extension('x_hdl', 'bus-error'):
-            parser.warning(root, "bus-error on '{}' is ignored for cern-be-vme".format(
-                root.get_path()))
+            parser.warning(root, "bus-error on '{}' is ignored for {}".format(
+                root.get_path(), self.busname))
 
         bus = [('clk', HDLPort(self.names['clk'])),
                ('brst', HDLPort(self.names['rst']))]
-        bus.extend(self.gen_cern_bus(
+        bus.extend(self.gen_bus(
             lambda n, sz=None, lo=0, dir='IN':
             HDLPort(n, size=sz, lo_idx=lo, dir=dir) if sz is None or sz > 0 else None,
             root.c_addr_bits, root.c_addr_word_bits, root.c_word_bits,
@@ -127,9 +125,9 @@ class SimpleBus(BusGen):
     def gen_bus_slave(self, root, module, prefix, n, opts):
         """Create an interface to a slave (Add declarations)"""
         if opts.busgroup:
-            parser.warning(root, "busgroup on '{}' is ignored for cern-be-vme".format(
-                root.get_path()))
-        ports = self.gen_cern_bus(
+            parser.warning(root, "busgroup on '{}' is ignored for {}".format(
+                root.get_path(), self.busname))
+        ports = self.gen_bus(
             lambda name, sz=None, lo=0, dir='IN':
                  None if sz == 0 else module.add_port(
                     '{}_{}_{}'.format(n.c_name, name, dirname[dir]),
@@ -143,7 +141,7 @@ class SimpleBus(BusGen):
             n.h_bus[name] = p
         # Add the comment.  Not that simple as the first port of the bus depends on
         # split or not split, address or no address.
-        comment = '\n' + (n.comment or n.description or 'CERN-BE bus {}'.format(n.name))
+        comment = '\n' + (n.comment or n.description or '{} bus {}'.format(self.busname, n.name))
         if n.c_addr_bits > 0:
             first = 'adrr' if self.split else 'adr'
         else:
