@@ -220,16 +220,19 @@ convention
 
 * wb-16, wb-32: non-pipelined wishbone using 16 or 32 bit of data and big-endian convention by default
 
+* simple-32: a simple bus (with 32 bit of data) based on strobe and ack pulses.
+
 The attribute `word-endian` can be used to specify the word endianness
 (how multi-word registers are laid out in memory).  It is optional,
 and the default is set according to the bus: `big` by default for
-`wb-32-be` and `cern-be-vme`, `little` for `apb-32`, and `axi4-lite-32`.  It is
-possible to use `none` to disallow any multi-word registers, and thus having
-also a portable memory map.
+`wb-32-be` and `cern-be-vme`, `little` for `apb-32`, `axi4-lite-32`,
+`simple-32` and `avalon-lite-32`.  It is possible to use `none` to
+disallow any multi-word registers, and thus having also a portable
+memory map.
 
-If you need to reserve area in a module, you can use the `size` attribute to
-specify the size (in bytes) of the memory space used by the module.  The suffixes
-k, M and G are allowed.
+If you need to reserve area in a module, you can use the `size`
+attribute to specify the size (in bytes) of the memory space used by
+the module.  The suffixes k, M and G are allowed.
 
 It is possible to specify a semantic version using the `version` attribute.
 The version consists of 3 numbers between 0 and 255 separated by comma.

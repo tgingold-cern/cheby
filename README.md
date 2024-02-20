@@ -58,6 +58,8 @@ Add support for EDGE4
 
 Add support for memories with multiple registers
 
+Add support for 'simple-32' bus.
+
 ## Version 1.5
 
 Fix a crash when address lines are not used by cernbus (issue#95)
