@@ -20,7 +20,7 @@ def name_to_busgen(name):
         return CERNBEBus(name)
     elif name == 'sram':
         return SRAMBus(name)
-    elif name == 'simple':
+    elif name == 'simple-32':
         return SimpleBus(name)
     else:
         raise AssertionError("Unhandled bus '{}'".format(name))

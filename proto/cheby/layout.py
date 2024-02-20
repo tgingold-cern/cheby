@@ -681,10 +681,7 @@ def layout_bus(root, name):
     elif name == 'axi4-lite-32':
         root.c_word_size = 4
         root.c_word_endian = 'little'
-    elif name == 'apb-32':
-        root.c_word_size = 4
-        root.c_word_endian = 'little'
-    elif name == 'avalon-lite-32':
+    elif name == 'apb-32' or name == 'simple-32' or name == 'avalon-lite-32':
         root.c_word_size = 4
         root.c_word_endian = 'little'
     elif name.startswith('cern-be-vme-'):
