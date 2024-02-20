@@ -10,6 +10,7 @@ use work.axi4_tb_pkg.all;
 use work.cernbe_tb_pkg.all;
 use work.avalon_tb_pkg.all;
 use work.apb_tb_pkg.all;
+use work.simple_tb_pkg.all;
 
 
 architecture behav of all1_axi4_tb is
@@ -50,6 +51,10 @@ architecture behav of all1_axi4_tb is
   --  For sub5: APB
   signal sub5_in  : t_apb_slave_in;
   signal sub5_out : t_apb_slave_out;
+
+  --  For sub6: Simple
+  signal sub6_in  : t_simple_slave_in;
+  signal sub6_out : t_simple_slave_out;
 
   signal end_of_test : boolean := False;
 begin
@@ -162,7 +167,15 @@ begin
       sub5_apb_pwdata_o  => sub5_in.pwdata,
       sub5_apb_pstrb_o   => sub5_in.pstrb,
       sub5_apb_prdata_i  => sub5_out.prdata,
-      sub5_apb_pslverr_i => sub5_out.pslverr
+      sub5_apb_pslverr_i => sub5_out.pslverr,
+      
+      sub6_simple_adr_o           => sub6_in.adr(11 downto 2),
+      sub6_simple_dato_i          => sub6_out.dato,
+      sub6_simple_dati_o          => sub6_in.dati,
+      sub6_simple_rd_o            => sub6_in.rd,
+      sub6_simple_wr_o            => sub6_in.wr,
+      sub6_simple_rack_i          => sub6_out.rack,
+      sub6_simple_wack_i          => sub6_out.wack
     );
 
   --  WB target
@@ -202,6 +215,14 @@ begin
       rst_n   => rst_n,
       bus_in  => sub5_in,
       bus_out => sub5_out);
+
+  -- Simple target
+  b6 : entity work.block1_simple
+    port map (
+      clk     => clk,
+      rst_n   => rst_n,
+      bus_in  => sub6_in,
+      bus_out => sub6_out);
 
   bram2 : entity work.sram2
     port map (clk_i => clk,
@@ -352,6 +373,9 @@ begin
     --  Testing APB
     test_bus ("apb", x"0000_5000", False);
 
+    --  Testing Simple
+    test_bus ("simple", x"0000_6000", False);
+
     --  Test bug when first writing a reg and then read in a submap.
     --  Check with the wb submap.
     axi4lite_write (clk, wr_out, wr_in, x"0000_1000", x"def7_0000");
@@ -382,7 +406,7 @@ begin
   --  Watchdog.
   process
   begin
-    wait until end_of_test for 8 us;
+    wait until end_of_test for 10 us;
     assert end_of_test report "timeout" severity failure;
     wait;
   end process;

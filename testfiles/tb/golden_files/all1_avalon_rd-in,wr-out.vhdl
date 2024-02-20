@@ -98,7 +98,16 @@ entity all1_avalon is
     sub5_apb_pwdata_o    : out   std_logic_vector(31 downto 0);
     sub5_apb_pstrb_o     : out   std_logic_vector(3 downto 0);
     sub5_apb_prdata_i    : in    std_logic_vector(31 downto 0);
-    sub5_apb_pslverr_i   : in    std_logic
+    sub5_apb_pslverr_i   : in    std_logic;
+
+    -- A simple bus
+    sub6_simple_adr_o    : out   std_logic_vector(11 downto 2);
+    sub6_simple_dato_i   : in    std_logic_vector(31 downto 0);
+    sub6_simple_dati_o   : out   std_logic_vector(31 downto 0);
+    sub6_simple_rd_o     : out   std_logic;
+    sub6_simple_wr_o     : out   std_logic;
+    sub6_simple_rack_i   : in    std_logic;
+    sub6_simple_wack_i   : in    std_logic
   );
 end all1_avalon;
 
@@ -166,6 +175,8 @@ architecture syn of all1_avalon is
   signal ram2_we                        : std_logic;
   signal sub3_cernbe_ws                 : std_logic;
   signal sub3_cernbe_wt                 : std_logic;
+  signal sub6_simple_ws                 : std_logic;
+  signal sub6_simple_wt                 : std_logic;
 begin
   rst_n <= not reset;
   process (clk) begin
@@ -570,11 +581,31 @@ begin
     end if;
   end process;
 
+  -- Interface sub6_simple
+  sub6_simple_dati_o <= wr_dat;
+  process (clk) begin
+    if rising_edge(clk) then
+      if rst_n = '0' then
+        sub6_simple_wt <= '0';
+      else
+        sub6_simple_wt <= (sub6_simple_wt or sub6_simple_ws) and not sub6_simple_wack_i;
+      end if;
+    end if;
+  end process;
+  sub6_simple_wr_o <= sub6_simple_ws;
+  process (rd_adr_d0, adr, sub6_simple_wt, sub6_simple_ws) begin
+    if (sub6_simple_ws or sub6_simple_wt) = '1' then
+      sub6_simple_adr_o <= adr(11 downto 2);
+    else
+      sub6_simple_adr_o <= rd_adr_d0(11 downto 2);
+    end if;
+  end process;
+
   -- Process for write requests.
   process (adr, wr_req, reg1_wack, reg2_wack, ram2_we, sub1_wb_wack,
            sub2_axi4_bvalid_i, sub3_cernbe_VMEWrDone_i, sub4_avalon_wr,
            sub4_avalon_waitrequest_i, wr_ack_d0, sub5_apb_wr, sub5_apb_pready_i,
-           sub5_apb_pslverr_i) begin
+           sub5_apb_pslverr_i, sub6_simple_wack_i) begin
     reg1_wreq <= '0';
     reg2_wreq <= '0';
     ram1_val_int_wr <= '0';
@@ -585,6 +616,7 @@ begin
     sub4_avalon_we <= '0';
     sub5_apb_wr_req <= '0';
     sub5_apb_wr_ack <= '0';
+    sub6_simple_ws <= '0';
     case adr(14 downto 12) is
     when "000" =>
       case adr(11 downto 5) is
@@ -636,6 +668,10 @@ begin
       sub5_apb_wr_req <= wr_req;
       sub5_apb_wr_ack <= wr_ack_d0;
       wr_ack_d0 <= sub5_apb_wr and sub5_apb_pready_i;
+    when "110" =>
+      -- Submap sub6_simple
+      sub6_simple_ws <= wr_req;
+      wr_ack_d0 <= sub6_simple_wack_i;
     when others =>
       wr_ack_d0 <= wr_req;
     end case;
@@ -648,7 +684,8 @@ begin
            sub2_axi4_rvalid_i, sub3_cernbe_VMERdData_i,
            sub3_cernbe_VMERdDone_i, sub4_avalon_readdata_i,
            sub4_avalon_readdatavalid_i, rd_ack, sub5_apb_prdata_i, sub5_apb_rd,
-           sub5_apb_pready_i, sub5_apb_pslverr_i) begin
+           sub5_apb_pready_i, sub5_apb_pslverr_i, sub6_simple_dato_i,
+           sub6_simple_rack_i) begin
     -- By default ack read requests
     readdata <= (others => 'X');
     ram1_val_rreq <= '0';
@@ -660,6 +697,7 @@ begin
     sub4_avalon_re <= '0';
     sub5_apb_rd_req <= '0';
     sub5_apb_rd_ack <= '0';
+    sub6_simple_rd_o <= '0';
     case rd_adr_d0(14 downto 12) is
     when "000" =>
       case rd_adr_d0(11 downto 5) is
@@ -720,6 +758,11 @@ begin
       sub5_apb_rd_ack <= rd_ack;
       readdata <= sub5_apb_prdata_i;
       rd_ack <= sub5_apb_rd and sub5_apb_pready_i;
+    when "110" =>
+      -- Submap sub6_simple
+      sub6_simple_rd_o <= rd_req_d0;
+      readdata <= sub6_simple_dato_i;
+      rd_ack <= sub6_simple_rack_i;
     when others =>
       rd_ack <= rd_req_d0;
     end case;

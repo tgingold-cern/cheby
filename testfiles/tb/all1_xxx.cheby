@@ -68,3 +68,8 @@ memory-map:
       size: 0x1000
       description: An APB bus
       interface: apb-32
+  - submap:
+      name: sub6_simple
+      size: 0x1000
+      description: A simple bus
+      interface: simple-32

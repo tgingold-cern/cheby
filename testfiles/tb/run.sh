@@ -16,11 +16,13 @@ build_infra()
     $GHDL -a $GHDL_FLAGS wb_tb_pkg.vhdl
     $GHDL -a $GHDL_FLAGS cernbe_tb_pkg.vhdl
     $GHDL -a $GHDL_FLAGS avalon_tb_pkg.vhdl
+    $GHDL -a $GHDL_FLAGS simple_tb_pkg.vhdl
     $GHDL -a $GHDL_FLAGS dpssram.vhdl
     $GHDL -a $GHDL_FLAGS block1_apb.vhdl
     $GHDL -a $GHDL_FLAGS block1_axi4.vhdl
     $GHDL -a $GHDL_FLAGS block1_wb.vhdl
     $GHDL -a $GHDL_FLAGS block1_cernbe.vhdl
+    $GHDL -a $GHDL_FLAGS block1_simple.vhdl
     $GHDL -a $GHDL_FLAGS block1_avmm.vhdl
     $GHDL -a $GHDL_FLAGS sram2.vhdl
 }
@@ -52,7 +54,7 @@ build_any()
         $CHEBY --no-header -i "${file_names[$i]}.cheby" --gen-hdl="${file_names[$i]}.vhdl"
     done
 
-    if [[ "${REGEN}" == "true" || "${REGEN}" == true || "${REGEN}" == "1" || "${REGEN}" == 1 ]]; then
+    if [[ "${REGEN}" == "true" || "${REGEN}" == "1" ]]; then
         echo "### Update output"
         for (( i = 0; i < ${#file_names[@]}; i++ )); do
             cp "${file_names[$i]}.vhdl" "golden_files/${file_names_ext[$i]}.vhdl"
@@ -215,6 +217,7 @@ for pl in "none" "rd" "wr" "in" "out" "rd-in" "rd-out" "wr-in" "wr-out" \
           "wr-in,rd-out" "rd-in,wr-out" "in,out" "all"
 do
     build_all1_any "apb-32" "apb" "${pl}"
+    build_all1_any "simple-32" "simple" "${pl}"
     build_all1_any "avalon-lite-32" "avalon" "${pl}"
     build_all1_any "axi4-lite-32" "axi4" "${pl}"
     build_all1_any "cern-be-vme-32" "cernbe" "${pl}"

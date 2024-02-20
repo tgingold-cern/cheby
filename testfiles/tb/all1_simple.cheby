@@ -1,0 +1,75 @@
+memory-map:
+  bus: simple-32
+  name: all1_simple
+  x-hdl:
+    busgroup: True
+    pipeline: all
+  children:
+  - reg:
+      name: reg1
+      description: A register
+      type: unsigned
+      width: 32
+      access: rw
+      preset: 0x12340000
+  - reg:
+      name: reg2
+      type: unsigned
+      width: 32
+      access: rw
+      preset: 0x12340002
+  - memory:
+      name: ram1
+      memsize: 32
+      children:
+      - reg:
+          name: val
+          access: rw
+          width: 32
+  - memory:
+      name: ram_ro
+      memsize: 32
+      children:
+      - reg:
+          name: val
+          access: ro
+          width: 32
+  - memory:
+      name: ram2
+      memsize: 32
+      interface: sram
+      children:
+      - reg:
+          name: val
+          access: rw
+          width: 32
+  - submap:
+      name: sub1_wb
+      size: 0x1000
+      description: A WB bus
+      interface: wb-32-be
+  - submap:
+      name: sub2_axi4
+      size: 0x1000
+      description: An AXI4-Lite bus
+      interface: axi4-lite-32
+  - submap:
+      name: sub3_cernbe
+      size: 0x1000
+      description: A CERN-BE bus
+      interface: cern-be-vme-32
+  - submap:
+      name: sub4_avalon
+      size: 0x1000
+      description: An AVALON bus
+      interface: avalon-lite-32
+  - submap:
+      name: sub5_apb
+      size: 0x1000
+      description: An APB bus
+      interface: apb-32
+  - submap:
+      name: sub6_simple
+      size: 0x1000
+      description: A simple bus
+      interface: simple-32
