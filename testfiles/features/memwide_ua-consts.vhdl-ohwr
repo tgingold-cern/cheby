@@ -1,0 +1,13 @@
+library ieee;
+use ieee.std_logic_1164.all;
+
+package memwide_ua_consts_pkg is
+  constant c_MEMWIDE_UA_SIZE : Natural := 256;
+  constant c_MEMWIDE_UA_REGA_ADDR : Natural := 16#0#;
+  constant c_MEMWIDE_UA_REGA_FIELD0_OFFSET : Natural := 1;
+  constant c_MEMWIDE_UA_TS_ADDR : Natural := 16#80#;
+  constant c_MEMWIDE_UA_TS_SIZE : Natural := 16;
+  constant c_MEMWIDE_UA_TS_RISE_SEC_ADDR : Natural := 16#0#;
+  constant c_MEMWIDE_UA_TS_RISE_NS_ADDR : Natural := 16#4#;
+  constant c_MEMWIDE_UA_TS_FALL_SEC_ADDR : Natural := 16#8#;
+end package memwide_ua_consts_pkg;
