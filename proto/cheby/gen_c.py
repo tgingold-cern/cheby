@@ -66,7 +66,7 @@ def maybe_pad(cp, diff, addr, pad_id, pad_target):
         cp.utypes[sz], pad_id[0], diff // sz))
     pad_id[0] += 1
 
-def cprint_children(cp, n, size):
+def cprint_children(cp, n, size, off):
     "Generate declarations for children of :param n:, and pad to :param size:"
     addr = 0
     pad_id = [0]  # Modified in the nested maybe_pad function
@@ -97,7 +97,7 @@ def cprint_children(cp, n, size):
                 maybe_pad(cp, el.c_size - el.memsize_val, addr, pad_id, el.c_address)
             addr = el.c_address + el.c_size
     # Last pad
-    maybe_pad(cp, size - addr, addr, pad_id, n.c_address + n.c_size)
+    maybe_pad(cp, size - addr, addr, pad_id, off + size)
 
 
 @CPrinter.register(tree.Reg)
@@ -122,7 +122,7 @@ def cprint_block(cp, n):
     cp.cp_txt('/* [0x{:x}]: BLOCK {} */'.format(
         n.c_address, n.description or '(no description)'))
     cp.start_struct(n.name)
-    cprint_children(cp, n, n.c_size)
+    cprint_children(cp, n, n.c_size, n.c_address)
     cp.end_struct(n.name)
 
 
@@ -131,7 +131,7 @@ def cprint_memory(cp, n):
     cp.cp_txt('/* [0x{:x}]: MEMORY {} */'.format(
         n.c_address, n.description or '(no description)'))
     cp.start_struct(n.name)
-    cprint_children(cp, n, n.c_elsize)
+    cprint_children(cp, n, n.c_elsize, 0)
     cp.end_struct('{}[{}]'.format(n.name, n.memsize_val // n.c_elsize))
 
 
@@ -140,7 +140,7 @@ def cprint_repeat(cp, n):
     cp.cp_txt('/* [0x{:x}]: REPEAT {} */'.format(
         n.c_address, n.description or '(no description)'))
     cp.start_struct(n.name)
-    cprint_children(cp, n, n.c_elsize)
+    cprint_children(cp, n, n.c_elsize, 0)
     cp.end_struct('{}[{}]'.format(n.name, n.count))
 
 
@@ -162,7 +162,7 @@ def cprint_submap(cp, n):
 
 @CPrinter.register(tree.CompositeNode)
 def cprint_composite(cp, n):
-    cprint_children(cp, n, n.c_size)
+    cprint_children(cp, n, n.c_size, n.c_address)
 
 
 @CPrinter.register(tree.Root)
