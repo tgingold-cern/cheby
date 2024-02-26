@@ -550,7 +550,6 @@ Example of a replication:
     - repeat:
         name: arr1
         count: 2
-        align: False
         children:
           - reg:
               name: areg1

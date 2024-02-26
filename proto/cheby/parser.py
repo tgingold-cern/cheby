@@ -1,3 +1,4 @@
+# pyright: reportShadowedImports=false
 import sys
 import cheby.yamlread as yamlread
 import cheby.tree as tree
