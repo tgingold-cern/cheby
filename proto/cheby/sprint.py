@@ -31,7 +31,10 @@ class SimplePrinter(tree.Visitor):
         self.sp_raw('0x{:08x}-0x{:08x}: '.format(
             self.base_addr + n.c_address,
             self.base_addr + n.c_address + n.c_size - 1))
-        self.sp_raw('{}{}: {}\n'.format('  ' * self.indent, kind, n.name))
+        self.sp_raw('{}{}: {}'.format('  ' * self.indent, kind, n.name))
+        if self.with_info:
+            self.sp_raw(' ({})'.format(n.c_name))
+        self.sp_raw('\n')
 
     def sp_info(self, info):
         self.sp_raw('                       {}{}\n'.format(

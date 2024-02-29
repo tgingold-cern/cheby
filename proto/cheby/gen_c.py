@@ -10,6 +10,7 @@ class CPrinter(tree.Visitor):
         self.indent = 0
         assert style in ['neutral', 'arm']
         self.style = style
+        self.struct_prefix = ''
         self.utypes = {1: 'uint8_t',
                        2: 'uint16_t',
                        4: 'uint32_t',
@@ -33,9 +34,9 @@ class CPrinter(tree.Visitor):
     def dec(self):
         self.indent -= 1
 
-    def start_struct(self, name):
-        self.cp_raw('{}struct {} {{\n'.format(
-            '  ' * self.indent, name))
+    def start_struct(self, n):
+        self.cp_raw('{}struct {}{} {{\n'.format(
+            '  ' * self.indent, self.struct_prefix, n.c_name))
         self.inc()
 
     def end_struct(self, name):
@@ -121,7 +122,7 @@ def cprint_reg(cp, n):
 def cprint_block(cp, n):
     cp.cp_txt('/* [0x{:x}]: BLOCK {} */'.format(
         n.c_address, n.description or '(no description)'))
-    cp.start_struct(n.name)
+    cp.start_struct(n)
     cprint_children(cp, n, n.c_size, n.c_address)
     cp.end_struct(n.name)
 
@@ -130,7 +131,7 @@ def cprint_block(cp, n):
 def cprint_memory(cp, n):
     cp.cp_txt('/* [0x{:x}]: MEMORY {} */'.format(
         n.c_address, n.description or '(no description)'))
-    cp.start_struct(n.name)
+    cp.start_struct(n)
     cprint_children(cp, n, n.c_elsize, 0)
     cp.end_struct('{}[{}]'.format(n.name, n.memsize_val // n.c_elsize))
 
@@ -139,7 +140,7 @@ def cprint_memory(cp, n):
 def cprint_repeat(cp, n):
     cp.cp_txt('/* [0x{:x}]: REPEAT {} */'.format(
         n.c_address, n.description or '(no description)'))
-    cp.start_struct(n.name)
+    cp.start_struct(n)
     cprint_children(cp, n, n.c_elsize, 0)
     cp.end_struct('{}[{}]'.format(n.name, n.count))
 
@@ -170,14 +171,17 @@ def cprint_root(cp, n):
     if n.version:
         cp.cp_txt("/* For {} version: {} */".format(n.name, n.version))
     if n.c_address_spaces_map is None:
-        cp.start_struct(n.name)
+        cp.start_struct(n)
+        if n.c_prefix_c_struct:
+            cp.struct_prefix = n.name + '_'
         cprint_composite(cp, n)
         cp.end_struct(None)
     else:
         for i, el in enumerate(n.children):
             if i != 0:
                 cp.cp_txt('')
-            cp.start_struct(n.name + '_' + el.name)
+            cp.struct_prefix = n.name + '_'
+            cp.start_struct(el)
             cp.visit(el)
             cp.end_struct(None)
 
@@ -188,11 +192,15 @@ def to_cmacro(name):
 
 def gen_c_cheby(fd, root, style):
     cp = CPrinter(style)
+
+    # Print in a buffer, needed to gather submaps.
     cprint_root(cp, root)
+
     csym = to_cmacro(root.name)
     fd.write("#ifndef {}\n".format(csym))
     fd.write("#define {}\n".format(csym))
 
+    # Add the includes for submaps
     submaps = [n.name for n in cp.submaps]
     if submaps:
         fd.write('\n')
@@ -213,6 +221,7 @@ def gen_c_cheby(fd, root, style):
             fd.write("  #define {} {}\n".format(acc[0], acc[1]))
             fd.write("#endif\n")
 
+    #  Consts
     print_consts.pconsts_for_gen_c(fd, root)
     fd.write('\n')
 

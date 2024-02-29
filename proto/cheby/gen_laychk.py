@@ -5,6 +5,7 @@ import cheby.tree as tree
 class ChkGen(tree.Visitor):
     def __init__(self, fd):
         self.fd = fd
+        self.struct_prefix = ''
 
     def cg_raw(self, s):
         self.fd.write(s)
@@ -13,11 +14,11 @@ class ChkGen(tree.Visitor):
         self.cg_raw("char assert_{}[({}) ? 1 : -1];\n".format(name, expr))
 
     def cg_size(self, name, sz):
-        self.cg_assert(name, "sizeof(struct {}) == {}".format(name, sz))
+        self.cg_assert(name, "sizeof(struct {}{}) == {}".format(self.struct_prefix, name, sz))
 
     def cg_offset(self, tag, name, off):
         self.cg_assert("{}_{}".format(tag, name),
-                       "offsetof(struct {}, {}) == {}".format(tag, name, off))
+                       "offsetof(struct {}{}, {}) == {}".format(self.struct_prefix, tag, name, off))
 
 
 @ChkGen.register(tree.Reg)
@@ -27,7 +28,7 @@ def chklayout_reg(_cg, _n):
 
 @ChkGen.register(tree.Block)
 def sprint_block(cg, n):
-    cg.cg_size(n.name, n.c_size)
+    cg.cg_size(n.c_name, n.c_size)
     chklayout_composite(cg, n)
 
 
@@ -39,30 +40,39 @@ def sprint_memory(cg, n):
 
 @ChkGen.register(tree.Repeat)
 def sprint_repeat(cg, n):
-    cg.cg_size(n.name, n.c_elsize)
+    cg.cg_size(n.c_name, n.c_elsize)
     chklayout_composite(cg, n)
 
 
 @ChkGen.register(tree.Submap)
 def sprint_submap(cg, n):
     if n.filename is None:
+        # Generic interface
         pass
     else:
         sn = n.c_submap
+        prev = cg.struct_prefix
+        cg.struct_prefix = ''
         cg.cg_size(sn.name, sn.c_size)
+        cg.struct_prefix = prev
 
 
 @ChkGen.register(tree.CompositeNode)
 def chklayout_composite(cg, n):
     for el in n.children:
-        cg.cg_offset(n.name, el.name, el.c_address)
+        cg.cg_offset(n.c_name, el.name, el.c_address)
         cg.visit(el)
 
 
 @ChkGen.register(tree.Root)
 def chklayout_root(cg, n):
     cg.cg_size(n.name, n.c_size)
-    chklayout_composite(cg, n)
+    for el in n.children:
+        cg.cg_offset(n.name, el.name, el.c_address)
+    if n.c_prefix_c_struct:
+        cg.struct_prefix = n.name + '_'
+    for el in n.children:
+        cg.visit(el)
 
 
 def gen_chklayout_cheby(fd, root):

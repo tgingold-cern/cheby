@@ -176,9 +176,6 @@ def handle_file(args, filename):
     if args.print_simple is not None:
         with open_filename(args.print_simple) as f:
             sprint.sprint_cheby(f, t, True)
-    if args.print_memmap_verbose is not None:
-        with open_filename(args.print_memmap_verbose) as f:
-            sprint.sprint_cheby(f, t, False, True)
     if args.gen_gena_memmap is not None:
         with open_filename(args.gen_gena_memmap) as f:
             h = gen_gena_memmap.gen_gena_memmap(t)
@@ -206,6 +203,9 @@ def handle_file(args, filename):
     # Generate names for C code (but do not expand)
     gen_name.gen_name_memmap(t)
 
+    if args.print_memmap_verbose is not None:
+        with open_filename(args.print_memmap_verbose) as f:
+            sprint.sprint_cheby(f, t, False, True)
     if args.gen_c is not None:
         with open_filename(args.gen_c) as f:
             gen_c.gen_c_cheby(f, t, args.c_style)

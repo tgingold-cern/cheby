@@ -109,6 +109,7 @@ def gen_name_children(parent, prefix, ctxt):
 def gen_name_hierarchy(n):
     ctxt = Context()
     prefix = None
+    n.c_name = n.name
     gen_name_children(n, prefix, ctxt)
 
 

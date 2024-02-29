@@ -68,9 +68,7 @@ class NamedNode(Node):
 
     def get_ext_node(self, ext):
         "Get the object :name ext: or None if it doesn't exist"
-        if not hasattr(self, ext):
-            return None
-        return getattr(self, ext)
+        return getattr(self, ext, None)
 
     def get_extension(self, ext, name, default=None):
         x = self.get_ext_node(ext)
@@ -116,6 +114,7 @@ class Root(CompositeNode):
         self.c_version = None
         self.c_memmap_version = None
         self.c_enums_dict = {}      # Dictionnary from enum name to enum node.
+        self.c_prefix_c_struct = False  # Set if c struct are prefixed with root name
         self.c_address_spaces_map = {}
 
 

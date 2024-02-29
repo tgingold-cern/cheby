@@ -399,6 +399,17 @@ def parse_enums(root, enums):
         root.x_enums.append(res)
 
 
+def parse_c_header(root, el):
+    if not isinstance(el, dict):
+        error("'children' of {} must be a dictionnary".format(
+            root.get_path()))
+    for k, v in el.items():
+        if k == 'prefix-struct':
+            root.c_prefix_c_struct = read_bool(root, k, v)
+        else:
+            error("unhandled '{}' in x-c-header {}".format(k, root.get_path()))
+
+
 def parse_yaml(filename):
     try:
         el = yamlread.load(open(filename))
@@ -422,7 +433,10 @@ def parse_yaml(filename):
             parse_map_info(res, v)
         elif k == 'x-enums':
             parse_enums(res, v)
+        elif k == 'x-c-header':
+            parse_c_header(res, v)
         elif parse_composite(res, k, v):
+            # The bulk of the work!
             pass
         elif k == 'bus':
             res.bus = read_text(res, k, v)
