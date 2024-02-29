@@ -808,6 +808,12 @@ or to include an equivalent header file.
 With the option `--c-style=arm`, the header generated follows more closely
 the CMSIS style.
 
+Inner blocks (like `block` or `repeat`) are represented by C `struct`.
+If the option `prefix-struct` in extension `x-c-header` at the root is
+set, the structure tag will be prefixed by the name of the root.
+It avoids compiler errors if the name of the block is used in different
+designs.  It is strongly recommended to set this attribute.
+
 It is also possible to generate a C program that check the layout is the same
 as the layout seen by Cheby.  This can be used as a consistency check.
 

@@ -62,6 +62,9 @@ Add support for 'simple-32' bus.
 
 Fix the final padding comment for memories
 
+Inner C struct tag can be prefixed by root name if x-c-header:prefix-struct
+is set.
+
 ## Version 1.5
 
 Fix a crash when address lines are not used by cernbus (issue#95)
