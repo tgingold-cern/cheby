@@ -22,9 +22,9 @@ struct repeatInRepeat {
   /* [0x0]: REPEAT (no description) */
   struct repA {
     /* [0x0]: BLOCK (no description) */
-    struct block1 {
+    struct repA_block1 {
       /* [0x0]: REPEAT (no description) */
-      struct repB {
+      struct repA_block1_repB {
         /* [0x0]: REG (rw) (no description) */
         uint8_t reg1;
 
