@@ -256,7 +256,9 @@ def compare_buffer_and_file(buf, filename):
 
 def test_genc_ref():
     global nbr_tests
-    for f in ['issue103/top']:
+    for f in ['issue103/top',
+              'bug-gen-c-02/mbox_regs', 'bug-gen-c-02/fip_urv_regs',
+              'issue67/repeatInRepeat']:
         h_file = srcdir + f + '.h'
         cheby_file = srcdir + f + '.cheby'
         t = parse_ok(cheby_file)
@@ -265,7 +267,7 @@ def test_genc_ref():
         buf = write_buffer()
         gen_c.gen_c_cheby(buf, t, 'neutral')
         if not compare_buffer_and_file(buf, h_file):
-            error('vhdl generation error for {}'.format(f))
+            error('c header generation error for {}'.format(f))
         nbr_tests += 1
 
 
