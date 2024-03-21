@@ -3,7 +3,7 @@ memory-map:
   bus: axi4-lite-32
   x-driver-edge:
     driver-version: 0.1.0
-    schema-version: 0.1.0
+    schema-version: 3.0
     bus-type: PCI
     endianness: big
     device-info:

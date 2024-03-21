@@ -1,8 +1,8 @@
-#Encore Driver GEnerator version: 0.1.0
+#Encore Driver GEnerator version: 3.0
 
 #LIF (Logical Interface) table definition
  hw_mod_name, hw_lif_name, hw_lif_vers, edge_vers, bus, endian, description
-    acdipole,    acdipole,       0.1.0,     0.1.0, PCI,     BE,
+    acdipole,    acdipole,       0.1.0,       3.0, PCI,     BE,
 
 #Device Identification table definition
  vendor, device, args
