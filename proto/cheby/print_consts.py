@@ -237,6 +237,15 @@ class ConstsPrinterPython(ConstsPrinter):
         self.pr_const(name, "0x{:x}".format(val))
 
 
+class ConstsPrinterMatlab(ConstsPrinter):
+    def pr_const(self, name, val):
+        self.pr_raw("{} = {};\n".format(name, val))
+
+    def pr_hex_const(self, name, val):
+        # Matlab does not support hexadecimal values
+        self.pr_dec_const(name, val)
+
+
 class ConstsPrinterTCL(ConstsPrinter):
     def pr_const(self, name, val):
         self.pr_raw("set {} {}\n".format(name, val))
@@ -352,14 +361,17 @@ def pconsts_for_gen_c(fd, root):
 
 
 def pconsts_cheby(fd, root, style):
-    cls = {'verilog': ConstsPrinterVerilog,
-           'sv': ConstsPrinterSystemVerilog,
-           'vhdl-orig': ConstsPrinterVHDL,
-           'vhdl-ohwr': ConstsPrinterVHDLOhwr,
-           'vhdl': ConstsPrinterVHDL,
-           'h': ConstsPrinterH,
-           'python': ConstsPrinterPython,
-           'tcl': ConstsPrinterTCL}
+    cls = {
+        'h': ConstsPrinterH,
+        'matlab': ConstsPrinterMatlab,
+        'python': ConstsPrinterPython,
+        'sv': ConstsPrinterSystemVerilog,
+        'tcl': ConstsPrinterTCL,
+        'verilog': ConstsPrinterVerilog,
+        'vhdl': ConstsPrinterVHDL,
+        'vhdl-ohwr': ConstsPrinterVHDLOhwr,
+        'vhdl-orig': ConstsPrinterVHDL,
+    }
     pr = ConstsVisitor(cls[style](fd, root))
     pr.pr_header()
     pr.visit(root)
