@@ -98,6 +98,13 @@ class ConstsPrinter(object):
         mask = (1 << self.compute_width(f)) - 1
         return mask << f.lo
 
+    def pr_field_address(self, f):
+        if self.sep != "_":
+            name = self.pr_name(f) + self.sep + "ADDR"
+        else:
+            name = "ADDR_" + self.pr_name(f)
+        self.pr_hex_addr(name, f.parent.c_abs_addr)
+
     def pr_field_width(self, f):
         self.pr_dec_const(self.pr_name(f) + self.sep + "WIDTH", self.compute_width(f))
 
@@ -105,6 +112,7 @@ class ConstsPrinter(object):
         self.pr_hex_data(self.pr_name(f), self.compute_mask(f), f._parent.width)
 
     def pr_field(self, f):
+        self.pr_field_address(f)
         self.pr_field_offset(f)
         self.pr_field_mask(f)
 

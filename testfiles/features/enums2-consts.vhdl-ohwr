@@ -4,6 +4,7 @@ use ieee.std_logic_1164.all;
 package enums2_consts_pkg is
   constant c_ENUMS2_SIZE : Natural := 4;
   constant c_ENUMS2_R1_ADDR : Natural := 16#0#;
+  constant c_ADDR_ENUMS2_R1_F1 : Natural := 16#0#;
   constant c_ENUMS2_R1_F1_OFFSET : Natural := 0;
   constant C_enum1_hello : std_logic_vector (7 downto 0) := "00000000";
   constant C_enum1_World : std_logic_vector (7 downto 0) := "00000001";

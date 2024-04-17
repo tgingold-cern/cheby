@@ -4,6 +4,7 @@ use ieee.std_logic_1164.all;
 package memwide_ua_consts_pkg is
   constant c_MEMWIDE_UA_SIZE : Natural := 256;
   constant c_MEMWIDE_UA_REGA_ADDR : Natural := 16#0#;
+  constant c_ADDR_MEMWIDE_UA_REGA_FIELD0 : Natural := 16#0#;
   constant c_MEMWIDE_UA_REGA_FIELD0_OFFSET : Natural := 1;
   constant c_MEMWIDE_UA_TS_ADDR : Natural := 16#80#;
   constant c_MEMWIDE_UA_TS_SIZE : Natural := 16;
