@@ -7,14 +7,16 @@ import cheby
 def get_comment_token(language):
     # Find comment token for the given language
     comment_token_dict = {
-        'verilog': '//',
-        'sv': '//',
         'h': '//',  # C header file
-        'vhdl': '--',
-        'vhdl-orig': '--',
-        'vhdl-ohwr': '--',
+        'matlab': '%',
+        'matlab-struct': '%',
         'python': '#',
+        'sv': '//',
         'tcl': '#',
+        'verilog': '//',
+        'vhdl': '--',
+        'vhdl-ohwr': '--',
+        'vhdl-orig': '--',
     }
     return comment_token_dict[language]
 

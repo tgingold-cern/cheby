@@ -851,9 +851,14 @@ defines the address of the registers, the offset and a mask for each fields.
   $ cheby --consts-style=STYLE --gen-consts -i INPUT.cheby
 ----
 
-The `STYLE` can be either `verilog`, `sv`, `h`, `python`, `vhdl`, or `vhdl-ohwr`.
-For vhdl the addresses and the offsets are integers, and the mask is not generated
-(as it would often overflow the integer range).
+The `STYLE` can be either `h`, `matlab`, `python`, `sv`, `tcl`, `verilog`,
+`vhdl`, `vhdl-ohwr`, or `vhdl-orig`. For vhdl the addresses and the offsets are
+integers, and the mask is not generated (as it would often overflow the integer
+range).
+
+Some styles also support the generation of structured constant files by adding a
+`-struct` suffix to it. Thereby, the constants are grouped in a hierarchical
+structure instead of individual constants. E.g., `matlab-struct`.
 
 === Generating SILECS file
 

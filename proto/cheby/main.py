@@ -62,10 +62,23 @@ def decode_args():
                          help='select language for hdl generation')
     aparser.add_argument('--gen-hdl', nargs='?', const='-',
                          help='generate hdl file')
-    aparser.add_argument('--consts-style', choices=['vhdl', 'vhdl-ohwr', 'vhdl-orig',
-                                                    'verilog', 'sv', 'h', 'python', 'tcl'],
-                         default='verilog',
-                         help='select style for --gen-consts')
+    aparser.add_argument(
+        '--consts-style',
+        choices=[
+            'h',
+            'matlab',
+            'matlab-struct',
+            'python',
+            'sv',
+            'tcl',
+            'verilog',
+            'vhdl',
+            'vhdl-ohwr',
+            'vhdl-orig',
+        ],
+        default='verilog',
+        help='select style for --gen-consts',
+    )
     aparser.add_argument('--gen-consts', nargs='?', const='-',
                          help='generate constants as hdl file')
     aparser.add_argument('--gen-edge', nargs='?', const='-',
@@ -274,10 +287,12 @@ def handle_file(args, filename):
                 print_latex.copy_template(f)
             else:
                 raise AssertionError('Unknown doc format {} for template copying.'.format(args.doc))
+
     if args.gen_consts is not None:
         with open_filename(args.gen_consts) as f:
             gen_header.gen_comment_header_maybe(f, args.header, args.consts_style)
             print_consts.pconsts_cheby(f, t, args.consts_style)
+
     if args.gen_wbgen_hdl is not None:
         h = gen_wbgen_hdl.expand_hdl(t)
         with open_filename(args.gen_wbgen_hdl) as f:
