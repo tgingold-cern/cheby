@@ -3,11 +3,14 @@ import cheby.layout as layout
 
 
 class ConstsPrinter(object):
-    def __init__(self, fd, root):
+    def __init__(self, fd, root, sep="_", num="({})", indexOff=0):
         super(ConstsPrinter, self).__init__()
         self.fd = fd
         self.root = root
         self.pfx = root.name.upper()
+        self.sep = sep
+        self.num = num
+        self.indexOff = indexOff
 
     def pr_raw(self, s):
         self.fd.write(s)
@@ -17,7 +20,7 @@ class ConstsPrinter(object):
 
     def pr_const(self, name, val):
         """Print a constant, :param val: is a string.
-           Must be overriden"""
+           Must be overridden"""
         raise Exception
 
     def pr_hex_const(self, name, val):
@@ -39,24 +42,41 @@ class ConstsPrinter(object):
         if n == self.root:
             return self.pfx
         else:
-            return "{}_{}".format(self.pfx, n.c_name.upper())
+            if self.sep != "_":
+                # Return node names concatenated with separator
+                if n.name.isdecimal():
+                    num = int(n.name) + self.indexOff
+                    return "{}{}".format(self.pr_name(n.parent), self.num.format(num))
+                else:
+                    return "{}{}{}".format(self.pr_name(n.parent), self.sep, n.name)
+            else:
+                # Return c_name with prefix
+                return "{}_{}".format(self.pfx, n.c_name.upper())
 
     def pr_address(self, n):
-        self.pr_hex_addr("ADDR_" + self.pr_name(n), n.c_abs_addr)
+        if self.sep != "_":
+            name = self.pr_name(n) + self.sep + "ADDR"
+        else:
+            name = "ADDR_" + self.pr_name(n)
+        self.pr_hex_addr(name, n.c_abs_addr)
 
     def pr_address_mask(self, n):
-        self.pr_hex_addr("ADDR_MASK_" + self.pr_name(n),
-                         layout.round_pow2(n._parent.c_size) - n.c_size)
+        if self.sep != "_":
+            name = self.pr_name(n) + self.sep + "MASK"
+        else:
+            name = "ADDR_MASK_" + self.pr_name(n)
+
+        self.pr_hex_addr(name, layout.round_pow2(n._parent.c_size) - n.c_size)
 
     def pr_size(self, n, sz):
-        self.pr_dec_const(self.pr_name(n) + "_SIZE", sz)
+        self.pr_dec_const(self.pr_name(n) + self.sep + "SIZE", sz)
 
     def pr_version(self, n, name, nums):
         v = (nums[0] << 16) | (nums[1] << 8) | nums[2]
-        self.pr_hex_const(self.pr_name(n) + "_" + name, v)
+        self.pr_hex_const(self.pr_name(n) + self.sep + name, v)
 
     def pr_ident(self, n, name, val):
-        self.pr_hex_const(self.pr_name(n) + "_" + name, val)
+        self.pr_hex_const(self.pr_name(n) + self.sep + name, val)
 
     def pr_reg(self, n):
         if n.has_fields():
@@ -66,14 +86,20 @@ class ConstsPrinter(object):
             self.pr_preset(self.pr_name(n), f.c_preset, n.width)
 
     def pr_field_offset(self, f):
-        self.pr_dec_const(self.pr_name(f) + "_OFFSET", f.lo)
+        self.pr_dec_const(self.pr_name(f) + self.sep + "OFFSET", f.lo)
+
+    def compute_width(self, f):
+        if f.hi is None:
+            return 1
+        else:
+            return f.hi - f.lo + 1
 
     def compute_mask(self, f):
-        if f.hi is None:
-            mask = 1
-        else:
-            mask = (1 << (f.hi - f.lo + 1)) - 1
+        mask = (1 << self.compute_width(f)) - 1
         return mask << f.lo
+
+    def pr_field_width(self, f):
+        self.pr_dec_const(self.pr_name(f) + self.sep + "WIDTH", self.compute_width(f))
 
     def pr_field_mask(self, f):
         self.pr_hex_data(self.pr_name(f), self.compute_mask(f), f._parent.width)
@@ -86,7 +112,7 @@ class ConstsPrinter(object):
             self.pr_preset(self.pr_name(f), f.c_preset, f.c_rwidth)
 
     def pr_preset(self, name, preset, width):
-        name = name + '_PRESET'
+        name = name + self.sep + "PRESET"
         self.pr_hex_data(name, preset, width)
 
     def pr_enum(self, name, val, wd):
@@ -238,6 +264,9 @@ class ConstsPrinterPython(ConstsPrinter):
 
 
 class ConstsPrinterMatlab(ConstsPrinter):
+    def __init__(self, fd, root, sep="_"):
+        super().__init__(fd, root, sep, num="({})", indexOff=1)
+
     def pr_const(self, name, val):
         self.pr_raw("{} = {};\n".format(name, val))
 
@@ -360,8 +389,45 @@ def pconsts_for_gen_c(fd, root):
     pr.visit(root)
 
 
-def pconsts_cheby(fd, root, style):
-    cls = {
+class StructVisitor(ConstsVisitor):
+    def __init__(self, printer):
+        self.printer = printer
+
+        # Set hierarchical separator
+        self.printer.sep = "."
+
+        # Avoid printing of mask
+        # The mask property comes without dedicated suffix and would overwrite/be
+        # overwritten by the remaining properties of the structure. Instead, the field
+        # width is printed.
+        self.printer.pr_field_mask = self.printer.pr_field_width
+
+        # Avoid printing of properties on nodes that are not leaves (i.e., fields)
+        self.printer.pr_size = lambda *args: None
+        self.printer.pr_version = lambda *args: None
+        self.printer.pr_ident = lambda *args: None
+
+    def pr_address(self, n):
+        # Avoid printing of properties on nodes that are not leaves (i.e., fields)
+        pass
+
+    def pr_address_mask(self, n):
+        # Avoid printing of properties on nodes that are not leaves (i.e., fields)
+        pass
+
+    def pr_size(self, n, sz):
+        # Avoid printing of properties on nodes that are not leaves (i.e., fields)
+        pass
+
+
+@StructVisitor.register(tree.RepeatBlock)
+def pstruct_repeatblock(pr, n):
+    # Avoid adding any elements (such as address) to list-like substructure
+    pconsts_composite_children(pr, n)
+
+
+def pconsts_cheby(fd, root, style, form="consts"):
+    cls_style = {
         'h': ConstsPrinterH,
         'matlab': ConstsPrinterMatlab,
         'python': ConstsPrinterPython,
@@ -372,7 +438,13 @@ def pconsts_cheby(fd, root, style):
         'vhdl-ohwr': ConstsPrinterVHDLOhwr,
         'vhdl-orig': ConstsPrinterVHDL,
     }
-    pr = ConstsVisitor(cls[style](fd, root))
+    cls_form = {
+        'consts': ConstsVisitor,
+        'struct': StructVisitor
+    }
+
+    pr = cls_form[form](cls_style[style](fd, root))
+
     pr.pr_header()
     pr.visit(root)
     pr.pr_trailer()
