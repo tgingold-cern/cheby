@@ -856,6 +856,15 @@ The `STYLE` can be either `h`, `matlab`, `python`, `sv`, `tcl`, `verilog`,
 integers, and the mask is not generated (as it would often overflow the integer
 range).
 
+Some styles also support the generation of structured constant files. Thereby,
+the constants are grouped in a hierarchical structure instead of individual
+constants.
+
+[source]
+----
+  $ cheby --consts-style=STYLE --gen-struct -i INPUT.cheby
+----
+
 === Generating SILECS file
 
 It is possible to generate SILECS
