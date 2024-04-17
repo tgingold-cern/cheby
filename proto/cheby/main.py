@@ -67,6 +67,7 @@ def decode_args():
         choices=[
             'h',
             'matlab',
+            'matlab-struct',
             'python',
             'sv',
             'tcl',
@@ -76,12 +77,10 @@ def decode_args():
             'vhdl-orig',
         ],
         default='verilog',
-        help='select style for --gen-consts and --gen-struct',
+        help='select style for --gen-consts',
     )
     aparser.add_argument('--gen-consts', nargs='?', const='-',
                          help='generate constants as hdl file')
-    aparser.add_argument('--gen-struct', nargs='?', const='-',
-                         help='generate constants in structured form as hdl file')
     aparser.add_argument('--gen-edge', nargs='?', const='-',
                          help='generate EDGE file')
     aparser.add_argument('--gen-edge3', nargs='?', const='-',
@@ -292,11 +291,7 @@ def handle_file(args, filename):
     if args.gen_consts is not None:
         with open_filename(args.gen_consts) as f:
             gen_header.gen_comment_header_maybe(f, args.header, args.consts_style)
-            print_consts.pconsts_cheby(f, t, args.consts_style, "consts")
-    if args.gen_struct is not None:
-        with open_filename(args.gen_struct) as f:
-            gen_header.gen_comment_header_maybe(f, args.header, args.consts_style)
-            print_consts.pconsts_cheby(f, t, args.consts_style, "struct")
+            print_consts.pconsts_cheby(f, t, args.consts_style)
 
     if args.gen_wbgen_hdl is not None:
         h = gen_wbgen_hdl.expand_hdl(t)
