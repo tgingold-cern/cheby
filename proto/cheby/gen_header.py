@@ -9,6 +9,7 @@ def get_comment_token(language):
     comment_token_dict = {
         'h': '//',  # C header file
         'matlab': '%',
+        'matlab-struct': '%',
         'python': '#',
         'sv': '//',
         'tcl': '#',

@@ -434,7 +434,12 @@ def pstruct_repeatblock(pr, n):
     pconsts_composite_children(pr, n)
 
 
-def pconsts_cheby(fd, root, style, form="consts"):
+def pconsts_cheby(fd, root, style):
+    form = "consts"
+    if style.endswith("-struct"):
+        form = "struct"
+        style = style[:-7]
+
     cls_style = {
         'h': ConstsPrinterH,
         'matlab': ConstsPrinterMatlab,
