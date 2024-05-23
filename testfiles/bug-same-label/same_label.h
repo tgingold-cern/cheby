@@ -1,5 +1,8 @@
 #ifndef __CHEBY__SAME_LABEL_REG__H__
 #define __CHEBY__SAME_LABEL_REG__H__
+
+#include <stdint.h>
+
 #define SAME_LABEL_REG_SIZE 16 /* 0x10 */
 
 /* Register without fields. */
@@ -8,7 +11,6 @@
 
 /* Register with same-name field. */
 #define SAME_LABEL_REG_SAME_NAME 0x4UL
-#define SAME_LABEL_REG_SAME_NAME 0x1UL
 
 /* Register with multi-bit same-name field. */
 #define SAME_LABEL_REG_SAME_NAME_MULTI 0x8UL
