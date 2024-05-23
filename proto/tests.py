@@ -258,7 +258,8 @@ def test_genc_ref():
     global nbr_tests
     for f in ['issue103/top',
               'bug-gen-c-02/mbox_regs', 'bug-gen-c-02/fip_urv_regs',
-              'issue67/repeatInRepeat', 'issue67/repeatInRepeatC']:
+              'issue67/repeatInRepeat', 'issue67/repeatInRepeatC',
+              'bug-same-label/same_label']:
         h_file = srcdir + f + '.h'
         cheby_file = srcdir + f + '.cheby'
         t = parse_ok(cheby_file)
