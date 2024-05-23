@@ -263,7 +263,15 @@ class ConstsPrinterC(ConstsPrinterH):
     def pr_field(self, f):
         if f.hi is None:
             # A single bit
-            self.pr_hex_const(self.pr_name(f), self.compute_mask(f))
+            if self.sep != "_" or f.parent.c_name != f.c_name:
+                # If there is a register containing a single field and both share the same
+                # name, both of their c_name s will be equal. Hence, when the default
+                # separator "_" is selected, pr_name() will return the same name for the
+                # register as well as for the field. Printing the address for the register
+                # and the field will therefore lead to the same constant printed twice.
+                # In that case, this condition blocks the field address constant to be
+                # printed here.
+                self.pr_hex_const(self.pr_name(f), self.compute_mask(f))
         else:
             # A multi-bit field
             self.pr_hex_const(self.pr_name(f) + '_MASK', self.compute_mask(f))
