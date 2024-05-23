@@ -198,7 +198,8 @@ def gen_c_cheby(fd, root, style):
 
     csym = to_cmacro(root.name)
     fd.write("#ifndef {}\n".format(csym))
-    fd.write("#define {}\n".format(csym))
+    fd.write("#define {}\n\n".format(csym))
+    fd.write("#include <stdint.h>\n\n")
 
     # Add the includes for submaps
     submaps = [n.name for n in cp.submaps]
