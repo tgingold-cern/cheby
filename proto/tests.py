@@ -93,6 +93,12 @@ def elab_sv(sv_file, top_entity):
     if res.returncode != 0:
         error('SV/Verilog elaboration failed for {}'.format(sv_file))
 
+def check_c_syntax(c_file):
+    """Function to check C syntax using gcc"""
+    res = subprocess.run(['gcc', '-fsyntax-only', '-Wall', '-Werror', c_file])
+    if res.returncode != 0:
+        error('C syntax check failed for {}'.format(c_file))
+
 def parse_ok(f):
     try:
         return parser.parse_yaml(f)
@@ -162,18 +168,26 @@ def test_layout():
             print('test layout: {}'.format(f))
         t = parse_ok(srcdir + f)
         layout_ok(t)
+
+        # Generate C source and header files, check syntax for both version
         hname = t.name + '.h'
         cname = t.name + '.c'
         gen_name.gen_name_memmap(t)
-        with open(hname, 'w') as fd:
-            gen_c.gen_c_cheby(fd, t, 'neutral')
-            gen_c.gen_c_cheby(fd, t, 'arm')
         with open(cname, 'w') as fd:
             gen_laychk.gen_chklayout_cheby(fd, t)
-        subprocess.check_call(['gcc', '-S', cname])
+        with open(hname, 'w') as fd:
+            gen_c.gen_c_cheby(fd, t, 'neutral')
+        if args.elaborate:
+            check_c_syntax(hname)
+            check_c_syntax(cname)
+
+        with open(hname, 'w') as fd:
+            gen_c.gen_c_cheby(fd, t, 'arm')
+        if args.elaborate:
+            check_c_syntax(hname)
+            check_c_syntax(cname)
         hfiles.append(hname)
         os.remove(cname)
-        os.remove(t.name + '.s')
         nbr_tests += 1
     for f in hfiles:
         os.remove(f)
@@ -258,7 +272,8 @@ def test_genc_ref():
     global nbr_tests
     for f in ['issue103/top',
               'bug-gen-c-02/mbox_regs', 'bug-gen-c-02/fip_urv_regs',
-              'issue67/repeatInRepeat', 'issue67/repeatInRepeatC']:
+              'issue67/repeatInRepeat', 'issue67/repeatInRepeatC',
+              'bug-same-label/same_label']:
         h_file = srcdir + f + '.h'
         cheby_file = srcdir + f + '.cheby'
         t = parse_ok(cheby_file)
@@ -268,6 +283,12 @@ def test_genc_ref():
         gen_c.gen_c_cheby(buf, t, 'neutral')
         if not compare_buffer_and_file(buf, h_file):
             error('c header generation error for {}'.format(f))
+        
+        # Check C syntax
+        # Note: Exclude issue103/top because it includes other header files
+        # not generated here.
+        if f != 'issue103/top' and args.elaborate:
+            check_c_syntax(h_file)
         nbr_tests += 1
 
 
@@ -872,7 +893,7 @@ def test_consts():
     for f in ['demo_all', 'features/semver1', 'features/mapinfo1',
               'issue64/simple_reg1', 'issue_g2/reg', 'bug-consts/blkpfx',
               'features/enums1', 'features/enums2', 'bug-const-range/const_range',
-              'features/memwide_ua']:
+              'features/memwide_ua', 'bug-same-label/same_label']:
         if args.verbose:
             print('test consts: {}'.format(f))
         chebfile = srcdir + f + '.cheby'
@@ -902,6 +923,9 @@ def test_consts():
                     elab_vhdl(file)
 
                 # We don't test SV elaboration here because Verilator requires a top-level instance
+
+                if style == 'h':
+                    check_c_syntax(file)
 
         nbr_tests += 1
 
@@ -982,7 +1006,7 @@ def main():
     aparser.add_argument('-v', '--verbose', action='store_true', help='Enable additional prints.')
     aparser.add_argument('-r', '--regen', action='store_true', help='Regenerate golden test files.')
     aparser.add_argument('-k', '--keep', action='store_true', help='Keep running tests after an error occured.')
-    aparser.add_argument('-e', '--elaborate', action='store_true', help='Enable elaboration tests.')
+    aparser.add_argument('-e', '--elaborate', action='store_true', help='Enable elaboration/compilation tests.')
     args = aparser.parse_args()
 
     try:

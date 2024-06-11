@@ -1,6 +1,9 @@
 #ifndef __CHEBY__FIP_URV_REGS__H__
 #define __CHEBY__FIP_URV_REGS__H__
 
+#include <stdint.h>
+
+
 #include "mbox_regs.h"
 #define FIP_URV_REGS_SIZE 16384 /* 0x4000 = 16KB */
 
