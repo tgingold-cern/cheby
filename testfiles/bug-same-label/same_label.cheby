@@ -1,0 +1,49 @@
+memory-map:
+  bus: apb-32
+  name: same_label_reg
+  x-hdl:
+    iogroup: regs
+    pipeline: rd-out
+    bus-error: True
+    wmask: True
+    reg-prefix: false # generate shorter register names
+  description: 'Register map with same label.'
+  children:
+    - reg:
+        name: no_fields
+        description: 'Register without fields.'
+        type: unsigned
+        width: 8
+        x-hdl:
+          type: const
+        access: ro
+        preset: 32
+    - reg:
+        name: same_name
+        description: 'Register with same-name field.'
+        width: 32
+        access: ro
+        x-hdl:
+            read-strobe: True
+        children:
+            - field:
+                name: same_name
+                range: 0
+    - reg:
+        name: same_name_multi
+        description: 'Register with multi-bit same-name field.'
+        width: 32
+        access: ro
+        children:
+            - field:
+                name: same_name_multi
+                range: 11-0
+    - reg:
+        name: not_same_reg
+        description: 'Register with different-name field.'
+        width: 32
+        access: ro
+        children:
+            - field:
+                name: not_same
+                range: 0

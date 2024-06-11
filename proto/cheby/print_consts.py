@@ -51,6 +51,7 @@ class ConstsPrinter(object):
                     return "{}{}{}".format(self.pr_name(n.parent), self.sep, n.name)
             else:
                 # Return c_name with prefix
+                # (see also comment in pr_field() calling pr_field_address())
                 return "{}_{}".format(self.pfx, n.c_name.upper())
 
     def pr_address(self, n):
@@ -112,7 +113,16 @@ class ConstsPrinter(object):
         self.pr_hex_data(self.pr_name(f), self.compute_mask(f), f._parent.width)
 
     def pr_field(self, f):
-        self.pr_field_address(f)
+        if self.sep != "_" or f.parent.c_name != f.c_name:
+            # If there is a register containing a single field and both share the same
+            # name, both of their c_name s will be equal. Hence, when the default
+            # separator "_" is selected, pr_name() will return the same name for the
+            # register as well as for the field. Printing the address for the register
+            # and the field will therefore lead to the same constant printed twice.
+            # In that case, this condition blocks the field address constant to be
+            # printed here.
+            self.pr_field_address(f)
+
         self.pr_field_offset(f)
         self.pr_field_mask(f)
 
@@ -253,7 +263,15 @@ class ConstsPrinterC(ConstsPrinterH):
     def pr_field(self, f):
         if f.hi is None:
             # A single bit
-            self.pr_hex_const(self.pr_name(f), self.compute_mask(f))
+            if self.sep != "_" or f.parent.c_name != f.c_name:
+                # If there is a register containing a single field and both share the same
+                # name, both of their c_name s will be equal. Hence, when the default
+                # separator "_" is selected, pr_name() will return the same name for the
+                # register as well as for the field. Printing the address for the register
+                # and the field will therefore lead to the same constant printed twice.
+                # In that case, this condition blocks the field address constant to be
+                # printed here.
+                self.pr_hex_const(self.pr_name(f), self.compute_mask(f))
         else:
             # A multi-bit field
             self.pr_hex_const(self.pr_name(f) + '_MASK', self.compute_mask(f))

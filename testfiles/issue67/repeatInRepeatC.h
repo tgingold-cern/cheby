@@ -1,5 +1,8 @@
 #ifndef __CHEBY__REPEATINREPEATC__H__
 #define __CHEBY__REPEATINREPEATC__H__
+
+#include <stdint.h>
+
 #define REPEATINREPEATC_SIZE 32 /* 0x20 */
 
 /* None */
