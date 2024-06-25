@@ -136,6 +136,7 @@ begin
   ch3_enable_o <= ch3_enable_reg;
   ch4_enable_o <= ch4_enable_reg;
   ext_enable_o <= ext_enable_reg;
+  ctrl_wack <= ctrl_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
@@ -144,7 +145,6 @@ begin
         ch3_enable_reg <= '0';
         ch4_enable_reg <= '0';
         ext_enable_reg <= '0';
-        ctrl_wack <= '0';
       else
         if ctrl_wreq = '1' then
           ch1_enable_reg <= wr_dat_d0(0);
@@ -153,7 +153,6 @@ begin
           ch4_enable_reg <= wr_dat_d0(3);
           ext_enable_reg <= wr_dat_d0(8);
         end if;
-        ctrl_wack <= ctrl_wreq;
       end if;
     end if;
   end process;

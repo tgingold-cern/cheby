@@ -121,16 +121,15 @@ begin
 
   -- Register regA
   regA_field0_o <= regA_field0_reg;
+  regA_wack <= regA_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         regA_field0_reg <= '0';
-        regA_wack <= '0';
       else
         if regA_wreq = '1' then
           regA_field0_reg <= wr_dat_d0(1);
         end if;
-        regA_wack <= regA_wreq;
       end if;
     end if;
   end process;

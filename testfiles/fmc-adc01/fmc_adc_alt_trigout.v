@@ -59,7 +59,7 @@ module alt_trigout
   reg ch4_enable_reg;
   reg ext_enable_reg;
   reg ctrl_wreq;
-  reg ctrl_wack;
+  wire ctrl_wack;
   reg rd_ack_d0;
   reg [31:0] rd_dat_d0;
   reg wr_req_d0;
@@ -125,6 +125,7 @@ module alt_trigout
   assign ch3_enable_o = ch3_enable_reg;
   assign ch4_enable_o = ch4_enable_reg;
   assign ext_enable_o = ext_enable_reg;
+  assign ctrl_wack = ctrl_wreq;
   always @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
@@ -134,20 +135,16 @@ module alt_trigout
         ch3_enable_reg <= 1'b0;
         ch4_enable_reg <= 1'b0;
         ext_enable_reg <= 1'b0;
-        ctrl_wack <= 1'b0;
       end
     else
-      begin
-        if (ctrl_wreq == 1'b1)
-          begin
-            ch1_enable_reg <= wr_dat_d0[0];
-            ch2_enable_reg <= wr_dat_d0[1];
-            ch3_enable_reg <= wr_dat_d0[2];
-            ch4_enable_reg <= wr_dat_d0[3];
-            ext_enable_reg <= wr_dat_d0[8];
-          end
-        ctrl_wack <= ctrl_wreq;
-      end
+      if (ctrl_wreq == 1'b1)
+        begin
+          ch1_enable_reg <= wr_dat_d0[0];
+          ch2_enable_reg <= wr_dat_d0[1];
+          ch3_enable_reg <= wr_dat_d0[2];
+          ch4_enable_reg <= wr_dat_d0[3];
+          ext_enable_reg <= wr_dat_d0[8];
+        end
   end
 
   // Register ts_mask_sec

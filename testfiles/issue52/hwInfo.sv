@@ -33,7 +33,7 @@ module hwInfo
   reg wr_ack_int;
   reg [7:0] echo_echo_reg;
   reg [1:0] echo_wreq;
-  reg [1:0] echo_wack;
+  wire [1:0] echo_wack;
   reg rd_ack_d0;
   reg [15:0] rd_dat_d0;
   reg wr_req_d0;
@@ -74,19 +74,14 @@ module hwInfo
 
   // Register echo
   assign echo_echo_o = echo_echo_reg;
+  assign echo_wack = echo_wreq;
   always_ff @(posedge(Clk))
   begin
     if (!rst_n)
-      begin
-        echo_echo_reg <= 8'b00000000;
-        echo_wack <= 2'b0;
-      end
+      echo_echo_reg <= 8'b00000000;
     else
-      begin
-        if (echo_wreq[0] == 1'b1)
-          echo_echo_reg <= wr_dat_d0[7:0];
-        echo_wack <= echo_wreq;
-      end
+      if (echo_wreq[0] == 1'b1)
+        echo_echo_reg <= wr_dat_d0[7:0];
   end
 
   // Process for write requests.

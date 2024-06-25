@@ -27,7 +27,7 @@ module sreg_map
   reg wb_wip;
   reg [31:0] areg_reg;
   reg areg_wreq;
-  reg areg_wack;
+  wire areg_wack;
   reg rd_ack_d0;
   reg [31:0] rd_dat_d0;
   reg wr_req_d0;
@@ -83,19 +83,14 @@ module sreg_map
 
   // Register areg
   assign areg_o = areg_reg;
+  assign areg_wack = areg_wreq;
   always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
-      begin
-        areg_reg <= 32'b00000000000000000000000000000000;
-        areg_wack <= 1'b0;
-      end
+      areg_reg <= 32'b00000000000000000000000000000000;
     else
-      begin
-        if (areg_wreq == 1'b1)
-          areg_reg <= wr_dat_d0;
-        areg_wack <= areg_wreq;
-      end
+      if (areg_wreq == 1'b1)
+        areg_reg <= wr_dat_d0;
   end
 
   // Process for write requests.

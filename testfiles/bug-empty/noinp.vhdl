@@ -110,32 +110,30 @@ begin
 
   -- Register reg0
   noinp_inter_o.reg0 <= reg0_reg;
+  reg0_wack <= reg0_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         reg0_reg <= "00000000000000000000000000000000";
-        reg0_wack <= '0';
       else
         if reg0_wreq = '1' then
           reg0_reg <= wr_dat_d0;
         end if;
-        reg0_wack <= reg0_wreq;
       end if;
     end if;
   end process;
 
   -- Register reg1
   noinp_inter_o.reg1 <= reg1_reg;
+  reg1_wack <= reg1_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         reg1_reg <= "00000000000000000000000100100011";
-        reg1_wack <= '0';
       else
         if reg1_wreq = '1' then
           reg1_reg <= wr_dat_d0;
         end if;
-        reg1_wack <= reg1_wreq;
       end if;
     end if;
   end process;

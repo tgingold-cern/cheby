@@ -160,6 +160,7 @@ begin
   regs_0_control_last_reg_adr_o <= regs_0_control_last_reg_adr_reg;
   regs_0_control_max_dim_no_o <= regs_0_control_max_dim_no_reg;
   regs_0_control_read_delay_o <= regs_0_control_read_delay_reg;
+  regs_0_control_wack <= regs_0_control_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
@@ -168,7 +169,6 @@ begin
         regs_0_control_last_reg_adr_reg <= "0000";
         regs_0_control_max_dim_no_reg <= "0000";
         regs_0_control_read_delay_reg <= "0000000000";
-        regs_0_control_wack <= '0';
       else
         if regs_0_control_wreq = '1' then
           regs_0_control_reset_reg <= wr_dat_d0(0);
@@ -180,7 +180,6 @@ begin
           regs_0_control_reset_reg <= '0';
           regs_0_control_trig_reg <= '0';
         end if;
-        regs_0_control_wack <= regs_0_control_wreq;
       end if;
     end if;
   end process;
@@ -193,6 +192,7 @@ begin
   regs_1_control_last_reg_adr_o <= regs_1_control_last_reg_adr_reg;
   regs_1_control_max_dim_no_o <= regs_1_control_max_dim_no_reg;
   regs_1_control_read_delay_o <= regs_1_control_read_delay_reg;
+  regs_1_control_wack <= regs_1_control_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
@@ -201,7 +201,6 @@ begin
         regs_1_control_last_reg_adr_reg <= "0000";
         regs_1_control_max_dim_no_reg <= "0000";
         regs_1_control_read_delay_reg <= "0000000000";
-        regs_1_control_wack <= '0';
       else
         if regs_1_control_wreq = '1' then
           regs_1_control_reset_reg <= wr_dat_d0(0);
@@ -213,7 +212,6 @@ begin
           regs_1_control_reset_reg <= '0';
           regs_1_control_trig_reg <= '0';
         end if;
-        regs_1_control_wack <= regs_1_control_wreq;
       end if;
     end if;
   end process;

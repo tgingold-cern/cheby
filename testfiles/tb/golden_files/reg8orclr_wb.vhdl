@@ -113,29 +113,28 @@ begin
   end process;
 
   -- Register reg1
+  reg1_wack <= reg1_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         reg1_reg <= "00000000000000000000000000000000";
-        reg1_wack <= '0';
       else
         if reg1_wreq = '1' then
           reg1_reg <= reg1_i or (reg1_reg and not wr_dat_d0);
         else
           reg1_reg <= reg1_i or reg1_reg;
         end if;
-        reg1_wack <= reg1_wreq;
       end if;
     end if;
   end process;
 
   -- Register reg2
+  reg2_wack <= reg2_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         reg2_f1_reg <= '1';
         reg2_f2_reg <= "11";
-        reg2_wack <= '0';
       else
         if reg2_wreq = '1' then
           reg2_f1_reg <= reg2_f1_i or (reg2_f1_reg and not wr_dat_d0(0));
@@ -144,12 +143,12 @@ begin
           reg2_f1_reg <= reg2_f1_i or reg2_f1_reg;
           reg2_f2_reg <= reg2_f2_i or reg2_f2_reg;
         end if;
-        reg2_wack <= reg2_wreq;
       end if;
     end if;
   end process;
 
   -- Register reg3
+  reg3_wack <= reg3_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
@@ -157,7 +156,6 @@ begin
         reg3_f2_reg <= "0000";
         reg3_f3_reg <= "0000000000000000";
         reg3_f4_reg <= "1010";
-        reg3_wack <= (others => '0');
       else
         if reg3_wreq(0) = '1' then
           reg3_f1_reg <= reg3_f1_i or (reg3_f1_reg and not wr_dat_d0(0));
@@ -175,7 +173,6 @@ begin
           reg3_f3_reg(15 downto 8) <= reg3_f3_i(15 downto 8) or reg3_f3_reg(15 downto 8);
           reg3_f4_reg <= reg3_f4_i or reg3_f4_reg;
         end if;
-        reg3_wack <= reg3_wreq;
       end if;
     end if;
   end process;

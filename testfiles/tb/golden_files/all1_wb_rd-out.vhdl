@@ -217,32 +217,30 @@ begin
 
   -- Register reg1
   reg1_o <= reg1_reg;
+  reg1_wack <= reg1_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         reg1_reg <= "00010010001101000000000000000000";
-        reg1_wack <= '0';
       else
         if reg1_wreq = '1' then
           reg1_reg <= wb_i.dat;
         end if;
-        reg1_wack <= reg1_wreq;
       end if;
     end if;
   end process;
 
   -- Register reg2
   reg2_o <= reg2_reg;
+  reg2_wack <= reg2_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         reg2_reg <= "00010010001101000000000000000010";
-        reg2_wack <= '0';
       else
         if reg2_wreq = '1' then
           reg2_reg <= wb_i.dat;
         end if;
-        reg2_wack <= reg2_wreq;
       end if;
     end if;
   end process;

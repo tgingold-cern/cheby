@@ -21,7 +21,7 @@ module mapinfo2
   reg wr_ack_int;
   reg [31:0] test1_reg;
   reg test1_wreq;
-  reg test1_wack;
+  wire test1_wack;
   reg rd_ack_d0;
   reg [31:0] rd_dat_d0;
   reg wr_req_d0;
@@ -54,19 +54,14 @@ module mapinfo2
 
   // Register test1
   assign test1_o = test1_reg;
+  assign test1_wack = test1_wreq;
   always @(posedge(Clk))
   begin
     if (!rst_n)
-      begin
-        test1_reg <= 32'b00000000000000000000000000000000;
-        test1_wack <= 1'b0;
-      end
+      test1_reg <= 32'b00000000000000000000000000000000;
     else
-      begin
-        if (test1_wreq == 1'b1)
-          test1_reg <= wr_dat_d0;
-        test1_wack <= test1_wreq;
-      end
+      if (test1_wreq == 1'b1)
+        test1_reg <= wr_dat_d0;
   end
 
   // Register mapver

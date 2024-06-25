@@ -56,9 +56,10 @@ architecture syn of reg2wo_wb is
   signal rwo_st_reg                     : std_logic_vector(31 downto 0);
   signal rwo_st_wreq                    : std_logic;
   signal rwo_st_wack                    : std_logic;
+  signal rwo_st_wstrb                   : std_logic;
   signal rwo_sa_reg                     : std_logic_vector(31 downto 0);
   signal rwo_sa_wreq                    : std_logic;
-  signal rwo_sa_wack                    : std_logic;
+  signal rwo_sa_wstrb                   : std_logic;
   signal wwo_st_wreq                    : std_logic;
   signal wwo_sa_wreq                    : std_logic;
   signal rd_ack_d0                      : std_logic;
@@ -120,36 +121,36 @@ begin
 
   -- Register rwo
   rwo_o <= rwo_reg;
+  rwo_wack <= rwo_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         rwo_reg <= "00000000000000000000000000000000";
-        rwo_wack <= '0';
       else
         if rwo_wreq = '1' then
           rwo_reg <= wr_dat_d0;
         end if;
-        rwo_wack <= rwo_wreq;
       end if;
     end if;
   end process;
 
   -- Register rwo_st
   rwo_st_o <= rwo_st_reg;
+  rwo_st_wack <= rwo_st_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         rwo_st_reg <= "00000000000000000000000000000000";
-        rwo_st_wack <= '0';
+        rwo_st_wstrb <= '0';
       else
         if rwo_st_wreq = '1' then
           rwo_st_reg <= wr_dat_d0;
         end if;
-        rwo_st_wack <= rwo_st_wreq;
+        rwo_st_wstrb <= rwo_st_wreq;
       end if;
     end if;
   end process;
-  rwo_st_wr_o <= rwo_st_wack;
+  rwo_st_wr_o <= rwo_st_wstrb;
 
   -- Register rwo_sa
   rwo_sa_o <= rwo_sa_reg;
@@ -157,16 +158,16 @@ begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         rwo_sa_reg <= "00000000000000000000000000000000";
-        rwo_sa_wack <= '0';
+        rwo_sa_wstrb <= '0';
       else
         if rwo_sa_wreq = '1' then
           rwo_sa_reg <= wr_dat_d0;
         end if;
-        rwo_sa_wack <= rwo_sa_wreq;
+        rwo_sa_wstrb <= rwo_sa_wreq;
       end if;
     end if;
   end process;
-  rwo_sa_wr_o <= rwo_sa_wack;
+  rwo_sa_wr_o <= rwo_sa_wstrb;
 
   -- Register wwo_st
   wwo_st_o <= wr_dat_d0;

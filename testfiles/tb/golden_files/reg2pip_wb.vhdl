@@ -51,7 +51,7 @@ architecture syn of reg2pip_wb is
   signal reg1_wack                      : std_logic;
   signal rwo_sa_reg                     : std_logic_vector(31 downto 0);
   signal rwo_sa_wreq                    : std_logic;
-  signal rwo_sa_wack                    : std_logic;
+  signal rwo_sa_wstrb                   : std_logic;
   signal wwo_st_wreq                    : std_logic;
   signal wwo_sa_wreq                    : std_logic;
   signal wr_req_d0                      : std_logic;
@@ -107,16 +107,15 @@ begin
 
   -- Register reg1
   reg1_o <= reg1_reg;
+  reg1_wack <= reg1_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         reg1_reg <= "10101011110011010001001000110100";
-        reg1_wack <= '0';
       else
         if reg1_wreq = '1' then
           reg1_reg <= wr_dat_d0;
         end if;
-        reg1_wack <= reg1_wreq;
       end if;
     end if;
   end process;
@@ -127,16 +126,16 @@ begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         rwo_sa_reg <= "00000000000000000000000000000000";
-        rwo_sa_wack <= '0';
+        rwo_sa_wstrb <= '0';
       else
         if rwo_sa_wreq = '1' then
           rwo_sa_reg <= wr_dat_d0;
         end if;
-        rwo_sa_wack <= rwo_sa_wreq;
+        rwo_sa_wstrb <= rwo_sa_wreq;
       end if;
     end if;
   end process;
-  rwo_sa_wr_o <= rwo_sa_wack;
+  rwo_sa_wr_o <= rwo_sa_wstrb;
 
   -- Register wwo_st
   wwo_st_o <= wr_dat_d0;

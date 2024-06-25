@@ -60,16 +60,15 @@ begin
 
   -- Register subrA
   subrA_o <= subrA_reg;
+  subrA_wack <= subrA_wreq;
   process (Clk) begin
     if rising_edge(Clk) then
       if rst_n = '0' then
         subrA_reg <= "0000000000000000";
-        subrA_wack <= '0';
       else
         if subrA_wreq = '1' then
           subrA_reg <= wr_dat_d0;
         end if;
-        subrA_wack <= subrA_wreq;
       end if;
     end if;
   end process;

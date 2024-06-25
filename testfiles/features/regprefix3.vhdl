@@ -106,48 +106,45 @@ begin
 
   -- Register blk1_r1
   blk1_r1_o <= blk1_r1_reg;
+  blk1_r1_wack <= blk1_r1_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         blk1_r1_reg <= "00000000000000000000000000000000";
-        blk1_r1_wack <= '0';
       else
         if blk1_r1_wreq = '1' then
           blk1_r1_reg <= wr_dat_d0;
         end if;
-        blk1_r1_wack <= blk1_r1_wreq;
       end if;
     end if;
   end process;
 
   -- Register blk1_r2
   blk1_r2_o <= blk1_r2_reg;
+  blk1_r2_wack <= blk1_r2_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         blk1_r2_reg <= "00000000000000000000000000000000";
-        blk1_r2_wack <= '0';
       else
         if blk1_r2_wreq = '1' then
           blk1_r2_reg <= wr_dat_d0;
         end if;
-        blk1_r2_wack <= blk1_r2_wreq;
       end if;
     end if;
   end process;
 
   -- Register r3
   r3_o <= r3_reg;
+  r3_wack <= r3_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         r3_reg <= "00000000000000000000000000000000";
-        r3_wack <= '0';
       else
         if r3_wreq = '1' then
           r3_reg <= wr_dat_d0;
         end if;
-        r3_wack <= r3_wreq;
       end if;
     end if;
   end process;

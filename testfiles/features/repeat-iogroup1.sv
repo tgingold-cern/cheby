@@ -38,10 +38,10 @@ module repeat_iogroup1
   reg wb_wip;
   reg [31:0] arr1_0_areg1_reg;
   reg arr1_0_areg1_wreq;
-  reg arr1_0_areg1_wack;
+  wire arr1_0_areg1_wack;
   reg [31:0] arr1_1_areg1_reg;
   reg arr1_1_areg1_wreq;
-  reg arr1_1_areg1_wack;
+  wire arr1_1_areg1_wack;
   reg rd_ack_d0;
   reg [31:0] rd_dat_d0;
   reg wr_req_d0;
@@ -100,36 +100,26 @@ module repeat_iogroup1
 
   // Register arr1_0_areg1
   assign itf[0].areg1 = arr1_0_areg1_reg;
+  assign arr1_0_areg1_wack = arr1_0_areg1_wreq;
   always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
-      begin
-        arr1_0_areg1_reg <= 32'b00000000000000000000000000000000;
-        arr1_0_areg1_wack <= 1'b0;
-      end
+      arr1_0_areg1_reg <= 32'b00000000000000000000000000000000;
     else
-      begin
-        if (arr1_0_areg1_wreq == 1'b1)
-          arr1_0_areg1_reg <= wr_dat_d0;
-        arr1_0_areg1_wack <= arr1_0_areg1_wreq;
-      end
+      if (arr1_0_areg1_wreq == 1'b1)
+        arr1_0_areg1_reg <= wr_dat_d0;
   end
 
   // Register arr1_1_areg1
   assign itf[1].areg1 = arr1_1_areg1_reg;
+  assign arr1_1_areg1_wack = arr1_1_areg1_wreq;
   always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
-      begin
-        arr1_1_areg1_reg <= 32'b00000000000000000000000000000000;
-        arr1_1_areg1_wack <= 1'b0;
-      end
+      arr1_1_areg1_reg <= 32'b00000000000000000000000000000000;
     else
-      begin
-        if (arr1_1_areg1_wreq == 1'b1)
-          arr1_1_areg1_reg <= wr_dat_d0;
-        arr1_1_areg1_wack <= arr1_1_areg1_wreq;
-      end
+      if (arr1_1_areg1_wreq == 1'b1)
+        arr1_1_areg1_reg <= wr_dat_d0;
   end
 
   // Process for write requests.

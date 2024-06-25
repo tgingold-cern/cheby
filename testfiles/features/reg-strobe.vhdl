@@ -36,6 +36,7 @@ architecture syn of reg_strobe is
   signal regA_field0_reg                : std_logic;
   signal regA_wreq                      : std_logic;
   signal regA_wack                      : std_logic;
+  signal regA_wstrb                     : std_logic;
   signal rd_ack_d0                      : std_logic;
   signal rd_dat_d0                      : std_logic_vector(31 downto 0);
   signal wr_req_d0                      : std_logic;
@@ -92,20 +93,21 @@ begin
 
   -- Register regA
   regA_field0_o <= regA_field0_reg;
+  regA_wack <= regA_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         regA_field0_reg <= '0';
-        regA_wack <= '0';
+        regA_wstrb <= '0';
       else
         if regA_wreq = '1' then
           regA_field0_reg <= wr_dat_d0(1);
         end if;
-        regA_wack <= regA_wreq;
+        regA_wstrb <= regA_wreq;
       end if;
     end if;
   end process;
-  regA_wr_o <= regA_wack;
+  regA_wr_o <= regA_wstrb;
 
   -- Process for write requests.
   process (wr_req_d0, regA_wack) begin

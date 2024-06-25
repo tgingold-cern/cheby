@@ -29,7 +29,8 @@ module reg_strobe
   reg wb_wip;
   reg regA_field0_reg;
   reg regA_wreq;
-  reg regA_wack;
+  wire regA_wack;
+  reg regA_wstrb;
   reg rd_ack_d0;
   reg [31:0] rd_dat_d0;
   reg wr_req_d0;
@@ -85,21 +86,22 @@ module reg_strobe
 
   // Register regA
   assign regA_field0_o = regA_field0_reg;
+  assign regA_wack = regA_wreq;
   always @(posedge(clk_i))
   begin
     if (!rst_n_i)
       begin
         regA_field0_reg <= 1'b0;
-        regA_wack <= 1'b0;
+        regA_wstrb <= 1'b0;
       end
     else
       begin
         if (regA_wreq == 1'b1)
           regA_field0_reg <= wr_dat_d0[1];
-        regA_wack <= regA_wreq;
+        regA_wstrb <= regA_wreq;
       end
   end
-  assign regA_wr_o = regA_wack;
+  assign regA_wr_o = regA_wstrb;
 
   // Process for write requests.
   always @(wr_req_d0, regA_wack)

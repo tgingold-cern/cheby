@@ -35,7 +35,7 @@ module mem64ro
   reg wb_wip;
   reg regA_field0_reg;
   reg regA_wreq;
-  reg regA_wack;
+  wire regA_wack;
   wire [31:0] DdrCapturesIndex_DdrCaptures_int_dato0;
   wire [31:0] DdrCapturesIndex_DdrCaptures_int_dato1;
   wire [31:0] DdrCapturesIndex_DdrCaptures_ext_dat0;
@@ -112,19 +112,14 @@ module mem64ro
 
   // Register regA
   assign regA_field0_o = regA_field0_reg;
+  assign regA_wack = regA_wreq;
   always @(posedge(clk_i))
   begin
     if (!rst_n_i)
-      begin
-        regA_field0_reg <= 1'b0;
-        regA_wack <= 1'b0;
-      end
+      regA_field0_reg <= 1'b0;
     else
-      begin
-        if (regA_wreq == 1'b1)
-          regA_field0_reg <= wr_dat_d0[1];
-        regA_wack <= regA_wreq;
-      end
+      if (regA_wreq == 1'b1)
+        regA_field0_reg <= wr_dat_d0[1];
   end
 
   // Memory DdrCapturesIndex

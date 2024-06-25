@@ -160,16 +160,15 @@ begin
 
   -- Register register1
   register1_o <= register1_reg;
+  register1_wack <= register1_wreq;
   process (aclk) begin
     if rising_edge(aclk) then
       if areset_n = '0' then
         register1_reg <= "00000000000000000000000000000000";
-        register1_wack <= '0';
       else
         if register1_wreq = '1' then
           register1_reg <= wr_dat_d0;
         end if;
-        register1_wack <= register1_wreq;
       end if;
     end if;
   end process;
@@ -178,16 +177,15 @@ begin
 
   -- Register block1_register3
   block1_register3_o <= block1_register3_reg;
+  block1_register3_wack <= block1_register3_wreq;
   process (aclk) begin
     if rising_edge(aclk) then
       if areset_n = '0' then
         block1_register3_reg <= "00000000000000000000000000000000";
-        block1_register3_wack <= '0';
       else
         if block1_register3_wreq = '1' then
           block1_register3_reg <= wr_dat_d0;
         end if;
-        block1_register3_wack <= block1_register3_wreq;
       end if;
     end if;
   end process;

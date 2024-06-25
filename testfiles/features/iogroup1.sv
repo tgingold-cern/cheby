@@ -64,10 +64,11 @@ module iogroup1
   reg wb_wip;
   reg [31:0] areg1_reg;
   reg areg1_wreq;
-  reg areg1_wack;
+  wire areg1_wack;
   reg [31:0] areg3_reg;
   reg areg3_wreq;
-  reg areg3_wack;
+  wire areg3_wack;
+  reg areg3_wstrb;
   reg areg4_wreq;
   reg rd_ack_d0;
   reg [31:0] rd_dat_d0;
@@ -127,40 +128,36 @@ module iogroup1
 
   // Register areg1
   assign ios.areg1 = areg1_reg;
+  assign areg1_wack = areg1_wreq;
   always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
-      begin
-        areg1_reg <= 32'b00000000000000000000000000000000;
-        areg1_wack <= 1'b0;
-      end
+      areg1_reg <= 32'b00000000000000000000000000000000;
     else
-      begin
-        if (areg1_wreq == 1'b1)
-          areg1_reg <= wr_dat_d0;
-        areg1_wack <= areg1_wreq;
-      end
+      if (areg1_wreq == 1'b1)
+        areg1_reg <= wr_dat_d0;
   end
 
   // Register areg2
 
   // Register areg3
   assign ios.areg3 = areg3_reg;
+  assign areg3_wack = areg3_wreq;
   always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       begin
         areg3_reg <= 32'b00000000000000000000000000000000;
-        areg3_wack <= 1'b0;
+        areg3_wstrb <= 1'b0;
       end
     else
       begin
         if (areg3_wreq == 1'b1)
           areg3_reg <= wr_dat_d0;
-        areg3_wack <= areg3_wreq;
+        areg3_wstrb <= areg3_wreq;
       end
   end
-  assign ios.areg3_wr = areg3_wack;
+  assign ios.areg3_wr = areg3_wstrb;
 
   // Register areg4
   assign ios.areg4o = wr_dat_d0;

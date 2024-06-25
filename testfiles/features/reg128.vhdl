@@ -94,11 +94,11 @@ begin
 
   -- Register areg
   areg_o <= areg_reg;
+  areg_wack <= areg_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         areg_reg <= "00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000";
-        areg_wack <= (others => '0');
       else
         if areg_wreq(0) = '1' then
           areg_reg(31 downto 0) <= wr_dat_d0;
@@ -112,7 +112,6 @@ begin
         if areg_wreq(3) = '1' then
           areg_reg(127 downto 96) <= wr_dat_d0;
         end if;
-        areg_wack <= areg_wreq;
       end if;
     end if;
   end process;

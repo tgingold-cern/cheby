@@ -88,16 +88,15 @@ begin
 
   -- Register softReset
   softReset_reset_o <= softReset_reset_reg;
+  softReset_wack <= softReset_wreq;
   process (Clk) begin
     if rising_edge(Clk) then
       if rst_n = '0' then
         softReset_reset_reg <= '0';
-        softReset_wack <= '0';
       else
         if softReset_wreq = '1' then
           softReset_reset_reg <= wr_dat_d0(0);
         end if;
-        softReset_wack <= softReset_wreq;
       end if;
     end if;
   end process;
