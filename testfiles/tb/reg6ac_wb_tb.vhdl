@@ -122,11 +122,13 @@ begin
 
     assert reg1_sum = 16#10# severity error;
     wb_writel (clk, wb_out, wb_in, x"0000_0000", x"0000_1001");
+    wait until rising_edge(clk);
     assert reg1_sum = x"0000_1011" severity error;
 
     assert reg2_f1_sum = 0 severity error;
     assert reg2_f2_sum = 0 severity error;
     wb_writel (clk, wb_out, wb_in, x"0000_0004", x"0002_0001");
+    wait until rising_edge(clk);
     assert reg2_f1_sum = 1 severity error;
     assert reg2_f2_sum = 2 report "sum = 0x" & to_hstring(reg2_f2_sum) severity error;
 
@@ -134,10 +136,12 @@ begin
     assert reg3_f2_sum = 0 severity error;
     assert reg3_f3_sum = 0 severity error;
     wb_writel (clk, wb_out, wb_in, x"0000_000c", x"0050_0001");
+    wait until rising_edge(clk);
     assert reg3_f1_sum = 1 severity error;
     assert reg3_f2_sum = 5 severity error;
     assert reg3_f3_sum = 0 severity error;
     wb_writel (clk, wb_out, wb_in, x"0000_0008", x"afff_ffff");
+    wait until rising_edge(clk);
     assert reg3_f1_sum = 1 severity error;
     assert reg3_f2_sum = 5 severity error;
     assert reg3_f3_sum = 10 severity error;
