@@ -91,18 +91,17 @@ begin
 
   -- Register breg
   breg_o <= breg_reg;
+  breg_wack <= breg_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         breg_reg <= "00000000000000000000000000000000";
-        breg_wack <= '0';
       else
         if breg_wreq = '1' then
           breg_reg <= breg_i or (breg_reg and not wr_dat_d0);
         else
           breg_reg <= breg_i or breg_reg;
         end if;
-        breg_wack <= breg_wreq;
       end if;
     end if;
   end process;

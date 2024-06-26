@@ -63,15 +63,17 @@ architecture syn of reg2_wb is
   signal reg2_reg                       : std_logic_vector(31 downto 0);
   signal reg2_wreq                      : std_logic;
   signal reg2_wack                      : std_logic;
+  signal reg2_wstrb                     : std_logic;
   signal rwo_reg                        : std_logic_vector(31 downto 0);
   signal rwo_wreq                       : std_logic;
   signal rwo_wack                       : std_logic;
   signal rwo_st_reg                     : std_logic_vector(31 downto 0);
   signal rwo_st_wreq                    : std_logic;
   signal rwo_st_wack                    : std_logic;
+  signal rwo_st_wstrb                   : std_logic;
   signal rwo_sa_reg                     : std_logic_vector(31 downto 0);
   signal rwo_sa_wreq                    : std_logic;
-  signal rwo_sa_wack                    : std_logic;
+  signal rwo_sa_wstrb                   : std_logic;
   signal wwo_st_wreq                    : std_logic;
   signal wwo_sa_wreq                    : std_logic;
 begin
@@ -109,69 +111,69 @@ begin
 
   -- Register reg1
   reg1_o <= reg1_reg;
+  reg1_wack <= reg1_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         reg1_reg <= "10101011110011010001001000110100";
-        reg1_wack <= '0';
       else
         if reg1_wreq = '1' then
           reg1_reg <= wb_dat_i;
         end if;
-        reg1_wack <= reg1_wreq;
       end if;
     end if;
   end process;
 
   -- Register reg2
   reg2_o <= reg2_reg;
+  reg2_wack <= reg2_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         reg2_reg <= "10101011110011010001000000000100";
-        reg2_wack <= '0';
+        reg2_wstrb <= '0';
       else
         if reg2_wreq = '1' then
           reg2_reg <= wb_dat_i;
         end if;
-        reg2_wack <= reg2_wreq;
+        reg2_wstrb <= reg2_wreq;
       end if;
     end if;
   end process;
-  reg2_wr_o <= reg2_wack;
+  reg2_wr_o <= reg2_wstrb;
 
   -- Register rwo
   rwo_o <= rwo_reg;
+  rwo_wack <= rwo_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         rwo_reg <= "00000000000000000000000000000000";
-        rwo_wack <= '0';
       else
         if rwo_wreq = '1' then
           rwo_reg <= wb_dat_i;
         end if;
-        rwo_wack <= rwo_wreq;
       end if;
     end if;
   end process;
 
   -- Register rwo_st
   rwo_st_o <= rwo_st_reg;
+  rwo_st_wack <= rwo_st_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         rwo_st_reg <= "00000000000000000000000000000000";
-        rwo_st_wack <= '0';
+        rwo_st_wstrb <= '0';
       else
         if rwo_st_wreq = '1' then
           rwo_st_reg <= wb_dat_i;
         end if;
-        rwo_st_wack <= rwo_st_wreq;
+        rwo_st_wstrb <= rwo_st_wreq;
       end if;
     end if;
   end process;
-  rwo_st_wr_o <= rwo_st_wack;
+  rwo_st_wr_o <= rwo_st_wstrb;
 
   -- Register rwo_sa
   rwo_sa_o <= rwo_sa_reg;
@@ -179,16 +181,16 @@ begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         rwo_sa_reg <= "00000000000000000000000000000000";
-        rwo_sa_wack <= '0';
+        rwo_sa_wstrb <= '0';
       else
         if rwo_sa_wreq = '1' then
           rwo_sa_reg <= wb_dat_i;
         end if;
-        rwo_sa_wack <= rwo_sa_wreq;
+        rwo_sa_wstrb <= rwo_sa_wreq;
       end if;
     end if;
   end process;
-  rwo_sa_wr_o <= rwo_sa_wack;
+  rwo_sa_wr_o <= rwo_sa_wstrb;
 
   -- Register wwo_st
   wwo_st_o <= wb_dat_i;

@@ -28,7 +28,7 @@ module reg128
   reg wb_wip;
   reg [127:0] areg_reg;
   reg [3:0] areg_wreq;
-  reg [3:0] areg_wack;
+  wire [3:0] areg_wack;
   reg rd_ack_d0;
   reg [31:0] rd_dat_d0;
   reg wr_req_d0;
@@ -87,13 +87,11 @@ module reg128
 
   // Register areg
   assign areg_o = areg_reg;
+  assign areg_wack = areg_wreq;
   always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
-      begin
-        areg_reg <= 128'b00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000;
-        areg_wack <= 4'b0;
-      end
+      areg_reg <= 128'b00000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000000;
     else
       begin
         if (areg_wreq[0] == 1'b1)
@@ -104,7 +102,6 @@ module reg128
           areg_reg[95:64] <= wr_dat_d0;
         if (areg_wreq[3] == 1'b1)
           areg_reg[127:96] <= wr_dat_d0;
-        areg_wack <= areg_wreq;
       end
   end
 

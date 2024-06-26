@@ -28,7 +28,7 @@ module sreg
   reg [15:0] i1Thresholds_highThreshold_reg;
   reg [15:0] i1Thresholds_lowThreshold_reg;
   reg i1Thresholds_wreq;
-  reg i1Thresholds_wack;
+  wire i1Thresholds_wack;
   reg rd_ack_d0;
   reg [31:0] rd_dat_d0;
   reg wr_req_d0;
@@ -85,23 +85,20 @@ module sreg
   // Register i1Thresholds
   assign i1Thresholds_o[31:16] = i1Thresholds_highThreshold_reg;
   assign i1Thresholds_o[15:0] = i1Thresholds_lowThreshold_reg;
+  assign i1Thresholds_wack = i1Thresholds_wreq;
   always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       begin
         i1Thresholds_highThreshold_reg <= 16'b0000000000000000;
         i1Thresholds_lowThreshold_reg <= 16'b0000000000000000;
-        i1Thresholds_wack <= 1'b0;
       end
     else
-      begin
-        if (i1Thresholds_wreq == 1'b1)
-          begin
-            i1Thresholds_highThreshold_reg <= wr_dat_d0[31:16];
-            i1Thresholds_lowThreshold_reg <= wr_dat_d0[15:0];
-          end
-        i1Thresholds_wack <= i1Thresholds_wreq;
-      end
+      if (i1Thresholds_wreq == 1'b1)
+        begin
+          i1Thresholds_highThreshold_reg <= wr_dat_d0[31:16];
+          i1Thresholds_lowThreshold_reg <= wr_dat_d0[15:0];
+        end
   end
 
   // Process for write requests.

@@ -42,6 +42,7 @@ architecture syn of inherit is
   signal reg0_field01_reg               : std_logic_vector(3 downto 0);
   signal reg0_wreq                      : std_logic;
   signal reg0_wack                      : std_logic;
+  signal reg0_wstrb                     : std_logic;
   signal rd_ack_d0                      : std_logic;
   signal rd_dat_d0                      : std_logic_vector(31 downto 0);
   signal wr_req_d0                      : std_logic;
@@ -100,20 +101,21 @@ begin
   reg0_field00_o <= wr_dat_d0(1);
   reg0_field01_o <= reg0_field01_reg;
   reg0_field02_o <= wr_dat_d0(10 downto 8);
+  reg0_wack <= reg0_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         reg0_field01_reg <= "0000";
-        reg0_wack <= '0';
+        reg0_wstrb <= '0';
       else
         if reg0_wreq = '1' then
           reg0_field01_reg <= wr_dat_d0(7 downto 4);
         end if;
-        reg0_wack <= reg0_wreq;
+        reg0_wstrb <= reg0_wreq;
       end if;
     end if;
   end process;
-  reg0_wr_o <= reg0_wack;
+  reg0_wr_o <= reg0_wstrb;
 
   -- Process for write requests.
   process (wr_req_d0, reg0_wack) begin

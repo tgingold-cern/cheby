@@ -122,16 +122,15 @@ begin
 
   -- Register areg0
   itf_o(0).areg <= arr1_0_areg_reg;
+  areg0_wack <= areg0_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         arr1_0_areg_reg <= "00000000000000000000000000000000";
-        areg0_wack <= '0';
       else
         if areg0_wreq = '1' then
           arr1_0_areg_reg <= wr_dat_d0;
         end if;
-        areg0_wack <= areg0_wreq;
       end if;
     end if;
   end process;

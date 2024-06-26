@@ -85,6 +85,7 @@ begin
     -- Testing regular register write
     report "Testing regular register write" severity note;
     apb_write(clk, apb_out, apb_in, x"0000_0000", x"1234_5678", "1111");
+    wait until rising_edge(clk);
     assert reg_rw = x"1234_5678" severity error;
     apb_read(clk, apb_out, apb_in, x"0000_0000", v);
     assert v = x"1234_5678" severity error;
@@ -92,6 +93,7 @@ begin
     --  Testing register write with mask
     report "Testing register write with mask" severity note;
     apb_write(clk, apb_out, apb_in, x"0000_0000", x"9abc_def0", "1010");
+    wait until rising_edge(clk);
     assert reg_rw = x"9a34_de78" severity error;
     apb_read(clk, apb_out, apb_in, x"0000_0000", v);
     assert v = x"9a34_de78" severity error;
@@ -100,11 +102,13 @@ begin
     -- Testing regular write write
     report "Testing regular wire write" severity note;
     apb_write(clk, apb_out, apb_in, x"0000_0008", x"3456_789a", "1111");
+    wait until rising_edge(clk);
     assert wire_rw_out = x"3456_789a" severity error;
     assert wire_rw_mask = x"ffff_ffff" severity error;
 
     report "Testing wire write with mask" severity note;
     apb_write(clk, apb_out, apb_in, x"0000_0008", x"bcde_f012", "0101");
+    wait until rising_edge(clk);
     assert wire_rw_out = x"bcde_f012" severity error;
     assert wire_rw_mask = x"00ff_00ff" severity error;
 
@@ -112,6 +116,7 @@ begin
     -- Testing regular memory write
     report "Testing regular memory write" severity note;
     apb_write(clk, apb_out, apb_in, x"0010_0000", x"1234_5678", "1111");
+    wait until rising_edge(clk);
     assert reg_rw = x"1234_5678" severity error;
     apb_read(clk, apb_out, apb_in, x"0010_0000", v);
     assert v = x"1234_5678" severity error;
@@ -119,6 +124,7 @@ begin
     -- Testing memory write with mask
     report "Testing memory write with mask" severity note;
     apb_write(clk, apb_out, apb_in, x"0010_0000", x"9abc_def0", "1010");
+    wait until rising_edge(clk);
     assert reg_rw = x"9a34_de78" severity error;
     apb_read(clk, apb_out, apb_in, x"0010_0000", v);
     assert v = x"9a34_de78" severity error;

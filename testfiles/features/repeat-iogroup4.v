@@ -44,7 +44,7 @@ module repeat_iogroup4
   reg wb_wip;
   reg [31:0] arr1_0_areg_reg;
   reg areg0_wreq;
-  reg areg0_wack;
+  wire areg0_wack;
   reg rd_ack_d0;
   reg [31:0] rd_dat_d0;
   reg wr_req_d0;
@@ -103,19 +103,14 @@ module repeat_iogroup4
 
   // Register areg0
   assign itf[0].areg = arr1_0_areg_reg;
+  assign areg0_wack = areg0_wreq;
   always @(posedge(clk_i))
   begin
     if (!rst_n_i)
-      begin
-        arr1_0_areg_reg <= 32'b00000000000000000000000000000000;
-        areg0_wack <= 1'b0;
-      end
+      arr1_0_areg_reg <= 32'b00000000000000000000000000000000;
     else
-      begin
-        if (areg0_wreq == 1'b1)
-          arr1_0_areg_reg <= wr_dat_d0;
-        areg0_wack <= areg0_wreq;
-      end
+      if (areg0_wreq == 1'b1)
+        arr1_0_areg_reg <= wr_dat_d0;
   end
 
   // Register regf0

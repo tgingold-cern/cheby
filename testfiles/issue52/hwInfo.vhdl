@@ -79,16 +79,15 @@ begin
 
   -- Register echo
   echo_echo_o <= echo_echo_reg;
+  echo_wack <= echo_wreq;
   process (Clk) begin
     if rising_edge(Clk) then
       if rst_n = '0' then
         echo_echo_reg <= "00000000";
-        echo_wack <= (others => '0');
       else
         if echo_wreq(0) = '1' then
           echo_echo_reg <= wr_dat_d0(7 downto 0);
         end if;
-        echo_wack <= echo_wreq;
       end if;
     end if;
   end process;

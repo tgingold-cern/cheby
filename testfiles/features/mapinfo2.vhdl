@@ -59,16 +59,15 @@ begin
 
   -- Register test1
   test1_o <= test1_reg;
+  test1_wack <= test1_wreq;
   process (Clk) begin
     if rising_edge(Clk) then
       if rst_n = '0' then
         test1_reg <= "00000000000000000000000000000000";
-        test1_wack <= '0';
       else
         if test1_wreq = '1' then
           test1_reg <= wr_dat_d0;
         end if;
-        test1_wack <= test1_wreq;
       end if;
     end if;
   end process;

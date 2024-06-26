@@ -129,48 +129,45 @@ begin
 
   -- Register rw0
   rw0_o <= rw0_reg;
+  rw0_wack <= rw0_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         rw0_reg <= "00010010001101000101011001111000";
-        rw0_wack <= '0';
       else
         if rw0_wreq = '1' then
           rw0_reg <= wr_dat_d0;
         end if;
-        rw0_wack <= rw0_wreq;
       end if;
     end if;
   end process;
 
   -- Register rw1
   rw1_o <= rw1_reg;
+  rw1_wack <= rw1_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         rw1_reg <= "00100011010001010110011110001001";
-        rw1_wack <= '0';
       else
         if rw1_wreq = '1' then
           rw1_reg <= wr_dat_d0;
         end if;
-        rw1_wack <= rw1_wreq;
       end if;
     end if;
   end process;
 
   -- Register rw2
   rw2_o <= rw2_reg;
+  rw2_wack <= rw2_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         rw2_reg <= "00110100010101100111100010011010";
-        rw2_wack <= '0';
       else
         if rw2_wreq = '1' then
           rw2_reg <= wr_dat_d0;
         end if;
-        rw2_wack <= rw2_wreq;
       end if;
     end if;
   end process;
@@ -179,16 +176,15 @@ begin
 
   -- Register wo0
   wo0_o <= wo0_reg;
+  wo0_wack <= wo0_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         wo0_reg <= "01010110011110001001101010111100";
-        wo0_wack <= '0';
       else
         if wo0_wreq = '1' then
           wo0_reg <= wr_dat_d0;
         end if;
-        wo0_wack <= wo0_wreq;
       end if;
     end if;
   end process;

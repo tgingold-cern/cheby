@@ -50,6 +50,7 @@ architecture syn of wires1 is
   signal strobe_reg                     : std_logic_vector(31 downto 0);
   signal strobe_wreq                    : std_logic;
   signal strobe_wack                    : std_logic;
+  signal strobe_wstrb                   : std_logic;
   signal acks_wreq                      : std_logic;
   signal rd_ack_d0                      : std_logic;
   signal rd_dat_d0                      : std_logic_vector(31 downto 0);
@@ -110,20 +111,21 @@ begin
 
   -- Register strobe
   strobe_o <= strobe_reg;
+  strobe_wack <= strobe_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         strobe_reg <= "00000000000000000000000000000000";
-        strobe_wack <= '0';
+        strobe_wstrb <= '0';
       else
         if strobe_wreq = '1' then
           strobe_reg <= wr_dat_d0;
         end if;
-        strobe_wack <= strobe_wreq;
+        strobe_wstrb <= strobe_wreq;
       end if;
     end if;
   end process;
-  strobe_wr_o <= strobe_wack;
+  strobe_wr_o <= strobe_wstrb;
 
   -- Register wires
   wires_o <= wr_dat_d0;

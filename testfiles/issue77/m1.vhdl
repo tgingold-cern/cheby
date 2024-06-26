@@ -133,16 +133,15 @@ begin
 
   -- Register r1
   r1_o <= r1_reg;
+  r1_wack <= r1_wreq;
   process (aclk) begin
     if rising_edge(aclk) then
       if areset_n = '0' then
         r1_reg <= "00000000000000000000000000000000";
-        r1_wack <= '0';
       else
         if r1_wreq = '1' then
           r1_reg <= wr_dat_d0;
         end if;
-        r1_wack <= r1_wreq;
       end if;
     end if;
   end process;

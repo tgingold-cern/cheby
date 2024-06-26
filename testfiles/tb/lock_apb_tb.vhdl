@@ -86,12 +86,14 @@ begin
     --  Testing regular write
     report "Testing regular write" severity note;
     apb_write(clk, apb_out, apb_in, x"0000_0000", x"0102_0304", '0');
+    wait until rising_edge(clk);
     assert reg0 = x"0102_0304" severity error;
 
     --  Testing write with lock
     report "Testing write with lock" severity note;
     scantest <= '1';
     apb_write(clk, apb_out, apb_in, x"0000_0000", x"0506_0708", '0');
+    wait until rising_edge(clk);
     assert reg0 = x"0102_0304" severity error;
     scantest <= '0';
 
@@ -114,6 +116,7 @@ begin
     report "Testing field write with lock" severity note;
     scantest <= '1';
     apb_write(clk, apb_out, apb_in, x"0000_0008", x"0000_00ff", '0');
+    wait until rising_edge(clk);
     assert reg2_field0 = x"3" severity error;
     scantest <= '0';
 

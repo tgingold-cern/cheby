@@ -86,6 +86,7 @@ begin
     -- Testing regular write
     report "Testing regular write" severity note;
     apb_write(clk, apb_out, apb_in, x"0000_0004", x"9abc_def0", '0');
+    wait until rising_edge(clk);
     assert reg_rw1 = x"9abc_def0" severity error;
     apb_read(clk, apb_out, apb_in, x"0000_0004", v, '0');
     assert v = x"9abc_def0" severity error;

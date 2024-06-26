@@ -22,7 +22,7 @@ module sub_repro
   reg wr_ack_int;
   reg [15:0] subrA_reg;
   reg subrA_wreq;
-  reg subrA_wack;
+  wire subrA_wack;
   reg rd_ack_d0;
   reg [15:0] rd_dat_d0;
   reg wr_req_d0;
@@ -55,19 +55,14 @@ module sub_repro
 
   // Register subrA
   assign subrA_o = subrA_reg;
+  assign subrA_wack = subrA_wreq;
   always_ff @(posedge(Clk))
   begin
     if (!rst_n)
-      begin
-        subrA_reg <= 16'b0000000000000000;
-        subrA_wack <= 1'b0;
-      end
+      subrA_reg <= 16'b0000000000000000;
     else
-      begin
-        if (subrA_wreq == 1'b1)
-          subrA_reg <= wr_dat_d0;
-        subrA_wack <= subrA_wreq;
-      end
+      if (subrA_wreq == 1'b1)
+        subrA_reg <= wr_dat_d0;
   end
 
   // Register subrB

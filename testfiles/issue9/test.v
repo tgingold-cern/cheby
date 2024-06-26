@@ -56,10 +56,10 @@ module test
   reg axi_rdone;
   reg [31:0] register1_reg;
   reg register1_wreq;
-  reg register1_wack;
+  wire register1_wack;
   reg [31:0] block1_register3_reg;
   reg block1_register3_wreq;
-  reg block1_register3_wack;
+  wire block1_register3_wack;
   reg rd_ack_d0;
   reg [31:0] rd_dat_d0;
   reg wr_req_d0;
@@ -164,38 +164,28 @@ module test
 
   // Register register1
   assign register1_o = register1_reg;
+  assign register1_wack = register1_wreq;
   always @(posedge(aclk))
   begin
     if (!areset_n)
-      begin
-        register1_reg <= 32'b00000000000000000000000000000000;
-        register1_wack <= 1'b0;
-      end
+      register1_reg <= 32'b00000000000000000000000000000000;
     else
-      begin
-        if (register1_wreq == 1'b1)
-          register1_reg <= wr_dat_d0;
-        register1_wack <= register1_wreq;
-      end
+      if (register1_wreq == 1'b1)
+        register1_reg <= wr_dat_d0;
   end
 
   // Register block1_register2
 
   // Register block1_register3
   assign block1_register3_o = block1_register3_reg;
+  assign block1_register3_wack = block1_register3_wreq;
   always @(posedge(aclk))
   begin
     if (!areset_n)
-      begin
-        block1_register3_reg <= 32'b00000000000000000000000000000000;
-        block1_register3_wack <= 1'b0;
-      end
+      block1_register3_reg <= 32'b00000000000000000000000000000000;
     else
-      begin
-        if (block1_register3_wreq == 1'b1)
-          block1_register3_reg <= wr_dat_d0;
-        block1_register3_wack <= block1_register3_wreq;
-      end
+      if (block1_register3_wreq == 1'b1)
+        block1_register3_reg <= wr_dat_d0;
   end
 
   // Register block1_block2_register4

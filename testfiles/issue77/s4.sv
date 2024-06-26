@@ -41,7 +41,7 @@ module s4
   reg wb_wip;
   reg [31:0] r1_reg;
   reg r1_wreq;
-  reg r1_wack;
+  wire r1_wack;
   reg sub_re;
   reg sub_we;
   reg sub_wt;
@@ -115,19 +115,14 @@ module s4
 
   // Register r1
   assign r1_o = r1_reg;
+  assign r1_wack = r1_wreq;
   always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
-      begin
-        r1_reg <= 32'b00000000000000000000000000000000;
-        r1_wack <= 1'b0;
-      end
+      r1_reg <= 32'b00000000000000000000000000000000;
     else
-      begin
-        if (r1_wreq == 1'b1)
-          r1_reg <= wr_dat_d0;
-        r1_wack <= r1_wreq;
-      end
+      if (r1_wreq == 1'b1)
+        r1_reg <= wr_dat_d0;
   end
 
   // Interface sub

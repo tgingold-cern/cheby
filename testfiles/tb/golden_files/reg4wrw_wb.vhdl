@@ -52,9 +52,10 @@ architecture syn of reg4wrw_wb is
   signal fwrw_rws_f2_reg                : std_logic_vector(15 downto 0);
   signal fwrw_rws_wreq                  : std_logic_vector(1 downto 0);
   signal fwrw_rws_wack                  : std_logic_vector(1 downto 0);
+  signal fwrw_rws_wstrb                 : std_logic_vector(1 downto 0);
   signal fwrw_rws_rwa_f2_reg            : std_logic_vector(15 downto 0);
   signal fwrw_rws_rwa_wreq              : std_logic_vector(1 downto 0);
-  signal fwrw_rws_rwa_wack              : std_logic_vector(1 downto 0);
+  signal fwrw_rws_rwa_wstrb             : std_logic_vector(1 downto 0);
   signal rd_ack_d0                      : std_logic;
   signal rd_dat_d0                      : std_logic_vector(31 downto 0);
   signal wr_req_d0                      : std_logic;
@@ -116,11 +117,12 @@ begin
   fwrw_rws_f1_o <= wr_dat_d0(11 downto 0);
   fwrw_rws_f2_o <= fwrw_rws_f2_reg;
   fwrw_rws_f3_o <= wr_dat_d0(31 downto 8);
+  fwrw_rws_wack <= fwrw_rws_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         fwrw_rws_f2_reg <= "0000000000000000";
-        fwrw_rws_wack <= (others => '0');
+        fwrw_rws_wstrb <= (others => '0');
       else
         if fwrw_rws_wreq(0) = '1' then
           fwrw_rws_f2_reg(7 downto 0) <= wr_dat_d0(31 downto 24);
@@ -128,11 +130,11 @@ begin
         if fwrw_rws_wreq(1) = '1' then
           fwrw_rws_f2_reg(15 downto 8) <= wr_dat_d0(7 downto 0);
         end if;
-        fwrw_rws_wack <= fwrw_rws_wreq;
+        fwrw_rws_wstrb <= fwrw_rws_wreq;
       end if;
     end if;
   end process;
-  fwrw_rws_wr_o <= fwrw_rws_wack;
+  fwrw_rws_wr_o <= fwrw_rws_wstrb;
 
   -- Register fwrw_rws_rwa
   fwrw_rws_rwa_f1_o <= wr_dat_d0(11 downto 0);
@@ -142,7 +144,7 @@ begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         fwrw_rws_rwa_f2_reg <= "0000000000000000";
-        fwrw_rws_rwa_wack <= (others => '0');
+        fwrw_rws_rwa_wstrb <= (others => '0');
       else
         if fwrw_rws_rwa_wreq(0) = '1' then
           fwrw_rws_rwa_f2_reg(7 downto 0) <= wr_dat_d0(31 downto 24);
@@ -150,11 +152,11 @@ begin
         if fwrw_rws_rwa_wreq(1) = '1' then
           fwrw_rws_rwa_f2_reg(15 downto 8) <= wr_dat_d0(7 downto 0);
         end if;
-        fwrw_rws_rwa_wack <= fwrw_rws_rwa_wreq;
+        fwrw_rws_rwa_wstrb <= fwrw_rws_rwa_wreq;
       end if;
     end if;
   end process;
-  fwrw_rws_rwa_wr_o <= fwrw_rws_rwa_wack;
+  fwrw_rws_rwa_wr_o <= fwrw_rws_rwa_wstrb;
 
   -- Process for write requests.
   process (wr_adr_d0, wr_req_d0, fwrw_rws_wack, fwrw_rws_rwa_wack_i) begin

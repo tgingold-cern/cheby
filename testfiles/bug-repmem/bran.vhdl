@@ -166,9 +166,11 @@ architecture syn of bran_wb is
   signal TurnPeriod_reg                 : std_logic_vector(31 downto 0);
   signal TurnPeriod_wreq                : std_logic;
   signal TurnPeriod_wack                : std_logic;
+  signal TurnPeriod_wstrb               : std_logic;
   signal TurnLength_reg                 : std_logic_vector(31 downto 0);
   signal TurnLength_wreq                : std_logic;
   signal TurnLength_wack                : std_logic;
+  signal TurnLength_wstrb               : std_logic;
   signal FmcPowerEnable_reg             : std_logic;
   signal DCDCSyncEnable_reg             : std_logic;
   signal FmcPower_wreq                  : std_logic;
@@ -194,6 +196,7 @@ architecture syn of bran_wb is
   signal AdcSpiWrite_reg                : std_logic_vector(31 downto 0);
   signal AdcSpiWrite_wreq               : std_logic;
   signal AdcSpiWrite_wack               : std_logic;
+  signal AdcSpiWrite_wstrb              : std_logic;
   signal CummulativeTurns_reg           : std_logic_vector(31 downto 0);
   signal CummulativeTurns_wreq          : std_logic;
   signal CummulativeTurns_wack          : std_logic;
@@ -275,6 +278,7 @@ begin
   DisableADCStream_o <= DisableADCStream_reg;
   EnableTurnEmulator_o <= EnableTurnEmulator_reg;
   LHC_timing <= LHCTiming_reg;
+  Ctrl_wack <= Ctrl_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
@@ -284,7 +288,6 @@ begin
         DisableADCStream_reg <= '0';
         EnableTurnEmulator_reg <= '0';
         LHCTiming_reg <= '0';
-        Ctrl_wack <= '0';
       else
         if Ctrl_wreq = '1' then
           Enable_reg <= wr_dat_d0(0);
@@ -297,7 +300,6 @@ begin
           RstBstDesync_reg <= '0';
           FAReset_reg <= '0';
         end if;
-        Ctrl_wack <= Ctrl_wreq;
       end if;
     end if;
   end process;
@@ -310,71 +312,71 @@ begin
 
   -- Register TurnPeriod
   TurnPeriod_o <= TurnPeriod_reg;
+  TurnPeriod_wack <= TurnPeriod_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         TurnPeriod_reg <= "00000000000000000000010000000000";
-        TurnPeriod_wack <= '0';
+        TurnPeriod_wstrb <= '0';
       else
         if TurnPeriod_wreq = '1' then
           TurnPeriod_reg <= wr_dat_d0;
         end if;
-        TurnPeriod_wack <= TurnPeriod_wreq;
+        TurnPeriod_wstrb <= TurnPeriod_wreq;
       end if;
     end if;
   end process;
-  TurnPeriod_wr_o <= TurnPeriod_wack;
+  TurnPeriod_wr_o <= TurnPeriod_wstrb;
 
   -- Register TurnLength
   TurnLength_o <= TurnLength_reg;
+  TurnLength_wack <= TurnLength_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         TurnLength_reg <= "00000000000000000000000000000011";
-        TurnLength_wack <= '0';
+        TurnLength_wstrb <= '0';
       else
         if TurnLength_wreq = '1' then
           TurnLength_reg <= wr_dat_d0;
         end if;
-        TurnLength_wack <= TurnLength_wreq;
+        TurnLength_wstrb <= TurnLength_wreq;
       end if;
     end if;
   end process;
-  TurnLength_wr_o <= TurnLength_wack;
+  TurnLength_wr_o <= TurnLength_wstrb;
 
   -- Register TurnsIntercepted
 
   -- Register FmcPower
   FmcPowerEnable_o <= FmcPowerEnable_reg;
   DCDCSyncEnable_o <= DCDCSyncEnable_reg;
+  FmcPower_wack <= FmcPower_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         FmcPowerEnable_reg <= '0';
         DCDCSyncEnable_reg <= '0';
-        FmcPower_wack <= '0';
       else
         if FmcPower_wreq = '1' then
           FmcPowerEnable_reg <= wr_dat_d0(0);
           DCDCSyncEnable_reg <= wr_dat_d0(1);
         end if;
-        FmcPower_wack <= FmcPower_wreq;
       end if;
     end if;
   end process;
 
   -- Register ADCPatternCheckCtrl
   PatternRst_o <= PatternRst_reg;
+  ADCPatternCheckCtrl_wack <= ADCPatternCheckCtrl_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         PatternRst_reg <= '0';
-        ADCPatternCheckCtrl_wack <= '0';
       else
         if ADCPatternCheckCtrl_wreq = '1' then
           PatternRst_reg <= wr_dat_d0(0);
         end if;
-        ADCPatternCheckCtrl_wack <= ADCPatternCheckCtrl_wreq;
       end if;
     end if;
   end process;
@@ -384,6 +386,7 @@ begin
   ADCEnable_o <= ADCEnable_reg;
   ADCManualSync_o <= ADCManualSync_reg;
   ADCDisableAutoSync_o <= ADCDisableAutoSync_reg;
+  ADCCtrl_wack <= ADCCtrl_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
@@ -391,7 +394,6 @@ begin
         ADCEnable_reg <= '0';
         ADCManualSync_reg <= '0';
         ADCDisableAutoSync_reg <= '0';
-        ADCCtrl_wack <= '0';
       else
         if ADCCtrl_wreq = '1' then
           ADCRst_reg <= wr_dat_d0(0);
@@ -399,7 +401,6 @@ begin
           ADCManualSync_reg <= wr_dat_d0(6);
           ADCDisableAutoSync_reg <= wr_dat_d0(7);
         end if;
-        ADCCtrl_wack <= ADCCtrl_wreq;
       end if;
     end if;
   end process;
@@ -412,6 +413,7 @@ begin
   SixxRst_o <= SixxRst_reg;
   JesdLinkReady_o <= JesdLinkReady_reg;
   JesdEnableSysref_o <= JesdEnableSysref_reg;
+  JesdLink_wack <= JesdLink_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
@@ -422,7 +424,6 @@ begin
         SixxRst_reg <= '0';
         JesdLinkReady_reg <= '0';
         JesdEnableSysref_reg <= '0';
-        JesdLink_wack <= '0';
       else
         if JesdLink_wreq = '1' then
           JesdXcvrRst_reg <= wr_dat_d0(0);
@@ -433,27 +434,27 @@ begin
           JesdLinkReady_reg <= wr_dat_d0(8);
           JesdEnableSysref_reg <= wr_dat_d0(9);
         end if;
-        JesdLink_wack <= JesdLink_wreq;
       end if;
     end if;
   end process;
 
   -- Register AdcSpiWrite
   AdcSpiWrite_o <= AdcSpiWrite_reg;
+  AdcSpiWrite_wack <= AdcSpiWrite_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         AdcSpiWrite_reg <= "00000000000000000000000000000000";
-        AdcSpiWrite_wack <= '0';
+        AdcSpiWrite_wstrb <= '0';
       else
         if AdcSpiWrite_wreq = '1' then
           AdcSpiWrite_reg <= wr_dat_d0;
         end if;
-        AdcSpiWrite_wack <= AdcSpiWrite_wreq;
+        AdcSpiWrite_wstrb <= AdcSpiWrite_wreq;
       end if;
     end if;
   end process;
-  AdcSpiWrite_wr_o <= AdcSpiWrite_wack;
+  AdcSpiWrite_wr_o <= AdcSpiWrite_wstrb;
 
   -- Register AdcSpiRead
 
@@ -461,32 +462,30 @@ begin
 
   -- Register CummulativeTurns
   cummulative_turns_b32 <= CummulativeTurns_reg;
+  CummulativeTurns_wack <= CummulativeTurns_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         CummulativeTurns_reg <= "00000000000000000000000000000000";
-        CummulativeTurns_wack <= '0';
       else
         if CummulativeTurns_wreq = '1' then
           CummulativeTurns_reg <= wr_dat_d0;
         end if;
-        CummulativeTurns_wack <= CummulativeTurns_wreq;
       end if;
     end if;
   end process;
 
   -- Register Debug
   OverrideTurnEmulatorTiming <= OverrideTurnEmulatorTiming_reg;
+  Debug_wack <= Debug_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         OverrideTurnEmulatorTiming_reg <= '0';
-        Debug_wack <= '0';
       else
         if Debug_wreq = '1' then
           OverrideTurnEmulatorTiming_reg <= wr_dat_d0(0);
         end if;
-        Debug_wack <= Debug_wreq;
       end if;
     end if;
   end process;

@@ -114,32 +114,30 @@ begin
 
   -- Register arr1_0_areg1
   itf_o(0).areg1 <= arr1_0_areg1_reg;
+  arr1_0_areg1_wack <= arr1_0_areg1_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         arr1_0_areg1_reg <= "00000000000000000000000000000000";
-        arr1_0_areg1_wack <= '0';
       else
         if arr1_0_areg1_wreq = '1' then
           arr1_0_areg1_reg <= wr_dat_d0;
         end if;
-        arr1_0_areg1_wack <= arr1_0_areg1_wreq;
       end if;
     end if;
   end process;
 
   -- Register arr1_1_areg1
   itf_o(1).areg1 <= arr1_1_areg1_reg;
+  arr1_1_areg1_wack <= arr1_1_areg1_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         arr1_1_areg1_reg <= "00000000000000000000000000000000";
-        arr1_1_areg1_wack <= '0';
       else
         if arr1_1_areg1_wreq = '1' then
           arr1_1_areg1_reg <= wr_dat_d0;
         end if;
-        arr1_1_areg1_wack <= arr1_1_areg1_wreq;
       end if;
     end if;
   end process;

@@ -43,7 +43,8 @@ module wires1
   reg wb_wip;
   reg [31:0] strobe_reg;
   reg strobe_wreq;
-  reg strobe_wack;
+  wire strobe_wack;
+  reg strobe_wstrb;
   reg acks_wreq;
   reg rd_ack_d0;
   reg [31:0] rd_dat_d0;
@@ -103,21 +104,22 @@ module wires1
 
   // Register strobe
   assign strobe_o = strobe_reg;
+  assign strobe_wack = strobe_wreq;
   always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       begin
         strobe_reg <= 32'b00000000000000000000000000000000;
-        strobe_wack <= 1'b0;
+        strobe_wstrb <= 1'b0;
       end
     else
       begin
         if (strobe_wreq == 1'b1)
           strobe_reg <= wr_dat_d0;
-        strobe_wack <= strobe_wreq;
+        strobe_wstrb <= strobe_wreq;
       end
   end
-  assign strobe_wr_o = strobe_wack;
+  assign strobe_wr_o = strobe_wstrb;
 
   // Register wires
   assign wires_o = wr_dat_d0;

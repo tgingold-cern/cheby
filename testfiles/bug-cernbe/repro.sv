@@ -28,7 +28,7 @@ module example
   reg wr_ack_int;
   reg [31:0] regA_reg;
   reg [1:0] regA_wreq;
-  reg [1:0] regA_wack;
+  wire [1:0] regA_wack;
   reg rd_ack_d0;
   reg [15:0] rd_dat_d0;
   reg wr_req_d0;
@@ -63,20 +63,17 @@ module example
 
   // Register regA
   assign regA_o = regA_reg;
+  assign regA_wack = regA_wreq;
   always_ff @(posedge(Clk))
   begin
     if (!rst_n)
-      begin
-        regA_reg <= 32'b00000000000000000000000000000000;
-        regA_wack <= 2'b0;
-      end
+      regA_reg <= 32'b00000000000000000000000000000000;
     else
       begin
         if (regA_wreq[0] == 1'b1)
           regA_reg[15:0] <= wr_dat_d0;
         if (regA_wreq[1] == 1'b1)
           regA_reg[31:16] <= wr_dat_d0;
-        regA_wack <= regA_wreq;
       end
   end
 

@@ -68,11 +68,11 @@ begin
 
   -- Register regA
   regA_o <= regA_reg;
+  regA_wack <= regA_wreq;
   process (Clk) begin
     if rising_edge(Clk) then
       if rst_n = '0' then
         regA_reg <= "00000000000000000000000000000000";
-        regA_wack <= (others => '0');
       else
         if regA_wreq(0) = '1' then
           regA_reg(15 downto 0) <= wr_dat_d0;
@@ -80,7 +80,6 @@ begin
         if regA_wreq(1) = '1' then
           regA_reg(31 downto 16) <= wr_dat_d0;
         end if;
-        regA_wack <= regA_wreq;
       end if;
     end if;
   end process;

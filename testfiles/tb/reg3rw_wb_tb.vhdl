@@ -201,11 +201,13 @@ begin
     assert v = x"0000_0000" severity error;
     assert frrw_ws_wr_count = (0, 0) severity error;
     wb_writel(clk, wb_out, wb_in, x"0000_0010", x"abcd_1210");
+    wait until rising_edge(clk);
     assert frrw_ws_wr_count = (1, 0) severity error;
     assert frrw_ws_f1 = x"000" severity error;
     assert frrw_ws_f2 = x"10_00" severity error;
     assert frrw_ws_f3 = x"ab_cd12" severity error;
     wb_writel(clk, wb_out, wb_in, x"0000_0014", x"ef34_5614");
+    wait until rising_edge(clk);
     assert frrw_ws_wr_count = (1, 1) severity error;
     assert frrw_ws_f1 = x"614" severity error;
     assert frrw_ws_f2 = x"10_ef" severity error;
@@ -228,11 +230,13 @@ begin
     assert v = x"0000_0000" severity error;
     assert frrw_rws_wr_count = (0, 0) severity error;
     wb_writel(clk, wb_out, wb_in, x"0000_0018", x"abcd_1218");
+    wait until rising_edge(clk);
     assert frrw_rws_wr_count = (1, 0) severity error;
     assert frrw_rws_f1 = x"000" severity error;
     assert frrw_rws_f2 = x"18_00" severity error;
     assert frrw_rws_f3 = x"ab_cd12" severity error;
     wb_writel(clk, wb_out, wb_in, x"0000_001c", x"ef34_561c");
+    wait until rising_edge(clk);
     assert frrw_rws_wr_count = (1, 1) severity error;
     assert frrw_rws_rd_count = (1, 1) severity error;
     assert frrw_rws_f1 = x"61c" severity error;

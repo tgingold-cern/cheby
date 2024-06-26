@@ -28,7 +28,7 @@ module eda02175v2
   reg wr_ack_int;
   reg softReset_reset_reg;
   reg softReset_wreq;
-  reg softReset_wack;
+  wire softReset_wack;
   reg rd_ack_d0;
   reg [15:0] rd_dat_d0;
   reg wr_req_d0;
@@ -79,19 +79,14 @@ module eda02175v2
 
   // Register softReset
   assign softReset_reset_o = softReset_reset_reg;
+  assign softReset_wack = softReset_wreq;
   always_ff @(posedge(Clk))
   begin
     if (!rst_n)
-      begin
-        softReset_reset_reg <= 1'b0;
-        softReset_wack <= 1'b0;
-      end
+      softReset_reset_reg <= 1'b0;
     else
-      begin
-        if (softReset_wreq == 1'b1)
-          softReset_reset_reg <= wr_dat_d0[0];
-        softReset_wack <= softReset_wreq;
-      end
+      if (softReset_wreq == 1'b1)
+        softReset_reset_reg <= wr_dat_d0[0];
   end
 
   // Process for write requests.

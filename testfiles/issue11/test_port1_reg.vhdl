@@ -92,18 +92,17 @@ begin
   -- Register i1Thresholds
   i1Thresholds_o(31 downto 16) <= i1Thresholds_highThreshold_reg;
   i1Thresholds_o(15 downto 0) <= i1Thresholds_lowThreshold_reg;
+  i1Thresholds_wack <= i1Thresholds_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         i1Thresholds_highThreshold_reg <= "0000000000000000";
         i1Thresholds_lowThreshold_reg <= "0000000000000000";
-        i1Thresholds_wack <= '0';
       else
         if i1Thresholds_wreq = '1' then
           i1Thresholds_highThreshold_reg <= wr_dat_d0(31 downto 16);
           i1Thresholds_lowThreshold_reg <= wr_dat_d0(15 downto 0);
         end if;
-        i1Thresholds_wack <= i1Thresholds_wreq;
       end if;
     end if;
   end process;

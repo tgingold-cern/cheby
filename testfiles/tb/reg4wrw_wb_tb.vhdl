@@ -212,11 +212,13 @@ begin
     assert fwrw_rws_rd_count = (1, 1) severity error;
     assert v = x"0000_0210" severity error;
     wb_writel(clk, wb_out, wb_in, x"0000_0000", x"dbca_7960");
+    wait until rising_edge(clk);
     assert fwrw_rws_wr_count = (1, 0) severity error;
     assert fwrw_rws_f1_out_val = x"000" severity error;
     assert fwrw_rws_f2_out_val = x"6000" severity error;
     assert fwrw_rws_f3_out_val = x"db_ca79" severity error;
     wb_writel(clk, wb_out, wb_in, x"0000_0004", x"3214_0ef5");
+    wait until rising_edge(clk);
     assert fwrw_rws_wr_count = (1, 1) severity error;
     assert fwrw_rws_f1_out_val = x"ef5" severity error;
     assert fwrw_rws_f2_out_val = x"6032" severity error;

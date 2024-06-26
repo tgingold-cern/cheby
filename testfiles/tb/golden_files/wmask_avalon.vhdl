@@ -109,16 +109,15 @@ begin
 
   -- Register reg_rw
   reg_rw_o <= reg_rw_reg;
+  reg_rw_wack <= reg_rw_wreq;
   process (clk) begin
     if rising_edge(clk) then
       if rst_n = '0' then
         reg_rw_reg <= "00000000000000000000000000000000";
-        reg_rw_wack <= '0';
       else
         if reg_rw_wreq = '1' then
           reg_rw_reg <= (reg_rw_reg and not wr_sel) or (wr_dat and wr_sel);
         end if;
-        reg_rw_wack <= reg_rw_wreq;
       end if;
     end if;
   end process;
@@ -127,16 +126,15 @@ begin
 
   -- Register reg_wo
   reg_wo_o <= reg_wo_reg;
+  reg_wo_wack <= reg_wo_wreq;
   process (clk) begin
     if rising_edge(clk) then
       if rst_n = '0' then
         reg_wo_reg <= "00000000000000000000000000000000";
-        reg_wo_wack <= '0';
       else
         if reg_wo_wreq = '1' then
           reg_wo_reg <= (reg_wo_reg and not wr_sel) or (wr_dat and wr_sel);
         end if;
-        reg_wo_wack <= reg_wo_wreq;
       end if;
     end if;
   end process;

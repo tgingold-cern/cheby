@@ -64,6 +64,7 @@ architecture syn of iogroup1 is
   signal areg3_reg                      : std_logic_vector(31 downto 0);
   signal areg3_wreq                     : std_logic;
   signal areg3_wack                     : std_logic;
+  signal areg3_wstrb                    : std_logic;
   signal areg4_wreq                     : std_logic;
   signal rd_ack_d0                      : std_logic;
   signal rd_dat_d0                      : std_logic_vector(31 downto 0);
@@ -124,16 +125,15 @@ begin
 
   -- Register areg1
   ios_o.areg1 <= areg1_reg;
+  areg1_wack <= areg1_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         areg1_reg <= "00000000000000000000000000000000";
-        areg1_wack <= '0';
       else
         if areg1_wreq = '1' then
           areg1_reg <= wr_dat_d0;
         end if;
-        areg1_wack <= areg1_wreq;
       end if;
     end if;
   end process;
@@ -142,20 +142,21 @@ begin
 
   -- Register areg3
   ios_o.areg3 <= areg3_reg;
+  areg3_wack <= areg3_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         areg3_reg <= "00000000000000000000000000000000";
-        areg3_wack <= '0';
+        areg3_wstrb <= '0';
       else
         if areg3_wreq = '1' then
           areg3_reg <= wr_dat_d0;
         end if;
-        areg3_wack <= areg3_wreq;
+        areg3_wstrb <= areg3_wreq;
       end if;
     end if;
   end process;
-  ios_o.areg3_wr <= areg3_wack;
+  ios_o.areg3_wr <= areg3_wstrb;
 
   -- Register areg4
   ios_o.areg4 <= wr_dat_d0;

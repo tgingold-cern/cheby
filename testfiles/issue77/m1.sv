@@ -37,7 +37,7 @@ module m1
   reg axi_rdone;
   reg [31:0] r1_reg;
   reg r1_wreq;
-  reg r1_wack;
+  wire r1_wack;
   reg rd_ack_d0;
   reg [31:0] rd_dat_d0;
   reg wr_req_d0;
@@ -137,19 +137,14 @@ module m1
 
   // Register r1
   assign r1_o = r1_reg;
+  assign r1_wack = r1_wreq;
   always_ff @(posedge(aclk))
   begin
     if (!areset_n)
-      begin
-        r1_reg <= 32'b00000000000000000000000000000000;
-        r1_wack <= 1'b0;
-      end
+      r1_reg <= 32'b00000000000000000000000000000000;
     else
-      begin
-        if (r1_wreq == 1'b1)
-          r1_reg <= wr_dat_d0;
-        r1_wack <= r1_wreq;
-      end
+      if (r1_wreq == 1'b1)
+        r1_reg <= wr_dat_d0;
   end
 
   // Process for write requests.

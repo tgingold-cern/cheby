@@ -26,7 +26,7 @@ module bugBlockRegField
   reg b1_r1_f4_reg;
   reg b1_r1_f5_reg;
   reg b1_r1_wreq;
-  reg b1_r1_wack;
+  wire b1_r1_wack;
   reg rd_ack_d0;
   reg [31:0] rd_dat_d0;
   reg wr_req_d0;
@@ -60,6 +60,7 @@ module bugBlockRegField
   assign b1_r1_f3_o = b1_r1_f3_reg;
   assign b1_r1_f4_o = b1_r1_f4_reg;
   assign b1_r1_f5_o = b1_r1_f5_reg;
+  assign b1_r1_wack = b1_r1_wreq;
   always @(posedge(Clk))
   begin
     if (!rst_n)
@@ -69,20 +70,16 @@ module bugBlockRegField
         b1_r1_f3_reg <= 1'b0;
         b1_r1_f4_reg <= 1'b0;
         b1_r1_f5_reg <= 1'b0;
-        b1_r1_wack <= 1'b0;
       end
     else
-      begin
-        if (b1_r1_wreq == 1'b1)
-          begin
-            b1_r1_f1_reg <= wr_dat_d0[0];
-            b1_r1_f2_reg <= wr_dat_d0[12:3];
-            b1_r1_f3_reg <= wr_dat_d0[2];
-            b1_r1_f4_reg <= wr_dat_d0[1];
-            b1_r1_f5_reg <= wr_dat_d0[13];
-          end
-        b1_r1_wack <= b1_r1_wreq;
-      end
+      if (b1_r1_wreq == 1'b1)
+        begin
+          b1_r1_f1_reg <= wr_dat_d0[0];
+          b1_r1_f2_reg <= wr_dat_d0[12:3];
+          b1_r1_f3_reg <= wr_dat_d0[2];
+          b1_r1_f4_reg <= wr_dat_d0[1];
+          b1_r1_f5_reg <= wr_dat_d0[13];
+        end
   end
 
   // Process for write requests.

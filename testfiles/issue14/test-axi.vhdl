@@ -142,11 +142,11 @@ begin
 
   -- Register register1
   register1_o <= register1_reg;
+  register1_wack <= register1_wreq;
   process (aclk) begin
     if rising_edge(aclk) then
       if areset_n = '0' then
         register1_reg <= "0000000000000000000000000000000000000000000000000000000000000000";
-        register1_wack <= (others => '0');
       else
         if register1_wreq(0) = '1' then
           register1_reg(31 downto 0) <= wr_dat_d0;
@@ -154,7 +154,6 @@ begin
         if register1_wreq(1) = '1' then
           register1_reg(63 downto 32) <= wr_dat_d0;
         end if;
-        register1_wack <= register1_wreq;
       end if;
     end if;
   end process;

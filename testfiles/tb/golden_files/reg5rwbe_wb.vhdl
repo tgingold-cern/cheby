@@ -100,13 +100,13 @@ begin
   frrw_f1_o <= frrw_f1_reg;
   frrw_f2_o <= frrw_f2_reg;
   frrw_f3_o <= frrw_f3_reg;
+  frrw_wack <= frrw_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         frrw_f1_reg <= "000000000000";
         frrw_f2_reg <= "0001001000110100";
         frrw_f3_reg <= "000000000000000000000000";
-        frrw_wack <= (others => '0');
       else
         if frrw_wreq(0) = '1' then
           frrw_f1_reg <= wr_dat_d0(11 downto 0);
@@ -116,7 +116,6 @@ begin
           frrw_f2_reg(15 downto 8) <= wr_dat_d0(7 downto 0);
           frrw_f3_reg <= wr_dat_d0(31 downto 8);
         end if;
-        frrw_wack <= frrw_wreq;
       end if;
     end if;
   end process;

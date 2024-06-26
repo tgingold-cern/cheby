@@ -142,29 +142,27 @@ begin
 
   -- Register areg
   areg_o <= areg_reg;
+  areg_wack <= areg_wreq;
   process (aclk, areset_n) begin
     if areset_n = '0' then
       areg_reg <= "00000000000000000000000000000000";
-      areg_wack <= '0';
     elsif rising_edge(aclk) then
       if areg_wreq = '1' then
         areg_reg <= wr_dat_d0;
       end if;
-      areg_wack <= areg_wreq;
     end if;
   end process;
 
   -- Register breg
   breg_o <= breg_reg;
+  breg_wack <= breg_wreq;
   process (aclk, areset_n) begin
     if areset_n = '0' then
       breg_reg <= "00000000000000000000000000000000";
-      breg_wack <= '0';
     elsif rising_edge(aclk) then
       if breg_wreq = '1' then
         breg_reg <= wr_dat_d0;
       end if;
-      breg_wack <= breg_wreq;
     end if;
   end process;
 

@@ -90,16 +90,15 @@ begin
 
   -- Register r1
   r1_f1_o <= r1_f1_reg;
+  r1_wack <= r1_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         r1_f1_reg <= "00000000";
-        r1_wack <= '0';
       else
         if r1_wreq = '1' then
           r1_f1_reg <= wr_dat_d0(7 downto 0);
         end if;
-        r1_wack <= r1_wreq;
       end if;
     end if;
   end process;

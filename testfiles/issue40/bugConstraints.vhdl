@@ -63,32 +63,30 @@ begin
 
   -- Register r1
   r1_o <= r1_reg;
+  r1_wack <= r1_wreq;
   process (Clk) begin
     if rising_edge(Clk) then
       if rst_n = '0' then
         r1_reg <= "00000000000000000000000000000000";
-        r1_wack <= '0';
       else
         if r1_wreq = '1' then
           r1_reg <= wr_dat_d0;
         end if;
-        r1_wack <= r1_wreq;
       end if;
     end if;
   end process;
 
   -- Register r2
   r2_r2_o <= r2_r2_reg;
+  r2_wack <= r2_wreq;
   process (Clk) begin
     if rising_edge(Clk) then
       if rst_n = '0' then
         r2_r2_reg <= "00000000000";
-        r2_wack <= '0';
       else
         if r2_wreq = '1' then
           r2_r2_reg <= wr_dat_d0(10 downto 0);
         end if;
-        r2_wack <= r2_wreq;
       end if;
     end if;
   end process;
