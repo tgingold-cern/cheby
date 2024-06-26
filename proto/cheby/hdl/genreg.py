@@ -442,18 +442,25 @@ class GenReg(ElGen):
                 f.h_reg = None
 
     def gen_internal_wires(self):
-        # Internal write request signal.
         n = self.n
+
+        # Internal write acknowledge
         n.h_wack = None
-        if n.access in ['wo', 'rw']:
-            # Strobe size.
+
+        # Internal write request
+        n.h_wreq = None
+        # Internal (delayed) write acknowledge used to generate a write strobe signal
+        # after (!) the register was updated
+        n.h_wstrb = None
+
+        if n.access in ["wo", "rw"]:
+            # Signal width
             sz = None if n.c_size <= self.root.c_word_size else n.c_nwords
-            n.h_wreq = self.module.new_HDLSignal(n.c_name + '_wreq', sz)
+
+            n.h_wreq = self.module.new_HDLSignal(n.c_name + "_wreq", sz)
             if n.h_has_regs:
-                # Need an intermediate wire for delayed ack
-                n.h_wack = self.module.new_HDLSignal(n.c_name + '_wack', sz)
-        else:
-            n.h_wreq = None
+                n.h_wack = self.module.new_HDLSignal(n.c_name + "_wack", sz)
+                n.h_wstrb = self.module.new_HDLSignal(n.c_name + "_wstrb", sz)
 
     def gen_ports(self):
         """Add ports and wires for register or fields of :param n:
@@ -574,40 +581,53 @@ class GenReg(ElGen):
 
     def gen_processes(self, ibus):
         n = self.n
-        self.module.stmts.append(HDLComment('Register {}'.format(n.c_name)))
+        self.module.stmts.append(HDLComment("Register {}".format(n.c_name)))
 
-        if n.access in ['rw', 'wo']:
+        if n.access in ["rw", "wo"]:
             for f in n.children:
                 f.h_gen.connect_output(self.module.stmts, ibus)
 
             if n.h_has_regs:
-                # Create a process for the DFF.
-                ffproc = HDLSync(self.root.h_bus['clk'], self.root.h_bus['vrst'],
-                                 rst_sync=gconfig.rst_sync)
-                self.module.stmts.append(ffproc)
-                # Reset code
+                # Write Acknowledge
+                self.module.stmts.append(HDLAssign(n.h_wack, n.h_wreq))
+
+                # Write Strope
+                # In case of registers, the write strobe is delayed so that it is active
+                # at the same time as the updated register value.
+                ffproc = HDLSync(
+                    self.root.h_bus["clk"],
+                    self.root.h_bus["vrst"],
+                    rst_sync=gconfig.rst_sync,
+                )
+
                 for f in n.children:
                     if f.h_reg is not None:
-                        cst = HDLConst(f.c_preset or 0, f.c_rwidth if f.c_rwidth != 1 else None)
+                        cst = HDLConst(
+                            f.c_preset or 0, f.c_rwidth if f.c_rwidth != 1 else None
+                        )
                         ffproc.rst_stmts.append(HDLAssign(f.h_reg, cst))
                 for off in range(0, n.c_size, self.root.c_word_size):
                     off *= tree.BYTE_SIZE
                     wr_if = HDLIfElse(HDLEq(self.strobe_index(off, n.h_wreq), bit_1))
                     for f in n.children:
                         if f.h_reg is not None and off in f.h_gen.get_offset_range():
-                            f.h_gen.assign_reg(wr_if.then_stmts, wr_if.else_stmts, off, ibus)
+                            f.h_gen.assign_reg(
+                                wr_if.then_stmts, wr_if.else_stmts, off, ibus
+                            )
                     if not wr_if.else_stmts:
                         wr_if.else_stmts = None
                     ffproc.sync_stmts.append(wr_if)
 
-                # In case of regs, the strobe is delayed so that it appears at the same time as
-                # the value.
-                ffproc.sync_stmts.append(HDLAssign(n.h_wack, n.h_wreq))
-                ffproc.rst_stmts.append(HDLAssign(n.h_wack, self.strobe_init()))
+                ffproc.sync_stmts.append(HDLAssign(n.h_wstrb, n.h_wreq))
+                ffproc.rst_stmts.append(HDLAssign(n.h_wstrb, self.strobe_init()))
 
+                self.module.stmts.append(ffproc)
+
+            # Connect write strobe to port
             if n.h_wreq_port is not None:
-                self.module.stmts.append(HDLAssign(n.h_wreq_port, n.h_wack or n.h_wreq))
-
+                self.module.stmts.append(
+                    HDLAssign(n.h_wreq_port, n.h_wstrb or n.h_wreq)
+                )
 
     def gen_read(self, s, off, ibus, rdproc):
         n = self.n
