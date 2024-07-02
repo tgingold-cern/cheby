@@ -6,10 +6,13 @@ package same_label_reg_consts_pkg is
   constant c_SAME_LABEL_REG_NO_FIELDS_ADDR : Natural := 16#0#;
   constant c_SAME_LABEL_REG_NO_FIELDS_PRESET : std_logic_vector(8-1 downto 0) := x"20";
   constant c_SAME_LABEL_REG_SAME_NAME_ADDR : Natural := 16#4#;
+  constant c_SAME_LABEL_REG_SAME_NAME_WIDTH : Natural := 1;
   constant c_SAME_LABEL_REG_SAME_NAME_OFFSET : Natural := 0;
   constant c_SAME_LABEL_REG_SAME_NAME_MULTI_ADDR : Natural := 16#8#;
+  constant c_SAME_LABEL_REG_SAME_NAME_MULTI_WIDTH : Natural := 12;
   constant c_SAME_LABEL_REG_SAME_NAME_MULTI_OFFSET : Natural := 0;
   constant c_SAME_LABEL_REG_NOT_SAME_REG_ADDR : Natural := 16#c#;
   constant c_ADDR_SAME_LABEL_REG_NOT_SAME : Natural := 16#c#;
+  constant c_SAME_LABEL_REG_NOT_SAME_WIDTH : Natural := 1;
   constant c_SAME_LABEL_REG_NOT_SAME_OFFSET : Natural := 0;
 end package same_label_reg_consts_pkg;

@@ -123,6 +123,7 @@ class ConstsPrinter(object):
             # printed here.
             self.pr_field_address(f)
 
+        self.pr_field_width(f)
         self.pr_field_offset(f)
         self.pr_field_mask(f)
 
