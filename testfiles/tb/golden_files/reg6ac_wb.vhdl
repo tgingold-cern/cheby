@@ -112,18 +112,17 @@ begin
 
   -- Register reg1
   reg1_o <= reg1_reg;
+  reg1_wack <= reg1_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         reg1_reg <= "00000000000000000000000000010000";
-        reg1_wack <= '0';
       else
         if reg1_wreq = '1' then
           reg1_reg <= wr_dat_d0;
         else
           reg1_reg <= "00000000000000000000000000000000";
         end if;
-        reg1_wack <= reg1_wreq;
       end if;
     end if;
   end process;
@@ -131,12 +130,12 @@ begin
   -- Register reg2
   reg2_f1_o <= reg2_f1_reg;
   reg2_f2_o <= reg2_f2_reg;
+  reg2_wack <= reg2_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         reg2_f1_reg <= '0';
         reg2_f2_reg <= "00";
-        reg2_wack <= '0';
       else
         if reg2_wreq = '1' then
           reg2_f1_reg <= wr_dat_d0(0);
@@ -145,7 +144,6 @@ begin
           reg2_f1_reg <= '0';
           reg2_f2_reg <= "00";
         end if;
-        reg2_wack <= reg2_wreq;
       end if;
     end if;
   end process;
@@ -154,13 +152,13 @@ begin
   reg3_f1_o <= reg3_f1_reg;
   reg3_f2_o <= reg3_f2_reg;
   reg3_f3_o <= reg3_f3_reg;
+  reg3_wack <= reg3_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         reg3_f1_reg <= '0';
         reg3_f2_reg <= "0000";
         reg3_f3_reg <= "0000";
-        reg3_wack <= (others => '0');
       else
         if reg3_wreq(0) = '1' then
           reg3_f1_reg <= wr_dat_d0(0);
@@ -174,7 +172,6 @@ begin
         else
           reg3_f3_reg <= "0000";
         end if;
-        reg3_wack <= reg3_wreq;
       end if;
     end if;
   end process;

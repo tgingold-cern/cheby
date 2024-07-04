@@ -72,16 +72,18 @@ architecture syn of reg3rw_wb is
   signal frrw_ws_f3_reg                 : std_logic_vector(23 downto 0);
   signal frrw_ws_wreq                   : std_logic_vector(1 downto 0);
   signal frrw_ws_wack                   : std_logic_vector(1 downto 0);
+  signal frrw_ws_wstrb                  : std_logic_vector(1 downto 0);
   signal frrw_rws_f1_reg                : std_logic_vector(11 downto 0);
   signal frrw_rws_f2_reg                : std_logic_vector(15 downto 0);
   signal frrw_rws_f3_reg                : std_logic_vector(23 downto 0);
   signal frrw_rws_wreq                  : std_logic_vector(1 downto 0);
   signal frrw_rws_wack                  : std_logic_vector(1 downto 0);
+  signal frrw_rws_wstrb                 : std_logic_vector(1 downto 0);
   signal frrw_rws_rwa_f1_reg            : std_logic_vector(11 downto 0);
   signal frrw_rws_rwa_f2_reg            : std_logic_vector(15 downto 0);
   signal frrw_rws_rwa_f3_reg            : std_logic_vector(23 downto 0);
   signal frrw_rws_rwa_wreq              : std_logic_vector(1 downto 0);
-  signal frrw_rws_rwa_wack              : std_logic_vector(1 downto 0);
+  signal frrw_rws_rwa_wstrb             : std_logic_vector(1 downto 0);
   signal rd_ack_d0                      : std_logic;
   signal rd_dat_d0                      : std_logic_vector(31 downto 0);
   signal wr_req_d0                      : std_logic;
@@ -141,11 +143,11 @@ begin
 
   -- Register rrw
   rrw_o <= rrw_reg;
+  rrw_wack <= rrw_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         rrw_reg <= "0000000000000000000000000000000000000000000000000000000000000000";
-        rrw_wack <= (others => '0');
       else
         if rrw_wreq(0) = '1' then
           rrw_reg(31 downto 0) <= wr_dat_d0;
@@ -153,7 +155,6 @@ begin
         if rrw_wreq(1) = '1' then
           rrw_reg(63 downto 32) <= wr_dat_d0;
         end if;
-        rrw_wack <= rrw_wreq;
       end if;
     end if;
   end process;
@@ -162,13 +163,13 @@ begin
   frrw_f1_o <= frrw_f1_reg;
   frrw_f2_o <= frrw_f2_reg;
   frrw_f3_o <= frrw_f3_reg;
+  frrw_wack <= frrw_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         frrw_f1_reg <= "000000000000";
         frrw_f2_reg <= "0000000000000000";
         frrw_f3_reg <= "000000000000000000000000";
-        frrw_wack <= (others => '0');
       else
         if frrw_wreq(0) = '1' then
           frrw_f1_reg <= wr_dat_d0(11 downto 0);
@@ -178,7 +179,6 @@ begin
           frrw_f2_reg(15 downto 8) <= wr_dat_d0(7 downto 0);
           frrw_f3_reg <= wr_dat_d0(31 downto 8);
         end if;
-        frrw_wack <= frrw_wreq;
       end if;
     end if;
   end process;
@@ -187,13 +187,14 @@ begin
   frrw_ws_f1_o <= frrw_ws_f1_reg;
   frrw_ws_f2_o <= frrw_ws_f2_reg;
   frrw_ws_f3_o <= frrw_ws_f3_reg;
+  frrw_ws_wack <= frrw_ws_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         frrw_ws_f1_reg <= "000000000000";
         frrw_ws_f2_reg <= "0000000000000000";
         frrw_ws_f3_reg <= "000000000000000000000000";
-        frrw_ws_wack <= (others => '0');
+        frrw_ws_wstrb <= (others => '0');
       else
         if frrw_ws_wreq(0) = '1' then
           frrw_ws_f1_reg <= wr_dat_d0(11 downto 0);
@@ -203,23 +204,24 @@ begin
           frrw_ws_f2_reg(15 downto 8) <= wr_dat_d0(7 downto 0);
           frrw_ws_f3_reg <= wr_dat_d0(31 downto 8);
         end if;
-        frrw_ws_wack <= frrw_ws_wreq;
+        frrw_ws_wstrb <= frrw_ws_wreq;
       end if;
     end if;
   end process;
-  frrw_ws_wr_o <= frrw_ws_wack;
+  frrw_ws_wr_o <= frrw_ws_wstrb;
 
   -- Register frrw_rws
   frrw_rws_f1_o <= frrw_rws_f1_reg;
   frrw_rws_f2_o <= frrw_rws_f2_reg;
   frrw_rws_f3_o <= frrw_rws_f3_reg;
+  frrw_rws_wack <= frrw_rws_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         frrw_rws_f1_reg <= "000000000000";
         frrw_rws_f2_reg <= "0000000000000000";
         frrw_rws_f3_reg <= "000000000000000000000000";
-        frrw_rws_wack <= (others => '0');
+        frrw_rws_wstrb <= (others => '0');
       else
         if frrw_rws_wreq(0) = '1' then
           frrw_rws_f1_reg <= wr_dat_d0(11 downto 0);
@@ -229,11 +231,11 @@ begin
           frrw_rws_f2_reg(15 downto 8) <= wr_dat_d0(7 downto 0);
           frrw_rws_f3_reg <= wr_dat_d0(31 downto 8);
         end if;
-        frrw_rws_wack <= frrw_rws_wreq;
+        frrw_rws_wstrb <= frrw_rws_wreq;
       end if;
     end if;
   end process;
-  frrw_rws_wr_o <= frrw_rws_wack;
+  frrw_rws_wr_o <= frrw_rws_wstrb;
 
   -- Register frrw_rws_rwa
   frrw_rws_rwa_f1_o <= frrw_rws_rwa_f1_reg;
@@ -245,7 +247,7 @@ begin
         frrw_rws_rwa_f1_reg <= "000000000000";
         frrw_rws_rwa_f2_reg <= "0000000000000000";
         frrw_rws_rwa_f3_reg <= "000000000000000000000000";
-        frrw_rws_rwa_wack <= (others => '0');
+        frrw_rws_rwa_wstrb <= (others => '0');
       else
         if frrw_rws_rwa_wreq(0) = '1' then
           frrw_rws_rwa_f1_reg <= wr_dat_d0(11 downto 0);
@@ -255,11 +257,11 @@ begin
           frrw_rws_rwa_f2_reg(15 downto 8) <= wr_dat_d0(7 downto 0);
           frrw_rws_rwa_f3_reg <= wr_dat_d0(31 downto 8);
         end if;
-        frrw_rws_rwa_wack <= frrw_rws_rwa_wreq;
+        frrw_rws_rwa_wstrb <= frrw_rws_rwa_wreq;
       end if;
     end if;
   end process;
-  frrw_rws_rwa_wr_o <= frrw_rws_rwa_wack;
+  frrw_rws_rwa_wr_o <= frrw_rws_rwa_wstrb;
 
   -- Process for write requests.
   process (wr_adr_d0, wr_req_d0, rrw_wack, frrw_wack, frrw_ws_wack, frrw_rws_wack,

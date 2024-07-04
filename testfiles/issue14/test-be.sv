@@ -41,7 +41,7 @@ module test_axi4
   reg axi_rdone;
   reg [63:0] register1_reg;
   reg [1:0] register1_wreq;
-  reg [1:0] register1_wack;
+  wire [1:0] register1_wack;
   reg rd_ack_d0;
   reg [31:0] rd_dat_d0;
   reg wr_req_d0;
@@ -146,20 +146,17 @@ module test_axi4
 
   // Register register1
   assign register1_o = register1_reg;
+  assign register1_wack = register1_wreq;
   always_ff @(posedge(aclk))
   begin
     if (!areset_n)
-      begin
-        register1_reg <= 64'b0000000000000000000000000000000000000000000000000000000000000000;
-        register1_wack <= 2'b0;
-      end
+      register1_reg <= 64'b0000000000000000000000000000000000000000000000000000000000000000;
     else
       begin
         if (register1_wreq[0] == 1'b1)
           register1_reg[31:0] <= wr_dat_d0;
         if (register1_wreq[1] == 1'b1)
           register1_reg[63:32] <= wr_dat_d0;
-        register1_wack <= register1_wreq;
       end
   end
 

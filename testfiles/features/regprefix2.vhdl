@@ -111,18 +111,17 @@ begin
   -- Register r1
   f1_o <= f1_reg;
   f2_o <= f2_reg;
+  r1_wack <= r1_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         f1_reg <= "000";
         f2_reg <= '0';
-        r1_wack <= '0';
       else
         if r1_wreq = '1' then
           f1_reg <= wr_dat_d0(2 downto 0);
           f2_reg <= wr_dat_d0(4);
         end if;
-        r1_wack <= r1_wreq;
       end if;
     end if;
   end process;
@@ -130,34 +129,32 @@ begin
   -- Register r2
   f3_o <= f3_reg;
   f4_o <= f4_reg;
+  r2_wack <= r2_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         f3_reg <= "000";
         f4_reg <= '0';
-        r2_wack <= '0';
       else
         if r2_wreq = '1' then
           f3_reg <= wr_dat_d0(2 downto 0);
           f4_reg <= wr_dat_d0(4);
         end if;
-        r2_wack <= r2_wreq;
       end if;
     end if;
   end process;
 
   -- Register r3
   r3_o <= r3_reg;
+  r3_wack <= r3_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         r3_reg <= "00000000000000000000000000000000";
-        r3_wack <= '0';
       else
         if r3_wreq = '1' then
           r3_reg <= wr_dat_d0;
         end if;
-        r3_wack <= r3_wreq;
       end if;
     end if;
   end process;

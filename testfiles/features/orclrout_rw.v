@@ -28,7 +28,7 @@ module orclrout
   reg wb_wip;
   reg [31:0] breg_reg;
   reg breg_wreq;
-  reg breg_wack;
+  wire breg_wack;
   reg rd_ack_d0;
   reg [31:0] rd_dat_d0;
   reg wr_req_d0;
@@ -84,21 +84,16 @@ module orclrout
 
   // Register breg
   assign breg_o = breg_reg;
+  assign breg_wack = breg_wreq;
   always @(posedge(clk_i))
   begin
     if (!rst_n_i)
-      begin
-        breg_reg <= 32'b00000000000000000000000000000000;
-        breg_wack <= 1'b0;
-      end
+      breg_reg <= 32'b00000000000000000000000000000000;
     else
-      begin
-        if (breg_wreq == 1'b1)
-          breg_reg <= breg_i | (breg_reg & ~wr_dat_d0);
-        else
-          breg_reg <= breg_i | breg_reg;
-        breg_wack <= breg_wreq;
-      end
+      if (breg_wreq == 1'b1)
+        breg_reg <= breg_i | (breg_reg & ~wr_dat_d0);
+      else
+        breg_reg <= breg_i | breg_reg;
   end
 
   // Process for write requests.

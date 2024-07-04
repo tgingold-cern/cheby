@@ -34,13 +34,13 @@ module regprefix3
   reg wb_wip;
   reg [31:0] blk1_r1_reg;
   reg blk1_r1_wreq;
-  reg blk1_r1_wack;
+  wire blk1_r1_wack;
   reg [31:0] blk1_r2_reg;
   reg blk1_r2_wreq;
-  reg blk1_r2_wack;
+  wire blk1_r2_wack;
   reg [31:0] r3_reg;
   reg r3_wreq;
-  reg r3_wack;
+  wire r3_wack;
   reg rd_ack_d0;
   reg [31:0] rd_dat_d0;
   reg wr_req_d0;
@@ -99,53 +99,38 @@ module regprefix3
 
   // Register blk1_r1
   assign blk1_r1_o = blk1_r1_reg;
+  assign blk1_r1_wack = blk1_r1_wreq;
   always @(posedge(clk_i))
   begin
     if (!rst_n_i)
-      begin
-        blk1_r1_reg <= 32'b00000000000000000000000000000000;
-        blk1_r1_wack <= 1'b0;
-      end
+      blk1_r1_reg <= 32'b00000000000000000000000000000000;
     else
-      begin
-        if (blk1_r1_wreq == 1'b1)
-          blk1_r1_reg <= wr_dat_d0;
-        blk1_r1_wack <= blk1_r1_wreq;
-      end
+      if (blk1_r1_wreq == 1'b1)
+        blk1_r1_reg <= wr_dat_d0;
   end
 
   // Register blk1_r2
   assign blk1_r2_o = blk1_r2_reg;
+  assign blk1_r2_wack = blk1_r2_wreq;
   always @(posedge(clk_i))
   begin
     if (!rst_n_i)
-      begin
-        blk1_r2_reg <= 32'b00000000000000000000000000000000;
-        blk1_r2_wack <= 1'b0;
-      end
+      blk1_r2_reg <= 32'b00000000000000000000000000000000;
     else
-      begin
-        if (blk1_r2_wreq == 1'b1)
-          blk1_r2_reg <= wr_dat_d0;
-        blk1_r2_wack <= blk1_r2_wreq;
-      end
+      if (blk1_r2_wreq == 1'b1)
+        blk1_r2_reg <= wr_dat_d0;
   end
 
   // Register r3
   assign r3_o = r3_reg;
+  assign r3_wack = r3_wreq;
   always @(posedge(clk_i))
   begin
     if (!rst_n_i)
-      begin
-        r3_reg <= 32'b00000000000000000000000000000000;
-        r3_wack <= 1'b0;
-      end
+      r3_reg <= 32'b00000000000000000000000000000000;
     else
-      begin
-        if (r3_wreq == 1'b1)
-          r3_reg <= wr_dat_d0;
-        r3_wack <= r3_wreq;
-      end
+      if (r3_wreq == 1'b1)
+        r3_reg <= wr_dat_d0;
   end
 
   // Process for write requests.

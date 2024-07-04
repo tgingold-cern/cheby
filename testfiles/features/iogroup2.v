@@ -39,10 +39,10 @@ module igroup2
   reg wb_wip;
   reg [31:0] areg_reg;
   reg areg_wreq;
-  reg areg_wack;
+  wire areg_wack;
   reg [31:0] blk_breg_reg;
   reg blk_breg_wreq;
-  reg blk_breg_wack;
+  wire blk_breg_wack;
   reg rd_ack_d0;
   reg [31:0] rd_dat_d0;
   reg wr_req_d0;
@@ -101,36 +101,26 @@ module igroup2
 
   // Register areg
   assign areg_o = areg_reg;
+  assign areg_wack = areg_wreq;
   always @(posedge(clk_i))
   begin
     if (!rst_n_i)
-      begin
-        areg_reg <= 32'b00000000000000000000000000000000;
-        areg_wack <= 1'b0;
-      end
+      areg_reg <= 32'b00000000000000000000000000000000;
     else
-      begin
-        if (areg_wreq == 1'b1)
-          areg_reg <= wr_dat_d0;
-        areg_wack <= areg_wreq;
-      end
+      if (areg_wreq == 1'b1)
+        areg_reg <= wr_dat_d0;
   end
 
   // Register blk_breg
   assign blk.breg = blk_breg_reg;
+  assign blk_breg_wack = blk_breg_wreq;
   always @(posedge(clk_i))
   begin
     if (!rst_n_i)
-      begin
-        blk_breg_reg <= 32'b00000000000000000000000000000000;
-        blk_breg_wack <= 1'b0;
-      end
+      blk_breg_reg <= 32'b00000000000000000000000000000000;
     else
-      begin
-        if (blk_breg_wreq == 1'b1)
-          blk_breg_reg <= wr_dat_d0;
-        blk_breg_wack <= blk_breg_wreq;
-      end
+      if (blk_breg_wreq == 1'b1)
+        blk_breg_reg <= wr_dat_d0;
   end
 
   // Process for write requests.

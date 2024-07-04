@@ -152,26 +152,28 @@ module bran_wb
   reg EnableTurnEmulator_reg;
   reg LHCTiming_reg;
   reg Ctrl_wreq;
-  reg Ctrl_wack;
+  wire Ctrl_wack;
   reg [31:0] TurnPeriod_reg;
   reg TurnPeriod_wreq;
-  reg TurnPeriod_wack;
+  wire TurnPeriod_wack;
+  reg TurnPeriod_wstrb;
   reg [31:0] TurnLength_reg;
   reg TurnLength_wreq;
-  reg TurnLength_wack;
+  wire TurnLength_wack;
+  reg TurnLength_wstrb;
   reg FmcPowerEnable_reg;
   reg DCDCSyncEnable_reg;
   reg FmcPower_wreq;
-  reg FmcPower_wack;
+  wire FmcPower_wack;
   reg PatternRst_reg;
   reg ADCPatternCheckCtrl_wreq;
-  reg ADCPatternCheckCtrl_wack;
+  wire ADCPatternCheckCtrl_wack;
   reg ADCRst_reg;
   reg ADCEnable_reg;
   reg ADCManualSync_reg;
   reg ADCDisableAutoSync_reg;
   reg ADCCtrl_wreq;
-  reg ADCCtrl_wack;
+  wire ADCCtrl_wack;
   reg JesdXcvrRst_reg;
   reg JesdLinkRst_reg;
   reg JesdPLLRst_reg;
@@ -180,16 +182,17 @@ module bran_wb
   reg JesdLinkReady_reg;
   reg JesdEnableSysref_reg;
   reg JesdLink_wreq;
-  reg JesdLink_wack;
+  wire JesdLink_wack;
   reg [31:0] AdcSpiWrite_reg;
   reg AdcSpiWrite_wreq;
-  reg AdcSpiWrite_wack;
+  wire AdcSpiWrite_wack;
+  reg AdcSpiWrite_wstrb;
   reg [31:0] CummulativeTurns_reg;
   reg CummulativeTurns_wreq;
-  reg CummulativeTurns_wack;
+  wire CummulativeTurns_wack;
   reg OverrideTurnEmulatorTiming_reg;
   reg Debug_wreq;
-  reg Debug_wack;
+  wire Debug_wack;
   reg RawData0_rack;
   reg RawData0_re;
   reg RawData1_rack;
@@ -264,6 +267,7 @@ module bran_wb
   assign DisableADCStream_o = DisableADCStream_reg;
   assign EnableTurnEmulator_o = EnableTurnEmulator_reg;
   assign LHC_timing = LHCTiming_reg;
+  assign Ctrl_wack = Ctrl_wreq;
   always_ff @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
@@ -274,26 +278,22 @@ module bran_wb
         DisableADCStream_reg <= 1'b0;
         EnableTurnEmulator_reg <= 1'b0;
         LHCTiming_reg <= 1'b0;
-        Ctrl_wack <= 1'b0;
       end
     else
-      begin
-        if (Ctrl_wreq == 1'b1)
-          begin
-            Enable_reg <= wr_dat_d0[0];
-            RstBstDesync_reg <= wr_dat_d0[1];
-            FAReset_reg <= wr_dat_d0[2];
-            DisableADCStream_reg <= wr_dat_d0[4];
-            EnableTurnEmulator_reg <= wr_dat_d0[6];
-            LHCTiming_reg <= wr_dat_d0[10];
-          end
-        else
-          begin
-            RstBstDesync_reg <= 1'b0;
-            FAReset_reg <= 1'b0;
-          end
-        Ctrl_wack <= Ctrl_wreq;
-      end
+      if (Ctrl_wreq == 1'b1)
+        begin
+          Enable_reg <= wr_dat_d0[0];
+          RstBstDesync_reg <= wr_dat_d0[1];
+          FAReset_reg <= wr_dat_d0[2];
+          DisableADCStream_reg <= wr_dat_d0[4];
+          EnableTurnEmulator_reg <= wr_dat_d0[6];
+          LHCTiming_reg <= wr_dat_d0[10];
+        end
+      else
+        begin
+          RstBstDesync_reg <= 1'b0;
+          FAReset_reg <= 1'b0;
+        end
   end
 
   // Register Stat
@@ -304,79 +304,73 @@ module bran_wb
 
   // Register TurnPeriod
   assign TurnPeriod_o = TurnPeriod_reg;
+  assign TurnPeriod_wack = TurnPeriod_wreq;
   always_ff @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
       begin
         TurnPeriod_reg <= 32'b00000000000000000000010000000000;
-        TurnPeriod_wack <= 1'b0;
+        TurnPeriod_wstrb <= 1'b0;
       end
     else
       begin
         if (TurnPeriod_wreq == 1'b1)
           TurnPeriod_reg <= wr_dat_d0;
-        TurnPeriod_wack <= TurnPeriod_wreq;
+        TurnPeriod_wstrb <= TurnPeriod_wreq;
       end
   end
-  assign TurnPeriod_wr_o = TurnPeriod_wack;
+  assign TurnPeriod_wr_o = TurnPeriod_wstrb;
 
   // Register TurnLength
   assign TurnLength_o = TurnLength_reg;
+  assign TurnLength_wack = TurnLength_wreq;
   always_ff @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
       begin
         TurnLength_reg <= 32'b00000000000000000000000000000011;
-        TurnLength_wack <= 1'b0;
+        TurnLength_wstrb <= 1'b0;
       end
     else
       begin
         if (TurnLength_wreq == 1'b1)
           TurnLength_reg <= wr_dat_d0;
-        TurnLength_wack <= TurnLength_wreq;
+        TurnLength_wstrb <= TurnLength_wreq;
       end
   end
-  assign TurnLength_wr_o = TurnLength_wack;
+  assign TurnLength_wr_o = TurnLength_wstrb;
 
   // Register TurnsIntercepted
 
   // Register FmcPower
   assign FmcPowerEnable_o = FmcPowerEnable_reg;
   assign DCDCSyncEnable_o = DCDCSyncEnable_reg;
+  assign FmcPower_wack = FmcPower_wreq;
   always_ff @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
       begin
         FmcPowerEnable_reg <= 1'b0;
         DCDCSyncEnable_reg <= 1'b0;
-        FmcPower_wack <= 1'b0;
       end
     else
-      begin
-        if (FmcPower_wreq == 1'b1)
-          begin
-            FmcPowerEnable_reg <= wr_dat_d0[0];
-            DCDCSyncEnable_reg <= wr_dat_d0[1];
-          end
-        FmcPower_wack <= FmcPower_wreq;
-      end
+      if (FmcPower_wreq == 1'b1)
+        begin
+          FmcPowerEnable_reg <= wr_dat_d0[0];
+          DCDCSyncEnable_reg <= wr_dat_d0[1];
+        end
   end
 
   // Register ADCPatternCheckCtrl
   assign PatternRst_o = PatternRst_reg;
+  assign ADCPatternCheckCtrl_wack = ADCPatternCheckCtrl_wreq;
   always_ff @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
-      begin
-        PatternRst_reg <= 1'b0;
-        ADCPatternCheckCtrl_wack <= 1'b0;
-      end
+      PatternRst_reg <= 1'b0;
     else
-      begin
-        if (ADCPatternCheckCtrl_wreq == 1'b1)
-          PatternRst_reg <= wr_dat_d0[0];
-        ADCPatternCheckCtrl_wack <= ADCPatternCheckCtrl_wreq;
-      end
+      if (ADCPatternCheckCtrl_wreq == 1'b1)
+        PatternRst_reg <= wr_dat_d0[0];
   end
 
   // Register ADCCtrl
@@ -384,6 +378,7 @@ module bran_wb
   assign ADCEnable_o = ADCEnable_reg;
   assign ADCManualSync_o = ADCManualSync_reg;
   assign ADCDisableAutoSync_o = ADCDisableAutoSync_reg;
+  assign ADCCtrl_wack = ADCCtrl_wreq;
   always_ff @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
@@ -392,19 +387,15 @@ module bran_wb
         ADCEnable_reg <= 1'b0;
         ADCManualSync_reg <= 1'b0;
         ADCDisableAutoSync_reg <= 1'b0;
-        ADCCtrl_wack <= 1'b0;
       end
     else
-      begin
-        if (ADCCtrl_wreq == 1'b1)
-          begin
-            ADCRst_reg <= wr_dat_d0[0];
-            ADCEnable_reg <= wr_dat_d0[1];
-            ADCManualSync_reg <= wr_dat_d0[6];
-            ADCDisableAutoSync_reg <= wr_dat_d0[7];
-          end
-        ADCCtrl_wack <= ADCCtrl_wreq;
-      end
+      if (ADCCtrl_wreq == 1'b1)
+        begin
+          ADCRst_reg <= wr_dat_d0[0];
+          ADCEnable_reg <= wr_dat_d0[1];
+          ADCManualSync_reg <= wr_dat_d0[6];
+          ADCDisableAutoSync_reg <= wr_dat_d0[7];
+        end
   end
 
   // Register JesdLink
@@ -415,6 +406,7 @@ module bran_wb
   assign SixxRst_o = SixxRst_reg;
   assign JesdLinkReady_o = JesdLinkReady_reg;
   assign JesdEnableSysref_o = JesdEnableSysref_reg;
+  assign JesdLink_wack = JesdLink_wreq;
   always_ff @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
@@ -426,41 +418,38 @@ module bran_wb
         SixxRst_reg <= 1'b0;
         JesdLinkReady_reg <= 1'b0;
         JesdEnableSysref_reg <= 1'b0;
-        JesdLink_wack <= 1'b0;
       end
     else
-      begin
-        if (JesdLink_wreq == 1'b1)
-          begin
-            JesdXcvrRst_reg <= wr_dat_d0[0];
-            JesdLinkRst_reg <= wr_dat_d0[2];
-            JesdPLLRst_reg <= wr_dat_d0[4];
-            JesdAvsRst_reg <= wr_dat_d0[5];
-            SixxRst_reg <= wr_dat_d0[6];
-            JesdLinkReady_reg <= wr_dat_d0[8];
-            JesdEnableSysref_reg <= wr_dat_d0[9];
-          end
-        JesdLink_wack <= JesdLink_wreq;
-      end
+      if (JesdLink_wreq == 1'b1)
+        begin
+          JesdXcvrRst_reg <= wr_dat_d0[0];
+          JesdLinkRst_reg <= wr_dat_d0[2];
+          JesdPLLRst_reg <= wr_dat_d0[4];
+          JesdAvsRst_reg <= wr_dat_d0[5];
+          SixxRst_reg <= wr_dat_d0[6];
+          JesdLinkReady_reg <= wr_dat_d0[8];
+          JesdEnableSysref_reg <= wr_dat_d0[9];
+        end
   end
 
   // Register AdcSpiWrite
   assign AdcSpiWrite_o = AdcSpiWrite_reg;
+  assign AdcSpiWrite_wack = AdcSpiWrite_wreq;
   always_ff @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
       begin
         AdcSpiWrite_reg <= 32'b00000000000000000000000000000000;
-        AdcSpiWrite_wack <= 1'b0;
+        AdcSpiWrite_wstrb <= 1'b0;
       end
     else
       begin
         if (AdcSpiWrite_wreq == 1'b1)
           AdcSpiWrite_reg <= wr_dat_d0;
-        AdcSpiWrite_wack <= AdcSpiWrite_wreq;
+        AdcSpiWrite_wstrb <= AdcSpiWrite_wreq;
       end
   end
-  assign AdcSpiWrite_wr_o = AdcSpiWrite_wack;
+  assign AdcSpiWrite_wr_o = AdcSpiWrite_wstrb;
 
   // Register AdcSpiRead
 
@@ -468,36 +457,26 @@ module bran_wb
 
   // Register CummulativeTurns
   assign cummulative_turns_b32 = CummulativeTurns_reg;
+  assign CummulativeTurns_wack = CummulativeTurns_wreq;
   always_ff @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
-      begin
-        CummulativeTurns_reg <= 32'b00000000000000000000000000000000;
-        CummulativeTurns_wack <= 1'b0;
-      end
+      CummulativeTurns_reg <= 32'b00000000000000000000000000000000;
     else
-      begin
-        if (CummulativeTurns_wreq == 1'b1)
-          CummulativeTurns_reg <= wr_dat_d0;
-        CummulativeTurns_wack <= CummulativeTurns_wreq;
-      end
+      if (CummulativeTurns_wreq == 1'b1)
+        CummulativeTurns_reg <= wr_dat_d0;
   end
 
   // Register Debug
   assign OverrideTurnEmulatorTiming = OverrideTurnEmulatorTiming_reg;
+  assign Debug_wack = Debug_wreq;
   always_ff @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
-      begin
-        OverrideTurnEmulatorTiming_reg <= 1'b0;
-        Debug_wack <= 1'b0;
-      end
+      OverrideTurnEmulatorTiming_reg <= 1'b0;
     else
-      begin
-        if (Debug_wreq == 1'b1)
-          OverrideTurnEmulatorTiming_reg <= wr_dat_d0[0];
-        Debug_wack <= Debug_wreq;
-      end
+      if (Debug_wreq == 1'b1)
+        OverrideTurnEmulatorTiming_reg <= wr_dat_d0[0];
   end
 
   // Interface RawData0

@@ -240,32 +240,30 @@ begin
 
   -- Register reg1
   reg1_o <= reg1_reg;
+  reg1_wack <= reg1_wreq;
   process (pclk) begin
     if rising_edge(pclk) then
       if presetn = '0' then
         reg1_reg <= "00010010001101000000000000000000";
-        reg1_wack <= '0';
       else
         if reg1_wreq = '1' then
           reg1_reg <= wr_dat_d0;
         end if;
-        reg1_wack <= reg1_wreq;
       end if;
     end if;
   end process;
 
   -- Register reg2
   reg2_o <= reg2_reg;
+  reg2_wack <= reg2_wreq;
   process (pclk) begin
     if rising_edge(pclk) then
       if presetn = '0' then
         reg2_reg <= "00010010001101000000000000000010";
-        reg2_wack <= '0';
       else
         if reg2_wreq = '1' then
           reg2_reg <= wr_dat_d0;
         end if;
-        reg2_wack <= reg2_wreq;
       end if;
     end if;
   end process;

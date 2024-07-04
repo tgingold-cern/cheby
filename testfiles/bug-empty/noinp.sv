@@ -40,10 +40,10 @@ module noinp
   reg wb_wip;
   reg [31:0] reg0_reg;
   reg reg0_wreq;
-  reg reg0_wack;
+  wire reg0_wack;
   reg [31:0] reg1_reg;
   reg reg1_wreq;
-  reg reg1_wack;
+  wire reg1_wack;
   reg rd_ack_d0;
   reg [31:0] rd_dat_d0;
   reg wr_req_d0;
@@ -102,36 +102,26 @@ module noinp
 
   // Register reg0
   assign noinp_inter.reg0 = reg0_reg;
+  assign reg0_wack = reg0_wreq;
   always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
-      begin
-        reg0_reg <= 32'b00000000000000000000000000000000;
-        reg0_wack <= 1'b0;
-      end
+      reg0_reg <= 32'b00000000000000000000000000000000;
     else
-      begin
-        if (reg0_wreq == 1'b1)
-          reg0_reg <= wr_dat_d0;
-        reg0_wack <= reg0_wreq;
-      end
+      if (reg0_wreq == 1'b1)
+        reg0_reg <= wr_dat_d0;
   end
 
   // Register reg1
   assign noinp_inter.reg1 = reg1_reg;
+  assign reg1_wack = reg1_wreq;
   always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
-      begin
-        reg1_reg <= 32'b00000000000000000000000100100011;
-        reg1_wack <= 1'b0;
-      end
+      reg1_reg <= 32'b00000000000000000000000100100011;
     else
-      begin
-        if (reg1_wreq == 1'b1)
-          reg1_reg <= wr_dat_d0;
-        reg1_wack <= reg1_wreq;
-      end
+      if (reg1_wreq == 1'b1)
+        reg1_reg <= wr_dat_d0;
   end
 
   // Process for write requests.

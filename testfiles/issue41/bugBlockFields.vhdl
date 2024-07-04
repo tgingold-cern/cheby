@@ -65,6 +65,7 @@ begin
   b1_r1_f3_o <= b1_r1_f3_reg;
   b1_r1_f4_o <= b1_r1_f4_reg;
   b1_r1_f5_o <= b1_r1_f5_reg;
+  b1_r1_wack <= b1_r1_wreq;
   process (Clk) begin
     if rising_edge(Clk) then
       if rst_n = '0' then
@@ -73,7 +74,6 @@ begin
         b1_r1_f3_reg <= '0';
         b1_r1_f4_reg <= '0';
         b1_r1_f5_reg <= '0';
-        b1_r1_wack <= '0';
       else
         if b1_r1_wreq = '1' then
           b1_r1_f1_reg <= wr_dat_d0(0);
@@ -82,7 +82,6 @@ begin
           b1_r1_f4_reg <= wr_dat_d0(1);
           b1_r1_f5_reg <= wr_dat_d0(13);
         end if;
-        b1_r1_wack <= b1_r1_wreq;
       end if;
     end if;
   end process;

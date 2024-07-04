@@ -37,14 +37,14 @@ module regprefix2
   reg [2:0] f1_reg;
   reg f2_reg;
   reg r1_wreq;
-  reg r1_wack;
+  wire r1_wack;
   reg [2:0] f3_reg;
   reg f4_reg;
   reg r2_wreq;
-  reg r2_wack;
+  wire r2_wack;
   reg [31:0] r3_reg;
   reg r3_wreq;
-  reg r3_wack;
+  wire r3_wack;
   reg rd_ack_d0;
   reg [31:0] rd_dat_d0;
   reg wr_req_d0;
@@ -104,62 +104,51 @@ module regprefix2
   // Register r1
   assign f1_o = f1_reg;
   assign f2_o = f2_reg;
+  assign r1_wack = r1_wreq;
   always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       begin
         f1_reg <= 3'b000;
         f2_reg <= 1'b0;
-        r1_wack <= 1'b0;
       end
     else
-      begin
-        if (r1_wreq == 1'b1)
-          begin
-            f1_reg <= wr_dat_d0[2:0];
-            f2_reg <= wr_dat_d0[4];
-          end
-        r1_wack <= r1_wreq;
-      end
+      if (r1_wreq == 1'b1)
+        begin
+          f1_reg <= wr_dat_d0[2:0];
+          f2_reg <= wr_dat_d0[4];
+        end
   end
 
   // Register r2
   assign f3_o = f3_reg;
   assign f4_o = f4_reg;
+  assign r2_wack = r2_wreq;
   always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       begin
         f3_reg <= 3'b000;
         f4_reg <= 1'b0;
-        r2_wack <= 1'b0;
       end
     else
-      begin
-        if (r2_wreq == 1'b1)
-          begin
-            f3_reg <= wr_dat_d0[2:0];
-            f4_reg <= wr_dat_d0[4];
-          end
-        r2_wack <= r2_wreq;
-      end
+      if (r2_wreq == 1'b1)
+        begin
+          f3_reg <= wr_dat_d0[2:0];
+          f4_reg <= wr_dat_d0[4];
+        end
   end
 
   // Register r3
   assign r3_o = r3_reg;
+  assign r3_wack = r3_wreq;
   always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
-      begin
-        r3_reg <= 32'b00000000000000000000000000000000;
-        r3_wack <= 1'b0;
-      end
+      r3_reg <= 32'b00000000000000000000000000000000;
     else
-      begin
-        if (r3_wreq == 1'b1)
-          r3_reg <= wr_dat_d0;
-        r3_wack <= r3_wreq;
-      end
+      if (r3_wreq == 1'b1)
+        r3_reg <= wr_dat_d0;
   end
 
   // Process for write requests.

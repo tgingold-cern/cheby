@@ -74,14 +74,14 @@ module qsm_regs
   reg [3:0] regs_0_control_max_dim_no_reg;
   reg [9:0] regs_0_control_read_delay_reg;
   reg regs_0_control_wreq;
-  reg regs_0_control_wack;
+  wire regs_0_control_wack;
   reg regs_1_control_reset_reg;
   reg regs_1_control_trig_reg;
   reg [3:0] regs_1_control_last_reg_adr_reg;
   reg [3:0] regs_1_control_max_dim_no_reg;
   reg [9:0] regs_1_control_read_delay_reg;
   reg regs_1_control_wreq;
-  reg regs_1_control_wack;
+  wire regs_1_control_wack;
   reg memory_0_mem_readout_rack;
   reg memory_0_mem_readout_re;
   reg memory_1_mem_readout_rack;
@@ -149,6 +149,7 @@ module qsm_regs
   assign regs_0_control_last_reg_adr_o = regs_0_control_last_reg_adr_reg;
   assign regs_0_control_max_dim_no_o = regs_0_control_max_dim_no_reg;
   assign regs_0_control_read_delay_o = regs_0_control_read_delay_reg;
+  assign regs_0_control_wack = regs_0_control_wreq;
   always @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
@@ -158,25 +159,21 @@ module qsm_regs
         regs_0_control_last_reg_adr_reg <= 4'b0000;
         regs_0_control_max_dim_no_reg <= 4'b0000;
         regs_0_control_read_delay_reg <= 10'b0000000000;
-        regs_0_control_wack <= 1'b0;
       end
     else
-      begin
-        if (regs_0_control_wreq == 1'b1)
-          begin
-            regs_0_control_reset_reg <= wr_dat_d0[0];
-            regs_0_control_trig_reg <= wr_dat_d0[1];
-            regs_0_control_last_reg_adr_reg <= wr_dat_d0[5:2];
-            regs_0_control_max_dim_no_reg <= wr_dat_d0[9:6];
-            regs_0_control_read_delay_reg <= wr_dat_d0[19:10];
-          end
-        else
-          begin
-            regs_0_control_reset_reg <= 1'b0;
-            regs_0_control_trig_reg <= 1'b0;
-          end
-        regs_0_control_wack <= regs_0_control_wreq;
-      end
+      if (regs_0_control_wreq == 1'b1)
+        begin
+          regs_0_control_reset_reg <= wr_dat_d0[0];
+          regs_0_control_trig_reg <= wr_dat_d0[1];
+          regs_0_control_last_reg_adr_reg <= wr_dat_d0[5:2];
+          regs_0_control_max_dim_no_reg <= wr_dat_d0[9:6];
+          regs_0_control_read_delay_reg <= wr_dat_d0[19:10];
+        end
+      else
+        begin
+          regs_0_control_reset_reg <= 1'b0;
+          regs_0_control_trig_reg <= 1'b0;
+        end
   end
 
   // Register regs_0_status
@@ -187,6 +184,7 @@ module qsm_regs
   assign regs_1_control_last_reg_adr_o = regs_1_control_last_reg_adr_reg;
   assign regs_1_control_max_dim_no_o = regs_1_control_max_dim_no_reg;
   assign regs_1_control_read_delay_o = regs_1_control_read_delay_reg;
+  assign regs_1_control_wack = regs_1_control_wreq;
   always @(posedge(wb.clk))
   begin
     if (!wb.rst_n)
@@ -196,25 +194,21 @@ module qsm_regs
         regs_1_control_last_reg_adr_reg <= 4'b0000;
         regs_1_control_max_dim_no_reg <= 4'b0000;
         regs_1_control_read_delay_reg <= 10'b0000000000;
-        regs_1_control_wack <= 1'b0;
       end
     else
-      begin
-        if (regs_1_control_wreq == 1'b1)
-          begin
-            regs_1_control_reset_reg <= wr_dat_d0[0];
-            regs_1_control_trig_reg <= wr_dat_d0[1];
-            regs_1_control_last_reg_adr_reg <= wr_dat_d0[5:2];
-            regs_1_control_max_dim_no_reg <= wr_dat_d0[9:6];
-            regs_1_control_read_delay_reg <= wr_dat_d0[19:10];
-          end
-        else
-          begin
-            regs_1_control_reset_reg <= 1'b0;
-            regs_1_control_trig_reg <= 1'b0;
-          end
-        regs_1_control_wack <= regs_1_control_wreq;
-      end
+      if (regs_1_control_wreq == 1'b1)
+        begin
+          regs_1_control_reset_reg <= wr_dat_d0[0];
+          regs_1_control_trig_reg <= wr_dat_d0[1];
+          regs_1_control_last_reg_adr_reg <= wr_dat_d0[5:2];
+          regs_1_control_max_dim_no_reg <= wr_dat_d0[9:6];
+          regs_1_control_read_delay_reg <= wr_dat_d0[19:10];
+        end
+      else
+        begin
+          regs_1_control_reset_reg <= 1'b0;
+          regs_1_control_trig_reg <= 1'b0;
+        end
   end
 
   // Register regs_1_status

@@ -98,12 +98,14 @@ architecture syn of reg2rw_wb is
   signal rrw_ws_reg                     : std_logic_vector(31 downto 0);
   signal rrw_ws_wreq                    : std_logic;
   signal rrw_ws_wack                    : std_logic;
+  signal rrw_ws_wstrb                   : std_logic;
   signal rrw_rws_reg                    : std_logic_vector(31 downto 0);
   signal rrw_rws_wreq                   : std_logic;
   signal rrw_rws_wack                   : std_logic;
+  signal rrw_rws_wstrb                  : std_logic;
   signal rrw_ws_wa_reg                  : std_logic_vector(31 downto 0);
   signal rrw_ws_wa_wreq                 : std_logic;
-  signal rrw_ws_wa_wack                 : std_logic;
+  signal rrw_ws_wa_wstrb                : std_logic;
   signal wrw_ws_wreq                    : std_logic;
   signal wrw_rws_wreq                   : std_logic;
   signal wrw_ws_wa_wreq                 : std_logic;
@@ -169,69 +171,69 @@ begin
 
   -- Register rrw
   rrw_o <= rrw_reg;
+  rrw_wack <= rrw_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         rrw_reg <= "00000000000000000000000000000000";
-        rrw_wack <= '0';
       else
         if rrw_wreq = '1' then
           rrw_reg <= wr_dat_d0;
         end if;
-        rrw_wack <= rrw_wreq;
       end if;
     end if;
   end process;
 
   -- Register rrw_rs
   rrw_rs_o <= rrw_rs_reg;
+  rrw_rs_wack <= rrw_rs_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         rrw_rs_reg <= "00000000000000000000000000000000";
-        rrw_rs_wack <= '0';
       else
         if rrw_rs_wreq = '1' then
           rrw_rs_reg <= wr_dat_d0;
         end if;
-        rrw_rs_wack <= rrw_rs_wreq;
       end if;
     end if;
   end process;
 
   -- Register rrw_ws
   rrw_ws_o <= rrw_ws_reg;
+  rrw_ws_wack <= rrw_ws_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         rrw_ws_reg <= "00000000000000000000000000000000";
-        rrw_ws_wack <= '0';
+        rrw_ws_wstrb <= '0';
       else
         if rrw_ws_wreq = '1' then
           rrw_ws_reg <= wr_dat_d0;
         end if;
-        rrw_ws_wack <= rrw_ws_wreq;
+        rrw_ws_wstrb <= rrw_ws_wreq;
       end if;
     end if;
   end process;
-  rrw_ws_wr_o <= rrw_ws_wack;
+  rrw_ws_wr_o <= rrw_ws_wstrb;
 
   -- Register rrw_rws
   rrw_rws_o <= rrw_rws_reg;
+  rrw_rws_wack <= rrw_rws_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         rrw_rws_reg <= "00000000000000000000000000000000";
-        rrw_rws_wack <= '0';
+        rrw_rws_wstrb <= '0';
       else
         if rrw_rws_wreq = '1' then
           rrw_rws_reg <= wr_dat_d0;
         end if;
-        rrw_rws_wack <= rrw_rws_wreq;
+        rrw_rws_wstrb <= rrw_rws_wreq;
       end if;
     end if;
   end process;
-  rrw_rws_wr_o <= rrw_rws_wack;
+  rrw_rws_wr_o <= rrw_rws_wstrb;
 
   -- Register rrw_ws_wa
   rrw_ws_wa_o <= rrw_ws_wa_reg;
@@ -239,16 +241,16 @@ begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         rrw_ws_wa_reg <= "00000000000000000000000000000000";
-        rrw_ws_wa_wack <= '0';
+        rrw_ws_wa_wstrb <= '0';
       else
         if rrw_ws_wa_wreq = '1' then
           rrw_ws_wa_reg <= wr_dat_d0;
         end if;
-        rrw_ws_wa_wack <= rrw_ws_wa_wreq;
+        rrw_ws_wa_wstrb <= rrw_ws_wa_wreq;
       end if;
     end if;
   end process;
-  rrw_ws_wa_wr_o <= rrw_ws_wa_wack;
+  rrw_ws_wa_wr_o <= rrw_ws_wa_wstrb;
 
   -- Register wrw_ws
   wrw_ws_o <= wr_dat_d0;

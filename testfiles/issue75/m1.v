@@ -19,7 +19,7 @@ module m1
   reg wr_ack_int;
   reg [63:0] r1_reg;
   reg [1:0] r1_wreq;
-  reg [1:0] r1_wack;
+  wire [1:0] r1_wack;
   reg rd_ack_d0;
   reg [31:0] rd_dat_d0;
   reg wr_req_d0;
@@ -52,13 +52,11 @@ module m1
 
   // Register r1
   assign r1_o = r1_reg;
+  assign r1_wack = r1_wreq;
   always @(posedge(Clk))
   begin
     if (!rst_n)
-      begin
-        r1_reg <= 64'b0000000000000000000000000000000000000000000000000000000000000000;
-        r1_wack <= 2'b0;
-      end
+      r1_reg <= 64'b0000000000000000000000000000000000000000000000000000000000000000;
     else
       begin
         if (r1_wreq[0] == 1'b1)
@@ -69,7 +67,6 @@ module m1
           r1_reg[63:32] <= wr_dat_d0;
         else
           r1_reg[63:32] <= 32'b00000000000000000000000000000000;
-        r1_wack <= r1_wreq;
       end
   end
 

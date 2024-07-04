@@ -57,11 +57,11 @@ begin
 
   -- Register r1
   r1_o <= r1_reg;
+  r1_wack <= r1_wreq;
   process (Clk) begin
     if rising_edge(Clk) then
       if rst_n = '0' then
         r1_reg <= "0000000000000000000000000000000000000000000000000000000000000000";
-        r1_wack <= (others => '0');
       else
         if r1_wreq(0) = '1' then
           r1_reg(31 downto 0) <= wr_dat_d0;
@@ -73,7 +73,6 @@ begin
         else
           r1_reg(63 downto 32) <= "00000000000000000000000000000000";
         end if;
-        r1_wack <= r1_wreq;
       end if;
     end if;
   end process;

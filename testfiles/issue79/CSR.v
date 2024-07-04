@@ -59,7 +59,7 @@ module csr
   reg wb_wip;
   reg [1:0] cal_ctrl_cal_sel_reg;
   reg cal_ctrl_wreq;
-  reg cal_ctrl_wack;
+  wire cal_ctrl_wack;
   reg i2c_master_re;
   reg i2c_master_we;
   reg i2c_master_wt;
@@ -147,19 +147,14 @@ module csr
 
   // Register cal_ctrl
   assign cal_ctrl_cal_sel_o = cal_ctrl_cal_sel_reg;
+  assign cal_ctrl_wack = cal_ctrl_wreq;
   always @(posedge(clk_i))
   begin
     if (!rst_n_i)
-      begin
-        cal_ctrl_cal_sel_reg <= 2'b00;
-        cal_ctrl_wack <= 1'b0;
-      end
+      cal_ctrl_cal_sel_reg <= 2'b00;
     else
-      begin
-        if (cal_ctrl_wreq == 1'b1)
-          cal_ctrl_cal_sel_reg <= wr_dat_d0[1:0];
-        cal_ctrl_wack <= cal_ctrl_wreq;
-      end
+      if (cal_ctrl_wreq == 1'b1)
+        cal_ctrl_cal_sel_reg <= wr_dat_d0[1:0];
   end
 
   // Interface i2c_master

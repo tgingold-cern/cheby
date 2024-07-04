@@ -156,16 +156,15 @@ begin
 
   -- Register cal_ctrl
   cal_ctrl_cal_sel_o <= cal_ctrl_cal_sel_reg;
+  cal_ctrl_wack <= cal_ctrl_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         cal_ctrl_cal_sel_reg <= "00";
-        cal_ctrl_wack <= '0';
       else
         if cal_ctrl_wreq = '1' then
           cal_ctrl_cal_sel_reg <= wr_dat_d0(1 downto 0);
         end if;
-        cal_ctrl_wack <= cal_ctrl_wreq;
       end if;
     end if;
   end process;
