@@ -101,10 +101,14 @@ def cprint_children(cp, n, size, off):
     maybe_pad(cp, size - addr, addr, pad_id, off + size)
 
 
+def comment(n):
+    return n.comment or n.description or '(comment missing)'
+
+
 @CPrinter.register(tree.Reg)
 def cprint_reg(cp, n):
     cp.cp_txt('/* [0x{:x}]: REG ({}) {} */'.format(
-        n.c_address, n.access, n.description or '(no description)'))
+        n.c_address, n.access, comment(n)))
     if n.c_type == 'signed':
         typ = cp.stypes[n.c_size]
     elif n.c_type == 'float':
@@ -120,8 +124,7 @@ def cprint_reg(cp, n):
 
 @CPrinter.register(tree.Block)
 def cprint_block(cp, n):
-    cp.cp_txt('/* [0x{:x}]: BLOCK {} */'.format(
-        n.c_address, n.description or '(no description)'))
+    cp.cp_txt('/* [0x{:x}]: BLOCK {} */'.format(n.c_address, comment(n)))
     cp.start_struct(n)
     cprint_children(cp, n, n.c_size, n.c_address)
     cp.end_struct(n.name)
@@ -129,8 +132,7 @@ def cprint_block(cp, n):
 
 @CPrinter.register(tree.Memory)
 def cprint_memory(cp, n):
-    cp.cp_txt('/* [0x{:x}]: MEMORY {} */'.format(
-        n.c_address, n.description or '(no description)'))
+    cp.cp_txt('/* [0x{:x}]: MEMORY {} */'.format(n.c_address, comment(n)))
     cp.start_struct(n)
     cprint_children(cp, n, n.c_elsize, 0)
     cp.end_struct('{}[{}]'.format(n.name, n.memsize_val // n.c_elsize))
@@ -138,8 +140,7 @@ def cprint_memory(cp, n):
 
 @CPrinter.register(tree.Repeat)
 def cprint_repeat(cp, n):
-    cp.cp_txt('/* [0x{:x}]: REPEAT {} */'.format(
-        n.c_address, n.description or '(no description)'))
+    cp.cp_txt('/* [0x{:x}]: REPEAT {} */'.format(n.c_address, comment(n)))
     cp.start_struct(n)
     cprint_children(cp, n, n.c_elsize, 0)
     cp.end_struct('{}[{}]'.format(n.name, n.count))
@@ -147,8 +148,7 @@ def cprint_repeat(cp, n):
 
 @CPrinter.register(tree.Submap)
 def cprint_submap(cp, n):
-    cp.cp_txt('/* [0x{:x}]: SUBMAP {} */'.format(
-        n.c_address, n.description or '(no description)'))
+    cp.cp_txt('/* [0x{:x}]: SUBMAP {} */'.format(n.c_address, comment(n)))
     if n.filename is None:
         # Should depend on bus size ?
         if n.c_size % 4 == 0:

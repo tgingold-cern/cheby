@@ -164,7 +164,7 @@ Some attributes are common to all nodes:
 also used to create HDL or C names in general files.
 
 * `comment`: This should be a short text that explain the purpose
-of the node.  The description is copied into the code (as a comment)
+of the node.  The comment is copied into the code (as a comment)
 to make it more readable.  This attribute is not required but it is recommended
 to always provide it.
 
