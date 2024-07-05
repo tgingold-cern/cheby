@@ -25,7 +25,7 @@
 #define FIP_URV_REGS_FIP_VAR3 0xcUL
 #define FIP_URV_REGS_FIP_VAR3_ACC 0x1UL
 
-/* None */
+/* (comment missing) */
 #define FIP_URV_REGS_MAILBOXES 0x10UL
 #define ADDR_MASK_FIP_URV_REGS_MAILBOXES 0x3ff0UL
 #define FIP_URV_REGS_MAILBOXES_SIZE 16 /* 0x10 */
@@ -40,11 +40,11 @@
 #define FIP_URV_REGS_LEDS_VAL_MASK 0x3fUL
 #define FIP_URV_REGS_LEDS_VAL_SHIFT 0
 
-/* None */
+/* (comment missing) */
 #define FIP_URV_REGS_BOARDS 0x40UL
 #define FIP_URV_REGS_BOARDS_SIZE 4 /* 0x4 */
 
-/* None */
+/* (comment missing) */
 #define FIP_URV_REGS_BOARDS_PINS 0x0UL
 
 /* NanoFIP internal memory/registers */
@@ -71,7 +71,7 @@ struct fip_urv_regs {
   /* [0xc]: REG (rw) Set access to var 1 */
   uint32_t fip_var3;
 
-  /* [0x10]: SUBMAP (no description) */
+  /* [0x10]: SUBMAP (comment missing) */
   struct mbox_regs mailboxes;
 
   /* padding to: 32 Bytes */
@@ -86,9 +86,9 @@ struct fip_urv_regs {
   /* padding to: 64 Bytes */
   uint32_t __padding_1[6];
 
-  /* [0x40]: REPEAT (no description) */
+  /* [0x40]: REPEAT (comment missing) */
   struct boards {
-    /* [0x0]: REG (ro) (no description) */
+    /* [0x0]: REG (ro) (comment missing) */
     uint32_t pins;
   } boards[8];
 
