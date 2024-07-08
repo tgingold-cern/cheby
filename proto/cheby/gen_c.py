@@ -291,7 +291,10 @@ def gen_c_cheby(fd, root, style, gen_bit_struct=False):
     csym = to_cmacro(root.name)
     fd.write("#ifndef {}\n".format(csym))
     fd.write("#define {}\n\n".format(csym))
-    fd.write("#include <stdint.h>\n\n")
+    # That would be useful for users, but not correct for kernels.
+    # We could add '#ifndef __KERNEL__', but that's only for linux.
+    if False:
+        fd.write("#include <stdint.h>\n\n")
 
     # Add the includes for submaps
     submaps = [n.name for n in cp.submaps]

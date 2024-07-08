@@ -44,6 +44,10 @@ Add option `--gen-c-bit-struct` to generate C `struct`s for register bit fields 
 
 Fix a crash when sram submap has iogroup attribute
 
+Remove '#include <stdint.h>' in generated header file, as this is not
+compatible with Linux kernel or some embedded platforms.  This is a minor
+incompatibility with previous versions.
+
 ## Version 1.6
 
 Add generation of field widths in constant files (github PR #50)
