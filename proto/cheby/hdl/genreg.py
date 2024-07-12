@@ -588,38 +588,52 @@ class GenReg(ElGen):
                 f.h_gen.connect_output(self.module.stmts, ibus)
 
             if n.h_has_regs:
-                # Write Acknowledge
+                # Write acknowledge
                 self.module.stmts.append(HDLAssign(n.h_wack, n.h_wreq))
 
-                # Write Strope
-                # In case of registers, the write strobe is delayed so that it is active
-                # at the same time as the updated register value.
+                # Register process
                 ffproc = HDLSync(
                     self.root.h_bus["clk"],
                     self.root.h_bus["vrst"],
                     rst_sync=gconfig.rst_sync,
                 )
 
+                # Reset statements: Add each field with its preset
                 for f in n.children:
                     if f.h_reg is not None:
                         cst = HDLConst(
                             f.c_preset or 0, f.c_rwidth if f.c_rwidth != 1 else None
                         )
                         ffproc.rst_stmts.append(HDLAssign(f.h_reg, cst))
+
+                # Synchronous statements: Update each field only with write request
                 for off in range(0, n.c_size, self.root.c_word_size):
                     off *= tree.BYTE_SIZE
                     wr_if = HDLIfElse(HDLEq(self.strobe_index(off, n.h_wreq), bit_1))
+
                     for f in n.children:
                         if f.h_reg is not None and off in f.h_gen.get_offset_range():
                             f.h_gen.assign_reg(
                                 wr_if.then_stmts, wr_if.else_stmts, off, ibus
                             )
+
                     if not wr_if.else_stmts:
                         wr_if.else_stmts = None
+
                     ffproc.sync_stmts.append(wr_if)
 
-                ffproc.sync_stmts.append(HDLAssign(n.h_wstrb, n.h_wreq))
-                ffproc.rst_stmts.append(HDLAssign(n.h_wstrb, self.strobe_init()))
+                # Write strobe
+                if n.children[0].hdl_type != "wire":
+                    # Align write strobe assertion with updated data. Since the data is
+                    # sampled first, the write strobe has to be asserted one cycle after
+                    # the write request
+                    ffproc.rst_stmts.append(HDLAssign(n.h_wstrb, self.strobe_init()))
+                    ffproc.sync_stmts.append(HDLAssign(n.h_wstrb, n.h_wreq))
+                else:
+                    # If register is of type "wire", the write data is forwarded without
+                    # prior sampling. Hence, the write strobe is set to the write
+                    # request.
+                    self.module.stmts.append(HDLAssign(n.h_wstrb, n.h_wreq))
 
                 self.module.stmts.append(ffproc)
 
