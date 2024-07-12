@@ -267,9 +267,12 @@ There are also aliases: "wr" is for "wr-in,wr-out", "rd" for "rd-in,rd-out",
 Finally it is possible to use "none" not to use any pipelining.
 The pipelining is a single barrier of registers inserted on an internal bus,
 which is created from the external bus.
-Please note, that without any pipelinging the `apb-32` interface might
-complete its write and read request without the access phase and hence, in a
-single clock cycle only (contrary to the standard's specifications).
+Please note, that without correct pipelining of the write request and read
+response ("wr-in,rd-out"), the `apb-32` interface might complete its write and
+read request without the access phase and hence, in a single clock cycle only
+(contrary to the standard's specifications). Also in case of a write request,
+the updated data might be applied earlier than at the end of the access phase
+(contrary to the standard's specifications).
 
 `name-suffix`:: The name of the hdl entity or module is by default the name of
 the memory map.  This attribute adds a suffix to those names.
