@@ -402,9 +402,18 @@ class GenReg(ElGen):
         # Write strobe
         if n.hdl_write_strobe:
             n.h_wreq_port = self.add_module_port(
-                self.get_port_name(n, '_wr', 'o', True), size=sz, dir='OUT')
+                self.get_port_name(n, "_wr", "o", True), size=sz, dir="OUT"
+            )
+
+            if "wire" in n.hdl_field_types and len(n.hdl_field_types) > 1:
+                n.h_wreq_wire_port = self.add_module_port(
+                    self.get_port_name(n, "_wire_wr", "o", True), size=sz, dir="OUT"
+                )
+            else:
+                n.h_wreq_wire_port = None
         else:
             n.h_wreq_port = None
+            n.h_wreq_wire_port = None
 
         # Read strobe
         if n.hdl_read_strobe:
@@ -452,6 +461,7 @@ class GenReg(ElGen):
         # Internal (delayed) write acknowledge used to generate a write strobe signal
         # after (!) the register was updated
         n.h_wstrb = None
+        n.h_wstrb_wire = None
 
         if n.access in ["wo", "rw"]:
             # Signal width
@@ -461,6 +471,7 @@ class GenReg(ElGen):
             if n.h_has_regs:
                 n.h_wack = self.module.new_HDLSignal(n.c_name + "_wack", sz)
                 n.h_wstrb = self.module.new_HDLSignal(n.c_name + "_wstrb", sz)
+                n.h_wstrb_wire = self.module.new_HDLSignal(n.c_name + "_wstrb_wire", sz)
 
     def gen_ports(self):
         """Add ports and wires for register or fields of :param n:
@@ -469,6 +480,7 @@ class GenReg(ElGen):
         :field h_iport: the input port.
         :field h_oport: the output port.
         :field h_wreq_port: the write strobe port.
+        :field h_wreq_wire_port: the write strobe port for fields of type "wire".
         :field h_rreq_port: the read strobe port.
         :field h_rack_port: the read ack port.
         :field h_wack_port: the write ack port.
@@ -623,17 +635,26 @@ class GenReg(ElGen):
                     ffproc.sync_stmts.append(wr_if)
 
                 # Write strobe
-                if n.children[0].hdl_type != "wire":
-                    # Align write strobe assertion with updated data. Since the data is
-                    # sampled first, the write strobe has to be asserted one cycle after
-                    # the write request
+                if "wire" in n.hdl_field_types and len(n.hdl_field_types) > 1:
+                    # Register contains fields of type "wire" that require a write
+                    # strobe without delaying (n.h_wstrb_wire) and other fields whose
+                    # data has to be sampled first and hence, require a write strobe
+                    # with a delay (n.h_wstrb)
                     ffproc.rst_stmts.append(HDLAssign(n.h_wstrb, self.strobe_init()))
                     ffproc.sync_stmts.append(HDLAssign(n.h_wstrb, n.h_wreq))
-                else:
-                    # If register is of type "wire", the write data is forwarded without
-                    # prior sampling. Hence, the write strobe is set to the write
-                    # request.
+
+                    self.module.stmts.append(HDLAssign(n.h_wstrb_wire, n.h_wreq))
+
+                elif n.hdl_type == "wire" or "wire" in n.hdl_field_types:
+                    # Register is of type wire or contains only fields of type "wire".
+                    # Requires a write strobe that is not delayed.
                     self.module.stmts.append(HDLAssign(n.h_wstrb, n.h_wreq))
+
+                else:
+                    # Register and its fields are not of type "wire". Delay the write
+                    # strobe to be aligned with the update of the register/field data.
+                    ffproc.rst_stmts.append(HDLAssign(n.h_wstrb, self.strobe_init()))
+                    ffproc.sync_stmts.append(HDLAssign(n.h_wstrb, n.h_wreq))
 
                 self.module.stmts.append(ffproc)
 
@@ -641,6 +662,10 @@ class GenReg(ElGen):
             if n.h_wreq_port is not None:
                 self.module.stmts.append(
                     HDLAssign(n.h_wreq_port, n.h_wstrb or n.h_wreq)
+                )
+            if n.h_wreq_wire_port is not None:
+                self.module.stmts.append(
+                    HDLAssign(n.h_wreq_wire_port, n.h_wstrb_wire or n.h_wreq)
                 )
 
     def gen_read(self, s, off, ibus, rdproc):

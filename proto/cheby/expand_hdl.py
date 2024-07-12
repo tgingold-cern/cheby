@@ -14,6 +14,7 @@ def expand_x_hdl_reg(n, dct):
     n.hdl_read_ack = False
     n.hdl_port = 'field'
     n.hdl_type = None
+    n.hdl_field_types = []
     n.hdl_port_name = None
 
     if not n.has_fields():
@@ -95,17 +96,25 @@ def expand_x_hdl_field_type(n, v):
 
 def expand_x_hdl_field_kv(f, n, k, v):
     "Decode one x-hdl attribute for a field"
-    if k == 'type':
+    if k == "type":
         f.hdl_type = expand_x_hdl_field_type(n, v)
-    elif k == 'port-name':
+
+        # Add all field types to register (parent)
+        if f.hdl_type not in n.hdl_field_types:
+            n.hdl_field_types.append(f.hdl_type)
+
+    elif k == "port-name":
         f.hdl_port_name = v
-    elif k == 'lock':
+
+    elif k == "lock":
         f.hdl_lock = parser.read_bool(n, k, v)
-    elif k == 'lock-value':
+
+    elif k == "lock-value":
         f.hdl_lock_value = parser.read_int(n, k, v)
+
     else:
-        parser.error("unhandled '{}' in x-hdl of field {}".format(
-            k, n.get_path()))
+        parser.error("unhandled '{}' in x-hdl of field {}".format(k, n.get_path()))
+
 
 def expand_x_hdl_field_validate(f):
     # Validate x-hdl attributes
