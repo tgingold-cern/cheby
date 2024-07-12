@@ -102,16 +102,15 @@ begin
   reg0_field01_o <= reg0_field01_reg;
   reg0_field02_o <= wr_dat_d0(10 downto 8);
   reg0_wack <= reg0_wreq;
+  reg0_wstrb <= reg0_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         reg0_field01_reg <= "0000";
-        reg0_wstrb <= '0';
       else
         if reg0_wreq = '1' then
           reg0_field01_reg <= wr_dat_d0(7 downto 4);
         end if;
-        reg0_wstrb <= reg0_wreq;
       end if;
     end if;
   end process;

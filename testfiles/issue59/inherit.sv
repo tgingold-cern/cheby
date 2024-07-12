@@ -36,7 +36,7 @@ module inherit
   reg [3:0] reg0_field01_reg;
   reg reg0_wreq;
   wire reg0_wack;
-  reg reg0_wstrb;
+  wire reg0_wstrb;
   reg rd_ack_d0;
   reg [31:0] rd_dat_d0;
   reg wr_req_d0;
@@ -95,19 +95,14 @@ module inherit
   assign reg0_field01_o = reg0_field01_reg;
   assign reg0_field02_o = wr_dat_d0[10:8];
   assign reg0_wack = reg0_wreq;
+  assign reg0_wstrb = reg0_wreq;
   always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
-      begin
-        reg0_field01_reg <= 4'b0000;
-        reg0_wstrb <= 1'b0;
-      end
+      reg0_field01_reg <= 4'b0000;
     else
-      begin
-        if (reg0_wreq == 1'b1)
-          reg0_field01_reg <= wr_dat_d0[7:4];
-        reg0_wstrb <= reg0_wreq;
-      end
+      if (reg0_wreq == 1'b1)
+        reg0_field01_reg <= wr_dat_d0[7:4];
   end
   assign reg0_wr_o = reg0_wstrb;
 

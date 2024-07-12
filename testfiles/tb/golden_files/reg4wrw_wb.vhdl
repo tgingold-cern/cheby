@@ -25,6 +25,7 @@ entity reg4wrw_wb is
     fwrw_rws_f3_i        : in    std_logic_vector(23 downto 0);
     fwrw_rws_f3_o        : out   std_logic_vector(23 downto 0);
     fwrw_rws_wr_o        : out   std_logic_vector(1 downto 0);
+    fwrw_rws_wire_wr_o   : out   std_logic_vector(1 downto 0);
     fwrw_rws_rd_o        : out   std_logic_vector(1 downto 0);
 
     -- REG fwrw_rws_rwa
@@ -34,6 +35,7 @@ entity reg4wrw_wb is
     fwrw_rws_rwa_f3_i    : in    std_logic_vector(23 downto 0);
     fwrw_rws_rwa_f3_o    : out   std_logic_vector(23 downto 0);
     fwrw_rws_rwa_wr_o    : out   std_logic_vector(1 downto 0);
+    fwrw_rws_rwa_wire_wr_o : out   std_logic_vector(1 downto 0);
     fwrw_rws_rwa_rd_o    : out   std_logic_vector(1 downto 0);
     fwrw_rws_rwa_wack_i  : in    std_logic_vector(1 downto 0);
     fwrw_rws_rwa_rack_i  : in    std_logic_vector(1 downto 0)
@@ -53,9 +55,11 @@ architecture syn of reg4wrw_wb is
   signal fwrw_rws_wreq                  : std_logic_vector(1 downto 0);
   signal fwrw_rws_wack                  : std_logic_vector(1 downto 0);
   signal fwrw_rws_wstrb                 : std_logic_vector(1 downto 0);
+  signal fwrw_rws_wstrb_wire            : std_logic_vector(1 downto 0);
   signal fwrw_rws_rwa_f2_reg            : std_logic_vector(15 downto 0);
   signal fwrw_rws_rwa_wreq              : std_logic_vector(1 downto 0);
   signal fwrw_rws_rwa_wstrb             : std_logic_vector(1 downto 0);
+  signal fwrw_rws_rwa_wstrb_wire        : std_logic_vector(1 downto 0);
   signal rd_ack_d0                      : std_logic;
   signal rd_dat_d0                      : std_logic_vector(31 downto 0);
   signal wr_req_d0                      : std_logic;
@@ -118,6 +122,7 @@ begin
   fwrw_rws_f2_o <= fwrw_rws_f2_reg;
   fwrw_rws_f3_o <= wr_dat_d0(31 downto 8);
   fwrw_rws_wack <= fwrw_rws_wreq;
+  fwrw_rws_wstrb_wire <= fwrw_rws_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
@@ -135,11 +140,13 @@ begin
     end if;
   end process;
   fwrw_rws_wr_o <= fwrw_rws_wstrb;
+  fwrw_rws_wire_wr_o <= fwrw_rws_wstrb_wire;
 
   -- Register fwrw_rws_rwa
   fwrw_rws_rwa_f1_o <= wr_dat_d0(11 downto 0);
   fwrw_rws_rwa_f2_o <= fwrw_rws_rwa_f2_reg;
   fwrw_rws_rwa_f3_o <= wr_dat_d0(31 downto 8);
+  fwrw_rws_rwa_wstrb_wire <= fwrw_rws_rwa_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
@@ -157,6 +164,7 @@ begin
     end if;
   end process;
   fwrw_rws_rwa_wr_o <= fwrw_rws_rwa_wstrb;
+  fwrw_rws_rwa_wire_wr_o <= fwrw_rws_rwa_wstrb_wire;
 
   -- Process for write requests.
   process (wr_adr_d0, wr_req_d0, fwrw_rws_wack, fwrw_rws_rwa_wack_i) begin
