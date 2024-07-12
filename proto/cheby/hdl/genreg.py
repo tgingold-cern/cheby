@@ -285,14 +285,8 @@ class GenFieldAutoclear(GenFieldBase):
             off, self.field.h_reg, ibus.wr_dat, ibus.wr_sel
         )
         if hasattr(self.root, "hdl_wmask") and self.root.hdl_wmask and mask is not None:
-            then_stmts.append(
-                HDLAssign(
-                    reg,
-                    HDLOr(
-                        HDLParen(HDLAnd(reg, HDLNot(mask))), HDLParen(HDLAnd(dat, mask))
-                    ),
-                )
-            )
+            # Do not OR with previous value as its an autoclear field
+            then_stmts.append(HDLAssign(reg, HDLAnd(dat, mask)))
         else:
             then_stmts.append(HDLAssign(reg, dat))
         else_stmts.append(HDLAssign(reg, HDLConst(0, w if w != 1 else None)))
