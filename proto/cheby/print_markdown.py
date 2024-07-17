@@ -5,6 +5,8 @@ from cheby.wrutils import wln
 #  Generate markdown (asciidoc variant)
 #  Ref: https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/#tables
 
+def mls(s):
+    return s.replace('\n', ' +\n')
 
 def print_reg(fd, r, abs_addr):
     wln(fd, "[horizontal]")
@@ -15,7 +17,7 @@ def print_reg(fd, r, abs_addr):
     for t in (r.comment, r.description):
         if t:
             wln(fd)
-            wln(fd, t)
+            wln(fd, mls(t))
     wln(fd)
     descr = gen_doc.build_regdescr_table(r)
     wln(fd, '[cols="8*^"]')
@@ -36,11 +38,11 @@ def print_reg(fd, r, abs_addr):
         for f in r.children:
             wln(fd, "{}::".format(f.name))
             if f.comment:
-                wln(fd, f.comment)
+                wln(fd, mls(f.comment))
                 if f.description:
                     wln(fd, '+')
             if f.description:
-                wln(fd, f.description)
+                wln(fd, mls(f.description))
             if not any((f.comment, f.description)):
                 wln(fd, '(not documented)')
         wln(fd)
