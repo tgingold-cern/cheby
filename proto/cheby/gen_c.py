@@ -125,9 +125,11 @@ def cprint_reg(cp, n):
 @CPrinter.register(tree.Block)
 def cprint_block(cp, n):
     cp.cp_txt('/* [0x{:x}]: BLOCK {} */'.format(n.c_address, comment(n)))
-    cp.start_struct(n)
+    if n.hdl_blk_prefix:
+        cp.start_struct(n)
     cprint_children(cp, n, n.c_size, n.c_address)
-    cp.end_struct(n.name)
+    if n.hdl_blk_prefix:
+        cp.end_struct(n.name)
 
 
 @CPrinter.register(tree.Memory)
