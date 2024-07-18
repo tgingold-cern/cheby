@@ -169,7 +169,8 @@ class Memory(CompositeNode):
         self.memsize_val = None
         self.memsize_str = None
         self.interface = None
-        self.c_depth = None       # Memory depth (memsize / elsize)
+        self.c_depth = None             # Memory depth (memsize / elsize)
+        self.c_depth_interface = None   # Memory depth, possibly modified by width of interface
 
 
 class Reg(NamedNode):

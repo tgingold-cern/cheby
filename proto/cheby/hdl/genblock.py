@@ -31,7 +31,7 @@ class GenBlock(ElGen):
             elif isinstance(n, tree.Memory):
                 if n.interface is not None:
                     if n.c_elsize <= self.root.c_word_size:
-                        n.c_addr_bits = ilog2(n.c_depth)
+                        n.c_addr_bits = ilog2(n.c_depth_interface)
                         n.c_width = n.c_elsize * tree.BYTE_SIZE
                     else:
                         n.c_addr_bits = ilog2(n.memsize_val) - self.root.c_addr_word_bits
