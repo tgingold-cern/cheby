@@ -963,7 +963,7 @@ def expand_rams(root, module, bus, isig):
         s.else_stmts.append(HDLAssign(rd_int, bit_0))
 
         # Instance
-        addr_bits = ilog2(r.c_depth)
+        addr_bits = ilog2(r.c_depth_interface)
         clock = get_wbgen(r, 'clock')
         bwsel = get_wbgen(r, 'byte_select')
         g.asgn_code.append(HDLComment(
@@ -973,7 +973,7 @@ def expand_rams(root, module, bus, isig):
             False))
         inst = HDLInstance(prefix + "_raminst", "wbgen2_dpssram")
         inst.params.append(("g_data_width", HDLNumber(reg.c_rwidth)))
-        inst.params.append(("g_size", HDLNumber(r.c_depth)))
+        inst.params.append(("g_size", HDLNumber(r.c_depth_interface)))
         inst.params.append(("g_addr_width", HDLNumber(addr_bits)))
         inst.params.append(("g_dual_clock", HDLBool(clock is not None)))
         inst.params.append(("g_use_bwsel", HDLBool(bwsel)))
@@ -1274,8 +1274,8 @@ def layout_wbgen(root):
             reg = r.children[0]
             bsz = reg.c_rwidth // tree.BYTE_SIZE
             assert bsz <= root.c_word_size
-            r.h_ram_size = r.c_depth * bsz
-            r.c_sel_bits = ilog2(r.c_depth)
+            r.h_ram_size = r.c_depth_interface * bsz
+            r.c_sel_bits = ilog2(r.c_depth_interface)
             max_ram_size = max(max_ram_size, r.h_ram_size)
             nbr_rams += 1
 
