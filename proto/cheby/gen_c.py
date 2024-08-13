@@ -7,6 +7,7 @@ class CPrinter(tree.Visitor):
     def __init__(self, style):
         self.buffer = ''
         self.submaps = []
+        self.pad_ids = [0]
         self.indent = 0
         assert style in ['neutral', 'arm']
         self.style = style
@@ -38,9 +39,11 @@ class CPrinter(tree.Visitor):
         self.cp_raw('{}struct {}{} {{\n'.format(
             '  ' * self.indent, self.struct_prefix, n.c_name))
         self.inc()
+        self.pad_ids.append(0) # track padding IDs per struct
 
     def end_struct(self, name):
         self.dec()
+        self.pad_ids.pop()
         if name is None:
             self.cp_txt('};')
         else:
@@ -52,7 +55,7 @@ class CPrinter(tree.Visitor):
         self.cp_raw('\n')
 
 
-def maybe_pad(cp, diff, addr, pad_id, pad_target):
+def maybe_pad(cp, diff, addr, pad_target):
     if diff == 0:
         return
     # Pad
@@ -64,19 +67,18 @@ def maybe_pad(cp, diff, addr, pad_id, pad_target):
     cp.cp_txt('')
     cp.cp_txt('/* padding to: {} Bytes */'.format(pad_target))
     cp.cp_txt('{} __padding_{}[{}];'.format(
-        cp.utypes[sz], pad_id[0], diff // sz))
-    pad_id[0] += 1
+        cp.utypes[sz], cp.pad_ids[-1], diff // sz))
+    cp.pad_ids[-1] += 1
 
 def cprint_children(cp, n, size, off):
     "Generate declarations for children of :param n:, and pad to :param size:"
     addr = 0
-    pad_id = [0]  # Modified in the nested maybe_pad function
 
     for i in range(len(n.c_sorted_children)):
         el = n.c_sorted_children[i]
         diff = el.c_address - addr
         assert diff >= 0
-        maybe_pad(cp, diff, addr, pad_id, el.c_address)
+        maybe_pad(cp, diff, addr, el.c_address)
         if i != 0:
             cp.cp_txt('')
         cp.visit(el)
@@ -91,14 +93,14 @@ def cprint_children(cp, n, size, off):
                 # and the size of the element * count.
                 rep_size = el.c_elsize * el.count
                 addr = el.c_address + rep_size
-                maybe_pad(cp, el.c_size - rep_size, addr, pad_id, el.c_address)
+                maybe_pad(cp, el.c_size - rep_size, addr, el.c_address)
             elif isinstance(el, tree.Memory):
                 # Likewise.
                 addr = el.c_address + el.memsize_val
-                maybe_pad(cp, el.c_size - el.memsize_val, addr, pad_id, el.c_address)
+                maybe_pad(cp, el.c_size - el.memsize_val, addr, el.c_address)
             addr = el.c_address + el.c_size
     # Last pad
-    maybe_pad(cp, size - addr, addr, pad_id, off + size)
+    maybe_pad(cp, size - addr, addr, off + size)
 
 
 def comment(n):
