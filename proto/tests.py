@@ -274,7 +274,7 @@ def test_genc_ref():
               'bug-gen-c-02/mbox_regs', 'bug-gen-c-02/fip_urv_regs',
               'issue67/repeatInRepeat', 'issue67/repeatInRepeatC',
               'bug-same-label/same_label',
-              'features/blkprefix3']:
+              'features/blkprefix3', 'features/blkprefix5']:
         h_file = srcdir + f + '.h'
         cheby_file = srcdir + f + '.cheby'
         t = parse_ok(cheby_file)
@@ -411,7 +411,7 @@ def test_hdl_ref():
               'features/enums1', 'features/enums2',
               'features/orclrout_rw',
               'features/blkprefix1', 'features/blkprefix2', 'features/blkprefix3',
-              'features/blkprefix4',
+              'features/blkprefix4', 'features/blkprefix5',
               'features/regprefix1', 'features/regprefix2', 'features/regprefix3',
               'features/mem64ro', 'features/mem64rodual',
               'features/iogroup1', 'features/iogroup2', 'features/repeat-iogroup1',
