@@ -27,21 +27,18 @@ def chklayout_reg(_cg, _n):
 
 
 @ChkGen.register(tree.Block)
-def sprint_block(cg, n):
-    cg.cg_size(n.c_name, n.c_size)
-    chklayout_composite(cg, n)
+def sprint_block(_cg, _n):
+    pass
 
 
 @ChkGen.register(tree.Memory)
-def sprint_memory(cg, n):
-    cg.cg_size(n.name, n.c_elsize)
-    chklayout_composite(cg, n)
+def sprint_memory(_cg, _n):
+    pass
 
 
 @ChkGen.register(tree.Repeat)
-def sprint_repeat(cg, n):
-    cg.cg_size(n.c_name, n.c_elsize)
-    chklayout_composite(cg, n)
+def sprint_repeat(_cg, _n):
+    pass
 
 
 @ChkGen.register(tree.Submap)

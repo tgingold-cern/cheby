@@ -35,8 +35,12 @@ class CPrinter(tree.Visitor):
         self.indent -= 1
 
     def start_struct(self, n):
-        self.cp_raw('{}struct {}{} {{\n'.format(
-            '  ' * self.indent, self.struct_prefix, n.c_name))
+        # Print structure name only for top level structures (that are not
+        # nested)
+        if self.indent == 0:
+            self.cp_raw("struct {}{} {{\n".format(self.struct_prefix, n.c_name))
+        else:
+            self.cp_raw("{}struct {{\n".format("  " * self.indent))
         self.inc()
 
     def end_struct(self, name):

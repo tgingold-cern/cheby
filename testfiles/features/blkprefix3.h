@@ -41,7 +41,7 @@ struct blkprefix3 {
   uint32_t r3;
 
   /* [0x8]: BLOCK (comment missing) */
-  struct b2 {
+  struct {
     /* [0x0]: REG (rw) (comment missing) */
     uint32_t r3;
   } b2;

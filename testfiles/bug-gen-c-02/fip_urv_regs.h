@@ -87,7 +87,7 @@ struct fip_urv_regs {
   uint32_t __padding_1[6];
 
   /* [0x40]: REPEAT (comment missing) */
-  struct boards {
+  struct {
     /* [0x0]: REG (ro) (comment missing) */
     uint32_t pins;
   } boards[8];

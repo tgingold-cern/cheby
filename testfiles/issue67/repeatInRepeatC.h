@@ -23,11 +23,11 @@
 #ifndef __ASSEMBLER__
 struct repeatInRepeatC {
   /* [0x0]: REPEAT (comment missing) */
-  struct repeatInRepeatC_repA {
+  struct {
     /* [0x0]: BLOCK (comment missing) */
-    struct repeatInRepeatC_repA_block1 {
+    struct {
       /* [0x0]: REPEAT (comment missing) */
-      struct repeatInRepeatC_repA_block1_repB {
+      struct {
         /* [0x0]: REG (rw) (comment missing) */
         uint8_t reg1;
 
