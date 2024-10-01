@@ -1,6 +1,0 @@
-[submodule "examples/svec-leds/ip_cores/general-cores"]
-	path = examples/svec-leds/ip_cores/general-cores
-	url = git://ohwr.org/hdl-core-lib/general-cores.git
-[submodule "examples/svec-leds/ip_cores/vme64x-core"]
-	path = examples/svec-leds/ip_cores/vme64x-core
-	url = git://ohwr.org/hdl-core-lib/vme64x-core.git
