@@ -114,8 +114,12 @@ def decode_args():
     aparser.add_argument('--no-header', action='store_const', const='none', dest='header',
                          help='do not generate comment header')
     # default doesn't work - conflict with store_const of --no-header ?
-    aparser.add_argument('--header', choices=['none', 'full', 'commit'],
-                         help='set comment header generation')
+    aparser.add_argument(
+        "--header",
+        choices=["none", "args", "commit", "full"],
+        help="define if each generated file should contain a header containing the "
+        + "arguments used for cheby, its version, user, and time"
+    )
     aparser.add_argument('--doc', choices=['html', 'md', 'rest', 'latex'], default='html',
                          help='select language for doc generation')
     aparser.add_argument('--gen-doc', nargs='?', const='-',
@@ -269,7 +273,7 @@ def handle_file(args, filename):
             gen_header.gen_comment_header_maybe(f, args.header, 'h')
             gen_gena_dsp.gen_gena_dsp_map(f, t)
         with open_filename("DSP/include/vmeacc_{}.h".format(t.name)) as f:
-            gen_header.gen_comment_header_maybe(f, args.header)
+            gen_header.gen_comment_header_maybe(f, args.header, 'h')
             gen_gena_dsp.gen_gena_dsp_h(f, t, 'h')
         with open_filename("DSP/vmeacc_{}.c".format(t.name)) as f:
             gen_header.gen_comment_header_maybe(f, args.header, 'h')
