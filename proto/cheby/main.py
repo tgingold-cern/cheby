@@ -122,10 +122,16 @@ def decode_args():
                          help='generate documentation')
     aparser.add_argument('--rest-headers', default='#=-',
                          help='Ordered set of characters to be used for ReST heading levels')
-    aparser.add_argument('--doc-no-reg-drawing', help='Disable generation of register drawings in documentation', 
+    aparser.add_argument('--doc-no-reg-drawing', help='Disable generation of register drawings in documentation',
                          action='store_true')
-    aparser.add_argument('--doc-copy-template', help='Target file to copy a template for the main file (Latex only).', 
+    aparser.add_argument('--doc-copy-template', help='Target file to copy a template for the main file (Latex only).',
                         type=str)
+    aparser.add_argument(
+        "--doc-include-js-dep",
+        help="Include external JavaScript dependencies for HTML documentation "
+        + "generation",
+        action="store_true",
+    )
     aparser.add_argument('--input', '-i',
                          help='input file')
     aparser.add_argument('--ff-reset', choices=['sync', 'async'], default='sync',
@@ -271,7 +277,7 @@ def handle_file(args, filename):
     if args.gen_doc is not None:
         with open_filename(args.gen_doc) as f:
             if args.doc == 'html':
-                print_html.pprint(f, t)
+                print_html.pprint(f, t, args.doc_include_js_dep)
             elif args.doc == 'md':
                 print_markdown.print_markdown(f, t)
             elif args.doc == 'rest':

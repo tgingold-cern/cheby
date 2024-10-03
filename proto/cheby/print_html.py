@@ -3,6 +3,9 @@ import cheby.hdltree as hdltree
 import cheby.gen_doc as gen_doc
 from cheby.gen_wbgen_hdl import get_hdl_entity
 from cheby.wrutils import w, wln
+import re
+
+JS_DEPS = ["https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js"]
 
 
 def print_port_name(p):
@@ -25,6 +28,33 @@ def print_access(acc, dflt=None):
     return {'READ_WRITE': 'read/write',
             'READ_ONLY': 'read-only',
             'WRITE_ONLY': 'write-only'}.get(acc, acc)
+
+
+def print_description(description, comment=""):
+    if description is None:
+        description = ""
+    if comment is None:
+        comment = ""
+
+    # Strip trailing whitespaces
+    description = description.strip()
+    comment = comment.strip()
+
+    # Concatenate description and comment
+    if comment:
+        if description:
+            description += "\n\n" + comment
+        else:
+            description = comment
+
+    # Replace newlines with corresponding HTML tag
+    description = description.replace("\n", "<br>")
+
+    # Replace strings wrapped by dollar signs ($ and $) indicating a LaTeX equation with
+    # inline delimiters (\( and \)) such that the equations can be detected by MathJax
+    description = re.sub(r"\$([^$\n\r]+)\$", r"\\(\1\\)", description)
+
+    return description
 
 
 def print_symbol_table(left, right):
@@ -90,9 +120,9 @@ def print_regdescr_reg(_periph, pfx, raw, num):
            name=raw.name)
     if r.description is not None:
         res += '''<p>
-{desc}
+{description}
 </p>
-'''.format(desc=r.description.replace('\n', '<br>'))
+'''.format(description=print_description(r.description))
 
     # Drawing of the register, with bits.
     res += '<table cellpadding=0 cellspacing=0 border=0>\n'
@@ -109,20 +139,12 @@ def print_regdescr_reg(_periph, pfx, raw, num):
     for f in r.children:
         name = f.name or r.name
         access = r.access
-
-        desc = f.description or r.description or ''
-        if f.comment is not None:
-            comment = f.comment
-            if desc:
-                desc += '\n\n' + comment
-            else:
-                desc = comment
-        desc = desc.replace('\n', '<br>')
+        description = print_description(f.description or r.description or "", f.comment)
 
         res += '  <dt><b>{name}</b> [<i>{access}</i>]</dt>\n'.format(
             name=name, access=access
         )
-        res += '  <dd>{desc}</dd>\n'.format(desc=desc)
+        res += '  <dd>{description}</dd>\n'.format(description=description)
 
     res += '</dl>\n'
 
@@ -167,7 +189,7 @@ def print_summary_html(_periph, summary):
     return res
 
 
-def phtml_header(fd, periph):
+def phtml_header(fd, periph, print_js_dep_include=False):
     entity = get_hdl_entity(periph)
     wln(fd, '''<HTML>
 <HEAD>
@@ -210,6 +232,17 @@ def phtml_header(fd, periph):
   .tr_odd { background: #e0e0f0; }
 -->
 </STYLE>''')
+
+    # Print script tags to include external JavaScript dependencies
+    if print_js_dep_include:
+        js_deps_html = "\n".join(
+            map(
+                lambda src: f'<script type="text/javascript" async src="{src}"></script>',
+                JS_DEPS,
+            )
+        )
+        wln(fd, js_deps_html)
+
     wln(fd, '''</HEAD>
 <BODY>
 <h1 class="heading">{entity}</h1>
@@ -222,8 +255,8 @@ def phtml_header(fd, periph):
         wln(fd, "<p>Version: {}</p>".format(periph.version))
 
 
-def pprint_root(fd, root):
-    phtml_header(fd, root)
+def pprint_root(fd, root, print_js_dep_include=False):
+    phtml_header(fd, root, print_js_dep_include)
 
     if root.c_address_spaces_map is None:
         summary = gen_doc.MemmapSummary(root)
@@ -251,6 +284,6 @@ def pprint_root(fd, root):
     wln(fd, '\n</BODY>\n</HTML>')
 
 
-def pprint(fd, n):
+def pprint(fd, n, print_js_dep_include=False):
     assert isinstance(n, tree.Root)
-    pprint_root(fd, n)
+    pprint_root(fd, n, print_js_dep_include)
