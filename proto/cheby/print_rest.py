@@ -54,9 +54,7 @@ def print_reg(fd, r, abs_addr):
     if r.has_fields():
         for f in r.children:
             wln(fd, f.name)
-            wln(fd, "  {}".format(f.comment or
-                                  f.description or
-                                  '(not documented)'))
+            wln(fd, "  {}".format(f.description or "(not documented)"))
         wln(fd)
 
 

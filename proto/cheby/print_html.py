@@ -30,22 +30,9 @@ def print_access(acc, dflt=None):
             'WRITE_ONLY': 'write-only'}.get(acc, acc)
 
 
-def print_description(description, comment=""):
+def print_description(description):
     if description is None:
         description = ""
-    if comment is None:
-        comment = ""
-
-    # Strip trailing whitespaces
-    description = description.strip()
-    comment = comment.strip()
-
-    # Concatenate description and comment
-    if comment:
-        if description:
-            description += "\n\n" + comment
-        else:
-            description = comment
 
     # Replace newlines with corresponding HTML tag
     description = description.replace("\n", "<br>")
@@ -139,7 +126,7 @@ def print_regdescr_reg(_periph, pfx, raw, num):
     for f in r.children:
         name = f.name or r.name
         access = r.access
-        description = print_description(f.description or r.description or "", f.comment)
+        description = print_description(f.description or r.description or "")
 
         res += '  <dt><b>{name}</b> [<i>{access}</i>]</dt>\n'.format(
             name=name, access=access
@@ -248,9 +235,6 @@ def phtml_header(fd, periph, print_js_dep_include=False):
 <h1 class="heading">{entity}</h1>
 <h3>{description}</h3>'''.format(
         entity=entity, description=periph.description))
-    if periph.comment:
-        wln(fd, '<p>{comment}</p>'.format(
-            comment=periph.comment.replace('\n', '<br>')))
     if periph.version is not None:
         wln(fd, "<p>Version: {}</p>".format(periph.version))
 

@@ -108,10 +108,8 @@ def print_reg(fd, r, raw, print_reg_drawing):
         # Name
         w(fd, '{} & '.format(escape_printable(desc_src.name)))
 
-        # Description + comment
-        desc = desc_src.description or ''
-        if desc_src.comment is not None:
-            desc += '\n\n' + desc_src.comment
+        # Description
+        desc = desc_src.description or ""
 
         desc = escape_printable(desc)
         desc = desc.replace('\n', ' \\newline ')

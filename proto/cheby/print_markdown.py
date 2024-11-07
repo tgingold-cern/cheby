@@ -14,10 +14,9 @@ def print_reg(fd, r, abs_addr):
     wln(fd, "address:: 0x{:x}".format(abs_addr))
     wln(fd, "block offset:: 0x{:x}".format(r.c_address))
     wln(fd, "access mode:: {}".format(r.access))
-    for t in (r.comment, r.description):
-        if t:
-            wln(fd)
-            wln(fd, mls(t))
+    if r.description:
+        wln(fd)
+        wln(fd, mls(r.description))
     wln(fd)
     descr = gen_doc.build_regdescr_table(r)
     wln(fd, '[cols="8*^"]')
@@ -37,14 +36,10 @@ def print_reg(fd, r, abs_addr):
         wln(fd)
         for f in r.children:
             wln(fd, "{}::".format(f.name))
-            if f.comment:
-                wln(fd, mls(f.comment))
-                if f.description:
-                    wln(fd, '+')
             if f.description:
                 wln(fd, mls(f.description))
-            if not any((f.comment, f.description)):
-                wln(fd, '(not documented)')
+            else:
+                wln(fd, "(not documented)")
         wln(fd)
 
 def print_map_summary(fd, summary):
