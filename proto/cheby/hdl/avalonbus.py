@@ -172,7 +172,7 @@ class AvalonBus(BusGen):
             n.h_bus[name] = p
         # Add the comment.  Not that simple as the first port of the bus depends on
         # split or not split, address or no address.
-        comment = '\n' + (n.comment or n.description or 'Avalon bus {}'.format(n.name))
+        comment = '\n' + (n.comment or 'Avalon bus {}'.format(n.name))
         first = 'adr'
         if n.h_bus[first] is None:
             first = 'dato'

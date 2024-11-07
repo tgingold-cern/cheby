@@ -104,7 +104,7 @@ def cprint_children(cp, n, size, off):
 
 
 def comment(n):
-    return n.comment or n.description or '(comment missing)'
+    return n.comment or "(comment missing)"
 
 
 @CPrinter.register(tree.Reg)

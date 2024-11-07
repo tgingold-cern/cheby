@@ -95,7 +95,7 @@ class GenRepeatBlock(GenBlock):
             self.module.global_decls.append(itf_arr)
             ports_arr = self.module.add_modport(self.n.hdl_iogroup, itf_arr, is_master=True)
             c = self.n.origin
-            ports_arr.comment = '\n' + (c.comment or c.description or "REPEAT {}".format(c.name))
+            ports_arr.comment = "\n" + (c.comment or "REPEAT {}".format(c.name))
 
             # Create each port (when first_index is True), and
             # expand all ports.
