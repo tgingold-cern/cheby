@@ -273,10 +273,10 @@ class ConstsPrinterC(ConstsPrinterH):
                 # In that case, this condition blocks the field address constant to be
                 # printed here.
                 self.pr_hex_const(self.pr_name(f), self.compute_mask(f))
-        else:
-            # A multi-bit field
-            self.pr_hex_const(self.pr_name(f) + '_MASK', self.compute_mask(f))
-            self.pr_dec_const(self.pr_name(f) + "_SHIFT", f.lo)
+
+        # Always print _MASK and _SHIFT constants
+        self.pr_hex_const(self.pr_name(f) + '_MASK', self.compute_mask(f))
+        self.pr_dec_const(self.pr_name(f) + "_SHIFT", f.lo)
 
         if f.c_preset is not None:
             self.pr_preset(self.pr_name(f), f.c_preset, f.c_rwidth)
