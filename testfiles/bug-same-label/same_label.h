@@ -11,6 +11,8 @@
 
 /* Register with same-name field. */
 #define SAME_LABEL_REG_SAME_NAME 0x4UL
+#define SAME_LABEL_REG_SAME_NAME_MASK 0x1UL
+#define SAME_LABEL_REG_SAME_NAME_SHIFT 0
 
 /* Register with multi-bit same-name field. */
 #define SAME_LABEL_REG_SAME_NAME_MULTI 0x8UL
@@ -20,6 +22,8 @@
 /* Register with different-name field. */
 #define SAME_LABEL_REG_NOT_SAME_REG 0xcUL
 #define SAME_LABEL_REG_NOT_SAME 0x1UL
+#define SAME_LABEL_REG_NOT_SAME_MASK 0x1UL
+#define SAME_LABEL_REG_NOT_SAME_SHIFT 0
 
 #ifndef __ASSEMBLER__
 struct same_label_reg {
