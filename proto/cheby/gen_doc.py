@@ -85,5 +85,10 @@ class MemmapSummary(object):
             elif isinstance(n, tree.Memory):
                 self.raws.append(SummaryRaw(rng, 'MEMORY', name, n, n_addr))
                 self.gen_raws(n, name + '.', addr_pfx + ' +', n_addr)
+            elif isinstance(n, tree.Repeat):
+                if n.count and n.c_size:
+                    self.raws.append(SummaryRaw(rng, "REPEAT", name, n, n_addr))
+                    for i in range(n.count):
+                        self.gen_raws(n, f"{name}.{i}.", addr_pfx, n_addr + i * n.c_size // n.count)
             else:
-                assert False, "MemmapSummary: unhandled tree node {}".format(n)
+                print(f"MemmapSummary: implementation for tree node of type {type(n)} is missing.")
