@@ -24,6 +24,7 @@ test_interaction:
 
 deploy:
   stage: deploy
+  when: manual
   only:
     - master
     - tags
