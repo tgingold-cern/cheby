@@ -5,8 +5,10 @@ from cheby.wrutils import wln
 #  Generate markdown (asciidoc variant)
 #  Ref: https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/#tables
 
-def mls(s):
-    return s.replace('\n', ' +\n')
+
+def format_text(text):
+    return text.replace("\n", " +\n")
+
 
 def print_reg(fd, r, abs_addr):
     wln(fd, "[horizontal]")
@@ -14,9 +16,15 @@ def print_reg(fd, r, abs_addr):
     wln(fd, "address:: 0x{:x}".format(abs_addr))
     wln(fd, "block offset:: 0x{:x}".format(r.c_address))
     wln(fd, "access mode:: {}".format(r.access))
+
     if r.description:
         wln(fd)
-        wln(fd, mls(r.description))
+        wln(fd, format_text(r.description))
+
+    if r.comment:
+        wln(fd)
+        wln(fd, format_text(r.comment))
+
     wln(fd)
     descr = gen_doc.build_regdescr_table(r)
     wln(fd, '[cols="8*^"]')
@@ -36,11 +44,20 @@ def print_reg(fd, r, abs_addr):
         wln(fd)
         for f in r.children:
             wln(fd, "{}::".format(f.name))
+
             if f.description:
-                wln(fd, mls(f.description))
-            else:
+                wln(fd, format_text(f.description))
+
+            if f.comment:
+                if f.description:
+                    wln(fd, "+")
+                wln(fd, format_text(f.comment))
+
+            if not any((f.comment, f.description)):
                 wln(fd, "(not documented)")
+
         wln(fd)
+
 
 def print_map_summary(fd, summary):
     wln(fd, "|===")

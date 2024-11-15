@@ -30,18 +30,15 @@ def print_access(acc, dflt=None):
             'WRITE_ONLY': 'write-only'}.get(acc, acc)
 
 
-def print_description(description):
-    if description is None:
-        description = ""
-
+def format_text(text):
     # Replace newlines with corresponding HTML tag
-    description = description.replace("\n", "<br>")
+    text = text.replace("\n", "<br>")
 
     # Replace strings wrapped by dollar signs ($ and $) indicating a LaTeX equation with
     # inline delimiters (\( and \)) such that the equations can be detected by MathJax
-    description = re.sub(r"\$([^$\n\r]+)\$", r"\\(\1\\)", description)
+    text = re.sub(r"\$([^$\n\r]+)\$", r"\\(\1\\)", text)
 
-    return description
+    return text
 
 
 def print_symbol_table(left, right):
@@ -105,11 +102,12 @@ def print_regdescr_reg(_periph, pfx, raw, num):
            hdlprefix=r.c_name,
            addr=raw.abs_addr, caddr=r.c_address,
            name=raw.name)
-    if r.description is not None:
-        res += '''<p>
-{description}
-</p>
-'''.format(description=print_description(r.description))
+
+    if r.description:
+        res += "<p>{}</p>\n".format(format_text(r.description))
+
+    if r.comment:
+        res += "<p>{}</p>\n".format(format_text(r.comment))
 
     # Drawing of the register, with bits.
     res += '<table cellpadding=0 cellspacing=0 border=0>\n'
@@ -126,14 +124,17 @@ def print_regdescr_reg(_periph, pfx, raw, num):
     for f in r.children:
         name = f.name or r.name
         access = r.access
-        description = print_description(f.description or r.description or "")
-
         res += '  <dt><b>{name}</b> [<i>{access}</i>]</dt>\n'.format(
             name=name, access=access
         )
-        res += '  <dd>{description}</dd>\n'.format(description=description)
 
-    res += '</dl>\n'
+        description = format_text(f.description or r.description or "")
+        res += "  <dd>{}</dd>\n".format(description)
+
+        if f.comment:
+            res += "  <dd>{}</dd>\n".format(format_text(f.comment))
+
+    res += "</dl>\n"
 
     return res
 
@@ -235,6 +236,10 @@ def phtml_header(fd, periph, print_js_dep_include=False):
 <h1 class="heading">{entity}</h1>
 <h3>{description}</h3>'''.format(
         entity=entity, description=periph.description))
+
+    if periph.comment:
+        wln(fd, "<p>{}</p>".format(format_text(periph.comment)))
+
     if periph.version is not None:
         wln(fd, "<p>Version: {}</p>".format(periph.version))
 
