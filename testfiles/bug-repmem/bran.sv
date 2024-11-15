@@ -3,121 +3,87 @@ module bran_wb
   (
     t_wishbone.slave wb,
 
-    // Block identifier - returns 0xcafebeef
+    // REG Token
     input   wire [31:0] Token_i,
 
-    // Common controls
-    // 1 enables the module
+    // REG Ctrl
     output  wire Enable_o,
-    // 1 clears BST_desync flag in stat
     output  wire std_rst_bst_desync,
-    // 1 resets the frame aligner
     output  wire std_reset_alignment,
-    // 1 to zeros instead of ADC data
     output  wire DisableADCStream_o,
-    // 1 to use internal turn clock emulator
     output  wire EnableTurnEmulator_o,
     // Bit indicates whether turn emulator shall provide LHC or SPS timing. If this bit is set, the turn emulator will provide turn clock once every 3564 bunch clocks. Otherwise the turn emulator will emulate SPS timing with its 924 bunch slots
     output  wire LHC_timing,
 
-    // General status work
-    // 1 indicates loss of signal JESD
+    // REG Stat
     input   wire FmcLos_i,
-    // 1 indicates loss of lock JESD
     input   wire FmcLol_i,
-    // 1 indicates error of sysref
     input   wire SysrefFail_i,
-    // 1 indicates DCDC sync is enabled
     input   wire DCDCSyncEnabled_i,
-    // 1 indicates ADC pattern check failed
     input   wire PatternFail_i,
-    // 1 indicates FA waiting for turn clock
     input   wire std_fa_in_reset,
-    // 1 if GBT PLL is not locked
     input   wire GBTPLLLol_i,
-    // 1 if BST turn and bunch clock do not  match
     input   wire std_bst_desynced,
-    // 1 if FMC is NOT powered
     input   wire VfmcDisabled_i,
-    // 1 if no turn mark arrives to capture block
     input   wire NoTurnDetected_i,
-    // 1 if turn emulator is wrongly setup
     input   wire TurnEmulatorError_i,
-    // 1 if turn emulator PLL is not locked
     input   wire TurnEmulatorPLLError_i,
-    // 1 for each line not ready
     input   wire [7:0] JesdRXNotReady_i,
-    // 1 indicates fail of DCDC converter
     input   wire [7:0] VoltageFail_i,
 
-    // Number of ticks detected on sysref clock
+    // REG SysrefTicks
     input   wire [31:0] SysrefTicks_i,
 
-    // Compilation time of gateware
+    // REG GWRevision
     input   wire [31:0] GWRevision_i,
 
-    // Turn emulator period in 8ns increments
+    // REG TurnPeriod
     output  wire [31:0] TurnPeriod_o,
     output  wire TurnPeriod_wr_o,
 
-    // Turn emulator length in 8ns increments
+    // REG TurnLength
     output  wire [31:0] TurnLength_o,
     output  wire TurnLength_wr_o,
 
-    // Upcounts when turn HW or emulated detected
+    // REG TurnsIntercepted
     input   wire [31:0] TurnsIntercepted_b32,
 
-    // Power control of the FMC mezzanine
-    // Enables/disables power to FMC
+    // REG FmcPower
     output  wire FmcPowerEnable_o,
-    // Enables/disables synchronization of DCDC converters on the IAM
     output  wire DCDCSyncEnable_o,
 
-    // ADC pattern checher module control
-    // Resets pattern checking
+    // REG ADCPatternCheckCtrl
     output  wire PatternRst_o,
 
-    // ADC specific control register
-    // ADC reset control
+    // REG ADCCtrl
     output  wire ADCRst_o,
-    // Enables ADC conversion
     output  wire ADCEnable_o,
-    // Synchronization signal value
     output  wire ADCManualSync_o,
-    // 1 = sync comes from ADCManualSync
     output  wire ADCDisableAutoSync_o,
 
-    // JESD204B link interface control
-    // JESD PHY and MAC reset
+    // REG JesdLink
     output  wire JesdXcvrRst_o,
-    // JESD Link interface reset
     output  wire JesdLinkRst_o,
-    // JESD GBT PLL reset
     output  wire JesdPLLRst_o,
-    // MAC wishbone infterface reset
     output  wire JesdAvsRst_o,
-    // 0-1-0 to reset the FMC PLL chip
     output  wire SixxRst_o,
-    // Set link to ready state
     output  wire JesdLinkReady_o,
-    // Enable/disable JESD sysref signal
     output  wire JesdEnableSysref_o,
 
-    // ADC SPI write configuration interface
+    // REG AdcSpiWrite
     output  wire [31:0] AdcSpiWrite_o,
     output  wire AdcSpiWrite_wr_o,
 
-    // ADC SPI read configuration interface
+    // REG AdcSpiRead
     input   wire [31:0] AdcSpiRead_i,
 
-    // SPI status
-    // 1 if SPI sends data to ADC
+    // REG SpiStatus
     input   wire AdcSpiBusy_i,
 
-    // For how many turns to accumulate data
+    // REG CummulativeTurns
     output  wire [31:0] cummulative_turns_b32,
 
-    // Master-of-universe-tool
+    // REG Debug
     output  wire OverrideTurnEmulatorTiming,
 
     // SRAM bus RawData0

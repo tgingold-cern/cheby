@@ -19,17 +19,16 @@ entity csr is
     wb_stall_o           : out   std_logic;
     wb_dat_o             : out   std_logic_vector(31 downto 0);
 
-    -- Board identifier
+    -- REG ident
     ident_i              : in    std_logic_vector(63 downto 0);
 
-    -- Firmware version
+    -- REG version
     version_i            : in    std_logic_vector(31 downto 0);
 
-    -- Calibrator control bits
-    -- Calibrator/ADC select: 00=C1/A1, 01=C2/A2, 10=C1+2/A1, 11=C1+2/A2
+    -- REG cal_ctrl
     cal_ctrl_cal_sel_o   : out   std_logic_vector(1 downto 0);
 
-    -- OpenCores I2C Master
+    -- WB bus i2c_master
     i2c_master_cyc_o     : out   std_logic;
     i2c_master_stb_o     : out   std_logic;
     i2c_master_adr_o     : out   std_logic_vector(4 downto 2);

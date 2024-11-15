@@ -26,10 +26,10 @@ entity addrwidth_axi4_sub_word is
     rdata                : out   std_logic_vector(31 downto 0);
     rresp                : out   std_logic_vector(1 downto 0);
 
-    -- A register
+    -- REG reg1
     reg1_o               : out   std_logic_vector(31 downto 0);
 
-    -- A register
+    -- REG reg2
     reg2_o               : out   std_logic_vector(31 downto 0)
   );
 end addrwidth_axi4_sub_word;

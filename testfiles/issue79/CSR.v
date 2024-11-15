@@ -15,17 +15,16 @@ module csr
     output  wire wb_stall_o,
     output  reg [31:0] wb_dat_o,
 
-    // Board identifier
+    // REG ident
     input   wire [63:0] ident_i,
 
-    // Firmware version
+    // REG version
     input   wire [31:0] version_i,
 
-    // Calibrator control bits
-    // Calibrator/ADC select: 00=C1/A1, 01=C2/A2, 10=C1+2/A1, 11=C1+2/A2
+    // REG cal_ctrl
     output  wire [1:0] cal_ctrl_cal_sel_o,
 
-    // OpenCores I2C Master
+    // WB bus i2c_master
     output  wire i2c_master_cyc_o,
     output  wire i2c_master_stb_o,
     output  wire [4:2] i2c_master_adr_o,

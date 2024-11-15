@@ -3,16 +3,15 @@ module alt_trigin
   (
     t_wishbone.slave wb,
 
-    // Control register
-    // Enable trigger, cleared when triggered
+    // REG ctrl
     input   wire ctrl_enable_i,
     output  wire ctrl_enable_o,
     output  wire ctrl_wr_o,
 
-    // Time (seconds) to trigger
+    // REG seconds
     input   wire [63:0] seconds_i,
 
-    // Time (cycles) to trigger
+    // REG cycles
     input   wire [31:0] cycles_i
   );
   wire [4:2] adr_int;

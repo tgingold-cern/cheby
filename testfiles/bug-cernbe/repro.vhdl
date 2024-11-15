@@ -14,7 +14,7 @@ entity example is
     VMERdDone            : out   std_logic;
     VMEWrDone            : out   std_logic;
 
-    -- The first register (with some fields)
+    -- REG regA
     regA_o               : out   std_logic_vector(31 downto 0);
 
     -- cern-be-vme bus sm

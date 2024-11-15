@@ -17,13 +17,10 @@ entity inherit is
     wb_stall_o           : out   std_logic;
     wb_dat_o             : out   std_logic_vector(31 downto 0);
 
-    -- a normal reg with some fields
-    -- 1-bit field
+    -- REG reg0
     reg0_field00_i       : in    std_logic;
     reg0_field00_o       : out   std_logic;
-    -- multi bit field
     reg0_field01_o       : out   std_logic_vector(3 downto 0);
-    -- a field with a preset value
     reg0_field02_i       : in    std_logic_vector(2 downto 0);
     reg0_field02_o       : out   std_logic_vector(2 downto 0);
     reg0_wr_o            : out   std_logic

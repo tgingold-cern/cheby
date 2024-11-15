@@ -14,13 +14,10 @@ module inherit
     output  wire wb_stall_o,
     output  reg [31:0] wb_dat_o,
 
-    // a normal reg with some fields
-    // 1-bit field
+    // REG reg0
     input   wire reg0_field00_i,
     output  wire reg0_field00_o,
-    // multi bit field
     output  wire [3:0] reg0_field01_o,
-    // a field with a preset value
     input   wire [2:0] reg0_field02_i,
     output  wire [2:0] reg0_field02_o,
     output  wire reg0_wr_o

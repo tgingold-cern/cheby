@@ -477,6 +477,7 @@ app.modulation.control
 +------------------+------------------+------------------+------------------+------------------+------------------+------------------+------------------+
 
 useTestSignal
+  Use DDS generated test signal instead of ADC input as demodulation input
   Test signal is synthezied with additional internal DDS, test signals frequency given by ftw_RF.
 useImpulse
   Use impulse instead of demodulation output

@@ -14,8 +14,7 @@ module reg_strobe
     output  wire wb_stall_o,
     output  reg [31:0] wb_dat_o,
 
-    // The first register (with some fields)
-    // 1-bit field
+    // REG regA
     output  wire regA_field0_o,
     output  wire regA_wr_o
   );

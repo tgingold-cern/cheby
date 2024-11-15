@@ -3,44 +3,28 @@ module alt_trigout
   (
     t_wishbone.slave wb,
 
-    // Status register
-    // Set when WR is enabled
+    // REG status
     input   wire wr_enable_i,
-    // WR link status
     input   wire wr_link_i,
-    // Set when WR time is valid
     input   wire wr_valid_i,
-    // Set when the timestamp fifo is not empty
     input   wire ts_present_i,
 
-    // Control register
-    // Enable channel 1 trigger
+    // REG ctrl
     output  wire ch1_enable_o,
-    // Enable channel 2 trigger
     output  wire ch2_enable_o,
-    // Enable channel 3 trigger
     output  wire ch3_enable_o,
-    // Enable channel 4 trigger
     output  wire ch4_enable_o,
-    // Enable external trigger
     output  wire ext_enable_o,
 
-    // Time (seconds) of the last event
-    // Seconds part of the timestamp
+    // REG ts_mask_sec
     input   wire [39:0] ts_sec_i,
-    // Set if channel 1 triggered
     input   wire ch1_mask_i,
-    // Set if channel 2 triggered
     input   wire ch2_mask_i,
-    // Set if channel 3 triggered
     input   wire ch3_mask_i,
-    // Set if channel 4 triggered
     input   wire ch4_mask_i,
-    // Set if external trigger
     input   wire ext_mask_i,
 
     // Reading this register discard the entry
-    // Cycles
     input   wire [27:0] cycles_i,
     output  reg ts_cycles_rd_o
   );

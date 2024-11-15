@@ -10,52 +10,32 @@ entity qsm_regs is
     wb_i                 : in    t_wishbone_slave_in;
     wb_o                 : out   t_wishbone_slave_out;
 
-    -- Control register
-    -- Send the Reset state to DIM
+    -- REG control
     regs_0_control_reset_o : out   std_logic;
-    -- Trigger DIM readout
     regs_0_control_trig_o : out   std_logic;
-    -- Address of last DIM register (number of registers - 1)
     regs_0_control_last_reg_adr_o : out   std_logic_vector(3 downto 0);
-    -- Maximum number of devices present on line
     regs_0_control_max_dim_no_o : out   std_logic_vector(3 downto 0);
-    -- Delay between consecutive register reads in microseconds (usually 512 us)
     regs_0_control_read_delay_o : out   std_logic_vector(9 downto 0);
 
-    -- Status register
-    -- QSPI master is busy (either in RESET or READOUT)
+    -- REG status
     regs_0_status_busy_i : in    std_logic;
-    -- QSPI master has finished DIM readout
     regs_0_status_done_i : in    std_logic;
-    -- Too many devices on DIM line (more than set by 'max_dim_no' register)
     regs_0_status_err_many_i : in    std_logic;
-    -- Detected error on QSPI fb line
     regs_0_status_err_fb_i : in    std_logic;
-    -- Detected number of DIM devices (can be lower than 'max_dim_no')
     regs_0_status_dim_count_i : in    std_logic_vector(3 downto 0);
 
-    -- Control register
-    -- Send the Reset state to DIM
+    -- REG control
     regs_1_control_reset_o : out   std_logic;
-    -- Trigger DIM readout
     regs_1_control_trig_o : out   std_logic;
-    -- Address of last DIM register (number of registers - 1)
     regs_1_control_last_reg_adr_o : out   std_logic_vector(3 downto 0);
-    -- Maximum number of devices present on line
     regs_1_control_max_dim_no_o : out   std_logic_vector(3 downto 0);
-    -- Delay between consecutive register reads in microseconds (usually 512 us)
     regs_1_control_read_delay_o : out   std_logic_vector(9 downto 0);
 
-    -- Status register
-    -- QSPI master is busy (either in RESET or READOUT)
+    -- REG status
     regs_1_status_busy_i : in    std_logic;
-    -- QSPI master has finished DIM readout
     regs_1_status_done_i : in    std_logic;
-    -- Too many devices on DIM line (more than set by 'max_dim_no' register)
     regs_1_status_err_many_i : in    std_logic;
-    -- Detected error on QSPI fb line
     regs_1_status_err_fb_i : in    std_logic;
-    -- Detected number of DIM devices (can be lower than 'max_dim_no')
     regs_1_status_dim_count_i : in    std_logic_vector(3 downto 0);
 
     -- SRAM bus memory_0_mem_readout

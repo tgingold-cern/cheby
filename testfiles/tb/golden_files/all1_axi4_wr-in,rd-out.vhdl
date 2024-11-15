@@ -27,7 +27,7 @@ entity all1_axi4 is
     rdata                : out   std_logic_vector(31 downto 0);
     rresp                : out   std_logic_vector(1 downto 0);
 
-    -- A register
+    -- REG reg1
     reg1_o               : out   std_logic_vector(31 downto 0);
 
     -- REG reg2
@@ -49,7 +49,7 @@ entity all1_axi4 is
     ram2_data_o          : out   std_logic_vector(31 downto 0);
     ram2_wr_o            : out   std_logic;
 
-    -- A WB bus
+    -- WB bus sub1_wb
     sub1_wb_cyc_o        : out   std_logic;
     sub1_wb_stb_o        : out   std_logic;
     sub1_wb_adr_o        : out   std_logic_vector(11 downto 2);
@@ -62,7 +62,7 @@ entity all1_axi4 is
     sub1_wb_stall_i      : in    std_logic;
     sub1_wb_dat_i        : in    std_logic_vector(31 downto 0);
 
-    -- An AXI4-Lite bus
+    -- AXI-4 lite bus sub2_axi4
     sub2_axi4_awvalid_o  : out   std_logic;
     sub2_axi4_awready_i  : in    std_logic;
     sub2_axi4_awaddr_o   : out   std_logic_vector(11 downto 2);
@@ -83,7 +83,7 @@ entity all1_axi4 is
     sub2_axi4_rdata_i    : in    std_logic_vector(31 downto 0);
     sub2_axi4_rresp_i    : in    std_logic_vector(1 downto 0);
 
-    -- A CERN-BE bus
+    -- cern-be-vme bus sub3_cernbe
     sub3_cernbe_VMEAddr_o : out   std_logic_vector(11 downto 2);
     sub3_cernbe_VMERdData_i : in    std_logic_vector(31 downto 0);
     sub3_cernbe_VMEWrData_o : out   std_logic_vector(31 downto 0);
@@ -92,7 +92,7 @@ entity all1_axi4 is
     sub3_cernbe_VMERdDone_i : in    std_logic;
     sub3_cernbe_VMEWrDone_i : in    std_logic;
 
-    -- An AVALON bus
+    -- Avalon bus sub4_avalon
     sub4_avalon_address_o : out   std_logic_vector(11 downto 2);
     sub4_avalon_readdata_i : in    std_logic_vector(31 downto 0);
     sub4_avalon_writedata_o : out   std_logic_vector(31 downto 0);
@@ -111,7 +111,7 @@ entity all1_axi4 is
     sub5_apb_prdata_i    : in    std_logic_vector(31 downto 0);
     sub5_apb_pslverr_i   : in    std_logic;
 
-    -- A simple bus
+    -- simple bus sub6_simple
     sub6_simple_adr_o    : out   std_logic_vector(11 downto 2);
     sub6_simple_dato_i   : in    std_logic_vector(31 downto 0);
     sub6_simple_dati_o   : out   std_logic_vector(31 downto 0);

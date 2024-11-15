@@ -23,22 +23,18 @@ module test
     output  reg [31:0] rdata,
     output  wire [1:0] rresp,
 
-    // Test register 1
+    // REG register1
     output  wire [31:0] register1_o,
 
-    // Test register 2
-    // Test field 1
+    // REG register2
     input   wire block1_register2_field1_i,
-    // Test field 2
     input   wire [2:0] block1_register2_field2_i,
 
-    // Test register 3
+    // REG register3
     output  wire [31:0] block1_register3_o,
 
-    // Test register 4
-    // Test field 3
+    // REG register4
     input   wire block1_block2_register4_field3_i,
-    // Test field 4
     input   wire [2:0] block1_block2_register4_field4_i
   );
   reg wr_req;

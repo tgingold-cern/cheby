@@ -31,7 +31,7 @@ module repeat_iogroup4
     output  wire wb_stall_o,
     output  reg [31:0] wb_dat_o,
 
-    // the array of registers
+    // REPEAT arr1
     t_itf.master itf[1]
   );
   wire rd_req_int;

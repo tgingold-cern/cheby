@@ -3,52 +3,32 @@ module qsm_regs
   (
     t_wishbone.slave wb,
 
-    // Control register
-    // Send the Reset state to DIM
+    // REG control
     output  wire regs_0_control_reset_o,
-    // Trigger DIM readout
     output  wire regs_0_control_trig_o,
-    // Address of last DIM register (number of registers - 1)
     output  wire [3:0] regs_0_control_last_reg_adr_o,
-    // Maximum number of devices present on line
     output  wire [3:0] regs_0_control_max_dim_no_o,
-    // Delay between consecutive register reads in microseconds (usually 512 us)
     output  wire [9:0] regs_0_control_read_delay_o,
 
-    // Status register
-    // QSPI master is busy (either in RESET or READOUT)
+    // REG status
     input   wire regs_0_status_busy_i,
-    // QSPI master has finished DIM readout
     input   wire regs_0_status_done_i,
-    // Too many devices on DIM line (more than set by 'max_dim_no' register)
     input   wire regs_0_status_err_many_i,
-    // Detected error on QSPI fb line
     input   wire regs_0_status_err_fb_i,
-    // Detected number of DIM devices (can be lower than 'max_dim_no')
     input   wire [3:0] regs_0_status_dim_count_i,
 
-    // Control register
-    // Send the Reset state to DIM
+    // REG control
     output  wire regs_1_control_reset_o,
-    // Trigger DIM readout
     output  wire regs_1_control_trig_o,
-    // Address of last DIM register (number of registers - 1)
     output  wire [3:0] regs_1_control_last_reg_adr_o,
-    // Maximum number of devices present on line
     output  wire [3:0] regs_1_control_max_dim_no_o,
-    // Delay between consecutive register reads in microseconds (usually 512 us)
     output  wire [9:0] regs_1_control_read_delay_o,
 
-    // Status register
-    // QSPI master is busy (either in RESET or READOUT)
+    // REG status
     input   wire regs_1_status_busy_i,
-    // QSPI master has finished DIM readout
     input   wire regs_1_status_done_i,
-    // Too many devices on DIM line (more than set by 'max_dim_no' register)
     input   wire regs_1_status_err_many_i,
-    // Detected error on QSPI fb line
     input   wire regs_1_status_err_fb_i,
-    // Detected number of DIM devices (can be lower than 'max_dim_no')
     input   wire [3:0] regs_1_status_dim_count_i,
 
     // SRAM bus memory_0_mem_readout

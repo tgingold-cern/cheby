@@ -11,21 +11,20 @@ module hwInfo
     output  wire VMERdDone,
     output  wire VMEWrDone,
 
-    // HW serial number
+    // REG serialNumber
     input   wire [63:0] serialNumber_i,
 
-    // Firmware Version
+    // REG firmwareVersion
     input   wire [7:0] firmwareVersion_major_i,
     input   wire [7:0] firmwareVersion_minor_i,
     input   wire [7:0] firmwareVersion_patch_i,
 
-    // Memory Map Version
+    // REG memMapVersion
     input   wire [7:0] memMapVersion_major_i,
     input   wire [7:0] memMapVersion_minor_i,
     input   wire [7:0] memMapVersion_patch_i,
 
-    // Echo register
-    // This version of the standard foresees only 8bits linked to real memory
+    // REG echo
     output  wire [7:0] echo_echo_o
   );
   wire rst_n;

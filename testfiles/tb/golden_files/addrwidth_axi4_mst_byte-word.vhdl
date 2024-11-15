@@ -26,10 +26,10 @@ entity addrwidth_axi4_byte is
     rdata                : out   std_logic_vector(31 downto 0);
     rresp                : out   std_logic_vector(1 downto 0);
 
-    -- A register
+    -- REG reg1
     reg1_o               : out   std_logic_vector(31 downto 0);
 
-    -- An AXI4-Lite bus
+    -- AXI-4 lite bus sub2_axi4
     sub2_axi4_awvalid_o  : out   std_logic;
     sub2_axi4_awready_i  : in    std_logic;
     sub2_axi4_awaddr_o   : out   std_logic_vector(2 downto 2);
