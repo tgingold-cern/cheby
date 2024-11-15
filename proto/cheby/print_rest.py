@@ -22,7 +22,7 @@ def wtable(fd, table):
         wln(fd, '+' + ''.join('-' * (l + 2) + '+' for l in lens))
 
 
-def print_reg(fd, r, abs_addr):
+def print_reg(fd, r, abs_addr, hide_comments=False):
     wln(fd)
     w(fd, "* HDL name:")
     wln(fd, "  {}".format(r.c_name))
@@ -55,13 +55,16 @@ def print_reg(fd, r, abs_addr):
         for f in r.children:
             wln(fd, f.name)
 
+            not_documented = True
             if f.description:
                 wln(fd, "  {}".format(f.description))
+                not_documented = False
 
-            if f.comment:
+            if f.comment and not hide_comments:
                 wln(fd, "  {}".format(f.comment))
+                not_documented = False
 
-            if not f.description and not f.comment:
+            if not_documented:
                 wln(fd, "  (not documented)")
 
         wln(fd)
@@ -78,17 +81,17 @@ def print_map_summary(fd, summary):
     wln(fd)
 
 
-def print_reg_description(fd, summary, heading):
+def print_reg_description(fd, summary, heading, hide_comments=False):
     for ra in summary.raws:
         r = ra.node
         if isinstance(r, tree.Reg):
             wln(fd, "{}".format(ra.name))
             wln(fd, heading * len(ra.name))
             wln(fd)
-            print_reg(fd, r, ra.abs_addr)
+            print_reg(fd, r, ra.abs_addr, hide_comments)
 
 
-def print_root(fd, root, heading):
+def print_root(fd, root, heading, hide_comments=False):
     title = "Memory map summary"
     wln(fd, heading[0] * len(title))
     wln(fd, title)
@@ -108,7 +111,7 @@ def print_root(fd, root, heading):
         title = "Registers description"
         wln(fd, title)
         wln(fd, heading[1] * len(title))
-        print_reg_description(fd, summary, heading[2])
+        print_reg_description(fd, summary, heading[2], hide_comments)
     else:
         summaries = [(gen_doc.MemmapSummary(space), space) for space in root.children]
         for summary, space in summaries:
@@ -120,8 +123,8 @@ def print_root(fd, root, heading):
             title = "Registers description for space {}\n".format(space.name)
             wln(fd, title)
             wln(fd, heading[1] * len(title))
-            print_reg_description(fd, summary, heading[2])
+            print_reg_description(fd, summary, heading[2], hide_comments)
 
-def print_rest(fd, n, heading="#=-"):
+def print_rest(fd, n, heading="#=-", hide_comments=False):
     assert isinstance(n, tree.Root)
-    print_root(fd, n, heading)
+    print_root(fd, n, heading, hide_comments)
