@@ -11,10 +11,10 @@ module sub_repro
     output  wire VMERdDone,
     output  wire VMEWrDone,
 
-    // The first register (with some fields)
+    // REG subrA
     output  wire [15:0] subrA_o,
 
-    // The first register (with some fields)
+    // REG subrB
     input   wire [15:0] subrB_i
   );
   wire rst_n;

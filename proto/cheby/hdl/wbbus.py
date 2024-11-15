@@ -223,7 +223,7 @@ class WBBus(BusGen):
 
     def gen_bus_slave(self, root, module, prefix, n, opts):
         # Create the bus for a submap or a memory
-        comment = '\n' + (n.comment or n.description or 'WB bus {}'.format(n.name))
+        comment = '\n' + (n.comment or 'WB bus {}'.format(n.name))
         n.h_busgroup = opts.busgroup
         n.h_bus = self.gen_wishbone(
             module, module, n.c_name,

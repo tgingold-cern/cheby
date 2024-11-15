@@ -284,7 +284,7 @@ def test_genc_ref():
         gen_c.gen_c_cheby(buf, t, 'neutral')
         if not compare_buffer_and_file(buf, h_file):
             error('c header generation error for {}'.format(f))
-        
+
         # Check C syntax
         # Note: Exclude issue103/top because it includes other header files
         # not generated here.
@@ -948,7 +948,7 @@ def test_doc():
         layout.sort_tree(t)
 
         for file, pprint, style in [
-                (html_file, print_html.pprint, 'html'),
+                (html_file, print_html.print_html, 'html'),
                 (md_file, print_markdown.print_markdown, 'md'),
                 (rst_file, print_rest.print_rest, 'rst'),
                 (latex_file, print_latex.print_latex, 'latex')]:

@@ -10,121 +10,87 @@ entity bran_wb is
     wb_i                 : in    t_wishbone_slave_in;
     wb_o                 : out   t_wishbone_slave_out;
 
-    -- Block identifier - returns 0xcafebeef
+    -- REG Token
     Token_i              : in    std_logic_vector(31 downto 0);
 
-    -- Common controls
-    -- 1 enables the module
+    -- REG Ctrl
     Enable_o             : out   std_logic;
-    -- 1 clears BST_desync flag in stat
     std_rst_bst_desync   : out   std_logic;
-    -- 1 resets the frame aligner
     std_reset_alignment  : out   std_logic;
-    -- 1 to zeros instead of ADC data
     DisableADCStream_o   : out   std_logic;
-    -- 1 to use internal turn clock emulator
     EnableTurnEmulator_o : out   std_logic;
     -- Bit indicates whether turn emulator shall provide LHC or SPS timing. If this bit is set, the turn emulator will provide turn clock once every 3564 bunch clocks. Otherwise the turn emulator will emulate SPS timing with its 924 bunch slots
     LHC_timing           : out   std_logic;
 
-    -- General status work
-    -- 1 indicates loss of signal JESD
+    -- REG Stat
     FmcLos_i             : in    std_logic;
-    -- 1 indicates loss of lock JESD
     FmcLol_i             : in    std_logic;
-    -- 1 indicates error of sysref
     SysrefFail_i         : in    std_logic;
-    -- 1 indicates DCDC sync is enabled
     DCDCSyncEnabled_i    : in    std_logic;
-    -- 1 indicates ADC pattern check failed
     PatternFail_i        : in    std_logic;
-    -- 1 indicates FA waiting for turn clock
     std_fa_in_reset      : in    std_logic;
-    -- 1 if GBT PLL is not locked
     GBTPLLLol_i          : in    std_logic;
-    -- 1 if BST turn and bunch clock do not  match
     std_bst_desynced     : in    std_logic;
-    -- 1 if FMC is NOT powered
     VfmcDisabled_i       : in    std_logic;
-    -- 1 if no turn mark arrives to capture block
     NoTurnDetected_i     : in    std_logic;
-    -- 1 if turn emulator is wrongly setup
     TurnEmulatorError_i  : in    std_logic;
-    -- 1 if turn emulator PLL is not locked
     TurnEmulatorPLLError_i : in    std_logic;
-    -- 1 for each line not ready
     JesdRXNotReady_i     : in    std_logic_vector(7 downto 0);
-    -- 1 indicates fail of DCDC converter
     VoltageFail_i        : in    std_logic_vector(7 downto 0);
 
-    -- Number of ticks detected on sysref clock
+    -- REG SysrefTicks
     SysrefTicks_i        : in    std_logic_vector(31 downto 0);
 
-    -- Compilation time of gateware
+    -- REG GWRevision
     GWRevision_i         : in    std_logic_vector(31 downto 0);
 
-    -- Turn emulator period in 8ns increments
+    -- REG TurnPeriod
     TurnPeriod_o         : out   std_logic_vector(31 downto 0);
     TurnPeriod_wr_o      : out   std_logic;
 
-    -- Turn emulator length in 8ns increments
+    -- REG TurnLength
     TurnLength_o         : out   std_logic_vector(31 downto 0);
     TurnLength_wr_o      : out   std_logic;
 
-    -- Upcounts when turn HW or emulated detected
+    -- REG TurnsIntercepted
     TurnsIntercepted_b32 : in    std_logic_vector(31 downto 0);
 
-    -- Power control of the FMC mezzanine
-    -- Enables/disables power to FMC
+    -- REG FmcPower
     FmcPowerEnable_o     : out   std_logic;
-    -- Enables/disables synchronization of DCDC converters on the IAM
     DCDCSyncEnable_o     : out   std_logic;
 
-    -- ADC pattern checher module control
-    -- Resets pattern checking
+    -- REG ADCPatternCheckCtrl
     PatternRst_o         : out   std_logic;
 
-    -- ADC specific control register
-    -- ADC reset control
+    -- REG ADCCtrl
     ADCRst_o             : out   std_logic;
-    -- Enables ADC conversion
     ADCEnable_o          : out   std_logic;
-    -- Synchronization signal value
     ADCManualSync_o      : out   std_logic;
-    -- 1 = sync comes from ADCManualSync
     ADCDisableAutoSync_o : out   std_logic;
 
-    -- JESD204B link interface control
-    -- JESD PHY and MAC reset
+    -- REG JesdLink
     JesdXcvrRst_o        : out   std_logic;
-    -- JESD Link interface reset
     JesdLinkRst_o        : out   std_logic;
-    -- JESD GBT PLL reset
     JesdPLLRst_o         : out   std_logic;
-    -- MAC wishbone infterface reset
     JesdAvsRst_o         : out   std_logic;
-    -- 0-1-0 to reset the FMC PLL chip
     SixxRst_o            : out   std_logic;
-    -- Set link to ready state
     JesdLinkReady_o      : out   std_logic;
-    -- Enable/disable JESD sysref signal
     JesdEnableSysref_o   : out   std_logic;
 
-    -- ADC SPI write configuration interface
+    -- REG AdcSpiWrite
     AdcSpiWrite_o        : out   std_logic_vector(31 downto 0);
     AdcSpiWrite_wr_o     : out   std_logic;
 
-    -- ADC SPI read configuration interface
+    -- REG AdcSpiRead
     AdcSpiRead_i         : in    std_logic_vector(31 downto 0);
 
-    -- SPI status
-    -- 1 if SPI sends data to ADC
+    -- REG SpiStatus
     AdcSpiBusy_i         : in    std_logic;
 
-    -- For how many turns to accumulate data
+    -- REG CummulativeTurns
     cummulative_turns_b32 : out   std_logic_vector(31 downto 0);
 
-    -- Master-of-universe-tool
+    -- REG Debug
     OverrideTurnEmulatorTiming : out   std_logic;
 
     -- SRAM bus RawData0

@@ -14,21 +14,20 @@ entity hwInfo is
     VMERdDone            : out   std_logic;
     VMEWrDone            : out   std_logic;
 
-    -- HW serial number
+    -- REG serialNumber
     serialNumber_i       : in    std_logic_vector(63 downto 0);
 
-    -- Firmware Version
+    -- REG firmwareVersion
     firmwareVersion_major_i : in    std_logic_vector(7 downto 0);
     firmwareVersion_minor_i : in    std_logic_vector(7 downto 0);
     firmwareVersion_patch_i : in    std_logic_vector(7 downto 0);
 
-    -- Memory Map Version
+    -- REG memMapVersion
     memMapVersion_major_i : in    std_logic_vector(7 downto 0);
     memMapVersion_minor_i : in    std_logic_vector(7 downto 0);
     memMapVersion_patch_i : in    std_logic_vector(7 downto 0);
 
-    -- Echo register
-    -- This version of the standard foresees only 8bits linked to real memory
+    -- REG echo
     echo_echo_o          : out   std_logic_vector(7 downto 0)
   );
 end hwInfo;

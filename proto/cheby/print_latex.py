@@ -42,7 +42,7 @@ def escape_printable(text):
     return text
 
 
-def print_reg(fd, r, raw, print_reg_drawing):
+def print_reg(fd, r, raw, hide_comments=False, print_reg_drawing=True):
     ACCESSES = {
         "rw": "read/write",
         "wo": "write-only",
@@ -109,9 +109,9 @@ def print_reg(fd, r, raw, print_reg_drawing):
         w(fd, '{} & '.format(escape_printable(desc_src.name)))
 
         # Description + comment
-        desc = desc_src.description or ''
-        if desc_src.comment is not None:
-            desc += '\n\n' + desc_src.comment
+        desc = desc_src.description or ""
+        if desc_src.comment and not hide_comments:
+            desc += "\n\n" + desc_src.comment
 
         desc = escape_printable(desc)
         desc = desc.replace('\n', ' \\newline ')
@@ -137,16 +137,16 @@ def print_map_summary(fd, summary):
     wln(fd)
 
 
-def print_reg_description(fd, summary, print_reg_drawing):
+def print_reg_description(fd, summary, hide_comments=False, print_reg_drawing=True):
     for ra in summary.raws:
         r = ra.node
         if isinstance(r, tree.Reg):
             wln(fd, "\\subsubsection{{{}}}".format(escape_printable(ra.name)))
             wln(fd, '\\label{{sec:{}}}'.format(ra.name))
-            print_reg(fd, r, ra, print_reg_drawing)
+            print_reg(fd, r, ra, hide_comments, print_reg_drawing)
 
 
-def print_root(fd, root, print_reg_drawing):
+def print_root(fd, root, hide_comments=False, print_reg_drawing=True):
     wln(fd, "\\section{Memory Map Summary}")
     wln(fd, root.description or '(no description)')
     wln(fd)
@@ -158,7 +158,7 @@ def print_root(fd, root, print_reg_drawing):
         summary = gen_doc.MemmapSummary(root)
         print_map_summary(fd, summary)
         wln(fd, "\\section{Register Description}")
-        print_reg_description(fd, summary, print_reg_drawing)
+        print_reg_description(fd, summary, hide_comments, print_reg_drawing)
     else:
         summaries = [(gen_doc.MemmapSummary(space), space) for space in root.children]
         for summary, space in summaries:
@@ -167,14 +167,14 @@ def print_root(fd, root, print_reg_drawing):
         for summary, space in summaries:
             wln(fd, "\\subsection{{Register Description for Space {}}}".format(escape_printable(space.name)))
             wln(fd)
-            print_reg_description(fd, summary, print_reg_drawing)
+            print_reg_description(fd, summary, hide_comments, print_reg_drawing)
 
 
-def print_latex(fd, n, print_reg_drawing=True):
+def print_latex(fd, n, hide_comments=False, print_reg_drawing=True):
     # Print latex documentation of root n to file descriptor fd
 
     if isinstance(n, tree.Root):
-        print_root(fd, n, print_reg_drawing)
+        print_root(fd, n, hide_comments, print_reg_drawing)
     else:
         raise AssertionError
 

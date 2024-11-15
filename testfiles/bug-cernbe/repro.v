@@ -11,7 +11,7 @@ module example
     output  wire VMERdDone,
     output  wire VMEWrDone,
 
-    // The first register (with some fields)
+    // REG regA
     output  wire [31:0] regA_o,
 
     // cern-be-vme bus sm

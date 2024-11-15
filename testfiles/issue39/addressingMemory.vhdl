@@ -14,7 +14,7 @@ entity eda02175v2 is
     VMERdDone            : out   std_logic;
     VMEWrDone            : out   std_logic;
 
-    -- ViewPort to the internal acquisition RAM/SRAM blocs
+    -- cern-be-vme bus acqVP
     acqVP_VMEAddr_o      : out   std_logic_vector(16 downto 1);
     acqVP_VMERdData_i    : in    std_logic_vector(15 downto 0);
     acqVP_VMEWrData_o    : out   std_logic_vector(15 downto 0);
@@ -23,7 +23,7 @@ entity eda02175v2 is
     acqVP_VMERdDone_i    : in    std_logic;
     acqVP_VMEWrDone_i    : in    std_logic;
 
-    -- Resets the system part of the logic in the FPGA. ONLY FOR LAB PURPOSES
+    -- REG softReset
     softReset_reset_o    : out   std_logic
   );
 end eda02175v2;

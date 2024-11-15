@@ -11,7 +11,7 @@ module eda02175v2
     output  wire VMERdDone,
     output  wire VMEWrDone,
 
-    // ViewPort to the internal acquisition RAM/SRAM blocs
+    // cern-be-vme bus acqVP
     output  reg [16:1] acqVP_VMEAddr_o,
     input   wire [15:0] acqVP_VMERdData_i,
     output  wire [15:0] acqVP_VMEWrData_o,
@@ -20,7 +20,7 @@ module eda02175v2
     input   wire acqVP_VMERdDone_i,
     input   wire acqVP_VMEWrDone_i,
 
-    // Resets the system part of the logic in the FPGA. ONLY FOR LAB PURPOSES
+    // REG softReset
     output  wire softReset_reset_o
   );
   wire rst_n;

@@ -163,16 +163,15 @@ Some attributes are common to all nodes:
 * `name`: The name of the node.  This is required for all nodes.  The name is
 also used to create HDL or C names in general files.
 
-* `comment`: This should be a short text that explain the purpose
-of the node.  The comment is copied into the code (as a comment)
-to make it more readable.  This attribute is not required but it is recommended
-to always provide it.
+* `comment`: A short text that explain the purpose. It is copied into the code
+(as a comment). This attribute is not required but it is recommended to always
+provide it.
 
-* `description`: This is a longer text that will be copied into the generated
-documentation. Newlines are honored according to the YAML specification. In
-regular strings, you can add an empty line to generate a newline.
-Alternatively, you can also explicitly add them in double-quoted strings,
-e.g. `description: "line1 \n line2"`.
+* `description`: A longer text that explain the purpose in detail. It is copied
+into the generated documentation. Newlines are honored according to the YAML
+specification. In regular strings, you can add an empty line to generate a
+newline. Alternatively, you can also explicitly add them in double-quoted
+strings, e.g. `description: "line1 \n line2"`.
 
 * `children`: For nodes that have children, this is a list of the children.
 

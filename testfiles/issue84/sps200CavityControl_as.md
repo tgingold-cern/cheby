@@ -501,6 +501,8 @@ address:: 0x18
 block offset:: 0x18
 access mode:: rw
 
+Echo register. This version of the standard foresees only 8bits linked to real memory
+
 Register used solely by software. No interaction with the firmware foreseen. +
 The idea is to use this register as "flag" in the hardware to remember your actions from the software side. +
  +
@@ -514,8 +516,6 @@ This is important for you to later one check if you can read this value back bef
 If your initialization failed but you want to continue anyway you should set the register to 0xC0 to indicate this error  +
  +
 This register is in particular useful if you have several entities interacting with the hardware. In this case several bits could be assigned to this entities (bits 5..0) to signalize that they have done there part successful and a main entity checks all the expected bits.
-
-Echo register. This version of the standard foresees only 8bits linked to real memory
 
 [cols="8*^"]
 |===
@@ -838,6 +838,8 @@ address:: 0x100010
 block offset:: 0x10
 access mode:: rw
 
+Echo register. This version of the standard foresees only 8bits linked to real memory
+
 Register used solely by software. No interaction with the firmware foreseen. +
 The idea is to use this register as "flag" in the hardware to remember your actions from the software side. +
  +
@@ -851,8 +853,6 @@ This is important for you to later one check if you can read this value back bef
 If your initialization failed but you want to continue anyway you should set the register to 0xC0 to indicate this error  +
  +
 This register is in particular useful if you have several entities interacting with the hardware. In this case several bits could be assigned to this entities (bits 5..0) to signalize that they have done there part successful and a main entity checks all the expected bits.
-
-Echo register. This version of the standard foresees only 8bits linked to real memory
 
 [cols="8*^"]
 |===
@@ -1008,9 +1008,9 @@ s| useTestSignal
 |===
 
 useTestSignal::
-Test signal is synthezied with additional internal DDS, test signals frequency given by ftw_RF.
-+
 Use DDS generated test signal instead of ADC input as demodulation input
++
+Test signal is synthezied with additional internal DDS, test signals frequency given by ftw_RF.
 useImpulse::
 Use impulse instead of demodulation output
 useStaticSignal::

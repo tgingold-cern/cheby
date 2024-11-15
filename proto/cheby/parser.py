@@ -35,7 +35,7 @@ def read_text(parent, key, val, allow_empty = False):
         else:
             error("expect a non-empty string for {}:{}".format(parent.get_path(), key))
     if isstr(val):
-        return val
+        return val.strip()
     error("expect a string for {}:{}".format(parent.get_path(), key))
 
 

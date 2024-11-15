@@ -257,8 +257,8 @@ class ConstsPrinterC(ConstsPrinterH):
         self.pr_raw("#define {} {} /* {} */\n".format(self.pr_name(n) + "_SIZE", sz, cmt))
 
     def pr_address(self, n):
-        self.pr_raw('\n')
-        self.pr_raw('/* {} */\n'.format(n.comment or n.description or "(comment missing)"))
+        self.pr_raw("\n")
+        self.pr_raw("/* {} */\n".format(n.comment or "(comment missing)"))
         self.pr_hex_const(self.pr_name(n), n.c_abs_addr)
 
     def pr_field(self, f):

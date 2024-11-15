@@ -124,8 +124,11 @@ def decode_args():
                          help='select language for doc generation')
     aparser.add_argument('--gen-doc', nargs='?', const='-',
                          help='generate documentation')
-    aparser.add_argument('--rest-headers', default='#=-',
-                         help='Ordered set of characters to be used for ReST heading levels')
+    aparser.add_argument(
+        "--doc-hide-comments",
+        help="Exclude comment field from being added to documentation.",
+        action="store_true",
+    )
     aparser.add_argument('--doc-no-reg-drawing', help='Disable generation of register drawings in documentation',
                          action='store_true')
     aparser.add_argument('--doc-copy-template', help='Target file to copy a template for the main file (Latex only).',
@@ -136,6 +139,8 @@ def decode_args():
         + "generation",
         action="store_true",
     )
+    aparser.add_argument('--rest-headers', default='#=-',
+                         help='Ordered set of characters to be used for ReST heading levels')
     aparser.add_argument('--input', '-i',
                          help='input file')
     aparser.add_argument('--ff-reset', choices=['sync', 'async'], default='sync',
@@ -280,14 +285,18 @@ def handle_file(args, filename):
             gen_gena_dsp.gen_gena_dsp_c(f, t)
     if args.gen_doc is not None:
         with open_filename(args.gen_doc) as f:
-            if args.doc == 'html':
-                print_html.pprint(f, t, args.doc_include_js_dep)
-            elif args.doc == 'md':
-                print_markdown.print_markdown(f, t)
-            elif args.doc == 'rest':
-                print_rest.print_rest(f, t, args.rest_headers)
-            elif args.doc == 'latex':
-                print_latex.print_latex(f, t, not args.doc_no_reg_drawing)
+            if args.doc == "html":
+                print_html.print_html(
+                    f, t, args.doc_hide_comments, args.doc_include_js_dep
+                )
+            elif args.doc == "md":
+                print_markdown.print_markdown(f, t, args.doc_hide_comments)
+            elif args.doc == "rest":
+                print_rest.print_rest(f, t, args.doc_hide_comments, args.rest_headers)
+            elif args.doc == "latex":
+                print_latex.print_latex(
+                    f, t, args.doc_hide_comments, not args.doc_no_reg_drawing
+                )
             else:
                 raise AssertionError('unknown doc format {}'.format(args.doc))
     if args.doc_copy_template is not None:

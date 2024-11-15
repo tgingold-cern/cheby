@@ -23,7 +23,7 @@ module test_axi4
     output  reg [31:0] rdata,
     output  wire [1:0] rresp,
 
-    // Test register 1
+    // REG register1
     output  wire [63:0] register1_o
   );
   reg wr_req;

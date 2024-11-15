@@ -30,31 +30,15 @@ def print_access(acc, dflt=None):
             'WRITE_ONLY': 'write-only'}.get(acc, acc)
 
 
-def print_description(description, comment=""):
-    if description is None:
-        description = ""
-    if comment is None:
-        comment = ""
-
-    # Strip trailing whitespaces
-    description = description.strip()
-    comment = comment.strip()
-
-    # Concatenate description and comment
-    if comment:
-        if description:
-            description += "\n\n" + comment
-        else:
-            description = comment
-
+def format_text(text):
     # Replace newlines with corresponding HTML tag
-    description = description.replace("\n", "<br>")
+    text = text.replace("\n", "<br>")
 
     # Replace strings wrapped by dollar signs ($ and $) indicating a LaTeX equation with
     # inline delimiters (\( and \)) such that the equations can be detected by MathJax
-    description = re.sub(r"\$([^$\n\r]+)\$", r"\\(\1\\)", description)
+    text = re.sub(r"\$([^$\n\r]+)\$", r"\\(\1\\)", text)
 
-    return description
+    return text
 
 
 def print_symbol_table(left, right):
@@ -104,7 +88,7 @@ def print_symbol_table(left, right):
     return res
 
 
-def print_regdescr_reg(_periph, pfx, raw, num):
+def print_regdescr_reg(_periph, pfx, raw, num, hide_comments=False):
     r = raw.node
     res = '''<a name="{name}"></a>
 <h3>{pfx}.{n}. {name}</h3>
@@ -118,11 +102,12 @@ def print_regdescr_reg(_periph, pfx, raw, num):
            hdlprefix=r.c_name,
            addr=raw.abs_addr, caddr=r.c_address,
            name=raw.name)
-    if r.description is not None:
-        res += '''<p>
-{description}
-</p>
-'''.format(description=print_description(r.description))
+
+    if r.description:
+        res += "<p>{}</p>\n".format(format_text(r.description))
+
+    if r.comment and not hide_comments:
+        res += "<p>{}</p>\n".format(format_text(r.comment))
 
     # Drawing of the register, with bits.
     res += '<table cellpadding=0 cellspacing=0 border=0>\n'
@@ -139,24 +124,27 @@ def print_regdescr_reg(_periph, pfx, raw, num):
     for f in r.children:
         name = f.name or r.name
         access = r.access
-        description = print_description(f.description or r.description or "", f.comment)
-
         res += '  <dt><b>{name}</b> [<i>{access}</i>]</dt>\n'.format(
             name=name, access=access
         )
-        res += '  <dd>{description}</dd>\n'.format(description=description)
 
-    res += '</dl>\n'
+        description = format_text(f.description or r.description or "")
+        res += "  <dd>{}</dd>\n".format(description)
+
+        if f.comment and not hide_comments:
+            res += "  <dd>{}</dd>\n".format(format_text(f.comment))
+
+    res += "</dl>\n"
 
     return res
 
 
-def print_regdescr(periph, pfx, raws):
+def print_regdescr(periph, pfx, raws, hide_comments=False):
     res = ''
     num = 1
     for raw in raws:
         if isinstance(raw.node, tree.Reg):
-            res += print_regdescr_reg(periph, pfx, raw, num)
+            res += print_regdescr_reg(periph, pfx, raw, num, hide_comments)
             num += 1
     res += '\n'
     return res
@@ -189,7 +177,7 @@ def print_summary_html(_periph, summary):
     return res
 
 
-def phtml_header(fd, periph, print_js_dep_include=False):
+def phtml_header(fd, periph, hide_comments=False, include_js_dep=False):
     entity = get_hdl_entity(periph)
     wln(fd, '''<HTML>
 <HEAD>
@@ -234,7 +222,7 @@ def phtml_header(fd, periph, print_js_dep_include=False):
 </STYLE>''')
 
     # Print script tags to include external JavaScript dependencies
-    if print_js_dep_include:
+    if include_js_dep:
         js_deps_html = "\n".join(
             map(
                 lambda src: f'<script type="text/javascript" async src="{src}"></script>',
@@ -248,15 +236,16 @@ def phtml_header(fd, periph, print_js_dep_include=False):
 <h1 class="heading">{entity}</h1>
 <h3>{description}</h3>'''.format(
         entity=entity, description=periph.description))
-    if periph.comment:
-        wln(fd, '<p>{comment}</p>'.format(
-            comment=periph.comment.replace('\n', '<br>')))
+
+    if periph.comment and not hide_comments:
+        wln(fd, "<p>{}</p>".format(format_text(periph.comment)))
+
     if periph.version is not None:
         wln(fd, "<p>Version: {}</p>".format(periph.version))
 
 
-def pprint_root(fd, root, print_js_dep_include=False):
-    phtml_header(fd, root, print_js_dep_include)
+def phtml_root(fd, root, hide_comments=False, include_js_dep=False):
+    phtml_header(fd, root, hide_comments, include_js_dep)
 
     if root.c_address_spaces_map is None:
         summary = gen_doc.MemmapSummary(root)
@@ -267,7 +256,7 @@ def pprint_root(fd, root, print_js_dep_include=False):
         # Sect2: Registers
         wln(fd)
         wln(fd, '<h3><a name="sect_3_0">2. Register description</a></h3>')
-        w(fd, print_regdescr(root, '2', summary.raws))
+        w(fd, print_regdescr(root, '2', summary.raws, hide_comments))
     else:
         summaries = [(space, gen_doc.MemmapSummary(space)) for space in root.children]
         for i, (space, summary) in enumerate(summaries, 1):
@@ -279,11 +268,11 @@ def pprint_root(fd, root, print_js_dep_include=False):
             # Sect2: Registers
             wln(fd, '<h3>2.{} Register description for address space {}</h3>'.format(
                 i, space.name))
-            w(fd, print_regdescr(space, '2.{}'.format(i), summary.raws))
+            w(fd, print_regdescr(space, '2.{}'.format(i), summary.raws, hide_comments))
 
     wln(fd, '\n</BODY>\n</HTML>')
 
 
-def pprint(fd, n, print_js_dep_include=False):
+def print_html(fd, n, hide_comments=False, include_js_dep=False):
     assert isinstance(n, tree.Root)
-    pprint_root(fd, n, print_js_dep_include)
+    phtml_root(fd, n, hide_comments, include_js_dep)

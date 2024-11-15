@@ -332,7 +332,7 @@ class AXI4LiteBus(BusGen):
         n.h_bus = {}
         for name, p in ports:
             n.h_bus[name] = p
-        comment = '\n' + (n.comment or n.description or 'AXI-4 lite bus {}'.format(n.name))
+        comment = "\n" + (n.comment or "AXI-4 lite bus {}".format(n.name))
         n.h_bus['awvalid'].comment = comment
         # Internal signals: valid signals.
         n.h_aw_val = module.new_HDLSignal(prefix + 'aw_val')

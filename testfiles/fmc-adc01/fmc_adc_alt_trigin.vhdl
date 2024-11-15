@@ -10,16 +10,15 @@ entity alt_trigin is
     wb_i                 : in    t_wishbone_slave_in;
     wb_o                 : out   t_wishbone_slave_out;
 
-    -- Control register
-    -- Enable trigger, cleared when triggered
+    -- REG ctrl
     ctrl_enable_i        : in    std_logic;
     ctrl_enable_o        : out   std_logic;
     ctrl_wr_o            : out   std_logic;
 
-    -- Time (seconds) to trigger
+    -- REG seconds
     seconds_i            : in    std_logic_vector(63 downto 0);
 
-    -- Time (cycles) to trigger
+    -- REG cycles
     cycles_i             : in    std_logic_vector(31 downto 0)
   );
 end alt_trigin;

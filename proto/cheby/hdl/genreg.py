@@ -486,7 +486,7 @@ class GenReg(ElGen):
         oport = None
 
         # Register comment.  Always add a separation between registers ports.
-        comment = '\n' + (n.comment or n.description or "REG {}".format(n.name))
+        comment = "\n" + (n.comment or "REG {}".format(n.name))
 
         for f in n.children:
             # Set hdl generator for the field.
@@ -496,9 +496,10 @@ class GenReg(ElGen):
 
             if n.hdl_port != 'reg' and not isinstance(f, tree.FieldReg):
                 # Append field comment to the register comment (if present)
-                pcomment = f.comment or f.description
-                if pcomment is not None:
-                    comment = pcomment if comment is None else comment + '\n' + pcomment
+                if f.comment is not None:
+                    comment = (
+                        f.comment if comment is None else comment + "\n" + f.comment
+                    )
 
             need_iport = f.h_gen.need_iport()
             need_oport = f.h_gen.need_oport()

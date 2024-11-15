@@ -14,10 +14,10 @@ entity sub_repro is
     VMERdDone            : out   std_logic;
     VMEWrDone            : out   std_logic;
 
-    -- The first register (with some fields)
+    -- REG subrA
     subrA_o              : out   std_logic_vector(15 downto 0);
 
-    -- The first register (with some fields)
+    -- REG subrB
     subrB_i              : in    std_logic_vector(15 downto 0)
   );
 end sub_repro;

@@ -26,7 +26,7 @@ entity test_axi4 is
     rdata                : out   std_logic_vector(31 downto 0);
     rresp                : out   std_logic_vector(1 downto 0);
 
-    -- Test register 1
+    -- REG register1
     register1_o          : out   std_logic_vector(63 downto 0)
   );
 end test_axi4;

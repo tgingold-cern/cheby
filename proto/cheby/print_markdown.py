@@ -5,19 +5,26 @@ from cheby.wrutils import wln
 #  Generate markdown (asciidoc variant)
 #  Ref: https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/#tables
 
-def mls(s):
-    return s.replace('\n', ' +\n')
 
-def print_reg(fd, r, abs_addr):
+def format_text(text):
+    return text.replace("\n", " +\n")
+
+
+def print_reg(fd, r, abs_addr, hide_comments=False):
     wln(fd, "[horizontal]")
     wln(fd, "HDL name:: {}".format(r.c_name))
     wln(fd, "address:: 0x{:x}".format(abs_addr))
     wln(fd, "block offset:: 0x{:x}".format(r.c_address))
     wln(fd, "access mode:: {}".format(r.access))
-    for t in (r.comment, r.description):
-        if t:
-            wln(fd)
-            wln(fd, mls(t))
+
+    if r.description:
+        wln(fd)
+        wln(fd, format_text(r.description))
+
+    if r.comment:
+        wln(fd)
+        wln(fd, format_text(r.comment))
+
     wln(fd)
     descr = gen_doc.build_regdescr_table(r)
     wln(fd, '[cols="8*^"]')
@@ -37,15 +44,23 @@ def print_reg(fd, r, abs_addr):
         wln(fd)
         for f in r.children:
             wln(fd, "{}::".format(f.name))
-            if f.comment:
-                wln(fd, mls(f.comment))
-                if f.description:
-                    wln(fd, '+')
+
+            not_documented = True
             if f.description:
-                wln(fd, mls(f.description))
-            if not any((f.comment, f.description)):
-                wln(fd, '(not documented)')
+                wln(fd, format_text(f.description))
+                not_documented = False
+
+            if f.comment and not hide_comments:
+                if f.description:
+                    wln(fd, "+")
+                wln(fd, format_text(f.comment))
+                not_documented = False
+
+            if not_documented:
+                wln(fd, "(not documented)")
+
         wln(fd)
+
 
 def print_map_summary(fd, summary):
     wln(fd, "|===")
@@ -60,15 +75,15 @@ def print_map_summary(fd, summary):
     wln(fd)
 
 
-def print_reg_description(fd, summary):
+def print_reg_description(fd, summary, hide_comments=False):
     for ra in summary.raws:
         r = ra.node
         if isinstance(r, tree.Reg):
             wln(fd, "=== {}".format(ra.name))
-            print_reg(fd, r, ra.abs_addr)
+            print_reg(fd, r, ra.abs_addr, hide_comments)
 
 
-def print_root(fd, root):
+def print_root(fd, root, hide_comments=False):
     wln(fd, "== Memory map summary")
     wln(fd, root.description or '(no description)')
     wln(fd)
@@ -80,7 +95,7 @@ def print_root(fd, root):
         summary = gen_doc.MemmapSummary(root)
         print_map_summary(fd, summary)
         wln(fd, "== Registers description")
-        print_reg_description(fd, summary)
+        print_reg_description(fd, summary, hide_comments)
     else:
         summaries = [(gen_doc.MemmapSummary(space), space) for space in root.children]
         for summary, space in summaries:
@@ -88,11 +103,11 @@ def print_root(fd, root):
             print_map_summary(fd, summary)
         for summary, space in summaries:
             wln(fd, "== Registers description for space {}\n".format(space.name))
-            print_reg_description(fd, summary)
+            print_reg_description(fd, summary, hide_comments)
 
 
-def print_markdown(fd, n):
+def print_markdown(fd, n, hide_comments=False):
     if isinstance(n, tree.Root):
-        print_root(fd, n)
+        print_root(fd, n, hide_comments)
     else:
         raise AssertionError

@@ -27,7 +27,7 @@ entity sub2_axi4 is
     rdata                : out   std_logic_vector(31 downto 0);
     rresp                : out   std_logic_vector(1 downto 0);
 
-    -- A register
+    -- REG reg1
     reg1_o               : out   std_logic_vector(31 downto 0);
 
     -- REG reg2
