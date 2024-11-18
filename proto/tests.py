@@ -275,15 +275,25 @@ def test_genc_ref():
               'issue67/repeatInRepeat', 'issue67/repeatInRepeatC',
               'bug-same-label/same_label',
               'features/blkprefix3', 'features/blkprefix5']:
-        h_file = srcdir + f + '.h'
         cheby_file = srcdir + f + '.cheby'
         t = parse_ok(cheby_file)
         layout_ok(t)
         gen_name.gen_name_memmap(t)
+
+        # Generate C header files and compare to golden file
+        h_file = srcdir + f + '.h'
         buf = write_buffer()
         gen_c.gen_c_cheby(buf, t, 'neutral')
         if not compare_buffer_and_file(buf, h_file):
             error('c header generation error for {}'.format(f))
+
+        # Generate C header files with union structs for bit fields and
+        # compare to golden file
+        h_file = srcdir + f + '_union.h'
+        buf = write_buffer()
+        gen_c.gen_c_cheby(buf, t, 'neutral', True)
+        if not compare_buffer_and_file(buf, h_file):
+            error('c header generation error (with union structs) for {}'.format(f))
 
         # Check C syntax
         # Note: Exclude issue103/top because it includes other header files
