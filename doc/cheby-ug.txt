@@ -816,6 +816,11 @@ set, the structure tag will be prefixed by the name of the root.
 It avoids compiler errors if the name of the block is used in different
 designs.  It is strongly recommended to set this attribute.
 
+The `--gen-c-bit-struct` option adds C `struct`s also for bit fields within
+registers. Note that bit-field structures depend on implementation-defined (i.e.
+compiler and ABI-dependent) behavior. The order of bit fields may not be
+respected. For more information, refer to C Spec C99 6.7.2.1-11.
+
 It is also possible to generate a C program that check the layout is the same
 as the layout seen by Cheby.  This can be used as a consistency check.
 
