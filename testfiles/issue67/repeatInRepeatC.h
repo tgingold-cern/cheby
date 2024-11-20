@@ -5,30 +5,30 @@
 
 #define REPEATINREPEATC_SIZE 32 /* 0x20 */
 
-/* (comment missing) */
+/* REG repA */
 #define REPEATINREPEATC_REPA 0x0UL
 #define REPEATINREPEATC_REPA_SIZE 8 /* 0x8 */
 
-/* (comment missing) */
+/* REG block1 */
 #define REPEATINREPEATC_REPA_BLOCK1 0x0UL
 #define REPEATINREPEATC_REPA_BLOCK1_SIZE 8 /* 0x8 */
 
-/* (comment missing) */
+/* REG repB */
 #define REPEATINREPEATC_REPA_BLOCK1_REPB 0x0UL
 #define REPEATINREPEATC_REPA_BLOCK1_REPB_SIZE 4 /* 0x4 */
 
-/* (comment missing) */
+/* REG reg1 */
 #define REPEATINREPEATC_REPA_BLOCK1_REPB_REG1 0x0UL
 
 #ifndef __ASSEMBLER__
 struct repeatInRepeatC {
-  /* [0x0]: REPEAT (comment missing) */
+  /* [0x0]: REPEAT */
   struct repeatInRepeatC_repA {
-    /* [0x0]: BLOCK (comment missing) */
+    /* [0x0]: BLOCK */
     struct repeatInRepeatC_repA_block1 {
-      /* [0x0]: REPEAT (comment missing) */
+      /* [0x0]: REPEAT */
       struct repeatInRepeatC_repA_block1_repB {
-        /* [0x0]: REG (rw) (comment missing) */
+        /* [0x0]: REG (rw) */
         uint8_t reg1;
 
         /* padding to: 4 Bytes */
