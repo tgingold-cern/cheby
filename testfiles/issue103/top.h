@@ -9,30 +9,30 @@
 #include "sub3.h"
 #define TOP_SIZE 12 /* 0xc */
 
-/* (comment missing) */
+/* REG sub1 */
 #define TOP_SUB1 0x0UL
 #define ADDR_MASK_TOP_SUB1 0xcUL
 #define TOP_SUB1_SIZE 4 /* 0x4 */
 
-/* (comment missing) */
+/* REG sub2 */
 #define TOP_SUB2 0x4UL
 #define ADDR_MASK_TOP_SUB2 0xcUL
 #define TOP_SUB2_SIZE 4 /* 0x4 */
 
-/* (comment missing) */
+/* REG sub3 */
 #define TOP_SUB3 0x8UL
 #define ADDR_MASK_TOP_SUB3 0xcUL
 #define TOP_SUB3_SIZE 4 /* 0x4 */
 
 #ifndef __ASSEMBLER__
 struct top {
-  /* [0x0]: SUBMAP (comment missing) */
+  /* [0x0]: SUBMAP */
   struct sub1 sub1;
 
-  /* [0x4]: SUBMAP (comment missing) */
+  /* [0x4]: SUBMAP */
   struct sub2 sub2;
 
-  /* [0x8]: SUBMAP (comment missing) */
+  /* [0x8]: SUBMAP */
   struct sub3 sub3;
 };
 #endif /* !__ASSEMBLER__*/
