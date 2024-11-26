@@ -1,0 +1,26 @@
+memory-map:
+    bus: wb-32-be
+    name: mcp3201_wb
+    description: "MCP3201 wishbone client"
+#    x-hdl:
+#        reg-prefix: False
+#        block-prefix: False
+#        busgroup: True
+    children:
+      - block:
+          name: memblock
+          x-hdl:
+            iogroup: mcp3201_data
+          children:
+            - memory:
+                name: Measurements
+                description: "measurement data"
+                memsize: 512
+                align: True
+                interface: sram
+                children:
+                  - reg:
+                      description: "12-bit 32bit aligned ADC readout memory"
+                      width: 32
+                      access: ro
+                      name: mcp3201d
