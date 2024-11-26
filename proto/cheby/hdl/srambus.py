@@ -14,22 +14,22 @@ class SRAMBus(BusGen):
 
     def gen_bus_slave(self, root, module, prefix, n, opts):
         n.h_bus = {}
-        n.h_bus['adr'] = root.h_ports.add_port(
+        n.h_bus['adr'] = module.add_port(
             prefix + 'addr_o', n.c_addr_bits,
             lo_idx=root.c_addr_word_bits, dir='OUT')
         n.h_bus['adr'].comment = '\n' + (n.comment or 'SRAM bus {}'.format(n.c_name))
 
         if n.c_bus_access in ('ro', 'rw'):
-            n.h_bus['dati'] = root.h_ports.add_port(
+            n.h_bus['dati'] = module.add_port(
                 prefix + 'data_i', n.c_width, dir='IN')
             # Internal signals
             n.h_rack = module.new_HDLSignal(prefix + 'rack')
             n.h_re = module.new_HDLSignal(prefix + 're')
 
         if n.c_bus_access in ('wo', 'rw'):
-            n.h_bus['dato'] = root.h_ports.add_port(
+            n.h_bus['dato'] = module.add_port(
                 prefix + 'data_o', n.c_width, dir='OUT')
-            n.h_bus['wr'] = root.h_ports.add_port(
+            n.h_bus['wr'] = module.add_port(
                 prefix + 'wr_o', dir='OUT')
 
     def gen_slice(self, root, dat, wd):
