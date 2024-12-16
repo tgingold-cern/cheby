@@ -1,0 +1,11 @@
+memory-map:
+  name: top
+  children:
+    - repeat:
+        name: array_of_submaps
+        count: 5
+        children:
+          - submap:
+              name: submap
+              filename: submap.cheby
+              include: False

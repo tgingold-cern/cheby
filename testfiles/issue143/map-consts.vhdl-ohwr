@@ -1,0 +1,33 @@
+library ieee;
+use ieee.std_logic_1164.all;
+
+package top_consts_pkg is
+  constant c_TOP_SIZE : Natural := 32;
+  constant c_TOP_ARRAY_OF_SUBMAPS_ADDR : Natural := 16#0#;
+  constant c_TOP_ARRAY_OF_SUBMAPS_SIZE : Natural := 32;
+  constant c_TOP_ARRAY_OF_SUBMAPS_0_ADDR : Natural := 16#0#;
+  constant c_TOP_ARRAY_OF_SUBMAPS_0_SIZE : Natural := 4;
+  constant c_TOP_ARRAY_OF_SUBMAPS_0_SUBMAP_ADDR : Natural := 16#0#;
+  constant c_ADDR_MASK_TOP_ARRAY_OF_SUBMAPS_0_SUBMAP : Natural := 16#1c#;
+  constant c_TOP_ARRAY_OF_SUBMAPS_0_SUBMAP_SIZE : Natural := 4;
+  constant c_TOP_ARRAY_OF_SUBMAPS_1_ADDR : Natural := 16#4#;
+  constant c_TOP_ARRAY_OF_SUBMAPS_1_SIZE : Natural := 4;
+  constant c_TOP_ARRAY_OF_SUBMAPS_1_SUBMAP_ADDR : Natural := 16#4#;
+  constant c_ADDR_MASK_TOP_ARRAY_OF_SUBMAPS_1_SUBMAP : Natural := 16#1c#;
+  constant c_TOP_ARRAY_OF_SUBMAPS_1_SUBMAP_SIZE : Natural := 4;
+  constant c_TOP_ARRAY_OF_SUBMAPS_2_ADDR : Natural := 16#8#;
+  constant c_TOP_ARRAY_OF_SUBMAPS_2_SIZE : Natural := 4;
+  constant c_TOP_ARRAY_OF_SUBMAPS_2_SUBMAP_ADDR : Natural := 16#8#;
+  constant c_ADDR_MASK_TOP_ARRAY_OF_SUBMAPS_2_SUBMAP : Natural := 16#1c#;
+  constant c_TOP_ARRAY_OF_SUBMAPS_2_SUBMAP_SIZE : Natural := 4;
+  constant c_TOP_ARRAY_OF_SUBMAPS_3_ADDR : Natural := 16#c#;
+  constant c_TOP_ARRAY_OF_SUBMAPS_3_SIZE : Natural := 4;
+  constant c_TOP_ARRAY_OF_SUBMAPS_3_SUBMAP_ADDR : Natural := 16#c#;
+  constant c_ADDR_MASK_TOP_ARRAY_OF_SUBMAPS_3_SUBMAP : Natural := 16#1c#;
+  constant c_TOP_ARRAY_OF_SUBMAPS_3_SUBMAP_SIZE : Natural := 4;
+  constant c_TOP_ARRAY_OF_SUBMAPS_4_ADDR : Natural := 16#10#;
+  constant c_TOP_ARRAY_OF_SUBMAPS_4_SIZE : Natural := 4;
+  constant c_TOP_ARRAY_OF_SUBMAPS_4_SUBMAP_ADDR : Natural := 16#10#;
+  constant c_ADDR_MASK_TOP_ARRAY_OF_SUBMAPS_4_SUBMAP : Natural := 16#1c#;
+  constant c_TOP_ARRAY_OF_SUBMAPS_4_SUBMAP_SIZE : Natural := 4;
+end package top_consts_pkg;
