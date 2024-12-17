@@ -66,8 +66,14 @@ class ConstsPrinter(object):
             name = self.pr_name(n) + self.sep + "MASK"
         else:
             name = "ADDR_MASK_" + self.pr_name(n)
+    
+        if isinstance(n.parent, tree.Block) and isinstance(n.parent.parent, tree.RepeatBlock):
+            # For elements of unrolled repeat arrays, grandparent size should be used
+            parent = n.parent.parent
+        else:
+            parent = n.parent
+        self.pr_hex_addr(name, layout.round_pow2(parent.c_size) - n.c_size)
 
-        self.pr_hex_addr(name, layout.round_pow2(n._parent.c_size) - n.c_size)
 
     def pr_size(self, n, sz):
         self.pr_dec_const(self.pr_name(n) + self.sep + "SIZE", sz)

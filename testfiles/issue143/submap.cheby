@@ -1,0 +1,7 @@
+memory-map:
+  name: submap_issue143
+  children:
+    - reg:
+        name: my_register
+        access: rw
+        width: 32
