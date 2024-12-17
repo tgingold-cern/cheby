@@ -439,7 +439,7 @@ class GenReg(ElGen):
             # Create the register (only for registers)
             if f.h_gen.need_reg():
                 w = None if f.c_rwidth == 1 else f.c_rwidth
-                f.h_reg = self.module.new_HDLSignal(f.h_fname + '_reg', w)
+                f.h_reg = self.module.new_HDLSignal(f.h_fname + '_reg', w, preset=f.c_preset)
                 n.h_has_regs = True
             else:
                 f.h_reg = None

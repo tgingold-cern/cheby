@@ -83,7 +83,10 @@ class HDLObject(HDLNode):
 
 
 class HDLSignal(HDLObject):
-    pass
+    def __init__(self, name=None, size=None, lo_idx=0, typ='L', preset=None):
+        super(HDLSignal, self).__init__(name, size, lo_idx, typ)
+        assert preset is None or isinstance(preset, int)
+        self.preset = preset
 
 
 class HDLInterfaceInstance(HDLNode, HDLPortsBase):
