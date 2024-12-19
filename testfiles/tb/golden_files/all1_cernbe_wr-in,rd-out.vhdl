@@ -114,10 +114,10 @@ architecture syn of all1_cernbe is
   signal rst_n                          : std_logic;
   signal rd_ack_int                     : std_logic;
   signal wr_ack_int                     : std_logic;
-  signal reg1_reg                       : std_logic_vector(31 downto 0);
+  signal reg1_reg                       : std_logic_vector(31 downto 0) := "00010010001101000000000000000000";
   signal reg1_wreq                      : std_logic;
   signal reg1_wack                      : std_logic;
-  signal reg2_reg                       : std_logic_vector(31 downto 0);
+  signal reg2_reg                       : std_logic_vector(31 downto 0) := "00010010001101000000000000000010";
   signal reg2_wreq                      : std_logic;
   signal reg2_wack                      : std_logic;
   signal ram1_val_int_dato              : std_logic_vector(31 downto 0);

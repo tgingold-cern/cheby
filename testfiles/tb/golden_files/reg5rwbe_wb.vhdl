@@ -35,7 +35,7 @@ architecture syn of reg5rwbe_wb is
   signal wb_rip                         : std_logic;
   signal wb_wip                         : std_logic;
   signal frrw_f1_reg                    : std_logic_vector(11 downto 0);
-  signal frrw_f2_reg                    : std_logic_vector(15 downto 0);
+  signal frrw_f2_reg                    : std_logic_vector(15 downto 0) := "0001001000110100";
   signal frrw_f3_reg                    : std_logic_vector(23 downto 0);
   signal frrw_wreq                      : std_logic_vector(1 downto 0);
   signal frrw_wack                      : std_logic_vector(1 downto 0);

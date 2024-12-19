@@ -46,7 +46,7 @@ architecture syn of reg2pip_wb is
   signal ack_int                        : std_logic;
   signal wb_rip                         : std_logic;
   signal wb_wip                         : std_logic;
-  signal reg1_reg                       : std_logic_vector(31 downto 0);
+  signal reg1_reg                       : std_logic_vector(31 downto 0) := "10101011110011010001001000110100";
   signal reg1_wreq                      : std_logic;
   signal reg1_wack                      : std_logic;
   signal rwo_sa_reg                     : std_logic_vector(31 downto 0);

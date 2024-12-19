@@ -57,7 +57,7 @@ architecture syn of wmask_wb is
   signal ack_int                        : std_logic;
   signal wb_rip                         : std_logic;
   signal wb_wip                         : std_logic;
-  signal reg_rw_reg                     : std_logic_vector(31 downto 0);
+  signal reg_rw_reg                     : std_logic_vector(31 downto 0) := "00000000000000000000000000000000";
   signal reg_rw_wreq                    : std_logic;
   signal reg_rw_wack                    : std_logic;
   signal reg_wo_reg                     : std_logic_vector(31 downto 0);

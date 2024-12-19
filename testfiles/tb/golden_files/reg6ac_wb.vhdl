@@ -41,7 +41,7 @@ architecture syn of reg6ac_wb is
   signal ack_int                        : std_logic;
   signal wb_rip                         : std_logic;
   signal wb_wip                         : std_logic;
-  signal reg1_reg                       : std_logic_vector(31 downto 0);
+  signal reg1_reg                       : std_logic_vector(31 downto 0) := "00000000000000000000000000010000";
   signal reg1_wreq                      : std_logic;
   signal reg1_wack                      : std_logic;
   signal reg2_f1_reg                    : std_logic;

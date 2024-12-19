@@ -54,10 +54,10 @@ architecture syn of reg2_avalon is
   signal wr_dat                         : std_logic_vector(31 downto 0);
   signal wait_int                       : std_logic;
   signal adr                            : std_logic_vector(4 downto 2);
-  signal reg1_reg                       : std_logic_vector(31 downto 0);
+  signal reg1_reg                       : std_logic_vector(31 downto 0) := "10101011110011010001001000110100";
   signal reg1_wreq                      : std_logic;
   signal reg1_wack                      : std_logic;
-  signal reg2_reg                       : std_logic_vector(31 downto 0);
+  signal reg2_reg                       : std_logic_vector(31 downto 0) := "10101011110011010001000000000100";
   signal reg2_wreq                      : std_logic;
   signal reg2_wack                      : std_logic;
   signal reg2_wstrb                     : std_logic;

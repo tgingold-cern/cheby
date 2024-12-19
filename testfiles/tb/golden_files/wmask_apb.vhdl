@@ -55,7 +55,7 @@ architecture syn of wmask_apb is
   signal rd_data                        : std_logic_vector(31 downto 0);
   signal wr_ack                         : std_logic;
   signal rd_ack                         : std_logic;
-  signal reg_rw_reg                     : std_logic_vector(31 downto 0);
+  signal reg_rw_reg                     : std_logic_vector(31 downto 0) := "00000000000000000000000000000000";
   signal reg_rw_wreq                    : std_logic;
   signal reg_rw_wack                    : std_logic;
   signal reg_wo_reg                     : std_logic_vector(31 downto 0);
