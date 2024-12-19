@@ -41,7 +41,7 @@ module noinp
   reg [31:0] reg0_reg;
   reg reg0_wreq;
   wire reg0_wack;
-  reg [31:0] reg1_reg;
+  reg [31:0] reg1_reg = 32'b00000000000000000000000100100011;
   reg reg1_wreq;
   wire reg1_wack;
   reg rd_ack_d0;

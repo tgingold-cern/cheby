@@ -119,11 +119,11 @@ module bran_wb
   reg LHCTiming_reg;
   reg Ctrl_wreq;
   wire Ctrl_wack;
-  reg [31:0] TurnPeriod_reg;
+  reg [31:0] TurnPeriod_reg = 32'b00000000000000000000010000000000;
   reg TurnPeriod_wreq;
   wire TurnPeriod_wack;
   reg TurnPeriod_wstrb;
-  reg [31:0] TurnLength_reg;
+  reg [31:0] TurnLength_reg = 32'b00000000000000000000000000000011;
   reg TurnLength_wreq;
   wire TurnLength_wack;
   reg TurnLength_wstrb;
