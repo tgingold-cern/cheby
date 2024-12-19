@@ -48,7 +48,7 @@ architecture syn of noinp is
   signal reg0_reg                       : std_logic_vector(31 downto 0);
   signal reg0_wreq                      : std_logic;
   signal reg0_wack                      : std_logic;
-  signal reg1_reg                       : std_logic_vector(31 downto 0);
+  signal reg1_reg                       : std_logic_vector(31 downto 0) := "00000000000000000000000100100011";
   signal reg1_wreq                      : std_logic;
   signal reg1_wack                      : std_logic;
   signal rd_ack_d0                      : std_logic;
