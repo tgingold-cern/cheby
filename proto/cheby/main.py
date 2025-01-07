@@ -67,6 +67,10 @@ def decode_args():
                          help='select language for hdl generation')
     aparser.add_argument('--gen-hdl', nargs='?', const='-',
                          help='generate hdl file')
+    aparser.add_argument('--hdl-reg-preset', action='store_true',
+                         help='registers are initialized with their preset value if it exists '
+                              '(if this flag is not supplied, the preset value is only written to the registers '
+                              'by the reset routine).')
     aparser.add_argument(
         '--consts-style',
         choices=[
@@ -160,6 +164,7 @@ def decode_args():
     args = aparser.parse_args()
     cheby.hdl.globals.gconfig.hdl_lang = args.hdl
     cheby.hdl.globals.gconfig.rst_sync = (args.ff_reset != 'async')
+    cheby.hdl.globals.gconfig.initialize_reg_preset = args.hdl_reg_preset
     layout.word_endianness = args.word_endian
 
     return args
