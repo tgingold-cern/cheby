@@ -58,7 +58,7 @@ module axi4_submap_wb
   reg [31:0] wr_sel_d0;
 
   // WB decode signals
-  always @(wb_sel_i)
+  always_comb
   begin
     wr_sel[7:0] = {8{wb_sel_i[0]}};
     wr_sel[15:8] = {8{wb_sel_i[1]}};
@@ -67,7 +67,7 @@ module axi4_submap_wb
   end
   assign wb_en = wb_cyc_i & wb_stb_i;
 
-  always @(posedge(clk_i) or negedge(rst_n_i))
+  always_ff @(posedge(clk_i) or negedge(rst_n_i))
   begin
     if (!rst_n_i)
       wb_rip <= 1'b0;
@@ -76,7 +76,7 @@ module axi4_submap_wb
   end
   assign rd_req_int = (wb_en & ~wb_we_i) & ~wb_rip;
 
-  always @(posedge(clk_i) or negedge(rst_n_i))
+  always_ff @(posedge(clk_i) or negedge(rst_n_i))
   begin
     if (!rst_n_i)
       wb_wip <= 1'b0;
@@ -92,7 +92,7 @@ module axi4_submap_wb
   assign wb_err_o = 1'b0;
 
   // pipelining for wr-in+rd-out
-  always @(posedge(clk_i) or negedge(rst_n_i))
+  always_ff @(posedge(clk_i) or negedge(rst_n_i))
   begin
     if (!rst_n_i)
       begin
@@ -120,7 +120,7 @@ module axi4_submap_wb
   assign blk_awprot_o = 3'b000;
   assign blk_wvalid_o = blk_w_val;
   assign blk_wdata_o = wr_dat_d0;
-  always @(wr_sel_d0)
+  always_comb
   begin
     blk_wstrb_o = 4'b0;
     if (~(wr_sel_d0[7:0] == 8'b0))
@@ -137,7 +137,7 @@ module axi4_submap_wb
   assign blk_araddr_o = {wb_adr_i[2:2], 2'b00};
   assign blk_arprot_o = 3'b000;
   assign blk_rready_o = 1'b1;
-  always @(posedge(clk_i) or negedge(rst_n_i))
+  always_ff @(posedge(clk_i) or negedge(rst_n_i))
   begin
     if (!rst_n_i)
       begin
@@ -154,7 +154,7 @@ module axi4_submap_wb
   end
 
   // Process for write requests.
-  always @(wr_req_d0, blk_bvalid_i)
+  always_comb
   begin
     blk_wr = 1'b0;
     // Submap blk
@@ -163,7 +163,7 @@ module axi4_submap_wb
   end
 
   // Process for read requests.
-  always @(rd_req_int, blk_rdata_i, blk_rvalid_i)
+  always_comb
   begin
     // By default ack read requests
     rd_dat_d0 = {32{1'bx}};

@@ -58,7 +58,7 @@ module sreg
   assign awready = ~axi_awset;
   assign wready = ~axi_wset;
   assign bvalid = axi_wdone;
-  always @(posedge(aclk) or negedge(areset_n))
+  always_ff @(posedge(aclk) or negedge(areset_n))
   begin
     if (!areset_n)
       begin
@@ -97,7 +97,7 @@ module sreg
   // AR and R channels
   assign arready = ~axi_arset;
   assign rvalid = axi_rdone;
-  always @(posedge(aclk) or negedge(areset_n))
+  always_ff @(posedge(aclk) or negedge(areset_n))
   begin
     if (!areset_n)
       begin
@@ -130,7 +130,7 @@ module sreg
   assign rresp = 2'b00;
 
   // pipelining for wr-in+rd-out
-  always @(posedge(aclk) or negedge(areset_n))
+  always_ff @(posedge(aclk) or negedge(areset_n))
   begin
     if (!areset_n)
       begin
@@ -153,7 +153,7 @@ module sreg
   // Register areg
   assign areg_o = areg_reg;
   assign areg_wack = areg_wreq;
-  always @(posedge(aclk) or negedge(areset_n))
+  always_ff @(posedge(aclk) or negedge(areset_n))
   begin
     if (!areset_n)
       areg_reg <= 32'b00000000000000000000000000000000;
@@ -165,7 +165,7 @@ module sreg
   // Register breg
   assign breg_o = breg_reg;
   assign breg_wack = breg_wreq;
-  always @(posedge(aclk) or negedge(areset_n))
+  always_ff @(posedge(aclk) or negedge(areset_n))
   begin
     if (!areset_n)
       breg_reg <= 32'b00000000000000000000000000000000;
@@ -175,7 +175,7 @@ module sreg
   end
 
   // Process for write requests.
-  always @(wr_adr_d0, wr_req_d0, areg_wack, breg_wack)
+  always_comb
   begin
     areg_wreq = 1'b0;
     breg_wreq = 1'b0;
@@ -198,7 +198,7 @@ module sreg
   end
 
   // Process for read requests.
-  always @(rd_addr, rd_req, areg_reg, breg_reg)
+  always_comb
   begin
     // By default ack read requests
     rd_dat_d0 = {32{1'bx}};
