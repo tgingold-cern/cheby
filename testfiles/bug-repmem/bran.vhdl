@@ -129,11 +129,11 @@ architecture syn of bran_wb is
   signal LHCTiming_reg                  : std_logic;
   signal Ctrl_wreq                      : std_logic;
   signal Ctrl_wack                      : std_logic;
-  signal TurnPeriod_reg                 : std_logic_vector(31 downto 0) := "00000000000000000000010000000000";
+  signal TurnPeriod_reg                 : std_logic_vector(31 downto 0);
   signal TurnPeriod_wreq                : std_logic;
   signal TurnPeriod_wack                : std_logic;
   signal TurnPeriod_wstrb               : std_logic;
-  signal TurnLength_reg                 : std_logic_vector(31 downto 0) := "00000000000000000000000000000011";
+  signal TurnLength_reg                 : std_logic_vector(31 downto 0);
   signal TurnLength_wreq                : std_logic;
   signal TurnLength_wack                : std_logic;
   signal TurnLength_wstrb               : std_logic;
