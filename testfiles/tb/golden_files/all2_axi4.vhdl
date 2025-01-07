@@ -67,7 +67,7 @@ architecture syn of all2_axi4 is
   signal rd_data                        : std_logic_vector(31 downto 0);
   signal axi_arset                      : std_logic;
   signal axi_rdone                      : std_logic;
-  signal reg1_reg                       : std_logic_vector(31 downto 0) := "00010010001101000000000000000000";
+  signal reg1_reg                       : std_logic_vector(31 downto 0);
   signal reg1_wreq                      : std_logic;
   signal reg1_wack                      : std_logic;
   signal sub2_axi4_aw_val               : std_logic;

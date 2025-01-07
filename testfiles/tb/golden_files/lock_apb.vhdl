@@ -38,14 +38,14 @@ architecture syn of lock_apb is
   signal rd_data                        : std_logic_vector(31 downto 0);
   signal wr_ack                         : std_logic;
   signal rd_ack                         : std_logic;
-  signal reg0_reg                       : std_logic_vector(31 downto 0) := "00010010001101000101011001111000";
+  signal reg0_reg                       : std_logic_vector(31 downto 0);
   signal reg0_wreq                      : std_logic;
   signal reg0_wack                      : std_logic;
-  signal reg1_reg                       : std_logic_vector(31 downto 0) := "00100011010001010110011110001001";
+  signal reg1_reg                       : std_logic_vector(31 downto 0);
   signal reg1_wreq                      : std_logic;
   signal reg1_wack                      : std_logic;
-  signal reg2_field0_reg                : std_logic_vector(3 downto 0) := "0011";
-  signal reg2_field1_reg                : std_logic_vector(3 downto 0) := "0100";
+  signal reg2_field0_reg                : std_logic_vector(3 downto 0);
+  signal reg2_field1_reg                : std_logic_vector(3 downto 0);
   signal reg2_wreq                      : std_logic;
   signal reg2_wack                      : std_logic;
   signal rd_ack_d0                      : std_logic;

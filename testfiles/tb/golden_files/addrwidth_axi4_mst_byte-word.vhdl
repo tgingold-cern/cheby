@@ -67,7 +67,7 @@ architecture syn of addrwidth_axi4_byte is
   signal rd_data                        : std_logic_vector(31 downto 0);
   signal axi_arset                      : std_logic;
   signal axi_rdone                      : std_logic;
-  signal reg1_reg                       : std_logic_vector(31 downto 0) := "10111011000000000000000000010001";
+  signal reg1_reg                       : std_logic_vector(31 downto 0);
   signal reg1_wreq                      : std_logic;
   signal reg1_wack                      : std_logic;
   signal sub2_axi4_aw_val               : std_logic;

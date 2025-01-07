@@ -45,14 +45,14 @@ architecture syn of reg8orclr_wb is
   signal reg1_reg                       : std_logic_vector(31 downto 0);
   signal reg1_wreq                      : std_logic;
   signal reg1_wack                      : std_logic;
-  signal reg2_f1_reg                    : std_logic := '1';
-  signal reg2_f2_reg                    : std_logic_vector(1 downto 0) := "11";
+  signal reg2_f1_reg                    : std_logic;
+  signal reg2_f2_reg                    : std_logic_vector(1 downto 0);
   signal reg2_wreq                      : std_logic;
   signal reg2_wack                      : std_logic;
-  signal reg3_f1_reg                    : std_logic := '1';
+  signal reg3_f1_reg                    : std_logic;
   signal reg3_f2_reg                    : std_logic_vector(3 downto 0);
   signal reg3_f3_reg                    : std_logic_vector(15 downto 0);
-  signal reg3_f4_reg                    : std_logic_vector(3 downto 0) := "1010";
+  signal reg3_f4_reg                    : std_logic_vector(3 downto 0);
   signal reg3_wreq                      : std_logic_vector(1 downto 0);
   signal reg3_wack                      : std_logic_vector(1 downto 0);
   signal rd_ack_d0                      : std_logic;

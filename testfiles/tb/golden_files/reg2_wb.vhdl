@@ -57,10 +57,10 @@ architecture syn of reg2_wb is
   signal ack_int                        : std_logic;
   signal wb_rip                         : std_logic;
   signal wb_wip                         : std_logic;
-  signal reg1_reg                       : std_logic_vector(31 downto 0) := "10101011110011010001001000110100";
+  signal reg1_reg                       : std_logic_vector(31 downto 0);
   signal reg1_wreq                      : std_logic;
   signal reg1_wack                      : std_logic;
-  signal reg2_reg                       : std_logic_vector(31 downto 0) := "10101011110011010001000000000100";
+  signal reg2_reg                       : std_logic_vector(31 downto 0);
   signal reg2_wreq                      : std_logic;
   signal reg2_wack                      : std_logic;
   signal reg2_wstrb                     : std_logic;
