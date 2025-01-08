@@ -488,20 +488,21 @@ def test_hdl_ref():
             error('vhdl generation error for {}'.format(f))
 
         # Generate SV
-        gconfig.hdl_lang = 'sv'
         buf_sv = write_buffer()
-        print_verilog.print_verilog(buf_sv, h)
+        with gconfig_scope():
+            gconfig.hdl_lang = 'sv'
+            print_verilog.print_verilog(buf_sv, h)
         if not compare_buffer_and_file(buf_sv, sv_file):
             error('SV generation error for {}'.format(f))
 
         # Generate Verilog
-        gconfig.hdl_lang = 'verilog'
         buf_verilog = write_buffer()
-        print_verilog.print_verilog(buf_verilog, h)
+        with gconfig_scope():
+            gconfig.hdl_lang = 'verilog'
+            print_verilog.print_verilog(buf_verilog, h)
         if not compare_buffer_and_file(buf_verilog, verilog_file):
             error('Verilog generation error for {}'.format(f))
 
-        gconfig.hdl_lang = None
         nbr_tests += 1
 
         if args.elaborate:
@@ -529,29 +530,29 @@ def test_hdl_ref_async_rst():
         vhdl_file = srcdir + f + "_async_rst.vhdl"
         sv_file = srcdir + f + "_async_rst.sv"
 
-        gconfig.rst_sync = False
+        with gconfig_scope():
+            gconfig.rst_sync = False
 
-        t = parse_ok(cheby_file)
-        layout_ok(t)
-        expand_hdl.expand_hdl(t)
-        gen_name.gen_name_memmap(t)
-        h = gen_hdl.generate_hdl(t)
+            t = parse_ok(cheby_file)
+            layout_ok(t)
+            expand_hdl.expand_hdl(t)
+            gen_name.gen_name_memmap(t)
+            h = gen_hdl.generate_hdl(t)
 
-        # Generate VHDL
-        buf = write_buffer()
-        print_vhdl.print_vhdl(buf, h)
-        if not compare_buffer_and_file(buf, vhdl_file):
-            error("vhdl generation error for {}".format(f))
+            # Generate VHDL
+            buf = write_buffer()
+            print_vhdl.print_vhdl(buf, h)
+            if not compare_buffer_and_file(buf, vhdl_file):
+                error("vhdl generation error for {}".format(f))
 
-        # Generate SV
-        gconfig.hdl_lang = 'sv'
-        buf_sv = write_buffer()
-        print_verilog.print_verilog(buf_sv, h)
-        if not compare_buffer_and_file(buf_sv, sv_file):
-            error("SV generation error for {}".format(f))
+            # Generate SV
+            buf_sv = write_buffer()
+            with gconfig_scope():
+                gconfig.hdl_lang = 'sv'
+                print_verilog.print_verilog(buf_sv, h)
+            if not compare_buffer_and_file(buf_sv, sv_file):
+                error("SV generation error for {}".format(f))
 
-        gconfig.hdl_lang = None
-        gconfig.rst_sync = True
         nbr_tests += 1
 
 def test_verilog_ref():
@@ -573,11 +574,12 @@ def test_verilog_ref():
         # Generate Verilog
         gconfig.hdl_lang = 'verilog'
         buf = write_buffer()
-        print_verilog.print_verilog(buf, h)
+        with gconfig_scope():
+            gconfig.hdl_lang = 'verilog'
+            print_verilog.print_verilog(buf, h)
         if not compare_buffer_and_file(buf, vlog_file):
             error('verilog generation error for {}'.format(f))
 
-        gconfig.hdl_lang = None
         nbr_tests += 1
 
 def test_sv_ref():
@@ -597,13 +599,13 @@ def test_sv_ref():
         h = gen_hdl.generate_hdl(t)
 
         # Generate SV
-        gconfig.hdl_lang = 'sv'
         buf = write_buffer()
-        print_verilog.print_verilog(buf, h)
+        with gconfig_scope():
+            gconfig.hdl_lang = 'sv'
+            print_verilog.print_verilog(buf, h)
         if not compare_buffer_and_file(buf, vlog_file):
             error("sv generation error for {}".format(f))
 
-        gconfig.hdl_lang = None
         nbr_tests += 1
 
 def test_issue84():
@@ -627,13 +629,13 @@ def test_issue84():
             error('vhdl generation error for {}'.format(f))
 
         # Generate SV
-        gconfig.hdl_lang = 'sv'
         buf_sv = write_buffer()
-        print_verilog.print_verilog(buf_sv, h)
+        with gconfig_scope():
+            gconfig.hdl_lang = 'sv'
+            print_verilog.print_verilog(buf_sv, h)
         if not compare_buffer_and_file(buf_sv, sv_file):
             error('SV generation error for {}'.format(f))
 
-        gconfig.hdl_lang = None
         nbr_tests += 1
 
 def test_self():
