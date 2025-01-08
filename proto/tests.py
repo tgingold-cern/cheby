@@ -28,7 +28,7 @@ import cheby.print_latex as print_latex
 import cheby.print_rest as print_rest
 import cheby.gen_custom as gen_custom
 import cheby.gen_edge3 as gen_edge3
-from cheby.hdl.globals import gconfig
+from cheby.hdl.globals import gconfig, gconfig_scope
 
 srcdir = os.path.join(os.path.dirname(os.path.realpath(__file__)),
                       '../testfiles/')
@@ -235,6 +235,33 @@ def test_print():
         gen_c.gen_c_cheby(fd, t, 'neutral')
         nbr_tests += 1
 
+def test_gconfig_scope():
+    global nbr_tests
+
+    gconfig.restore_defaults()
+    assert gconfig.hdl_lang == None
+    gconfig.hdl_lang = 'verilog'
+    gconfig.my_var = 'value'
+
+    # restore_defaults should restore values and remove extra attributes
+    gconfig.restore_defaults()
+    assert gconfig.hdl_lang == None
+    assert not hasattr(gconfig, 'my_var')
+
+    # Test config scoping
+    with gconfig_scope():
+        assert gconfig.hdl_lang == None
+        gconfig.hdl_lang = 'sv'
+        gconfig.my_var = 'value'
+        with gconfig_scope():
+            assert gconfig.hdl_lang == 'sv'
+            assert gconfig.my_var == 'value'
+            gconfig.hdl_lang = 'verilog'
+        assert gconfig.hdl_lang == 'sv'
+    assert gconfig.hdl_lang == None
+    assert not hasattr(gconfig, 'my_var')
+
+    nbr_tests += 1
 
 def compare_buffer_and_file(buf, filename):
     # Well, there is certainly a python diff module...
@@ -1044,6 +1071,7 @@ def main():
         test_parser()
         test_layout()
         test_print()
+        test_gconfig_scope()
         test_genc_ref()
         test_hdl()
         test_hdl_err()
