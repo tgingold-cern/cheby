@@ -21,7 +21,6 @@ entity inherit is
     reg0_field00_i       : in    std_logic;
     reg0_field00_o       : out   std_logic;
     reg0_field01_o       : out   std_logic_vector(3 downto 0);
-    reg0_field02_i       : in    std_logic_vector(2 downto 0);
     reg0_field02_o       : out   std_logic_vector(2 downto 0);
     reg0_wr_o            : out   std_logic
   );
@@ -37,6 +36,7 @@ architecture syn of inherit is
   signal wb_rip                         : std_logic;
   signal wb_wip                         : std_logic;
   signal reg0_field01_reg               : std_logic_vector(3 downto 0);
+  signal reg0_field02_reg               : std_logic_vector(2 downto 0);
   signal reg0_wreq                      : std_logic;
   signal reg0_wack                      : std_logic;
   signal reg0_wstrb                     : std_logic;
@@ -97,16 +97,18 @@ begin
   -- Register reg0
   reg0_field00_o <= wr_dat_d0(1);
   reg0_field01_o <= reg0_field01_reg;
-  reg0_field02_o <= wr_dat_d0(10 downto 8);
+  reg0_field02_o <= reg0_field02_reg;
   reg0_wack <= reg0_wreq;
   reg0_wstrb <= reg0_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
         reg0_field01_reg <= "0000";
+        reg0_field02_reg <= "010";
       else
         if reg0_wreq = '1' then
           reg0_field01_reg <= wr_dat_d0(7 downto 4);
+          reg0_field02_reg <= wr_dat_d0(10 downto 8);
         end if;
       end if;
     end if;
@@ -122,7 +124,7 @@ begin
   end process;
 
   -- Process for read requests.
-  process (rd_req_int, reg0_field00_i, reg0_field01_reg, reg0_field02_i) begin
+  process (rd_req_int, reg0_field00_i, reg0_field01_reg, reg0_field02_reg) begin
     -- By default ack read requests
     rd_dat_d0 <= (others => 'X');
     -- Reg reg0
@@ -131,7 +133,7 @@ begin
     rd_dat_d0(1) <= reg0_field00_i;
     rd_dat_d0(3 downto 2) <= (others => '0');
     rd_dat_d0(7 downto 4) <= reg0_field01_reg;
-    rd_dat_d0(10 downto 8) <= reg0_field02_i;
+    rd_dat_d0(10 downto 8) <= reg0_field02_reg;
     rd_dat_d0(31 downto 11) <= (others => '0');
   end process;
 end syn;

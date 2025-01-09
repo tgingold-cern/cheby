@@ -27,3 +27,5 @@ memory-map:
               description: a field with a preset value
               range: 10-8
               preset: 2
+              x-hdl:
+                type: reg
