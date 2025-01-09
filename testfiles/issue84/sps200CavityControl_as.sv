@@ -100,7 +100,7 @@ module sps200CavityControl_regs
   assign awready = ~axi_awset;
   assign wready = ~axi_wset;
   assign bvalid = axi_wdone;
-  always @(posedge(aclk))
+  always_ff @(posedge(aclk))
   begin
     if (!areset_n)
       begin
@@ -143,7 +143,7 @@ module sps200CavityControl_regs
   // AR and R channels
   assign arready = ~axi_arset;
   assign rvalid = axi_rdone;
-  always @(posedge(aclk))
+  always_ff @(posedge(aclk))
   begin
     if (!areset_n)
       begin
@@ -176,7 +176,7 @@ module sps200CavityControl_regs
   assign rresp = 2'b00;
 
   // pipelining for wr-in+rd-out
-  always @(posedge(aclk))
+  always_ff @(posedge(aclk))
   begin
     if (!areset_n)
       begin
@@ -204,7 +204,7 @@ module sps200CavityControl_regs
   assign hwInfo_awprot_o = 3'b000;
   assign hwInfo_wvalid_o = hwInfo_w_val;
   assign hwInfo_wdata_o = wr_dat_d0;
-  always @(wr_sel_d0)
+  always_comb
   begin
     hwInfo_wstrb_o = 4'b0;
     if (~(wr_sel_d0[7:0] == 8'b0))
@@ -221,7 +221,7 @@ module sps200CavityControl_regs
   assign hwInfo_araddr_o = {rd_addr[4:2], 2'b00};
   assign hwInfo_arprot_o = 3'b000;
   assign hwInfo_rready_o = 1'b1;
-  always @(posedge(aclk))
+  always_ff @(posedge(aclk))
   begin
     if (!areset_n)
       begin
@@ -243,7 +243,7 @@ module sps200CavityControl_regs
   assign app_awprot_o = 3'b000;
   assign app_wvalid_o = app_w_val;
   assign app_wdata_o = wr_dat_d0;
-  always @(wr_sel_d0)
+  always_comb
   begin
     app_wstrb_o = 4'b0;
     if (~(wr_sel_d0[7:0] == 8'b0))
@@ -260,7 +260,7 @@ module sps200CavityControl_regs
   assign app_araddr_o = {rd_addr[18:2], 2'b00};
   assign app_arprot_o = 3'b000;
   assign app_rready_o = 1'b1;
-  always @(posedge(aclk))
+  always_ff @(posedge(aclk))
   begin
     if (!areset_n)
       begin
@@ -277,7 +277,7 @@ module sps200CavityControl_regs
   end
 
   // Process for write requests.
-  always @(wr_adr_d0, wr_req_d0, hwInfo_bvalid_i, app_bvalid_i)
+  always_comb
   begin
     hwInfo_wr = 1'b0;
     app_wr = 1'b0;
@@ -300,7 +300,7 @@ module sps200CavityControl_regs
   end
 
   // Process for read requests.
-  always @(rd_addr, rd_req, hwInfo_rdata_i, hwInfo_rvalid_i, app_rdata_i, app_rvalid_i)
+  always_comb
   begin
     // By default ack read requests
     rd_dat_d0 = {32{1'bx}};

@@ -28,7 +28,7 @@ import cheby.print_latex as print_latex
 import cheby.print_rest as print_rest
 import cheby.gen_custom as gen_custom
 import cheby.gen_edge3 as gen_edge3
-from cheby.hdl.globals import gconfig
+from cheby.hdl.globals import gconfig, gconfig_scope
 
 srcdir = os.path.join(os.path.dirname(os.path.realpath(__file__)),
                       '../testfiles/')
@@ -235,6 +235,33 @@ def test_print():
         gen_c.gen_c_cheby(fd, t, 'neutral')
         nbr_tests += 1
 
+def test_gconfig_scope():
+    global nbr_tests
+
+    gconfig.restore_defaults()
+    assert gconfig.hdl_lang == None
+    gconfig.hdl_lang = 'verilog'
+    gconfig.my_var = 'value'
+
+    # restore_defaults should restore values and remove extra attributes
+    gconfig.restore_defaults()
+    assert gconfig.hdl_lang == None
+    assert not hasattr(gconfig, 'my_var')
+
+    # Test config scoping
+    with gconfig_scope():
+        assert gconfig.hdl_lang == None
+        gconfig.hdl_lang = 'sv'
+        gconfig.my_var = 'value'
+        with gconfig_scope():
+            assert gconfig.hdl_lang == 'sv'
+            assert gconfig.my_var == 'value'
+            gconfig.hdl_lang = 'verilog'
+        assert gconfig.hdl_lang == 'sv'
+    assert gconfig.hdl_lang == None
+    assert not hasattr(gconfig, 'my_var')
+
+    nbr_tests += 1
 
 def compare_buffer_and_file(buf, filename):
     # Well, there is certainly a python diff module...
@@ -461,19 +488,20 @@ def test_hdl_ref():
             error('vhdl generation error for {}'.format(f))
 
         # Generate SV
-        gconfig.hdl_lang = 'sv'
         buf_sv = write_buffer()
-        print_verilog.print_verilog(buf_sv, h)
+        with gconfig_scope():
+            gconfig.hdl_lang = 'sv'
+            print_verilog.print_verilog(buf_sv, h)
         if not compare_buffer_and_file(buf_sv, sv_file):
             error('SV generation error for {}'.format(f))
 
         # Generate Verilog
-        gconfig.hdl_lang = 'verilog'
         buf_verilog = write_buffer()
-        print_verilog.print_verilog(buf_verilog, h)
+        with gconfig_scope():
+            gconfig.hdl_lang = 'verilog'
+            print_verilog.print_verilog(buf_verilog, h)
         if not compare_buffer_and_file(buf_verilog, verilog_file):
             error('Verilog generation error for {}'.format(f))
-        gconfig.hdl_lang = None
 
         nbr_tests += 1
 
@@ -502,24 +530,30 @@ def test_hdl_ref_async_rst():
         vhdl_file = srcdir + f + "_async_rst.vhdl"
         sv_file = srcdir + f + "_async_rst.sv"
 
-        gconfig.rst_sync = False
+        with gconfig_scope():
+            gconfig.rst_sync = False
 
-        t = parse_ok(cheby_file)
-        layout_ok(t)
-        expand_hdl.expand_hdl(t)
-        gen_name.gen_name_memmap(t)
-        h = gen_hdl.generate_hdl(t)
-        buf = write_buffer()
-        print_vhdl.print_vhdl(buf, h)
-        if not compare_buffer_and_file(buf, vhdl_file):
-            error("vhdl generation error for {}".format(f))
-        buf_sv = write_buffer()
-        print_verilog.print_verilog(buf_sv, h)
-        if not compare_buffer_and_file(buf_sv, sv_file):
-            error("SV generation error for {}".format(f))
+            t = parse_ok(cheby_file)
+            layout_ok(t)
+            expand_hdl.expand_hdl(t)
+            gen_name.gen_name_memmap(t)
+            h = gen_hdl.generate_hdl(t)
+
+            # Generate VHDL
+            buf = write_buffer()
+            print_vhdl.print_vhdl(buf, h)
+            if not compare_buffer_and_file(buf, vhdl_file):
+                error("vhdl generation error for {}".format(f))
+
+            # Generate SV
+            buf_sv = write_buffer()
+            with gconfig_scope():
+                gconfig.hdl_lang = 'sv'
+                print_verilog.print_verilog(buf_sv, h)
+            if not compare_buffer_and_file(buf_sv, sv_file):
+                error("SV generation error for {}".format(f))
+
         nbr_tests += 1
-
-        gconfig.rst_sync = True
 
 def test_verilog_ref():
     # Generate verilog and compare with a baseline.
@@ -536,10 +570,16 @@ def test_verilog_ref():
         expand_hdl.expand_hdl(t)
         gen_name.gen_name_memmap(t)
         h = gen_hdl.generate_hdl(t)
+
+        # Generate Verilog
+        gconfig.hdl_lang = 'verilog'
         buf = write_buffer()
-        print_verilog.print_verilog(buf, h)
+        with gconfig_scope():
+            gconfig.hdl_lang = 'verilog'
+            print_verilog.print_verilog(buf, h)
         if not compare_buffer_and_file(buf, vlog_file):
             error('verilog generation error for {}'.format(f))
+
         nbr_tests += 1
 
 def test_sv_ref():
@@ -552,20 +592,21 @@ def test_sv_ref():
         cheby_file = srcdir + f + ".cheby"
         vlog_file = srcdir + f + ".sv"
 
-        gconfig.hdl_lang = "sv"
-
         t = parse_ok(cheby_file)
         layout_ok(t)
         expand_hdl.expand_hdl(t)
         gen_name.gen_name_memmap(t)
         h = gen_hdl.generate_hdl(t)
+
+        # Generate SV
         buf = write_buffer()
-        print_verilog.print_verilog(buf, h)
+        with gconfig_scope():
+            gconfig.hdl_lang = 'sv'
+            print_verilog.print_verilog(buf, h)
         if not compare_buffer_and_file(buf, vlog_file):
             error("sv generation error for {}".format(f))
-        nbr_tests += 1
 
-        gconfig.hdl_lang = None
+        nbr_tests += 1
 
 def test_issue84():
     global nbr_tests
@@ -580,14 +621,21 @@ def test_issue84():
         expand_hdl.expand_hdl(t)
         gen_name.gen_name_memmap(t)
         h = gen_hdl.generate_hdl(t.c_address_spaces_map['bar0'])
+
+        # Generate VHDL
         buf = write_buffer()
         print_vhdl.print_vhdl(buf, h)
         if not compare_buffer_and_file(buf, vhdl_file):
             error('vhdl generation error for {}'.format(f))
+
+        # Generate SV
         buf_sv = write_buffer()
-        print_verilog.print_verilog(buf_sv, h)
+        with gconfig_scope():
+            gconfig.hdl_lang = 'sv'
+            print_verilog.print_verilog(buf_sv, h)
         if not compare_buffer_and_file(buf_sv, sv_file):
             error('SV generation error for {}'.format(f))
+
         nbr_tests += 1
 
 def test_self():
@@ -1025,6 +1073,7 @@ def main():
         test_parser()
         test_layout()
         test_print()
+        test_gconfig_scope()
         test_genc_ref()
         test_hdl()
         test_hdl_err()
