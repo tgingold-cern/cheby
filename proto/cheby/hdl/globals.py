@@ -15,7 +15,7 @@ class GlobalConfig:
 
         # Used by all HDLSignal signals.
         # When true, registers are initialized with their preset if it is supplied
-        self.initialize_reg_preset = False
+        self.preload_reg_preset = False
 
     def restore_defaults(self):
         default = GlobalConfig()

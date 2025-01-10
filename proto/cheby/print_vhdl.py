@@ -158,7 +158,7 @@ def generate_signal(fd, s, indent):
     generate_decl_comment(fd, s.comment, indent)
     windent(fd, indent)
     w(fd, "signal {:<30} : {typ}".format(s.name, typ=typ))
-    if gconfig.initialize_reg_preset and s.preset is not None:
+    if gconfig.preload_reg_preset and s.preset is not None:
         w(fd, ' := ')
         if s.size is not None and s.size > 1:
             w(fd, f'"{s.preset:0{s.size}b}"')

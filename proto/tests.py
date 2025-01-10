@@ -555,8 +555,8 @@ def test_hdl_ref_async_rst():
 
         nbr_tests += 1
 
-def test_hdl_ref_preset_init():
-    # Generate HDL with preset initialization and compare with a baseline
+def test_hdl_ref_preset_preload():
+    # Generate HDL with preset preloading and compare with a baseline
     global nbr_tests
 
     for f in ["features/simple_reg2", "features/field_range1", "features/field_value1"]:
@@ -569,7 +569,7 @@ def test_hdl_ref_preset_init():
         sv_file = srcdir + f + "_preset_init.sv"
 
         with gconfig_scope():
-            gconfig.initialize_reg_preset = True
+            gconfig.preload_reg_preset = True
 
             t = parse_ok(cheby_file)
             layout_ok(t)
@@ -1125,7 +1125,7 @@ def main():
         test_hdl_err()
         test_hdl_ref()
         test_hdl_ref_async_rst()
-        test_hdl_ref_preset_init()
+        test_hdl_ref_preset_preload()
         test_verilog_ref()
         test_sv_ref()
         test_issue84()
