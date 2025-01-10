@@ -382,7 +382,11 @@ A plain register has a type, which could be `unsigned` (the default), `signed` o
 software view.
 
 It is possible to define the initial (just after a reset) value of a
-register using the `preset` attribute.  For 32 bit registers, you can
+register using the `preset` attribute.  It is also possible, but not enabled
+by default, to set the value of the register when the device starts (if
+supported by your platform) to the `preset` attribute (see `--hdl-preload`).
+
+For 32 bit registers, you can
 also use the map version (set in the root) as the initial value by
 giving the value `version` to the `preset` attribute.  Bits 0 to 7 are
 set to the patch level, bits 8 to 15 to the minor version and bits 16
@@ -446,7 +450,8 @@ has no input or output ports. It can be used like a small memory.
 `wire`:: No logic is created.  In case of read from the bus, the current
 value on the input ports is returned.  The output ports are directly connected
 to the data bus.  It doesn't make sense not to also have a strobe port for
-write.  This is the default when the access type is `ro`.
+write.  A `wire` cannot have a `preset` attribute.  This is the default when
+the access type is `ro`.
 
 `const`:: No output available, the value is a constant, set by the `preset`
 attribute.
@@ -771,6 +776,11 @@ By default, there is a comment header (at the start of the hdl file) with
 the options used to generate the file, the date of generation and the
 author.  You can disable this header generation using `--header=none`
 option.  You can remove the date and author using `--header=commit`.
+
+By default, the `preset` attribute of registers is only used within the generated
+reset routine.  Modern FPGAs allow you to preload a value in registers as well,
+which alleviates the need to reset the board on start-up.  To preload the preset value
+into registers, you can use the `--hdl-preload` option.
 
 === Generating EDGE file
 
