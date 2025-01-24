@@ -1,5 +1,5 @@
 
-module inherit
+module fvalue1
   (
     input   wire rst_n_i,
     input   wire clk_i,
@@ -14,12 +14,8 @@ module inherit
     output  wire wb_stall_o,
     output  reg [31:0] wb_dat_o,
 
-    // REG reg0
-    input   wire reg0_field00_i,
-    output  wire reg0_field00_o,
-    output  wire [3:0] reg0_field01_o,
-    output  wire [2:0] reg0_field02_o,
-    output  wire reg0_wr_o
+    // REG areg
+    output  wire [3:0] areg_fa_1_o
   );
   wire rd_req_int;
   wire wr_req_int;
@@ -29,22 +25,20 @@ module inherit
   wire ack_int;
   reg wb_rip;
   reg wb_wip;
-  reg [3:0] reg0_field01_reg;
-  reg [2:0] reg0_field02_reg;
-  reg reg0_wreq;
-  wire reg0_wack;
-  wire reg0_wstrb;
+  reg [3:0] areg_fa_1_reg = 4'b1100;
+  reg areg_wreq;
+  wire areg_wack;
   reg rd_ack_d0;
   reg [31:0] rd_dat_d0;
   reg wr_req_d0;
   reg [31:0] wr_dat_d0;
 
   // WB decode signals
-  always_comb
+  always @(wb_sel_i)
   ;
   assign wb_en = wb_cyc_i & wb_stb_i;
 
-  always_ff @(posedge(clk_i))
+  always @(posedge(clk_i))
   begin
     if (!rst_n_i)
       wb_rip <= 1'b0;
@@ -53,7 +47,7 @@ module inherit
   end
   assign rd_req_int = (wb_en & ~wb_we_i) & ~wb_rip;
 
-  always_ff @(posedge(clk_i))
+  always @(posedge(clk_i))
   begin
     if (!rst_n_i)
       wb_wip <= 1'b0;
@@ -69,7 +63,7 @@ module inherit
   assign wb_err_o = 1'b0;
 
   // pipelining for wr-in+rd-out
-  always_ff @(posedge(clk_i))
+  always @(posedge(clk_i))
   begin
     if (!rst_n_i)
       begin
@@ -87,49 +81,35 @@ module inherit
       end
   end
 
-  // Register reg0
-  assign reg0_field00_o = wr_dat_d0[1];
-  assign reg0_field01_o = reg0_field01_reg;
-  assign reg0_field02_o = reg0_field02_reg;
-  assign reg0_wack = reg0_wreq;
-  assign reg0_wstrb = reg0_wreq;
-  always_ff @(posedge(clk_i))
+  // Register areg
+  assign areg_fa_1_o = areg_fa_1_reg;
+  assign areg_wack = areg_wreq;
+  always @(posedge(clk_i))
   begin
     if (!rst_n_i)
-      begin
-        reg0_field01_reg <= 4'b0000;
-        reg0_field02_reg <= 3'b010;
-      end
+      areg_fa_1_reg <= 4'b1100;
     else
-      if (reg0_wreq == 1'b1)
-        begin
-          reg0_field01_reg <= wr_dat_d0[7:4];
-          reg0_field02_reg <= wr_dat_d0[10:8];
-        end
+      if (areg_wreq == 1'b1)
+        areg_fa_1_reg <= wr_dat_d0[3:0];
   end
-  assign reg0_wr_o = reg0_wstrb;
 
   // Process for write requests.
-  always_comb
+  always @(wr_req_d0, areg_wack)
   begin
-    reg0_wreq = 1'b0;
-    // Reg reg0
-    reg0_wreq = wr_req_d0;
-    wr_ack_int = reg0_wack;
+    areg_wreq = 1'b0;
+    // Reg areg
+    areg_wreq = wr_req_d0;
+    wr_ack_int = areg_wack;
   end
 
   // Process for read requests.
-  always_comb
+  always @(rd_req_int, areg_fa_1_reg)
   begin
     // By default ack read requests
     rd_dat_d0 = {32{1'bx}};
-    // Reg reg0
+    // Reg areg
     rd_ack_d0 = rd_req_int;
-    rd_dat_d0[0] = 1'b0;
-    rd_dat_d0[1] = reg0_field00_i;
-    rd_dat_d0[3:2] = 2'b0;
-    rd_dat_d0[7:4] = reg0_field01_reg;
-    rd_dat_d0[10:8] = reg0_field02_reg;
-    rd_dat_d0[31:11] = 21'b0;
+    rd_dat_d0[3:0] = areg_fa_1_reg;
+    rd_dat_d0[31:4] = 28'b0;
   end
 endmodule

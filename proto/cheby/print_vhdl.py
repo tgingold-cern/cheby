@@ -2,6 +2,7 @@
 
 import cheby.hdltree as hdltree
 from cheby.wrutils import w, wln, windent
+from cheby.hdl.globals import gconfig
 import io
 
 
@@ -156,7 +157,14 @@ def generate_signal(fd, s, indent):
         typ = "std_logic"
     generate_decl_comment(fd, s.comment, indent)
     windent(fd, indent)
-    wln(fd, "signal {:<30} : {typ};".format(s.name, typ=typ))
+    w(fd, "signal {:<30} : {typ}".format(s.name, typ=typ))
+    if gconfig.preload_reg_preset and s.preset is not None:
+        w(fd, ' := ')
+        if s.size is not None and s.size > 1:
+            w(fd, f'"{s.preset:0{s.size}b}"')
+        else:
+            w(fd, f"'{s.preset:01b}'")
+    wln(fd, ';')
 
 
 def generate_constant(fd, s, indent):

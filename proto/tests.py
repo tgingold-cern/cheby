@@ -555,6 +555,52 @@ def test_hdl_ref_async_rst():
 
         nbr_tests += 1
 
+def test_hdl_ref_preset_preload():
+    # Generate HDL with preset preloading and compare with a baseline
+    global nbr_tests
+
+    for f in ["features/simple_reg2", "features/field_range1", "features/field_value1"]:
+        if args.verbose:
+            print("test hdl with ref (preset initialization): {}".format(f))
+
+        cheby_file = srcdir + f + ".cheby"
+        vhdl_file = srcdir + f + "_preset_init.vhdl"
+        verilog_file = srcdir + f + "_preset_init.v"
+        sv_file = srcdir + f + "_preset_init.sv"
+
+        with gconfig_scope():
+            gconfig.preload_reg_preset = True
+
+            t = parse_ok(cheby_file)
+            layout_ok(t)
+            expand_hdl.expand_hdl(t)
+            gen_name.gen_name_memmap(t)
+            h = gen_hdl.generate_hdl(t)
+
+            # Generate VHDL
+            buf = write_buffer()
+            print_vhdl.print_vhdl(buf, h)
+            if not compare_buffer_and_file(buf, vhdl_file):
+                error("vhdl generation error for {}".format(f))
+
+            # Generate Verilog
+            buf_verilog = write_buffer()
+            with gconfig_scope():
+                gconfig.hdl_lang = 'verilog'
+                print_verilog.print_verilog(buf_verilog, h)
+            if not compare_buffer_and_file(buf_verilog, verilog_file):
+                error('Verilog generation error for {}'.format(f))
+
+            # Generate SV
+            buf_sv = write_buffer()
+            with gconfig_scope():
+                gconfig.hdl_lang = 'sv'
+                print_verilog.print_verilog(buf_sv, h)
+            if not compare_buffer_and_file(buf_sv, sv_file):
+                error("SV generation error for {}".format(f))
+
+        nbr_tests += 1
+
 def test_verilog_ref():
     # Generate verilog and compare with a baseline.
     global nbr_tests
@@ -1079,6 +1125,7 @@ def main():
         test_hdl_err()
         test_hdl_ref()
         test_hdl_ref_async_rst()
+        test_hdl_ref_preset_preload()
         test_verilog_ref()
         test_sv_ref()
         test_issue84()

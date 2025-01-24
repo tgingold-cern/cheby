@@ -134,6 +134,10 @@ def expand_x_hdl_field_validate(f):
             parser.error("{}: 'const' x-hdl.type requires a 'preset' value".format(
                 f.get_path()))
 
+    if f.hdl_type == 'wire' and f.c_preset is not None:
+        parser.error("{}: 'wire' x-hdl.type cannot have a 'preset' value".format(
+            f.get_path()))
+
     if f.hdl_type == 'autoclear':
         if f.parent.access == 'ro':
             parser.error("{}: 'autoclear' x-hdl.type not allowed for 'ro' access".format(

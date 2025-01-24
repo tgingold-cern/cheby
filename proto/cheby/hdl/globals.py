@@ -13,6 +13,10 @@ class GlobalConfig:
         # When true, the flip-flop reset is synchronous.
         self.rst_sync = True
 
+        # Used by all HDLSignal signals.
+        # When true, registers are initialized with their preset if it is supplied
+        self.preload_reg_preset = False
+
     def restore_defaults(self):
         default = GlobalConfig()
         # Remove any added attribute

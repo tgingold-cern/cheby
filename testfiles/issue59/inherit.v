@@ -18,7 +18,6 @@ module inherit
     input   wire reg0_field00_i,
     output  wire reg0_field00_o,
     output  wire [3:0] reg0_field01_o,
-    input   wire [2:0] reg0_field02_i,
     output  wire [2:0] reg0_field02_o,
     output  wire reg0_wr_o
   );
@@ -31,6 +30,7 @@ module inherit
   reg wb_rip;
   reg wb_wip;
   reg [3:0] reg0_field01_reg;
+  reg [2:0] reg0_field02_reg;
   reg reg0_wreq;
   wire reg0_wack;
   wire reg0_wstrb;
@@ -90,16 +90,22 @@ module inherit
   // Register reg0
   assign reg0_field00_o = wr_dat_d0[1];
   assign reg0_field01_o = reg0_field01_reg;
-  assign reg0_field02_o = wr_dat_d0[10:8];
+  assign reg0_field02_o = reg0_field02_reg;
   assign reg0_wack = reg0_wreq;
   assign reg0_wstrb = reg0_wreq;
   always @(posedge(clk_i))
   begin
     if (!rst_n_i)
-      reg0_field01_reg <= 4'b0000;
+      begin
+        reg0_field01_reg <= 4'b0000;
+        reg0_field02_reg <= 3'b010;
+      end
     else
       if (reg0_wreq == 1'b1)
-        reg0_field01_reg <= wr_dat_d0[7:4];
+        begin
+          reg0_field01_reg <= wr_dat_d0[7:4];
+          reg0_field02_reg <= wr_dat_d0[10:8];
+        end
   end
   assign reg0_wr_o = reg0_wstrb;
 
@@ -113,7 +119,7 @@ module inherit
   end
 
   // Process for read requests.
-  always @(rd_req_int, reg0_field00_i, reg0_field01_reg, reg0_field02_i)
+  always @(rd_req_int, reg0_field00_i, reg0_field01_reg, reg0_field02_reg)
   begin
     // By default ack read requests
     rd_dat_d0 = {32{1'bx}};
@@ -123,7 +129,7 @@ module inherit
     rd_dat_d0[1] = reg0_field00_i;
     rd_dat_d0[3:2] = 2'b0;
     rd_dat_d0[7:4] = reg0_field01_reg;
-    rd_dat_d0[10:8] = reg0_field02_i;
+    rd_dat_d0[10:8] = reg0_field02_reg;
     rd_dat_d0[31:11] = 21'b0;
   end
 endmodule

@@ -137,7 +137,12 @@ def generate_param(fd, p, indent):
 def generate_signal(fd, s, indent):
     typ = generate_verilog_type(s)
     windent(fd, indent)
-    w(fd, "{} {}{};\n".format(generate_verilog_kind(s), typ, s.name))
+    w(fd, "{} {}{}".format(generate_verilog_kind(s), typ, s.name))
+    if gconfig.preload_reg_preset and s.preset is not None:
+        assert s.p_vlg_reg # Wire cannot have a preset
+        size = 1 if s.size is None else s.size
+        w(fd, f" = {size}'b{s.preset:0{size}b}")
+    wln(fd, ';')
 
 
 def generate_constant(fd, s, indent):

@@ -12,4 +12,4 @@ memory-map:
               name: fa_1
               description: Field for testing
               range: 1
-              preset: 0
+
