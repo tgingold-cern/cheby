@@ -477,7 +477,7 @@ def layout_memory(lo, n):
                 n, "memory child '{}' must be a register".format(c.get_path()))
     if n.align is not None and not n.align:
         raise LayoutException(
-            n, "memory '{}' must be aligned")
+            n, "memory '{}' must be aligned".format(n.get_path()))
     # Layout the children and use the size of the children as element size.
     layout_composite_children(lo, n)
     n.c_elsize = n.c_size
