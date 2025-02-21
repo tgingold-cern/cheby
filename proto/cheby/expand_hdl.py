@@ -187,7 +187,7 @@ def expand_pipeline(n, v):
             'out': ['rd-out', 'wr-out'],
             'rd': ['rd-in', 'rd-out'],
             'wr': ['wr-in', 'wr-out'],
-            'all': ['wr-in', 'wr-out', 'rd-in', 'rd-out'], 
+            'all': ['wr-in', 'wr-out', 'rd-in', 'rd-out'],
             'rd-in': ['rd-in'],
             'rd-out': ['rd-out'],
             'wr-in': ['wr-in'],
@@ -293,6 +293,21 @@ def expand_x_hdl_root_validate(r):
         parser.error("Bus '{}' does not support the write mask feature".format(r.bus))
 
 
+def expand_x_hdl_addressspace(n, dct):
+    if dct:
+        parser.error("no x-hdl attributes allowed for {}".format(
+                n.get_path()))
+
+    # Inherit from root
+    root_dct = getattr(n.parent, 'x_hdl', {})
+    res = {}
+
+    for k, v in root_dct.items():
+        if k in ['busgroup', ]:
+            res[k] = v
+    if res:
+        n.x_hdl = res
+
 
 def expand_x_hdl_submap(n, dct):
     for k, _ in dct.items():
@@ -324,6 +339,8 @@ def expand_x_hdl(n):
         expand_x_hdl_block(n, x_hdl)
     elif isinstance(n, tree.Memory):
         expand_x_hdl_memory(n, x_hdl)
+    elif isinstance(n, tree.AddressSpace):
+        expand_x_hdl_addressspace(n, x_hdl)
     else:
         if x_hdl:
             parser.error("no x-hdl attributes allowed for {}".format(
