@@ -231,7 +231,7 @@ attribute to specify the size (in bytes) of the memory space used by
 the module.  The suffixes k, M and G are allowed.
 
 It is possible to specify a semantic version using the `version` attribute.
-The version consists of 3 numbers between 0 and 255 separated by comma.
+The version consists of 3 numbers between 0 and 255 separated by a dot.
 The version appears in generated files.
 
 The following attributes under `x-hdl` are supported:
@@ -877,7 +877,7 @@ structure instead of individual constants. E.g., `matlab-struct`.
 === Generating SILECS file
 
 It is possible to generate SILECS
-(https://wikis.cern.ch/display/SIL/Design+document) XML file from a
+(https://confluence.cern.ch/display/SIL/Design+document) XML file from a
 Cheby description.  Not all features of Cheby are supported: only registers.
 
 [source]

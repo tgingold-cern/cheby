@@ -4,24 +4,33 @@
 
 ===== 1.0.0 -> 2.0.0
 
-* merge '`note`' with '`description`' ## x-fesa: ### 1.0.0 -> 2.0.0
+* merge '`note`' with '`description`'
+
+==== x-fesa
+
+===== 1.0.0 -> 2.0.0
 * split persistence=PPM/Fesa/None to persistence=true/false and
-multiplexed=true/false ## x-gena: ### 1.0.0 -> 2.0.0
+multiplexed=true/false
+
+==== x-gena
+
+===== 1.0.0 -> 2.0.0
+
 * replace code-fields with x-enums extension
 
-=== Extensions Documentation
+=== Motivation
 
-In december 2019, we decided to add versioning for the schema of the
-core specifications and for the schema of the extensions.
+In december 2019, it was decided to add versioning for the **schema**
+of the core specifications and for the schema of the extensions. The
+schema version is defined using semantic versioning. The current
+extensions are described in the following sections.
 
-The schema version is defined using semantic versioning.
+=== x-map-info
 
-The current extensions are described in the following sections. ##
-x-map-info This extension is the successor of
-link:#x-cern-info[x-cern-info] and some attributes previously used in
-x-gena as well.
+This extension is the successor of `x-cern-info` and some attributes
+previously used in `x-gena` as well.
 
-It contains 2 possible attributes * ident * memmap-version
+It contains 2 possible attributes, see below.
 
 ==== ident
 
@@ -30,14 +39,15 @@ ro register to provide information and identification about what type of
 board/firwmare the memory map belongs to. The value itself is not
 standardized among the different CERN groups.
 
-In RF we have a long standing list of idents (formarlly names ident-code
-in the old cheburashka based memory maps) for VME which are mastered
-centrally by John Molendijk (`+john.molendijk@cern.ch+`). For uTCA based
-boards we start from scratch with a new list of idents. Currently there
-is no central person or location to award them and in fact the firmware
-does not yet provide any meaningful data. But a first
-https://wikis.cern.ch/pages/viewpage.action?pageId=122066518[wiki page]
-has been created
+In RF we have a long standing list of idents (formarlly names
+ident-code in the old cheburashka based memory maps) for VME which are
+mastered centrally by John Molendijk (`+john.molendijk@cern.ch+`). For
+uTCA based boards we start from scratch with a new list of
+idents. Currently there is no central person or location to award them
+and in fact the firmware does not yet provide any meaningful data. But
+a first
+https://confluence.cern.ch/pages/viewpage.action?pageId=415713698[confluence
+page] has been created.
 
 * *Previous used ident-code attribute in x-cern-info/ident-code and
 x-gena/ident-code are migrated to x-map-info/ident*
@@ -119,17 +129,32 @@ the register type (ro, rw)
 ==== x-driver-edge
 
 TBD: For now this is just the list of existing attributes, further
-documentation needs to be added * name * equipment-code * module-type *
-vme-base-addr * endianness * bus-type * board-type * driver-version *
-driver-version-suffix * schema-version * description * device-info *
-interrupt-controllers * generate: set to False to exclude this block/reg
-from the driver * fifo * block-prefix * expand: set to _True_ to expand
-block, submap or repeat (with single reg) nodes instead of having a
-single line with increased depth * include: set to _False_ when a direct
-included submap (_True_) does not have a parent `+block+`
+documentation needs to be added:
 
-Might be added at some point: * default-pci-bar-name *
-generate-separate-library
+* name
+* equipment-code
+* module-type
+* vme-base-addr
+* endianness
+* bus-type
+* board-type
+* driver-version
+* driver-version-suffix
+* schema-version
+* description
+* device-info
+* interrupt-controllers
+* generate: set to False to exclude this block/reg from the driver
+* fifo
+* block-prefix
+* expand: set to _True_ to expand block, submap or repeat (with single reg) nodes instead of having a
+single line with increased depth
+* include: set to _False_ when a direct included submap (_True_) does not have a parent `+block+`
+
+Might be added at some point:
+
+* default-pci-bar-name
+* generate-separate-library
 
 ===== bus-type
 
@@ -177,7 +202,7 @@ which fits more than one card.
 
 Beside the attributes above x-driver-edge provides to elements
 (children) to be specified, for example in an `+address-space+` (see
-cheby-ug).
+higher).
 
 * number
 * addr-mode
