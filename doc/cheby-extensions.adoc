@@ -227,16 +227,22 @@ max-val
 
 ==== x-enums
 
-Enumerations - reusable replacement of x-gena/code-fields. Each
-enumeration must have: * name * width * (optional) description *
-(optional) comment * items (as children)
+Enumerations - reusable replacement of `x-gena/code-fields`.
 
 Enumerations are defined under a memory-map element as its children.
 They can be referenced (used) by reg and field nodes, using x-enums/name
 attribute.
 
-Each enumeration item contains: * name * value * (optional) description
+Each enumeration item contains:
+
+* name
+* (optional) width
+* (optional) description
 * (optional) comment
+* children
+** item
+*** name
+*** value
 
 === Deprecated extensions
 
