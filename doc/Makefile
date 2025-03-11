@@ -18,7 +18,7 @@ srcs/counter.md: srcs/counter.cheby
 srcs/counter-reindent.md: srcs/counter.md
 	sed -e '/^=/s/^=/==/' < $< > $@
 
-$(NAME).xml: $(NAME).txt srcs/counter.cheby srcs/counter_entity.vhdl srcs/counter.h srcs/counter-reindent.md
+$(NAME).xml: $(NAME).txt cheby-extensions.adoc srcs/counter.cheby srcs/counter_entity.vhdl srcs/counter.h srcs/counter-reindent.md
 	asciidoctor -v -d book -b docbook $<
 
 $(NAME).pdf: $(NAME).xml
