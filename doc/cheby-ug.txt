@@ -230,9 +230,11 @@ If you need to reserve area in a module, you can use the `size`
 attribute to specify the size (in bytes) of the memory space used by
 the module.  The suffixes k, M and G are allowed.
 
-It is possible to specify a semantic version using the `version` attribute.
-The version consists of 3 numbers between 0 and 255 separated by a dot.
-The version appears in generated files.
+It is possible to specify a semantic version using the `version`
+attribute.  The version consists of 3 numbers between 0 and 255
+separated by a dot.  The version appears in generated files. Note that
+`memory-map/version` *is now deprecated*, use
+`x-map-info/memmap-version` instead - see lower.
 
 The following attributes under `x-hdl` are supported:
 
@@ -390,9 +392,9 @@ set to the patch level, bits 8 to 15 to the minor version and bits 16
 to 23 to the major.  You cannot have both `preset` and `constant` attributes.
 
 Using the `constant` attribute, you can also give the value of attributes
-from the root `x-cern-info` mapping.  When the `constant` attribute of
-a register is set to `map-version`, the value of the register is set
-to the value of the map-version.  Likewise for `ident-code`.
+from the root `x-map-info` mapping.  When the `constant` attribute of
+a register is set to `memmap-version`, the value of the register is set
+to the value of the memmap-version.  Likewise for `ident`.
 
 Setting the `lock` attribute to true, a writable register or field can be
 temporarily locked. While being locked, the register or field maintains its
