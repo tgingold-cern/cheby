@@ -1,9 +1,6 @@
 = Cheby User Guide
 CERN
-v1.5, 2022-12-01
-v1.4, 2021-05-05
-v1.3, 2019-09-06
-v1.2, 2019-03-27
+v1.6, 2024-10-02
 
 == What is Cheby ?
 
@@ -193,7 +190,7 @@ backward compatibility issues.
 
 * `x-wbgen`: Extensions for wbgen compatibility.
 
-More extensions and their arguments are documented in the `doc/extensions/README.md` file.
+More extensions and their arguments are documented in a dedicated chapter below.
 
 === Header
 
@@ -929,3 +926,7 @@ can view the effect of it with the `--print-simple-expanded` flag.
 
 Finally to regenerated the initial file (properly indented but without the
 comments), you can use `--print-pretty` or `--print-pretty-expanded`.
+
+== Extensions
+
+include::cheby-extensions.adoc[]
