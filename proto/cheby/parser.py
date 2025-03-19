@@ -319,6 +319,8 @@ def parse_memory(parent, el):
             pass
         elif k == 'memsize':
             res.memsize_str, res.memsize_val = read_size(res, k, v)
+        elif k == 'memdepth':
+            res.memdepth_str, res.memdepth_val = read_size(res, k, v)
         elif k == 'interface':
             res.interface = read_text(res, k, v)
         else:

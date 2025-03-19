@@ -481,16 +481,24 @@ def layout_memory(lo, n):
     # Layout the children and use the size of the children as element size.
     layout_composite_children(lo, n)
     n.c_elsize = n.c_size
+    al_elsize = round_pow2(n.c_elsize)
     n.c_mem_access = n.children[0].access
     assert n.c_mem_access in ('ro', 'rw', 'wo')
-    if n.memsize_val is None:
+    if not n.memsize_val is None:
+        if not n.memdepth_val is None:
+            raise LayoutException(
+                n, "use either memsize or memdepth for memory {}".format(
+                    n.get_path()))
+    elif not n.memdepth_val is None:
+        n.memsize_val = n.memdepth_val * al_elsize
+    else:
         if n.c_depth is None:
             raise LayoutException(
                 n, "missing memsize for memory {}".format(n.get_path()))
         # For backward compatibility with array.
         n.memsize_val = n.c_depth * n.c_elsize
     # Align to power of 2.
-    n.c_elsize = round_pow2(n.c_elsize)
+    n.c_elsize = al_elsize
     # Compute the depth.
     if n.memsize_val % n.c_elsize != 0:
         raise LayoutException(
