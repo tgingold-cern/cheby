@@ -1,0 +1,46 @@
+memory-map:
+    bus: wb-32-be
+    name: pg_channel_wb
+    description: "ADC pattern generator single channel"
+    x-hdl:
+        busgroup: True
+    children:
+        - block:
+            name: os
+            align: False
+            x-hdl:
+              iogroup: pg_registers
+            children:
+              - reg:
+                  name: Sample3
+                  access: rw
+                  width: 32
+                  description: "Oldest sample in the frame"
+                  x-hdl:
+                    port-name: sample3_b32
+              - reg:
+                  name: Sample2
+                  access: rw
+                  width: 32
+                  x-hdl:
+                    port-name: sample2_b32
+              - reg:
+                  name: Sample1
+                  access: rw
+                  width: 32
+                  x-hdl:
+                    port-name: sample1_b32
+              - reg:
+                  name: Sample0
+                  description: "Newest sample in the frame"
+                  access: rw
+                  width: 32
+                  x-hdl:
+                    port-name: sample0_b32
+              - reg:
+                  name: Constant
+                  access: rw
+                  width: 32
+                  description: "Constant to feed to all channels"
+                  x-hdl:
+                    port-name: constant_b32

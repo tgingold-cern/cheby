@@ -1,0 +1,22 @@
+memory-map:
+    bus: wb-32-be
+    name: repro_pg
+    description: "ADC pattern generator wb client"
+    x-hdl:
+        busgroup: True
+    children:
+        - reg:
+            name: Stat
+            description: "Slow spill status"
+            width: 32
+            access: ro
+        - submap:
+            name: CH0
+            description: "Channel0 settings"
+            filename: ./repro_channel.cheby
+            include: True
+        - submap:
+            name: CH1
+            description: "Channel1 settings"
+            filename: ./repro_channel.cheby
+            include: True

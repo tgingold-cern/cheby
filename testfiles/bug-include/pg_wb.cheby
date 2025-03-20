@@ -1,0 +1,59 @@
+
+memory-map:
+    bus: wb-32-be
+    name: pg_wb
+    description: "ADC pattern generator wb client"
+    x-hdl:
+        busgroup: True
+    children:
+        - reg:
+            name: Ctrl
+            description: "Common controls"
+            width: 32
+            access: rw
+            children:
+                - field:
+                    name: EnablePGChannel
+                    range: 3-0
+                    description: "1 to enable PG on particular channel"
+                    x-hdl:
+                      port-name: enable_pg_b4
+        - reg:
+            name: Stat
+            description: "Slow spill status"
+            width: 32
+            access: ro
+            children:
+                - field:
+                    name: PGEnabled
+                    range: 3-0
+                    description: "1 indicates RTM PG working"
+                    x-hdl:
+                      port-name: enabled_pg_b4
+        - submap:
+            name: CH0
+            description: "Channel0 settings"
+            filename: ./pg_channel.cheby
+            include: True
+        - submap:
+            name: CH1
+            description: "Channel1 settings"
+            filename: ./pg_channel.cheby
+            include: True
+        - submap:
+            name: CH2
+            description: "Channel2 settings"
+            filename: ./pg_channel.cheby
+            include: True
+        - submap:
+            name: CH3
+            description: "Channel3 settings"
+            filename: ./pg_channel.cheby
+            include: True
+        - reg:
+            name: Token
+            description: "Returns token 0x64C81D7D"
+            width: 32
+            access: ro
+            x-hdl:
+              port-name: Token_b32
