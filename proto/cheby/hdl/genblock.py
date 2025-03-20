@@ -54,8 +54,9 @@ class GenBlock(ElGen):
             else:
                 self.root.h_itf = HDLInterface('t_' + self.n.hdl_iogroup)
                 self.module.global_decls.append(self.root.h_itf)
+                # Use h_pname for a port but iogroup for top-level.
                 self.root.h_ports = self.module.add_modport(
-                    self.n.hdl_iogroup, self.root.h_itf, True)
+                    self.n.h_pname or self.n.hdl_iogroup, self.root.h_itf, True)
                 if isinstance(self.n, tree.Root):
                     self.root.h_ports.comment = "Wires and registers"
 
