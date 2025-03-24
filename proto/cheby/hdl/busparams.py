@@ -1,4 +1,5 @@
-from cheby.hdltree import HDLConcat, HDLBinConst, HDLSlice, HDLAssign
+from cheby.hdltree import HDLConcat, HDLBinConst, HDLSlice, HDLAssign, HDLReplicate, bit_0
+from cheby.tree import Root, Submap
 import cheby.parser as parser
 
 
@@ -28,7 +29,13 @@ class BusOptions:
             parser.error("bad value for x-hdl:bus-granularity for {}".format(
                 bus.get_path()))
         self.addr_low = addr_low
-        self.addr_wd = addr_wd
+        supported = ('axi', 'wb')
+        if self.busgroup and ((isinstance(bus, Root) and any(x in bus.name for x in supported)) or \
+                              (isinstance(bus, Submap) and any(x in bus.interface for x in supported))):
+            # only axi & wb (interface) currently support busgroup, with fixed width
+            self.addr_wd = 32
+        else:
+            self.addr_wd = addr_wd
 
     def resize_addr_out(self, addr, ibus):
         if self.addr_low == ibus.addr_low:
@@ -37,16 +44,40 @@ class BusOptions:
             assert self.addr_low == 0
             return HDLConcat(addr, HDLBinConst(0, ibus.addr_low))
 
+    def resize_addr_out_full(self, addr, ibus):
+        """Expand full extern input address :param addr: to the internal size."""
+        if self.bus.c_addr_bits > 0:
+            res = self.resize_addr_out(
+                HDLSlice(addr, ibus.addr_low, self.bus.c_addr_bits), ibus)
+        else:
+            res = None
+
+        if self.busgroup:
+            repl = HDLReplicate(bit_0, self.addr_wd - self.bus.c_addr_bits - self.root.c_addr_word_bits, False)
+            res = repl if res is None else HDLConcat(repl, res)
+            if ibus.addr_low > 0:
+                repl = HDLReplicate(bit_0, ibus.addr_low, False)
+                res = repl if res is None else HDLConcat(res, repl)
+
+        if res is None:
+            raise AssertionError('Sliced address is empty')
+        return res
+
+
     def resize_addr_in(self, addr, ibus):
         """Resize extern input address :param addr: to the internal size."""
-        if self.addr_low == ibus.addr_low:
-            return addr
-        delta = ibus.addr_low - self.addr_low
-        if delta == 0:
-            return addr
-        else:
+        if (ibus.addr_low - self.addr_low) != 0 or self.busgroup:
             return HDLSlice(addr, ibus.addr_low, ibus.addr_size)
+        else:
+            return addr
 
+    def resize_addr_lhs(self, addr, ibus):
+        """Resize input address LHS :param addr: to the internal size."""
+        if (ibus.addr_low - self.addr_low) != 0 and self.addr_low != 0:
+            # slice only when different addr_low AND not byte granularity (see constructor)
+            return HDLSlice(addr, ibus.addr_low, ibus.addr_size)
+        else:
+            return addr
 
     def new_resizer_addr_in(self, module, addr, ibus, name_rsz):
         """If needed, create an intermediate signal named :param name_rsz: for
