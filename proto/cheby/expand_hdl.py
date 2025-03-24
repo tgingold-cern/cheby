@@ -135,7 +135,7 @@ def expand_x_hdl_field_validate(f):
                 f.get_path()))
 
     if f.hdl_type == 'wire' and f.c_preset is not None:
-        parser.error("{}: 'wire' x-hdl.type cannot have a 'preset' value".format(
+        parser.warning(f, "{}: 'wire' x-hdl.type 'preset' value will be ignored for gen-hdl (but not gen-consts)".format(
             f.get_path()))
 
     if f.hdl_type == 'autoclear':
