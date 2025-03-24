@@ -88,13 +88,15 @@ class Unused:
         """Build graph for a node"""
         if t is None:
             return
-        # print("build {} {}".format(t.__class__, t.name))
+        #print("build {} {}".format(t.__class__, t.name if hasattr(t, "name") else ""))
         if isinstance(t, hdltree.HDLModule):
             self.build_module(t)
         elif isinstance(t, hdltree.HDLPort):
             self.build_port(t)
         elif isinstance(t, (hdltree.HDLInterface, hdltree.HDLInterfaceArray, hdltree.HDLInterfaceInstance)):
             self.build_interfaceinstance(t)
+        elif isinstance(t, hdltree.HDLInterfaceSelect):
+            pass
         elif isinstance(t, hdltree.HDLSignal):
             self.build_signal(t)
         elif isinstance(t, hdltree.HDLAssign):
@@ -122,7 +124,7 @@ class Unused:
         elif isinstance(t, (hdltree.HDLComment, )):
             pass
         else:
-            assert False, "unhandled type {} {}".format(t.__class__, t.name)
+            assert False, "unhandled type {} {}".format(t.__class__, t.name if hasattr(t, "name") else "")
 
     def iterate(self):
         while len(self.discovered) > 0:

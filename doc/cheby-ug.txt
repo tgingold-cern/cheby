@@ -1,6 +1,6 @@
 = Cheby User Guide
 CERN
-v1.6, 2024-10-02
+v1.7.dev0, 2025-03-24
 
 == What is Cheby ?
 
@@ -314,6 +314,10 @@ disabled. Only the following bus interfaces are supported:
 indication. If asserted, all registers and fields with a `lock` attribute
 cannot be written to and their value remains constant or changes to a
 predefined value.
+
+`bus-attribute`:: Specify here 'Xilinx' in order to add dedicated
+X_INTERFACE_INFO port attributes to the bus signals, which can help
+for bus recognition by Xilinx/AMD IP Integrator tool.
 
 === Registers
 
@@ -662,6 +666,11 @@ becomes valid the next cycle, until ready is asserted.
 Note that AXI4 addresses are byte addresses as specified in A3.4.1, but LSB
 bits may be omitted with the `bus-granularity` attribute.
 
+By default the AXI4-Lite interface uses one port per signal. It is
+possible to group all signals in one input and one output port by
+setting the `x-hdl.busgroup` attribute to `True`. The VHDL package can
+be found as an appendix here.
+
 === Wishbone
 
 The normal wishbone protocol is used (and not the pipelined one).
@@ -669,9 +678,11 @@ The normal wishbone protocol is used (and not the pipelined one).
 The `err` (error) and `rty` (retry) are always ignored (as inputs) and
 never asserted as output.
 
-By default the wishbone interface uses one port per wishbone signal.  It is
-possible to group all signals in one input and one output port by setting the
-`x-hdl.busgroup` attribute to `True`.
+By default the wishbone interface uses one port per wishbone signal.
+It is possible to group all signals in one input and one output port
+by setting the `x-hdl.busgroup` attribute to `True`. The VHDL package,
+originating from https://ohwr.org/project/general-cores, can also be
+found as an appendix here.
 
 
 == Gena Compatibility
@@ -932,3 +943,17 @@ comments), you can use `--print-pretty` or `--print-pretty-expanded`.
 == Extensions
 
 include::cheby-extensions.adoc[]
+
+[appendix]
+== axi4lite_pkg
+[source]
+----
+include::../testfiles/tb/axi4lite_pkg.vhd[]
+----
+
+[appendix]
+== wishbone_pkg
+[source]
+----
+include::../testfiles/tb/wishbone_pkg.vhd[]
+----

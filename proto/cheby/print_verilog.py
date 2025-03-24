@@ -94,9 +94,10 @@ def generate_interface(fd, itf, indent):
 
     has_in = generate_interface_has_dir(itf, "IN")
     has_out = generate_interface_has_dir(itf, "OUT")
+    master, slave = ('manager', 'subordinate') if 'axi' in itf.name else ('master', 'slave')
 
     windent(fd, indent + 1)
-    wln(fd, "modport master(")
+    wln(fd, "modport {}(".format(master))
     generate_interface_modport(fd, itf, "IN", "input", indent + 1)
     if has_in and has_out:
         wln(fd, ",")
@@ -107,7 +108,7 @@ def generate_interface(fd, itf, indent):
     wln(fd, ");")
 
     windent(fd, indent + 1)
-    wln(fd, "modport slave(")
+    wln(fd, "modport {}(".format(slave))
     generate_interface_modport(fd, itf, "IN", "output", indent + 1)
     if has_in and has_out:
         wln(fd, ",")
@@ -490,7 +491,8 @@ def generate_stmts(fd, stmts, indent):
 
 def print_interface_name(fd, itf, is_master, name):
     if isinstance(itf, hdltree.HDLInterface):
-        w(fd, "{}.{} {}".format(itf.name, 'master' if is_master else 'slave', name))
+        master, slave = ('manager', 'subordinate') if 'axi' in itf.name else ('master', 'slave')
+        w(fd, "{}.{} {}".format(itf.name, master if is_master else slave, name))
     elif isinstance(itf, hdltree.HDLInterfaceArray):
         print_interface_name(fd, itf.prefix, is_master, name)
         w(fd, "[{}]".format(itf.count))
@@ -505,20 +507,23 @@ def print_inters_list(fd, lst, name, indent):
     wln(fd, "{}(".format(name))
     first = True
     for p in lst:
-        if first:
-            first = False
+        if isinstance(p, hdltree.HDLInterfaceSelect):
+            pass
         else:
-            wln(fd, ",")
-        if isinstance(p, hdltree.HDLPort):
-            generate_port(fd, p, indent + 1)
-        elif isinstance(p, hdltree.HDLParam):
-            generate_param(fd, p, indent + 1)
-        elif isinstance(p, hdltree.HDLInterfaceInstance):
-            generate_decl_comment(fd, p.comment, indent + 1)
-            windent(fd, indent + 1)
-            print_interface_name(fd, p.interface, p.is_master, p.name)
-        else:
-            raise AssertionError
+            if first:
+                first = False
+            else:
+                wln(fd, ",")
+            if isinstance(p, hdltree.HDLPort):
+                generate_port(fd, p, indent + 1)
+            elif isinstance(p, hdltree.HDLParam):
+                generate_param(fd, p, indent + 1)
+            elif isinstance(p, hdltree.HDLInterfaceInstance):
+                generate_decl_comment(fd, p.comment, indent + 1)
+                windent(fd, indent + 1)
+                print_interface_name(fd, p.interface, p.is_master, p.name)
+            else:
+                raise AssertionError
     wln(fd)
     windent(fd, indent)
     wln(fd, ");")

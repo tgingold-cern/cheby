@@ -1,4 +1,5 @@
 from cheby.hdltree import (
+    HDLNode,
     HDLPort,
     HDLAssign,
     HDLSync,
@@ -15,6 +16,9 @@ from cheby.hdltree import (
     HDLReplicate,
     HDLBinConst,
     HDLParen,
+    HDLPackage,
+    HDLInterface,
+    HDLInterfaceSelect
 )
 from cheby.hdl.busgen import BusGen
 import cheby.tree as tree
@@ -29,36 +33,71 @@ RESP_SLVERR = HDLBinConst(2, 2)
 
 
 class AXI4LiteBus(BusGen):
+    # Package axi4lite_pkg that contains the interface
+    axi4l_pkg = None
+    axi4l_itf = None
+    axi4l_ports = None
+
     def __init__(self, name):
         assert name == 'axi4-lite-32'
 
-    def gen_axi4lite_bus(self, build_port, addr_bits, lo_addr,
-                         data_bits, is_master=False):
-        inp, out = ('IN', 'OUT') if not is_master else ('OUT', 'IN')
-        return [
-            build_port("awvalid", None, dir=inp),
-            build_port("awready", None, dir=out),
-            build_port("awaddr", addr_bits, lo=lo_addr, dir=inp),
-            build_port("awprot", 3, dir=inp),
+    def gen_axi4lite_bus(self, module, ports, name, build_port,
+                         addr_bits, lo_addr, data_bits, comment,
+                         is_master=False, is_group=False) -> \
+                         list[tuple[str, HDLNode]]:
+        if is_group:
+            if AXI4LiteBus.axi4l_pkg is None:
+                self.gen_axi4l_pkg(module, ports, name, comment, data_bits)
+                module.deps.append(('work', 'axi4lite_pkg'))
+            # Add the interface modport to the ports
+            port = ports.add_modport(name, AXI4LiteBus.axi4l_itf, is_master)
+            port.comment = comment
+            res = []
+            # Fill res
+            for p in AXI4LiteBus.axi4l_ports:
+                res.append((p.name, HDLInterfaceSelect(port, p)))
+            return res
+        else:
+            # Not an interface (ie not a busgroup)
+            inp, out = ('IN', 'OUT') if not is_master else ('OUT', 'IN')
+            res = [
+                build_port("awvalid", None, dir=inp),
+                build_port("awready", None, dir=out),
+                build_port("awaddr", addr_bits, lo=lo_addr, dir=inp),
+                build_port("awprot", 3, dir=inp),
 
-            build_port("wvalid", None, dir=inp),
-            build_port("wready", None, dir=out),
-            build_port("wdata", data_bits, dir=inp),
-            build_port("wstrb", data_bits // tree.BYTE_SIZE, dir=inp),
+                build_port("wvalid", None, dir=inp),
+                build_port("wready", None, dir=out),
+                build_port("wdata", data_bits, dir=inp),
+                build_port("wstrb", data_bits // tree.BYTE_SIZE, dir=inp),
 
-            build_port("bvalid", None, dir=out),
-            build_port("bready", None, dir=inp),
-            build_port("bresp", 2, dir=out),
+                build_port("bvalid", None, dir=out),
+                build_port("bready", None, dir=inp),
+                build_port("bresp", 2, dir=out),
 
-            build_port("arvalid", None, dir=inp),
-            build_port("arready", None, dir=out),
-            build_port("araddr", addr_bits, lo=lo_addr, dir=inp),
-            build_port("arprot", 3, dir=inp),
+                build_port("arvalid", None, dir=inp),
+                build_port("arready", None, dir=out),
+                build_port("araddr", addr_bits, lo=lo_addr, dir=inp),
+                build_port("arprot", 3, dir=inp),
 
-            build_port("rvalid", None, dir=out),
-            build_port("rready", None, dir=inp),
-            build_port("rdata", data_bits, dir=out),
-            build_port("rresp", 2, dir=out)]
+                build_port("rvalid", None, dir=out),
+                build_port("rready", None, dir=inp),
+                build_port("rdata", data_bits, dir=out),
+                build_port("rresp", 2, dir=out)]
+            return res
+
+    def gen_axi4l_pkg(self, module, ports, name, comment, data_bits) -> None:
+        """Create the axi4lite_pkg package, so that interface can be
+        referenced"""
+        assert AXI4LiteBus.axi4l_pkg is None
+        AXI4LiteBus.axi4l_pkg = HDLPackage('axi4lite_pkg')
+        AXI4LiteBus.axi4l_itf = HDLInterface('t_axi4lite')
+        AXI4LiteBus.axi4l_pkg.decls.append(AXI4LiteBus.axi4l_itf)
+        AXI4LiteBus.axi4l_ports = self.gen_axi4lite_bus(module, ports, name,
+            lambda n, sz, lo=0, dir='IN':
+            AXI4LiteBus.axi4l_itf.add_port(n, size=sz, lo_idx=lo, dir=dir),
+            data_bits, 0, data_bits, comment, True, False)
+        return
 
     def expand_bus_w(self, root, module, ibus, opts):
         """Sub-routine of expand_bus: the write part"""
@@ -113,8 +152,8 @@ class AXI4LiteBus(BusGen):
         proc_if = HDLIfElse(HDLAnd(HDLEq(root.h_bus['awvalid'], bit_1),
                                    HDLEq(axi_awset, bit_0)))
         if root.h_bus['awaddr'] is not None:
-            proc_if.then_stmts.append(
-                HDLAssign(ibus.wr_adr, opts.resize_addr_in(root.h_bus['awaddr'], ibus)))
+            proc_if.then_stmts.append(HDLAssign(opts.resize_addr_lhs(ibus.wr_adr, ibus),
+                                                opts.resize_addr_in(root.h_bus['awaddr'], ibus)))
         proc_if.then_stmts.append(HDLAssign(axi_awset, bit_1))
         proc_if.then_stmts.append(HDLAssign(ibus.wr_req, axi_wset))  # Start if W already set
         proc_if.else_stmts = None
@@ -231,7 +270,7 @@ class AXI4LiteBus(BusGen):
         proc_if = HDLIfElse(HDLAnd(HDLEq(root.h_bus['arvalid'], bit_1),
                                    HDLEq(axi_arset, bit_0)))
         if root.h_bus['araddr'] is not None:
-            proc_if.then_stmts.append(HDLAssign(ibus.rd_adr,
+            proc_if.then_stmts.append(HDLAssign(opts.resize_addr_lhs(ibus.rd_adr, ibus),
                                                 opts.resize_addr_in(root.h_bus['araddr'], ibus)))
         proc_if.then_stmts.append(HDLAssign(axi_arset, bit_1))
         proc_if.then_stmts.append(HDLAssign(ibus.rd_req, bit_1))
@@ -277,24 +316,20 @@ class AXI4LiteBus(BusGen):
         for name, port in bus:
             if name in ('clk', 'brst'):
                 continue
+            if isinstance(port, HDLInterfaceSelect):
+                continue
             port.attributes['X_INTERFACE_INFO'] = "xilinx.com:interface:aximm:1.0 {} {}".format(
                 portname, name.upper())
-
-    def expand_opts(self, opts):
-        if opts.busgroup:
-            parser.warning(opts.bus, "busgroup on '{}' is ignored for axi4-lite".format(
-                opts.bus.get_path()))
 
     def expand_bus(self, root, module, ibus):
         """Create AXI4-Lite interface for the design."""
         opts = BusOptions(root, root)
-        self.expand_opts(opts)
         bus = [('clk', HDLPort("aclk")),
                ('brst', HDLPort("areset_n"))]
-        bus.extend(self.gen_axi4lite_bus(
+        bus.extend(self.gen_axi4lite_bus(module, module, 'axi4l',
             lambda n, sz, lo=0, dir='IN':
                 (n, None if sz == 0 else HDLPort(n, size=sz,lo_idx=lo, dir=dir)),
-            opts.addr_wd, opts.addr_low, root.c_word_bits, False))
+                opts.addr_wd, opts.addr_low, root.c_word_bits, None, False, opts.busgroup))
         if root.hdl_bus_attribute == 'Xilinx':
             self.add_xilinx_attributes(bus, 'slave')
         add_bus(root, module, bus)
@@ -319,20 +354,20 @@ class AXI4LiteBus(BusGen):
         self.expand_bus_r(root, module, ibus, opts)
 
     def gen_bus_slave(self, root, module, prefix, n, opts):
-        self.expand_opts(opts)
-        ports = self.gen_axi4lite_bus(
+        comment = "\n" + (n.comment or "AXI-4 lite bus {}".format(n.name))
+        ports = self.gen_axi4lite_bus(module, module, n.c_name,
             lambda name, sz=None, lo=0, dir='IN':
                 (name, None if sz == 0 else module.add_port(
                     '{}_{}_{}'.format(n.c_name, name, dirname[dir]),
                     size=sz, lo_idx=lo, dir=dir)),
-            opts.addr_wd, opts.addr_low, root.c_word_bits, True)
+                    opts.addr_wd, opts.addr_low, root.c_word_bits, comment,
+                    True, opts.busgroup)
         if root.hdl_bus_attribute == 'Xilinx':
             self.add_xilinx_attributes(ports, n.c_name)
         n.h_bus_opts = opts
         n.h_bus = {}
         for name, p in ports:
             n.h_bus[name] = p
-        comment = "\n" + (n.comment or "AXI-4 lite bus {}".format(n.name))
         n.h_bus['awvalid'].comment = comment
         # Internal signals: valid signals.
         n.h_aw_val = module.new_HDLSignal(prefix + 'aw_val')
@@ -348,8 +383,7 @@ class AXI4LiteBus(BusGen):
         if n.h_bus['awaddr'] is not None:
             stmts.append(HDLAssign(
                 n.h_bus['awaddr'],
-                n.h_bus_opts.resize_addr_out(
-                    HDLSlice(ibus.wr_adr, root.c_addr_word_bits, n.c_addr_bits), ibus)))
+                n.h_bus_opts.resize_addr_out_full(ibus.wr_adr, ibus)))
         stmts.append(HDLAssign(n.h_bus['awprot'], HDLBinConst(0, 3)))
         stmts.append(HDLAssign(n.h_bus['wvalid'], n.h_w_val))
         stmts.append(HDLAssign(n.h_bus['wdata'], ibus.wr_dat))
@@ -394,8 +428,7 @@ class AXI4LiteBus(BusGen):
         if n.h_bus['araddr'] is not None:
             stmts.append(HDLAssign(
                 n.h_bus['araddr'],
-                n.h_bus_opts.resize_addr_out(
-                    HDLSlice(ibus.rd_adr, root.c_addr_word_bits, n.c_addr_bits), ibus)))
+                n.h_bus_opts.resize_addr_out_full(ibus.rd_adr, ibus)))
         stmts.append(HDLAssign(n.h_bus['arprot'], HDLBinConst(0, 3)))
         stmts.append(HDLAssign(n.h_bus['rready'], bit_1))
 

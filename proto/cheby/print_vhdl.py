@@ -98,24 +98,25 @@ def has_in_out(itf, reverse):
 
 def generate_interface(fd, itf, indent):
     has_input, has_output = has_in_out(itf, False)
+    master, slave = ('manager', 'subordinate') if 'axi' in itf.name else ('master', 'slave')
     generate_decl_comment(fd, itf.comment, indent)
     if has_output:
         windent(fd, indent)
-        wln(fd, "type {}_master_out is record".format(itf.name))
+        wln(fd, "type {}_{}_out is record".format(itf.name, master))
         generate_interface_port(fd, itf, 'OUT', indent)
         windent(fd, indent)
-        wln(fd, "end record {}_master_out;".format(itf.name))
+        wln(fd, "end record {}_{}_out;".format(itf.name, master))
         windent(fd, indent)
-        wln(fd, "subtype {0}_slave_in is {0}_master_out;".format(itf.name))
+        wln(fd, "subtype {0}_{1}_in is {0}_{2}_out;".format(itf.name, slave, master))
         wln(fd)
     if has_input:
         windent(fd, indent)
-        wln(fd, "type {}_slave_out is record".format(itf.name))
+        wln(fd, "type {}_{}_out is record".format(itf.name, slave))
         generate_interface_port(fd, itf, 'IN', indent)
         windent(fd, indent)
-        wln(fd, "end record {}_slave_out;".format(itf.name))
+        wln(fd, "end record {}_{}_out;".format(itf.name, slave))
         windent(fd, indent)
-        wln(fd, "subtype {0}_master_in is {0}_slave_out;".format(itf.name))
+        wln(fd, "subtype {0}_{1}_in is {0}_{2}_out;".format(itf.name, master, slave))
         wln(fd)
 
 
@@ -123,21 +124,22 @@ def generate_interface_array(fd, itf, indent):
     generate_decl(fd, itf.prefix, indent)
     has_input, has_output = has_in_out(itf.prefix, False)
     name = itf.prefix.name
+    master, slave = ('manager', 'subordinate') if 'axi' in itf.prefix.name else ('master', 'slave')
     if has_output:
         windent(fd, indent)
-        wln(fd, "type {0}_master_out_array is array(natural range <>) of".format(name))
+        wln(fd, "type {}_{}_out_array is array(natural range <>) of".format(name, master))
         windent(fd, indent + 1)
-        wln(fd, "{0}_master_out;".format(name))
+        wln(fd, "{}_{}_out;".format(name, master))
         windent(fd, indent)
-        wln(fd, "subtype {0}_slave_in_array is {0}_master_out_array;".format(name))
+        wln(fd, "subtype {0}_{1}_in_array is {0}_{2}_out_array;".format(name, slave, master))
         wln(fd)
     if has_input:
         windent(fd, indent)
-        wln(fd, "type {0}_master_in_array is array(natural range <>) of".format(name))
+        wln(fd, "type {}_{}_in_array is array(natural range <>) of".format(name, master))
         windent(fd, indent + 1)
-        wln(fd, "{0}_master_in;".format(name))
+        wln(fd, "{}_{}_in;".format(name, master))
         windent(fd, indent)
-        wln(fd, "subtype {0}_slave_out_array is {0}_master_in_array;".format(name))
+        wln(fd, "subtype {0}_{1}_out_array is {0}_{2}_in_array;".format(name, slave, master))
         wln(fd)
 
 
@@ -526,8 +528,9 @@ def generate_stmts(fd, stmts, indent):
 
 def get_interface_name(inter, is_master, is_out):
     if isinstance(inter, hdltree.HDLInterface):
+        master, slave = ('manager', 'subordinate') if 'axi' in inter.name else ('master', 'slave')
         return '{}_{}_{}'.format(inter.name,
-                                 'master' if is_master else 'slave',
+                                 master if is_master else slave,
                                  'out' if is_out else 'in')
     elif isinstance(inter, hdltree.HDLInterfaceArray):
         pnam = get_interface_name(inter.prefix, is_master, is_out)
@@ -583,6 +586,9 @@ def print_inters_list(fd, lst, name, indent):
                 nam = get_interface_name(p.interface, p.is_master, True)
                 wln(buffer, "{:<20} : out   {};".format(p.name + "_o", nam))
 
+        elif isinstance(p, hdltree.HDLInterfaceSelect):
+            pass
+
         else:
             raise AssertionError
 
@@ -597,7 +603,8 @@ def print_inters_list(fd, lst, name, indent):
 def print_attributes(fd, ports, indent):
     attrs = set()
     for p in ports:
-        attrs.update(p.attributes.keys())
+        if not isinstance(p, hdltree.HDLInterfaceSelect):
+            attrs.update(p.attributes.keys())
     for a in sorted(attrs):
         windent(fd, indent)
         wln(fd, "attribute {} : string;".format(a))

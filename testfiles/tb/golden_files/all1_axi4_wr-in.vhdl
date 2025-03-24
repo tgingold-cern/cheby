@@ -1,31 +1,15 @@
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
+use work.axi4lite_pkg.all;
 use work.cheby_pkg.all;
 
 entity all1_axi4 is
   port (
+    axi4l_i              : in    t_axi4lite_subordinate_in;
+    axi4l_o              : out   t_axi4lite_subordinate_out;
     aclk                 : in    std_logic;
     areset_n             : in    std_logic;
-    awvalid              : in    std_logic;
-    awready              : out   std_logic;
-    awaddr               : in    std_logic_vector(14 downto 2);
-    awprot               : in    std_logic_vector(2 downto 0);
-    wvalid               : in    std_logic;
-    wready               : out   std_logic;
-    wdata                : in    std_logic_vector(31 downto 0);
-    wstrb                : in    std_logic_vector(3 downto 0);
-    bvalid               : out   std_logic;
-    bready               : in    std_logic;
-    bresp                : out   std_logic_vector(1 downto 0);
-    arvalid              : in    std_logic;
-    arready              : out   std_logic;
-    araddr               : in    std_logic_vector(14 downto 2);
-    arprot               : in    std_logic_vector(2 downto 0);
-    rvalid               : out   std_logic;
-    rready               : in    std_logic;
-    rdata                : out   std_logic_vector(31 downto 0);
-    rresp                : out   std_logic_vector(1 downto 0);
 
     -- REG reg1
     reg1_o               : out   std_logic_vector(31 downto 0);
@@ -213,9 +197,9 @@ architecture syn of all1_axi4 is
 begin
 
   -- AW, W and B channels
-  awready <= not axi_awset;
-  wready <= not axi_wset;
-  bvalid <= axi_wdone;
+  axi4l_o.awready <= not axi_awset;
+  axi4l_o.wready <= not axi_wset;
+  axi4l_o.bvalid <= axi_wdone;
   process (aclk) begin
     if rising_edge(aclk) then
       if areset_n = '0' then
@@ -225,21 +209,21 @@ begin
         axi_wdone <= '0';
       else
         wr_req <= '0';
-        if awvalid = '1' and axi_awset = '0' then
-          wr_addr <= awaddr;
+        if axi4l_i.awvalid = '1' and axi_awset = '0' then
+          wr_addr <= axi4l_i.awaddr(14 downto 2);
           axi_awset <= '1';
           wr_req <= axi_wset;
         end if;
-        if wvalid = '1' and axi_wset = '0' then
-          wr_data <= wdata;
-          wr_sel(7 downto 0) <= (others => wstrb(0));
-          wr_sel(15 downto 8) <= (others => wstrb(1));
-          wr_sel(23 downto 16) <= (others => wstrb(2));
-          wr_sel(31 downto 24) <= (others => wstrb(3));
+        if axi4l_i.wvalid = '1' and axi_wset = '0' then
+          wr_data <= axi4l_i.wdata;
+          wr_sel(7 downto 0) <= (others => axi4l_i.wstrb(0));
+          wr_sel(15 downto 8) <= (others => axi4l_i.wstrb(1));
+          wr_sel(23 downto 16) <= (others => axi4l_i.wstrb(2));
+          wr_sel(31 downto 24) <= (others => axi4l_i.wstrb(3));
           axi_wset <= '1';
-          wr_req <= axi_awset or awvalid;
+          wr_req <= axi_awset or axi4l_i.awvalid;
         end if;
-        if (axi_wdone and bready) = '1' then
+        if (axi_wdone and axi4l_i.bready) = '1' then
           axi_wset <= '0';
           axi_awset <= '0';
           axi_wdone <= '0';
@@ -250,37 +234,37 @@ begin
       end if;
     end if;
   end process;
-  bresp <= "00";
+  axi4l_o.bresp <= "00";
 
   -- AR and R channels
-  arready <= not axi_arset;
-  rvalid <= axi_rdone;
+  axi4l_o.arready <= not axi_arset;
+  axi4l_o.rvalid <= axi_rdone;
   process (aclk) begin
     if rising_edge(aclk) then
       if areset_n = '0' then
         rd_req <= '0';
         axi_arset <= '0';
         axi_rdone <= '0';
-        rdata <= (others => '0');
+        axi4l_o.rdata <= (others => '0');
       else
         rd_req <= '0';
-        if arvalid = '1' and axi_arset = '0' then
-          rd_addr <= araddr;
+        if axi4l_i.arvalid = '1' and axi_arset = '0' then
+          rd_addr <= axi4l_i.araddr(14 downto 2);
           axi_arset <= '1';
           rd_req <= '1';
         end if;
-        if (axi_rdone and rready) = '1' then
+        if (axi_rdone and axi4l_i.rready) = '1' then
           axi_arset <= '0';
           axi_rdone <= '0';
         end if;
         if rd_ack = '1' then
           axi_rdone <= '1';
-          rdata <= rd_data;
+          axi4l_o.rdata <= rd_data;
         end if;
       end if;
     end if;
   end process;
-  rresp <= "00";
+  axi4l_o.rresp <= "00";
 
   -- pipelining for wr-in
   process (aclk) begin

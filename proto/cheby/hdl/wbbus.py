@@ -5,11 +5,11 @@ from cheby.hdltree import (HDLPackage,
                            bit_1, bit_0,
                            HDLAnd, HDLOr, HDLNot, HDLEq, HDLConcat,
                            HDLSlice, HDLReplicate,
-                           HDLParen)
+                           HDLParen, HDLPort, HDLNode)
 from cheby.hdl.busgen import BusGen
 import cheby.tree as tree
 from cheby.hdl.globals import gconfig, dirname
-
+from cheby.hdl.busparams import BusOptions
 
 class WBBus(BusGen):
     # Package wishbone_pkg that contains the wishbone interface
@@ -34,7 +34,7 @@ class WBBus(BusGen):
         module.stmts.append(proc)
         return HDLAnd(stb, HDLNot(wb_xip))
 
-    def add_decode_wb(self, root, module, ibus, busgroup, bus_error):
+    def add_decode_wb(self, root, module, ibus, opts):
         "Generate internal signals used by decoder/processes from WB bus."
         ibus.addr_size = root.c_addr_bits
         ibus.addr_low = root.c_addr_word_bits
@@ -62,10 +62,10 @@ class WBBus(BusGen):
         module.stmts.append(proc)
 
         if ibus.addr_size > 0:
-            if busgroup:
+            if opts.busgroup:
                 addr = module.new_HDLSignal('adr_int', ibus.addr_size, lo_idx=ibus.addr_low)
                 module.stmts.append(
-                    HDLAssign(addr, HDLSlice(root.h_bus['adr'], ibus.addr_low, ibus.addr_size)))
+                    HDLAssign(addr, opts.resize_addr_in(root.h_bus['adr'], ibus)))
             else:
                 addr = root.h_bus['adr']
             ibus.rd_adr = addr
@@ -98,7 +98,7 @@ class WBBus(BusGen):
         module.stmts.append(HDLAssign(ibus.wr_req, wr_req))
         module.stmts.append(HDLComment(None))
 
-        if bus_error:
+        if opts.bus_error:
             # Acknowledge or Error
             proc = HDLComb()
             proc.sensitivity.extend([ibus.rd_ack, ibus.wr_ack, ack_int, ibus.rd_err, ibus.wr_err, err_int])
@@ -125,7 +125,7 @@ class WBBus(BusGen):
         # No retry
         module.stmts.append(HDLAssign(root.h_bus['rty'], bit_0))
 
-        if not bus_error:
+        if not opts.bus_error:
             # No error
             # (maintain assignment order of original implementation (before
             #  adding the bus error feature)
@@ -133,7 +133,7 @@ class WBBus(BusGen):
 
 
     def gen_wishbone_bus(self, build_port, addr_bits, lo_addr,
-                         data_bits, is_master):
+                         data_bits, is_master) -> dict[str, HDLNode]:
         # FIXME: 'dat' is used both as an input and as an output.
         #  This is not a problem in general as a suffix is appended,
         #  except for system verilog interfaces...
@@ -161,7 +161,7 @@ class WBBus(BusGen):
         return res
 
     def gen_wishbone(self, module, ports, name, addr_bits, lo_addr,
-                     data_bits, comment, is_master, is_group):
+                     data_bits, comment, is_master, is_group) -> dict[str, HDLPort]:
         if is_group:
             if WBBus.wb_pkg is None:
                 self.gen_wishbone_pkg()
@@ -207,24 +207,22 @@ class WBBus(BusGen):
     def expand_bus(self, root, module, ibus):
         """Create wishbone interface for the design."""
         root.h_bus = {}
-
-        busgroup = root.get_extension('x_hdl', 'busgroup')
-        bus_error = root.get_extension('x_hdl', 'bus-error')
+        opts = BusOptions(root, root)
 
         root.h_bus.update(self.gen_wishbone(
             module, module, 'wb', root.c_addr_bits, root.c_addr_word_bits,
-            root.c_word_bits, None, False, busgroup is True))
+            root.c_word_bits, None, False, opts.busgroup))
         root.h_bussplit = False
 
         # Bus access
         module.stmts.append(HDLComment('WB decode signals'))
-        self.add_decode_wb(
-            root, module, ibus, busgroup is True, bus_error is True)
+        self.add_decode_wb(root, module, ibus, opts)
 
     def gen_bus_slave(self, root, module, prefix, n, opts):
         # Create the bus for a submap or a memory
         comment = '\n' + (n.comment or 'WB bus {}'.format(n.name))
         n.h_busgroup = opts.busgroup
+        n.h_bus_opts = opts
         n.h_bus = self.gen_wishbone(
             module, module, n.c_name,
             n.c_addr_bits, root.c_addr_word_bits, root.c_word_bits,
@@ -244,26 +242,6 @@ class WBBus(BusGen):
             # Request signals
             n.h_wr = module.new_HDLSignal(prefix + 'wr')
             n.h_rr = module.new_HDLSignal(prefix + 'rr')
-
-    def slice_addr(self, addr, root, n):
-        """Slice the input :param addr: (from the root bus) so that is can be
-        assigned to the slave.  Take care of various sizes."""
-        if n.c_addr_bits > 0:
-            res = HDLSlice(addr, root.c_addr_word_bits, n.c_addr_bits)
-        else:
-            res = None
-
-        if n.h_busgroup:
-            if n.c_addr_bits < 32:
-                repl = HDLReplicate(bit_0, 32 - root.c_addr_word_bits - n.c_addr_bits, False)
-                res = repl if res is None else HDLConcat(repl, res)
-            if root.c_addr_word_bits > 0:
-                repl = HDLReplicate(bit_0, root.c_addr_word_bits, False)
-                res = repl if res is None else HDLConcat(res, repl)
-
-        if res is None:
-            raise AssertionError('Sliced address is empty')
-        return res
 
     def wire_bus_slave(self, root, module, n, ibus):
         stmts = module.stmts
@@ -313,15 +291,21 @@ class WBBus(BusGen):
                 proc = HDLComb()
                 proc.sensitivity.extend([ibus.rd_adr, ibus.wr_adr, n.h_wt])
                 if_stmt = HDLIfElse(HDLEq(n.h_wt, bit_1))
-                if_stmt.then_stmts.append(HDLAssign(n.h_bus['adr'],
-                                                    self.slice_addr(ibus.wr_adr, root, n)))
-                if_stmt.else_stmts.append(HDLAssign(n.h_bus['adr'],
-                                                    self.slice_addr(ibus.rd_adr, root, n)))
+                if_stmt.then_stmts.append(
+                    HDLAssign(n.h_bus['adr'],
+                              n.h_bus_opts.resize_addr_out_full(
+                                  ibus.wr_adr, ibus)))
+                if_stmt.else_stmts.append(
+                    HDLAssign(n.h_bus['adr'],
+                              n.h_bus_opts.resize_addr_out_full(
+                                  ibus.rd_adr, ibus)))
                 proc.stmts.append(if_stmt)
                 stmts.append(proc)
             else:
-                stmts.append(HDLAssign(n.h_bus['adr'],
-                                    self.slice_addr(ibus.rd_adr, root, n)))
+                stmts.append(
+                    HDLAssign(n.h_bus['adr'],
+                              n.h_bus_opts.resize_addr_out_full(
+                                  ibus.rd_adr, ibus)))
 
         if ibus.wr_sel is not None:
             # Translate bit-wise write mask of internal bus to Byte-wise write mask of
