@@ -1,4 +1,4 @@
-interface t_pg_registers;
+interface t_CH0_pg_registers;
   logic [31:0] sample3_b32;
   logic [31:0] sample2_b32;
   logic [31:0] sample1_b32;
@@ -19,7 +19,7 @@ interface t_pg_registers;
     input constant_b32
   );
 endinterface
-interface t_pg_registers;
+interface t_CH1_pg_registers;
   logic [31:0] sample3_b32;
   logic [31:0] sample2_b32;
   logic [31:0] sample1_b32;
@@ -40,7 +40,7 @@ interface t_pg_registers;
     input constant_b32
   );
 endinterface
-interface t_pg_registers;
+interface t_CH2_pg_registers;
   logic [31:0] sample3_b32;
   logic [31:0] sample2_b32;
   logic [31:0] sample1_b32;
@@ -61,7 +61,7 @@ interface t_pg_registers;
     input constant_b32
   );
 endinterface
-interface t_pg_registers;
+interface t_CH3_pg_registers;
   logic [31:0] sample3_b32;
   logic [31:0] sample2_b32;
   logic [31:0] sample1_b32;
@@ -93,10 +93,10 @@ module pg_wb
 
     // REG Stat
     input   wire [3:0] enabled_pg_b4,
-    t_pg_registers.master CH0,
-    t_pg_registers.master CH1,
-    t_pg_registers.master CH2,
-    t_pg_registers.master CH3,
+    t_CH0_pg_registers.master CH0,
+    t_CH1_pg_registers.master CH1,
+    t_CH2_pg_registers.master CH2,
+    t_CH3_pg_registers.master CH3,
 
     // REG Token
     input   wire [31:0] Token_b32

@@ -49,10 +49,12 @@ class GenBlock(ElGen):
     def gen_ports(self):
         if self.n.hdl_iogroup is not None:
             if self.root.h_itf:
+                # There is already an interface being defined.
                 print("nested interface is ignored")
                 self.root.hdl_iogroup = None
             else:
-                self.root.h_itf = HDLInterface('t_' + self.n.hdl_iogroup)
+                itf_name = 't_' + (self.n.h_pname + '_' if self.n.h_pname else '') + self.n.hdl_iogroup
+                self.root.h_itf = HDLInterface(itf_name)
                 self.module.global_decls.append(self.root.h_itf)
                 # Use h_pname for a port but iogroup for top-level.
                 self.root.h_ports = self.module.add_modport(
