@@ -14,8 +14,9 @@ test_generation:
     - python tests.py
 
 test_interaction:
-  rules:
-    - if: $NO_GHDL == null
+  image: registry.cern.ch/ci4fpga/ghdl-mcode:dev
+  tags:
+    - fpga-mid
   stage: test
   extends: .python_venv
   script:
