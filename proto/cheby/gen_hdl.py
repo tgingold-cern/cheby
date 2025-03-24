@@ -312,14 +312,24 @@ def gen_hdl_names(n, parent):
             # :param parent: can be None for address spaces...
             n.h_fname = n.name
             n.h_pname = n.name
+            for c in n.children:
+                gen_hdl_names(c, n)
         else:
             n.h_fname = concat(parent.h_fname, n.name)
             add_prefix = parent.hdl_blk_prefix
-            if isinstance(n, tree.Block):
-                add_prefix = add_prefix and n.hdl_iogroup is None
-            n.h_pname = concat_if(parent.h_pname, n.name, add_prefix)
-        for c in n.children:
-            gen_hdl_names(c, n)
+            if isinstance(n, tree.Block) and n.hdl_iogroup is not None:
+                # Create an interface for this block
+                # So, do not prefix names in the interface
+                n.h_pname = None
+                # Generate children names
+                for c in n.children:
+                    gen_hdl_names(c, n)
+                # But set the name of the port (whose type is the interface)
+                n.h_pname = parent.h_pname
+            else:
+                n.h_pname = concat_if(parent.h_pname, n.name, add_prefix)
+                for c in n.children:
+                    gen_hdl_names(c, n)
     else:
         raise AssertionError(n)
 
@@ -345,6 +355,7 @@ def generate_hdl(root):
 
     # Add ports
     root.h_itf = None
+    root.h_itf_added = False
     root.h_ports = module
     root.h_gen.gen_ports()
 
