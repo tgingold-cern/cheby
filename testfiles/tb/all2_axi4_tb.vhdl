@@ -5,6 +5,7 @@ library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
+use work.axi4lite_pkg.all;
 use work.axi4_tb_pkg.all;
 
 architecture behav of all2_axi4_tb is
@@ -24,8 +25,8 @@ architecture behav of all2_axi4_tb is
   signal ram1_dat : std_logic_vector(31 downto 0);
 
   --  For sub2.
-  signal sub2_wr_in   : t_axi4lite_write_slave_in;
-  signal sub2_wr_out  : t_axi4lite_write_slave_out;
+  signal sub2_wr_in   : t_axi4lite_subordinate_in;
+  signal sub2_wr_out  : t_axi4lite_subordinate_out;
   signal sub2_rd_in   : t_axi4lite_read_slave_in;
   signal sub2_rd_out  : t_axi4lite_read_slave_out;
 
@@ -50,72 +51,43 @@ begin
     port map (
       aclk       => clk,
       areset_n   => rst_n,
-      awvalid    => wr_out.awvalid,
-      awready    => wr_in.awready,
-      awaddr     => wr_out.awaddr(6 downto 2),
-      awprot     => "010",
-      wvalid     => wr_out.wvalid,
-      wready     => wr_in.wready,
-      wdata      => wr_out.wdata,
-      wstrb      => "1111",
-      bvalid     => wr_in.bvalid,
-      bready     => wr_out.bready,
-      bresp      => wr_in.bresp,
-      arvalid    => rd_out.arvalid,
-      arready    => rd_in.arready,
-      araddr     => rd_out.araddr(6 downto 2),
-      arprot     => "010",
-      rvalid     => rd_in.rvalid,
-      rready     => rd_out.rready,
-      rdata      => rd_in.rdata,
-      rresp      => rd_in.rresp,
+
+      axi4l_i.awvalid    => wr_out.awvalid,
+      axi4l_i.awaddr     => wr_out.awaddr,
+      axi4l_i.awprot     => "010",
+      axi4l_i.wvalid     => wr_out.wvalid,
+      axi4l_i.wdata      => wr_out.wdata,
+      axi4l_i.wstrb      => "1111",
+      axi4l_i.bready     => wr_out.bready,
+      axi4l_i.arvalid    => rd_out.arvalid,
+      axi4l_i.araddr     => rd_out.araddr,
+      axi4l_i.arprot     => "010",
+      axi4l_i.rready     => rd_out.rready,
+      axi4l_o.awready    => wr_in.awready,
+      axi4l_o.wready     => wr_in.wready,
+      axi4l_o.bvalid     => wr_in.bvalid,
+      axi4l_o.bresp      => wr_in.bresp,
+      axi4l_o.arready    => rd_in.arready,
+      axi4l_o.rvalid     => rd_in.rvalid,
+      axi4l_o.rdata      => rd_in.rdata,
+      axi4l_o.rresp      => rd_in.rresp,
 
       reg1_o     => reg1,
 
-      sub2_axi4_awvalid_o  => sub2_wr_in.awvalid,
-      sub2_axi4_awready_i  => sub2_wr_out.awready,
-      sub2_axi4_awaddr_o   => sub2_wr_in.awaddr(5 downto 2),
-      sub2_axi4_awprot_o   => sub2_wr_in.awprot,
-      sub2_axi4_wvalid_o   => sub2_wr_in.wvalid,
-      sub2_axi4_wready_i   => sub2_wr_out.wready,
-      sub2_axi4_wdata_o    => sub2_wr_in.wdata,
-      sub2_axi4_wstrb_o    => sub2_wr_in.wstrb,
-      sub2_axi4_bvalid_i   => sub2_wr_out.bvalid,
-      sub2_axi4_bready_o   => sub2_wr_in.bready,
-      sub2_axi4_bresp_i    => sub2_wr_out.bresp,
-      sub2_axi4_arvalid_o  => sub2_rd_in.arvalid,
-      sub2_axi4_arready_i  => sub2_rd_out.arready,
-      sub2_axi4_araddr_o   => sub2_rd_in.araddr(5 downto 2),
-      sub2_axi4_arprot_o   => sub2_rd_in.arprot,
-      sub2_axi4_rvalid_i   => sub2_rd_out.rvalid,
-      sub2_axi4_rready_o   => sub2_rd_in.rready,
-      sub2_axi4_rdata_i    => sub2_rd_out.rdata,
-      sub2_axi4_rresp_i    => sub2_rd_out.rresp
+      sub2_axi4_i => sub2_wr_out,
+      sub2_axi4_o => sub2_wr_in
       );
 
+
+  sub2_wr_in.awprot <= "010";
+  sub2_wr_in.wstrb  <= "1111";
+  sub2_wr_in.arprot <= "010";
   sub2_dut : entity work.sub2_axi4
     port map (
       aclk       => clk,
       areset_n   => rst_n,
-      awvalid    => sub2_wr_in.awvalid,
-      awready    => sub2_wr_out.awready,
-      awaddr     => sub2_wr_in.awaddr(5 downto 2),
-      awprot     => "010",
-      wvalid     => sub2_wr_in.wvalid,
-      wready     => sub2_wr_out.wready,
-      wdata      => sub2_wr_in.wdata,
-      wstrb      => "1111",
-      bvalid     => sub2_wr_out.bvalid,
-      bready     => sub2_wr_in.bready,
-      bresp      => sub2_wr_out.bresp,
-      arvalid    => sub2_rd_in.arvalid,
-      arready    => sub2_rd_out.arready,
-      araddr     => sub2_rd_in.araddr(5 downto 2),
-      arprot     => "010",
-      rvalid     => sub2_rd_out.rvalid,
-      rready     => sub2_rd_in.rready,
-      rdata      => sub2_rd_out.rdata,
-      rresp      => sub2_rd_out.rresp,
+      axi4l_i    => sub2_wr_in,
+      axi4l_o    => sub2_wr_out,
 
       reg1_o     => sub2_reg1,
       reg2_o     => sub2_reg2,

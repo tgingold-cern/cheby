@@ -6,6 +6,7 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 use work.wishbone_pkg.all;
+use work.axi4lite_pkg.all;
 use work.axi4_tb_pkg.all;
 use work.cernbe_tb_pkg.all;
 use work.avalon_tb_pkg.all;
@@ -77,25 +78,26 @@ begin
     port map (
       aclk       => clk,
       areset_n   => rst_n,
-      awvalid    => wr_out.awvalid,
-      awready    => wr_in.awready,
-      awaddr     => wr_out.awaddr(14 downto 2),
-      awprot     => "010",
-      wvalid     => wr_out.wvalid,
-      wready     => wr_in.wready,
-      wdata      => wr_out.wdata,
-      wstrb      => "1111",
-      bvalid     => wr_in.bvalid,
-      bready     => wr_out.bready,
-      bresp      => wr_in.bresp,
-      arvalid    => rd_out.arvalid,
-      arready    => rd_in.arready,
-      araddr     => rd_out.araddr(14 downto 2),
-      arprot     => "010",
-      rvalid     => rd_in.rvalid,
-      rready     => rd_out.rready,
-      rdata      => rd_in.rdata,
-      rresp      => rd_in.rresp,
+
+      axi4l_i.awvalid    => wr_out.awvalid,
+      axi4l_i.awaddr     => wr_out.awaddr,
+      axi4l_i.awprot     => "010",
+      axi4l_i.wvalid     => wr_out.wvalid,
+      axi4l_i.wdata      => wr_out.wdata,
+      axi4l_i.wstrb      => "1111",
+      axi4l_i.bready     => wr_out.bready,
+      axi4l_i.arvalid    => rd_out.arvalid,
+      axi4l_i.araddr     => rd_out.araddr,
+      axi4l_i.arprot     => "010",
+      axi4l_i.rready     => rd_out.rready,
+      axi4l_o.awready    => wr_in.awready,
+      axi4l_o.wready     => wr_in.wready,
+      axi4l_o.bvalid     => wr_in.bvalid,
+      axi4l_o.bresp      => wr_in.bresp,
+      axi4l_o.arready    => rd_in.arready,
+      axi4l_o.rvalid     => rd_in.rvalid,
+      axi4l_o.rdata      => rd_in.rdata,
+      axi4l_o.rresp      => rd_in.rresp,
 
       ram1_adr_i     => (others => '0'),
       ram1_val_rd_i  => '0',
