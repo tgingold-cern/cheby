@@ -218,6 +218,11 @@ convention
 
 * simple-32: a simple bus (with 32 bit of data) based on strobe and ack pulses.
 
+* sram: an even simpler bus (with 32 bit of data) without ack signal
+  so data is expected on the next clock tick. As such, it can **not**
+  be used as a `bus` but only as an `interface` for RAM or Submap
+  elements.
+
 The attribute `word-endian` can be used to specify the word endianness
 (how multi-word registers are laid out in memory).  It is optional,
 and the default is set according to the bus: `big` by default for
@@ -525,9 +530,11 @@ child.  The size of the ram is specified by the `memsize` attribute
 Note that the width of the ram (the number of address lines) is computed from
 the size of the ram and the size of the register.
 
-Unless the attribute 'interface' is present, the memory is automatically
-instantiated.  Otherwise the attribute specifies the type of bus, like
-for an external submap.
+Unless the attribute `interface` is present, the memory is
+automatically instantiated using `cheby_dpssram` (Dual Port Simple
+SRAM) from https://ohwr.org/project/general-cores[OHWR
+general-cores]. Otherwise the attribute specifies the type of
+<<Header,bus>>, like for an external submap.
 
 If the `dual-clock` attribute of `x-hdl` is set to True, the external memory
 port is clocked by an external input.
@@ -570,9 +577,9 @@ Example of a replication:
 === Submap
 
 If the `filename` attribute is not present, then this is a generic
-submap and a bus port is generated in the HDL.  The size of the submap
-is required.  The attribute `interface` specifies which interface is used
-for the connection.
+submap and a bus port is generated in the HDL. The size of the submap
+is required. The attribute `interface` specifies which interface is
+used for the connection, see the <<Header,bus>> attribute.
 
 Example of a generic submap:
 
@@ -681,8 +688,8 @@ never asserted as output.
 By default the wishbone interface uses one port per wishbone signal.
 It is possible to group all signals in one input and one output port
 by setting the `x-hdl.busgroup` attribute to `True`. The VHDL package,
-originating from https://ohwr.org/project/general-cores, can also be
-found as an appendix here.
+originating from https://ohwr.org/project/general-cores[OHWR
+general-cores], can also be found as an appendix here.
 
 
 == Gena Compatibility

@@ -30,8 +30,6 @@ To build the documentation, simply run `make` from within the [doc/](doc) direct
 Please note that the documentation build process requires
 [asciidoc](http://asciidoc.org/) and [asciidoctor](https://asciidoctor.org/).
 
-The documentation for the extensions are in [doc/extensions](doc/extensions) directory.
-
 ## License
 
 Cheby is GPLv3, see the LICENSE file.
