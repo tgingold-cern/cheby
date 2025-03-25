@@ -12,6 +12,6 @@ memory-map:
       access: rw
       preset: 0x12340000
   - submap:
-      name: sub2_axi4
+      name: sub2
       filename: sub2_axi4.cheby
       description: An AXI4-Lite bus

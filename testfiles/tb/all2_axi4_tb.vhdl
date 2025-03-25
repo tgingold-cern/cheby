@@ -74,15 +74,15 @@ begin
 
       reg1_o     => reg1,
 
-      sub2_axi4_i => sub2_wr_out,
-      sub2_axi4_o => sub2_wr_in
+      sub2_i => sub2_wr_out,
+      sub2_o => sub2_wr_in
       );
 
 
   sub2_wr_in.awprot <= "010";
   sub2_wr_in.wstrb  <= "1111";
   sub2_wr_in.arprot <= "010";
-  sub2_dut : entity work.sub2_axi4
+  sub2_dut : entity work.sub2
     port map (
       aclk       => clk,
       areset_n   => rst_n,

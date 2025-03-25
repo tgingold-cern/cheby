@@ -4,7 +4,7 @@ use ieee.numeric_std.all;
 use work.axi4lite_pkg.all;
 use work.cheby_pkg.all;
 
-entity sub2_axi4 is
+entity sub2 is
   port (
     axi4l_i              : in    t_axi4lite_subordinate_in;
     axi4l_o              : out   t_axi4lite_subordinate_out;
@@ -22,9 +22,9 @@ entity sub2_axi4 is
     ram1_val_rd_i        : in    std_logic;
     ram1_val_dat_o       : out   std_logic_vector(31 downto 0)
   );
-end sub2_axi4;
+end sub2;
 
-architecture syn of sub2_axi4 is
+architecture syn of sub2 is
   signal wr_req                         : std_logic;
   signal wr_ack                         : std_logic;
   signal wr_addr                        : std_logic_vector(5 downto 2);
