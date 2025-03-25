@@ -13,9 +13,9 @@ entity all2_axi4 is
     -- REG reg1
     reg1_o               : out   std_logic_vector(31 downto 0);
 
-    -- AXI-4 lite bus sub2_axi4
-    sub2_axi4_i          : in    t_axi4lite_manager_in;
-    sub2_axi4_o          : out   t_axi4lite_manager_out
+    -- AXI-4 lite bus sub2
+    sub2_i               : in    t_axi4lite_manager_in;
+    sub2_o               : out   t_axi4lite_manager_out
   );
 end all2_axi4;
 
@@ -37,11 +37,11 @@ architecture syn of all2_axi4 is
   signal reg1_reg                       : std_logic_vector(31 downto 0);
   signal reg1_wreq                      : std_logic;
   signal reg1_wack                      : std_logic;
-  signal sub2_axi4_aw_val               : std_logic;
-  signal sub2_axi4_w_val                : std_logic;
-  signal sub2_axi4_ar_val               : std_logic;
-  signal sub2_axi4_rd                   : std_logic;
-  signal sub2_axi4_wr                   : std_logic;
+  signal sub2_aw_val                    : std_logic;
+  signal sub2_w_val                     : std_logic;
+  signal sub2_ar_val                    : std_logic;
+  signal sub2_rd                        : std_logic;
+  signal sub2_wr                        : std_logic;
   signal rd_ack_d0                      : std_logic;
   signal rd_dat_d0                      : std_logic_vector(31 downto 0);
   signal wr_req_d0                      : std_logic;
@@ -156,50 +156,50 @@ begin
     end if;
   end process;
 
-  -- Interface sub2_axi4
-  sub2_axi4_o.awvalid <= sub2_axi4_aw_val;
-  sub2_axi4_o.awaddr <= ((25 downto 0 => '0') & wr_adr_d0(5 downto 2)) & (1 downto 0 => '0');
-  sub2_axi4_o.awprot <= "000";
-  sub2_axi4_o.wvalid <= sub2_axi4_w_val;
-  sub2_axi4_o.wdata <= wr_dat_d0;
+  -- Interface sub2
+  sub2_o.awvalid <= sub2_aw_val;
+  sub2_o.awaddr <= ((25 downto 0 => '0') & wr_adr_d0(5 downto 2)) & (1 downto 0 => '0');
+  sub2_o.awprot <= "000";
+  sub2_o.wvalid <= sub2_w_val;
+  sub2_o.wdata <= wr_dat_d0;
   process (wr_sel_d0) begin
-    sub2_axi4_o.wstrb <= (others => '0');
+    sub2_o.wstrb <= (others => '0');
     if not (wr_sel_d0(7 downto 0) = (7 downto 0 => '0')) then
-      sub2_axi4_o.wstrb(0) <= '1';
+      sub2_o.wstrb(0) <= '1';
     end if;
     if not (wr_sel_d0(15 downto 8) = (7 downto 0 => '0')) then
-      sub2_axi4_o.wstrb(1) <= '1';
+      sub2_o.wstrb(1) <= '1';
     end if;
     if not (wr_sel_d0(23 downto 16) = (7 downto 0 => '0')) then
-      sub2_axi4_o.wstrb(2) <= '1';
+      sub2_o.wstrb(2) <= '1';
     end if;
     if not (wr_sel_d0(31 downto 24) = (7 downto 0 => '0')) then
-      sub2_axi4_o.wstrb(3) <= '1';
+      sub2_o.wstrb(3) <= '1';
     end if;
   end process;
-  sub2_axi4_o.bready <= '1';
-  sub2_axi4_o.arvalid <= sub2_axi4_ar_val;
-  sub2_axi4_o.araddr <= ((25 downto 0 => '0') & rd_addr(5 downto 2)) & (1 downto 0 => '0');
-  sub2_axi4_o.arprot <= "000";
-  sub2_axi4_o.rready <= '1';
+  sub2_o.bready <= '1';
+  sub2_o.arvalid <= sub2_ar_val;
+  sub2_o.araddr <= ((25 downto 0 => '0') & rd_addr(5 downto 2)) & (1 downto 0 => '0');
+  sub2_o.arprot <= "000";
+  sub2_o.rready <= '1';
   process (aclk) begin
     if rising_edge(aclk) then
       if areset_n = '0' then
-        sub2_axi4_aw_val <= '0';
-        sub2_axi4_w_val <= '0';
-        sub2_axi4_ar_val <= '0';
+        sub2_aw_val <= '0';
+        sub2_w_val <= '0';
+        sub2_ar_val <= '0';
       else
-        sub2_axi4_aw_val <= sub2_axi4_wr or (sub2_axi4_aw_val and not sub2_axi4_i.awready);
-        sub2_axi4_w_val <= sub2_axi4_wr or (sub2_axi4_w_val and not sub2_axi4_i.wready);
-        sub2_axi4_ar_val <= sub2_axi4_rd or (sub2_axi4_ar_val and not sub2_axi4_i.arready);
+        sub2_aw_val <= sub2_wr or (sub2_aw_val and not sub2_i.awready);
+        sub2_w_val <= sub2_wr or (sub2_w_val and not sub2_i.wready);
+        sub2_ar_val <= sub2_rd or (sub2_ar_val and not sub2_i.arready);
       end if;
     end if;
   end process;
 
   -- Process for write requests.
-  process (wr_adr_d0, wr_req_d0, reg1_wack, sub2_axi4_i.bvalid) begin
+  process (wr_adr_d0, wr_req_d0, reg1_wack, sub2_i.bvalid) begin
     reg1_wreq <= '0';
-    sub2_axi4_wr <= '0';
+    sub2_wr <= '0';
     case wr_adr_d0(6 downto 6) is
     when "0" =>
       case wr_adr_d0(5 downto 2) is
@@ -211,19 +211,19 @@ begin
         wr_ack <= wr_req_d0;
       end case;
     when "1" =>
-      -- Submap sub2_axi4
-      sub2_axi4_wr <= wr_req_d0;
-      wr_ack <= sub2_axi4_i.bvalid;
+      -- Submap sub2
+      sub2_wr <= wr_req_d0;
+      wr_ack <= sub2_i.bvalid;
     when others =>
       wr_ack <= wr_req_d0;
     end case;
   end process;
 
   -- Process for read requests.
-  process (rd_addr, rd_req, reg1_reg, sub2_axi4_i.rdata, sub2_axi4_i.rvalid) begin
+  process (rd_addr, rd_req, reg1_reg, sub2_i.rdata, sub2_i.rvalid) begin
     -- By default ack read requests
     rd_dat_d0 <= (others => 'X');
-    sub2_axi4_rd <= '0';
+    sub2_rd <= '0';
     case rd_addr(6 downto 6) is
     when "0" =>
       case rd_addr(5 downto 2) is
@@ -235,10 +235,10 @@ begin
         rd_ack_d0 <= rd_req;
       end case;
     when "1" =>
-      -- Submap sub2_axi4
-      sub2_axi4_rd <= rd_req;
-      rd_dat_d0 <= sub2_axi4_i.rdata;
-      rd_ack_d0 <= sub2_axi4_i.rvalid;
+      -- Submap sub2
+      sub2_rd <= rd_req;
+      rd_dat_d0 <= sub2_i.rdata;
+      rd_ack_d0 <= sub2_i.rvalid;
     when others =>
       rd_ack_d0 <= rd_req;
     end case;

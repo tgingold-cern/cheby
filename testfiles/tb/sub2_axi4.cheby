@@ -1,6 +1,6 @@
 memory-map:
   bus: axi4-lite-32
-  name: sub2_axi4
+  name: sub2
   x-hdl:
     busgroup: True
   children:
