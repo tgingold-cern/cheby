@@ -30,7 +30,7 @@ class BusOptions:
                 bus.get_path()))
         self.addr_low = addr_low
         supported = ('axi', 'wb')
-        if self.busgroup and ((isinstance(bus, Root) and any(x in bus.name for x in supported)) or \
+        if self.busgroup and ((isinstance(bus, Root) and any(x in root.bus for x in supported)) or \
                               (isinstance(bus, Submap) and any(x in bus.interface for x in supported))):
             # only axi & wb (interface) currently support busgroup, with fixed width
             self.addr_wd = 32
@@ -53,7 +53,12 @@ class BusOptions:
             res = None
 
         if self.busgroup:
-            repl = HDLReplicate(bit_0, self.addr_wd - self.bus.c_addr_bits - self.root.c_addr_word_bits, False)
+            diffwd = self.addr_wd - self.bus.c_addr_bits - self.root.c_addr_word_bits
+            if diffwd < 0:
+                raise AssertionError("{} busgroup width of {} too small to fit all memory"
+                                     .format(self.root.name, self.addr_wd))
+            else:
+                repl = HDLReplicate(bit_0, diffwd, False)
             res = repl if res is None else HDLConcat(repl, res)
             if ibus.addr_low > 0:
                 repl = HDLReplicate(bit_0, ibus.addr_low, False)
