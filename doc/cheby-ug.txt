@@ -894,6 +894,23 @@ Some styles also support the generation of structured constant files by adding a
 `-struct` suffix to it. Thereby, the constants are grouped in a hierarchical
 structure instead of individual constants. E.g., `matlab-struct`.
 
+Constants available in generated files are:
+
+* For modules:
+  * `<HNAME>_SIZE`: Size
+  * `ADDR_<HNAME>`: Address
+  * `ADDR_MASK_<HNAME>`: Relative address mask (bits of the address relevant to that specific module)
+  * `ADDR_FMASK_<HNAME>`: Final address mask
+* For registers:
+  * `ADDR_<HNAME>`: Address
+  * `<HNAME>_PRESET`: Preset value where applicable
+* For bitfields:
+  * `ADDR_<HNAME>`: Address (same as parent register address)
+  * `<HNAME>_WIDTH`: Width (in bits)
+  * `<HNAME>_OFFSET`: Offset (in bits)
+  * `<HNAME>`: Bitmask
+  * `<HNAME>_PRESET`: Preset value where applicable
+
 === Generating SILECS file
 
 It is possible to generate SILECS
