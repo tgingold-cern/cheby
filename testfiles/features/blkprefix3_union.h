@@ -7,6 +7,8 @@
 
 /* REG b1 */
 #define BLKPREFIX3_B1 0x0UL
+#define ADDR_MASK_BLKPREFIX3_B1 0x8UL
+#define ADDR_FMASK_BLKPREFIX3_B1 0x8UL
 #define BLKPREFIX3_B1_SIZE 8 /* 0x8 */
 
 /* REG r2 */
@@ -27,6 +29,8 @@
 
 /* REG b2 */
 #define BLKPREFIX3_B2 0x8UL
+#define ADDR_MASK_BLKPREFIX3_B2 0xcUL
+#define ADDR_FMASK_BLKPREFIX3_B2 0xcUL
 #define BLKPREFIX3_B2_SIZE 4 /* 0x4 */
 
 /* REG r3 */

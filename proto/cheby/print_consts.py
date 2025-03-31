@@ -64,15 +64,28 @@ class ConstsPrinter(object):
     def pr_address_mask(self, n):
         if self.sep != "_":
             name = self.pr_name(n) + self.sep + "MASK"
+            name_full = self.pr_name(n) + self.sep + "FMASK"
         else:
             name = "ADDR_MASK_" + self.pr_name(n)
-    
+            name_full = "ADDR_FMASK_" + self.pr_name(n)
+
+        # Calculate the relative mask based on the parent's size
         if isinstance(n.parent, tree.Block) and isinstance(n.parent.parent, tree.RepeatBlock):
             # For elements of unrolled repeat arrays, grandparent size should be used
             parent = n.parent.parent
         else:
             parent = n.parent
         self.pr_hex_addr(name, layout.round_pow2(parent.c_size) - n.c_size)
+
+        # Also calculate the full mask based on the top element's size
+        root_node = n.get_root()
+        if not root_node.c_address_spaces_map:
+            # For "normal roots", use computed size
+            root_size = root_node.c_size
+        else:
+            # For roots containing address-spaces, use size attribute of the memory-map
+            root_size = root_node.size_val
+        self.pr_hex_addr(name_full, layout.round_pow2(root_size) - n.c_size)
 
 
     def pr_size(self, n, sz):
@@ -355,6 +368,7 @@ def pconsts_reg(pr, n):
 def pconsts_block(pr, n):
     if n.parent.hdl_blk_prefix:
         pr.pr_address(n)
+        pr.pr_address_mask(n)
         pr.pr_size(n, n.c_size)
     pconsts_composite_children(pr, n)
 
