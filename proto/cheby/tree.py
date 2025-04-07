@@ -66,6 +66,17 @@ class NamedNode(Node):
         else:
             return self._parent.get_root()
 
+    def get_parent_address_space(self):
+        "Get the object address space or root if it is not part of an address-space"
+        if self._parent is None:
+            # self is the root
+            return self
+        elif isinstance(self, AddressSpace):
+            # self is an address-space
+            return self
+        else:
+            return self._parent.get_parent_address_space()
+
     def get_ext_node(self, ext):
         "Get the object :name ext: or None if it doesn't exist"
         return getattr(self, ext, None)
