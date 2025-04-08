@@ -203,3 +203,17 @@ memory-map:
         width: 32
         access: ro
         address: next
+    - repeat:
+        count: 3
+        name: test
+        children:
+          - reg:
+              name: regrw
+              width: 32
+              access: rw
+              address: next
+          - reg:
+              name: regro
+              width: 32
+              access: ro
+              address: next

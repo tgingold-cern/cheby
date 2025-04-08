@@ -21,6 +21,9 @@
 			<Register name="puName" format="uint32" synchro="MASTER"></Register>
 			<Register name="refCalcPuComp1OnEvent" format="uint32" synchro="MASTER"></Register>
 			<Register name="refCalcPuComp2OnEvent" format="uint32" synchro="MASTER"></Register>
+			<Register name="test0regro" format="uint32" synchro="MASTER"></Register>
+			<Register name="test1regro" format="uint32" synchro="MASTER"></Register>
+			<Register name="test2regro" format="uint32" synchro="MASTER"></Register>
 		</Block>
 		<Block name="fidsErr_rw" mode="READ-WRITE">
 			<Register name="calcParamComp1" format="uint32" synchro="SLAVE"></Register>
@@ -31,6 +34,9 @@
 			<Register name="maxCounterMissing" format="uint32" synchro="SLAVE"></Register>
 			<Register name="maxCounterErratic" format="uint32" synchro="SLAVE"></Register>
 			<Register name="fallingDebounceLength" format="uint32" synchro="SLAVE"></Register>
+			<Register name="test0regrw" format="uint32" synchro="SLAVE"></Register>
+			<Register name="test1regrw" format="uint32" synchro="SLAVE"></Register>
+			<Register name="test2regrw" format="uint32" synchro="SLAVE"></Register>
 		</Block>
 	</SILECS-Class>
 </SILECS-Design>
