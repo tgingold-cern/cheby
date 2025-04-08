@@ -28,6 +28,7 @@ import cheby.print_latex as print_latex
 import cheby.print_rest as print_rest
 import cheby.gen_custom as gen_custom
 import cheby.gen_edge3 as gen_edge3
+import cheby.gen_silecs as gen_silecs
 from cheby.hdl.globals import gconfig, gconfig_scope
 
 srcdir = os.path.join(os.path.dirname(os.path.realpath(__file__)),
@@ -1095,12 +1096,31 @@ def test_edge3():
         layout_ok(t)
         buf = write_buffer()
         gen_edge3.generate_edge3(buf, t)
-        print(edgefile)
         if os.path.exists(edgefile):
             if args.verbose:
                 print('testing with edge3 file: {}'.format(edgefile))
             if not compare_buffer_and_file(buf, edgefile):
                 error('edge3 generation error for {}'.format(f))
+        nbr_tests += 1
+
+def test_silecs():
+    global nbr_tests
+    for f in ['silecs/fids-errmiss']:
+        if args.verbose:
+            print('test SILECS: {}'.format(f))
+        chebfile = srcdir + f + '.cheby'
+        silecsfile = srcdir + f + '.silecsdesign'
+        # simple test for no exceptions
+        t = parse_ok(chebfile)
+        layout_ok(t)
+        expand_hdl.expand_hdl(t)
+        gen_name.gen_name_memmap(t)
+        buf = write_buffer()
+        gen_silecs.generate_silecs(buf, t)
+        if args.verbose:
+            print('testing with SILECS file: {}'.format(silecsfile))
+        if not compare_buffer_and_file(buf, silecsfile):
+            error('SILECS generation error for {}'.format(f))
         nbr_tests += 1
 
 def main():
@@ -1141,6 +1161,7 @@ def main():
         test_doc()
         test_custom()
         test_edge3()
+        test_silecs()
         print("Done ({} tests)!".format(nbr_tests))
     except TestError as e:
         werr(e.msg)

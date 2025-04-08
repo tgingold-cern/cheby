@@ -13,7 +13,7 @@ def gen_header(fd, name, owner, editor):
         '\t\t<Editor user-login="{editor}"/>\n'
         '\t</Information>\n'
         '\t<SILECS-Class name="{name}" version="1.0.0" domain="OPERATIONAL">\n'.format(
-            name=name, owner=owner, editor=editor, date=datetime.now().strftime('%m/%d/%y')))
+            name=name, owner=owner, editor=editor, date=datetime(2025,1,1).strftime('%m/%d/%y')))
 
 
 def gen_block(fd, root, acc, synchro, blockn=''):
