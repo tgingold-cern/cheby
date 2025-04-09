@@ -13,16 +13,18 @@ def gen_header(fd, name, owner, editor):
         '\t\t<Editor user-login="{editor}"/>\n'
         '\t</Information>\n'
         '\t<SILECS-Class name="{name}" version="1.0.0" domain="OPERATIONAL">\n'.format(
-            name=name, owner=owner, editor=editor, date=datetime.now().strftime('%m/%d/%y')))
+            name=name, owner=owner, editor=editor, date=datetime(2025,1,1).strftime('%m/%d/%y')))
 
 
-def gen_block(fd, root, acc, synchro):
+def gen_block(fd, root, acc, synchro, blockn=''):
     for r in root.children:
-        if isinstance(r, tree.Reg):
+        if isinstance(r, tree.RepeatBlock) or isinstance(r, tree.Block):
+            gen_block(fd, r, acc, synchro, blockn + r.name)
+        elif isinstance(r, tree.Reg):
             if r.access == acc:
                 fd.write(
                     '\t\t\t<Register name="{}" format="uint{}" synchro="{}">'
-                    '</Register>\n'.format(r.name, r.width, synchro))
+                    '</Register>\n'.format(blockn + r.name, r.width, synchro))
 
 
 def gen_trailer(fd):

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SILECS-Design silecs-version="SILECS-1.m.p" created="01/01/25" updated="01/01/25"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:noNamespaceSchemaLocation="../../../.schemas/DesignSchema.xsd">
+	<Information>
+		<Owner user-login="owner"/>
+		<Editor user-login="ieplcop"/>
+	</Information>
+	<SILECS-Class name="fidsErrMiss" version="1.0.0" domain="OPERATIONAL">
+		<Block name="fidsErr_ro" area="MEMORY" mode="READ-ONLY">
+			<Register name="fidsCounters" format="uint32" synchro="MASTER"></Register>
+			<Register name="pfnMeasOnEvent" format="uint32" synchro="MASTER"></Register>
+			<Register name="refCalcPuComp1" format="uint32" synchro="MASTER"></Register>
+			<Register name="refCalcPuComp2" format="uint32" synchro="MASTER"></Register>
+			<Register name="pulseLengthTrigger" format="uint32" synchro="MASTER"></Register>
+			<Register name="pulseLengthPuComp1" format="uint32" synchro="MASTER"></Register>
+			<Register name="pulseLengthPuComp2" format="uint32" synchro="MASTER"></Register>
+			<Register name="delayTrigComp1" format="uint32" synchro="MASTER"></Register>
+			<Register name="delayTrigComp2" format="uint32" synchro="MASTER"></Register>
+			<Register name="delayComp1Comp2" format="uint32" synchro="MASTER"></Register>
+			<Register name="puName" format="uint32" synchro="MASTER"></Register>
+			<Register name="refCalcPuComp1OnEvent" format="uint32" synchro="MASTER"></Register>
+			<Register name="refCalcPuComp2OnEvent" format="uint32" synchro="MASTER"></Register>
+			<Register name="test0regro" format="uint32" synchro="MASTER"></Register>
+			<Register name="test1regro" format="uint32" synchro="MASTER"></Register>
+			<Register name="test2regro" format="uint32" synchro="MASTER"></Register>
+		</Block>
+		<Block name="fidsErr_rw" mode="READ-WRITE">
+			<Register name="calcParamComp1" format="uint32" synchro="SLAVE"></Register>
+			<Register name="calcParamComp2" format="uint32" synchro="SLAVE"></Register>
+			<Register name="moduleParam" format="uint32" synchro="SLAVE"></Register>
+			<Register name="windowLengthMissing" format="uint32" synchro="SLAVE"></Register>
+			<Register name="windowLengthErratic" format="uint32" synchro="SLAVE"></Register>
+			<Register name="maxCounterMissing" format="uint32" synchro="SLAVE"></Register>
+			<Register name="maxCounterErratic" format="uint32" synchro="SLAVE"></Register>
+			<Register name="fallingDebounceLength" format="uint32" synchro="SLAVE"></Register>
+			<Register name="test0regrw" format="uint32" synchro="SLAVE"></Register>
+			<Register name="test1regrw" format="uint32" synchro="SLAVE"></Register>
+			<Register name="test2regrw" format="uint32" synchro="SLAVE"></Register>
+		</Block>
+	</SILECS-Class>
+</SILECS-Design>

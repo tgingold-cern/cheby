@@ -219,9 +219,6 @@ def handle_file(args, filename):
             h = gen_gena_memmap.gen_gena_memmap(t)
             gen_header.gen_comment_header_maybe(f, args.header, args.hdl)
             print_vhdl.print_vhdl(f, h)
-    if args.gen_silecs is not None:
-        with open_filename(args.gen_silecs) as f:
-            gen_silecs.generate_silecs(f, t)
     if args.gen_custom is not None:
         with open_filename(args.gen_custom) as f:
             gen_custom.generate_custom(f, t, args.custom)
@@ -257,6 +254,9 @@ def handle_file(args, filename):
     gen_name.gen_name_memmap(t)
     layout.sort_tree(t)
 
+    if args.gen_silecs is not None:
+        with open_filename(args.gen_silecs) as f:
+            gen_silecs.generate_silecs(f, t)
     if args.print_simple_expanded is not None:
         with open_filename(args.print_simple_expanded) as f:
             sprint.sprint_cheby(f, t, True)
