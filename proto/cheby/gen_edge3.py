@@ -197,7 +197,7 @@ class EncoreBlock(object):
     def append_reg(self, reg, name, offset, rwmode, size, depth=1, flags='', desc=None):
         self.regs.append(EdgeReg(reg, self.block_name, name,
                                  offset, rwmode, size, depth, None, flags,
-                                 desc or reg.description))
+                                 desc or reg.comment))
         try:
             if reg.has_fields():
                 for f in reg.children:
@@ -209,7 +209,7 @@ class EncoreBlock(object):
                         mask = (2 << (f.hi - f.lo)) - 1
                     mask = mask << f.lo
                     self.regs.append(EdgeReg(reg, self.block_name, "{}_{}".format(name, f.name),
-                                             offset, rwmode, size, depth, mask, flags, f.description))
+                                             offset, rwmode, size, depth, mask, flags, f.comment))
         except AttributeError:
             pass
 
@@ -362,20 +362,20 @@ def process_body(b, n, offset, res_name, name_prefix=[], block_prefix=[], name_s
             if get_extension(el, 'fifo', False):
                 flags = 'FIFO'
             r = el.children[0]
-            b.append_reg(r, el_name, el_addr, r.access, r.c_size, el.c_depth, flags, el.description)
+            b.append_reg(r, el_name, el_addr, r.access, r.c_size, el.c_depth, flags, el.comment)
 
         elif isinstance(el, tree.Repeat):
             # TODO: expand should be able to work on any repeat structure but full size can't be easily calculated here
             if len(el.children) == 1 and isinstance(el.children[0], tree.Reg):
                 r = el.children[0]
                 if not get_extension(el, 'expand', False):
-                    b.append_reg(r, el_name, el_addr, r.access, r.c_size, el.count, '', el.description)
+                    b.append_reg(r, el_name, el_addr, r.access, r.c_size, el.count, '', el.comment)
                 else:
                     for i in range(0, el.count):
                         b.append_reg(r, "{}_{}".format(el_name, i), el_addr+(i*r.c_size), r.access, r.c_size)
             else:
                 b2 = EncoreBlock(b.encore, el, el_name, res_name)
-                b.append_block(b2, el_name, el_addr, el.description)
+                b.append_block(b2, el_name, el_addr, el.comment)
                 for i in range(0, el.count):
                     process_body(b2, el, i*el.c_elsize, res_name, name_suffix=[str(i)])
 
@@ -386,7 +386,7 @@ def process_body(b, n, offset, res_name, name_prefix=[], block_prefix=[], name_s
                 if el.filename is None or not get_extension(el, 'expand', True):
                     word_size = getattr(el, 'c_word_size', b.encore.root.c_word_size)
                     access = 'rw'
-                    b.append_reg(el, el_name, el_addr, access, word_size, el.c_size // word_size, '', el.description)
+                    b.append_reg(el, el_name, el_addr, access, word_size, el.c_size // word_size, '', el.comment)
                     continue
 
                 prefix = []
@@ -397,7 +397,7 @@ def process_body(b, n, offset, res_name, name_prefix=[], block_prefix=[], name_s
                 if not get_extension(el, 'expand', True):
                     word_size = b.encore.root.c_word_size
                     access = required_access_mode(el)
-                    b.append_reg(el, el_name, el_addr, access, word_size, el.c_size // word_size, '', el.description)
+                    b.append_reg(el, el_name, el_addr, access, word_size, el.c_size // word_size, '', el.comment)
                     continue
 
                 if use_block_prefix and not top:
@@ -415,7 +415,7 @@ def process_body(b, n, offset, res_name, name_prefix=[], block_prefix=[], name_s
                 process_body(b, node, el_addr, res_name, el_name_cat if use_block_prefix else name_prefix, prefix)
             else:
                 b2 = EncoreBlock(b.encore, el, name, res_name)
-                b.append_block(b2, el_name, el_addr, el.description)
+                b.append_block(b2, el_name, el_addr, el.comment)
                 process_body(b2, node, 0, res_name, [], prefix)
 
         else:
@@ -446,7 +446,7 @@ def generate_edge3(fd, root):
     edge_vers = str(get_extension(root, 'schema-version', '3.0'))
     bus = get_extension(root, 'bus-type', 'VME')
     endian = get_extension(root, 'endianness', 'big' if bus == 'VME' else 'little')
-    description = get_extension(root, 'description', root.description)
+    description = get_extension(root, 'description', root.comment)
 
     fd.write("#Encore Driver GEnerator version: {}\n\n".format(edge_vers))
 
@@ -518,7 +518,7 @@ def generate_edge3(fd, root):
             args_str = ''
 
         rsrc_table.append(res_def_name=el.name, type='MEM', res_no=num,
-                          args=args_str, description=el.description)
+                          args=args_str, description=el.comment)
 
         process_body(e.top, el, 0, el.name, top=True)
 
