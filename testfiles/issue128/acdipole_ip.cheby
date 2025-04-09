@@ -12,7 +12,7 @@ memory-map:
   children:
     - address-space:
         name: bar0
-        description: AXI4-Lite acdipole IP
+        comment: AXI4-Lite acdipole IP
         x-driver-edge:
           number: 0
           addr-mode: A32
@@ -20,7 +20,7 @@ memory-map:
         children:
           - submap:
               name: ip
-              description: the ip
+              comment: the ip
               address: 0x0
               include: true
               filename: ip.cheby
@@ -28,7 +28,7 @@ memory-map:
                 include: false
     - address-space:
         name: bar1
-        description: DDR for ADC-DAC
+        comment: DDR for ADC-DAC
         x-driver-edge:
           number: 1
           addr-mode: A32

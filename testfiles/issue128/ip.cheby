@@ -127,13 +127,13 @@ memory-map:
         preset: 0x460
     - reg:
         name: ram_acq_addr
-        description: Acquisition RAM address
+        comment: Acquisition RAM address
         width: 32
         access: rw
         address: next
     - reg:
         name: ram_acq_data
-        description: Acquisition RAM data
+        comment: Acquisition RAM data
         width: 32
         access: ro
         address: next
@@ -142,31 +142,31 @@ memory-map:
           read-ack: true
     - reg:
         name: pll_control
-        description: PLL clock control, obsolete
+        comment: PLL clock control, obsolete
         width: 32
         access: rw
         address: next
     - reg:
         name: clock_distr_intf
-        description: Clock distribution interface, obsolete
+        comment: Clock distribution interface, obsolete
         width: 32
         access: rw
         address: next
     - reg:
         name: pll_intf
-        description: PLL interface, obsolete
+        comment: PLL interface, obsolete
         width: 32
         access: rw
         address: next
     - reg:
         name: adc_ch_en
-        description: ADC channel enables
+        comment: ADC channel enables
         width: 32
         access: rw
         address: next
     - reg:
         name: dac_ch_en
-        description: DAC channel enables
+        comment: DAC channel enables
         width: 32
         access: rw
         address: next
@@ -177,13 +177,13 @@ memory-map:
         address: next
     - reg:
         name: ram_dac_addr
-        description: DAC RAM address
+        comment: DAC RAM address
         width: 32
         access: rw
         address: next
     - reg:
         name: ram_dac_data
-        description: DAC RAM data
+        comment: DAC RAM data
         width: 32
         access: rw
         address: next
@@ -200,13 +200,13 @@ memory-map:
               range: 15-0
     - reg:
         name: adc_ampli_en
-        description: ADC Amplifier enables
+        comment: ADC Amplifier enables
         width: 32
         access: rw
         address: next
     - reg:
         name: dac_controls
-        description: DAC controls
+        comment: DAC controls
         width: 32
         access: rw
         address: next
@@ -215,17 +215,17 @@ memory-map:
         children:
           - field:
               name: feedback
-              description: DAC outputs are loopback of ADC values
+              comment: DAC outputs are loopback of ADC values
               range: 6
     - reg:
         name: adc_controls
-        description: ADC controls
+        comment: ADC controls
         width: 32
         access: rw
         address: next
     - reg:
         name: trig_ctrl_adc
-        description: trigger control ADC
+        comment: trigger control ADC
         width: 32
         access: rw
         address: 0x5c
@@ -234,19 +234,19 @@ memory-map:
         children:
           - field:
               name: ext_trig_en
-              description: external trigger enable
+              comment: external trigger enable
               range: 31
           - field:
               name: mode
-              description: "trigger mode, framed/unframed"
+              comment: "trigger mode, framed/unframed"
               range: 30
           - field:
               name: points
-              description: points to collect
+              comment: points to collect
               range: 15-0
     - reg:
         name: trig_ctrl_dac
-        description: trigger control DAC
+        comment: trigger control DAC
         width: 32
         access: rw
         address: next
@@ -255,19 +255,19 @@ memory-map:
         children:
           - field:
               name: ext_trig_en
-              description: external trigger enable
+              comment: external trigger enable
               range: 31
           - field:
               name: mode
-              description: "trigger mode, framed/unframed"
+              comment: "trigger mode, framed/unframed"
               range: 30
           - field:
               name: points
-              description: points to collect
+              comment: points to collect
               range: 15-0
     - reg:
         name: dac_decimation
-        description: DAC decimation
+        comment: DAC decimation
         width: 32
         access: rw
         address: next
@@ -276,11 +276,11 @@ memory-map:
         children:
           - field:
               name: factor
-              description: decimation factor
+              comment: decimation factor
               range: 11-0
     - reg:
         name: adc_decimation
-        description: ADC decimation
+        comment: ADC decimation
         width: 32
         access: rw
         address: next
@@ -289,12 +289,12 @@ memory-map:
         children:
           - field:
               name: factor
-              description: decimation factor
+              comment: decimation factor
               range: 11-0
     - repeat:
         count: 16
         name: adc_gain_corr
-        description: ADC gain error correction
+        comment: ADC gain error correction
         align: false
         address: 0x80
         x-hdl:
@@ -305,13 +305,13 @@ memory-map:
         children:
           - reg:
               name: adc_gain_corr
-              description: ADC gain error correction
+              comment: ADC gain error correction
               width: 32
               access: rw
     - repeat:
         count: 8
         name: adc_offset_corr
-        description: ADC offset error correction
+        comment: ADC offset error correction
         align: false
         address: 0xc0
         x-hdl:
@@ -320,7 +320,7 @@ memory-map:
         children:
           - reg:
               name: adc_offset_corr
-              description: ADC offset error correction
+              comment: ADC offset error correction
               width: 32
               access: rw
               x-hdl:
@@ -331,13 +331,13 @@ memory-map:
                     range: 15-0
           - reg:
               name: test_for_edge
-              description: ensures better code coverage (separate block generation)
+              comment: ensures better code coverage (separate block generation)
               width: 32
               access: rw
     - repeat:
         count: 8
         name: dac_gain_corr
-        description: DAC gain error correction
+        comment: DAC gain error correction
         align: false
         address: 0x100
         x-hdl:
@@ -348,7 +348,7 @@ memory-map:
         children:
           - reg:
               name: dac_gain_corr
-              description: DAC gain error correction
+              comment: DAC gain error correction
               width: 32
               access: rw
               x-hdl:
@@ -361,7 +361,7 @@ memory-map:
     - repeat:
         count: 8
         name: dac_offset_corr
-        description: DAC offset error correction
+        comment: DAC offset error correction
         align: false
         address: 0x140
         x-hdl:
@@ -370,7 +370,7 @@ memory-map:
         children:
           - reg:
               name: dac_offset_corr
-              description: DAC offset error correction
+              comment: DAC offset error correction
               width: 32
               access: rw
               x-hdl:
@@ -381,7 +381,7 @@ memory-map:
                     range: 15-0
     - reg:
         name: adc0_config
-        description: ADC device 0 configuration register
+        comment: ADC device 0 configuration register
         width: 32
         access: rw
         address: 0x180
@@ -396,7 +396,7 @@ memory-map:
               preset: 0xA7FF
     - reg:
         name: adc1_config
-        description: ADC device 0 configuration register
+        comment: ADC device 0 configuration register
         width: 32
         access: rw
         address: next
@@ -411,7 +411,7 @@ memory-map:
               preset: 0xA7FF
     - reg:
         name: adc2_config
-        description: ADC device 0 configuration register
+        comment: ADC device 0 configuration register
         width: 32
         access: rw
         address: next
@@ -426,7 +426,7 @@ memory-map:
               preset: 0xA7FF
     - reg:
         name: adc3_config
-        description: ADC device 0 configuration register
+        comment: ADC device 0 configuration register
         width: 32
         access: rw
         address: next
@@ -441,7 +441,7 @@ memory-map:
               preset: 0xA7FF
     - reg:
         name: adc_fifo_debug
-        description: ADC FIFO debug info
+        comment: ADC FIFO debug info
         width: 32
         access: rw
         address: 0x1f0
@@ -456,7 +456,7 @@ memory-map:
               range: 8-0
     - reg:
         name: sine_gen_ram_addr
-        description: DAC sine gen RAM current address
+        comment: DAC sine gen RAM current address
         width: 32
         access: rw
         address: next
@@ -468,15 +468,15 @@ memory-map:
               range: 24-0
     - reg:
         name: clk_freq
-        description: system clock frequency
-        comment: in Hz, requires pps signal
+        comment: system clock frequency
+        description: in Hz, requires pps signal
         width: 32
         access: rw
         address: next
     - reg:
         name: fs_freq
-        description: sampling clock frequency
-        comment:  in Hz, requires pps signal
+        comment: sampling clock frequency
+        description:  in Hz, requires pps signal
         width: 32
         access: rw
         address: next
