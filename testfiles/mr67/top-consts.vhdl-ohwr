@@ -1,0 +1,10 @@
+library ieee;
+use ieee.std_logic_1164.all;
+
+package fid_top_axi_consts_pkg is
+  constant c_FID_TOP_AXI_MEMMAP_VERSION : Natural := 16#100#;
+  constant c_FID_TOP_AXI_IP_ADDR : Natural := 16#0#;
+  constant c_ADDR_MASK_FID_TOP_AXI_IP : Natural := 16#0#;
+  constant c_ADDR_FMASK_FID_TOP_AXI_IP : Natural := 16#0#;
+  constant c_FID_TOP_AXI_IP_SIZE : Natural := 4;
+end package fid_top_axi_consts_pkg;

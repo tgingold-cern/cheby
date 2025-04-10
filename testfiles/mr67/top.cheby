@@ -1,0 +1,31 @@
+# Test for the bug introduced in MR !67
+memory-map:
+  name: fid_top_axi
+  bus: axi4-lite-32
+  x-map-info:
+    memmap-version: 0.1.0
+  x-hdl:
+    busgroup: True
+  x-driver-edge:
+    module-type: ABT_FIDS
+    board-type: FASEC
+    driver-version: 0.1.0
+    schema-version: 4.1
+    bus-type: PLATFORM
+    endianness: little
+    device-info:
+      vendor-id: 0x10DC
+      device-id: 0xdead
+  children:
+    - address-space:
+        name: bar0
+        description: fids_ip registers
+        x-driver-edge:
+          number: 0
+          addr-mode: A32
+          data-width: 32
+        children:
+          - submap:
+              name: ip
+              filename: module.cheby
+              include: True
