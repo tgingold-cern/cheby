@@ -1,0 +1,14 @@
+memory-map:
+  name: fidsKfa45
+  bus: axi4-lite-32
+  x-map-info:
+    memmap-version: 2.0.0
+  x-hdl:
+    busgroup: True
+  children:
+    - reg:
+        name: header
+        address: 0x0
+        access: rw
+        type: unsigned
+        width: 32

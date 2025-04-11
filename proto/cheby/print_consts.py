@@ -78,14 +78,10 @@ class ConstsPrinter(object):
         self.pr_hex_addr(name, layout.round_pow2(parent.c_size) - n.c_size)
 
         # Also calculate the full mask based on the top element's size
-        root_node = n.get_root()
-        if not root_node.c_address_spaces_map:
-            # For "normal roots", use computed size
-            root_size = root_node.c_size
-        else:
-            # For roots containing address-spaces, use size attribute of the memory-map
-            root_size = root_node.size_val
-        self.pr_hex_addr(name_full, layout.round_pow2(root_size) - n.c_size)
+        # `top` is either the root node, or the parent address space node if applicable
+        top = n.get_parent_address_space()
+        top_size = top.c_size
+        self.pr_hex_addr(name_full, layout.round_pow2(top_size) - n.c_size)
 
 
     def pr_size(self, n, sz):
