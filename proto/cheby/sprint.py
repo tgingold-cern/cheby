@@ -112,7 +112,7 @@ def sprint_repeat(sp, n):
 
 @SimplePrinter.register(tree.CompositeNode)
 def sprint_composite(sp, n):
-    sp.sp_info("[al: {}, sz: {}] ".format(pr_memsize(n.c_align), pr_memsize(n.c_size)))
+    sp.sp_info("[al: {}, sz: {}]".format(pr_memsize(n.c_align), pr_memsize(n.c_size)))
     sp.inc()
     for el in n.c_sorted_children:
         sp.visit(el)
