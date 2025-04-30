@@ -1,8 +1,6 @@
 #ifndef __CHEBY__TOP__H__
 #define __CHEBY__TOP__H__
 
-#include <stdint.h>
-
 
 #include "sub1.h"
 #include "sub2.h"

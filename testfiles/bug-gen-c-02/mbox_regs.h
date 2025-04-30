@@ -1,8 +1,6 @@
 #ifndef __CHEBY__MBOX_REGS__H__
 #define __CHEBY__MBOX_REGS__H__
 
-#include <stdint.h>
-
 #define MBOX_REGS_SIZE 12 /* 0xc */
 
 /* REG mboxout */

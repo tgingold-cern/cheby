@@ -1,8 +1,6 @@
 #ifndef __CHEBY__BLKPREFIX3__H__
 #define __CHEBY__BLKPREFIX3__H__
 
-#include <stdint.h>
-
 #define BLKPREFIX3_SIZE 48 /* 0x30 */
 
 /* REG b1 */

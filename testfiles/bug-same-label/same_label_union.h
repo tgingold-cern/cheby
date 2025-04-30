@@ -1,8 +1,6 @@
 #ifndef __CHEBY__SAME_LABEL_REG__H__
 #define __CHEBY__SAME_LABEL_REG__H__
 
-#include <stdint.h>
-
 #define SAME_LABEL_REG_SIZE 16 /* 0x10 */
 
 /* REG no_fields */
