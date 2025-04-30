@@ -161,11 +161,11 @@ class WBBus(BusGen):
         return res
 
     def gen_wishbone(self, module, ports, name, addr_bits, lo_addr,
-                     data_bits, comment, is_master, is_group) -> dict[str, HDLPort]:
+                     data_bits, comment, is_master, is_group, libname = 'work') -> dict[str, HDLPort]:
         if is_group:
             if WBBus.wb_pkg is None:
                 self.gen_wishbone_pkg()
-                module.deps.append(('work', 'wishbone_pkg'))
+                module.deps.append((libname, 'wishbone_pkg'))
             # Add the interface modport to the ports
             port = ports.add_modport(name, WBBus.wb_itf, is_master)
             port.comment = comment
@@ -204,14 +204,14 @@ class WBBus(BusGen):
             32, 0, 32, True)
         return
 
-    def expand_bus(self, root, module, ibus):
+    def expand_bus(self, root, module, ibus, wb_lib_name = 'work'):
         """Create wishbone interface for the design."""
         root.h_bus = {}
         opts = BusOptions(root, root)
 
         root.h_bus.update(self.gen_wishbone(
             module, module, 'wb', root.c_addr_bits, root.c_addr_word_bits,
-            root.c_word_bits, None, False, opts.busgroup))
+            root.c_word_bits, None, False, opts.busgroup, libname=wb_lib_name))
         root.h_bussplit = False
 
         # Bus access

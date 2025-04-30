@@ -230,7 +230,7 @@ def add_write_mux_process(root, module, ibus):
     hdlutils.compute_sensitivity(wrproc)
 
 
-def gen_hdl_header(root, ibus=None):
+def gen_hdl_header(root, ibus=None, wb_lib_name = 'work'):
     # Note: also called from gen_gena_regctrl but without ibus.
     module = HDLModule()
     module.name = root.hdl_module_name
@@ -243,7 +243,7 @@ def gen_hdl_header(root, ibus=None):
 
     # Create the bus
     root.h_busgen = name_to_busgen(root.bus)
-    root.h_busgen.expand_bus(root, module, ibus)
+    root.h_busgen.expand_bus(root, module, ibus, wb_lib_name)
 
     return module
 
@@ -334,17 +334,17 @@ def gen_hdl_names(n, parent):
         raise AssertionError(n)
 
 
-def generate_hdl(root):
+def generate_hdl(root, wb_lib_name = 'work'):
     ibus = Ibus()
 
     # Force the regeneration of wb package (useful only when testing).
     WBBus.wb_pkg = None
 
-    module = gen_hdl_header(root, ibus)
+    module = gen_hdl_header(root, ibus, wb_lib_name)
 
     # For compatibility with Gena.
     root.h_bus['vrst'] = root.h_bus['brst']
-
+    root.wb_lib_name = wb_lib_name
     gen_hdl_names(root, None)
 
     root.h_gen = GenBlock(root, module, root)
