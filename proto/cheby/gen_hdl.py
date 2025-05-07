@@ -39,6 +39,7 @@ from cheby.hdl.ibus import Ibus
 from cheby.hdl.genblock import GenBlock
 from cheby.hdl.buses import name_to_busgen
 from cheby.gen_name import concat, concat_if
+from cheby.hdl.axi4litebus import AXI4LiteBus
 
 def add_block_decoder(root, stmts, addr, children, hi, func, off):
     # :param hi: is the highest address bit to be decoded.
@@ -230,7 +231,7 @@ def add_write_mux_process(root, module, ibus):
     hdlutils.compute_sensitivity(wrproc)
 
 
-def gen_hdl_header(root, ibus=None, wb_lib_name = 'work'):
+def gen_hdl_header(root, ibus=None, wb_lib_name = 'work', axil_lib_name = 'work'):
     # Note: also called from gen_gena_regctrl but without ibus.
     module = HDLModule()
     module.name = root.hdl_module_name
@@ -243,7 +244,15 @@ def gen_hdl_header(root, ibus=None, wb_lib_name = 'work'):
 
     # Create the bus
     root.h_busgen = name_to_busgen(root.bus)
-    root.h_busgen.expand_bus(root, module, ibus, wb_lib_name)
+    if isinstance(root.h_busgen, WBBus):
+        # WBBus needs wb_lib_name
+        root.h_busgen.expand_bus(root, module, ibus, wb_lib_name=wb_lib_name)
+    elif isinstance(root.h_busgen, AXI4LiteBus):
+         # AXI4LiteBus needs axil_lib_name
+        root.h_busgen.expand_bus(root, module, ibus, axil_lib_name=axil_lib_name)
+    else:
+        # Other bus types don't need extra library names
+        root.h_busgen.expand_bus(root, module, ibus)
 
     return module
 
@@ -334,17 +343,17 @@ def gen_hdl_names(n, parent):
         raise AssertionError(n)
 
 
-def generate_hdl(root, wb_lib_name = 'work'):
+def generate_hdl(root, wb_lib_name = 'work', axil_lib_name = 'work'):
     ibus = Ibus()
-
     # Force the regeneration of wb package (useful only when testing).
     WBBus.wb_pkg = None
 
-    module = gen_hdl_header(root, ibus, wb_lib_name)
+    module = gen_hdl_header(root, ibus, wb_lib_name, axil_lib_name)
 
     # For compatibility with Gena.
     root.h_bus['vrst'] = root.h_bus['brst']
-    root.wb_lib_name = wb_lib_name
+    #root.wb_lib_name = wb_lib_name
+    #root.axil_lib_name = axil_lib_name
     gen_hdl_names(root, None)
 
     root.h_gen = GenBlock(root, module, root)
