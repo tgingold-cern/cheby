@@ -31,8 +31,6 @@ import cheby.gen_edge3 as gen_edge3
 import cheby.gen_silecs as gen_silecs
 from cheby.hdl.globals import gconfig, gconfig_scope
 
-lib_default = 'work'
-
 srcdir = os.path.join(os.path.dirname(os.path.realpath(__file__)),
                       '../testfiles/')
 
@@ -70,7 +68,6 @@ class write_buffer(object):
 
     def write(self, s):
         self.buffer += s
-        #print(self.buffer)
 
     def get(self):
         return self.buffer
@@ -539,7 +536,7 @@ def test_hdl_library_names():
     expand_hdl.expand_hdl(t_wb)
     gen_name.gen_name_memmap(t_wb)
     # Call generate_hdl with custom WB lib name, default AXI lib name
-    h_wb = gen_hdl.generate_hdl(t_wb, wb_lib_name=wb_lib, axil_lib_name=lib_default)
+    h_wb = gen_hdl.generate_hdl(t_wb, wb_lib_name=wb_lib)
 
     # Generate VHDL and compare
     buf_vhdl_wb = write_buffer()
@@ -561,7 +558,7 @@ def test_hdl_library_names():
     expand_hdl.expand_hdl(t_axi)
     gen_name.gen_name_memmap(t_axi)
     # Call generate_hdl with default WB lib name, custom AXI lib name
-    h_axi = gen_hdl.generate_hdl(t_axi, wb_lib_name=lib_default, axil_lib_name=axi_lib)
+    h_axi = gen_hdl.generate_hdl(t_axi, axil_lib_name=axi_lib)
 
     # Generate VHDL and compare
     buf_vhdl_axi = write_buffer()
@@ -1051,7 +1048,8 @@ def test_consts():
     for f in ['demo_all', 'features/semver1', 'features/mapinfo1',
               'issue64/simple_reg1', 'issue_g2/reg', 'bug-consts/blkpfx',
               'features/enums1', 'features/enums2', 'bug-const-range/const_range',
-              'features/memwide_ua', 'bug-same-label/same_label', 'issue143/map']:
+              'features/memwide_ua', 'bug-same-label/same_label', 'issue143/map',
+              'mr67/top']:
         if args.verbose:
             print('test consts: {}'.format(f))
         chebfile = srcdir + f + '.cheby'
@@ -1192,7 +1190,7 @@ def main():
         test_parser()
         test_layout()
         test_print()
-        test_gconfig_scope()     
+        test_gconfig_scope()
         test_genc_ref()
         test_hdl_library_names()
         test_hdl()
@@ -1216,7 +1214,6 @@ def main():
         test_custom()
         test_edge3()
         test_silecs()
-
         print("Done ({} tests)!".format(nbr_tests))
     except TestError as e:
         werr(e.msg)
