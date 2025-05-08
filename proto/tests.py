@@ -370,11 +370,11 @@ def test_hdl():
         expand_hdl.expand_hdl(t)
         gen_name.gen_name_memmap(t)
         if t.c_address_spaces_map is None:
-            h = gen_hdl.generate_hdl(t, lib_default, lib_default)
+            h = gen_hdl.generate_hdl(t)
             print_vhdl.print_vhdl(fd, h)
         else:
             for sp in t.children:
-                h = gen_hdl.generate_hdl(sp, lib_default, lib_default)
+                h = gen_hdl.generate_hdl(sp)
                 print_vhdl.print_vhdl(fd, h)
         nbr_tests += 1
 
@@ -483,7 +483,7 @@ def test_hdl_ref():
         layout_ok(t)
         expand_hdl.expand_hdl(t)
         gen_name.gen_name_memmap(t)
-        h = gen_hdl.generate_hdl(t, lib_default, lib_default)
+        h = gen_hdl.generate_hdl(t)
 
         # Generate VHDL
         buf_vhdl = write_buffer()
@@ -590,7 +590,7 @@ def test_hdl_ref_async_rst():
             layout_ok(t)
             expand_hdl.expand_hdl(t)
             gen_name.gen_name_memmap(t)
-            h = gen_hdl.generate_hdl(t, lib_default, lib_default)
+            h = gen_hdl.generate_hdl(t)
 
             # Generate VHDL
             buf = write_buffer()
@@ -628,7 +628,7 @@ def test_hdl_ref_preset_preload():
             layout_ok(t)
             expand_hdl.expand_hdl(t)
             gen_name.gen_name_memmap(t)
-            h = gen_hdl.generate_hdl(t, lib_default, lib_default)
+            h = gen_hdl.generate_hdl(t)
 
             # Generate VHDL
             buf = write_buffer()
@@ -668,7 +668,7 @@ def test_verilog_ref():
         layout_ok(t)
         expand_hdl.expand_hdl(t)
         gen_name.gen_name_memmap(t)
-        h = gen_hdl.generate_hdl(t, lib_default, lib_default)
+        h = gen_hdl.generate_hdl(t)
 
         # Generate Verilog
         gconfig.hdl_lang = 'verilog'
@@ -695,7 +695,7 @@ def test_sv_ref():
         layout_ok(t)
         expand_hdl.expand_hdl(t)
         gen_name.gen_name_memmap(t)
-        h = gen_hdl.generate_hdl(t, lib_default, lib_default)
+        h = gen_hdl.generate_hdl(t)
 
         # Generate SV
         buf = write_buffer()
@@ -719,7 +719,7 @@ def test_issue84():
         layout_ok(t)
         expand_hdl.expand_hdl(t)
         gen_name.gen_name_memmap(t)
-        h = gen_hdl.generate_hdl(t.c_address_spaces_map['bar0'], lib_default, lib_default)
+        h = gen_hdl.generate_hdl(t.c_address_spaces_map['bar0'])
 
         # Generate VHDL
         buf = write_buffer()
