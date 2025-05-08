@@ -352,8 +352,7 @@ def generate_hdl(root, wb_lib_name = 'work', axil_lib_name = 'work'):
 
     # For compatibility with Gena.
     root.h_bus['vrst'] = root.h_bus['brst']
-    #root.wb_lib_name = wb_lib_name
-    #root.axil_lib_name = axil_lib_name
+    
     gen_hdl_names(root, None)
 
     root.h_gen = GenBlock(root, module, root)
