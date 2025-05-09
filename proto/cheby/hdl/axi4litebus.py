@@ -23,7 +23,7 @@ from cheby.hdltree import (
 from cheby.hdl.busgen import BusGen
 import cheby.tree as tree
 import cheby.parser as parser
-from cheby.hdl.globals import gconfig, dirname
+from cheby.hdl.globals import gconfig, dirname, libname
 from cheby.hdl.ibus import add_bus
 from cheby.hdl.busparams import BusOptions
 
@@ -43,7 +43,7 @@ class AXI4LiteBus(BusGen):
 
     def gen_axi4lite_bus(self, module, ports, name, build_port,
                          addr_bits, lo_addr, data_bits, comment,
-                         is_master=False, is_group=False, libname = 'work') -> \
+                         is_master=False, is_group=False, libname = libname) -> \
                          list[tuple[str, HDLNode]]:
         if is_group:
             if AXI4LiteBus.axi4l_pkg is None:
@@ -321,7 +321,7 @@ class AXI4LiteBus(BusGen):
             port.attributes['X_INTERFACE_INFO'] = "xilinx.com:interface:aximm:1.0 {} {}".format(
                 portname, name.upper())
 
-    def expand_bus(self, root, module, ibus, axil_lib_name = 'work'):
+    def expand_bus(self, root, module, ibus, lib_name):
         """Create AXI4-Lite interface for the design."""
         opts = BusOptions(root, root)
         bus = [('clk', HDLPort("aclk")),
@@ -329,7 +329,7 @@ class AXI4LiteBus(BusGen):
         bus.extend(self.gen_axi4lite_bus(module, module, 'axi4l',
             lambda n, sz, lo=0, dir='IN':
                 (n, None if sz == 0 else HDLPort(n, size=sz,lo_idx=lo, dir=dir)),
-                opts.addr_wd, opts.addr_low, root.c_word_bits, None, False, opts.busgroup, libname= axil_lib_name))
+                opts.addr_wd, opts.addr_low, root.c_word_bits, None, False, opts.busgroup, libname= lib_name))
         if root.hdl_bus_attribute == 'Xilinx':
             self.add_xilinx_attributes(bus, 'slave')
         add_bus(root, module, bus)

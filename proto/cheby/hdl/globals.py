@@ -2,6 +2,7 @@ from copy import deepcopy
 from contextlib import contextmanager
 
 dirname = {'IN': 'i', 'OUT': 'o'}
+libname = 'work'
 
 class GlobalConfig:
     def __init__(self):

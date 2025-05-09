@@ -8,7 +8,7 @@ from cheby.hdltree import (HDLPackage,
                            HDLParen, HDLPort, HDLNode)
 from cheby.hdl.busgen import BusGen
 import cheby.tree as tree
-from cheby.hdl.globals import gconfig, dirname
+from cheby.hdl.globals import gconfig, dirname, libname
 from cheby.hdl.busparams import BusOptions
 
 class WBBus(BusGen):
@@ -161,7 +161,7 @@ class WBBus(BusGen):
         return res
 
     def gen_wishbone(self, module, ports, name, addr_bits, lo_addr,
-                     data_bits, comment, is_master, is_group, libname = 'work') -> dict[str, HDLPort]:
+                     data_bits, comment, is_master, is_group, libname = libname) -> dict[str, HDLPort]:
         if is_group:
             if WBBus.wb_pkg is None:
                 self.gen_wishbone_pkg()
@@ -204,14 +204,14 @@ class WBBus(BusGen):
             32, 0, 32, True)
         return
 
-    def expand_bus(self, root, module, ibus, wb_lib_name = 'work'):
+    def expand_bus(self, root, module, ibus, lib_name):
         """Create wishbone interface for the design."""
         root.h_bus = {}
         opts = BusOptions(root, root)
 
         root.h_bus.update(self.gen_wishbone(
             module, module, 'wb', root.c_addr_bits, root.c_addr_word_bits,
-            root.c_word_bits, None, False, opts.busgroup, libname=wb_lib_name))
+            root.c_word_bits, None, False, opts.busgroup, libname=lib_name))
         root.h_bussplit = False
 
         # Bus access

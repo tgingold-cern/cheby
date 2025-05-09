@@ -162,10 +162,10 @@ def decode_args():
                          help='specify path prefix for automatic output files')
     
     aparser.add_argument('--wb-lib-name',
-                         default = 'work',
+                         default = cheby.hdl.globals.libname,
                         help = 'Specify name of VHDL library where wishbone_pkg is compiled')
     aparser.add_argument('--axil-lib-name',
-                         default = 'work',
+                         default = cheby.hdl.globals.libname,
                         help = 'Specify name of VHDL library where AXI_pkg is compiled')
     args = aparser.parse_args()
     cheby.hdl.globals.gconfig.hdl_lang = args.hdl
