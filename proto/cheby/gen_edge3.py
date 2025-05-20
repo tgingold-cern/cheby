@@ -23,8 +23,8 @@ def clean_string(desc):
         return desc
     # Keep only the first line
     l = desc.splitlines()[0]
-    # Replace comma with spaces
-    return str.replace(l, ',', ' ')
+    # Replace comma with semicolon
+    return str.replace(l, ',', ';')
 
 
 def clean_args(args, args_list, fmt_list):
@@ -217,6 +217,8 @@ class EncoreBlock(object):
         self.regs.append(EdgeBlockInst(blk, self.block_name, name, offset, desc))
 
     def write(self, fd):
+        if not self.regs:
+            return
         fd.write("#Block table definition\n")
         for title, width in zip(self.encore.block_titles, self.encore.block_col_widths):
             if title == 'description':
@@ -271,8 +273,9 @@ class Encore(object):
 
         binst_table = BlockInstTable()
         for b in self.top.regs:
-            binst_table.append(block_inst_name=b.name, block_def_name=b.block.block_name,
-                               res_def_name=b.block.res_name, offset=b.offset, description=clean_string(b.description))
+            if b.block.regs:
+                binst_table.append(block_inst_name=b.name, block_def_name=b.block.block_name,
+                                   res_def_name=b.block.res_name, offset=b.offset, description=clean_string(b.description))
         binst_table.write(fd)
 
         # Deal with roles and interrupt controllers
@@ -518,7 +521,7 @@ def generate_edge3(fd, root):
             args_str = ''
 
         rsrc_table.append(res_def_name=el.name, type='MEM', res_no=num,
-                          args=args_str, description=el.comment)
+                          args=args_str, description=clean_string(el.comment))
 
         process_body(e.top, el, 0, el.name, top=True)
 
