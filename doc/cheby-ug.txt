@@ -432,7 +432,7 @@ Example of a plain register:
 
 There can be several fields in a register, and all of them have the same
 access right.  Bits used by a field are specified by the `range` attribute.
-The range is a single number if the field is 1 bit, or in the form of `lo-hi`
+The range is a single number if the field is 1 bit, or in the form of `hi-lo`
 where `lo` is the lowest bit and `hi` is the highest bit.  Bits are numbered
 using the little endian convention.
 
@@ -440,11 +440,12 @@ It is possible to define the initial (reset) value of a field using the
 `preset` attribute. It is possible to define the value of a field used during
 an active test using the `test-value` attribute.
 
-It is possible to use a different type than the register type (which acts as
-the default type).  The `float` type is not available for fields.  It is however
-possible to use an enumeration type by specifying `enum.NAME`, where `NAME`
-must be a name of an enumeration defined in the `x-enums` extension.  The width
-of the field must be the same as the width of the enumeration.
+It is possible to use a different type than the register type (which
+acts as the default type). The `float` type is not available for
+fields. It is however possible to use an enumeration type by using the
+<<Extensions, x-enums extension>>, where its name must be defined in
+the root `x-enums` extension.  The width of the field must be the same
+as the width of the enumeration.
 
 The `type` attribute within `x-hdl` is available.  It can be set to:
 
