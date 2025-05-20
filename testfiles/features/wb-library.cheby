@@ -1,0 +1,11 @@
+memory-map:
+  name: WB_lib_test
+  bus: wb-32-be
+  description: Test WB library name
+  x-hdl:
+    busgroup: true
+  children:
+    - reg:
+        name: REG_B
+        width: 32
+        access: rw

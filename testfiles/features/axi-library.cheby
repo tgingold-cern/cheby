@@ -1,0 +1,11 @@
+memory-map:
+  name: axi_lib_test
+  bus: axi4-lite-32
+  description: Test AXI library name
+  x-hdl:
+    busgroup: true
+  children:
+    - reg:
+        name: REG_B
+        width: 32
+        access: rw

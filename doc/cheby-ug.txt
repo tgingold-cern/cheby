@@ -678,8 +678,13 @@ bits may be omitted with the `bus-granularity` attribute.
 By default the AXI4-Lite interface uses one port per signal. It is
 possible to group all signals in one input and one output port by
 setting the `x-hdl.busgroup` attribute to `True`. The VHDL package can
-be found as an appendix here.
-
+be found as an appendix here. The library where the VHDL package is compiled
+can be specified through the command line tool for x-hdl generation by adding
+the argument:
+[source]
+----
+ --axil-lib-name
+----
 === Wishbone
 
 The normal wishbone protocol is used (and not the pipelined one).
@@ -691,8 +696,13 @@ By default the wishbone interface uses one port per wishbone signal.
 It is possible to group all signals in one input and one output port
 by setting the `x-hdl.busgroup` attribute to `True`. The VHDL package,
 originating from https://ohwr.org/project/general-cores[OHWR
-general-cores], can also be found as an appendix here.
-
+general-cores], can also be found as an appendix here. The library 
+where the VHDL package is compiled can be specified through the command 
+line tool for x-hdl generation by adding the argument:
+[source]
+----
+ --wb-lib-name
+----
 
 == Gena Compatibility
 

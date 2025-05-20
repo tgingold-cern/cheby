@@ -519,6 +519,55 @@ def test_hdl_ref():
 
             nbr_tests += 1
 
+def test_hdl_library_names():
+    """Test passing specific library names to generate_hdl."""
+    global nbr_tests
+
+    # Test Wishbone library name
+    wb_test_name = 'features/wb-library'
+    wb_lib = 'wb_lib'
+    if args.verbose:
+        print(f'test hdl library name: {wb_test_name} (wb_lib={wb_lib})')
+    cheby_file_wb = srcdir + wb_test_name + '.cheby'
+    vhdl_file_wb = srcdir + wb_test_name + '.vhdl' # Golden file
+
+    t_wb = parse_ok(cheby_file_wb)
+    layout_ok(t_wb)
+    expand_hdl.expand_hdl(t_wb)
+    gen_name.gen_name_memmap(t_wb)
+    # Call generate_hdl with custom WB lib name, default AXI lib name
+    h_wb = gen_hdl.generate_hdl(t_wb, wb_lib_name=wb_lib)
+
+    # Generate VHDL and compare
+    buf_vhdl_wb = write_buffer()
+    print_vhdl.print_vhdl(buf_vhdl_wb, h_wb)
+    if not compare_buffer_and_file(buf_vhdl_wb, vhdl_file_wb):
+        error(f'VHDL generation error for {wb_test_name} with wb_lib_name={wb_lib}')
+    nbr_tests += 1
+
+    # Test AXI library name
+    axi_test_name = 'features/axi-library'
+    axi_lib = 'axi_lib'
+    if args.verbose:
+        print(f'test hdl library name: {axi_test_name} (axil_lib={axi_lib})')
+    cheby_file_axi = srcdir + axi_test_name + '.cheby'
+    vhdl_file_axi = srcdir + axi_test_name + '.vhdl' # Golden file
+
+    t_axi = parse_ok(cheby_file_axi)
+    layout_ok(t_axi)
+    expand_hdl.expand_hdl(t_axi)
+    gen_name.gen_name_memmap(t_axi)
+    # Call generate_hdl with default WB lib name, custom AXI lib name
+    h_axi = gen_hdl.generate_hdl(t_axi, axil_lib_name=axi_lib)
+
+    # Generate VHDL and compare
+    buf_vhdl_axi = write_buffer()
+    print_vhdl.print_vhdl(buf_vhdl_axi, h_axi)
+    if not compare_buffer_and_file(buf_vhdl_axi, vhdl_file_axi):
+        error(f'VHDL generation error for {axi_test_name} with axil_lib_name={axi_lib}')
+    nbr_tests += 1
+
+
 def test_hdl_ref_async_rst():
     # Generate HDL with asynchronous reset and compare with a baseline
     global nbr_tests
@@ -1136,12 +1185,14 @@ def main():
     args = aparser.parse_args()
 
     try:
+        
         test_self()
         test_parser()
         test_layout()
         test_print()
         test_gconfig_scope()
         test_genc_ref()
+        test_hdl_library_names()
         test_hdl()
         test_hdl_err()
         test_hdl_ref()

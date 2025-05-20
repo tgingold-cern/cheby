@@ -160,7 +160,13 @@ def decode_args():
                          help='specify address space for --gen-hdl')
     aparser.add_argument('--out-prefix', default='',
                          help='specify path prefix for automatic output files')
-
+    
+    aparser.add_argument('--wb-lib-name',
+                         default = cheby.hdl.globals.libname,
+                        help = 'Specify name of VHDL library where wishbone_pkg is compiled')
+    aparser.add_argument('--axil-lib-name',
+                         default = cheby.hdl.globals.libname,
+                        help = 'Specify name of VHDL library where AXI_pkg is compiled')
     args = aparser.parse_args()
     cheby.hdl.globals.gconfig.hdl_lang = args.hdl
     cheby.hdl.globals.gconfig.rst_sync = (args.ff_reset != 'async')
@@ -362,7 +368,7 @@ def handle_file(args, filename):
             if top is None:
                 sys.stderr.write('error: no address space "{}"\n'.format(args.address_space))
                 sys.exit(2)
-        h = gen_hdl.generate_hdl(top)
+        h = gen_hdl.generate_hdl(top, args.wb_lib_name, args.axil_lib_name)
         if args.gen_hdl == '+units':
             if args.hdl == 'verilog' or args.hdl == 'sv':
                 print_verilog.print_verilog_per_units(h, args.out_prefix)
