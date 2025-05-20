@@ -148,13 +148,17 @@
 
 #Block table definition
   block_def_name,            type,                         name, offset, rwmode, dwidth,    depth,       mask, flags, description
-             RAM,             REG,                          DDR,    0x0,     rw,     32, 0x200000,           ,      ,
+             RAM,             REG,                          DDR,    0x0,     rw,     32, 0x200000,           ,      , DDR memory
 
+#Block table definition
+  block_def_name,            type,                         name, offset, rwmode, dwidth,    depth,       mask, flags, description
+        reserved,             REG,                    xilinx_ip,    0x0,     rw,     32,    0x100,           ,      , block design ip
 
 #Block instances table definition
  block_inst_name, block_def_name, res_def_name, offset, description
               ip,    acdipole_ip,         bar0,    0x0, the ip
              RAM,            RAM,         bar1,    0x0,
+        reserved,       reserved,         bar2,    0x0,
 
 #Interrupt Controller (INTC) table definition
  intc_name, type, reg_name, block_def_name, chained_intc_name, chained_intc_mask, args, description
