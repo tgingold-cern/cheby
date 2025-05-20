@@ -10,8 +10,9 @@
 
 #Resources (Memory(BARs) - DMA - IRQ) table definition
  res_def_name, type, res_no, args, description
-         bar0,  MEM,      0,     , AXI4-Lite acdipole IP
+         bar0,  MEM,      0,     , AXI4-Lite, acdipole IP
          bar1,  MEM,      1,     , DDR for ADC-DAC
+         bar2,  MEM,      2,     , purposely empty bar
 
 #Block table definition
   block_def_name,            type,                         name, offset, rwmode, dwidth,    depth,       mask, flags, description
@@ -149,10 +150,14 @@
   block_def_name,            type,                         name, offset, rwmode, dwidth,    depth,       mask, flags, description
              RAM,             REG,                          DDR,    0x0,     rw,     32, 0x200000,           ,      ,
 
+#Block table definition
+  block_def_name,            type,                         name, offset, rwmode, dwidth,    depth,       mask, flags, description
+
 #Block instances table definition
  block_inst_name, block_def_name, res_def_name, offset, description
               ip,    acdipole_ip,         bar0,    0x0, the ip
              RAM,            RAM,         bar1,    0x0,
+           empty,          empty,         bar2,    0x0,
 
 #Interrupt Controller (INTC) table definition
  intc_name, type, reg_name, block_def_name, chained_intc_name, chained_intc_mask, args, description
