@@ -10,7 +10,7 @@
 
 #Resources (Memory(BARs) - DMA - IRQ) table definition
  res_def_name, type, res_no, args, description
-         bar0,  MEM,      0,     , AXI4-Lite, acdipole IP
+         bar0,  MEM,      0,     , AXI4-Lite; acdipole IP
          bar1,  MEM,      1,     , DDR for ADC-DAC
          bar2,  MEM,      2,     , purposely empty bar
 
@@ -26,14 +26,14 @@
      acdipole_ip,             REG,           control_dcm_status,    0x4,     rw,     32,      0x1,   0x100000,      , high if DCM locked
      acdipole_ip,             REG,           control_acq_status,    0x4,     rw,     32,      0x1,    0x80000,      , high if acquisition in progress
      acdipole_ip,             REG,           control_run_status,    0x4,     rw,     32,      0x1,    0x40000,      , high if waveform is generated
-     acdipole_ip,             REG,              control_dac_run,    0x4,     rw,     32,      0x1,    0x10000,      , high to run  allows data capture
+     acdipole_ip,             REG,              control_dac_run,    0x4,     rw,     32,      0x1,    0x10000,      , high to run; allows data capture
      acdipole_ip,             REG,                  control_arm,    0x4,     rw,     32,      0x1,     0x8000,      , high to allow trigger; auto-reset upon trigger
      acdipole_ip,             REG,         control_ampli_status,    0x4,     rw,     32,      0x1,     0x2000,      , high to switch amplifiers on (to PLC)
      acdipole_ip,             REG,        control_ampli_control,    0x4,     rw,     32,      0x1,     0x1000,      , high if ac-dipole relay open
      acdipole_ip,             REG,             control_adc_test,    0x4,     rw,     32,      0x1,       0x20,      , high to write test data to mem; low for ADC data
      acdipole_ip,             REG,            control_soft_trig,    0x4,     rw,     32,      0x1,        0x8,      , high to send soft-trigger; auto-reset upon trigger; obsolete
      acdipole_ip,             REG,       control_ext_trig_inhib,    0x4,     rw,     32,      0x1,        0x4,      , high to inhibit external trigger
-     acdipole_ip,             REG,              control_adc_run,    0x4,     rw,     32,      0x1,        0x2,      , high to run  allows data capture
+     acdipole_ip,             REG,              control_adc_run,    0x4,     rw,     32,      0x1,        0x2,      , high to run; allows data capture
      acdipole_ip,             REG,           control_soft_reset,    0x4,     rw,     32,      0x1,        0x1,      , high to reset user part of FPGA
      acdipole_ip,             REG,                         test,    0x8,      r,     32,      0x1,           ,      ,
      acdipole_ip,             REG,                  temperature,    0xc,      r,     32,      0x1,           ,      ,
@@ -42,9 +42,9 @@
      acdipole_ip,             REG,                 temp_failure,   0x14,     rw,     32,      0x1,           ,      , clear warning on read
      acdipole_ip,             REG,                 ram_acq_addr,   0x18,     rw,     32,      0x1,           ,      , Acquisition RAM address
      acdipole_ip,             REG,                 ram_acq_data,   0x1c,      r,     32,      0x1,           ,      , Acquisition RAM data
-     acdipole_ip,             REG,                  pll_control,   0x20,     rw,     32,      0x1,           ,      , PLL clock control  obsolete
-     acdipole_ip,             REG,             clock_distr_intf,   0x24,     rw,     32,      0x1,           ,      , Clock distribution interface  obsolete
-     acdipole_ip,             REG,                     pll_intf,   0x28,     rw,     32,      0x1,           ,      , PLL interface  obsolete
+     acdipole_ip,             REG,                  pll_control,   0x20,     rw,     32,      0x1,           ,      , PLL clock control; obsolete
+     acdipole_ip,             REG,             clock_distr_intf,   0x24,     rw,     32,      0x1,           ,      , Clock distribution interface; obsolete
+     acdipole_ip,             REG,                     pll_intf,   0x28,     rw,     32,      0x1,           ,      , PLL interface; obsolete
      acdipole_ip,             REG,                    adc_ch_en,   0x2c,     rw,     32,      0x1,           ,      , ADC channel enables
      acdipole_ip,             REG,                    dac_ch_en,   0x30,     rw,     32,      0x1,           ,      , DAC channel enables
      acdipole_ip,             REG,                    reserved0,   0x34,     rw,     32,      0x1,           ,      ,
@@ -58,11 +58,11 @@
      acdipole_ip,             REG,                 adc_controls,   0x48,     rw,     32,      0x1,           ,      , ADC controls
      acdipole_ip,             REG,                trig_ctrl_adc,   0x5c,     rw,     32,      0x1,           ,      , trigger control ADC
      acdipole_ip,             REG,    trig_ctrl_adc_ext_trig_en,   0x5c,     rw,     32,      0x1, 0x80000000,      , external trigger enable
-     acdipole_ip,             REG,           trig_ctrl_adc_mode,   0x5c,     rw,     32,      0x1, 0x40000000,      , trigger mode  framed/unframed
+     acdipole_ip,             REG,           trig_ctrl_adc_mode,   0x5c,     rw,     32,      0x1, 0x40000000,      , trigger mode; framed/unframed
      acdipole_ip,             REG,         trig_ctrl_adc_points,   0x5c,     rw,     32,      0x1,     0xffff,      , points to collect
      acdipole_ip,             REG,                trig_ctrl_dac,   0x60,     rw,     32,      0x1,           ,      , trigger control DAC
      acdipole_ip,             REG,    trig_ctrl_dac_ext_trig_en,   0x60,     rw,     32,      0x1, 0x80000000,      , external trigger enable
-     acdipole_ip,             REG,           trig_ctrl_dac_mode,   0x60,     rw,     32,      0x1, 0x40000000,      , trigger mode  framed/unframed
+     acdipole_ip,             REG,           trig_ctrl_dac_mode,   0x60,     rw,     32,      0x1, 0x40000000,      , trigger mode; framed/unframed
      acdipole_ip,             REG,         trig_ctrl_dac_points,   0x60,     rw,     32,      0x1,     0xffff,      , points to collect
      acdipole_ip,             REG,               dac_decimation,   0x64,     rw,     32,      0x1,           ,      , DAC decimation
      acdipole_ip,             REG,        dac_decimation_factor,   0x64,     rw,     32,      0x1,      0xfff,      , decimation factor
@@ -104,13 +104,13 @@
      acdipole_ip,             REG,              dac_offset_corr,  0x140,     rw,     32,      0x8,           ,      , DAC offset error correction
      acdipole_ip,             REG,   dac_offset_corr_correction,  0x140,     rw,     32,      0x8,     0xffff,      ,
      acdipole_ip,             REG,                  adc0_config,  0x180,     rw,     32,      0x1,           ,      , ADC device 0 configuration register
-     acdipole_ip,             REG,    adc0_config_configuration,  0x180,     rw,     32,      0x1,     0xffff,      , preset to sample diff channels IN0/1  IN2/3 with sequencer
+     acdipole_ip,             REG,    adc0_config_configuration,  0x180,     rw,     32,      0x1,     0xffff,      , preset to sample diff channels IN0/1; IN2/3 with sequencer
      acdipole_ip,             REG,                  adc1_config,  0x184,     rw,     32,      0x1,           ,      , ADC device 0 configuration register
-     acdipole_ip,             REG,    adc1_config_configuration,  0x184,     rw,     32,      0x1,     0xffff,      , preset to sample diff channels IN0/1  IN2/3 with sequencer
+     acdipole_ip,             REG,    adc1_config_configuration,  0x184,     rw,     32,      0x1,     0xffff,      , preset to sample diff channels IN0/1; IN2/3 with sequencer
      acdipole_ip,             REG,                  adc2_config,  0x188,     rw,     32,      0x1,           ,      , ADC device 0 configuration register
-     acdipole_ip,             REG,    adc2_config_configuration,  0x188,     rw,     32,      0x1,     0xffff,      , preset to sample diff channels IN0/1  IN2/3 with sequencer
+     acdipole_ip,             REG,    adc2_config_configuration,  0x188,     rw,     32,      0x1,     0xffff,      , preset to sample diff channels IN0/1; IN2/3 with sequencer
      acdipole_ip,             REG,                  adc3_config,  0x18c,     rw,     32,      0x1,           ,      , ADC device 0 configuration register
-     acdipole_ip,             REG,    adc3_config_configuration,  0x18c,     rw,     32,      0x1,     0xffff,      , preset to sample diff channels IN0/1  IN2/3 with sequencer
+     acdipole_ip,             REG,    adc3_config_configuration,  0x18c,     rw,     32,      0x1,     0xffff,      , preset to sample diff channels IN0/1; IN2/3 with sequencer
      acdipole_ip,             REG,               adc_fifo_debug,  0x1f0,     rw,     32,      0x1,           ,      , ADC FIFO debug info
      acdipole_ip,             REG,    adc_fifo_debug_fifo_empty,  0x1f0,     rw,     32,      0x1, 0x80000000,      ,
      acdipole_ip,             REG,      adc_fifo_debug_rd_count,  0x1f0,     rw,     32,      0x1,      0x1ff,      ,
@@ -150,14 +150,11 @@
   block_def_name,            type,                         name, offset, rwmode, dwidth,    depth,       mask, flags, description
              RAM,             REG,                          DDR,    0x0,     rw,     32, 0x200000,           ,      ,
 
-#Block table definition
-  block_def_name,            type,                         name, offset, rwmode, dwidth,    depth,       mask, flags, description
 
 #Block instances table definition
  block_inst_name, block_def_name, res_def_name, offset, description
               ip,    acdipole_ip,         bar0,    0x0, the ip
              RAM,            RAM,         bar1,    0x0,
-           empty,          empty,         bar2,    0x0,
 
 #Interrupt Controller (INTC) table definition
  intc_name, type, reg_name, block_def_name, chained_intc_name, chained_intc_mask, args, description
