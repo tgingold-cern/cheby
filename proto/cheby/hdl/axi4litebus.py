@@ -18,14 +18,14 @@ from cheby.hdltree import (
     HDLParen,
     HDLPackage,
     HDLInterface,
-    HDLInterfaceSelect
+    HDLInterfaceSelect,
 )
 from cheby.hdl.busgen import BusGen
 import cheby.tree as tree
-import cheby.parser as parser
 from cheby.hdl.globals import gconfig, dirname, libname
 from cheby.hdl.ibus import add_bus
 from cheby.hdl.busparams import BusOptions
+from typing import List, Tuple
 
 # AXI Lite response codes (BRESP, RRESP)
 RESP_OKAY = HDLBinConst(0, 2)
@@ -44,7 +44,7 @@ class AXI4LiteBus(BusGen):
     def gen_axi4lite_bus(self, module, ports, name, build_port,
                          addr_bits, lo_addr, data_bits, comment,
                          is_master=False, is_group=False, libname = libname) -> \
-                         list[tuple[str, HDLNode]]:
+                         List[Tuple[str, HDLNode]]:
         if is_group:
             if AXI4LiteBus.axi4l_pkg is None:
                 self.gen_axi4l_pkg(module, ports, name, comment, data_bits)
