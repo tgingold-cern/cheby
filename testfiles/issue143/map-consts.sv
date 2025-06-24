@@ -1,4 +1,4 @@
-package top_Consts;
+package pkg_top_consts;
   localparam TOP_SIZE = 32;
   localparam ADDR_TOP_ARRAY_OF_SUBMAPS = 'h0;
   localparam ADDR_MASK_TOP_ARRAY_OF_SUBMAPS = 'h0;
