@@ -18,11 +18,10 @@ from cheby.hdltree import (
     HDLParen,
     HDLPackage,
     HDLInterface,
-    HDLInterfaceSelect
+    HDLInterfaceSelect,
 )
 from cheby.hdl.busgen import BusGen
 import cheby.tree as tree
-import cheby.parser as parser
 from cheby.hdl.globals import gconfig, dirname, libname
 from cheby.hdl.ibus import add_bus
 from cheby.hdl.busparams import BusOptions

@@ -1,11 +1,24 @@
-from cheby.hdltree import (HDLPackage,
-                           HDLInterface, HDLInterfaceSelect,
-                           HDLAssign, HDLSync, HDLComb, HDLComment,
-                           HDLIfElse,
-                           bit_1, bit_0,
-                           HDLAnd, HDLOr, HDLNot, HDLEq, HDLConcat,
-                           HDLSlice, HDLReplicate,
-                           HDLParen, HDLPort, HDLNode)
+from cheby.hdltree import (
+    HDLPackage,
+    HDLInterface,
+    HDLInterfaceSelect,
+    HDLAssign,
+    HDLSync,
+    HDLComb,
+    HDLComment,
+    HDLIfElse,
+    bit_1,
+    bit_0,
+    HDLAnd,
+    HDLOr,
+    HDLNot,
+    HDLEq,
+    HDLSlice,
+    HDLReplicate,
+    HDLParen,
+    HDLPort,
+    HDLNode,
+)
 from cheby.hdl.busgen import BusGen
 import cheby.tree as tree
 from cheby.hdl.globals import gconfig, dirname, libname
