@@ -1,7 +1,7 @@
 library ieee;
 use ieee.std_logic_1164.all;
 
-package pkg_top_consts is
+package top_Consts is
   constant TOP_SIZE : Natural := 32;
   constant ADDR_TOP_ARRAY_OF_SUBMAPS : Natural := 16#0#;
   constant ADDR_MASK_TOP_ARRAY_OF_SUBMAPS : Natural := 16#0#;
@@ -47,4 +47,4 @@ package pkg_top_consts is
   constant ADDR_MASK_TOP_ARRAY_OF_SUBMAPS_4_SUBMAP : Natural := 16#1c#;
   constant ADDR_FMASK_TOP_ARRAY_OF_SUBMAPS_4_SUBMAP : Natural := 16#1c#;
   constant TOP_ARRAY_OF_SUBMAPS_4_SUBMAP_SIZE : Natural := 4;
-end package pkg_top_consts;
+end package top_Consts;
