@@ -96,7 +96,7 @@ def elab_sv(sv_file, top_entity):
 
 def check_c_syntax(c_file):
     """Function to check C syntax using gcc"""
-    res = subprocess.run(['gcc', '-fsyntax-only', '-Wall', '-Werror', c_file])
+    res = subprocess.run(['gcc', '-fsyntax-only', '-include', 'stdint.h', '-Wall', '-Werror', c_file])
     if res.returncode != 0:
         error('C syntax check failed for {}'.format(c_file))
 
@@ -1185,7 +1185,7 @@ def main():
     args = aparser.parse_args()
 
     try:
-        
+
         test_self()
         test_parser()
         test_layout()
