@@ -10,10 +10,11 @@ Version: 1.0.0
 ## Registers Description
 ### Register: r1
 
-- **HDL name**: r1
-- **Address**: 0x0
-- **Block Offset**: 0x0
-- **Access Mode**: rw
+- **HW Prefix**: r1
+- **HW Address**: 0x0
+- **C Prefix**: r1
+- **C Block Offset**: 0x0
+- **Access**: read/write
 
 <table>
   <tr>
@@ -69,4 +70,8 @@ Version: 1.0.0
     <td colspan="8" style="text-align: center;">r1[7:0]</td>
   </tr>
 </table>
+
+| Bits | Name | Description |
+|------|------|------------|
+| 31:0 | r1 |  |
 

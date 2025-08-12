@@ -34,10 +34,11 @@
 ## Registers Description
 ### Register: repA.0.block1.repB.0.reg1
 
-- **HDL name**: repA_0_block1_repB_0_reg1
-- **Address**: 0x0
-- **Block Offset**: 0x0
-- **Access Mode**: rw
+- **HW Prefix**: repA_0_block1_repB_0_reg1
+- **HW Address**: 0x0
+- **C Prefix**: repA.0.block1.repB.0.reg1
+- **C Block Offset**: 0x0
+- **Access**: read/write
 
 <table>
   <tr>
@@ -54,13 +55,18 @@
     <td colspan="8" style="text-align: center;">reg1[7:0]</td>
   </tr>
 </table>
+
+| Bits | Name | Description |
+|------|------|------------|
+| 7:0 | reg1 |  |
 
 ### Register: repA.0.block1.repB.1.reg1
 
-- **HDL name**: repA_0_block1_repB_1_reg1
-- **Address**: 0x4
-- **Block Offset**: 0x0
-- **Access Mode**: rw
+- **HW Prefix**: repA_0_block1_repB_1_reg1
+- **HW Address**: 0x4
+- **C Prefix**: repA.0.block1.repB.1.reg1
+- **C Block Offset**: 0x0
+- **Access**: read/write
 
 <table>
   <tr>
@@ -77,13 +83,18 @@
     <td colspan="8" style="text-align: center;">reg1[7:0]</td>
   </tr>
 </table>
+
+| Bits | Name | Description |
+|------|------|------------|
+| 7:0 | reg1 |  |
 
 ### Register: repA.1.block1.repB.0.reg1
 
-- **HDL name**: repA_1_block1_repB_0_reg1
-- **Address**: 0x8
-- **Block Offset**: 0x0
-- **Access Mode**: rw
+- **HW Prefix**: repA_1_block1_repB_0_reg1
+- **HW Address**: 0x8
+- **C Prefix**: repA.1.block1.repB.0.reg1
+- **C Block Offset**: 0x0
+- **Access**: read/write
 
 <table>
   <tr>
@@ -100,13 +111,18 @@
     <td colspan="8" style="text-align: center;">reg1[7:0]</td>
   </tr>
 </table>
+
+| Bits | Name | Description |
+|------|------|------------|
+| 7:0 | reg1 |  |
 
 ### Register: repA.1.block1.repB.1.reg1
 
-- **HDL name**: repA_1_block1_repB_1_reg1
-- **Address**: 0xc
-- **Block Offset**: 0x0
-- **Access Mode**: rw
+- **HW Prefix**: repA_1_block1_repB_1_reg1
+- **HW Address**: 0xc
+- **C Prefix**: repA.1.block1.repB.1.reg1
+- **C Block Offset**: 0x0
+- **Access**: read/write
 
 <table>
   <tr>
@@ -123,13 +139,18 @@
     <td colspan="8" style="text-align: center;">reg1[7:0]</td>
   </tr>
 </table>
+
+| Bits | Name | Description |
+|------|------|------------|
+| 7:0 | reg1 |  |
 
 ### Register: repA.2.block1.repB.0.reg1
 
-- **HDL name**: repA_2_block1_repB_0_reg1
-- **Address**: 0x10
-- **Block Offset**: 0x0
-- **Access Mode**: rw
+- **HW Prefix**: repA_2_block1_repB_0_reg1
+- **HW Address**: 0x10
+- **C Prefix**: repA.2.block1.repB.0.reg1
+- **C Block Offset**: 0x0
+- **Access**: read/write
 
 <table>
   <tr>
@@ -146,13 +167,18 @@
     <td colspan="8" style="text-align: center;">reg1[7:0]</td>
   </tr>
 </table>
+
+| Bits | Name | Description |
+|------|------|------------|
+| 7:0 | reg1 |  |
 
 ### Register: repA.2.block1.repB.1.reg1
 
-- **HDL name**: repA_2_block1_repB_1_reg1
-- **Address**: 0x14
-- **Block Offset**: 0x0
-- **Access Mode**: rw
+- **HW Prefix**: repA_2_block1_repB_1_reg1
+- **HW Address**: 0x14
+- **C Prefix**: repA.2.block1.repB.1.reg1
+- **C Block Offset**: 0x0
+- **Access**: read/write
 
 <table>
   <tr>
@@ -169,13 +195,18 @@
     <td colspan="8" style="text-align: center;">reg1[7:0]</td>
   </tr>
 </table>
+
+| Bits | Name | Description |
+|------|------|------------|
+| 7:0 | reg1 |  |
 
 ### Register: repA.3.block1.repB.0.reg1
 
-- **HDL name**: repA_3_block1_repB_0_reg1
-- **Address**: 0x18
-- **Block Offset**: 0x0
-- **Access Mode**: rw
+- **HW Prefix**: repA_3_block1_repB_0_reg1
+- **HW Address**: 0x18
+- **C Prefix**: repA.3.block1.repB.0.reg1
+- **C Block Offset**: 0x0
+- **Access**: read/write
 
 <table>
   <tr>
@@ -192,13 +223,18 @@
     <td colspan="8" style="text-align: center;">reg1[7:0]</td>
   </tr>
 </table>
+
+| Bits | Name | Description |
+|------|------|------------|
+| 7:0 | reg1 |  |
 
 ### Register: repA.3.block1.repB.1.reg1
 
-- **HDL name**: repA_3_block1_repB_1_reg1
-- **Address**: 0x1c
-- **Block Offset**: 0x0
-- **Access Mode**: rw
+- **HW Prefix**: repA_3_block1_repB_1_reg1
+- **HW Address**: 0x1c
+- **C Prefix**: repA.3.block1.repB.1.reg1
+- **C Block Offset**: 0x0
+- **Access**: read/write
 
 <table>
   <tr>
@@ -215,4 +251,8 @@
     <td colspan="8" style="text-align: center;">reg1[7:0]</td>
   </tr>
 </table>
+
+| Bits | Name | Description |
+|------|------|------------|
+| 7:0 | reg1 |  |
 

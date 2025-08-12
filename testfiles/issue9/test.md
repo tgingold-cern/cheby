@@ -13,12 +13,13 @@ Test AXI4-Lite interface
 ## Registers Description
 ### Register: register1
 
-Test register 1
+- **HW Prefix**: register1
+- **HW Address**: 0x0
+- **C Prefix**: register1
+- **C Block Offset**: 0x0
+- **Access**: write-only
 
-- **HDL name**: register1
-- **Address**: 0x0
-- **Block Offset**: 0x0
-- **Access Mode**: wo
+Test register 1
 
 <table>
   <tr>
@@ -75,14 +76,19 @@ Test register 1
   </tr>
 </table>
 
+| Bits | Name | Description |
+|------|------|------------|
+| 31:0 | register1 | Test register 1 |
+
 ### Register: block1.register2
 
-Test register 2
+- **HW Prefix**: block1_register2
+- **HW Address**: 0x10
+- **C Prefix**: block1.register2
+- **C Block Offset**: 0x0
+- **Access**: read-only
 
-- **HDL name**: block1_register2
-- **Address**: 0x10
-- **Block Offset**: 0x0
-- **Access Mode**: ro
+Test register 2
 
 <table>
   <tr>
@@ -165,22 +171,20 @@ Test register 2
   </tr>
 </table>
 
-#### Bit: field1
-
-Test field 1
-
-#### Bit: field2
-
-Test field 2
+| Bits | Name | Description |
+|------|------|------------|
+| 0 | field1 | Test field 1 |
+| 3:1 | field2 | Test field 2 |
 
 ### Register: block1.register3
 
-Test register 3
+- **HW Prefix**: block1_register3
+- **HW Address**: 0x14
+- **C Prefix**: block1.register3
+- **C Block Offset**: 0x4
+- **Access**: read/write
 
-- **HDL name**: block1_register3
-- **Address**: 0x14
-- **Block Offset**: 0x4
-- **Access Mode**: rw
+Test register 3
 
 <table>
   <tr>
@@ -237,14 +241,19 @@ Test register 3
   </tr>
 </table>
 
+| Bits | Name | Description |
+|------|------|------------|
+| 31:0 | register3 | Test register 3 |
+
 ### Register: block1.block2.register4
 
-Test register 4
+- **HW Prefix**: block1_block2_register4
+- **HW Address**: 0x18
+- **C Prefix**: block1.block2.register4
+- **C Block Offset**: 0x0
+- **Access**: read-only
 
-- **HDL name**: block1_block2_register4
-- **Address**: 0x18
-- **Block Offset**: 0x0
-- **Access Mode**: ro
+Test register 4
 
 <table>
   <tr>
@@ -327,11 +336,8 @@ Test register 4
   </tr>
 </table>
 
-#### Bit: field3
-
-Test field 3
-
-#### Bit: field4
-
-Test field 4
+| Bits | Name | Description |
+|------|------|------------|
+| 0 | field3 | Test field 3 |
+| 3:1 | field4 | Test field 4 |
 

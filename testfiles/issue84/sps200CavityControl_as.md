@@ -48,10 +48,11 @@ Memory Map for SPS TWC200 Cavity Control
 
 ### Register: hwInfo.stdVersion
 
-- **HDL name**: hwInfo_stdVersion
-- **Address**: 0x0
-- **Block Offset**: 0x0
-- **Access Mode**: ro
+- **HW Prefix**: hwInfo_stdVersion
+- **HW Address**: 0x0
+- **C Prefix**: hwInfo.stdVersion
+- **C Block Offset**: 0x0
+- **Access**: read-only
 
 <table>
   <tr>
@@ -108,30 +109,22 @@ Memory Map for SPS TWC200 Cavity Control
   </tr>
 </table>
 
-#### Bit: platform
-
-Identifying which platform the version belongs to (i.e. pci, lhc_vme, vme64, ...)
-
-#### Bit: major
-
-Major version indicating incompatible changes
-
-#### Bit: minor
-
-Minor version indicating feature enhancements
-
-#### Bit: patch
-
-Patch indicating bug fixes
+| Bits | Name | Description |
+|------|------|------------|
+| 31:24 | platform | Identifying which platform the version belongs to (i.e. pci, lhc_vme, vme64, ...) |
+| 23:16 | major | Major version indicating incompatible changes |
+| 15:8 | minor | Minor version indicating feature enhancements |
+| 7:0 | patch | Patch indicating bug fixes |
 
 ### Register: hwInfo.serialNumber
 
-HW serial number
+- **HW Prefix**: hwInfo_serialNumber
+- **HW Address**: 0x8
+- **C Prefix**: hwInfo.serialNumber
+- **C Block Offset**: 0x8
+- **Access**: read-only
 
-- **HDL name**: hwInfo_serialNumber
-- **Address**: 0x8
-- **Block Offset**: 0x8
-- **Access Mode**: ro
+HW serial number
 
 <table>
   <tr>
@@ -240,15 +233,20 @@ HW serial number
   </tr>
 </table>
 
+| Bits | Name | Description |
+|------|------|------------|
+| 63:0 | serialNumber | HW serial number |
+
 ### Register: hwInfo.firmwareVersion
+
+- **HW Prefix**: hwInfo_firmwareVersion
+- **HW Address**: 0x10
+- **C Prefix**: hwInfo.firmwareVersion
+- **C Block Offset**: 0x10
+- **Access**: read-only
 
 Firmware Version
 
-- **HDL name**: hwInfo_firmwareVersion
-- **Address**: 0x10
-- **Block Offset**: 0x10
-- **Access Mode**: ro
-
 <table>
   <tr>
     <td><b>31</b></td>
@@ -311,26 +309,21 @@ Firmware Version
   </tr>
 </table>
 
-#### Bit: major
-
-Major version indicating incompatible changes
-
-#### Bit: minor
-
-Minor version indicating feature enhancements
-
-#### Bit: patch
-
-Patch indicating bug fixes
+| Bits | Name | Description |
+|------|------|------------|
+| 23:16 | major | Major version indicating incompatible changes |
+| 15:8 | minor | Minor version indicating feature enhancements |
+| 7:0 | patch | Patch indicating bug fixes |
 
 ### Register: hwInfo.memMapVersion
 
-Memory Map Version
+- **HW Prefix**: hwInfo_memMapVersion
+- **HW Address**: 0x14
+- **C Prefix**: hwInfo.memMapVersion
+- **C Block Offset**: 0x14
+- **Access**: read-only
 
-- **HDL name**: hwInfo_memMapVersion
-- **Address**: 0x14
-- **Block Offset**: 0x14
-- **Access Mode**: ro
+Memory Map Version
 
 <table>
   <tr>
@@ -394,19 +387,19 @@ Memory Map Version
   </tr>
 </table>
 
-#### Bit: major
-
-_(not documented)_
-
-#### Bit: minor
-
-_(not documented)_
-
-#### Bit: patch
-
-_(not documented)_
+| Bits | Name | Description |
+|------|------|------------|
+| 23:16 | major |  |
+| 15:8 | minor |  |
+| 7:0 | patch |  |
 
 ### Register: hwInfo.echo
+
+- **HW Prefix**: hwInfo_echo
+- **HW Address**: 0x18
+- **C Prefix**: hwInfo.echo
+- **C Block Offset**: 0x18
+- **Access**: read/write
 
 Echo register. This version of the standard foresees only 8bits linked to real memory
 
@@ -423,11 +416,6 @@ This is important for you to later one check if you can read this value back bef
 If your initialization failed but you want to continue anyway you should set the register to 0xC0 to indicate this error  +
  +
 This register is in particular useful if you have several entities interacting with the hardware. In this case several bits could be assigned to this entities (bits 5..0) to signalize that they have done there part successful and a main entity checks all the expected bits.
-
-- **HDL name**: hwInfo_echo
-- **Address**: 0x18
-- **Block Offset**: 0x18
-- **Access Mode**: rw
 
 <table>
   <tr>
@@ -484,12 +472,17 @@ This register is in particular useful if you have several entities interacting w
   </tr>
 </table>
 
+| Bits | Name | Description |
+|------|------|------------|
+| 31:0 | echo | Echo register. This version of the standard foresees only 8bits linked to real memory<br><br>Register used solely by software. No interaction with the firmware foreseen.<br>The idea is to use this register as "flag" in the hardware to remember your actions from the software side.<br><br>Reading 0xFF often happens when the board is not even reachable (i.e. bus problems on VME)<br><br>On the other hand if the board is reachable the usual state of flipflops are 0x00. Thus this would indicate that no initialization has been attempted yet.<br><br>At start of your software (FESA class) you should set the value 0x40 indicating that initialization is in progress. <br>This is important for you to later one check if you can read this value back before finally setting it to 0x80 (the value previously used with Cheburashka).<br><br>If your initialization failed but you want to continue anyway you should set the register to 0xC0 to indicate this error <br><br>This register is in particular useful if you have several entities interacting with the hardware. In this case several bits could be assigned to this entities (bits 5..0) to signalize that they have done there part successful and a main entity checks all the expected bits. |
+
 ### Register: app.modulation.ipInfo.stdVersion
 
-- **HDL name**: app_modulation_ipInfo_stdVersion
-- **Address**: 0x100000
-- **Block Offset**: 0x0
-- **Access Mode**: ro
+- **HW Prefix**: app_modulation_ipInfo_stdVersion
+- **HW Address**: 0x100000
+- **C Prefix**: app.modulation.ipInfo.stdVersion
+- **C Block Offset**: 0x0
+- **Access**: read-only
 
 <table>
   <tr>
@@ -553,26 +546,21 @@ This register is in particular useful if you have several entities interacting w
   </tr>
 </table>
 
-#### Bit: major
-
-Major version indicating incompatible changes
-
-#### Bit: minor
-
-Minor version indicating feature enhancements
-
-#### Bit: patch
-
-Patch indicating bug fixes
+| Bits | Name | Description |
+|------|------|------------|
+| 23:16 | major | Major version indicating incompatible changes |
+| 15:8 | minor | Minor version indicating feature enhancements |
+| 7:0 | patch | Patch indicating bug fixes |
 
 ### Register: app.modulation.ipInfo.ident
 
-IP Ident code
+- **HW Prefix**: app_modulation_ipInfo_ident
+- **HW Address**: 0x100004
+- **C Prefix**: app.modulation.ipInfo.ident
+- **C Block Offset**: 0x4
+- **Access**: read-only
 
-- **HDL name**: app_modulation_ipInfo_ident
-- **Address**: 0x100004
-- **Block Offset**: 0x4
-- **Access Mode**: ro
+IP Ident code
 
 <table>
   <tr>
@@ -629,15 +617,20 @@ IP Ident code
   </tr>
 </table>
 
+| Bits | Name | Description |
+|------|------|------------|
+| 31:0 | ident | IP Ident code |
+
 ### Register: app.modulation.ipInfo.firmwareVersion
+
+- **HW Prefix**: app_modulation_ipInfo_firmwareVersion
+- **HW Address**: 0x100008
+- **C Prefix**: app.modulation.ipInfo.firmwareVersion
+- **C Block Offset**: 0x8
+- **Access**: read-only
 
 Firmware Version
 
-- **HDL name**: app_modulation_ipInfo_firmwareVersion
-- **Address**: 0x100008
-- **Block Offset**: 0x8
-- **Access Mode**: ro
-
 <table>
   <tr>
     <td><b>31</b></td>
@@ -700,26 +693,21 @@ Firmware Version
   </tr>
 </table>
 
-#### Bit: major
-
-Major version indicating incompatible changes
-
-#### Bit: minor
-
-Minor version indicating feature enhancements
-
-#### Bit: patch
-
-Patch indicating bug fixes
+| Bits | Name | Description |
+|------|------|------------|
+| 23:16 | major | Major version indicating incompatible changes |
+| 15:8 | minor | Minor version indicating feature enhancements |
+| 7:0 | patch | Patch indicating bug fixes |
 
 ### Register: app.modulation.ipInfo.memMapVersion
 
-Memory Map Version
+- **HW Prefix**: app_modulation_ipInfo_memMapVersion
+- **HW Address**: 0x10000c
+- **C Prefix**: app.modulation.ipInfo.memMapVersion
+- **C Block Offset**: 0xc
+- **Access**: read-only
 
-- **HDL name**: app_modulation_ipInfo_memMapVersion
-- **Address**: 0x10000c
-- **Block Offset**: 0xc
-- **Access Mode**: ro
+Memory Map Version
 
 <table>
   <tr>
@@ -783,19 +771,19 @@ Memory Map Version
   </tr>
 </table>
 
-#### Bit: major
-
-Major version indicating incompatible changes
-
-#### Bit: minor
-
-Minor version indicating feature enhancements
-
-#### Bit: patch
-
-Patch indicating bug fixes
+| Bits | Name | Description |
+|------|------|------------|
+| 23:16 | major | Major version indicating incompatible changes |
+| 15:8 | minor | Minor version indicating feature enhancements |
+| 7:0 | patch | Patch indicating bug fixes |
 
 ### Register: app.modulation.ipInfo.echo
+
+- **HW Prefix**: app_modulation_ipInfo_echo
+- **HW Address**: 0x100010
+- **C Prefix**: app.modulation.ipInfo.echo
+- **C Block Offset**: 0x10
+- **Access**: read/write
 
 Echo register. This version of the standard foresees only 8bits linked to real memory
 
@@ -812,11 +800,6 @@ This is important for you to later one check if you can read this value back bef
 If your initialization failed but you want to continue anyway you should set the register to 0xC0 to indicate this error  +
  +
 This register is in particular useful if you have several entities interacting with the hardware. In this case several bits could be assigned to this entities (bits 5..0) to signalize that they have done there part successful and a main entity checks all the expected bits.
-
-- **HDL name**: app_modulation_ipInfo_echo
-- **Address**: 0x100010
-- **Block Offset**: 0x10
-- **Access Mode**: rw
 
 <table>
   <tr>
@@ -894,16 +877,17 @@ This register is in particular useful if you have several entities interacting w
   </tr>
 </table>
 
-#### Bit: echo
-
-This version of the standard foresees only 8bits linked to real memory
+| Bits | Name | Description |
+|------|------|------------|
+| 7:0 | echo | This version of the standard foresees only 8bits linked to real memory |
 
 ### Register: app.modulation.control
 
-- **HDL name**: app_modulation_control
-- **Address**: 0x100020
-- **Block Offset**: 0x20
-- **Access Mode**: rw
+- **HW Prefix**: app_modulation_control
+- **HW Address**: 0x100020
+- **C Prefix**: app.modulation.control
+- **C Block Offset**: 0x20
+- **Access**: read/write
 
 <table>
   <tr>
@@ -986,64 +970,30 @@ This version of the standard foresees only 8bits linked to real memory
   </tr>
 </table>
 
-#### Bit: useTestSignal
-
-Use DDS generated test signal instead of ADC input as demodulation input
-
-Test signal is synthezied with additional internal DDS, test signals frequency given by ftw_RF.
-
-#### Bit: useImpulse
-
-Use impulse instead of demodulation output
-
-#### Bit: useStaticSignal
-
-Use static signal from register instead of demodulation output
-
-#### Bit: bypassDemod
-
-Bypass demodulator
-
-#### Bit: bypassMod
-
-Bypass modulator
-
-#### Bit: wrInputsValid
-
-transmit WR frame
-
-#### Bit: wrInputsValidLatch
-
-transmit WR no autoclear
-
-#### Bit: wrResetNCO
-
-activate WR frame control bit
-
-#### Bit: wrResetSlip
-
-activate WR frame control bit
-
-#### Bit: wrRresetFSK
-
-activate WR frame control bit
-
-#### Bit: rate
-
-_(not documented)_
-
-#### Bit: clearBPLatches
-
-_(not documented)_
+| Bits | Name | Description |
+|------|------|------------|
+| 0 | useTestSignal | Use DDS generated test signal instead of ADC input as demodulation input<br><br>Test signal is synthezied with additional internal DDS, test signals frequency given by ftw_RF. |
+| 1 | useImpulse | Use impulse instead of demodulation output |
+| 2 | useStaticSignal | Use static signal from register instead of demodulation output |
+| 5 | bypassDemod | Bypass demodulator |
+| 6 | bypassMod | Bypass modulator |
+| 7 | wrInputsValid | transmit WR frame |
+| 11 | wrInputsValidLatch | transmit WR no autoclear |
+| 8 | wrResetNCO | activate WR frame control bit |
+| 9 | wrResetSlip | activate WR frame control bit |
+| 10 | wrRresetFSK | activate WR frame control bit |
+| 14:12 | rate |  |
+| 15 | clearBPLatches |  |
 
 ### Register: app.modulation.testSignal.amplitude
 
-Amplitude for the test signal
+- **HW Prefix**: app_modulation_testSignal_amplitude
+- **HW Address**: 0x100030
+- **C Prefix**: app.modulation.testSignal.amplitude
+- **C Block Offset**: 0x0
+- **Access**: read/write
 
-- **HDL name**: app_modulation_testSignal_amplitude
-- **Address**: 0x100030
-- **Block Offset**: 0x0
-- **Access Mode**: rw
+Amplitude for the test signal
 
 <table>
   <tr>
@@ -1074,14 +1024,19 @@ Amplitude for the test signal
   </tr>
 </table>
 
+| Bits | Name | Description |
+|------|------|------------|
+| 15:0 | amplitude | Amplitude for the test signal |
+
 ### Register: app.modulation.testSignal.ftw
 
-FTW of the test signal (frequency relative to fs)
+- **HW Prefix**: app_modulation_testSignal_ftw
+- **HW Address**: 0x100038
+- **C Prefix**: app.modulation.testSignal.ftw
+- **C Block Offset**: 0x8
+- **Access**: read/write
 
-- **HDL name**: app_modulation_testSignal_ftw
-- **Address**: 0x100038
-- **Block Offset**: 0x8
-- **Access Mode**: rw
+FTW of the test signal (frequency relative to fs)
 
 <table>
   <tr>
@@ -1190,14 +1145,19 @@ FTW of the test signal (frequency relative to fs)
   </tr>
 </table>
 
+| Bits | Name | Description |
+|------|------|------------|
+| 63:0 | ftw | FTW of the test signal (frequency relative to fs) |
+
 ### Register: app.modulation.staticSignal.i
 
-Constant to be used as OTF input for channel I
+- **HW Prefix**: app_modulation_staticSignal_i
+- **HW Address**: 0x100040
+- **C Prefix**: app.modulation.staticSignal.i
+- **C Block Offset**: 0x0
+- **Access**: read/write
 
-- **HDL name**: app_modulation_staticSignal_i
-- **Address**: 0x100040
-- **Block Offset**: 0x0
-- **Access Mode**: rw
+Constant to be used as OTF input for channel I
 
 <table>
   <tr>
@@ -1228,14 +1188,19 @@ Constant to be used as OTF input for channel I
   </tr>
 </table>
 
+| Bits | Name | Description |
+|------|------|------------|
+| 15:0 | i | Constant to be used as OTF input for channel I |
+
 ### Register: app.modulation.staticSignal.q
 
-Constant to be used as OTF input for channel Q
+- **HW Prefix**: app_modulation_staticSignal_q
+- **HW Address**: 0x100044
+- **C Prefix**: app.modulation.staticSignal.q
+- **C Block Offset**: 0x4
+- **Access**: read/write
 
-- **HDL name**: app_modulation_staticSignal_q
-- **Address**: 0x100044
-- **Block Offset**: 0x4
-- **Access Mode**: rw
+Constant to be used as OTF input for channel Q
 
 <table>
   <tr>
@@ -1266,12 +1231,17 @@ Constant to be used as OTF input for channel Q
   </tr>
 </table>
 
+| Bits | Name | Description |
+|------|------|------------|
+| 15:0 | q | Constant to be used as OTF input for channel Q |
+
 ### Register: app.modulation.ftwH1main
 
-- **HDL name**: app_modulation_ftwH1main
-- **Address**: 0x100050
-- **Block Offset**: 0x50
-- **Access Mode**: rw
+- **HW Prefix**: app_modulation_ftwH1main
+- **HW Address**: 0x100050
+- **C Prefix**: app.modulation.ftwH1main
+- **C Block Offset**: 0x50
+- **Access**: read/write
 
 <table>
   <tr>
@@ -1380,12 +1350,17 @@ Constant to be used as OTF input for channel Q
   </tr>
 </table>
 
+| Bits | Name | Description |
+|------|------|------------|
+| 63:0 | ftwH1main |  |
+
 ### Register: app.modulation.ftwH1on
 
-- **HDL name**: app_modulation_ftwH1on
-- **Address**: 0x100058
-- **Block Offset**: 0x58
-- **Access Mode**: rw
+- **HW Prefix**: app_modulation_ftwH1on
+- **HW Address**: 0x100058
+- **C Prefix**: app.modulation.ftwH1on
+- **C Block Offset**: 0x58
+- **Access**: read/write
 
 <table>
   <tr>
@@ -1494,12 +1469,17 @@ Constant to be used as OTF input for channel Q
   </tr>
 </table>
 
+| Bits | Name | Description |
+|------|------|------------|
+| 63:0 | ftwH1on |  |
+
 ### Register: app.modulation.dftwH1slip0
 
-- **HDL name**: app_modulation_dftwH1slip0
-- **Address**: 0x100060
-- **Block Offset**: 0x60
-- **Access Mode**: rw
+- **HW Prefix**: app_modulation_dftwH1slip0
+- **HW Address**: 0x100060
+- **C Prefix**: app.modulation.dftwH1slip0
+- **C Block Offset**: 0x60
+- **Access**: read/write
 
 <table>
   <tr>
@@ -1556,12 +1536,17 @@ Constant to be used as OTF input for channel Q
   </tr>
 </table>
 
+| Bits | Name | Description |
+|------|------|------------|
+| 31:0 | dftwH1slip0 |  |
+
 ### Register: app.modulation.dftwH1slip1
 
-- **HDL name**: app_modulation_dftwH1slip1
-- **Address**: 0x100064
-- **Block Offset**: 0x64
-- **Access Mode**: rw
+- **HW Prefix**: app_modulation_dftwH1slip1
+- **HW Address**: 0x100064
+- **C Prefix**: app.modulation.dftwH1slip1
+- **C Block Offset**: 0x64
+- **Access**: read/write
 
 <table>
   <tr>
@@ -1618,12 +1603,17 @@ Constant to be used as OTF input for channel Q
   </tr>
 </table>
 
+| Bits | Name | Description |
+|------|------|------------|
+| 31:0 | dftwH1slip1 |  |
+
 ### Register: app.modulation.latches
 
-- **HDL name**: app_modulation_latches
-- **Address**: 0x100068
-- **Block Offset**: 0x68
-- **Access Mode**: rw
+- **HW Prefix**: app_modulation_latches
+- **HW Address**: 0x100068
+- **C Prefix**: app.modulation.latches
+- **C Block Offset**: 0x68
+- **Access**: read/write
 
 <table>
   <tr>
@@ -1701,18 +1691,19 @@ Constant to be used as OTF input for channel Q
   </tr>
 </table>
 
-#### Bit: backplane
-
-_(not documented)_
+| Bits | Name | Description |
+|------|------|------------|
+| 7:0 | backplane |  |
 
 ## Registers Description for Space bar4
 
 ### Register: fgc_ddr.data64.data64
 
-- **HDL name**: fgc_ddr_data64_data64
-- **Address**: 0x0
-- **Block Offset**: 0x0
-- **Access Mode**: rw
+- **HW Prefix**: fgc_ddr_data64_data64
+- **HW Address**: 0x0
+- **C Prefix**: fgc_ddr.data64.data64
+- **C Block Offset**: 0x0
+- **Access**: read/write
 
 <table>
   <tr>
@@ -1821,20 +1812,18 @@ _(not documented)_
   </tr>
 </table>
 
-#### Bit: upper
-
-_(not documented)_
-
-#### Bit: lower
-
-_(not documented)_
+| Bits | Name | Description |
+|------|------|------------|
+| 63:32 | upper |  |
+| 31:0 | lower |  |
 
 ### Register: acq_ddr.data32.data32
 
-- **HDL name**: acq_ddr_data32_data32
-- **Address**: 0x20000000
-- **Block Offset**: 0x0
-- **Access Mode**: rw
+- **HW Prefix**: acq_ddr_data32_data32
+- **HW Address**: 0x20000000
+- **C Prefix**: acq_ddr.data32.data32
+- **C Block Offset**: 0x0
+- **Access**: read/write
 
 <table>
   <tr>
@@ -1891,20 +1880,18 @@ _(not documented)_
   </tr>
 </table>
 
-#### Bit: upper
-
-_(not documented)_
-
-#### Bit: lower
-
-_(not documented)_
+| Bits | Name | Description |
+|------|------|------------|
+| 31:16 | upper |  |
+| 15:0 | lower |  |
 
 ### Register: acq_ram.data32.data32
 
-- **HDL name**: acq_ram_data32_data32
-- **Address**: 0x80000000
-- **Block Offset**: 0x0
-- **Access Mode**: rw
+- **HW Prefix**: acq_ram_data32_data32
+- **HW Address**: 0x80000000
+- **C Prefix**: acq_ram.data32.data32
+- **C Block Offset**: 0x0
+- **Access**: read/write
 
 <table>
   <tr>
@@ -1961,11 +1948,8 @@ _(not documented)_
   </tr>
 </table>
 
-#### Bit: upper
-
-_(not documented)_
-
-#### Bit: lower
-
-_(not documented)_
+| Bits | Name | Description |
+|------|------|------------|
+| 31:16 | upper |  |
+| 15:0 | lower |  |
 
