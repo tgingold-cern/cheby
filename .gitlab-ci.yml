@@ -1,5 +1,5 @@
 .python_venv:
-  image: python:3
+  image: registry.cern.ch/docker.io/library/python:3
   before_script:
     - python3 -m venv .venv
     - source .venv/bin/activate
