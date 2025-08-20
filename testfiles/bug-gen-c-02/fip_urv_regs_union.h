@@ -73,7 +73,7 @@
 /* [0x0]: REG plc_ctrl */
 typedef struct {
   uint32_t rstn: 1;
-  uint32_t : 31;
+  uint32_t _bits_1_to_31: 31;
 } plc_ctrl_s;
 
 typedef union {
@@ -85,7 +85,7 @@ typedef union {
 typedef struct {
   uint32_t var1_rdy: 1;
   uint32_t var3_rdy: 1;
-  uint32_t : 30;
+  uint32_t _bits_2_to_31: 30;
 } fip_status_s;
 
 typedef union {
@@ -96,7 +96,7 @@ typedef union {
 /* [0x8]: REG fip_var1 */
 typedef struct {
   uint32_t acc: 1;
-  uint32_t : 31;
+  uint32_t _bits_1_to_31: 31;
 } fip_var1_s;
 
 typedef union {
@@ -107,7 +107,7 @@ typedef union {
 /* [0xc]: REG fip_var3 */
 typedef struct {
   uint32_t acc: 1;
-  uint32_t : 31;
+  uint32_t _bits_1_to_31: 31;
 } fip_var3_s;
 
 typedef union {
@@ -118,7 +118,7 @@ typedef union {
 /* [0x20]: REG presence */
 typedef struct {
   uint32_t en: 8;
-  uint32_t : 24;
+  uint32_t _bits_8_to_31: 24;
 } presence_s;
 
 typedef union {
@@ -129,7 +129,7 @@ typedef union {
 /* [0x24]: REG leds */
 typedef struct {
   uint32_t val: 6;
-  uint32_t : 26;
+  uint32_t _bits_6_to_31: 26;
 } leds_s;
 
 typedef union {

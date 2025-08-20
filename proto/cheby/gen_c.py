@@ -83,7 +83,14 @@ class CPrinter(tree.Visitor):
         self.bit_struct_txt("typedef struct {")
         self._bit_struct_indent += 1
 
-    def bit_struct_field(self, n, name, width):
+    def bit_struct_field(self, n, name, width, idx=0):
+        if not name:
+            # Used for padding fields
+            if width > 1:
+                name = "_bits_{}_to_{}".format(idx, idx + width - 1)
+            else:
+                name = "_bit_{}".format(idx)
+
         self.bit_struct_txt("{} {}: {};".format(self.utypes[n.c_size], name, width))
 
     def bit_struct_txt(self, txt=""):
@@ -187,7 +194,7 @@ def cprint_reg(cp, n):
             if bit_idx < n_child.lo:
                 # Insert padding
                 pad_width = n_child.lo - bit_idx
-                cp.bit_struct_field(n, "", pad_width)
+                cp.bit_struct_field(n, "", pad_width, bit_idx)
                 bit_idx += pad_width
 
             cp.bit_struct_field(n, n_child.name, n_child.c_rwidth)
@@ -195,7 +202,7 @@ def cprint_reg(cp, n):
 
         if bit_idx < 8 * n.c_size:
             # Insert padding at the end
-            cp.bit_struct_field(n, "", 8 * n.c_size - bit_idx)
+            cp.bit_struct_field(n, "", 8 * n.c_size - bit_idx, bit_idx)
 
         cp.bit_struct_end(n)
 
