@@ -1,7 +1,57 @@
 """Print as a C structure."""
 import cheby.tree as tree
 import cheby.print_consts as print_consts
+from cheby.parser import error
 from operator import attrgetter
+
+
+C_KEYWORDS = [
+    "alignas",
+    "alignof",
+    "auto",
+    "bool",
+    "break",
+    "case",
+    "char",
+    "const",
+    "constexpr",
+    "continue",
+    "default",
+    "do",
+    "double",
+    "else",
+    "enum",
+    "extern",
+    "false",
+    "float",
+    "for",
+    "goto",
+    "if",
+    "inline",
+    "int",
+    "long",
+    "nullptr",
+    "register",
+    "restrict",
+    "return",
+    "short",
+    "signed",
+    "sizeof",
+    "static",
+    "static_assert",
+    "struct",
+    "switch",
+    "thread_local",
+    "true",
+    "typedef",
+    "typeof",
+    "typeof_unqual",
+    "union",
+    "unsigned",
+    "void",
+    "volatile",
+    "while",
+]
 
 
 class CPrinter(tree.Visitor):
@@ -90,6 +140,12 @@ class CPrinter(tree.Visitor):
                 name = "_bits_{}_to_{}".format(idx, idx + width - 1)
             else:
                 name = "_bit_{}".format(idx)
+
+        elif name in C_KEYWORDS:
+            error(
+                "The bit field name '{}' is a reserved C keyword and ".format(name)
+                + "cannot be used when generating C struct header files."
+            )
 
         self.bit_struct_txt("{} {}: {};".format(self.utypes[n.c_size], name, width))
 
