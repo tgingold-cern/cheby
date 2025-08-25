@@ -451,8 +451,9 @@ class StructVisitor(ConstsVisitor):
         self.printer.pr_ident = lambda *args: None
 
     def pr_address(self, n):
-        # Avoid printing of properties on nodes that are not leaves (i.e., fields)
-        pass
+        # Avoid printing address properties on nodes that are not submaps
+        if isinstance(n, tree.Submap):
+            self.printer.pr_address(n)
 
     def pr_address_mask(self, n):
         # Avoid printing of properties on nodes that are not leaves (i.e., fields)
