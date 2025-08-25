@@ -28,7 +28,7 @@
 /* [0x4]: REG same_name */
 typedef struct {
   uint32_t same_name: 1;
-  uint32_t : 31;
+  uint32_t _bits_1_to_31: 31;
 } same_name_s;
 
 typedef union {
@@ -39,7 +39,7 @@ typedef union {
 /* [0x8]: REG same_name_multi */
 typedef struct {
   uint32_t same_name_multi: 12;
-  uint32_t : 20;
+  uint32_t _bits_12_to_31: 20;
 } same_name_multi_s;
 
 typedef union {
@@ -50,7 +50,7 @@ typedef union {
 /* [0xc]: REG not_same_reg */
 typedef struct {
   uint32_t not_same: 1;
-  uint32_t : 31;
+  uint32_t _bits_1_to_31: 31;
 } not_same_reg_s;
 
 typedef union {

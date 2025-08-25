@@ -50,9 +50,9 @@
 /* [0x0]: REG r1 */
 typedef struct {
   uint32_t f1: 3;
-  uint32_t : 1;
+  uint32_t _bit_3: 1;
   uint32_t f2: 1;
-  uint32_t : 27;
+  uint32_t _bits_5_to_31: 27;
 } b1_r1_s;
 
 typedef union {
@@ -63,9 +63,9 @@ typedef union {
 /* [0x0]: REG r3 */
 typedef struct {
   uint32_t f1: 3;
-  uint32_t : 1;
+  uint32_t _bit_3: 1;
   uint32_t f2: 1;
-  uint32_t : 27;
+  uint32_t _bits_5_to_31: 27;
 } b1_r3_s;
 
 typedef union {
@@ -76,7 +76,7 @@ typedef union {
 /* [0x0]: REG r1 */
 typedef struct {
   uint32_t f1: 3;
-  uint32_t : 29;
+  uint32_t _bits_3_to_31: 29;
 } b2_r1_s;
 
 typedef union {

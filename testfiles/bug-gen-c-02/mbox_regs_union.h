@@ -24,7 +24,7 @@
 typedef struct {
   uint32_t mbin: 1;
   uint32_t mbout: 1;
-  uint32_t : 30;
+  uint32_t _bits_2_to_31: 30;
 } status_s;
 
 typedef union {
