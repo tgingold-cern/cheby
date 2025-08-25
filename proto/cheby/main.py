@@ -160,7 +160,7 @@ def decode_args():
                          help='specify address space for --gen-hdl')
     aparser.add_argument('--out-prefix', default='',
                          help='specify path prefix for automatic output files')
-    
+
     aparser.add_argument('--wb-lib-name',
                          default = cheby.hdl.globals.libname,
                         help = 'Specify name of VHDL library where wishbone_pkg is compiled')
@@ -306,7 +306,9 @@ def handle_file(args, filename):
                     f, t, args.doc_hide_comments, args.doc_include_js_dep
                 )
             elif args.doc == "md":
-                print_markdown.print_markdown(f, t, args.doc_hide_comments)
+                print_markdown.print_markdown(
+                    f, t, args.doc_hide_comments, not args.doc_no_reg_drawing
+                )
             elif args.doc == "rest":
                 print_rest.print_rest(f, t, args.doc_hide_comments, args.rest_headers)
             elif args.doc == "latex":

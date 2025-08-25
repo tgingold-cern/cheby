@@ -1,69 +1,77 @@
-== Memory map summary
+## Memory Map Summary
 a single register
 
-version: 1.0.0
+Version: 1.0.0
 
-|===
-|HW address | Type | Name | HDL name
+| HW address | Type | Name | HDL Name |
+|------------|------|------|----------|
+| 0x0 | REG | r1 | r1 |
 
-|0x0
-|REG
-|r1
-|r1
-|===
+## Registers Description
+### Register: r1
 
-== Registers description
-=== r1
-[horizontal]
-HDL name:: r1
-address:: 0x0
-block offset:: 0x0
-access mode:: rw
+- **HW Prefix**: r1
+- **HW Address**: 0x0
+- **C Prefix**: r1
+- **C Block Offset**: 0x0
+- **Access**: read/write
 
-[cols="8*^"]
-|===
+<table>
+  <tr>
+    <td><b>31</b></td>
+    <td><b>30</b></td>
+    <td><b>29</b></td>
+    <td><b>28</b></td>
+    <td><b>27</b></td>
+    <td><b>26</b></td>
+    <td><b>25</b></td>
+    <td><b>24</b></td>
+  </tr>
+  <tr>
+    <td colspan="8" style="text-align: center;">r1[31:24]</td>
+  </tr>
+  <tr>
+    <td><b>23</b></td>
+    <td><b>22</b></td>
+    <td><b>21</b></td>
+    <td><b>20</b></td>
+    <td><b>19</b></td>
+    <td><b>18</b></td>
+    <td><b>17</b></td>
+    <td><b>16</b></td>
+  </tr>
+  <tr>
+    <td colspan="8" style="text-align: center;">r1[23:16]</td>
+  </tr>
+  <tr>
+    <td><b>15</b></td>
+    <td><b>14</b></td>
+    <td><b>13</b></td>
+    <td><b>12</b></td>
+    <td><b>11</b></td>
+    <td><b>10</b></td>
+    <td><b>9</b></td>
+    <td><b>8</b></td>
+  </tr>
+  <tr>
+    <td colspan="8" style="text-align: center;">r1[15:8]</td>
+  </tr>
+  <tr>
+    <td><b>7</b></td>
+    <td><b>6</b></td>
+    <td><b>5</b></td>
+    <td><b>4</b></td>
+    <td><b>3</b></td>
+    <td><b>2</b></td>
+    <td><b>1</b></td>
+    <td><b>0</b></td>
+  </tr>
+  <tr>
+    <td colspan="8" style="text-align: center;">r1[7:0]</td>
+  </tr>
+</table>
 
-| 31
-| 30
-| 29
-| 28
-| 27
-| 26
-| 25
-| 24
+| Bits | Name | Description |
+|------|------|------------|
+| 31:0 | r1 |  |
 
-8+s| r1[31:24]
-
-| 23
-| 22
-| 21
-| 20
-| 19
-| 18
-| 17
-| 16
-
-8+s| r1[23:16]
-
-| 15
-| 14
-| 13
-| 12
-| 11
-| 10
-| 9
-| 8
-
-8+s| r1[15:8]
-
-| 7
-| 6
-| 5
-| 4
-| 3
-| 2
-| 1
-| 0
-
-8+s| r1[7:0]
-|===
