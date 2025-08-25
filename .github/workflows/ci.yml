@@ -5,18 +5,14 @@ name: CI
 jobs:
   generation:
     name: Generation
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Checkout sources
         uses: actions/checkout@v4
 
       - name: Install Tools
         run: |
-          sudo apt-get install ghdl
-          wget https://github.com/apptainer/apptainer/releases/download/v1.2.4/apptainer_1.2.4_amd64.deb -O /tmp/apptainer.deb
-          sudo dpkg -i /tmp/apptainer.deb && false
-          sudo apt-get install -f
-          .github/verilator_apptainer --version
+          sudo apt-get install ghdl verilator
 
       - name: Setup Python venv
         run: |
@@ -27,13 +23,12 @@ jobs:
 
       - name: Test Generation
         run: |
-          export VERILATOR=$(pwd)/.github/verilator_apptainer
           cd proto
           python3 tests.py -e
 
   interaction:
     name: Interaction
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
     steps:
       - name: Install GHDL
         run: sudo apt-get install ghdl
