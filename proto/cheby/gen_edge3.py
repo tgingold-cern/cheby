@@ -112,10 +112,11 @@ class LifTable(CsvTable):
         self.comment = "#LIF (Logical Interface) table definition"
 
 
-class LifTable4(LifTable):
+class LifTable4(CsvTable):
     def __init__(self):
-        super().__init__()
-        self.titles.remove("edge_vers")
+        super().__init__("hw_mod_name", "hw_lif_name", "hw_lif_vers",
+                         "bus", "endian", "description")
+        self.comment = "#LIF (Logical Interface) table definition"
 
 
 class ResourceTable(CsvTable):
