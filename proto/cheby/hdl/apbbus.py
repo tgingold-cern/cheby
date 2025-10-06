@@ -24,7 +24,8 @@ from cheby.hdl.busparams import BusOptions
 
 
 class APBBus(BusGen):
-    def __init__(self, name):
+    def __init__(self, name, root, module):
+        super().__init__(root, module)
         assert name == "apb-32"
 
     def gen_ports(self, build_port, addr_bits, lo_addr, data_bits, is_master=False):
@@ -42,16 +43,16 @@ class APBBus(BusGen):
             build_port("pslverr", None, dir=outp),
         ]
 
-    def expand_bus_w(self, root, module, ibus, opts):
+    def expand_bus_w(self, ibus, opts):
         """Generate internal write bus and connect it with APB signals"""
-        ibus.wr_req = module.new_HDLSignal("wr_req")
-        ibus.wr_adr = module.new_HDLSignal(
-            "wr_addr", root.c_addr_bits, lo_idx=root.c_addr_word_bits
+        ibus.wr_req = self.module.new_HDLSignal("wr_req")
+        ibus.wr_adr = self.module.new_HDLSignal(
+            "wr_addr", self.root.c_addr_bits, lo_idx=self.root.c_addr_word_bits
         )
-        ibus.wr_dat = module.new_HDLSignal("wr_data", root.c_word_bits)
-        ibus.wr_sel = module.new_HDLSignal("wr_sel", root.c_word_bits)
+        ibus.wr_dat = self.module.new_HDLSignal("wr_data", self.root.c_word_bits)
+        ibus.wr_sel = self.module.new_HDLSignal("wr_sel", self.root.c_word_bits)
 
-        module.stmts.append(HDLComment("Write Channel"))
+        self.module.stmts.append(HDLComment("Write Channel"))
         # A write transfer consists of two phases, a setup and an access phase. The
         # setup phase has a duration of one clock cycle, the access phase has a duration
         # of at least one clock cycle. At the end of the access phase (i.e. at the
@@ -74,17 +75,17 @@ class APBBus(BusGen):
         # edge). This is one cycle earlier than what the standard foresees. In such a
         # case, an APB write request can be completed without the setup phase and hence,
         # in one clock cycle only.
-        module.stmts.append(
+        self.module.stmts.append(
             HDLAssign(
                 ibus.wr_req,
                 HDLAnd(
-                    HDLAnd(root.h_bus["psel"], root.h_bus["pwrite"]),
-                    HDLNot(root.h_bus["penable"]),
+                    HDLAnd(self.root.h_bus["psel"], self.root.h_bus["pwrite"]),
+                    HDLNot(self.root.h_bus["penable"]),
                 ),
             )
         )
-        module.stmts.append(HDLAssign(ibus.wr_adr, root.h_bus["paddr"]))
-        module.stmts.append(HDLAssign(ibus.wr_dat, root.h_bus["pwdata"]))
+        self.module.stmts.append(HDLAssign(ibus.wr_adr, self.root.h_bus["paddr"]))
+        self.module.stmts.append(HDLAssign(ibus.wr_dat, self.root.h_bus["pwdata"]))
 
         if opts.bus_error:
             # Delay write request: Used in case of a read request to a write only
@@ -92,41 +93,41 @@ class APBBus(BusGen):
             # of the write acknowledge. Thereby and without pipelining, the PREADY
             # signal is already and only asserted during the setup phase. Hence, one
             # cycle to early. Delaying the signal circumvents this problem.
-            ibus.wr_req_del = module.new_HDLSignal("wr_req_del")
+            ibus.wr_req_del = self.module.new_HDLSignal("wr_req_del")
 
             proc = HDLSync(
-                root.h_bus["clk"], root.h_bus["brst"], rst_sync=gconfig.rst_sync
+                self.root.h_bus["clk"], self.root.h_bus["brst"], rst_sync=gconfig.rst_sync
             )
             proc.rst_stmts.append(HDLAssign(ibus.wr_req_del, bit_0))
             proc.sync_stmts.append(HDLAssign(ibus.wr_req_del, ibus.wr_req))
 
-            module.stmts.append(proc)
+            self.module.stmts.append(proc)
 
         # Translate Byte-wise write mask of APB bus to bit-wise write mask of ibus
         proc = HDLComb()
-        proc.sensitivity.extend([root.h_bus["pstrb"]])
-        for idx in range(root.c_word_bits // tree.BYTE_SIZE):
+        proc.sensitivity.extend([self.root.h_bus["pstrb"]])
+        for idx in range(self.root.c_word_bits // tree.BYTE_SIZE):
             proc.stmts.append(
                 HDLAssign(
                     HDLSlice(ibus.wr_sel, idx * tree.BYTE_SIZE, tree.BYTE_SIZE),
                     HDLReplicate(
-                        HDLSlice(root.h_bus["pstrb"], idx, None),
+                        HDLSlice(self.root.h_bus["pstrb"], idx, None),
                         tree.BYTE_SIZE,
                         True,
                     ),
                 )
             )
-        module.stmts.append(proc)
+        self.module.stmts.append(proc)
 
-    def expand_bus_r(self, root, module, ibus, opts):
+    def expand_bus_r(self, ibus, opts):
         """Generate internal read bus and connect it with APB signals"""
-        ibus.rd_req = module.new_HDLSignal("rd_req")
-        ibus.rd_adr = module.new_HDLSignal(
-            "rd_addr", root.c_addr_bits, lo_idx=root.c_addr_word_bits
+        ibus.rd_req = self.module.new_HDLSignal("rd_req")
+        ibus.rd_adr = self.module.new_HDLSignal(
+            "rd_addr", self.root.c_addr_bits, lo_idx=self.root.c_addr_word_bits
         )
-        ibus.rd_dat = module.new_HDLSignal("rd_data", root.c_word_bits)
+        ibus.rd_dat = self.module.new_HDLSignal("rd_data", self.root.c_word_bits)
 
-        module.stmts.append(HDLComment("Read Channel"))
+        self.module.stmts.append(HDLComment("Read Channel"))
         # A read transfer consists of two phases, a setup and an access phase. The setup
         # phase has a duration of one clock cycle, the access phase has a duration of at
         # least one clock cycle. The data is read and output together with the assertion
@@ -150,34 +151,34 @@ class APBBus(BusGen):
         # Without pipelining on the read side (rd-*), the read data might even be ready
         # during the setup phase. In that case, an APB read request can be completed
         # without the setup phase and hence, in one clock cycle only.
-        module.stmts.append(
+        self.module.stmts.append(
             HDLAssign(
                 ibus.rd_req,
                 HDLAnd(
-                    HDLAnd(root.h_bus["psel"], HDLNot(root.h_bus["pwrite"])),
-                    HDLNot(root.h_bus["penable"]),
+                    HDLAnd(self.root.h_bus["psel"], HDLNot(self.root.h_bus["pwrite"])),
+                    HDLNot(self.root.h_bus["penable"]),
                 ),
             )
         )
-        module.stmts.append(HDLAssign(ibus.rd_adr, root.h_bus["paddr"]))
-        module.stmts.append(HDLAssign(root.h_bus["prdata"], ibus.rd_dat))
+        self.module.stmts.append(HDLAssign(ibus.rd_adr, self.root.h_bus["paddr"]))
+        self.module.stmts.append(HDLAssign(self.root.h_bus["prdata"], ibus.rd_dat))
 
-    def expand_bus_output(self, root, module, ibus, opts):
+    def expand_bus_output(self, ibus, opts):
         """Generate output APB signals and connect them with internal bus"""
-        ibus.wr_err = module.new_HDLSignal("wr_err")
-        ibus.wr_ack = module.new_HDLSignal("wr_ack")
-        ibus.rd_ack = module.new_HDLSignal("rd_ack")
-        ibus.rd_err = module.new_HDLSignal("rd_err")
+        ibus.wr_err = self.module.new_HDLSignal("wr_err")
+        ibus.wr_ack = self.module.new_HDLSignal("wr_ack")
+        ibus.rd_ack = self.module.new_HDLSignal("rd_ack")
+        ibus.rd_err = self.module.new_HDLSignal("rd_err")
 
-        module.stmts.append(
-            HDLAssign(root.h_bus["pready"], HDLOr(ibus.wr_ack, ibus.rd_ack))
+        self.module.stmts.append(
+            HDLAssign(self.root.h_bus["pready"], HDLOr(ibus.wr_ack, ibus.rd_ack))
         )
         if opts.bus_error:
-            module.stmts.append(
-                HDLAssign(root.h_bus["pslverr"], HDLOr(ibus.wr_err, ibus.rd_err))
+            self.module.stmts.append(
+                HDLAssign(self.root.h_bus["pslverr"], HDLOr(ibus.wr_err, ibus.rd_err))
             )
         else:
-            module.stmts.append(HDLAssign(root.h_bus["pslverr"], bit_0))
+            self.module.stmts.append(HDLAssign(self.root.h_bus["pslverr"], bit_0))
 
     def add_xilinx_attributes(self, bus, portname):
         """Add bus attributes used by Xilinx' Vivado"""
@@ -196,9 +197,9 @@ class APBBus(BusGen):
                 "busgroup on '{}' is ignored for apb-32".format(opts.bus.get_path()),
             )
 
-    def expand_bus(self, root, module, ibus):
+    def expand_bus(self, ibus):
         """Create APB top level interface"""
-        opts = BusOptions(root, root)
+        opts = BusOptions(self.root, self.root)
         self.expand_opts(opts)
 
         # Generate bus ports
@@ -211,30 +212,30 @@ class APBBus(BusGen):
                 ),
                 opts.addr_wd,
                 opts.addr_low,
-                root.c_word_bits,
+                self.root.c_word_bits,
                 False,
             )
         )
 
-        if root.hdl_bus_attribute == "Xilinx":
+        if self.root.hdl_bus_attribute == "Xilinx":
             self.add_xilinx_attributes(bus, "slave")
 
-        add_bus(root, module, bus)
+        add_bus(self.root, self.module, bus)
 
         # Configure internal bus
-        root.h_bussplit = True
-        ibus.addr_size = root.c_addr_bits
-        ibus.addr_low = root.c_addr_word_bits
-        ibus.data_size = root.c_word_bits
-        ibus.rst = root.h_bus["brst"]
-        ibus.clk = root.h_bus["clk"]
+        self.root.h_bussplit = True
+        ibus.addr_size = self.root.c_addr_bits
+        ibus.addr_low = self.root.c_addr_word_bits
+        ibus.data_size = self.root.c_word_bits
+        ibus.rst = self.root.h_bus["brst"]
+        ibus.clk = self.root.h_bus["clk"]
 
         # Connect internal bus with APB signals
-        self.expand_bus_w(root, module, ibus, opts)
-        self.expand_bus_r(root, module, ibus, opts)
-        self.expand_bus_output(root, module, ibus, opts)
+        self.expand_bus_w(ibus, opts)
+        self.expand_bus_r(ibus, opts)
+        self.expand_bus_output(ibus, opts)
 
-    def gen_bus_slave(self, root, module, prefix, n, opts):
+    def gen_bus_slave(self, prefix, n, opts):
         """Create internal APB interface"""
         self.expand_opts(opts)
 
@@ -243,7 +244,7 @@ class APBBus(BusGen):
                 name,
                 None
                 if sz == 0
-                else module.add_port(
+                else self.module.add_port(
                     "{}_{}_{}".format(n.c_name, name, dirname[dir]),
                     size=sz,
                     lo_idx=lo,
@@ -252,11 +253,11 @@ class APBBus(BusGen):
             ),
             opts.addr_wd,
             opts.addr_low,
-            root.c_word_bits,
+            self.root.c_word_bits,
             True,
         )
 
-        if root.hdl_bus_attribute == "Xilinx":
+        if self.root.hdl_bus_attribute == "Xilinx":
             self.add_xilinx_attributes(ports, n.c_name)
 
         n.h_bus_opts = opts
@@ -267,23 +268,23 @@ class APBBus(BusGen):
 
         # Internal sampled signals
         #   Write Request
-        n.i_wr_req = module.new_HDLSignal(prefix + "wr_req")
-        n.i_wr_ack = module.new_HDLSignal(prefix + "wr_ack")
-        n.h_wr = module.new_HDLSignal(prefix + "wr")
-        n.h_wr_reg = module.new_HDLSignal(prefix + "wr_reg")
+        n.i_wr_req = self.module.new_HDLSignal(prefix + "wr_req")
+        n.i_wr_ack = self.module.new_HDLSignal(prefix + "wr_ack")
+        n.h_wr = self.module.new_HDLSignal(prefix + "wr")
+        n.h_wr_reg = self.module.new_HDLSignal(prefix + "wr_reg")
         #   Read Request
-        n.i_rd_req = module.new_HDLSignal(prefix + "rd_req")
-        n.i_rd_ack = module.new_HDLSignal(prefix + "rd_ack")
-        n.h_rd = module.new_HDLSignal(prefix + "rd")
-        n.h_rd_reg = module.new_HDLSignal(prefix + "rd_reg")
+        n.i_rd_req = self.module.new_HDLSignal(prefix + "rd_req")
+        n.i_rd_ack = self.module.new_HDLSignal(prefix + "rd_ack")
+        n.h_rd = self.module.new_HDLSignal(prefix + "rd")
+        n.h_rd_reg = self.module.new_HDLSignal(prefix + "rd_reg")
 
-    def wire_bus_slave(self, root, module, n, ibus):
+    def wire_bus_slave(self, n, ibus):
         """Connect internal APB interface with internal bus"""
-        stmts = module.stmts
+        stmts = self.module.stmts
 
         # Internal request signal
         # Activate on incoming request, deactivate on acknowledge (prioritize)
-        proc = HDLSync(root.h_bus["clk"], root.h_bus["brst"], rst_sync=gconfig.rst_sync)
+        proc = HDLSync(self.root.h_bus["clk"], self.root.h_bus["brst"], rst_sync=gconfig.rst_sync)
         proc.rst_stmts.append(HDLAssign(n.h_wr_reg, bit_0))
         proc.rst_stmts.append(HDLAssign(n.h_rd_reg, bit_0))
 
@@ -327,7 +328,7 @@ class APBBus(BusGen):
                 HDLAssign(
                     n.h_bus["paddr"],
                     n.h_bus_opts.resize_addr_out(
-                        HDLSlice(ibus.wr_adr, root.c_addr_word_bits, n.c_addr_bits),
+                        HDLSlice(ibus.wr_adr, self.root.c_addr_word_bits, n.c_addr_bits),
                         ibus,
                     ),
                 )
@@ -336,7 +337,7 @@ class APBBus(BusGen):
                 HDLAssign(
                     n.h_bus["paddr"],
                     n.h_bus_opts.resize_addr_out(
-                        HDLSlice(ibus.rd_adr, root.c_addr_word_bits, n.c_addr_bits),
+                        HDLSlice(ibus.rd_adr, self.root.c_addr_word_bits, n.c_addr_bits),
                         ibus,
                     ),
                 )
@@ -353,10 +354,10 @@ class APBBus(BusGen):
             proc.stmts.append(
                 HDLAssign(
                     n.h_bus["pstrb"],
-                    HDLReplicate(bit_0, root.c_word_bits // tree.BYTE_SIZE),
+                    HDLReplicate(bit_0, self.root.c_word_bits // tree.BYTE_SIZE),
                 )
             )
-            for idx in range(root.c_word_bits // tree.BYTE_SIZE):
+            for idx in range(self.root.c_word_bits // tree.BYTE_SIZE):
                 proc_if = HDLIfElse(
                     HDLNot(
                         HDLEq(
@@ -375,11 +376,11 @@ class APBBus(BusGen):
             stmts.append(
                 HDLAssign(
                     n.h_bus["pstrb"],
-                    HDLReplicate(bit_1, root.c_word_bits // tree.BYTE_SIZE),
+                    HDLReplicate(bit_1, self.root.c_word_bits // tree.BYTE_SIZE),
                 )
             )
 
-    def write_bus_slave(self, root, stmts, n, proc, ibus):
+    def write_bus_slave(self, stmts, n, proc, ibus):
         proc.stmts.append(HDLAssign(n.i_wr_req, bit_0))
         proc.stmts.append(HDLAssign(n.i_wr_ack, bit_0))
         stmts.append(HDLAssign(n.i_wr_req, ibus.wr_req))
@@ -388,7 +389,7 @@ class APBBus(BusGen):
         stmts.append(HDLAssign(ibus.wr_ack, HDLAnd(n.h_wr, n.h_bus["pready"])))
         stmts.append(HDLAssign(ibus.wr_err, HDLAnd(n.h_wr, n.h_bus["pslverr"])))
 
-    def read_bus_slave(self, root, stmts, n, proc, ibus, rd_data):
+    def read_bus_slave(self, stmts, n, proc, ibus, rd_data):
         proc.stmts.append(HDLAssign(n.i_rd_req, bit_0))
         proc.stmts.append(HDLAssign(n.i_rd_ack, bit_0))
         stmts.append(HDLAssign(n.i_rd_req, ibus.rd_req))

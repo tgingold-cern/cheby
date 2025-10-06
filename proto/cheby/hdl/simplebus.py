@@ -11,7 +11,8 @@ import cheby.parser as parser
 
 
 class SimpleBus(BusGen):
-    def __init__(self, name):
+    def __init__(self, name, root, module):
+        super().__init__(root, module)
         self.buserr = False
         self.split = False
 
@@ -33,16 +34,16 @@ class SimpleBus(BusGen):
 
     busname = "simple"
 
-    def add_decode_simple_bus(self, root, module, ibus):
+    def add_decode_simple_bus(self, ibus):
         """Generate internal signals used by decoder/processes from the bus"""
-        ibus.rd_req = root.h_bus['rd']
-        ibus.wr_req = root.h_bus['wr']
-        ibus.rd_ack = module.new_HDLSignal('rd_ack_int')    # Ack for read
-        ibus.rd_err = module.new_HDLSignal('rd_err_int')    # Error for read (not supported)
-        ibus.wr_ack = module.new_HDLSignal('wr_ack_int')    # Ack for write
-        ibus.wr_err = module.new_HDLSignal('wr_err_int')    # Error for write (not supported)
-        module.stmts.append(HDLAssign(root.h_bus['rack'], ibus.rd_ack))
-        module.stmts.append(HDLAssign(root.h_bus['wack'], ibus.wr_ack))
+        ibus.rd_req = self.root.h_bus['rd']
+        ibus.wr_req = self.root.h_bus['wr']
+        ibus.rd_ack = self.module.new_HDLSignal('rd_ack_int')    # Ack for read
+        ibus.rd_err = self.module.new_HDLSignal('rd_err_int')    # Error for read (not supported)
+        ibus.wr_ack = self.module.new_HDLSignal('wr_ack_int')    # Ack for write
+        ibus.wr_err = self.module.new_HDLSignal('wr_err_int')    # Error for write (not supported)
+        self.module.stmts.append(HDLAssign(self.root.h_bus['rack'], ibus.rd_ack))
+        self.module.stmts.append(HDLAssign(self.root.h_bus['wack'], ibus.wr_ack))
 
     def gen_bus(self, build_port, addr_bits, lo_addr, data_bits,
                      force_addr, is_split, is_buserr, is_master):
@@ -75,66 +76,66 @@ class SimpleBus(BusGen):
     def add_xilinx_attributes(self, bus, portname):
         pass
 
-    def expand_bus(self, root, module, ibus):
+    def expand_bus(self, ibus):
         """Create bus interface."""
-        if root.get_extension('x_hdl', 'busgroup'):
-            parser.warning(root, "busgroup on '{}' is ignored for {}".format(
-                root.get_path(), self.busname))
-        if root.get_extension('x_hdl', 'bus-error'):
-            parser.warning(root, "bus-error on '{}' is ignored for {}".format(
-                root.get_path(), self.busname))
+        if self.root.get_extension('x_hdl', 'busgroup'):
+            parser.warning(self.root, "busgroup on '{}' is ignored for {}".format(
+                self.root.get_path(), self.busname))
+        if self.root.get_extension('x_hdl', 'bus-error'):
+            parser.warning(self.root, "bus-error on '{}' is ignored for {}".format(
+                self.root.get_path(), self.busname))
 
         bus = [('clk', HDLPort(self.names['clk'])),
                ('brst', HDLPort(self.names['rst']))]
         bus.extend(self.gen_bus(
             lambda n, sz=None, lo=0, dir='IN':
             HDLPort(n, size=sz, lo_idx=lo, dir=dir) if sz is None or sz > 0 else None,
-            root.c_addr_bits, root.c_addr_word_bits, root.c_word_bits,
+            self.root.c_addr_bits, self.root.c_addr_word_bits, self.root.c_word_bits,
             ibus is None, self.split, self.buserr, False))
-        if root.hdl_bus_attribute == 'Xilinx':
+        if self.root.hdl_bus_attribute == 'Xilinx':
             self.add_xilinx_attributes(bus, 'slave')
-        add_bus(root, module, bus)
-        root.h_bussplit = self.split
+        add_bus(self.root, self.module, bus)
+        self.root.h_bussplit = self.split
 
         # The reset port Rst is active high, while internally we use an active low reset.
         # Kludge: not reverted for gen_gena_regctrl...
         if ibus is not None:
-            rstn = module.new_HDLSignal('rst_n')
-            module.stmts.append(HDLAssign(rstn, HDLNot(root.h_bus['brst'])))
-            root.h_bus['brst'] = rstn
+            rstn = self.module.new_HDLSignal('rst_n')
+            self.module.stmts.append(HDLAssign(rstn, HDLNot(self.root.h_bus['brst'])))
+            self.root.h_bus['brst'] = rstn
 
         if ibus is not None:
-            ibus.addr_size = root.c_addr_bits
-            ibus.addr_low = root.c_addr_word_bits
-            ibus.data_size = root.c_word_bits
-            ibus.clk = root.h_bus['clk']
-            ibus.rst = root.h_bus['brst']
-            ibus.rd_dat = root.h_bus['dato']
-            ibus.wr_dat = root.h_bus['dati']
+            ibus.addr_size = self.root.c_addr_bits
+            ibus.addr_low = self.root.c_addr_word_bits
+            ibus.data_size = self.root.c_word_bits
+            ibus.clk = self.root.h_bus['clk']
+            ibus.rst = self.root.h_bus['brst']
+            ibus.rd_dat = self.root.h_bus['dato']
+            ibus.wr_dat = self.root.h_bus['dati']
 
-            if root.c_addr_bits > 0:
+            if self.root.c_addr_bits > 0:
                 if self.split:
-                    ibus.rd_adr = root.h_bus['adrr']
-                    ibus.wr_adr = root.h_bus['adrw']
+                    ibus.rd_adr = self.root.h_bus['adrr']
+                    ibus.wr_adr = self.root.h_bus['adrw']
                 else:
-                    ibus.rd_adr = root.h_bus['adr']
-                    ibus.wr_adr = root.h_bus['adr']
+                    ibus.rd_adr = self.root.h_bus['adr']
+                    ibus.wr_adr = self.root.h_bus['adr']
 
-            self.add_decode_simple_bus(root, module, ibus)
+            self.add_decode_simple_bus(ibus)
 
-    def gen_bus_slave(self, root, module, prefix, n, opts):
+    def gen_bus_slave(self, prefix, n, opts):
         """Create an interface to a slave (Add declarations)"""
         if opts.busgroup:
-            parser.warning(root, "busgroup on '{}' is ignored for {}".format(
-                root.get_path(), self.busname))
+            parser.warning(self.root, "busgroup on '{}' is ignored for {}".format(
+                self.root.get_path(), self.busname))
         ports = self.gen_bus(
             lambda name, sz=None, lo=0, dir='IN':
-                 None if sz == 0 else module.add_port(
+                 None if sz == 0 else self.module.add_port(
                     '{}_{}_{}'.format(n.c_name, name, dirname[dir]),
                     size=sz, lo_idx=lo, dir=dir),
-            n.c_addr_bits, root.c_addr_word_bits, root.c_word_bits,
+            n.c_addr_bits, self.root.c_addr_word_bits, self.root.c_word_bits,
             False, self.split, self.buserr, True)
-        if root.hdl_bus_attribute == 'Xilinx':
+        if self.root.hdl_bus_attribute == 'Xilinx':
             self.add_xilinx_attributes(ports, n.c_name)
         n.h_bus = {}
         for name, p in ports:
@@ -147,41 +148,41 @@ class SimpleBus(BusGen):
         else:
             first = 'dato'
         n.h_bus[first].comment = comment
-        if root.h_bussplit:
+        if self.root.h_bussplit:
             # Request signals
-            n.h_wr = module.new_HDLSignal(prefix + 'wr')
-            n.h_rr = module.new_HDLSignal(prefix + 'rr')
+            n.h_wr = self.module.new_HDLSignal(prefix + 'wr')
+            n.h_rr = self.module.new_HDLSignal(prefix + 'rr')
             # Start transactions
-            n.h_ws = module.new_HDLSignal(prefix + 'ws')
-            n.h_rs = module.new_HDLSignal(prefix + 'rs')
+            n.h_ws = self.module.new_HDLSignal(prefix + 'ws')
+            n.h_rs = self.module.new_HDLSignal(prefix + 'rs')
             # Enable (set by decoding logic)
-            n.h_re = module.new_HDLSignal(prefix + 're')
-            n.h_we = module.new_HDLSignal(prefix + 'we')
+            n.h_re = self.module.new_HDLSignal(prefix + 're')
+            n.h_we = self.module.new_HDLSignal(prefix + 'we')
             # Transaction in progress
-            n.h_wt = module.new_HDLSignal(prefix + 'wt')
-            n.h_rt = module.new_HDLSignal(prefix + 'rt')
+            n.h_wt = self.module.new_HDLSignal(prefix + 'wt')
+            n.h_rt = self.module.new_HDLSignal(prefix + 'rt')
 
-    def gen_adr_mux(self, root, module, n, ibus):
+    def gen_adr_mux(self, n, ibus):
         # Mux for addresses.
         proc = HDLComb()
         proc.sensitivity.extend([ibus.rd_adr, ibus.wr_adr, n.h_wt, n.h_ws])
         if_stmt = HDLIfElse(HDLEq(HDLOr(n.h_ws, n.h_wt), bit_1))
         if_stmt.then_stmts.append(
             HDLAssign(n.h_bus['adr'],
-                      HDLSlice(ibus.wr_adr, root.c_addr_word_bits, n.c_addr_bits)))
+                      HDLSlice(ibus.wr_adr, self.root.c_addr_word_bits, n.c_addr_bits)))
         if_stmt.else_stmts.append(
             HDLAssign(n.h_bus['adr'],
-                      HDLSlice(ibus.rd_adr, root.c_addr_word_bits, n.c_addr_bits)))
+                      HDLSlice(ibus.rd_adr, self.root.c_addr_word_bits, n.c_addr_bits)))
         proc.stmts.append(if_stmt)
-        module.stmts.append(proc)
+        self.module.stmts.append(proc)
 
-    def wire_bus_slave(self, root, module, n, ibus):
-        stmts = module.stmts
+    def wire_bus_slave(self, n, ibus):
+        stmts = self.module.stmts
         stmts.append(HDLAssign(n.h_bus['dati'], ibus.wr_dat))
 
-        if root.h_bussplit:
+        if self.root.h_bussplit:
             # Handle read requests.
-            proc = HDLSync(root.h_bus['clk'], root.h_bus['brst'], rst_sync=gconfig.rst_sync)
+            proc = HDLSync(self.root.h_bus['clk'], self.root.h_bus['brst'], rst_sync=gconfig.rst_sync)
             # Write requests set on WE, clear by RdDone
             proc.sync_stmts.append(
                 HDLAssign(n.h_wr,
@@ -214,12 +215,12 @@ class SimpleBus(BusGen):
                           HDLAnd(n.h_wr, HDLNot(HDLOr(n.h_rt, n.h_wt)))))
             # Mux for addresses.
             if ibus.rd_adr is not None:
-                self.gen_adr_mux(root, module, n, ibus)
+                self.gen_adr_mux(n, ibus)
         elif ibus.rd_adr != ibus.wr_adr:
             # Asymetric pipelining: add a mux to select the address.
-            n.h_ws = module.new_HDLSignal(n.c_name + '_ws')
-            n.h_wt = module.new_HDLSignal(n.c_name + '_wt')
-            proc = HDLSync(root.h_bus['clk'], root.h_bus['brst'], rst_sync=gconfig.rst_sync)
+            n.h_ws = self.module.new_HDLSignal(n.c_name + '_ws')
+            n.h_wt = self.module.new_HDLSignal(n.c_name + '_wt')
+            proc = HDLSync(self.root.h_bus['clk'], self.root.h_bus['brst'], rst_sync=gconfig.rst_sync)
             proc.sync_stmts.append(
                 HDLAssign(n.h_wt,
                           HDLAnd(HDLOr(n.h_wt, n.h_ws), HDLNot(n.h_bus['wack']))))
@@ -228,14 +229,14 @@ class SimpleBus(BusGen):
             stmts.append(HDLAssign(n.h_bus['wr'], n.h_ws))
             # Mux for addresses.
             if n.c_addr_bits > 0:
-                self.gen_adr_mux(root, module, n, ibus)
+                self.gen_adr_mux(n, ibus)
         else:
             if n.c_addr_bits > 0:
                 stmts.append(HDLAssign(n.h_bus['adr'],
-                                       HDLSlice(ibus.rd_adr, root.c_addr_word_bits, n.c_addr_bits)))
+                                       HDLSlice(ibus.rd_adr, self.root.c_addr_word_bits, n.c_addr_bits)))
 
-    def write_bus_slave(self, root, stmts, n, proc, ibus):
-        if root.h_bussplit:
+    def write_bus_slave(self, stmts, n, proc, ibus):
+        if self.root.h_bussplit:
             # Start write transaction if WR is set and neither read nor write transaction
             proc.stmts.append(HDLAssign(n.h_we, bit_0))
             stmts.append(HDLAssign(n.h_we, ibus.wr_req))
@@ -249,9 +250,9 @@ class SimpleBus(BusGen):
             stmts.append(HDLAssign(n.h_bus['wr'], ibus.wr_req))
         stmts.append(HDLAssign(ibus.wr_ack, n.h_bus['wack']))
 
-    def read_bus_slave(self, root, stmts, n, proc, ibus, rd_data):
+    def read_bus_slave(self, stmts, n, proc, ibus, rd_data):
         proc.stmts.append(HDLAssign(n.h_bus['rd'], bit_0))
-        if root.h_bussplit:
+        if self.root.h_bussplit:
             # Start read transaction if RR is set and neither read nor write transaction
             proc.stmts.append(HDLAssign(n.h_re, bit_0))
             stmts.append(HDLAssign(n.h_re, ibus.rd_req))

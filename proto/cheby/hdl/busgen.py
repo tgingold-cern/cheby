@@ -1,3 +1,5 @@
+from cheby.hdltree import HDLInterfaceSelect
+
 class BusGen(object):
     """The purpose of BusGen is to abstract the buses.
     Internally, there is one bus for read acces, and one bus for write access.
@@ -25,22 +27,34 @@ class BusGen(object):
     There can be one read access in parallel to a write access.
     """
 
-    def expand_bus(self, root, module, ibus):
+    def __init__(self, root, module):
+        self.root = root
+        self.module = module
+
+    def add_module_port(self, name, size=None, lo_idx=0, dir='IN'):
+        "Utility function to easily add a port to :param module:"
+        if self.root.h_itf is None:
+            return self.module.add_port(name, size, lo_idx, dir=dir)
+        else:
+            p = self.root.h_itf.add_port(name, size, lo_idx, dir=dir)
+            return HDLInterfaceSelect(self.root.h_ports, p)
+
+    def expand_bus(self, ibus):
         """Create bus interface for the design."""
         raise AssertionError("Not implemented")
 
-    def gen_bus_slave(self, root, module, prefix, n, opts):
+    def gen_bus_slave(self, prefix, n, opts):
         """Create an interface to a slave (Add declarations)"""
         raise AssertionError("Not implemented")
 
-    def wire_bus_slave(self, root, module, n, ibus):
+    def wire_bus_slave(self, n, ibus):
         """Create HDL for the interface (Assignments)"""
         raise AssertionError("Not implemented")
 
-    def write_bus_slave(self, root, stmts, n, proc, ibus):
+    def write_bus_slave(self, stmts, n, proc, ibus):
         """Set bus slave signals to write"""
         raise AssertionError("Not implemented")
 
-    def read_bus_slave(self, root, stmts, n, proc, ibus, rd_data):
+    def read_bus_slave(self, stmts, n, proc, ibus, rd_data):
         """Set bus slave signals to read"""
         raise AssertionError("Not implemented")

@@ -244,16 +244,16 @@ def gen_hdl_header(root, ibus=None, wb_lib_name = libname, axil_lib_name = libna
         root.h_lock_port = lock_port
 
     # Create the bus
-    root.h_busgen = name_to_busgen(root.bus)
+    root.h_busgen = name_to_busgen(root.bus, root, module)
     if isinstance(root.h_busgen, WBBus):
         # WBBus needs wb_lib_name
-        root.h_busgen.expand_bus(root, module, ibus, lib_name=wb_lib_name)
+        root.h_busgen.expand_bus(ibus, lib_name=wb_lib_name)
     elif isinstance(root.h_busgen, AXI4LiteBus):
          # AXI4LiteBus needs axil_lib_name
-        root.h_busgen.expand_bus(root, module, ibus, lib_name=axil_lib_name)
+        root.h_busgen.expand_bus(ibus, lib_name=axil_lib_name)
     else:
         # Other bus types don't need extra library names
-        root.h_busgen.expand_bus(root, module, ibus)
+        root.h_busgen.expand_bus(ibus)
 
     return module
 

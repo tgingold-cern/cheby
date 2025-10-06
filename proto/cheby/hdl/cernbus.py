@@ -2,8 +2,8 @@ from cheby.hdl.simplebus import SimpleBus
 
 
 class CERNBEBus(SimpleBus):
-    def __init__(self, name):
-        super().__init__(name)
+    def __init__(self, name, root, module):
+        super().__init__(name, root, module)
         names = name[12:].split('-')
         self.buserr = names[0] == 'err'
         if self.buserr:
