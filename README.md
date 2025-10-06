@@ -50,6 +50,8 @@ incompatibility with previous versions.
 
 Add memdepth attribute for memory
 
+Ports of an sram memory can now be put in the iogroup
+
 ## Version 1.6
 
 Add generation of field widths in constant files (github PR #50)
