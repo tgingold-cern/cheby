@@ -1,0 +1,35 @@
+# NOTE: THE ADDRESSES ARE DESCRIBING VME SPACE, HENCE EACH NEXT
+# ADDRESS IS ADVANCED BY 4. The same counts for size, which is
+# multiplied by 4. Hence capture submap, mapped here as 0x20000 with
+# width of 0x20000 will be mapped in application part into address
+# 0x820000 and total length of 0x20000
+memory-map:
+  bus: wb-32-be
+  name: crossbar_wb
+  x-hdl:
+    reg-prefix: False
+    block-prefix: False
+  children:
+  - block:
+      name: ClkPatternBlock
+      align: False
+      x-hdl:
+        iogroup: clkpat
+      children:
+        - reg:
+            name: ClkPatternLength
+            description: "Lenght to play from ClkPattern"
+            width: 32
+            access: rw
+        - memory:
+            name: ClkPattern
+            description: "32-bit memory to play the data to downstream CLK"
+            memsize: 256
+            align: True
+            interface: simple-32
+            children:
+              - reg:
+                  description: "32-bit memory with pattern"
+                  name: ClkPatternReg
+                  access: rw
+                  width: 32
