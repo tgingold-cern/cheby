@@ -130,7 +130,7 @@ class SimpleBus(BusGen):
                 self.root.get_path(), self.busname))
         ports = self.gen_bus(
             lambda name, sz=None, lo=0, dir='IN':
-                 None if sz == 0 else self.module.add_port(
+                 None if sz == 0 else self.add_module_port(
                     '{}_{}_{}'.format(n.c_name, name, dirname[dir]),
                     size=sz, lo_idx=lo, dir=dir),
             n.c_addr_bits, self.root.c_addr_word_bits, self.root.c_word_bits,
