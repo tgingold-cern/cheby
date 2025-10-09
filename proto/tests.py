@@ -682,7 +682,7 @@ def test_sv_ref():
     # Generate SystemVerilog and compare with a baseline.
     global nbr_tests
     for f in ["crossbar/crossbar", "crossbar/crossbar2",
-              "crossbar/crossbar2-simple",
+              "crossbar/crossbar2-simple", "crossbar/repeat-inter",
               "bug-include/pg_wb"]:
         if args.verbose:
             print("test sv with ref: {}".format(f))

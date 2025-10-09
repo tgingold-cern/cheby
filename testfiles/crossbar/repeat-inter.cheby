@@ -1,0 +1,25 @@
+memory-map:
+  name: repinter
+  bus: axi4-lite-32
+  children:
+  - reg:
+     name: fp_oe
+     access: rw
+     width: 32
+
+  - repeat:
+     name: rfgen
+     address: 0x1800
+     count: 2
+     x-hdl:
+       iogroup: rfgen
+     children:
+     - reg:
+        name: ctrl
+        comment: Control
+        access: rw
+        width: 32
+     - submap:
+        name: bstmem
+        interface: simple-32
+        size: 256
