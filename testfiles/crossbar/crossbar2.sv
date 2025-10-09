@@ -1,22 +1,22 @@
 interface t_clkpat;
   logic [31:0] ClkPatternLength;
-  logic [7:2] ClkPatternBlock_ClkPattern_addr_o;
-  logic [31:0] ClkPatternBlock_ClkPattern_data_i;
-  logic [31:0] ClkPatternBlock_ClkPattern_data_o;
-  logic ClkPatternBlock_ClkPattern_wr_o;
+  logic [7:2] ClkPattern_addr_o;
+  logic [31:0] ClkPattern_data_i;
+  logic [31:0] ClkPattern_data_o;
+  logic ClkPattern_wr_o;
   modport master(
-    input ClkPatternBlock_ClkPattern_data_i,
+    input ClkPattern_data_i,
     output ClkPatternLength,
-    output ClkPatternBlock_ClkPattern_addr_o,
-    output ClkPatternBlock_ClkPattern_data_o,
-    output ClkPatternBlock_ClkPattern_wr_o
+    output ClkPattern_addr_o,
+    output ClkPattern_data_o,
+    output ClkPattern_wr_o
   );
   modport slave(
-    output ClkPatternBlock_ClkPattern_data_i,
+    output ClkPattern_data_i,
     input ClkPatternLength,
-    input ClkPatternBlock_ClkPattern_addr_o,
-    input ClkPatternBlock_ClkPattern_data_o,
-    input ClkPatternBlock_ClkPattern_wr_o
+    input ClkPattern_addr_o,
+    input ClkPattern_data_o,
+    input ClkPattern_wr_o
   );
 endinterface
 
@@ -129,7 +129,7 @@ module crossbar_wb
     else
       ClkPatternBlock_ClkPattern_rack <= ClkPatternBlock_ClkPattern_re & ~ClkPatternBlock_ClkPattern_rack;
   end
-  assign clkpat.ClkPatternBlock_ClkPattern_data_o = wr_dat_d0;
+  assign clkpat.ClkPattern_data_o = wr_dat_d0;
   always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
@@ -140,15 +140,15 @@ module crossbar_wb
   assign ClkPatternBlock_ClkPattern_we = (wr_req_d0 | ClkPatternBlock_ClkPattern_wp) & ~rd_req_int;
   always_comb
   if (ClkPatternBlock_ClkPattern_re == 1'b1)
-    clkpat.ClkPatternBlock_ClkPattern_addr_o = wb_adr_i[7:2];
+    clkpat.ClkPattern_addr_o = wb_adr_i[7:2];
   else
-    clkpat.ClkPatternBlock_ClkPattern_addr_o = wr_adr_d0[7:2];
+    clkpat.ClkPattern_addr_o = wr_adr_d0[7:2];
 
   // Process for write requests.
   always_comb
   begin
     ClkPatternBlock_ClkPatternLength_wreq = 1'b0;
-    clkpat.ClkPatternBlock_ClkPattern_wr_o = 1'b0;
+    clkpat.ClkPattern_wr_o = 1'b0;
     case (wr_adr_d0[8:8])
     1'b0:
       case (wr_adr_d0[7:2])
@@ -164,7 +164,7 @@ module crossbar_wb
     1'b1:
       begin
         // Memory ClkPatternBlock_ClkPattern
-        clkpat.ClkPatternBlock_ClkPattern_wr_o = ClkPatternBlock_ClkPattern_we;
+        clkpat.ClkPattern_wr_o = ClkPatternBlock_ClkPattern_we;
         wr_ack_int = ClkPatternBlock_ClkPattern_we;
       end
     default:
@@ -193,7 +193,7 @@ module crossbar_wb
     1'b1:
       begin
         // Memory ClkPatternBlock_ClkPattern
-        rd_dat_d0 = clkpat.ClkPatternBlock_ClkPattern_data_i;
+        rd_dat_d0 = clkpat.ClkPattern_data_i;
         rd_ack_d0 = ClkPatternBlock_ClkPattern_rack;
         ClkPatternBlock_ClkPattern_re = rd_req_int;
       end

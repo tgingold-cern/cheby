@@ -39,7 +39,7 @@ def concat_if(prefix, suffix, cond):
         return prefix
 
 
-def gen_name_children(parent, prefix, ctxt):
+def gen_name_children(parent, prefix, itfprefix, ctxt):
     ctxt.push()
 
     # Prefix control
@@ -95,12 +95,23 @@ def gen_name_children(parent, prefix, ctxt):
                     # exported as ports.
                     ctxt.check_field_name(f)
         elif isinstance(n, tree.CompositeNode):
+            # Also deal with interface names, although this is specific to hdl
+            # TODO: it is the best place for that ?
+            if n.get_extension('x_hdl', 'iogroup', None):
+                # This creates a new interface, just clear the prefix
+                n.c_itfname = None
+            elif isinstance(parent, tree.RepeatBlock):
+                # Do not add index for repeat blocks.
+                n.c_itfname = itfprefix
+            else:
+                n.c_itfname = concat_if(itfprefix, n.name, ctxt.blk_prefix)
             nprefix = n.c_name if ctxt.blk_prefix else prefix
+            # print("n.c_name: {}, n.c_itfname: {}, prefix: {}, nprefix: {}".format(n.c_name, n.c_itfname, prefix, nprefix))
             if isinstance(n, tree.Submap):
                 if n.filename is not None:
-                    gen_name_children(n.c_submap, nprefix, ctxt)
+                    gen_name_children(n.c_submap, nprefix, n.c_itfname, ctxt)
             else:
-                gen_name_children(n, nprefix, ctxt)
+                gen_name_children(n, nprefix, n.c_itfname, ctxt)
         else:
             raise AssertionError(n)
     ctxt.pop()
@@ -108,9 +119,9 @@ def gen_name_children(parent, prefix, ctxt):
 
 def gen_name_hierarchy(n):
     ctxt = Context()
-    prefix = None
     n.c_name = n.name
-    gen_name_children(n, prefix, ctxt)
+    n.c_itfname = None
+    gen_name_children(n, None, None, ctxt)
 
 
 def gen_name_memmap(root):

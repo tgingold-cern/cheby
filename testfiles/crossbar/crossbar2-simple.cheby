@@ -8,7 +8,7 @@ memory-map:
   name: crossbar_wb
   x-hdl:
     reg-prefix: False
-    block-prefix: False
+#    block-prefix: False
   children:
   - block:
       name: ClkPatternBlock

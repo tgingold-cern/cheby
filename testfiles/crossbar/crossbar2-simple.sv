@@ -56,15 +56,15 @@ module crossbar_wb
   reg wb_rip;
   reg wb_wip;
   reg [31:0] ClkPatternBlock_ClkPatternLength_reg;
-  reg ClkPatternLength_wreq;
-  wire ClkPatternLength_wack;
+  reg ClkPatternBlock_ClkPatternLength_wreq;
+  wire ClkPatternBlock_ClkPatternLength_wack;
   reg rd_ack_d0;
   reg [31:0] rd_dat_d0;
   reg wr_req_d0;
   reg [8:2] wr_adr_d0;
   reg [31:0] wr_dat_d0;
-  reg ClkPattern_ws;
-  reg ClkPattern_wt;
+  reg ClkPatternBlock_ClkPattern_ws;
+  reg ClkPatternBlock_ClkPattern_wt;
 
   // WB decode signals
   always_comb
@@ -116,30 +116,30 @@ module crossbar_wb
       end
   end
 
-  // Register ClkPatternLength
+  // Register ClkPatternBlock_ClkPatternLength
   assign clkpat.ClkPatternLength = ClkPatternBlock_ClkPatternLength_reg;
-  assign ClkPatternLength_wack = ClkPatternLength_wreq;
+  assign ClkPatternBlock_ClkPatternLength_wack = ClkPatternBlock_ClkPatternLength_wreq;
   always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
       ClkPatternBlock_ClkPatternLength_reg <= 32'b00000000000000000000000000000000;
     else
-      if (ClkPatternLength_wreq == 1'b1)
+      if (ClkPatternBlock_ClkPatternLength_wreq == 1'b1)
         ClkPatternBlock_ClkPatternLength_reg <= wr_dat_d0;
   end
 
-  // Interface ClkPattern
+  // Interface ClkPatternBlock_ClkPattern
   assign clkpat.ClkPattern_dati_o = wr_dat_d0;
   always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
-      ClkPattern_wt <= 1'b0;
+      ClkPatternBlock_ClkPattern_wt <= 1'b0;
     else
-      ClkPattern_wt <= (ClkPattern_wt | ClkPattern_ws) & ~clkpat.ClkPattern_wack_i;
+      ClkPatternBlock_ClkPattern_wt <= (ClkPatternBlock_ClkPattern_wt | ClkPatternBlock_ClkPattern_ws) & ~clkpat.ClkPattern_wack_i;
   end
-  assign clkpat.ClkPattern_wr_o = ClkPattern_ws;
+  assign clkpat.ClkPattern_wr_o = ClkPatternBlock_ClkPattern_ws;
   always_comb
-  if ((ClkPattern_ws | ClkPattern_wt) == 1'b1)
+  if ((ClkPatternBlock_ClkPattern_ws | ClkPatternBlock_ClkPattern_wt) == 1'b1)
     clkpat.ClkPattern_adr_o = wr_adr_d0[7:2];
   else
     clkpat.ClkPattern_adr_o = wb_adr_i[7:2];
@@ -147,24 +147,24 @@ module crossbar_wb
   // Process for write requests.
   always_comb
   begin
-    ClkPatternLength_wreq = 1'b0;
-    ClkPattern_ws = 1'b0;
+    ClkPatternBlock_ClkPatternLength_wreq = 1'b0;
+    ClkPatternBlock_ClkPattern_ws = 1'b0;
     case (wr_adr_d0[8:8])
     1'b0:
       case (wr_adr_d0[7:2])
       6'b000000:
         begin
-          // Reg ClkPatternLength
-          ClkPatternLength_wreq = wr_req_d0;
-          wr_ack_int = ClkPatternLength_wack;
+          // Reg ClkPatternBlock_ClkPatternLength
+          ClkPatternBlock_ClkPatternLength_wreq = wr_req_d0;
+          wr_ack_int = ClkPatternBlock_ClkPatternLength_wack;
         end
       default:
         wr_ack_int = wr_req_d0;
       endcase
     1'b1:
       begin
-        // Memory ClkPattern
-        ClkPattern_ws = wr_req_d0;
+        // Memory ClkPatternBlock_ClkPattern
+        ClkPatternBlock_ClkPattern_ws = wr_req_d0;
         wr_ack_int = clkpat.ClkPattern_wack_i;
       end
     default:
@@ -183,7 +183,7 @@ module crossbar_wb
       case (wb_adr_i[7:2])
       6'b000000:
         begin
-          // Reg ClkPatternLength
+          // Reg ClkPatternBlock_ClkPatternLength
           rd_ack_d0 = rd_req_int;
           rd_dat_d0 = ClkPatternBlock_ClkPatternLength_reg;
         end
@@ -192,7 +192,7 @@ module crossbar_wb
       endcase
     1'b1:
       begin
-        // Memory ClkPattern
+        // Memory ClkPatternBlock_ClkPattern
         clkpat.ClkPattern_rd_o = rd_req_int;
         rd_dat_d0 = clkpat.ClkPattern_dato_i;
         rd_ack_d0 = clkpat.ClkPattern_rack_i;

@@ -1,4 +1,5 @@
 from cheby.hdltree import HDLInterfaceSelect
+from cheby.gen_name import concat
 
 class BusGen(object):
     """The purpose of BusGen is to abstract the buses.
@@ -31,12 +32,13 @@ class BusGen(object):
         self.root = root
         self.module = module
 
-    def add_module_port(self, name, size=None, lo_idx=0, dir='IN'):
+    def add_module_port(self, n, suffix_name, size=None, lo_idx=0, dir='IN'):
         "Utility function to easily add a port to :param module:"
         if self.root.h_itf is None:
-            return self.module.add_port(name, size, lo_idx, dir=dir)
+            return self.module.add_port(
+                n.c_name + '_' + suffix_name, size, lo_idx, dir=dir)
         else:
-            p = self.root.h_itf.add_port(name, size, lo_idx, dir=dir)
+            p = self.root.h_itf.add_port(concat(n.c_itfname, suffix_name), size, lo_idx, dir=dir)
             return HDLInterfaceSelect(self.root.h_ports, p)
 
     def expand_bus(self, ibus):
