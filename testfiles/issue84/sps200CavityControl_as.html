@@ -42,8 +42,8 @@
 </HEAD>
 <BODY>
 <h1 class="heading">sps200CavityControl</h1>
-<h3>Memory Map for SPS TWC200 Cavity Control</h3>
 <p>SIS-8300-KU</p>
+<p>Memory Map for SPS TWC200 Cavity Control</p>
 <h3>1.1. Memory map summary for address space bar0</h3>
 
 <table cellpadding=2 cellspacing=0 border=0>
@@ -667,8 +667,8 @@
 <tr><td><b>C prefix:</b></td><td class="td_code">hwInfo.echo</td></tr>
 <tr><td><b>C block offset:</b></td><td class="td_code">0x18</td></tr>
 </table>
-<p>Echo register. This version of the standard foresees only 8bits linked to real memory</p>
 <p>Register used solely by software. No interaction with the firmware foreseen.<br>The idea is to use this register as "flag" in the hardware to remember your actions from the software side.<br><br>Reading 0xFF often happens when the board is not even reachable (i.e. bus problems on VME)<br><br>On the other hand if the board is reachable the usual state of flipflops are 0x00. Thus this would indicate that no initialization has been attempted yet.<br><br>At start of your software (FESA class) you should set the value 0x40 indicating that initialization is in progress. <br>This is important for you to later one check if you can read this value back before finally setting it to 0x80 (the value previously used with Cheburashka).<br><br>If your initialization failed but you want to continue anyway you should set the register to 0xC0 to indicate this error <br><br>This register is in particular useful if you have several entities interacting with the hardware. In this case several bits could be assigned to this entities (bits 5..0) to signalize that they have done there part successful and a main entity checks all the expected bits.</p>
+<p>Echo register. This version of the standard foresees only 8bits linked to real memory</p>
 <table cellpadding=0 cellspacing=0 border=0>
 <tr>
  <td class="td_bit" colspan="1">31</td>
@@ -725,8 +725,8 @@
 </table>
 <dl>
   <dt><b>echo</b> [<i>rw</i>]</dt>
-  <dd>Echo register. This version of the standard foresees only 8bits linked to real memory</dd>
   <dd>Register used solely by software. No interaction with the firmware foreseen.<br>The idea is to use this register as "flag" in the hardware to remember your actions from the software side.<br><br>Reading 0xFF often happens when the board is not even reachable (i.e. bus problems on VME)<br><br>On the other hand if the board is reachable the usual state of flipflops are 0x00. Thus this would indicate that no initialization has been attempted yet.<br><br>At start of your software (FESA class) you should set the value 0x40 indicating that initialization is in progress. <br>This is important for you to later one check if you can read this value back before finally setting it to 0x80 (the value previously used with Cheburashka).<br><br>If your initialization failed but you want to continue anyway you should set the register to 0xC0 to indicate this error <br><br>This register is in particular useful if you have several entities interacting with the hardware. In this case several bits could be assigned to this entities (bits 5..0) to signalize that they have done there part successful and a main entity checks all the expected bits.</dd>
+  <dd>Echo register. This version of the standard foresees only 8bits linked to real memory</dd>
 </dl>
 <a name="app.modulation.ipInfo.stdVersion"></a>
 <h3>2.1.6. app.modulation.ipInfo.stdVersion</h3>
@@ -1036,8 +1036,8 @@
 <tr><td><b>C prefix:</b></td><td class="td_code">app.modulation.ipInfo.echo</td></tr>
 <tr><td><b>C block offset:</b></td><td class="td_code">0x10</td></tr>
 </table>
-<p>Echo register. This version of the standard foresees only 8bits linked to real memory</p>
 <p>Register used solely by software. No interaction with the firmware foreseen.<br>The idea is to use this register as "flag" in the hardware to remember your actions from the software side.<br><br>Reading 0xFF often happens when the board is not even reachable (i.e. bus problems on VME)<br><br>On the other hand if the board is reachable the usual state of flipflops are 0x00. Thus this would indicate that no initialization has been attempted yet.<br><br>At start of your software (FESA class) you should set the value 0x40 indicating that initialization is in progress. <br>This is important for you to later one check if you can read this value back before finally setting it to 0x80 (the value previously used with Cheburashka).<br><br>If your initialization failed but you want to continue anyway you should set the register to 0xC0 to indicate this error <br><br>This register is in particular useful if you have several entities interacting with the hardware. In this case several bits could be assigned to this entities (bits 5..0) to signalize that they have done there part successful and a main entity checks all the expected bits.</p>
+<p>Echo register. This version of the standard foresees only 8bits linked to real memory</p>
 <table cellpadding=0 cellspacing=0 border=0>
 <tr>
  <td class="td_bit" colspan="1">31</td>
@@ -1207,8 +1207,8 @@
 </table>
 <dl>
   <dt><b>useTestSignal</b> [<i>rw</i>]</dt>
-  <dd>Use DDS generated test signal instead of ADC input as demodulation input</dd>
   <dd>Test signal is synthezied with additional internal DDS, test signals frequency given by ftw_RF.</dd>
+  <dd>Use DDS generated test signal instead of ADC input as demodulation input</dd>
   <dt><b>useImpulse</b> [<i>rw</i>]</dt>
   <dd>Use impulse instead of demodulation output</dd>
   <dt><b>useStaticSignal</b> [<i>rw</i>]</dt>
