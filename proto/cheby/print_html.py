@@ -103,11 +103,11 @@ def print_regdescr_reg(_periph, pfx, raw, num, hide_comments=False):
            addr=raw.abs_addr, caddr=r.c_address,
            name=raw.name)
 
-    if r.description:
-        res += "<p>{}</p>\n".format(format_text(r.description))
-
     if r.comment and not hide_comments:
         res += "<p>{}</p>\n".format(format_text(r.comment))
+
+    if r.description:
+        res += "<p>{}</p>\n".format(format_text(r.description))
 
     # Drawing of the register, with bits.
     res += '<table cellpadding=0 cellspacing=0 border=0>\n'
@@ -128,11 +128,11 @@ def print_regdescr_reg(_periph, pfx, raw, num, hide_comments=False):
             name=name, access=access
         )
 
-        description = format_text(f.description or r.description or "")
-        res += "  <dd>{}</dd>\n".format(description)
-
         if f.comment and not hide_comments:
             res += "  <dd>{}</dd>\n".format(format_text(f.comment))
+
+        description = format_text(f.description or r.description or "")
+        res += "  <dd>{}</dd>\n".format(description)
 
     res += "</dl>\n"
 
@@ -233,12 +233,14 @@ def phtml_header(fd, periph, hide_comments=False, include_js_dep=False):
 
     wln(fd, '''</HEAD>
 <BODY>
-<h1 class="heading">{entity}</h1>
-<h3>{description}</h3>'''.format(
-        entity=entity, description=periph.description))
+<h1 class="heading">{entity}</h1>'''.format(
+        entity=entity))
 
     if periph.comment and not hide_comments:
         wln(fd, "<p>{}</p>".format(format_text(periph.comment)))
+
+    if periph.description:
+        wln(fd, "<p>{}</p>".format(format_text(periph.description)))
 
     if periph.version is not None:
         wln(fd, "<p>Version: {}</p>".format(periph.version))
