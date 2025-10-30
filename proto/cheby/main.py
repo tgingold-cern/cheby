@@ -13,7 +13,6 @@ import cheby.gen_hdl as gen_hdl
 import cheby.print_vhdl as print_vhdl
 import cheby.print_verilog as print_verilog
 import cheby.gen_edge as gen_edge
-import cheby.gen_edge3 as gen_edge3
 import cheby.gen_silecs as gen_silecs
 import cheby.gen_custom as gen_custom
 import cheby.expand_hdl as expand_hdl
@@ -93,7 +92,7 @@ def decode_args():
     aparser.add_argument('--gen-edge', nargs='?', const='-',
                          help='generate EDGE file')
     aparser.add_argument('--gen-edge3', nargs='?', const='-',
-                         help='generate EDGE3 file')
+                         help=argparse.SUPPRESS)
     aparser.add_argument('--gen-silecs', nargs='?', const='-',
                          help='generate Silecs file')
     aparser.add_argument('--gen-devicetree', nargs='?', const='-',
@@ -238,8 +237,9 @@ def handle_file(args, filename):
         with open_filename(args.gen_edge) as f:
             gen_edge.generate_edge(f, t)
     if args.gen_edge3 is not None:
+        sys.stderr.write('warning: --gen_edge3 is deprecated, please use --gen_edge instead\n')
         with open_filename(args.gen_edge3) as f:
-            gen_edge3.generate_edge3(f, t)
+            gen_edge.generate_edge(f, t)
 
     # Generate names for C code (but do not expand)
     gen_name.gen_name_memmap(t)
