@@ -311,7 +311,9 @@ def handle_file(args, filename):
                     f, t, args.doc_hide_comments, not args.doc_no_reg_drawing
                 )
             elif args.doc == "asciidoc":
-                print_asciidoc.print_asciidoc(f, t, args.doc_hide_comments)
+                print_asciidoc.print_asciidoc(
+                    f, t, args.doc_hide_comments, not args.doc_no_reg_drawing
+                )
             elif args.doc == "rest":
                 print_rest.print_rest(f, t, args.doc_hide_comments, args.rest_headers)
             elif args.doc == "latex":
