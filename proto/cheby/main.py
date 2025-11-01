@@ -315,7 +315,9 @@ def handle_file(args, filename):
                     f, t, args.doc_hide_comments, not args.doc_no_reg_drawing
                 )
             elif args.doc == "rest":
-                print_rest.print_rest(f, t, args.doc_hide_comments, args.rest_headers)
+                print_rest.print_rest(
+                    f, t, args.rest_headers, args.doc_hide_comments, not args.doc_no_reg_drawing
+                )
             elif args.doc == "latex":
                 print_latex.print_latex(
                     f, t, args.doc_hide_comments, not args.doc_no_reg_drawing
