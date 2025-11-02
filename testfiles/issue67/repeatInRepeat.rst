@@ -1,9 +1,9 @@
 ##################
-Memory map summary
+Memory Map Summary
 ##################
 
 +------------+-------+---------------------------+---------------------------+
-| HW address | Type  | Name                      | HDL name                  |
+| HW address | Type  | Name                      | HDL Name                  |
 +------------+-------+---------------------------+---------------------------+
 | 0x00-0x1f  | BLOCK | repA                      | repA                      |
 +------------+-------+---------------------------+---------------------------+
@@ -64,33 +64,17 @@ Memory map summary
 | 0x1c       | REG   | repA.3.block1.repB.1.reg1 | repA_3_block1_repB_1_reg1 |
 +------------+-------+---------------------------+---------------------------+
 
-Registers description
+Registers Description
 =====================
-repA.0.block1.repB.0.reg1
--------------------------
 
+Register: repA.0.block1.repB.0.reg1
+-----------------------------------
 
-* HDL name:  repA_0_block1_repB_0_reg1
-* address:  0x0
-* block offset:  0x0
-* access mode:  rw
-
-
-+--+--+--+--+--+--+--+--+
-| 7| 6| 5| 4| 3| 2| 1| 0|
-+--+--+--+--+--+--+--+--+
-|              reg1[7:0]|
-+--+--+--+--+--+--+--+--+
-
-repA.0.block1.repB.1.reg1
--------------------------
-
-
-* HDL name:  repA_0_block1_repB_1_reg1
-* address:  0x4
-* block offset:  0x0
-* access mode:  rw
-
+* HW Prefix: repA_0_block1_repB_0_reg1
+* HW Address: 0x0
+* C Prefix: repA.0.block1.repB.0.reg1
+* C Block Offset: 0x0
+* Access: read/write
 
 +--+--+--+--+--+--+--+--+
 | 7| 6| 5| 4| 3| 2| 1| 0|
@@ -98,31 +82,14 @@ repA.0.block1.repB.1.reg1
 |              reg1[7:0]|
 +--+--+--+--+--+--+--+--+
 
-repA.1.block1.repB.0.reg1
--------------------------
+Register: repA.0.block1.repB.1.reg1
+-----------------------------------
 
-
-* HDL name:  repA_1_block1_repB_0_reg1
-* address:  0x8
-* block offset:  0x0
-* access mode:  rw
-
-
-+--+--+--+--+--+--+--+--+
-| 7| 6| 5| 4| 3| 2| 1| 0|
-+--+--+--+--+--+--+--+--+
-|              reg1[7:0]|
-+--+--+--+--+--+--+--+--+
-
-repA.1.block1.repB.1.reg1
--------------------------
-
-
-* HDL name:  repA_1_block1_repB_1_reg1
-* address:  0xc
-* block offset:  0x0
-* access mode:  rw
-
+* HW Prefix: repA_0_block1_repB_1_reg1
+* HW Address: 0x4
+* C Prefix: repA.0.block1.repB.1.reg1
+* C Block Offset: 0x0
+* Access: read/write
 
 +--+--+--+--+--+--+--+--+
 | 7| 6| 5| 4| 3| 2| 1| 0|
@@ -130,31 +97,14 @@ repA.1.block1.repB.1.reg1
 |              reg1[7:0]|
 +--+--+--+--+--+--+--+--+
 
-repA.2.block1.repB.0.reg1
--------------------------
+Register: repA.1.block1.repB.0.reg1
+-----------------------------------
 
-
-* HDL name:  repA_2_block1_repB_0_reg1
-* address:  0x10
-* block offset:  0x0
-* access mode:  rw
-
-
-+--+--+--+--+--+--+--+--+
-| 7| 6| 5| 4| 3| 2| 1| 0|
-+--+--+--+--+--+--+--+--+
-|              reg1[7:0]|
-+--+--+--+--+--+--+--+--+
-
-repA.2.block1.repB.1.reg1
--------------------------
-
-
-* HDL name:  repA_2_block1_repB_1_reg1
-* address:  0x14
-* block offset:  0x0
-* access mode:  rw
-
+* HW Prefix: repA_1_block1_repB_0_reg1
+* HW Address: 0x8
+* C Prefix: repA.1.block1.repB.0.reg1
+* C Block Offset: 0x0
+* Access: read/write
 
 +--+--+--+--+--+--+--+--+
 | 7| 6| 5| 4| 3| 2| 1| 0|
@@ -162,15 +112,14 @@ repA.2.block1.repB.1.reg1
 |              reg1[7:0]|
 +--+--+--+--+--+--+--+--+
 
-repA.3.block1.repB.0.reg1
--------------------------
+Register: repA.1.block1.repB.1.reg1
+-----------------------------------
 
-
-* HDL name:  repA_3_block1_repB_0_reg1
-* address:  0x18
-* block offset:  0x0
-* access mode:  rw
-
+* HW Prefix: repA_1_block1_repB_1_reg1
+* HW Address: 0xc
+* C Prefix: repA.1.block1.repB.1.reg1
+* C Block Offset: 0x0
+* Access: read/write
 
 +--+--+--+--+--+--+--+--+
 | 7| 6| 5| 4| 3| 2| 1| 0|
@@ -178,15 +127,59 @@ repA.3.block1.repB.0.reg1
 |              reg1[7:0]|
 +--+--+--+--+--+--+--+--+
 
-repA.3.block1.repB.1.reg1
--------------------------
+Register: repA.2.block1.repB.0.reg1
+-----------------------------------
 
+* HW Prefix: repA_2_block1_repB_0_reg1
+* HW Address: 0x10
+* C Prefix: repA.2.block1.repB.0.reg1
+* C Block Offset: 0x0
+* Access: read/write
 
-* HDL name:  repA_3_block1_repB_1_reg1
-* address:  0x1c
-* block offset:  0x0
-* access mode:  rw
++--+--+--+--+--+--+--+--+
+| 7| 6| 5| 4| 3| 2| 1| 0|
++--+--+--+--+--+--+--+--+
+|              reg1[7:0]|
++--+--+--+--+--+--+--+--+
 
+Register: repA.2.block1.repB.1.reg1
+-----------------------------------
+
+* HW Prefix: repA_2_block1_repB_1_reg1
+* HW Address: 0x14
+* C Prefix: repA.2.block1.repB.1.reg1
+* C Block Offset: 0x0
+* Access: read/write
+
++--+--+--+--+--+--+--+--+
+| 7| 6| 5| 4| 3| 2| 1| 0|
++--+--+--+--+--+--+--+--+
+|              reg1[7:0]|
++--+--+--+--+--+--+--+--+
+
+Register: repA.3.block1.repB.0.reg1
+-----------------------------------
+
+* HW Prefix: repA_3_block1_repB_0_reg1
+* HW Address: 0x18
+* C Prefix: repA.3.block1.repB.0.reg1
+* C Block Offset: 0x0
+* Access: read/write
+
++--+--+--+--+--+--+--+--+
+| 7| 6| 5| 4| 3| 2| 1| 0|
++--+--+--+--+--+--+--+--+
+|              reg1[7:0]|
++--+--+--+--+--+--+--+--+
+
+Register: repA.3.block1.repB.1.reg1
+-----------------------------------
+
+* HW Prefix: repA_3_block1_repB_1_reg1
+* HW Address: 0x1c
+* C Prefix: repA.3.block1.repB.1.reg1
+* C Block Offset: 0x0
+* Access: read/write
 
 +--+--+--+--+--+--+--+--+
 | 7| 6| 5| 4| 3| 2| 1| 0|

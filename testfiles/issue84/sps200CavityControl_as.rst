@@ -1,13 +1,16 @@
 ##################
-Memory map summary
+Memory Map Summary
 ##################
+
+SIS-8300-KU
 
 Memory Map for SPS TWC200 Cavity Control
 
-For space bar0
+For Space bar0
 ==============
+
 +-------------------+--------+---------------------------------------+---------------------------------------+
-| HW address        | Type   | Name                                  | HDL name                              |
+| HW address        | Type   | Name                                  | HDL Name                              |
 +-------------------+--------+---------------------------------------+---------------------------------------+
 | 0x000000-0x00001f | SUBMAP | hwInfo                                | hwInfo                                |
 +-------------------+--------+---------------------------------------+---------------------------------------+
@@ -62,10 +65,11 @@ For space bar0
 | 0x100068          | REG    | app.modulation.latches                | app_modulation_latches                |
 +-------------------+--------+---------------------------------------+---------------------------------------+
 
-For space bar4
+For Space bar4
 ==============
+
 +-----------------------+--------+-----------------------+-----------------------+
-| HW address            | Type   | Name                  | HDL name              |
+| HW address            | Type   | Name                  | HDL Name              |
 +-----------------------+--------+-----------------------+-----------------------+
 | 0x00000000-0x000fffff | SUBMAP | fgc_ddr               | fgc_ddr               |
 +-----------------------+--------+-----------------------+-----------------------+
@@ -86,18 +90,18 @@ For space bar4
 |  +0x80000000          | REG    | acq_ram.data32.data32 | acq_ram_data32_data32 |
 +-----------------------+--------+-----------------------+-----------------------+
 
-Registers description for space bar0
+Registers Description for Space bar0
 
 =====================================
-hwInfo.stdVersion
------------------
 
+Register: hwInfo.stdVersion
+---------------------------
 
-* HDL name:  hwInfo_stdVersion
-* address:  0x0
-* block offset:  0x0
-* access mode:  ro
-
+* HW Prefix: hwInfo_stdVersion
+* HW Address: 0x0
+* C Prefix: hwInfo.stdVersion
+* C Block Offset: 0x0
+* Access: read-only
 
 +--+--+--+--+--+--+--+--+
 |31|30|29|28|27|26|25|24|
@@ -126,17 +130,16 @@ minor
 patch
   Patch indicating bug fixes
 
-hwInfo.serialNumber
--------------------
+Register: hwInfo.serialNumber
+-----------------------------
 
-
-* HDL name:  hwInfo_serialNumber
-* address:  0x8
-* block offset:  0x8
-* access mode:  ro
+* HW Prefix: hwInfo_serialNumber
+* HW Address: 0x8
+* C Prefix: hwInfo.serialNumber
+* C Block Offset: 0x8
+* Access: read-only
 
 HW serial number
-
 
 +---+---+---+---+---+---+---+---+
 | 63| 62| 61| 60| 59| 58| 57| 56|
@@ -172,17 +175,16 @@ HW serial number
 |              serialNumber[7:0]|
 +---+---+---+---+---+---+---+---+
 
-hwInfo.firmwareVersion
-----------------------
+Register: hwInfo.firmwareVersion
+--------------------------------
 
-
-* HDL name:  hwInfo_firmwareVersion
-* address:  0x10
-* block offset:  0x10
-* access mode:  ro
+* HW Prefix: hwInfo_firmwareVersion
+* HW Address: 0x10
+* C Prefix: hwInfo.firmwareVersion
+* C Block Offset: 0x10
+* Access: read-only
 
 Firmware Version
-
 
 +--+--+--+--+--+--+--+--+
 |31|30|29|28|27|26|25|24|
@@ -209,17 +211,16 @@ minor
 patch
   Patch indicating bug fixes
 
-hwInfo.memMapVersion
---------------------
+Register: hwInfo.memMapVersion
+------------------------------
 
-
-* HDL name:  hwInfo_memMapVersion
-* address:  0x14
-* block offset:  0x14
-* access mode:  ro
+* HW Prefix: hwInfo_memMapVersion
+* HW Address: 0x14
+* C Prefix: hwInfo.memMapVersion
+* C Block Offset: 0x14
+* Access: read-only
 
 Memory Map Version
-
 
 +--+--+--+--+--+--+--+--+
 |31|30|29|28|27|26|25|24|
@@ -246,17 +247,30 @@ minor
 patch
   (not documented)
 
-hwInfo.echo
------------
+Register: hwInfo.echo
+---------------------
 
+* HW Prefix: hwInfo_echo
+* HW Address: 0x18
+* C Prefix: hwInfo.echo
+* C Block Offset: 0x18
+* Access: read/write
 
-* HDL name:  hwInfo_echo
-* address:  0x18
-* block offset:  0x18
-* access mode:  rw
+Register used solely by software. No interaction with the firmware foreseen.
+The idea is to use this register as "flag" in the hardware to remember your actions from the software side.
+
+Reading 0xFF often happens when the board is not even reachable (i.e. bus problems on VME)
+
+On the other hand if the board is reachable the usual state of flipflops are 0x00. Thus this would indicate that no initialization has been attempted yet.
+
+At start of your software (FESA class) you should set the value 0x40 indicating that initialization is in progress. 
+This is important for you to later one check if you can read this value back before finally setting it to 0x80 (the value previously used with Cheburashka).
+
+If your initialization failed but you want to continue anyway you should set the register to 0xC0 to indicate this error 
+
+This register is in particular useful if you have several entities interacting with the hardware. In this case several bits could be assigned to this entities (bits 5..0) to signalize that they have done there part successful and a main entity checks all the expected bits.
 
 Echo register. This version of the standard foresees only 8bits linked to real memory
-
 
 +--+--+--+--+--+--+--+--+
 |31|30|29|28|27|26|25|24|
@@ -276,15 +290,14 @@ Echo register. This version of the standard foresees only 8bits linked to real m
 |              echo[7:0]|
 +--+--+--+--+--+--+--+--+
 
-app.modulation.ipInfo.stdVersion
---------------------------------
+Register: app.modulation.ipInfo.stdVersion
+------------------------------------------
 
-
-* HDL name:  app_modulation_ipInfo_stdVersion
-* address:  0x100000
-* block offset:  0x0
-* access mode:  ro
-
+* HW Prefix: app_modulation_ipInfo_stdVersion
+* HW Address: 0x100000
+* C Prefix: app.modulation.ipInfo.stdVersion
+* C Block Offset: 0x0
+* Access: read-only
 
 +--+--+--+--+--+--+--+--+
 |31|30|29|28|27|26|25|24|
@@ -311,17 +324,16 @@ minor
 patch
   Patch indicating bug fixes
 
-app.modulation.ipInfo.ident
----------------------------
+Register: app.modulation.ipInfo.ident
+-------------------------------------
 
-
-* HDL name:  app_modulation_ipInfo_ident
-* address:  0x100004
-* block offset:  0x4
-* access mode:  ro
+* HW Prefix: app_modulation_ipInfo_ident
+* HW Address: 0x100004
+* C Prefix: app.modulation.ipInfo.ident
+* C Block Offset: 0x4
+* Access: read-only
 
 IP Ident code
-
 
 +--+--+--+--+--+--+--+--+
 |31|30|29|28|27|26|25|24|
@@ -341,18 +353,17 @@ IP Ident code
 |             ident[7:0]|
 +--+--+--+--+--+--+--+--+
 
-app.modulation.ipInfo.firmwareVersion
--------------------------------------
+Register: app.modulation.ipInfo.firmwareVersion
+-----------------------------------------------
 
-
-* HDL name:  app_modulation_ipInfo_firmwareVersion
-* address:  0x100008
-* block offset:  0x8
-* access mode:  ro
+* HW Prefix: app_modulation_ipInfo_firmwareVersion
+* HW Address: 0x100008
+* C Prefix: app.modulation.ipInfo.firmwareVersion
+* C Block Offset: 0x8
+* Access: read-only
 
 Firmware Version
 
-
 +--+--+--+--+--+--+--+--+
 |31|30|29|28|27|26|25|24|
 +--+--+--+--+--+--+--+--+
@@ -378,18 +389,17 @@ minor
 patch
   Patch indicating bug fixes
 
-app.modulation.ipInfo.memMapVersion
------------------------------------
+Register: app.modulation.ipInfo.memMapVersion
+---------------------------------------------
 
-
-* HDL name:  app_modulation_ipInfo_memMapVersion
-* address:  0x10000c
-* block offset:  0xc
-* access mode:  ro
+* HW Prefix: app_modulation_ipInfo_memMapVersion
+* HW Address: 0x10000c
+* C Prefix: app.modulation.ipInfo.memMapVersion
+* C Block Offset: 0xc
+* Access: read-only
 
 Memory Map Version
 
-
 +--+--+--+--+--+--+--+--+
 |31|30|29|28|27|26|25|24|
 +--+--+--+--+--+--+--+--+
@@ -415,17 +425,30 @@ minor
 patch
   Patch indicating bug fixes
 
-app.modulation.ipInfo.echo
---------------------------
+Register: app.modulation.ipInfo.echo
+------------------------------------
 
+* HW Prefix: app_modulation_ipInfo_echo
+* HW Address: 0x100010
+* C Prefix: app.modulation.ipInfo.echo
+* C Block Offset: 0x10
+* Access: read/write
 
-* HDL name:  app_modulation_ipInfo_echo
-* address:  0x100010
-* block offset:  0x10
-* access mode:  rw
+Register used solely by software. No interaction with the firmware foreseen.
+The idea is to use this register as "flag" in the hardware to remember your actions from the software side.
+
+Reading 0xFF often happens when the board is not even reachable (i.e. bus problems on VME)
+
+On the other hand if the board is reachable the usual state of flipflops are 0x00. Thus this would indicate that no initialization has been attempted yet.
+
+At start of your software (FESA class) you should set the value 0x40 indicating that initialization is in progress. 
+This is important for you to later one check if you can read this value back before finally setting it to 0x80 (the value previously used with Cheburashka).
+
+If your initialization failed but you want to continue anyway you should set the register to 0xC0 to indicate this error 
+
+This register is in particular useful if you have several entities interacting with the hardware. In this case several bits could be assigned to this entities (bits 5..0) to signalize that they have done there part successful and a main entity checks all the expected bits.
 
 Echo register. This version of the standard foresees only 8bits linked to real memory
-
 
 +--+--+--+--+--+--+--+--+
 |31|30|29|28|27|26|25|24|
@@ -448,15 +471,14 @@ Echo register. This version of the standard foresees only 8bits linked to real m
 echo
   This version of the standard foresees only 8bits linked to real memory
 
-app.modulation.control
-----------------------
+Register: app.modulation.control
+--------------------------------
 
-
-* HDL name:  app_modulation_control
-* address:  0x100020
-* block offset:  0x20
-* access mode:  rw
-
+* HW Prefix: app_modulation_control
+* HW Address: 0x100020
+* C Prefix: app.modulation.control
+* C Block Offset: 0x20
+* Access: read/write
 
 +------------------+------------------+------------------+------------------+------------------+------------------+------------------+------------------+
 |                31|                30|                29|                28|                27|                26|                25|                24|
@@ -477,8 +499,9 @@ app.modulation.control
 +------------------+------------------+------------------+------------------+------------------+------------------+------------------+------------------+
 
 useTestSignal
-  Use DDS generated test signal instead of ADC input as demodulation input
   Test signal is synthezied with additional internal DDS, test signals frequency given by ftw_RF.
+
+  Use DDS generated test signal instead of ADC input as demodulation input
 useImpulse
   Use impulse instead of demodulation output
 useStaticSignal
@@ -502,17 +525,16 @@ rate
 clearBPLatches
   (not documented)
 
-app.modulation.testSignal.amplitude
------------------------------------
+Register: app.modulation.testSignal.amplitude
+---------------------------------------------
 
-
-* HDL name:  app_modulation_testSignal_amplitude
-* address:  0x100030
-* block offset:  0x0
-* access mode:  rw
+* HW Prefix: app_modulation_testSignal_amplitude
+* HW Address: 0x100030
+* C Prefix: app.modulation.testSignal.amplitude
+* C Block Offset: 0x0
+* Access: read/write
 
 Amplitude for the test signal
-
 
 +--+--+--+--+--+--+--+--+
 |15|14|13|12|11|10| 9| 8|
@@ -524,17 +546,16 @@ Amplitude for the test signal
 |         amplitude[7:0]|
 +--+--+--+--+--+--+--+--+
 
-app.modulation.testSignal.ftw
------------------------------
+Register: app.modulation.testSignal.ftw
+---------------------------------------
 
-
-* HDL name:  app_modulation_testSignal_ftw
-* address:  0x100038
-* block offset:  0x8
-* access mode:  rw
+* HW Prefix: app_modulation_testSignal_ftw
+* HW Address: 0x100038
+* C Prefix: app.modulation.testSignal.ftw
+* C Block Offset: 0x8
+* Access: read/write
 
 FTW of the test signal (frequency relative to fs)
-
 
 +--+--+--+--+--+--+--+--+
 |63|62|61|60|59|58|57|56|
@@ -570,17 +591,16 @@ FTW of the test signal (frequency relative to fs)
 |               ftw[7:0]|
 +--+--+--+--+--+--+--+--+
 
-app.modulation.staticSignal.i
------------------------------
+Register: app.modulation.staticSignal.i
+---------------------------------------
 
-
-* HDL name:  app_modulation_staticSignal_i
-* address:  0x100040
-* block offset:  0x0
-* access mode:  rw
+* HW Prefix: app_modulation_staticSignal_i
+* HW Address: 0x100040
+* C Prefix: app.modulation.staticSignal.i
+* C Block Offset: 0x0
+* Access: read/write
 
 Constant to be used as OTF input for channel I
-
 
 +--+--+--+--+--+--+--+--+
 |15|14|13|12|11|10| 9| 8|
@@ -592,17 +612,16 @@ Constant to be used as OTF input for channel I
 |                 i[7:0]|
 +--+--+--+--+--+--+--+--+
 
-app.modulation.staticSignal.q
------------------------------
+Register: app.modulation.staticSignal.q
+---------------------------------------
 
-
-* HDL name:  app_modulation_staticSignal_q
-* address:  0x100044
-* block offset:  0x4
-* access mode:  rw
+* HW Prefix: app_modulation_staticSignal_q
+* HW Address: 0x100044
+* C Prefix: app.modulation.staticSignal.q
+* C Block Offset: 0x4
+* Access: read/write
 
 Constant to be used as OTF input for channel Q
-
 
 +--+--+--+--+--+--+--+--+
 |15|14|13|12|11|10| 9| 8|
@@ -614,15 +633,14 @@ Constant to be used as OTF input for channel Q
 |                 q[7:0]|
 +--+--+--+--+--+--+--+--+
 
-app.modulation.ftwH1main
-------------------------
+Register: app.modulation.ftwH1main
+----------------------------------
 
-
-* HDL name:  app_modulation_ftwH1main
-* address:  0x100050
-* block offset:  0x50
-* access mode:  rw
-
+* HW Prefix: app_modulation_ftwH1main
+* HW Address: 0x100050
+* C Prefix: app.modulation.ftwH1main
+* C Block Offset: 0x50
+* Access: read/write
 
 +--+--+--+--+--+--+--+--+
 |63|62|61|60|59|58|57|56|
@@ -658,15 +676,14 @@ app.modulation.ftwH1main
 |         ftwH1main[7:0]|
 +--+--+--+--+--+--+--+--+
 
-app.modulation.ftwH1on
-----------------------
+Register: app.modulation.ftwH1on
+--------------------------------
 
-
-* HDL name:  app_modulation_ftwH1on
-* address:  0x100058
-* block offset:  0x58
-* access mode:  rw
-
+* HW Prefix: app_modulation_ftwH1on
+* HW Address: 0x100058
+* C Prefix: app.modulation.ftwH1on
+* C Block Offset: 0x58
+* Access: read/write
 
 +--+--+--+--+--+--+--+--+
 |63|62|61|60|59|58|57|56|
@@ -702,15 +719,14 @@ app.modulation.ftwH1on
 |           ftwH1on[7:0]|
 +--+--+--+--+--+--+--+--+
 
-app.modulation.dftwH1slip0
---------------------------
+Register: app.modulation.dftwH1slip0
+------------------------------------
 
-
-* HDL name:  app_modulation_dftwH1slip0
-* address:  0x100060
-* block offset:  0x60
-* access mode:  rw
-
+* HW Prefix: app_modulation_dftwH1slip0
+* HW Address: 0x100060
+* C Prefix: app.modulation.dftwH1slip0
+* C Block Offset: 0x60
+* Access: read/write
 
 +---+---+---+---+---+---+---+---+
 | 31| 30| 29| 28| 27| 26| 25| 24|
@@ -730,15 +746,14 @@ app.modulation.dftwH1slip0
 |               dftwH1slip0[7:0]|
 +---+---+---+---+---+---+---+---+
 
-app.modulation.dftwH1slip1
---------------------------
+Register: app.modulation.dftwH1slip1
+------------------------------------
 
-
-* HDL name:  app_modulation_dftwH1slip1
-* address:  0x100064
-* block offset:  0x64
-* access mode:  rw
-
+* HW Prefix: app_modulation_dftwH1slip1
+* HW Address: 0x100064
+* C Prefix: app.modulation.dftwH1slip1
+* C Block Offset: 0x64
+* Access: read/write
 
 +---+---+---+---+---+---+---+---+
 | 31| 30| 29| 28| 27| 26| 25| 24|
@@ -758,15 +773,14 @@ app.modulation.dftwH1slip1
 |               dftwH1slip1[7:0]|
 +---+---+---+---+---+---+---+---+
 
-app.modulation.latches
-----------------------
+Register: app.modulation.latches
+--------------------------------
 
-
-* HDL name:  app_modulation_latches
-* address:  0x100068
-* block offset:  0x68
-* access mode:  rw
-
+* HW Prefix: app_modulation_latches
+* HW Address: 0x100068
+* C Prefix: app.modulation.latches
+* C Block Offset: 0x68
+* Access: read/write
 
 +--+--+--+--+--+--+--+--+
 |31|30|29|28|27|26|25|24|
@@ -789,18 +803,18 @@ app.modulation.latches
 backplane
   (not documented)
 
-Registers description for space bar4
+Registers Description for Space bar4
 
 =====================================
-fgc_ddr.data64.data64
----------------------
 
+Register: fgc_ddr.data64.data64
+-------------------------------
 
-* HDL name:  fgc_ddr_data64_data64
-* address:  0x0
-* block offset:  0x0
-* access mode:  rw
-
+* HW Prefix: fgc_ddr_data64_data64
+* HW Address: 0x0
+* C Prefix: fgc_ddr.data64.data64
+* C Block Offset: 0x0
+* Access: read/write
 
 +--+--+--+--+--+--+--+--+
 |63|62|61|60|59|58|57|56|
@@ -841,15 +855,14 @@ upper
 lower
   (not documented)
 
-acq_ddr.data32.data32
----------------------
+Register: acq_ddr.data32.data32
+-------------------------------
 
-
-* HDL name:  acq_ddr_data32_data32
-* address:  0x20000000
-* block offset:  0x0
-* access mode:  rw
-
+* HW Prefix: acq_ddr_data32_data32
+* HW Address: 0x20000000
+* C Prefix: acq_ddr.data32.data32
+* C Block Offset: 0x0
+* Access: read/write
 
 +--+--+--+--+--+--+--+--+
 |31|30|29|28|27|26|25|24|
@@ -874,15 +887,14 @@ upper
 lower
   (not documented)
 
-acq_ram.data32.data32
----------------------
+Register: acq_ram.data32.data32
+-------------------------------
 
-
-* HDL name:  acq_ram_data32_data32
-* address:  0x80000000
-* block offset:  0x0
-* access mode:  rw
-
+* HW Prefix: acq_ram_data32_data32
+* HW Address: 0x80000000
+* C Prefix: acq_ram.data32.data32
+* C Block Offset: 0x0
+* Access: read/write
 
 +--+--+--+--+--+--+--+--+
 |31|30|29|28|27|26|25|24|

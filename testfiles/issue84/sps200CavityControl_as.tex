@@ -1,4 +1,6 @@
 \section{Memory Map Summary}
+SIS-8300-KU
+
 Memory Map for SPS TWC200 Cavity Control
 
 \subsection{For Space bar0}
@@ -191,7 +193,7 @@ Access & read/write\\
 \end{regdraw}
 
 \begin{regdesc}
-31:0 & echo & {Echo register.\allowbreak{} This version of the standard foresees only 8bits linked to real memory \newline  \newline Register used solely by software.\allowbreak{} No interaction with the firmware foreseen.\allowbreak{} \newline The idea is to use this register as "flag" in the hardware to remember your actions from the software side.\allowbreak{} \newline  \newline Reading 0xFF often happens when the board is not even reachable (i.\allowbreak{}e.\allowbreak{} bus problems on VME) \newline  \newline On the other hand if the board is reachable the usual state of flipflops are 0x00.\allowbreak{} Thus this would indicate that no initialization has been attempted yet.\allowbreak{} \newline  \newline At start of your software (FESA class) you should set the value 0x40 indicating that initialization is in progress.\allowbreak{}  \newline This is important for you to later one check if you can read this value back before finally setting it to 0x80 (the value previously used with Cheburashka).\allowbreak{} \newline  \newline If your initialization failed but you want to continue anyway you should set the register to 0xC0 to indicate this error  \newline  \newline This register is in particular useful if you have several entities interacting with the hardware.\allowbreak{} In this case several bits could be assigned to this entities (bits 5.\allowbreak{}.\allowbreak{}0) to signalize that they have done there part successful and a main entity checks all the expected bits.\allowbreak{}}\\
+31:0 & echo & {Register used solely by software.\allowbreak{} No interaction with the firmware foreseen.\allowbreak{} \newline The idea is to use this register as "flag" in the hardware to remember your actions from the software side.\allowbreak{} \newline  \newline Reading 0xFF often happens when the board is not even reachable (i.\allowbreak{}e.\allowbreak{} bus problems on VME) \newline  \newline On the other hand if the board is reachable the usual state of flipflops are 0x00.\allowbreak{} Thus this would indicate that no initialization has been attempted yet.\allowbreak{} \newline  \newline At start of your software (FESA class) you should set the value 0x40 indicating that initialization is in progress.\allowbreak{}  \newline This is important for you to later one check if you can read this value back before finally setting it to 0x80 (the value previously used with Cheburashka).\allowbreak{} \newline  \newline If your initialization failed but you want to continue anyway you should set the register to 0xC0 to indicate this error  \newline  \newline This register is in particular useful if you have several entities interacting with the hardware.\allowbreak{} In this case several bits could be assigned to this entities (bits 5.\allowbreak{}.\allowbreak{}0) to signalize that they have done there part successful and a main entity checks all the expected bits.\allowbreak{} \newline  \newline Echo register.\allowbreak{} This version of the standard foresees only 8bits linked to real memory}\\
 \end{regdesc}
 
 
@@ -319,6 +321,20 @@ C Block Offset & 0x10\\
 Access & read/write\\
 \end{regsummary}
 
+Register used solely by software.\allowbreak{} No interaction with the firmware foreseen.\allowbreak{} \\
+The idea is to use this register as "flag" in the hardware to remember your actions from the software side.\allowbreak{} \\
+ \\
+Reading 0xFF often happens when the board is not even reachable (i.\allowbreak{}e.\allowbreak{} bus problems on VME) \\
+ \\
+On the other hand if the board is reachable the usual state of flipflops are 0x00.\allowbreak{} Thus this would indicate that no initialization has been attempted yet.\allowbreak{} \\
+ \\
+At start of your software (FESA class) you should set the value 0x40 indicating that initialization is in progress.\allowbreak{}  \\
+This is important for you to later one check if you can read this value back before finally setting it to 0x80 (the value previously used with Cheburashka).\allowbreak{} \\
+ \\
+If your initialization failed but you want to continue anyway you should set the register to 0xC0 to indicate this error  \\
+ \\
+This register is in particular useful if you have several entities interacting with the hardware.\allowbreak{} In this case several bits could be assigned to this entities (bits 5.\allowbreak{}.\allowbreak{}0) to signalize that they have done there part successful and a main entity checks all the expected bits.\allowbreak{} \\
+ \\
 Echo register.\allowbreak{} This version of the standard foresees only 8bits linked to real memory
 
 \begin{regdraw}
@@ -359,7 +375,7 @@ Access & read/write\\
 \end{regdraw}
 
 \begin{regdesc}
-0 & useTestSignal & {Use DDS generated test signal instead of ADC input as demodulation input \newline  \newline Test signal is synthezied with additional internal DDS, test signals frequency given by ftw\_\allowbreak{}RF.\allowbreak{}}\\
+0 & useTestSignal & {Test signal is synthezied with additional internal DDS, test signals frequency given by ftw\_\allowbreak{}RF.\allowbreak{} \newline  \newline Use DDS generated test signal instead of ADC input as demodulation input}\\
 1 & useImpulse & {Use impulse instead of demodulation output}\\
 2 & useStaticSignal & {Use static signal from register instead of demodulation output}\\
 5 & bypassDemod & {Bypass demodulator}\\

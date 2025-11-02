@@ -1,4 +1,6 @@
 ## Memory Map Summary
+SIS-8300-KU
+
 Memory Map for SPS TWC200 Cavity Control
 
 ## For Space bar0
@@ -401,8 +403,6 @@ Memory Map Version
 - **C Block Offset**: 0x18
 - **Access**: read/write
 
-Echo register. This version of the standard foresees only 8bits linked to real memory
-
 Register used solely by software. No interaction with the firmware foreseen. +
 The idea is to use this register as "flag" in the hardware to remember your actions from the software side. +
  +
@@ -416,6 +416,8 @@ This is important for you to later one check if you can read this value back bef
 If your initialization failed but you want to continue anyway you should set the register to 0xC0 to indicate this error  +
  +
 This register is in particular useful if you have several entities interacting with the hardware. In this case several bits could be assigned to this entities (bits 5..0) to signalize that they have done there part successful and a main entity checks all the expected bits.
+
+Echo register. This version of the standard foresees only 8bits linked to real memory
 
 <table>
   <tr>
@@ -474,7 +476,7 @@ This register is in particular useful if you have several entities interacting w
 
 | Bits | Name | Description |
 |------|------|------------|
-| 31:0 | echo | Echo register. This version of the standard foresees only 8bits linked to real memory<br><br>Register used solely by software. No interaction with the firmware foreseen.<br>The idea is to use this register as "flag" in the hardware to remember your actions from the software side.<br><br>Reading 0xFF often happens when the board is not even reachable (i.e. bus problems on VME)<br><br>On the other hand if the board is reachable the usual state of flipflops are 0x00. Thus this would indicate that no initialization has been attempted yet.<br><br>At start of your software (FESA class) you should set the value 0x40 indicating that initialization is in progress. <br>This is important for you to later one check if you can read this value back before finally setting it to 0x80 (the value previously used with Cheburashka).<br><br>If your initialization failed but you want to continue anyway you should set the register to 0xC0 to indicate this error <br><br>This register is in particular useful if you have several entities interacting with the hardware. In this case several bits could be assigned to this entities (bits 5..0) to signalize that they have done there part successful and a main entity checks all the expected bits. |
+| 31:0 | echo | Register used solely by software. No interaction with the firmware foreseen.<br>The idea is to use this register as "flag" in the hardware to remember your actions from the software side.<br><br>Reading 0xFF often happens when the board is not even reachable (i.e. bus problems on VME)<br><br>On the other hand if the board is reachable the usual state of flipflops are 0x00. Thus this would indicate that no initialization has been attempted yet.<br><br>At start of your software (FESA class) you should set the value 0x40 indicating that initialization is in progress. <br>This is important for you to later one check if you can read this value back before finally setting it to 0x80 (the value previously used with Cheburashka).<br><br>If your initialization failed but you want to continue anyway you should set the register to 0xC0 to indicate this error <br><br>This register is in particular useful if you have several entities interacting with the hardware. In this case several bits could be assigned to this entities (bits 5..0) to signalize that they have done there part successful and a main entity checks all the expected bits.<br><br>Echo register. This version of the standard foresees only 8bits linked to real memory |
 
 ### Register: app.modulation.ipInfo.stdVersion
 
@@ -785,8 +787,6 @@ Memory Map Version
 - **C Block Offset**: 0x10
 - **Access**: read/write
 
-Echo register. This version of the standard foresees only 8bits linked to real memory
-
 Register used solely by software. No interaction with the firmware foreseen. +
 The idea is to use this register as "flag" in the hardware to remember your actions from the software side. +
  +
@@ -800,6 +800,8 @@ This is important for you to later one check if you can read this value back bef
 If your initialization failed but you want to continue anyway you should set the register to 0xC0 to indicate this error  +
  +
 This register is in particular useful if you have several entities interacting with the hardware. In this case several bits could be assigned to this entities (bits 5..0) to signalize that they have done there part successful and a main entity checks all the expected bits.
+
+Echo register. This version of the standard foresees only 8bits linked to real memory
 
 <table>
   <tr>
@@ -972,7 +974,7 @@ This register is in particular useful if you have several entities interacting w
 
 | Bits | Name | Description |
 |------|------|------------|
-| 0 | useTestSignal | Use DDS generated test signal instead of ADC input as demodulation input<br><br>Test signal is synthezied with additional internal DDS, test signals frequency given by ftw_RF. |
+| 0 | useTestSignal | Test signal is synthezied with additional internal DDS, test signals frequency given by ftw_RF.<br><br>Use DDS generated test signal instead of ADC input as demodulation input |
 | 1 | useImpulse | Use impulse instead of demodulation output |
 | 2 | useStaticSignal | Use static signal from register instead of demodulation output |
 | 5 | bypassDemod | Bypass demodulator |
