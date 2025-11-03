@@ -1,28 +1,28 @@
 ##################
-Memory map summary
+Memory Map Summary
 ##################
 
 a single register
 
-version: 1.0.0
+Version: 1.0.0
 
 +------------+------+------+----------+
-| HW address | Type | Name | HDL name |
+| HW address | Type | Name | HDL Name |
 +------------+------+------+----------+
 | 0x0        | REG  | r1   | r1       |
 +------------+------+------+----------+
 
-Registers description
+Registers Description
 =====================
-r1
---
 
+Register: r1
+------------
 
-* HDL name:  r1
-* address:  0x0
-* block offset:  0x0
-* access mode:  rw
-
+* HW Prefix: r1
+* HW Address: 0x0
+* C Prefix: r1
+* C Block Offset: 0x0
+* Access: read/write
 
 +--+--+--+--+--+--+--+--+
 |31|30|29|28|27|26|25|24|

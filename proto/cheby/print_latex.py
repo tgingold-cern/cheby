@@ -58,14 +58,19 @@ def print_reg(fd, r, raw, hide_comments=False, print_reg_drawing=True):
     wln(fd, "Access & {}\\\\".format(ACCESSES[r.access]))
     wln(fd, "\\end{regsummary}\n")
 
-    # Register description
+    # Register description and comment
     # Print only if available and register contains fields
-    if r.description is not None and r.has_fields():
-        desc = escape_printable(r.description)
+    if (r.description or r.comment) and r.has_fields():
+        desc = ""
+        if r.comment and not hide_comments:
+            desc += r.comment
+        if r.description:
+            if r.comment and not hide_comments:
+                desc += "\n\n"
+            desc += r.description
 
-        pattern = r"(\S+)\n(\S+)"
-        replacement = r"\1 \\\\\n\2"
-        desc = re.sub(pattern, replacement, desc)
+        desc = escape_printable(desc)
+        desc = desc.replace("\n", " \\\\\n")
 
         wln(fd, "{desc}\n".format(desc=desc))
 
@@ -109,9 +114,13 @@ def print_reg(fd, r, raw, hide_comments=False, print_reg_drawing=True):
         w(fd, '{} & '.format(escape_printable(desc_src.name)))
 
         # Description + comment
-        desc = desc_src.description or ""
+        desc = ""
         if desc_src.comment and not hide_comments:
-            desc += "\n\n" + desc_src.comment
+            desc += desc_src.comment
+        if desc_src.description:
+            if desc_src.comment and not hide_comments:
+                desc += "\n\n"
+            desc += desc_src.description
 
         desc = escape_printable(desc)
         desc = desc.replace('\n', ' \\newline ')
@@ -148,8 +157,15 @@ def print_reg_description(fd, summary, hide_comments=False, print_reg_drawing=Tr
 
 def print_root(fd, root, hide_comments=False, print_reg_drawing=True):
     wln(fd, "\\section{Memory Map Summary}")
-    wln(fd, root.description or '(no description)')
-    wln(fd)
+
+    if root.comment and not hide_comments:
+        wln(fd, root.comment)
+        wln(fd)
+
+    if root.description:
+        wln(fd, root.description)
+        wln(fd)
+
     if root.version is not None:
         wln(fd, "Version: {}".format(root.version))
         wln(fd)

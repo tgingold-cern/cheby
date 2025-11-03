@@ -28,12 +28,12 @@ def print_reg(fd, r, raw, hide_comments=False, print_reg_drawing=True):
     wln(fd, "- **Access**: {}".format(ACCESSES[r.access]))
     wln(fd)
 
-    if r.description:
-        wln(fd, format_text(r.description))
-        wln(fd)
-
     if r.comment and not hide_comments:
         wln(fd, format_text(r.comment))
+        wln(fd)
+
+    if r.description:
+        wln(fd, format_text(r.description))
         wln(fd)
 
     if print_reg_drawing:
@@ -79,9 +79,13 @@ def print_reg(fd, r, raw, hide_comments=False, print_reg_drawing=True):
         w(fd, '{} | '.format(format_text(desc_src.name)))
 
         # Description + comment
-        desc = desc_src.description or ""
+        desc = ""
         if desc_src.comment and not hide_comments:
-            desc += "\n\n" + desc_src.comment
+            desc += desc_src.comment
+        if desc_src.description:
+            if desc_src.comment and not hide_comments:
+                desc += "\n\n"
+            desc += desc_src.description
 
         desc = desc.replace('\n', '<br>')
 
@@ -107,6 +111,10 @@ def print_reg_description(fd, summary, hide_comments=False, print_reg_drawing=Tr
 
 def print_root(fd, root, hide_comments=False, print_reg_drawing=True):
     wln(fd, "## Memory Map Summary")
+
+    if root.comment and not hide_comments:
+        wln(fd, root.comment)
+        wln(fd)
 
     if root.description:
         wln(fd, root.description)

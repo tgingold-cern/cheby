@@ -1,11 +1,11 @@
 ##################
-Memory map summary
+Memory Map Summary
 ##################
 
 Test AXI4-Lite interface
 
 +------------+-------+-------------------------+-------------------------+
-| HW address | Type  | Name                    | HDL name                |
+| HW address | Type  | Name                    | HDL Name                |
 +------------+-------+-------------------------+-------------------------+
 | 0x00       | REG   | register1               | register1               |
 +------------+-------+-------------------------+-------------------------+
@@ -20,19 +20,19 @@ Test AXI4-Lite interface
 | 0x18       | REG   | block1.block2.register4 | block1_block2_register4 |
 +------------+-------+-------------------------+-------------------------+
 
-Registers description
+Registers Description
 =====================
-register1
----------
 
+Register: register1
+-------------------
 
-* HDL name:  register1
-* address:  0x0
-* block offset:  0x0
-* access mode:  wo
+* HW Prefix: register1
+* HW Address: 0x0
+* C Prefix: register1
+* C Block Offset: 0x0
+* Access: write-only
 
 Test register 1
-
 
 +--+--+--+--+--+--+--+--+
 |31|30|29|28|27|26|25|24|
@@ -52,17 +52,16 @@ Test register 1
 |         register1[7:0]|
 +--+--+--+--+--+--+--+--+
 
-block1.register2
-----------------
+Register: block1.register2
+--------------------------
 
-
-* HDL name:  block1_register2
-* address:  0x10
-* block offset:  0x0
-* access mode:  ro
+* HW Prefix: block1_register2
+* HW Address: 0x10
+* C Prefix: block1.register2
+* C Block Offset: 0x0
+* Access: read-only
 
 Test register 2
-
 
 +------+------+------+------+------+------+------+------+
 |    31|    30|    29|    28|    27|    26|    25|    24|
@@ -87,17 +86,16 @@ field1
 field2
   Test field 2
 
-block1.register3
-----------------
+Register: block1.register3
+--------------------------
 
-
-* HDL name:  block1_register3
-* address:  0x14
-* block offset:  0x4
-* access mode:  rw
+* HW Prefix: block1_register3
+* HW Address: 0x14
+* C Prefix: block1.register3
+* C Block Offset: 0x4
+* Access: read/write
 
 Test register 3
-
 
 +--+--+--+--+--+--+--+--+
 |31|30|29|28|27|26|25|24|
@@ -117,17 +115,16 @@ Test register 3
 |         register3[7:0]|
 +--+--+--+--+--+--+--+--+
 
-block1.block2.register4
------------------------
+Register: block1.block2.register4
+---------------------------------
 
-
-* HDL name:  block1_block2_register4
-* address:  0x18
-* block offset:  0x0
-* access mode:  ro
+* HW Prefix: block1_block2_register4
+* HW Address: 0x18
+* C Prefix: block1.block2.register4
+* C Block Offset: 0x0
+* Access: read-only
 
 Test register 4
-
 
 +------+------+------+------+------+------+------+------+
 |    31|    30|    29|    28|    27|    26|    25|    24|
