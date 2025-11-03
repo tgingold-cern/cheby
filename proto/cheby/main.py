@@ -23,6 +23,7 @@ import cheby.gen_gena_dsp as gen_gena_dsp
 import cheby.gen_wbgen_hdl as gen_wbgen_hdl
 import cheby.print_html as print_html
 import cheby.print_markdown as print_markdown
+import cheby.print_asciidoc as print_asciidoc
 import cheby.print_rest as print_rest
 import cheby.print_latex as print_latex
 import cheby.print_consts as print_consts
@@ -128,7 +129,7 @@ def decode_args():
         help="define if each generated file should contain a header containing the "
         + "arguments used for cheby, its version, user, and time"
     )
-    aparser.add_argument('--doc', choices=['html', 'md', 'rest', 'latex'], default='html',
+    aparser.add_argument('--doc', choices=['html', 'md', 'asciidoc', 'rest', 'latex'], default='html',
                          help='select language for doc generation')
     aparser.add_argument('--gen-doc', nargs='?', const='-',
                          help='generate documentation')
@@ -307,6 +308,10 @@ def handle_file(args, filename):
                 )
             elif args.doc == "md":
                 print_markdown.print_markdown(
+                    f, t, args.doc_hide_comments, not args.doc_no_reg_drawing
+                )
+            elif args.doc == "asciidoc":
+                print_asciidoc.print_asciidoc(
                     f, t, args.doc_hide_comments, not args.doc_no_reg_drawing
                 )
             elif args.doc == "rest":

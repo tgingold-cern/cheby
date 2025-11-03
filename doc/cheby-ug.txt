@@ -55,7 +55,7 @@ generate:
 * C headers
 * Device drivers
 * HDL code
-* HTML, markdown, and Latex documentation
+* HTML, Markdown, AsciiDoc, reStructuredText and LaTeX documentation
 
 The automatic generation of these files avoid a tedious work and ensure
 coherency between them.
@@ -136,7 +136,7 @@ description file:
 
 For our example, the generated doc is:
 
-include::srcs/counter-reindent.md[]
+include::srcs/counter-reindent.adoc[]
 
 == Cheby File Format
 
@@ -871,16 +871,16 @@ as the layout seen by Cheby.  This can be used as a consistency check.
 
 === Generating documentation
 
-Documentation can be generated either in HTML, Latex, or in markdown (tested with
-asciidoctor).  The format is specified by the `--doc=FORMAT` flag and the
-format is either `html`, `latex`, or `md`.
+Documentation can be generated either in HTML, LaTeX, Markdown, AsciiDoc or
+reStructuredText format.  The format is specified by the `--doc=FORMAT` flag and
+the format is either `html`, `latex`, `md`, `asciidoc` or `rest`.
 
 [source]
 ----
   $ cheby --doc=md --gen-doc=OUTPUT.md -i INPUT.cheby
 ----
 
-The generated Latex file is meant to be included from a main file. An example
+The generated LaTeX file is meant to be included from a main file. An example
 for such a file can be created using `--doc-copy-template`:
 
 [source]

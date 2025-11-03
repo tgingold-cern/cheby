@@ -12,13 +12,13 @@ srcs/counter_entity.vhdl: srcs/counter.vhdl
 srcs/counter.h: srcs/counter.cheby
 	$(CHEBY) --gen-c=$@ -i $<
 
-srcs/counter.md: srcs/counter.cheby
-	$(CHEBY) --doc=md --gen-doc=$@ -i $<
+srcs/counter.adoc: srcs/counter.cheby
+	$(CHEBY) --doc=asciidoc --gen-doc=$@ -i $<
 
-srcs/counter-reindent.md: srcs/counter.md
+srcs/counter-reindent.adoc: srcs/counter.adoc
 	sed -e '/^=/s/^=/==/' < $< > $@
 
-$(NAME).xml: $(NAME).txt cheby-extensions.adoc srcs/counter.cheby srcs/counter_entity.vhdl srcs/counter.h srcs/counter-reindent.md
+$(NAME).xml: $(NAME).txt cheby-extensions.adoc srcs/counter.cheby srcs/counter_entity.vhdl srcs/counter.h srcs/counter-reindent.adoc
 	asciidoctor -v -d book -b docbook $<
 
 $(NAME).pdf: $(NAME).xml
@@ -27,4 +27,4 @@ $(NAME).pdf: $(NAME).xml
 clean:
 	$(RM) $(NAME).xml $(NAME).pdf
 	$(RM) srcs/counter.vhdl srcs/counter_entity.vhdl srcs/counter.h
-	$(RM) srcs/counter.md srcs/counter-reindent.md
+	$(RM) srcs/counter.adoc srcs/counter-reindent.adoc
