@@ -160,9 +160,3 @@
              RAM,            RAM,         bar1,    0x0,
         reserved,       reserved,         bar2,    0x0,
 
-#Interrupt Controller (INTC) table definition
- intc_name, type, reg_name, block_def_name, chained_intc_name, chained_intc_mask, args, description
-
-#Register Roles table definition
- reg_role, reg_name, block_def_name, args
-
