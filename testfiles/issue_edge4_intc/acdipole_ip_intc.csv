@@ -1,0 +1,173 @@
+#Encore Driver GEnerator version: 4.1
+
+#Document Info table definition
+ drv_type, edge_vers
+      DRV,       4.1
+
+#LIF (Logical Interface) table definition
+ hw_mod_name, hw_lif_name, hw_lif_vers, bus, endian, description
+    acdipole,    acdipole,       0.1.0, PCI,     BE,
+
+#Device Identification table definition
+ vendor, device, args
+ 0x10dc,  0x1d8,
+
+#Resources (MEM - DMA - IRQ) table definition
+ res_def_name, type, res_no, args, description
+         bar0,  MEM,      0,     , AXI4-Lite; acdipole IP
+         bar1,  MEM,      1,     , DDR for ADC-DAC
+         bar2,  MEM,      2,     , purposely empty bar
+
+#Block table definition
+  block_def_name,            type,                         name, offset, rwmode, dwidth,    depth,       mask, flags, description
+     acdipole_ip,             REG,                     revision,    0x0,      r,     32,      0x1,           ,      ,
+     acdipole_ip,             REG,             revision_hw_type,    0x0,      r,     32,      0x1,  0xf000000,      ,
+     acdipole_ip,             REG,         revision_hw_revision,    0x0,      r,     32,      0x1,   0xf00000,      ,
+     acdipole_ip,             REG,      revision_logic_revision,    0x0,      r,     32,      0x1,     0xffff,      ,
+     acdipole_ip,             REG,                      control,    0x4,     rw,     32,      0x1,           ,      ,
+     acdipole_ip,             REG,           control_pll_status,    0x4,     rw,     32,      0x1,   0x400000,      , high if pll locked
+     acdipole_ip,             REG,       control_inhibit_status,    0x4,     rw,     32,      0x1,   0x200000,      , high if 1m trigger inhibition active
+     acdipole_ip,             REG,           control_dcm_status,    0x4,     rw,     32,      0x1,   0x100000,      , high if DCM locked
+     acdipole_ip,             REG,           control_acq_status,    0x4,     rw,     32,      0x1,    0x80000,      , high if acquisition in progress
+     acdipole_ip,             REG,           control_run_status,    0x4,     rw,     32,      0x1,    0x40000,      , high if waveform is generated
+     acdipole_ip,             REG,              control_dac_run,    0x4,     rw,     32,      0x1,    0x10000,      , high to run; allows data capture
+     acdipole_ip,             REG,                  control_arm,    0x4,     rw,     32,      0x1,     0x8000,      , high to allow trigger; auto-reset upon trigger
+     acdipole_ip,             REG,         control_ampli_status,    0x4,     rw,     32,      0x1,     0x2000,      , high to switch amplifiers on (to PLC)
+     acdipole_ip,             REG,        control_ampli_control,    0x4,     rw,     32,      0x1,     0x1000,      , high if ac-dipole relay open
+     acdipole_ip,             REG,             control_adc_test,    0x4,     rw,     32,      0x1,       0x20,      , high to write test data to mem; low for ADC data
+     acdipole_ip,             REG,            control_soft_trig,    0x4,     rw,     32,      0x1,        0x8,      , high to send soft-trigger; auto-reset upon trigger; obsolete
+     acdipole_ip,             REG,       control_ext_trig_inhib,    0x4,     rw,     32,      0x1,        0x4,      , high to inhibit external trigger
+     acdipole_ip,             REG,              control_adc_run,    0x4,     rw,     32,      0x1,        0x2,      , high to run; allows data capture
+     acdipole_ip,             REG,           control_soft_reset,    0x4,     rw,     32,      0x1,        0x1,      , high to reset user part of FPGA
+     acdipole_ip,             REG,                          ISR,    0x8,     rw,     32,      0x1,           ,      ,
+     acdipole_ip,             REG,                      ISR_ACQ,    0x8,     rw,     32,      0x1,        0x1,      ,
+     acdipole_ip,             REG,                         test,    0xc,      r,     32,      0x1,           ,      ,
+     acdipole_ip,             REG,                  temperature,   0x10,      r,     32,      0x1,           ,      ,
+     acdipole_ip,             REG,      temperature_temperature,   0x10,      r,     32,      0x1,     0xffff,      , unit 0.0625 deg. C.
+     acdipole_ip,             REG,                 temp_warning,   0x14,     rw,     32,      0x1,           ,      , clear warning on read
+     acdipole_ip,             REG,                 temp_failure,   0x18,     rw,     32,      0x1,           ,      , clear warning on read
+     acdipole_ip,             REG,                 ram_acq_addr,   0x1c,     rw,     32,      0x1,           ,      , Acquisition RAM address
+     acdipole_ip,             REG,                 ram_acq_data,   0x20,      r,     32,      0x1,           ,      , Acquisition RAM data
+     acdipole_ip,             REG,                  pll_control,   0x24,     rw,     32,      0x1,           ,      , PLL clock control; obsolete
+     acdipole_ip,             REG,             clock_distr_intf,   0x28,     rw,     32,      0x1,           ,      , Clock distribution interface; obsolete
+     acdipole_ip,             REG,                     pll_intf,   0x2c,     rw,     32,      0x1,           ,      , PLL interface; obsolete
+     acdipole_ip,             REG,                    adc_ch_en,   0x30,     rw,     32,      0x1,           ,      , ADC channel enables
+     acdipole_ip,             REG,                    dac_ch_en,   0x34,     rw,     32,      0x1,           ,      , DAC channel enables
+     acdipole_ip,             REG,                    reserved0,   0x38,     rw,     32,      0x1,           ,      ,
+     acdipole_ip,             REG,                 ram_dac_addr,   0x3c,     rw,     32,      0x1,           ,      , DAC RAM address
+     acdipole_ip,             REG,                 ram_dac_data,   0x40,     rw,     32,      0x1,           ,      , DAC RAM data
+     acdipole_ip,             REG,         ram_dac_data_sample1,   0x40,     rw,     32,      0x1, 0xffff0000,      ,
+     acdipole_ip,             REG,         ram_dac_data_sample0,   0x40,     rw,     32,      0x1,     0xffff,      ,
+     acdipole_ip,             REG,                 adc_ampli_en,   0x44,     rw,     32,      0x1,           ,      , ADC Amplifier enables
+     acdipole_ip,             REG,                 dac_controls,   0x48,     rw,     32,      0x1,           ,      , DAC controls
+     acdipole_ip,             REG,        dac_controls_feedback,   0x48,     rw,     32,      0x1,       0x40,      , DAC outputs are loopback of ADC values
+     acdipole_ip,             REG,                 adc_controls,   0x4c,     rw,     32,      0x1,           ,      , ADC controls
+     acdipole_ip,             REG,                trig_ctrl_adc,   0x5c,     rw,     32,      0x1,           ,      , trigger control ADC
+     acdipole_ip,             REG,    trig_ctrl_adc_ext_trig_en,   0x5c,     rw,     32,      0x1, 0x80000000,      , external trigger enable
+     acdipole_ip,             REG,           trig_ctrl_adc_mode,   0x5c,     rw,     32,      0x1, 0x40000000,      , trigger mode; framed/unframed
+     acdipole_ip,             REG,         trig_ctrl_adc_points,   0x5c,     rw,     32,      0x1,     0xffff,      , points to collect
+     acdipole_ip,             REG,                trig_ctrl_dac,   0x60,     rw,     32,      0x1,           ,      , trigger control DAC
+     acdipole_ip,             REG,    trig_ctrl_dac_ext_trig_en,   0x60,     rw,     32,      0x1, 0x80000000,      , external trigger enable
+     acdipole_ip,             REG,           trig_ctrl_dac_mode,   0x60,     rw,     32,      0x1, 0x40000000,      , trigger mode; framed/unframed
+     acdipole_ip,             REG,         trig_ctrl_dac_points,   0x60,     rw,     32,      0x1,     0xffff,      , points to collect
+     acdipole_ip,             REG,               dac_decimation,   0x64,     rw,     32,      0x1,           ,      , DAC decimation
+     acdipole_ip,             REG,        dac_decimation_factor,   0x64,     rw,     32,      0x1,      0xfff,      , decimation factor
+     acdipole_ip,             REG,               adc_decimation,   0x68,     rw,     32,      0x1,           ,      , ADC decimation
+     acdipole_ip,             REG,        adc_decimation_factor,   0x68,     rw,     32,      0x1,      0xfff,      , decimation factor
+     acdipole_ip,             REG,              adc_gain_corr_0,   0x80,     rw,     32,      0x1,           ,      , ADC gain error correction
+     acdipole_ip,             REG,              adc_gain_corr_1,   0x84,     rw,     32,      0x1,           ,      , ADC gain error correction
+     acdipole_ip,             REG,              adc_gain_corr_2,   0x88,     rw,     32,      0x1,           ,      , ADC gain error correction
+     acdipole_ip,             REG,              adc_gain_corr_3,   0x8c,     rw,     32,      0x1,           ,      , ADC gain error correction
+     acdipole_ip,             REG,              adc_gain_corr_4,   0x90,     rw,     32,      0x1,           ,      , ADC gain error correction
+     acdipole_ip,             REG,              adc_gain_corr_5,   0x94,     rw,     32,      0x1,           ,      , ADC gain error correction
+     acdipole_ip,             REG,              adc_gain_corr_6,   0x98,     rw,     32,      0x1,           ,      , ADC gain error correction
+     acdipole_ip,             REG,              adc_gain_corr_7,   0x9c,     rw,     32,      0x1,           ,      , ADC gain error correction
+     acdipole_ip,             REG,              adc_gain_corr_8,   0xa0,     rw,     32,      0x1,           ,      , ADC gain error correction
+     acdipole_ip,             REG,              adc_gain_corr_9,   0xa4,     rw,     32,      0x1,           ,      , ADC gain error correction
+     acdipole_ip,             REG,             adc_gain_corr_10,   0xa8,     rw,     32,      0x1,           ,      , ADC gain error correction
+     acdipole_ip,             REG,             adc_gain_corr_11,   0xac,     rw,     32,      0x1,           ,      , ADC gain error correction
+     acdipole_ip,             REG,             adc_gain_corr_12,   0xb0,     rw,     32,      0x1,           ,      , ADC gain error correction
+     acdipole_ip,             REG,             adc_gain_corr_13,   0xb4,     rw,     32,      0x1,           ,      , ADC gain error correction
+     acdipole_ip,             REG,             adc_gain_corr_14,   0xb8,     rw,     32,      0x1,           ,      , ADC gain error correction
+     acdipole_ip,             REG,             adc_gain_corr_15,   0xbc,     rw,     32,      0x1,           ,      , ADC gain error correction
+     acdipole_ip, adc_offset_corr,              adc_offset_corr,   0xc0,       ,       ,         ,           ,      , ADC offset error correction
+     acdipole_ip,             REG,              dac_gain_corr_0,  0x100,     rw,     32,      0x1,           ,      , DAC gain error correction
+     acdipole_ip,             REG,   dac_gain_corr_0_correction,  0x100,     rw,     32,      0x1,    0x3ffff,      ,
+     acdipole_ip,             REG,              dac_gain_corr_1,  0x104,     rw,     32,      0x1,           ,      , DAC gain error correction
+     acdipole_ip,             REG,   dac_gain_corr_1_correction,  0x104,     rw,     32,      0x1,    0x3ffff,      ,
+     acdipole_ip,             REG,              dac_gain_corr_2,  0x108,     rw,     32,      0x1,           ,      , DAC gain error correction
+     acdipole_ip,             REG,   dac_gain_corr_2_correction,  0x108,     rw,     32,      0x1,    0x3ffff,      ,
+     acdipole_ip,             REG,              dac_gain_corr_3,  0x10c,     rw,     32,      0x1,           ,      , DAC gain error correction
+     acdipole_ip,             REG,   dac_gain_corr_3_correction,  0x10c,     rw,     32,      0x1,    0x3ffff,      ,
+     acdipole_ip,             REG,              dac_gain_corr_4,  0x110,     rw,     32,      0x1,           ,      , DAC gain error correction
+     acdipole_ip,             REG,   dac_gain_corr_4_correction,  0x110,     rw,     32,      0x1,    0x3ffff,      ,
+     acdipole_ip,             REG,              dac_gain_corr_5,  0x114,     rw,     32,      0x1,           ,      , DAC gain error correction
+     acdipole_ip,             REG,   dac_gain_corr_5_correction,  0x114,     rw,     32,      0x1,    0x3ffff,      ,
+     acdipole_ip,             REG,              dac_gain_corr_6,  0x118,     rw,     32,      0x1,           ,      , DAC gain error correction
+     acdipole_ip,             REG,   dac_gain_corr_6_correction,  0x118,     rw,     32,      0x1,    0x3ffff,      ,
+     acdipole_ip,             REG,              dac_gain_corr_7,  0x11c,     rw,     32,      0x1,           ,      , DAC gain error correction
+     acdipole_ip,             REG,   dac_gain_corr_7_correction,  0x11c,     rw,     32,      0x1,    0x3ffff,      ,
+     acdipole_ip,             REG,              dac_offset_corr,  0x140,     rw,     32,      0x8,           ,      , DAC offset error correction
+     acdipole_ip,             REG,   dac_offset_corr_correction,  0x140,     rw,     32,      0x8,     0xffff,      ,
+     acdipole_ip,             REG,                  adc0_config,  0x180,     rw,     32,      0x1,           ,      , ADC device 0 configuration register
+     acdipole_ip,             REG,    adc0_config_configuration,  0x180,     rw,     32,      0x1,     0xffff,      , preset to sample diff channels IN0/1; IN2/3 with sequencer
+     acdipole_ip,             REG,                  adc1_config,  0x184,     rw,     32,      0x1,           ,      , ADC device 0 configuration register
+     acdipole_ip,             REG,    adc1_config_configuration,  0x184,     rw,     32,      0x1,     0xffff,      , preset to sample diff channels IN0/1; IN2/3 with sequencer
+     acdipole_ip,             REG,                  adc2_config,  0x188,     rw,     32,      0x1,           ,      , ADC device 0 configuration register
+     acdipole_ip,             REG,    adc2_config_configuration,  0x188,     rw,     32,      0x1,     0xffff,      , preset to sample diff channels IN0/1; IN2/3 with sequencer
+     acdipole_ip,             REG,                  adc3_config,  0x18c,     rw,     32,      0x1,           ,      , ADC device 0 configuration register
+     acdipole_ip,             REG,    adc3_config_configuration,  0x18c,     rw,     32,      0x1,     0xffff,      , preset to sample diff channels IN0/1; IN2/3 with sequencer
+     acdipole_ip,             REG,               adc_fifo_debug,  0x1f0,     rw,     32,      0x1,           ,      , ADC FIFO debug info
+     acdipole_ip,             REG,    adc_fifo_debug_fifo_empty,  0x1f0,     rw,     32,      0x1, 0x80000000,      ,
+     acdipole_ip,             REG,      adc_fifo_debug_rd_count,  0x1f0,     rw,     32,      0x1,      0x1ff,      ,
+     acdipole_ip,             REG,            sine_gen_ram_addr,  0x1f4,     rw,     32,      0x1,           ,      , DAC sine gen RAM current address
+     acdipole_ip,             REG,    sine_gen_ram_addr_address,  0x1f4,     rw,     32,      0x1,  0x1ffffff,      ,
+     acdipole_ip,             REG,                     clk_freq,  0x1f8,     rw,     32,      0x1,           ,      , system clock frequency
+     acdipole_ip,             REG,                      fs_freq,  0x1fc,     rw,     32,      0x1,           ,      , sampling clock frequency
+
+#Block table definition
+  block_def_name,            type,                         name, offset, rwmode, dwidth,    depth,       mask, flags, description
+ adc_offset_corr,             REG,            adc_offset_corr_0,    0x0,     rw,     32,      0x1,           ,      , ADC offset error correction
+ adc_offset_corr,             REG, adc_offset_corr_0_correction,    0x0,     rw,     32,      0x1,     0xffff,      ,
+ adc_offset_corr,             REG,              test_for_edge_0,    0x4,     rw,     32,      0x1,           ,      , ensures better code coverage (separate block generation)
+ adc_offset_corr,             REG,            adc_offset_corr_1,    0x8,     rw,     32,      0x1,           ,      , ADC offset error correction
+ adc_offset_corr,             REG, adc_offset_corr_1_correction,    0x8,     rw,     32,      0x1,     0xffff,      ,
+ adc_offset_corr,             REG,              test_for_edge_1,    0xc,     rw,     32,      0x1,           ,      , ensures better code coverage (separate block generation)
+ adc_offset_corr,             REG,            adc_offset_corr_2,   0x10,     rw,     32,      0x1,           ,      , ADC offset error correction
+ adc_offset_corr,             REG, adc_offset_corr_2_correction,   0x10,     rw,     32,      0x1,     0xffff,      ,
+ adc_offset_corr,             REG,              test_for_edge_2,   0x14,     rw,     32,      0x1,           ,      , ensures better code coverage (separate block generation)
+ adc_offset_corr,             REG,            adc_offset_corr_3,   0x18,     rw,     32,      0x1,           ,      , ADC offset error correction
+ adc_offset_corr,             REG, adc_offset_corr_3_correction,   0x18,     rw,     32,      0x1,     0xffff,      ,
+ adc_offset_corr,             REG,              test_for_edge_3,   0x1c,     rw,     32,      0x1,           ,      , ensures better code coverage (separate block generation)
+ adc_offset_corr,             REG,            adc_offset_corr_4,   0x20,     rw,     32,      0x1,           ,      , ADC offset error correction
+ adc_offset_corr,             REG, adc_offset_corr_4_correction,   0x20,     rw,     32,      0x1,     0xffff,      ,
+ adc_offset_corr,             REG,              test_for_edge_4,   0x24,     rw,     32,      0x1,           ,      , ensures better code coverage (separate block generation)
+ adc_offset_corr,             REG,            adc_offset_corr_5,   0x28,     rw,     32,      0x1,           ,      , ADC offset error correction
+ adc_offset_corr,             REG, adc_offset_corr_5_correction,   0x28,     rw,     32,      0x1,     0xffff,      ,
+ adc_offset_corr,             REG,              test_for_edge_5,   0x2c,     rw,     32,      0x1,           ,      , ensures better code coverage (separate block generation)
+ adc_offset_corr,             REG,            adc_offset_corr_6,   0x30,     rw,     32,      0x1,           ,      , ADC offset error correction
+ adc_offset_corr,             REG, adc_offset_corr_6_correction,   0x30,     rw,     32,      0x1,     0xffff,      ,
+ adc_offset_corr,             REG,              test_for_edge_6,   0x34,     rw,     32,      0x1,           ,      , ensures better code coverage (separate block generation)
+ adc_offset_corr,             REG,            adc_offset_corr_7,   0x38,     rw,     32,      0x1,           ,      , ADC offset error correction
+ adc_offset_corr,             REG, adc_offset_corr_7_correction,   0x38,     rw,     32,      0x1,     0xffff,      ,
+ adc_offset_corr,             REG,              test_for_edge_7,   0x3c,     rw,     32,      0x1,           ,      , ensures better code coverage (separate block generation)
+
+#Block table definition
+  block_def_name,            type,                         name, offset, rwmode, dwidth,    depth,       mask, flags, description
+             RAM,             REG,                          DDR,    0x0,     rw,     32, 0x200000,           ,      , DDR memory
+
+#Block table definition
+  block_def_name,            type,                         name, offset, rwmode, dwidth,    depth,       mask, flags, description
+        reserved,             REG,                    xilinx_ip,    0x0,     rw,     32,    0x100,           ,      , block design ip
+
+#Block instances table definition
+ block_inst_name, block_def_name, res_def_name, offset, description
+              ip,    acdipole_ip,         bar0,    0x0, the ip
+             RAM,            RAM,         bar1,    0x0,
+        reserved,       reserved,         bar2,    0x0,
+
+#Interrupt Controller (INTC) table definition
+ intc_name,    type, reg_name, block_def_name, chained_intc_name, chained_intc_mask, args, description
+   IntCtrl, INTC_SR,      ISR,    acdipole_ip,                  ,                  ,     ,
+   IntCtrl, INTC_SR,  ISR_ACQ,    acdipole_ip,                  ,                  ,     ,
+
