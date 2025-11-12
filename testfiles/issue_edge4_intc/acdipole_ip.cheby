@@ -1,0 +1,68 @@
+memory-map:
+  name: acdipole
+  bus: axi4-lite-32
+  x-driver-edge:
+    driver-version: 0.1.0
+    schema-version: 4.1
+    bus-type: PCI
+    endianness: big
+    device-info:
+      vendor-id: 0x10DC
+      device-id: 0x01d8
+  children:
+    - address-space:
+        name: bar0
+        comment: AXI4-Lite, acdipole IP
+        x-driver-edge:
+          number: 0
+          addr-mode: A32
+          data-width: 32
+        children:
+          - submap:
+              name: ip
+              comment: the ip
+              address: 0x0
+              include: true
+              filename: ip.cheby
+              x-driver-edge:
+                include: false
+    - address-space:
+        name: bar1
+        comment: DDR for ADC-DAC
+        x-driver-edge:
+          number: 1
+          addr-mode: A32
+          data-width: 32
+        children:
+          - block:
+              name: RAM
+              children:
+                - memory:
+                    name: DDR
+                    comment: DDR memory
+                    memsize: 8M
+                    children:
+                      - reg:
+                          name: data
+                          width: 32
+                          access: rw
+    - address-space:
+        name: bar2
+        comment: purposely empty bar
+        x-driver-edge:
+          number: 2
+          addr-mode: A32
+          data-width: 32
+        children:
+          - block:
+              name: reserved
+              children:
+                - memory:
+                    name: xilinx_ip
+                    comment: block design ip
+                    memsize: 1k
+                    children:
+                      - reg:
+                          name: data
+                          width: 32
+                          access: rw

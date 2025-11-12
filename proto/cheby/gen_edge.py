@@ -94,7 +94,7 @@ class CsvTable(object):
             fd.write("\n")
 
     def write_if_needed(self, fd):
-        if self.count != 0:
+        if self.count() != 0:
             self.write(fd)
 
 
