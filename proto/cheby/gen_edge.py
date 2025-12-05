@@ -378,10 +378,18 @@ def process_body(b, n, offset, res_name, name_prefix=[], block_prefix=[], name_s
                     for i in range(0, el.count):
                         b.append_reg(r, "{}_{}".format(el_name, i), el_addr+(i*r.c_size), r.access, r.c_size)
             else:
-                b2 = EncoreBlock(b.encore, el, el_name, res_name)
-                b.append_block(b2, el_name, el_addr, el.comment)
-                for i in range(0, el.count):
-                    process_body(b2, el, i*el.c_elsize, res_name, name_suffix=[str(i)])
+                if get_extension(el, 'expand', True):
+                    b2 = EncoreBlock(b.encore, el, el_name, res_name)
+                    b.append_block(b2, el_name, el_addr, el.comment)
+                    for i in range(0, el.count):
+                        process_body(b2, el, i*el.c_elsize, res_name, name_suffix=[str(i)])
+                else:
+                    b2 = EncoreBlock(b.encore, el, el_name, res_name)
+                    process_body(b2, el, 0, res_name)
+
+                    for i in range(0, el.count):
+                        b.append_block(b2, f"{el_name}_{i}", el_addr + i*el.c_elsize, el.comment)
+
 
         elif isinstance(el, (tree.Block, tree.Submap)):
             use_block_prefix = get_extension(el, 'block-prefix', True)
