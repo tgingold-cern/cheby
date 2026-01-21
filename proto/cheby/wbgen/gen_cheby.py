@@ -25,8 +25,8 @@ def write_field_content(res, n, parent):
         # difference with no size)
         res.x_wbgen["size"] = 1
     if n.prefix is None:
-        res.x_wbgen["field_description"] = n.name
-        res.x_wbgen["field_comment"] = n.desc
+        res.x_wbgen["field_description"] = n.desc
+        res.x_wbgen["field_comment"] = n.name
     if n.typ == 'PASS_THROUGH':
         if not hasattr(res, 'x_hdl'):
             res.x_hdl = {}
@@ -45,8 +45,8 @@ def write_field(n, parent):
         res.lo = n.bit_offset
     else:
         res.lo = n.bit_offset
-    res.description = n.name
-    res.comment = n.desc
+    res.comment = n.name
+    res.description = n.desc
     write_field_content(res, n, parent)
     return res
 
@@ -80,8 +80,8 @@ def write_reg(parent, n, addr_off):
     res.address = (n.addr_base - addr_off) * layout.DATA_BYTES
     res.width = layout.DATA_WIDTH
     res.access = acc
-    res.description = n.name
-    res.comment = n.desc
+    res.comment = n.name
+    res.description = n.desc
     res.x_wbgen = {}
     if isinstance(n, wbtree.FifoCSReg):
         res.x_wbgen["kind"] = "fifocs"
@@ -91,7 +91,7 @@ def write_reg(parent, n, addr_off):
         f = n.fields[0]
         if f.desc is not None:
             if n.desc is None:
-                res.comment = f.desc
+                res.description = f.desc
         write_field_content(res, n.fields[0], n)
     else:
         for f in n.fields:
@@ -114,8 +114,8 @@ def write_fifo(parent, n):
     res.name = n.prefix
     res.address = addr * layout.DATA_BYTES
     res.size_str = "{}".format(len(n.regs) * layout.DATA_BYTES)
-    res.description = n.name
-    res.comment = n.desc
+    res.comment = n.name
+    res.description = n.desc
     res.align = False
 
     res.x_wbgen = {}
@@ -145,8 +145,8 @@ def write_ram(parent, n):
     res.name = n.prefix
     res.address = addr * layout.DATA_BYTES
     res.memsize_str = "{}".format(n.size * n.width // 8)
-    res.description = n.name
-    res.comment = n.desc
+    res.comment = n.name
+    res.description = n.desc
 
     res.x_wbgen = {}
     res.x_wbgen["kind"] = 'ram'
@@ -180,8 +180,8 @@ def write_irqs(parent, regs, irqs):
         e["pos"] = pos
         e["ack_line"] = irq.ack_line
         e["mask_line"] = irq.mask_line
-        e["description"] = irq.name
-        e["comment"] = irq.desc
+        e["comment"] = irq.name
+        e["description"] = irq.desc
         lst.append(e)
     res.x_wbgen["irq"] = lst
 
@@ -196,8 +196,9 @@ def gen_root(n):
     res = tree.Root()
     res.bus = 'wb-32-be'
     res.name = n.prefix if n.prefix else n.hdl_prefix
-    res.description = n.name
-    res.comment = n.desc
+    res.comment = n.name
+    if n.desc and n.desc.strip():
+        res.description = n.desc
     res.schema_version = VERSIONS
     res.x_wbgen = {"hdl_entity": n.hdl_entity,
                    "hdl_prefix": n.hdl_prefix,

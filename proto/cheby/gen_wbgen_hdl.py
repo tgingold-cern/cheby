@@ -219,7 +219,7 @@ def expand_passthrough(f, reg, name, isig, bus):
     g = Code()
     hdl_port = HDLPort(name + '_o', f.c_rwidth, dir='OUT')
     comment = "PASS_THROUGH field: '{name}' in reg: '{reg}'".format(
-        name=f.description, reg=reg.description)
+        name=f.comment, reg=reg.comment)
     clock = get_wbgen(f, 'clock')
     if clock:
         comment = "asynchronous (clock: {}) {}".format(clock, comment)
@@ -228,7 +228,7 @@ def expand_passthrough(f, reg, name, isig, bus):
     g.ports.extend([hdl_port, wr_port])
     g.asgn_code.append(HDLComment(
         "pass-through field: {name} in register: {reg}".format(
-            name=f.description, reg=reg.description), False))
+            name=f.comment, reg=reg.comment), False))
     g.asgn_code.append(HDLAssign(hdl_port,
                                  expand_field_sel(isig['wrdata'], f)))
     if clock:
@@ -323,7 +323,7 @@ def expand_fiforeg(periph, reg, isig, bus):
         expand_ack(rd_stmts, isig, 1)
 
     g.asgn_code.append(HDLComment(
-        "extra code for reg/fifo/mem: {}".format(reg.description), False))
+        "extra code for reg/fifo/mem: {}".format(reg.comment), False))
     if fifo.req_int0 is not None and reg.h_num == 0:
         proc = hdltree.HDLSync(bus['clk'], bus['rst'])
         proc.rst_stmts.append(HDLAssign(fifo.req_int0, bit_0))
@@ -359,7 +359,7 @@ def expand_monostable(f, reg, name, isig, bus):
     g = Code()
     hdl_port = HDLPort(name + '_o', dir='OUT')
     comment = "MONOSTABLE field: '{name}' in reg: '{reg}'".format(
-        name=f.description, reg=reg.description)
+        name=f.comment, reg=reg.comment)
     clock = get_wbgen(f, 'clock')
     if clock:
         comment = "asynchronous (clock: {}) {}".format(clock, comment)
@@ -431,7 +431,7 @@ def expand_bit(f, reg, name, isig, bus):
     else:
         typ_str = type_name
     comment = "{typ} field: '{field}' in reg: '{reg}'".format(
-        typ=typ_str, field=f.description, reg=reg.description)
+        typ=typ_str, field=f.comment, reg=reg.comment)
     if clock:
         comment = "asynchronous (clock: {}) {}".format(clock, comment)
     if f.h_access not in ['WO_RO']:
@@ -510,7 +510,7 @@ def expand_bit(f, reg, name, isig, bus):
             g.asgn_code.append(HDLComment(
                 "asynchronous {} register : {} "
                 "(type RW/WO, {} <-> {})".format(
-                    type_name, f.description, clock, bus['clk'].name), False))
+                    type_name, f.comment, clock, bus['clk'].name), False))
             g.asgn_code.append(gen_async_rwrw(
                 isig[clock], bus['rst'], s0_sig, s1_sig, s2_sig,
                 rd_sig, wr_sig, hdl_load, hdl_port, lw_sig, sel_sig,
@@ -528,7 +528,7 @@ def expand_bit(f, reg, name, isig, bus):
                 g.asgn_code.append(HDLComment(
                     "synchronizer chain for field : {} "
                     "(type RO/WO, {} -> {})".format(
-                        f.description, clock, bus['clk'].name), False))
+                        f.comment, clock, bus['clk'].name), False))
                 g.asgn_code.append(gen_async_inp(
                     isig[clock], bus['rst'], hdl_port, sync0_sig, sync1_sig))
             elif f.h_access in ['RW_RO']:
@@ -541,7 +541,7 @@ def expand_bit(f, reg, name, isig, bus):
                 g.asgn_code.append(HDLComment(
                     "synchronizer chain for field : {} "
                     "(type RW/RO, {} <-> {})".format(
-                        f.description, bus['clk'].name, clock), False))
+                        f.comment, bus['clk'].name, clock), False))
                 g.asgn_code.append(gen_async_out(
                     isig[clock], bus['rst'],
                     hdl_port, hdl_sig, sync0_sig, sync1_sig))
@@ -582,7 +582,7 @@ def expand_bit(f, reg, name, isig, bus):
             g.asgn_code.append(HDLComment(
                 "asynchronous std_logic_vector register : {} "
                 "(type RO/WO, {} <-> {})".format(
-                    f.description, clock, bus['clk'].name), False))
+                    f.comment, clock, bus['clk'].name), False))
             g.asgn_code.append(gen_async_lwb(
                 isig[clock], bus['rst'], hdl_port, hdl_sig, lwb_sig,
                 sync0_sig, sync1_sig, sync2_sig))
@@ -609,7 +609,7 @@ def expand_bit(f, reg, name, isig, bus):
             g.asgn_code.append(HDLComment(
                 "asynchronous std_logic_vector register : {} "
                 "(type RW/RO, {} <-> {})".format(
-                    f.description, clock, bus['clk'].name), False))
+                    f.comment, clock, bus['clk'].name), False))
             g.asgn_code.append(gen_async_swb(
                 isig[clock], bus['rst'], hdl_sig, hdl_port, swb_sig,
                 sync0_sig, sync1_sig, sync2_sig))
@@ -728,7 +728,7 @@ def expand_reg(root, r, isig, bus):
                 or (typ in ['SLV'] and f.h_access in ['WO_RO'])
                 or is_wbgen_fiforeg(r)
                 or is_wbgen_fifocs(r)):
-            gr.asgn_code.append(HDLComment(f.description, False))
+            gr.asgn_code.append(HDLComment(f.comment, False))
         gr.asgn_code.extend(g.asgn_code)
         wr_stmts.extend(g.write_code)
         rd_stmts.extend(g.read_code)
@@ -801,7 +801,7 @@ def expand_irqs(root, module, bus, isig):
                 Slice_or_Index(rd, 0, nbr_irqs)))
         if int_sig:
             g.asgn_code.append(HDLComment(
-                "extra code for reg/fifo/mem: {}".format(r.description),
+                "extra code for reg/fifo/mem: {}".format(r.comment),
                 False))
             g.asgn_code.append(HDLAssign(
                 Slice_or_Index(int_sig, 0, nbr_irqs),
@@ -909,7 +909,7 @@ def expand_rams(root, module, bus, isig):
         r.code.clock_port = None
         prefix = get_hdl_prefix(root) + '_' + get_hdl_prefix(r)
         addr = HDLPort(prefix + '_addr_i', r.c_sel_bits, dir='IN')
-        addr.comment = "Ports for RAM: {}".format(r.description)
+        addr.comment = "Ports for RAM: {}".format(r.comment)
         dato = HDLPort(prefix + '_data_o', reg.width, dir='OUT')
         dato.comment = "Read data output"
         rd_sig = HDLPort(prefix + '_rd_i', dir='IN')
@@ -967,9 +967,9 @@ def expand_rams(root, module, bus, isig):
         clock = get_wbgen(r, 'clock')
         bwsel = get_wbgen(r, 'byte_select')
         g.asgn_code.append(HDLComment(
-            "extra code for reg/fifo/mem: {}".format(r.description), False))
+            "extra code for reg/fifo/mem: {}".format(r.comment), False))
         g.asgn_code.append(HDLComment(
-            "RAM block instantiation for memory: {}".format(r.description),
+            "RAM block instantiation for memory: {}".format(r.comment),
             False))
         inst = HDLInstance(prefix + "_raminst", "wbgen2_dpssram")
         inst.params.append(("g_data_width", HDLNumber(reg.c_rwidth)))
@@ -1150,7 +1150,7 @@ def expand_fifo(module, periph, fifo, isig, bus):
     g.rst_code.append(HDLAssign(breq_int, bit_0))
 
     g.inst_code.append(HDLComment(
-        "extra code for reg/fifo/mem: {}".format(fifo.description), False))
+        "extra code for reg/fifo/mem: {}".format(fifo.comment), False))
     for reg in fifo.children:
         if is_wbgen_fifocs(reg):
             continue
@@ -1282,7 +1282,7 @@ def layout_wbgen(root):
     # Split the address space into blocks (of equal length). One block
     # for registers (if any) and one block per ram
     block_size = max(reg_len, max_ram_size)
-    assert block_size > 0, "there must be at least one reg or one ram in {}".format(root.description)
+    assert block_size > 0, "there must be at least one reg or one ram in {}".format(root.comment)
     # Round to a power of 2.
     root.h_blk_bits = ilog2(block_size)
     root.h_reg_bits = 0 if reg_len == 0 else ilog2(reg_len)
