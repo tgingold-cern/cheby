@@ -52,6 +52,10 @@ Add memdepth attribute for memory
 
 Ports of an sram memory can now be put in the iogroup
 
+Convert name to comment (and description to description) in wbgen2cheby
+
+Display comment before description in pretty print
+
 ## Version 1.6
 
 Add generation of field widths in constant files (github PR #50)
