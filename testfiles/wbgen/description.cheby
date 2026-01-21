@@ -1,7 +1,7 @@
 memory-map:
   name: regf
-  description: description with a newline
-  comment: 'A simple register, but \n with a newline.'
+  comment: description with a newline
+  description: 'A simple register, but \n with a newline.'
   bus: wb-32-be
   x-wbgen:
     hdl_entity: regf
@@ -18,13 +18,13 @@ memory-map:
   children:
   - reg:
       name: R1
-      description: Register 1
-      comment: Register 1 has two fields
+      comment: Register 1
+      description: Register 1 has two fields
       width: 32
       access: rw
       address: 0x0
       x-wbgen:
         access_bus: READ_WRITE
         access_dev: READ_ONLY
-        field_description: Value reg
+        field_comment: Value reg
         type: SLV

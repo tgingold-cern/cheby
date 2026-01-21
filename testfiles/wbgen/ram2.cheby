@@ -1,6 +1,6 @@
 memory-map:
   name: ram2
-  description: Ram 2
+  comment: Ram 2
   bus: wb-32-be
   x-wbgen:
     hdl_entity: ram2
@@ -17,7 +17,7 @@ memory-map:
   children:
   - memory:
       name: ch1
-      description: Channel 1
+      comment: Channel 1
       address: 0x0
       memsize: 8192
       x-wbgen:
@@ -30,7 +30,7 @@ memory-map:
           access: rw
   - memory:
       name: ch2
-      description: Channel 2
+      comment: Channel 2
       address: 0x2000
       memsize: 4096
       x-wbgen:

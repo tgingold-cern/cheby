@@ -1,6 +1,6 @@
 memory-map:
   name: fifo
-  description: FIFO 2
+  comment: FIFO 2
   bus: wb-32-be
   x-wbgen:
     hdl_entity: fifo2
@@ -17,7 +17,7 @@ memory-map:
   children:
   - block:
       name: fifo2
-      description: fifo2
+      comment: fifo2
       address: 0x0
       align: False
       size: 8
@@ -29,20 +29,20 @@ memory-map:
       children:
       - reg:
           name: fifo2_r0
-          description: 'FIFO ''fifo2'' data output register 0'
+          comment: 'FIFO ''fifo2'' data output register 0'
           width: 32
           access: ro
           address: 0x0
           children:
           - field:
               name: val
-              description: value
+              comment: value
               range: 15-0
               x-wbgen:
                 type: SLV
       - reg:
           name: fifo2_csr
-          description: 'FIFO ''fifo2'' control/status register'
+          comment: 'FIFO ''fifo2'' control/status register'
           width: 32
           access: ro
           address: 0x4
@@ -51,8 +51,8 @@ memory-map:
           children:
           - field:
               name: full
-              description: FIFO full flag
-              comment: '1: FIFO ''fifo2'' is full\n0: FIFO is not full'
+              comment: FIFO full flag
+              description: '1: FIFO ''fifo2'' is full\n0: FIFO is not full'
               range: 16
               x-wbgen:
                 kind: full

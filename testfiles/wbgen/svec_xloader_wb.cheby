@@ -1,7 +1,7 @@
 memory-map:
   name: sxldr
-  description: SVEC FPGA loader
-  comment: A very simple serial firmware loader for Xilinx FPGAs. Programs the FPGA using serial slave mode method
+  comment: SVEC FPGA loader
+  description: A very simple serial firmware loader for Xilinx FPGAs. Programs the FPGA using serial slave mode method
   bus: wb-32-be
   x-wbgen:
     hdl_entity: svec_xloader_wb
@@ -18,22 +18,22 @@ memory-map:
   children:
   - reg:
       name: CSR
-      description: Control/status register
+      comment: Control/status register
       width: 32
       access: rw
       address: 0x0
       children:
       - field:
           name: START
-          description: Start configuration
-          comment: 'write 1: starts the configuration process.\n         write 0: no effect'
+          comment: Start configuration
+          description: 'write 1: starts the configuration process.\n         write 0: no effect'
           range: 0
           x-wbgen:
             type: MONOSTABLE
       - field:
           name: DONE
-          description: Configuration done
-          comment: 'read 1: the bitstream has been loaded\n         read 0: configuration still in progress'
+          comment: Configuration done
+          description: 'read 1: the bitstream has been loaded\n         read 0: configuration still in progress'
           range: 1
           x-wbgen:
             access_bus: READ_ONLY
@@ -41,8 +41,8 @@ memory-map:
             type: BIT
       - field:
           name: ERROR
-          description: Configuration error
-          comment: 'read 1: an error occured during the configuration (DONE/INIT_B timeout)\n         read 0: configuration was successful'
+          comment: Configuration error
+          description: 'read 1: an error occured during the configuration (DONE/INIT_B timeout)\n         read 0: configuration was successful'
           range: 2
           x-wbgen:
             access_bus: READ_ONLY
@@ -50,8 +50,8 @@ memory-map:
             type: BIT
       - field:
           name: BUSY
-          description: Loader busy
-          comment: 'read 1: the loader is busy (can''t start configuration yet)\n         read 0: the loader is ready to re-configure the FPGA'
+          comment: Loader busy
+          description: 'read 1: the loader is busy (can''t start configuration yet)\n         read 0: the loader is ready to re-configure the FPGA'
           range: 3
           x-wbgen:
             access_bus: READ_ONLY
@@ -59,8 +59,8 @@ memory-map:
             type: BIT
       - field:
           name: MSBF
-          description: Byte order select
-          comment: 'write 1: MSB first (big endian host)\n         write 0: LSB first (little endian host)'
+          comment: Byte order select
+          description: 'write 1: MSB first (big endian host)\n         write 0: LSB first (little endian host)'
           range: 4
           x-wbgen:
             access_bus: READ_WRITE
@@ -68,22 +68,22 @@ memory-map:
             type: BIT
       - field:
           name: SWRST
-          description: Software resest
-          comment: 'write 1: resets the loader core\n         write 0: no effect'
+          comment: Software resest
+          description: 'write 1: resets the loader core\n         write 0: no effect'
           range: 5
           x-wbgen:
             type: MONOSTABLE
       - field:
           name: EXIT
-          description: Exit bootloader mode
-          comment: 'write 1: terminate bootloader mode and go passive (VME only)'
+          comment: Exit bootloader mode
+          description: 'write 1: terminate bootloader mode and go passive (VME only)'
           range: 6
           x-wbgen:
             type: MONOSTABLE
       - field:
           name: CLKDIV
-          description: Serial clock divider
-          comment: CCLK division ratio. CCLK frequency = F_sysclk / 2 / (CLKDIV + 1)
+          comment: Serial clock divider
+          description: CCLK division ratio. CCLK frequency = F_sysclk / 2 / (CLKDIV + 1)
           range: 13-8
           x-wbgen:
             access_bus: READ_WRITE
@@ -91,14 +91,14 @@ memory-map:
             type: SLV
       - field:
           name: VERSION
-          description: Bootloader version
+          comment: Bootloader version
           range: 21-14
           preset: 0x3
           x-wbgen:
             type: CONSTANT
   - reg:
       name: BTRIGR
-      description: Bootloader Trigger Register
+      comment: Bootloader Trigger Register
       width: 32
       access: wo
       address: 0x4
@@ -107,19 +107,19 @@ memory-map:
       children:
       - field:
           name: value
-          description: Trigger Sequence Input
-          comment: Write a sequence of 0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe to enter bootloader mode (VME only)
+          comment: Trigger Sequence Input
+          description: Write a sequence of 0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe to enter bootloader mode (VME only)
           range: 7-0
           x-wbgen:
-            field_comment: Write a sequence of 0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe to enter bootloader mode (VME only)
-            field_description: Trigger Sequence Input
+            field_comment: Trigger Sequence Input
+            field_description: Write a sequence of 0xde, 0xad, 0xbe, 0xef, 0xca, 0xfe, 0xba, 0xbe to enter bootloader mode (VME only)
             type: PASS_THROUGH
           x-hdl:
             type: wire
   - reg:
       name: FAR
-      description: Flash Access Register
-      comment: Provides direct access to the SPI flash memory containing the bitstream.
+      comment: Flash Access Register
+      description: Provides direct access to the SPI flash memory containing the bitstream.
       width: 32
       access: rw
       address: 0x8
@@ -128,8 +128,8 @@ memory-map:
       children:
       - field:
           name: DATA
-          description: SPI Data
-          comment: Data to be written / read to/from the flash SPI controller.
+          comment: SPI Data
+          description: Data to be written / read to/from the flash SPI controller.
           range: 7-0
           x-wbgen:
             access_bus: READ_WRITE
@@ -138,8 +138,8 @@ memory-map:
             type: SLV
       - field:
           name: XFER
-          description: SPI Start Transfer
-          comment: 'write 1: initiate an SPI transfer with an 8-bit data word taken from the <code>DATA</code>field\n         write 0: no effect'
+          comment: SPI Start Transfer
+          description: 'write 1: initiate an SPI transfer with an 8-bit data word taken from the <code>DATA</code>field\n         write 0: no effect'
           range: 8
           x-wbgen:
             access_bus: READ_WRITE
@@ -147,8 +147,8 @@ memory-map:
             type: BIT
       - field:
           name: READY
-          description: SPI Ready
-          comment: 'read 1: Core is ready to initiate another transfer. DATA field contains the data read during previous transaction.\nread 0: core is busy'
+          comment: SPI Ready
+          description: 'read 1: Core is ready to initiate another transfer. DATA field contains the data read during previous transaction.\nread 0: core is busy'
           range: 9
           x-wbgen:
             access_bus: READ_ONLY
@@ -156,8 +156,8 @@ memory-map:
             type: BIT
       - field:
           name: CS
-          description: SPI Chip Select
-          comment: 'write 1: Enable target SPI controller\nwrite 0: Disable target SPI controller'
+          comment: SPI Chip Select
+          description: 'write 1: Enable target SPI controller\nwrite 0: Disable target SPI controller'
           range: 10
           x-wbgen:
             access_bus: READ_WRITE
@@ -165,20 +165,20 @@ memory-map:
             type: BIT
   - reg:
       name: IDR
-      description: ID Register
-      comment: User-defined identification code (g_idr_value generic)
+      comment: ID Register
+      description: User-defined identification code (g_idr_value generic)
       width: 32
       access: ro
       address: 0xc
       x-wbgen:
         access_bus: READ_ONLY
         access_dev: WRITE_ONLY
-        field_comment: User-defined identification code (g_idr_value generic)
-        field_description: Identification code
+        field_comment: Identification code
+        field_description: User-defined identification code (g_idr_value generic)
         type: SLV
   - block:
       name: FIFO
-      description: Bitstream FIFO
+      comment: Bitstream FIFO
       address: 0x10
       align: False
       size: 12
@@ -191,42 +191,42 @@ memory-map:
       children:
       - reg:
           name: FIFO_r0
-          description: 'FIFO ''Bitstream FIFO'' data input register 0'
+          comment: 'FIFO ''Bitstream FIFO'' data input register 0'
           width: 32
           access: wo
           address: 0x0
           children:
           - field:
               name: XSIZE
-              description: Entry size
-              comment: Number of bytes to send (0 = 1 byte .. 3 = full 32-bit word)
+              comment: Entry size
+              description: Number of bytes to send (0 = 1 byte .. 3 = full 32-bit word)
               range: 1-0
               x-wbgen:
                 type: SLV
           - field:
               name: XLAST
-              description: Last xfer
-              comment: 'write 1: indicates the last word to be written to the FPGA'
+              comment: Last xfer
+              description: 'write 1: indicates the last word to be written to the FPGA'
               range: 2
               x-wbgen:
                 type: BIT
       - reg:
           name: FIFO_r1
-          description: 'FIFO ''Bitstream FIFO'' data input register 1'
+          comment: 'FIFO ''Bitstream FIFO'' data input register 1'
           width: 32
           access: wo
           address: 0x4
           children:
           - field:
               name: XDATA
-              description: Data
-              comment: Subsequent words of the bitstream
+              comment: Data
+              description: Subsequent words of the bitstream
               range: 31-0
               x-wbgen:
                 type: SLV
       - reg:
           name: FIFO_csr
-          description: 'FIFO ''Bitstream FIFO'' control/status register'
+          comment: 'FIFO ''Bitstream FIFO'' control/status register'
           width: 32
           access: rw
           address: 0x8
@@ -235,32 +235,32 @@ memory-map:
           children:
           - field:
               name: full
-              description: FIFO full flag
-              comment: '1: FIFO ''Bitstream FIFO'' is full\n0: FIFO is not full'
+              comment: FIFO full flag
+              description: '1: FIFO ''Bitstream FIFO'' is full\n0: FIFO is not full'
               range: 16
               x-wbgen:
                 kind: full
                 type: BIT
           - field:
               name: empty
-              description: FIFO empty flag
-              comment: '1: FIFO ''Bitstream FIFO'' is empty\n0: FIFO is not empty'
+              comment: FIFO empty flag
+              description: '1: FIFO ''Bitstream FIFO'' is empty\n0: FIFO is not empty'
               range: 17
               x-wbgen:
                 kind: empty
                 type: BIT
           - field:
               name: clear_bus
-              description: FIFO clear
-              comment: 'write 1: clears FIFO ''Bitstream FIFO\nwrite 0: no effect'
+              comment: FIFO clear
+              description: 'write 1: clears FIFO ''Bitstream FIFO\nwrite 0: no effect'
               range: 18
               x-wbgen:
                 kind: clear_bus
                 type: BIT
           - field:
               name: count
-              description: FIFO counter
-              comment: 'Number of data records currently being stored in FIFO ''Bitstream FIFO'''
+              comment: FIFO counter
+              description: 'Number of data records currently being stored in FIFO ''Bitstream FIFO'''
               range: 7-0
               x-wbgen:
                 kind: count

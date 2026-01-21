@@ -85,8 +85,8 @@ memory-map:
       include: True
   - reg:
       name: control
-      description: Control
       comment: Multiplexed by functSel register value
+      description: Control
       width: 32
       access: rw
       address: next
@@ -102,8 +102,8 @@ memory-map:
             auto-clear: 1
       - field:
           name: clrFaults
-          description: Clear fault flags
           comment: not implemented yet
+          description: Clear fault flags
           range: 1
           x-gena:
             auto-clear: 1
@@ -188,8 +188,8 @@ memory-map:
           range: 31-16
   - reg:
       name: acqControl
-      description: Acquisition control
       comment: Multiplexed by acqChanSel register value
+      description: Acquisition control
       width: 32
       access: rw
       address: next
@@ -226,8 +226,8 @@ memory-map:
             name: acqControl_decimation
   - reg:
       name: acqStatus
-      description: Acquisition status
       comment: Multiplexed by acqChanSel register value
+      description: Acquisition status
       width: 32
       access: ro
       address: next
@@ -277,8 +277,8 @@ memory-map:
           range: 26
   - reg:
       name: acqLength
-      description: Acquisition length in samples
       comment: Multiplexed by acqChanSel register value
+      description: Acquisition length in samples
       width: 32
       access: rw
       address: next
@@ -293,8 +293,8 @@ memory-map:
         unit: samples
   - reg:
       name: acqFrzAddr
-      description: Acquisition freeze address
       comment: Multiplexed by acqChanSel register value
+      description: Acquisition freeze address
       width: 32
       access: ro
       address: next
@@ -309,8 +309,8 @@ memory-map:
         unit: bytes
   - reg:
       name: acqRateH1
-      description: acquisition rate for horizontal decimation 
       comment: Multiplexed by acqChanSel register value
+      description: acquisition rate for horizontal decimation 
       width: 32
       access: rw
       address: next
@@ -329,8 +329,8 @@ memory-map:
           range: 15-0
   - reg:
       name: acqRateH2
-      description: acquisition rate for horizontal decimation 
       comment: Multiplexed by acqChanSel register value
+      description: acquisition rate for horizontal decimation 
       width: 32
       access: rw
       address: next
@@ -353,8 +353,8 @@ memory-map:
           range: 23-0
   - reg:
       name: acqRateV
-      description: acquisition rate for vertical decimation 
       comment: Multiplexed by acqChanSel register value
+      description: acquisition rate for vertical decimation 
       width: 32
       access: rw
       address: next

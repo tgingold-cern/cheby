@@ -1,7 +1,7 @@
 memory-map:
   name: reg1
-  description: register test 1
-  comment: A simple register
+  comment: register test 1
+  description: A simple register
   bus: wb-32-be
   x-wbgen:
     hdl_entity: reg1
@@ -18,16 +18,16 @@ memory-map:
   children:
   - reg:
       name: R1
-      description: Register 1
-      comment: Register 1 has two fields
+      comment: Register 1
+      description: Register 1 has two fields
       width: 32
       access: rw
       address: 0x0
       children:
       - field:
           name: reset
-          description: Reset bit
-          comment: 1 to reset
+          comment: Reset bit
+          description: 1 to reset
           range: 0
           x-wbgen:
             access_bus: READ_WRITE
@@ -35,8 +35,8 @@ memory-map:
             type: BIT
       - field:
           name: enable
-          description: Enable
-          comment: 1 to enable device
+          comment: Enable
+          description: 1 to enable device
           range: 1
           x-wbgen:
             access_bus: READ_WRITE

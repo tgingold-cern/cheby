@@ -1,7 +1,7 @@
 memory-map:
   name: reg_noprefix2
-  description: register test w/o prefix
-  comment: A simple register
+  comment: register test w/o prefix
+  description: A simple register
   bus: wb-32-be
   x-wbgen:
     hdl_entity: reg_noprefix2
@@ -18,18 +18,18 @@ memory-map:
   children:
   - reg:
       name: R1
-      description: Register 1
-      comment: Register 1 has two fields
+      comment: Register 1
+      description: Register 1 has two fields
       width: 32
       access: rw
       address: 0x0
       children:
       - field:
           name: value
-          description: Value reg
+          comment: Value reg
           range: 3-0
           x-wbgen:
             access_bus: READ_WRITE
             access_dev: READ_ONLY
-            field_description: Value reg
+            field_comment: Value reg
             type: SLV

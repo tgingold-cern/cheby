@@ -1,6 +1,6 @@
 memory-map:
   name: ram1
-  description: Ram 1
+  comment: Ram 1
   bus: wb-32-be
   x-wbgen:
     hdl_entity: ram1
@@ -17,7 +17,7 @@ memory-map:
   children:
   - memory:
       name: ch1
-      description: Channel 1
+      comment: Channel 1
       address: 0x0
       memsize: 8192
       x-wbgen:

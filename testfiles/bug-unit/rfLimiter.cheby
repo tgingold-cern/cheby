@@ -27,8 +27,8 @@ memory-map:
       include: True
   - reg:
       name: delay
-      description: delay for automatic delay compensation (phase rotator)
       comment: 'delay with correction factor to compute the phase wrt to the FTWH1 for IQ phase rotator.\n\nFormat: Fix28_4 (internal)\n\ncorrection factor: f_clk*1e-3*H=577.5\nf_clk=125 [MHz]\nH=4630\n\nDelay resolution : 0.125ns\nMax delay : 4095.875ns\nMax register value: 4095.875*577.5*2^4  = +/-37845885\n'
+      description: delay for automatic delay compensation (phase rotator)
       width: 32
       type: signed
       access: rw
@@ -45,8 +45,8 @@ memory-map:
         write: val*577.5*pow(2.0, 4.0)
   - reg:
       name: phaseOffset
-      description: phase offset for automatic delay compensation (phase rotator)
       comment: 'delay with correction factor to compute the phase wrt to the FTWH1 for IQ phase rotator.\n\nFormat: Fix_32_4\n\ncorrection factor: f_clk*1e-3*H=577.5\nf_clk=125 [MHz]\nH=4630'
+      description: phase offset for automatic delay compensation (phase rotator)
       width: 32
       access: rw
       address: next
@@ -71,8 +71,8 @@ memory-map:
             write: val/180.0*pow(2.0, 15.0)
   - reg:
       name: gain
-      description: IQ gain applied with the automatic delay compensation (phase rotator)
       comment: 'Static gain correction applied by the phase rotator. Used to calibrate small gain error from output stage and Power amplifier\n\nRange [-2;+2[\nFormat: Fix_16_14'
+      description: IQ gain applied with the automatic delay compensation (phase rotator)
       width: 32
       access: rw
       address: next

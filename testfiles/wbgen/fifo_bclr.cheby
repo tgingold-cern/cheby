@@ -1,6 +1,6 @@
 memory-map:
   name: fifo
-  description: FIFO bclr
+  comment: FIFO bclr
   bus: wb-32-be
   x-wbgen:
     hdl_entity: fifoclr
@@ -17,7 +17,7 @@ memory-map:
   children:
   - block:
       name: fifo_bclr
-      description: fifo bus clear
+      comment: fifo bus clear
       address: 0x0
       align: False
       size: 8
@@ -29,20 +29,20 @@ memory-map:
       children:
       - reg:
           name: fifo_bclr_r0
-          description: 'FIFO ''fifo bus clear'' data input register 0'
+          comment: 'FIFO ''fifo bus clear'' data input register 0'
           width: 32
           access: wo
           address: 0x0
           children:
           - field:
               name: val
-              description: value
+              comment: value
               range: 15-0
               x-wbgen:
                 type: SLV
       - reg:
           name: fifo_bclr_csr
-          description: 'FIFO ''fifo bus clear'' control/status register'
+          comment: 'FIFO ''fifo bus clear'' control/status register'
           width: 32
           access: wo
           address: 0x4
@@ -51,8 +51,8 @@ memory-map:
           children:
           - field:
               name: clear_bus
-              description: FIFO clear
-              comment: 'write 1: clears FIFO ''fifo bus clear\nwrite 0: no effect'
+              comment: FIFO clear
+              description: 'write 1: clears FIFO ''fifo bus clear\nwrite 0: no effect'
               range: 18
               x-wbgen:
                 kind: clear_bus
