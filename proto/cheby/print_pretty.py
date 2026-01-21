@@ -119,8 +119,8 @@ def pprint_address(pp, n):
 @PrettyPrinter.register(tree.NamedNode)
 def pprint_named(pp, n):
     pp.pp_str('name', n.name)
-    pp.pp_str('description', n.description)
     pp.pp_str('comment', n.comment)
+    pp.pp_str('description', n.description)
     pp.pp_str('note', n.note)
 
 
