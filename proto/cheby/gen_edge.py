@@ -8,12 +8,15 @@ def get_extension(el, name, default=None, required=False):
     """Get the `x-driver-edge` extension for an element"""
     x = el.get_ext_node('x_driver_edge') or {}
     for n in name.split('/'):
+        if not isinstance(x, dict):
+            if required:
+                raise AssertionError('x-driver-edge/{} is required'.format(name))
+            return default
         x = x.get(n)
         if x is None:
             if required:
                 raise AssertionError('x-driver-edge/{} is required'.format(name))
-            else:
-                return default
+            return default
     return x
 
 
