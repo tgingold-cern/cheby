@@ -504,6 +504,11 @@ class Encore(object):
                     roles_table.append(reg_role=role, reg_name=r.name,
                                        block_def_name=r.block_def_name, args=args_str)
 
+        # Automatic generation of PLATFORM bus IRQ table entry
+        if bus == 'PLATFORM' and intc_table.count() > 0:
+            rsrc_table.append(res_def_name='irq', type='IRQ', res_no=0,
+                              args='', description='')
+
         # Write resource table
         rsrc_table.write(fd)
 
