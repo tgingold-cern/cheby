@@ -509,18 +509,16 @@ class Encore(object):
         # PLATFORM bus IRQ table entry
         # Note EDGE only supports one IRQ resource with res_no=0
         if bus == 'PLATFORM' and (intc_table.count() > 0 or get_extension(self.root, 'irq-resource') is not None):
-            irq_rsrc_name = get_extension(self.root, 'irq-resource/name', default='irq')
-            irq_rsrc_desc = get_extension(self.root, 'irq-resource/comment', default='IRQ resource')
-            rsrc_table.append(res_def_name=irq_rsrc_name, type='IRQ', res_no=0,
-                              args='', description=irq_rsrc_desc)
+            rsrc_table.append(res_def_name=get_extension(self.root, 'irq-resource/name', default='irq'),
+                              description=get_extension(self.root, 'irq-resource/comment', default='IRQ resource'),
+                              type='IRQ', res_no=0, args='')
 
         # PLATFORM bus DMA resource
         # Note EDGE only supports one DMA resource with res_no=0
         if bus == 'PLATFORM' and get_extension(self.root, 'dma-resource') is not None:
-            dma_rsrc_name = get_extension(self.root, 'dma-resource/name', default='dma')
-            dma_rsrc_desc = get_extension(self.root, 'dma-resource/comment', default='DMA channel resource')
-            rsrc_table.append(res_def_name=dma_rsrc_name, type='DMA', res_no=0,
-                              args='', description=dma_rsrc_desc)
+            rsrc_table.append(res_def_name=get_extension(self.root, 'dma-resource/name', default='dma'),
+                              description=get_extension(self.root, 'dma-resource/comment', default='DMA channel resource'),
+                              type='DMA', res_no=0, args='')
 
         # Write resource table
         rsrc_table.write(fd)
