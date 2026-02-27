@@ -3,3 +3,5 @@
 build/
 dist/
 proto/cheby.egg-info/
+proto/Version.py
+.pybuild/

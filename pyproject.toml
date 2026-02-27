@@ -1,0 +1,57 @@
+# SPDX-License-Identifier: LGPL-2.1-or-later
+#
+# SPDX-FileCopyrightText: 2026 CERN
+
+
+[build-system]
+requires = [
+         "setuptools>=45",
+         "setuptools-scm[toml]>=6.2"
+]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "cheby"
+authors = [
+    {name = "CERN", email = "cheby-codegen@cern.ch"},
+]
+maintainers = [
+    {name = "CERN", email = "cheby-codegen@cern.ch"},
+]
+
+description = "Generate HDL/C/Doc from HW/SW interface description"
+license = {file = "LICENSES/GPL-3.0-or-later.txt"}
+classifiers = [
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: GPL-3.0-or-later",
+    "Operating System :: Linux",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.6",
+]
+
+requires-python = ">=3.6"
+
+dependencies = [
+    "pyyaml",
+]
+
+dynamic = ["version"]
+
+[project.urls]
+homepage="https://gitlab.cern.ch/be-cem-edl/common/cheby"
+documentation="https://gitlab.cern.ch/be-cem-edl/common/cheby"
+repository = "https://gitlab.cern.ch/be-cem-edl/common/cheby.git"
+issues = "https://gitlab.cern.ch/be-cem-edl/common/cheby/-/issues"
+
+[project.scripts]
+cheby = "cheby.main:cheby.main.main"
+gena2cheby = "cheby.gena2cheby:cheby.gena2cheby.main"
+wbgen2cheby = "cheby.wbgen2cheby:cheby.wbgen2cheby.main"
+
+[tool.setuptools.packages.find]
+namespaces = true
+where = ["proto"]
+
+[tool.setuptools_scm]
+write_to = "proto/Version.py"
+version_scheme = "no-guess-dev"
