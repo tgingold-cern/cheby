@@ -1,0 +1,27 @@
+Source: cheby
+Maintainer: CERN <cheby-codegen@cern.ch>
+Section: utils
+Priority: optional
+Build-Depends:
+ debhelper-compat (= 13),
+ dh-python,
+ git,
+ python3-all,
+ python3-setuptools,
+ python3-setuptools-scm,
+ pybuild-plugin-pyproject,
+Standards-Version: 4.6.2
+Homepage: https://gitlab.cern.ch/be-cem-edl/common/cheby
+Vcs-Browser: https://gitlab.cern.ch/be-cem-edl/common/cheby
+Vcs-Git: https://gitlab.cern.ch/be-cem-edl/common/cheby.git
+
+Package: cheby
+Section: utils
+Priority: optional
+Architecture: amd64
+Depends:
+ python3-yaml,
+ ${python3:Depends},
+ ${misc:Depends}
+Description: Tool to generate HDL/C/Doc from HW/SW interface description.
+ This package provides cheby tools.
