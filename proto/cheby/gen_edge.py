@@ -359,7 +359,13 @@ def process_body(b, n, offset, res_name, name_prefix=[], block_prefix=[], name_s
         el_addr = offset + el.c_address
 
         if isinstance(el, tree.Reg):
-            b.append_reg(el, el_name, el_addr, el.access, el.c_size)
+            flags = ''
+            depth = get_extension(el, 'fifo', False)
+            if depth:
+                flags = 'FIFO'
+            else:
+                depth = 1
+            b.append_reg(el, el_name, el_addr, el.access, el.c_size, depth, flags)
 
         elif isinstance(el, tree.Memory):
             flags = ''

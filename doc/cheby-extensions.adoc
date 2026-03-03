@@ -143,7 +143,7 @@ documentation needs to be added:
 * device-info
 * interrupt-controllers
 * generate: set to False to exclude this block/reg from the driver
-* fifo
+* fifo: set FIFO depth. To be used within a reg
 * block-prefix
 * expand: set to _True_ to expand block, submap or repeat (with single reg) nodes instead of having a
 single line with increased depth
