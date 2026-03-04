@@ -1,0 +1,33 @@
+# SPDX-FileCopyrightText: 2026 CERN (home.cern)
+#
+# SPDX-License-Identifier: CERN-OHL-W-2.0+
+
+memory-map:
+  bus: axi4-lite-32
+  name: edge_fifo
+  description: FIFO depth & flag for EDGE
+  children:
+  - memory:
+      name: FIFO
+      memsize: 512
+      interface: sram
+      description: FIFO
+      x-driver-edge:
+        fifo: True
+      children:
+        - reg:
+            name: DATA
+            width: 8
+            access: rw
+
+  - reg:
+      name: FIFO_DATA
+      width: 8
+      access: rw
+      description: FIFO data
+      x-driver-edge:
+        fifo: 512
+      x-hdl:
+        type: wire
+        read-strobe: True
+        write-strobe: True
