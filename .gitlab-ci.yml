@@ -1,3 +1,12 @@
+include:
+  - project: 'be-cem-edl/evergreen/gitlab-ci'
+    ref: master
+    file: 'edl-gitlab-ci.yml'
+  - project: 'fec/fecos/fecos-releases'
+    ref: master
+    file:
+      - 'gitlab-ci/debian-packages.yml'
+
 .python_venv:
   image: registry.cern.ch/docker.io/library/python:3
   before_script:
@@ -7,7 +16,7 @@
     - pip install -r requirements.txt
 
 test_generation:
-  stage: test
+  stage: validate
   extends: .python_venv
   script:
     - cd proto
@@ -17,7 +26,7 @@ test_interaction:
   image: registry.cern.ch/ci4fpga/ghdl-mcode:dev
   tags:
     - fpga-mid
-  stage: test
+  stage: validate
   extends: .python_venv
   script:
     - cd testfiles/tb
@@ -47,3 +56,10 @@ docker-publish:
     - export IMAGE_NAME=$(if [ -z "$CI_COMMIT_TAG" ]; then echo "latest"; else echo "$CI_COMMIT_TAG"; fi)
     - /kaniko/executor --context $CI_PROJECT_DIR --dockerfile $CI_PROJECT_DIR/Dockerfile --destination $CI_REGISTRY_IMAGE:$IMAGE_NAME
 
+fecos_debian_build:
+  extends: .fecos_debian_build
+  stage: build
+
+fecos_debian_eos_publish:
+  extends: .fecos_debian_eos_publish
+  stage: release
