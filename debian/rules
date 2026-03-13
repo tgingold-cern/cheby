@@ -1,0 +1,18 @@
+#!/usr/bin/make -f
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+export prefix=/usr
+
+export PYBUILD_NAME=cheby
+pybuild_opts := --buildsystem=pybuild -- --dir $(CURDIR)/proto
+
+%:
+	dh $@ --with python3 $(pybuild_opts)
+
+.PHONY: debian/changelog
+debian/changelog:
+	rm -f $@
+	debchange --create --controlmaint \
+	    --package cheby \
+	    --newversion $(shell git describe --tags | sed 's/^v//' | cut -d '-' -f1) \
+	    --distribution unstable "Visit the project's Homepage to see its full CHANGELOG"
