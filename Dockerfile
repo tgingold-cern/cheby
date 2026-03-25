@@ -6,6 +6,7 @@ ENV DEBIAN_FRONTEND=noninteractive
 
 # Install dependencies
 RUN apt-get update && apt-get install -y ca-certificates python3-pip build-essential git
+RUN pip install --upgrade pip
 
 COPY . /cheby
 
