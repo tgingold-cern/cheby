@@ -322,8 +322,6 @@ def expand_x_hdl_submap(n, dct):
                         n.get_path()))
         elif k in ('block-prefix', 'reg-prefix'):
             pass
-        elif k == 'iogroup':
-            n.hdl_iogroup = parser.read_text(n, k, v)
         else:
             parser.error("unhandled '{}' in x-hdl of {}".format(
                 k, n.get_path()))
