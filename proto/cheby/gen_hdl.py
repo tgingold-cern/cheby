@@ -298,13 +298,17 @@ def gen_hdl_names(n, parent):
         if n.get_extension('x_hdl', 'name-prefix') is False:
             add_prefix = False
         n.h_pname = concat_if(parent.h_pname, n.name, add_prefix)
+        idx_sep = '' if not getattr(n, 'hdl_repeat_idx_separator', True) else '_'
         if n.hdl_iogroup is None:
             for c in n.children:
-                gen_hdl_names(c, n)
+                c.h_fname = concat(n.h_fname, c.name, idx_sep)
+                c.h_pname = concat_if(n.h_pname, c.name, n.hdl_blk_prefix, idx_sep)
+                for sub in c.children:
+                    gen_hdl_names(sub, c)
         else:
             for b in n.children:
                 b.h_pname = None
-                b.h_fname = concat(n.h_fname, b.name)
+                b.h_fname = concat(n.h_fname, b.name, idx_sep)
                 for c in b.children:
                     gen_hdl_names(c, b)
     elif isinstance(n, tree.Submap):
