@@ -61,6 +61,8 @@ class Unused:
                             hdltree.HDLSlice, hdltree.HDLIndex)):
             # For index: check the index is const.
             return self.extract_target(t.prefix)
+        elif isinstance(t, hdltree.HDLNestedSelect):
+            return self.extract_target(t.parent_ports)
         else:
             assert False, "extract target {}".format(t)
 
@@ -74,6 +76,8 @@ class Unused:
             self.build_expr(s, e.index)
         elif isinstance(e, (hdltree.HDLInterfaceSelect, hdltree.HDLInterfaceIndex)):
             self.build_expr(s, e.prefix)
+        elif isinstance(e, hdltree.HDLNestedSelect):
+            self.build_expr(s, e.parent_ports)
         elif isinstance(e, hdltree.HDLBinary):
             self.build_expr(s, e.left)
             self.build_expr(s, e.right)
@@ -149,6 +153,8 @@ class Unused:
                             hdltree.HDLInterfaceIndex,
                             hdltree.HDLIndex, hdltree.HDLSlice)):
             return self.is_unused(t.prefix)
+        elif isinstance(t, hdltree.HDLNestedSelect):
+            return self.is_unused(t.parent_ports)
         elif isinstance(t, (hdltree.HDLInterfaceInstance, hdltree.HDLPort)):
             assert t not in self.unused
             return False

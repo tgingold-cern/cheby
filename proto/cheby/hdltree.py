@@ -150,6 +150,16 @@ class HDLInterfaceIndex(HDLNode):
         self.index = index
 
 
+class HDLNestedSelect(HDLNode):
+    """Access path through a nested interface within a parent interface.
+    Used as h_ports when generating ports for a nested iogroup so that
+    signal accesses produce chained record selects (e.g. parent_o.nested.field)."""
+    def __init__(self, parent_ports, name):
+        super(HDLNestedSelect, self).__init__()
+        self.parent_ports = parent_ports
+        self.name = name
+
+
 class HDLPort(HDLObject):
     def __init__(self, name=None, size=None,
                  lo_idx=0, typ='L', dir='IN', default=None):
