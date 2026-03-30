@@ -75,13 +75,24 @@ class MemmapSummary(object):
             if isinstance(n, tree.Reg):
                 rng = addr_pfx + '0x{:0{w}x}'.format(n_addr, w=self.ndigits)
                 self.raws.append(SummaryRaw(rng, 'REG', name, n, n_addr))
+            elif isinstance(n, tree.RepeatBlock):
+                if n.get_extension('x_hdl', 'name-prefix') is False:
+                    self.gen_raws(n, name_pfx, addr_pfx, n_addr)
+                else:
+                    self.gen_raws(n, name + idx_sep, addr_pfx, n_addr)
             elif isinstance(n, tree.Block):
                 self.raws.append(SummaryRaw(rng, 'BLOCK', name, n, n_addr))
-                self.gen_raws(n, name + '.', addr_pfx, n_addr)
+                if n.get_extension('x_hdl', 'name-prefix') is False:
+                    self.gen_raws(n, name_pfx, addr_pfx, n_addr)
+                else:
+                    self.gen_raws(n, name + '.', addr_pfx, n_addr)
             elif isinstance(n, tree.Submap):
                 self.raws.append(SummaryRaw(rng, 'SUBMAP', name, n, n_addr))
                 if n.filename is not None:
-                    self.gen_raws(n.c_submap, name + '.', addr_pfx, n_addr)
+                    if n.get_extension('x_hdl', 'name-prefix') is False:
+                        self.gen_raws(n.c_submap, name_pfx, addr_pfx, n_addr)
+                    else:
+                        self.gen_raws(n.c_submap, name + '.', addr_pfx, n_addr)
             elif isinstance(n, tree.Memory):
                 self.raws.append(SummaryRaw(rng, 'MEMORY', name, n, n_addr))
                 self.gen_raws(n, name + '.', addr_pfx + ' +', n_addr)

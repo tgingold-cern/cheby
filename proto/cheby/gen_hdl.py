@@ -294,7 +294,10 @@ def gen_hdl_names(n, parent):
         raise AssertionError(n)
     elif isinstance(n, tree.RepeatBlock):
         n.h_fname = concat(parent.h_fname, n.name)
-        n.h_pname = concat_if(parent.h_pname, n.name, parent.hdl_blk_prefix)
+        add_prefix = parent.hdl_blk_prefix
+        if n.get_extension('x_hdl', 'name-prefix') is False:
+            add_prefix = False
+        n.h_pname = concat_if(parent.h_pname, n.name, add_prefix)
         if n.hdl_iogroup is None:
             for c in n.children:
                 gen_hdl_names(c, n)
@@ -306,7 +309,10 @@ def gen_hdl_names(n, parent):
                     gen_hdl_names(c, b)
     elif isinstance(n, tree.Submap):
         n.h_fname = concat(parent.h_fname, n.name)
-        n.h_pname = concat_if(parent.h_pname, n.name, parent.hdl_blk_prefix)
+        add_prefix = parent.hdl_blk_prefix
+        if n.get_extension('x_hdl', 'name-prefix') is False:
+            add_prefix = False
+        n.h_pname = concat_if(parent.h_pname, n.name, add_prefix)
         if n.filename is not None:
             n.c_submap.h_fname = n.h_fname
             n.c_submap.h_pname = n.h_pname
@@ -327,6 +333,8 @@ def gen_hdl_names(n, parent):
         else:
             n.h_fname = concat(parent.h_fname, n.name)
             add_prefix = parent.hdl_blk_prefix
+            if n.get_extension('x_hdl', 'name-prefix') is False:
+                add_prefix = False
             if isinstance(n, tree.Block) and n.hdl_iogroup is not None:
                 # Create an interface for this block
                 # So, do not prefix names in the interface
