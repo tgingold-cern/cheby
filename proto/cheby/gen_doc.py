@@ -80,7 +80,8 @@ class MemmapSummary(object):
                     typ = 'SUBMAP'
                     child = n.c_submap if n.filename is not None else None
                 else:
-                    typ = 'BLOCK'
+                    iogrp = getattr(n, 'hdl_iogroup', None)
+                    typ = 'BLOCK ({})'.format(iogrp) if iogrp else 'BLOCK'
                     child = n
                 self.raws.append(SummaryRaw(rng, typ, name, n, n_addr))
                 if child is not None:

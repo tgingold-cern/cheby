@@ -211,11 +211,14 @@ def expand_pipeline(n, v):
 
 def expand_x_hdl_block(n, dct):
     n.hdl_iogroup = None
+    n.hdl_iogroup_flatten = True
     for k, v in dct.items():
         if k in ('reg-prefix', 'block-prefix', 'name-prefix'):
             pass
         elif k == 'iogroup':
             n.hdl_iogroup = parser.read_text(n, k, v)
+        elif k == 'iogroup-flatten':
+            n.hdl_iogroup_flatten = parser.read_bool(n, k, v)
         else:
             parser.error("unhandled '{}' in x-hdl of {}".format(
                 k, n.get_path()))
@@ -413,6 +416,7 @@ def unroll_repeat(n):
     res.c_size = n.c_size
     res.c_align = n.c_align
     res.hdl_iogroup = n.hdl_iogroup
+    res.hdl_iogroup_flatten = getattr(n, 'hdl_iogroup_flatten', True)
     res.count = n.count
     if hasattr(n, 'x_hdl'):
         res.x_hdl = n.x_hdl
