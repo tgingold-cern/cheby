@@ -310,8 +310,7 @@ def expand_x_hdl_addressspace(n, dct):
 
 
 def expand_x_hdl_submap(n, dct):
-    n.hdl_iogroup = None
-    for k, v in dct.items():
+    for k, _ in dct.items():
         if k == 'busgroup':
             if n.include:
                 parser.warning(n, "x-hdl:busgroup for included submap '{}' is ignored".format(
@@ -353,8 +352,6 @@ def expand_x_hdl(n):
     if isinstance(n, tree.Submap):
         if n.filename is not None:
             expand_hdl(n.c_submap)
-            if getattr(n, 'hdl_iogroup', None) is not None:
-                n.c_submap.hdl_iogroup = n.hdl_iogroup
         return
     if isinstance(n, tree.CompositeNode):
         for el in n.children:
