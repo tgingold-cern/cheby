@@ -53,28 +53,35 @@ class GenBlock(ElGen):
         if self.n.hdl_iogroup is not None:
             if self.root.h_itf:
                 flatten = getattr(self.n, 'hdl_iogroup_flatten', True)
-                if not flatten and gconfig.hdl_lang == 'vhdl':
-                    # Nested iogroup: create a sub-interface within the parent record
-                    prev_itf = self.root.h_itf
-                    prev_ports = self.root.h_ports
+                if not flatten:
+                    if gconfig.hdl_lang == 'vhdl':
+                        # Nested iogroup: create a sub-interface within the parent record
+                        prev_itf = self.root.h_itf
+                        prev_ports = self.root.h_ports
 
-                    nested_itf = HDLInterface('t_' + self.n.hdl_iogroup)
-                    parent_idx = self.module.global_decls.index(prev_itf)
-                    self.module.global_decls.insert(parent_idx, nested_itf)
+                        nested_itf = HDLInterface('t_' + self.n.hdl_iogroup)
+                        parent_idx = self.module.global_decls.index(prev_itf)
+                        self.module.global_decls.insert(parent_idx, nested_itf)
 
-                    nested_name = self.n.h_pname or self.n.hdl_iogroup
-                    prev_itf.add_modport(nested_name, nested_itf, True)
+                        nested_name = self.n.h_pname or self.n.hdl_iogroup
+                        prev_itf.add_modport(nested_name, nested_itf, True)
 
-                    self.root.h_itf = nested_itf
-                    self.root.h_ports = HDLNestedSelect(prev_ports, nested_name)
+                        self.root.h_itf = nested_itf
+                        self.root.h_ports = HDLNestedSelect(prev_ports, nested_name)
 
-                    for n in self.n.children:
-                        n.h_gen.gen_ports()
+                        for n in self.n.children:
+                            n.h_gen.gen_ports()
 
-                    self.root.h_itf = prev_itf
-                    self.root.h_ports = prev_ports
-                    return
-                # else: flatten — children use parent interface as-is
+                        self.root.h_itf = prev_itf
+                        self.root.h_ports = prev_ports
+                        return
+                    else:
+                        import sys
+                        sys.stderr.write(
+                            "warning: iogroup-flatten: false on '{}' is only "
+                            "supported for VHDL, flattening for {}\n".format(
+                                self.n.get_path(), gconfig.hdl_lang))
+                # flatten — children use parent interface as-is
             else:
                 is_top_iogroup = True
                 self.root.h_itf = HDLInterface('t_' + self.n.hdl_iogroup)
