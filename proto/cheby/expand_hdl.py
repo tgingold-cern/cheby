@@ -212,7 +212,7 @@ def expand_pipeline(n, v):
 def expand_x_hdl_block(n, dct):
     n.hdl_iogroup = None
     for k, v in dct.items():
-        if k in ('reg-prefix', 'block-prefix'):
+        if k in ('reg-prefix', 'block-prefix', 'name-prefix'):
             pass
         elif k == 'iogroup':
             n.hdl_iogroup = parser.read_text(n, k, v)
@@ -244,7 +244,7 @@ def expand_x_hdl_root(n, dct):
     for k, v in dct.items():
         if k in ['busgroup',
                  'reg_prefix', 'reg-prefix', 'block_prefix', 'block-prefix',
-                 'name-suffix',
+                 'name-prefix', 'name-suffix',
                  'bus-error']:
             pass
         elif k == 'iogroup':
@@ -319,7 +319,7 @@ def expand_x_hdl_submap(n, dct):
                 parser.warning(
                     n, "x-hdl:busgroup for submap '{}' is ignored (defined by the file)".format(
                         n.get_path()))
-        elif k in ('block-prefix', 'reg-prefix'):
+        elif k in ('block-prefix', 'reg-prefix', 'name-prefix'):
             pass
         else:
             parser.error("unhandled '{}' in x-hdl of {}".format(
