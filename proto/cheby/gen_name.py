@@ -24,17 +24,17 @@ class Context(object):
         self.reg_prefix, self.blk_prefix = self.stack.pop()
 
 
-def concat(l, r):
+def concat(l, r, sep='_'):
     assert r
     if l is None:
         return r
     else:
-        return l + '_' + r
+        return l + sep + r
 
 
-def concat_if(prefix, suffix, cond):
+def concat_if(prefix, suffix, cond, sep='_'):
     if cond:
-        return concat(prefix, suffix)
+        return concat(prefix, suffix, sep)
     else:
         return prefix
 
@@ -72,7 +72,11 @@ def gen_name_children(parent, prefix, itfprefix, ctxt):
         suffix = ''
 
     for n in parent.children:
-        n.c_name = concat(prefix, n.name) + suffix
+        if isinstance(parent, tree.RepeatBlock):
+            idx_sep = '' if not getattr(parent, 'hdl_repeat_idx_separator', True) else '_'
+            n.c_name = concat(prefix, n.name, idx_sep) + suffix
+        else:
+            n.c_name = concat(prefix, n.name) + suffix
         if isinstance(n, tree.Reg):
             nprefix = concat_if(prefix, n.name, ctxt.reg_prefix)
             if nprefix is not None:

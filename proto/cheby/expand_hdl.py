@@ -212,6 +212,8 @@ def expand_pipeline(n, v):
 def expand_x_hdl_block(n, dct):
     n.hdl_iogroup = None
     n.hdl_iogroup_flatten = True
+    if isinstance(n, tree.Repeat):
+        n.hdl_repeat_idx_separator = True
     for k, v in dct.items():
         if k in ('reg-prefix', 'block-prefix', 'name-prefix'):
             pass
@@ -219,6 +221,12 @@ def expand_x_hdl_block(n, dct):
             n.hdl_iogroup = parser.read_text(n, k, v)
         elif k == 'iogroup-flatten':
             n.hdl_iogroup_flatten = parser.read_bool(n, k, v)
+        elif k == 'repeat-idx-separator':
+            if not isinstance(n, tree.Repeat):
+                parser.error(
+                    "'repeat-idx-separator' is only valid on repeat nodes in {}".format(
+                        n.get_path()))
+            n.hdl_repeat_idx_separator = parser.read_bool(n, k, v)
         else:
             parser.error("unhandled '{}' in x-hdl of {}".format(
                 k, n.get_path()))
@@ -418,6 +426,7 @@ def unroll_repeat(n):
     res.hdl_iogroup = n.hdl_iogroup
     res.hdl_iogroup_flatten = getattr(n, 'hdl_iogroup_flatten', True)
     res.count = n.count
+    res.hdl_repeat_idx_separator = getattr(n, 'hdl_repeat_idx_separator', True)
     if hasattr(n, 'x_hdl'):
         res.x_hdl = n.x_hdl
     for i in range(n.count):

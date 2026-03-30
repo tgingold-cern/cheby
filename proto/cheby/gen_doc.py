@@ -93,7 +93,11 @@ class MemmapSummary(object):
                         next_name_pfx = name_pfx
                         next_hdl_pfx = hdl_pfx
                     else:
-                        next_name_pfx = name + '.'
+                        if isinstance(n, tree.RepeatBlock):
+                            idx_sep = '.' if getattr(n, 'hdl_repeat_idx_separator', True) else ''
+                            next_name_pfx = name + idx_sep
+                        else:
+                            next_name_pfx = name + '.'
                         next_hdl_pfx = hdl_name + '_'
                     if iogrp and not flatten:
                         next_hdl_pfx = (hdl_pfx if hdl_pfx else '') + iogrp + '.'
