@@ -319,6 +319,8 @@ def expand_x_hdl_submap(n, dct):
                 parser.warning(
                     n, "x-hdl:busgroup for submap '{}' is ignored (defined by the file)".format(
                         n.get_path()))
+        elif k in ('block-prefix', 'reg-prefix'):
+            pass
         else:
             parser.error("unhandled '{}' in x-hdl of {}".format(
                 k, n.get_path()))
