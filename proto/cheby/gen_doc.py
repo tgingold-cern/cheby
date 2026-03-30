@@ -79,7 +79,7 @@ class MemmapSummary(object):
                 if n.get_extension('x_hdl', 'name-prefix') is False:
                     self.gen_raws(n, name_pfx, addr_pfx, n_addr)
                 else:
-                    self.gen_raws(n, name + idx_sep, addr_pfx, n_addr)
+                    self.gen_raws(n, name + '.', addr_pfx, n_addr)
             elif isinstance(n, tree.Block):
                 self.raws.append(SummaryRaw(rng, 'BLOCK', name, n, n_addr))
                 if n.get_extension('x_hdl', 'name-prefix') is False:
