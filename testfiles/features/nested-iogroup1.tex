@@ -4,8 +4,8 @@ Test nested iogroups (iogroup-flatten false)
 \begin{memmap}
 0x0 & REG & \hyperref[sec:areg]{areg} & areg\\
 0x8-0xf & BLOCK (blk_regs) & blk & blk\\
-0x8 & REG & \hyperref[sec:blk.breg1]{blk.\allowbreak{}breg1} & blk\_\allowbreak{}breg1\\
-0xc & REG & \hyperref[sec:blk.breg2]{blk.\allowbreak{}breg2} & blk\_\allowbreak{}breg2\\
+0x8 & REG & \hyperref[sec:blk.breg1]{blk.\allowbreak{}breg1} & blk\_\allowbreak{}regs.\allowbreak{}breg1\\
+0xc & REG & \hyperref[sec:blk.breg2]{blk.\allowbreak{}breg2} & blk\_\allowbreak{}regs.\allowbreak{}breg2\\
 \end{memmap}
 
 \section{Register Description}
@@ -38,7 +38,7 @@ Access & read/write\\
 \subsubsection{blk.\allowbreak{}breg1}
 \label{sec:blk.breg1}
 \begin{regsummary}
-HW Prefix & blk\_\allowbreak{}breg1\\
+HW Prefix & blk\_\allowbreak{}regs.\allowbreak{}breg1\\
 HW Address & 0x8\\
 C Prefix & blk.\allowbreak{}breg1\\
 C Block Offset & 0x0\\
@@ -64,7 +64,7 @@ Access & read/write\\
 \subsubsection{blk.\allowbreak{}breg2}
 \label{sec:blk.breg2}
 \begin{regsummary}
-HW Prefix & blk\_\allowbreak{}breg2\\
+HW Prefix & blk\_\allowbreak{}regs.\allowbreak{}breg2\\
 HW Address & 0xc\\
 C Prefix & blk.\allowbreak{}breg2\\
 C Block Offset & 0x4\\
