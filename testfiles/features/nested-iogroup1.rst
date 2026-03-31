@@ -4,17 +4,17 @@ Memory Map Summary
 
 Test nested iogroups (iogroup-flatten false)
 
-+------------+------------------+-----------+-----------+
-| HW address | Type             | Name      | HDL Name  |
-+------------+------------------+-----------+-----------+
-| 0x0        | REG              | areg      | areg      |
-+------------+------------------+-----------+-----------+
-| 0x8-0xf    | BLOCK (blk_regs) | blk       | blk       |
-+------------+------------------+-----------+-----------+
-| 0x8        | REG              | blk.breg1 | blk_breg1 |
-+------------+------------------+-----------+-----------+
-| 0xc        | REG              | blk.breg2 | blk_breg2 |
-+------------+------------------+-----------+-----------+
++------------+------------------+-----------+----------------+
+| HW address | Type             | Name      | HDL Name       |
++------------+------------------+-----------+----------------+
+| 0x0        | REG              | areg      | areg           |
++------------+------------------+-----------+----------------+
+| 0x8-0xf    | BLOCK (blk_regs) | blk       | blk            |
++------------+------------------+-----------+----------------+
+| 0x8        | REG              | blk.breg1 | blk_regs.breg1 |
++------------+------------------+-----------+----------------+
+| 0xc        | REG              | blk.breg2 | blk_regs.breg2 |
++------------+------------------+-----------+----------------+
 
 Registers Description
 =====================
@@ -49,7 +49,7 @@ Register: areg
 Register: blk.breg1
 -------------------
 
-* HW Prefix: blk_breg1
+* HW Prefix: blk_regs.breg1
 * HW Address: 0x8
 * C Prefix: blk.breg1
 * C Block Offset: 0x0
@@ -76,7 +76,7 @@ Register: blk.breg1
 Register: blk.breg2
 -------------------
 
-* HW Prefix: blk_breg2
+* HW Prefix: blk_regs.breg2
 * HW Address: 0xc
 * C Prefix: blk.breg2
 * C Block Offset: 0x4

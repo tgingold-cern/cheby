@@ -39,7 +39,7 @@ def print_reg(fd, r, raw, heading, hide_comments=False, print_reg_drawing=True):
     wln(fd, heading * len(title))
     wln(fd)
 
-    wln(fd, "* HW Prefix: {}".format(r.c_name))
+    wln(fd, "* HW Prefix: {}".format(raw.hdl_name if raw.hdl_name else r.c_name))
     wln(fd, "* HW Address: 0x{:x}".format(raw.abs_addr))
     wln(fd, "* C Prefix: {}".format(raw.name))
     wln(fd, "* C Block Offset: 0x{:x}".format(r.c_address))
@@ -96,7 +96,7 @@ def print_map_summary(fd, summary):
         t.append(["{}".format(r.address),
                   "{}".format(r.typ),
                   "{}".format(r.name),
-                  "{}".format(r.node.c_name)])
+                  "{}".format(r.hdl_name if r.hdl_name else r.node.c_name)])
     wtable(fd, t)
     wln(fd)
 

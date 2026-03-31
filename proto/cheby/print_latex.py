@@ -51,7 +51,7 @@ def print_reg(fd, r, raw, hide_comments=False, print_reg_drawing=True):
 
     # Register Summary
     wln(fd, "\\begin{regsummary}")
-    wln(fd, "HW Prefix & {}\\\\".format(escape_printable(r.c_name)))
+    wln(fd, "HW Prefix & {}\\\\".format(escape_printable(raw.hdl_name if raw.hdl_name else r.c_name)))
     wln(fd, "HW Address & 0x{:x}\\\\".format(raw.abs_addr))
     wln(fd, "C Prefix & {}\\\\".format(escape_printable(raw.name)))
     wln(fd, "C Block Offset & 0x{:x}\\\\".format(r.c_address))
@@ -140,7 +140,7 @@ def print_map_summary(fd, summary):
             w(fd, "\\hyperref[sec:{}]{{{}}} & ".format(r.name, escape_printable(r.name)))
         else:
             w(fd, "{} & ".format(escape_printable(r.name)))
-        w(fd, "{}".format(escape_printable(r.node.c_name)))
+        w(fd, "{}".format(escape_printable(r.hdl_name if r.hdl_name else r.node.c_name)))
         wln(fd, '\\\\')
     wln(fd, "\\end{memmap}")
     wln(fd)
