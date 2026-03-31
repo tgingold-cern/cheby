@@ -1,0 +1,81 @@
+memory-map:
+  bus: wb-32-be
+  name: name_prefix_test
+  description: Test for x-hdl name-prefix attribute
+  children:
+  - block:
+      name: regs
+      description: Top-level registers (name-prefix kept, default)
+      children:
+      - reg:
+          name: status
+          width: 32
+          access: ro
+          description: Status register
+          children:
+          - field:
+              name: ready
+              range: 0
+              description: Ready flag
+          - field:
+              name: error
+              range: 1
+              description: Error flag
+      - reg:
+          name: control
+          width: 32
+          access: rw
+          description: Control register
+          children:
+          - field:
+              name: enable
+              range: 0
+              description: Enable bit
+          - field:
+              name: reset
+              range: 1
+              description: Reset bit
+  - block:
+      name: grouping_blk
+      description: Block used only for address grouping, name should not appear in identifiers
+      x-hdl:
+        name-prefix: false
+      children:
+      - reg:
+          name: cfg
+          width: 32
+          access: rw
+          description: Configuration register (HDL name should be cfg, not grouping_blk_cfg)
+          children:
+          - field:
+              name: mode
+              range: 1-0
+              description: Operating mode
+          - field:
+              name: prescaler
+              range: 15-8
+              description: Clock prescaler value
+      - reg:
+          name: threshold
+          width: 32
+          access: rw
+          description: Threshold register (HDL name should be threshold, not grouping_blk_threshold)
+          children:
+          - field:
+              name: value
+              range: 15-0
+              description: Threshold value
+  - block:
+      name: normal_blk
+      description: Normal block with prefix kept (default behaviour)
+      children:
+      - reg:
+          name: data
+          width: 32
+          access: rw
+          description: Data register (HDL name should be normal_blk_data)
+          children:
+          - field:
+              name: value
+              range: 31-0
+              description: Data value

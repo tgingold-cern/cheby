@@ -95,6 +95,9 @@ def gen_name_children(parent, prefix, itfprefix, ctxt):
                     # exported as ports.
                     ctxt.check_field_name(f)
         elif isinstance(n, tree.CompositeNode):
+            # Non-inherited per-node option: when false, this node's name
+            # is excluded from the prefix passed to descendants
+            n_name_prefix = n.get_extension('x_hdl', 'name-prefix')
             # Also deal with interface names, although this is specific to hdl
             # TODO: it is the best place for that ?
             if n.get_extension('x_hdl', 'iogroup', None):
@@ -103,9 +106,14 @@ def gen_name_children(parent, prefix, itfprefix, ctxt):
             elif isinstance(parent, tree.RepeatBlock):
                 # Do not add index for repeat blocks.
                 n.c_itfname = itfprefix
+            elif n_name_prefix is False:
+                n.c_itfname = itfprefix
             else:
                 n.c_itfname = concat_if(itfprefix, n.name, ctxt.blk_prefix)
-            nprefix = n.c_name if ctxt.blk_prefix else prefix
+            if n_name_prefix is False:
+                nprefix = prefix
+            else:
+                nprefix = n.c_name if ctxt.blk_prefix else prefix
             # print("n.c_name: {}, n.c_itfname: {}, prefix: {}, nprefix: {}".format(n.c_name, n.c_itfname, prefix, nprefix))
             if isinstance(n, tree.Submap):
                 if n.filename is not None:
