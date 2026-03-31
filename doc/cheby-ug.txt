@@ -257,6 +257,13 @@ This attribute is inherited.
 `block-prefix`:: If false, discard block prefix, in order to create shorter
 names.  This attribute is inherited.
 
+`name-prefix`:: If false on a block, repeat or submap, the node's own name is
+excluded from the prefix used to generate HDL identifiers and documentation
+names for its descendants.  Unlike `block-prefix`, this attribute is *not*
+inherited: it only affects the single node where it is set.  This is useful
+when a block exists purely for address grouping and its name should not appear
+in the generated signal names.
+
 `pipeline`:: Finely define the pipelining.  In case of timing closure issues,
 you can set this value to "all".  Possible values are "rd-in", "rd-out",
 "wr-in", "wr-out".  Values starting with "wr-" act on signals for write
@@ -506,8 +513,11 @@ It is possible to reserve space at the end of a block with the `size`
 attribute.  It specifies the size (in bytes) of the block. The suffixes k, M
 and G are allowed.
 
-The `block-prefix` and `reg-prefix` attributes are available within `x-hdl`,
-to control name generation.
+The `block-prefix`, `reg-prefix` and `name-prefix` attributes are available
+within `x-hdl`, to control name generation.  While `block-prefix` and
+`reg-prefix` are inherited by all descendants, `name-prefix` only affects the
+single node where it is set: when false, that node's name is removed from the
+prefix passed to its children.
 
 Example of a block:
 
@@ -522,6 +532,24 @@ Example of a block:
            access: wo
            width: 32
 ----
+
+Example using `name-prefix` to suppress the block name from identifiers:
+
+[source]
+----
+    - block:
+        name: grouping_blk
+        x-hdl:
+          name-prefix: false
+        children:
+        - reg:
+           name: ctrl
+           access: rw
+           width: 32
+----
+
+In this example, the generated HDL signal name for the register will be
+`ctrl` rather than `grouping_blk_ctrl`.
 
 === RAMs
 
