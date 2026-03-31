@@ -68,50 +68,98 @@ class MemmapSummary(object):
     def gen_raws(self, parent, name_pfx, addr_pfx, addr_base, hdl_pfx):
         "Fill raws (list of SummaryRaw)"
         for n in parent.c_sorted_children:
-            # Need to compute address for external submap.
             n_addr = addr_base + n.c_address
             rng = addr_pfx + '0x{:0{w}x}-0x{:0{w}x}'.format(
                 n_addr, n_addr + n.c_size - 1, w=self.ndigits)
             name = name_pfx + n.name
-            hdl_name = hdl_pfx + n.name if hdl_pfx else n.name
+            hdl = (hdl_pfx + n.name) if hdl_pfx else ''
             if isinstance(n, tree.Reg):
                 rng = addr_pfx + '0x{:0{w}x}'.format(n_addr, w=self.ndigits)
-                self.raws.append(SummaryRaw(rng, 'REG', name, n, n_addr, hdl_name))
-            elif isinstance(n, (tree.RepeatBlock, tree.Block, tree.Submap)):
-                if isinstance(n, tree.Submap):
-                    typ = 'SUBMAP'
-                    child = n.c_submap if n.filename is not None else None
+                self.raws.append(SummaryRaw(
+                    rng, 'REG', name, n, n_addr,
+                    hdl_name=hdl or None))
+            elif isinstance(n, tree.RepeatBlock):
+                iogrp = getattr(n, 'hdl_iogroup', None)
+                flatten = getattr(n, 'hdl_iogroup_flatten', True)
+                indexing = getattr(n, 'hdl_repeat_indexing', False)
+                idx_sep = getattr(n, 'hdl_repeat_idx_separator', None)
+                if idx_sep is None:
+                    # Keep historical doc naming by default.
+                    idx_sep = '.'
+                if iogrp and not flatten and indexing:
+                    typ = 'REPEAT [0..{}] ({})'.format(
+                        len(n.children) - 1, iogrp)
+                    self.raws.append(SummaryRaw(
+                        rng, typ, name, n, n_addr,
+                        hdl_name=iogrp))
+                    for i, child in enumerate(n.children):
+                        self.gen_raws(
+                            child, "{}{}{}.".format(name, idx_sep, i),
+                            addr_pfx, n_addr + child.c_address,
+                            '{}{}({}).'.format(hdl_pfx, iogrp, i))
+                elif iogrp and not flatten:
+                    typ = 'REPEAT ({})'.format(iogrp)
+                    self.raws.append(SummaryRaw(
+                        rng, typ, name, n, n_addr,
+                        hdl_name=iogrp))
+                    for i, child in enumerate(n.children):
+                        self.gen_raws(
+                            child, "{}{}{}.".format(name, idx_sep, i),
+                            addr_pfx, n_addr + child.c_address,
+                            '{}{}.'.format(hdl_pfx, iogrp))
+                elif indexing:
+                    typ = 'REPEAT [0..{}]'.format(len(n.children) - 1)
+                    self.raws.append(SummaryRaw(
+                        rng, typ, name, n, n_addr,
+                        hdl_name=name))
+                    for i, child in enumerate(n.children):
+                        self.gen_raws(
+                            child, "{}{}{}.".format(name, idx_sep, i),
+                            addr_pfx, n_addr + child.c_address,
+                            '{}{}({}).'.format(hdl_pfx, n.name, i))
                 else:
-                    iogrp = getattr(n, 'hdl_iogroup', None)
+                    typ = 'REPEAT ({})'.format(iogrp) if iogrp else 'REPEAT'
+                    self.raws.append(SummaryRaw(rng, typ, name, n, n_addr))
+                    for i, child in enumerate(n.children):
+                        self.gen_raws(
+                            child, "{}{}{}.".format(name, idx_sep, i),
+                            addr_pfx, n_addr + child.c_address, hdl_pfx)
+            elif isinstance(n, tree.Block):
+                iogrp = getattr(n, 'hdl_iogroup', None)
+                flatten = getattr(n, 'hdl_iogroup_flatten', True)
+                skip_name = n.get_extension('x_hdl', 'name-prefix') is False
+                next_name = name_pfx if skip_name else name + '.'
+                if iogrp and not flatten:
+                    typ = 'BLOCK ({})'.format(iogrp)
+                    self.raws.append(SummaryRaw(
+                        rng, typ, name, n, n_addr,
+                        hdl_name=iogrp))
+                    self.gen_raws(
+                        n, next_name, addr_pfx, n_addr,
+                        '{}{}.'.format(hdl_pfx, iogrp))
+                else:
                     typ = 'BLOCK ({})'.format(iogrp) if iogrp else 'BLOCK'
-                    child = n
-                self.raws.append(SummaryRaw(rng, typ, name, n, n_addr, hdl_name))
-                if child is not None:
-                    flatten = getattr(n, 'hdl_iogroup_flatten', True)
-                    iogrp = getattr(n, 'hdl_iogroup', None)
-                    if n.get_extension('x_hdl', 'name-prefix') is False:
-                        next_name_pfx = name_pfx
-                        next_hdl_pfx = hdl_pfx
-                    else:
-                        if isinstance(n, tree.RepeatBlock):
-                            idx_sep = getattr(n, 'hdl_repeat_idx_separator', None)
-                            if idx_sep is None:
-                                idx_sep = '.'
-                            next_name_pfx = name + idx_sep
-                        else:
-                            next_name_pfx = name + '.'
-                        next_hdl_pfx = hdl_name + '_'
-                    if iogrp and not flatten:
-                        next_hdl_pfx = (hdl_pfx if hdl_pfx else '') + iogrp + '.'
-                    self.gen_raws(child, next_name_pfx, addr_pfx, n_addr, next_hdl_pfx)
+                    self.raws.append(SummaryRaw(rng, typ, name, n, n_addr))
+                    self.gen_raws(n, next_name, addr_pfx, n_addr, hdl_pfx)
+            elif isinstance(n, tree.Submap):
+                self.raws.append(SummaryRaw(rng, 'SUBMAP', name, n, n_addr))
+                if n.filename is not None:
+                    skip_name = n.get_extension('x_hdl', 'name-prefix') is False
+                    next_name = name_pfx if skip_name else name + '.'
+                    self.gen_raws(n.c_submap, next_name, addr_pfx, n_addr, hdl_pfx)
             elif isinstance(n, tree.Memory):
-                self.raws.append(SummaryRaw(rng, 'MEMORY', name, n, n_addr, hdl_name))
-                self.gen_raws(n, name + '.', addr_pfx + ' +', n_addr, hdl_name + '_')
+                self.raws.append(SummaryRaw(rng, 'MEMORY', name, n, n_addr))
+                self.gen_raws(
+                    n, name + '.', addr_pfx + ' +', n_addr, hdl_pfx)
             elif isinstance(n, tree.Repeat):
                 if n.count and n.c_elsize:
-                    self.raws.append(SummaryRaw(rng, "REPEAT", name, n, n_addr, hdl_name))
+                    iogrp = getattr(n, 'hdl_iogroup', None)
+                    typ = 'REPEAT ({})'.format(iogrp) if iogrp else 'REPEAT'
+                    self.raws.append(SummaryRaw(rng, typ, name, n, n_addr))
                     for i in range(n.count):
-                        self.gen_raws(n, f"{name}.{i}.", addr_pfx,
-                                      n_addr + i * n.c_elsize, f"{hdl_name}_{i}_")
+                        self.gen_raws(
+                            n, "{}.{}.".format(name, i),
+                            addr_pfx, n_addr + i * n.c_elsize, hdl_pfx)
             else:
-                print(f"MemmapSummary: implementation for tree node of type {type(n)} is missing. Skipping it.")
+                print("MemmapSummary: implementation for tree node of "
+                      "type {} is missing. Skipping it.".format(type(n)))

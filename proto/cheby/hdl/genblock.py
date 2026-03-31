@@ -117,31 +117,69 @@ class GenRepeatBlock(GenBlock):
        It has as many Block children as the repeat count"""
     def gen_ports(self):
         if self.n.hdl_iogroup is not None:
-            # Create only one port (the modport array)
-            # Save current interface
-            prev_itf = self.root.h_itf
-            prev_ports = self.root.h_ports
+            flatten = getattr(self.n, 'hdl_iogroup_flatten', True)
+            indexing = getattr(self.n, 'hdl_repeat_indexing', False)
 
-            itf = HDLInterface('t_' + self.n.hdl_iogroup)
-            itf_arr = HDLInterfaceArray(itf, self.n.count)
+            if not flatten and indexing and self.root.h_itf:
+                if gconfig.hdl_lang == 'vhdl':
+                    self._gen_ports_nested_array()
+                else:
+                    import sys
+                    sys.stderr.write(
+                        "warning: iogroup-flatten: false on '{}' is only "
+                        "supported for VHDL, flattening for {}\n".format(
+                            self.n.get_path(), gconfig.hdl_lang))
+                    self._gen_ports_flat()
+                return
 
-            # Set new interface to build.
-            self.root.h_itf = itf_arr
-            self.module.global_decls.append(itf_arr)
-            ports_arr = self.module.add_modport(self.n.hdl_iogroup, itf_arr, is_master=True)
-            c = self.n.origin
-            ports_arr.comment = "\n" + (c.comment or "REPEAT {}".format(c.name))
-
-            # Create each port (when first_index is True), and
-            # expand all ports.
-            for i, n in enumerate(self.n.children):
-                itf_arr.first_index = (i == 0)
-                self.root.h_ports = HDLInterfaceIndex(ports_arr, i)
-                n.h_gen.gen_ports()
-
-            # Retore interface
-            self.root.h_itf = prev_itf
-            self.root.h_ports = prev_ports
+            self._gen_ports_flat()
         else:
             for n in self.n.children:
                 n.h_gen.gen_ports()
+
+    def _gen_ports_nested_array(self):
+        """Nested array iogroup: add array-of-records as a sub-field
+        of the parent interface (e.g. top_regmap_o.dac_regmap(0).field)."""
+        prev_itf = self.root.h_itf
+        prev_ports = self.root.h_ports
+
+        itf = HDLInterface('t_' + self.n.hdl_iogroup)
+        itf_arr = HDLInterfaceArray(itf, self.n.count)
+
+        parent_idx = self.module.global_decls.index(prev_itf)
+        self.module.global_decls.insert(parent_idx, itf_arr)
+
+        nested_name = self.n.hdl_iogroup
+        prev_itf.add_modport(nested_name, itf_arr, True)
+
+        self.root.h_itf = itf_arr
+        for i, n in enumerate(self.n.children):
+            itf_arr.first_index = (i == 0)
+            self.root.h_ports = HDLInterfaceIndex(
+                HDLNestedSelect(prev_ports, nested_name), i)
+            n.h_gen.gen_ports()
+
+        self.root.h_itf = prev_itf
+        self.root.h_ports = prev_ports
+
+    def _gen_ports_flat(self):
+        """Default: create a separate module-level array port."""
+        prev_itf = self.root.h_itf
+        prev_ports = self.root.h_ports
+
+        itf = HDLInterface('t_' + self.n.hdl_iogroup)
+        itf_arr = HDLInterfaceArray(itf, self.n.count)
+
+        self.root.h_itf = itf_arr
+        self.module.global_decls.append(itf_arr)
+        ports_arr = self.module.add_modport(self.n.hdl_iogroup, itf_arr, is_master=True)
+        c = self.n.origin
+        ports_arr.comment = "\n" + (c.comment or "REPEAT {}".format(c.name))
+
+        for i, n in enumerate(self.n.children):
+            itf_arr.first_index = (i == 0)
+            self.root.h_ports = HDLInterfaceIndex(ports_arr, i)
+            n.h_gen.gen_ports()
+
+        self.root.h_itf = prev_itf
+        self.root.h_ports = prev_ports
