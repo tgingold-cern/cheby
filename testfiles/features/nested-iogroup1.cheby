@@ -1,0 +1,25 @@
+memory-map:
+  bus: wb-32-be
+  name: nested_iogroup1
+  description: Test nested iogroups (iogroup-flatten false)
+  x-hdl:
+    iogroup: regs
+  children:
+    - reg:
+        name: areg
+        width: 32
+        access: rw
+    - block:
+        name: blk
+        x-hdl:
+          iogroup: blk_regs
+          iogroup-flatten: false
+        children:
+        - reg:
+            name: breg1
+            width: 32
+            access: rw
+        - reg:
+            name: breg2
+            width: 32
+            access: ro
