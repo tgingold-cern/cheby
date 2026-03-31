@@ -82,8 +82,7 @@ class MemmapSummary(object):
                 else:
                     typ = 'BLOCK'
                     child = n
-                if not isinstance(n, tree.RepeatBlock):
-                    self.raws.append(SummaryRaw(rng, typ, name, n, n_addr))
+                self.raws.append(SummaryRaw(rng, typ, name, n, n_addr))
                 if child is not None:
                     if n.get_extension('x_hdl', 'name-prefix') is False:
                         self.gen_raws(child, name_pfx, addr_pfx, n_addr)
