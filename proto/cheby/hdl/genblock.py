@@ -88,10 +88,10 @@ class GenBlock(ElGen):
                 first_iogroup = not self.root.h_itf_added
                 if first_iogroup:
                     self.root.h_itf_added = True
-                self.module.global_decls.append(self.root.h_itf)
+                    self.module.global_decls.append(self.root.h_itf)
                 self.root.h_ports = self.module.add_modport(
                     self.n.h_pname or self.n.hdl_iogroup, self.root.h_itf, True)
-                if first_iogroup:
+                if first_iogroup and self.n is self.root:
                     self.root.h_ports.comment = "Wires and registers"
 
         for n in self.n.children:
