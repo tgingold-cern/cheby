@@ -94,7 +94,9 @@ class MemmapSummary(object):
                         next_hdl_pfx = hdl_pfx
                     else:
                         if isinstance(n, tree.RepeatBlock):
-                            idx_sep = '.' if getattr(n, 'hdl_repeat_idx_separator', True) else ''
+                            idx_sep = getattr(n, 'hdl_repeat_idx_separator', None)
+                            if idx_sep is None:
+                                idx_sep = '.'
                             next_name_pfx = name + idx_sep
                         else:
                             next_name_pfx = name + '.'

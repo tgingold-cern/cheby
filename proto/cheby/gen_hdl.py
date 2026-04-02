@@ -298,7 +298,9 @@ def gen_hdl_names(n, parent):
         if n.get_extension('x_hdl', 'name-prefix') is False:
             add_prefix = False
         n.h_pname = concat_if(parent.h_pname, n.name, add_prefix)
-        idx_sep = '' if not getattr(n, 'hdl_repeat_idx_separator', True) else '_'
+        idx_sep = getattr(n, 'hdl_repeat_idx_separator', None)
+        if idx_sep is None:
+            idx_sep = '_'
         if n.hdl_iogroup is None:
             for c in n.children:
                 c.h_fname = concat(n.h_fname, c.name, idx_sep)

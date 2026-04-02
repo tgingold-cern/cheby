@@ -73,7 +73,9 @@ def gen_name_children(parent, prefix, itfprefix, ctxt):
 
     for n in parent.children:
         if isinstance(parent, tree.RepeatBlock):
-            idx_sep = '' if not getattr(parent, 'hdl_repeat_idx_separator', True) else '_'
+            idx_sep = getattr(parent, 'hdl_repeat_idx_separator', None)
+            if idx_sep is None:
+                idx_sep = '_'
             n.c_name = concat(prefix, n.name, idx_sep) + suffix
         else:
             n.c_name = concat(prefix, n.name) + suffix
