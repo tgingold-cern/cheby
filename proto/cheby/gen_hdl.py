@@ -301,7 +301,7 @@ def gen_hdl_names(n, parent):
         idx_sep = getattr(n, 'hdl_repeat_idx_separator', None)
         if idx_sep is None:
             idx_sep = '_'
-        if n.hdl_iogroup is None:
+        if n.hdl_iogroup is None and not getattr(n, 'hdl_repeat_indexing', False):
             for c in n.children:
                 c.h_fname = concat(n.h_fname, c.name, idx_sep)
                 c.h_pname = concat_if(n.h_pname, c.name, n.hdl_blk_prefix, idx_sep)

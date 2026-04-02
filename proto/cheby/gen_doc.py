@@ -86,17 +86,24 @@ class MemmapSummary(object):
                 if idx_sep is None:
                     # Keep historical doc naming by default.
                     idx_sep = '.'
-                if iogrp and not flatten and indexing:
-                    typ = 'REPEAT [0..{}] ({})'.format(
-                        len(n.children) - 1, iogrp)
+                if indexing:
+                    if iogrp and not flatten:
+                        summary_hdl_name = iogrp
+                        hdl_repeat_name = '{}{}'.format(hdl_pfx, iogrp)
+                        typ = 'REPEAT [0..{}] ({})'.format(
+                            len(n.children) - 1, iogrp)
+                    else:
+                        hdl_repeat_name = hdl or n.name
+                        summary_hdl_name = hdl_repeat_name
+                        typ = 'REPEAT [0..{}]'.format(len(n.children) - 1)
                     self.raws.append(SummaryRaw(
                         rng, typ, name, n, n_addr,
-                        hdl_name=iogrp))
+                        hdl_name=summary_hdl_name))
                     for i, child in enumerate(n.children):
                         self.gen_raws(
                             child, "{}{}{}.".format(name, idx_sep, i),
                             addr_pfx, n_addr + child.c_address,
-                            '{}{}({}).'.format(hdl_pfx, iogrp, i))
+                            '{}({}).'.format(hdl_repeat_name, i))
                 elif iogrp and not flatten:
                     typ = 'REPEAT ({})'.format(iogrp)
                     self.raws.append(SummaryRaw(
@@ -107,16 +114,6 @@ class MemmapSummary(object):
                             child, "{}{}{}.".format(name, idx_sep, i),
                             addr_pfx, n_addr + child.c_address,
                             '{}{}.'.format(hdl_pfx, iogrp))
-                elif indexing:
-                    typ = 'REPEAT [0..{}]'.format(len(n.children) - 1)
-                    self.raws.append(SummaryRaw(
-                        rng, typ, name, n, n_addr,
-                        hdl_name=name))
-                    for i, child in enumerate(n.children):
-                        self.gen_raws(
-                            child, "{}{}{}.".format(name, idx_sep, i),
-                            addr_pfx, n_addr + child.c_address,
-                            '{}{}({}).'.format(hdl_pfx, n.name, i))
                 else:
                     typ = 'REPEAT ({})'.format(iogrp) if iogrp else 'REPEAT'
                     self.raws.append(SummaryRaw(rng, typ, name, n, n_addr))

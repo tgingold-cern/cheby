@@ -115,23 +115,31 @@ class GenBlock(ElGen):
 class GenRepeatBlock(GenBlock):
     """Generate code for a RepeatBlock which replaces a 'repeat' node.
        It has as many Block children as the repeat count"""
+    def _repeat_port_name(self):
+        return self.n.hdl_iogroup or self.n.h_pname or self.n.name
+
+    def _repeat_type_name(self):
+        return 't_' + self._repeat_port_name()
+
     def gen_ports(self):
-        if self.n.hdl_iogroup is not None:
-            flatten = getattr(self.n, 'hdl_iogroup_flatten', True)
-            indexing = getattr(self.n, 'hdl_repeat_indexing', False)
+        flatten = getattr(self.n, 'hdl_iogroup_flatten', True)
+        indexing = getattr(self.n, 'hdl_repeat_indexing', False)
+        has_iogroup = self.n.hdl_iogroup is not None
 
-            if not flatten and indexing and self.root.h_itf:
-                if gconfig.hdl_lang == 'vhdl':
-                    self._gen_ports_nested_array()
-                else:
-                    import sys
-                    sys.stderr.write(
-                        "warning: iogroup-flatten: false on '{}' is only "
-                        "supported for VHDL, flattening for {}\n".format(
-                            self.n.get_path(), gconfig.hdl_lang))
-                    self._gen_ports_flat()
-                return
+        if indexing:
+            if self.root.h_itf:
+                self._gen_ports_nested_array()
+            else:
+                self._gen_ports_flat()
+            return
 
+        if has_iogroup:
+            if not flatten and self.root.h_itf and gconfig.hdl_lang != 'vhdl':
+                import sys
+                sys.stderr.write(
+                    "warning: iogroup-flatten: false on '{}' is only "
+                    "supported for VHDL, flattening for {}\n".format(
+                        self.n.get_path(), gconfig.hdl_lang))
             self._gen_ports_flat()
         else:
             for n in self.n.children:
@@ -143,13 +151,13 @@ class GenRepeatBlock(GenBlock):
         prev_itf = self.root.h_itf
         prev_ports = self.root.h_ports
 
-        itf = HDLInterface('t_' + self.n.hdl_iogroup)
+        itf = HDLInterface(self._repeat_type_name())
         itf_arr = HDLInterfaceArray(itf, self.n.count)
 
         parent_idx = self.module.global_decls.index(prev_itf)
         self.module.global_decls.insert(parent_idx, itf_arr)
 
-        nested_name = self.n.hdl_iogroup
+        nested_name = self._repeat_port_name()
         prev_itf.add_modport(nested_name, itf_arr, True)
 
         self.root.h_itf = itf_arr
@@ -167,12 +175,12 @@ class GenRepeatBlock(GenBlock):
         prev_itf = self.root.h_itf
         prev_ports = self.root.h_ports
 
-        itf = HDLInterface('t_' + self.n.hdl_iogroup)
+        itf = HDLInterface(self._repeat_type_name())
         itf_arr = HDLInterfaceArray(itf, self.n.count)
 
         self.root.h_itf = itf_arr
         self.module.global_decls.append(itf_arr)
-        ports_arr = self.module.add_modport(self.n.hdl_iogroup, itf_arr, is_master=True)
+        ports_arr = self.module.add_modport(self._repeat_port_name(), itf_arr, is_master=True)
         c = self.n.origin
         ports_arr.comment = "\n" + (c.comment or "REPEAT {}".format(c.name))
 

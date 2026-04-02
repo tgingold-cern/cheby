@@ -266,6 +266,8 @@ def generate_expr(e, prio=-1):
         return "{}.{}".format(generate_expr(e.prefix), e.subport.name)
     elif isinstance(e, hdltree.HDLInterfaceIndex):
         return "{}[{}]".format(generate_expr(e.prefix), e.index)
+    elif isinstance(e, hdltree.HDLNestedSelect):
+        return "{}.{}".format(generate_expr(e.parent_ports), e.name)
     elif isinstance(e, hdltree.HDLInterfaceInstance):
         return "{}".format(e.name)
     else:
