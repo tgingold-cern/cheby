@@ -375,6 +375,7 @@ def test_hdl():
                 print_vhdl.print_vhdl(fd, h)
         nbr_tests += 1
 
+
 def expand_hdl_err(t):
     try:
         expand_hdl.expand_hdl(t)
@@ -455,6 +456,7 @@ def test_hdl_ref():
               'features/iogroup1', 'features/iogroup2', 'features/repeat-iogroup1',
               'features/repeat-iogroup2', 'features/repeat-iogroup3',
               'features/repeat-iogroup4', 'features/nested-iogroup1',
+              'features/repeat_idx_separator',
               'features/no_port', 'features/memwide',
               'issue52/hwInfo',
               'bug-gen_wt/m1',
@@ -1091,7 +1093,7 @@ def test_doc():
     # Generate html and md, compare with a baseline.
     global nbr_tests
     for f in ['issue9/test', 'features/semver1', 'issue84/sps200CavityControl_as', 'issue67/repeatInRepeat',
-              'features/nested-iogroup1']:
+              'features/nested-iogroup1', 'features/repeat_idx_separator']:
         if args.verbose:
             print('test doc: {}'.format(f))
         chebfile = srcdir + f + '.cheby'

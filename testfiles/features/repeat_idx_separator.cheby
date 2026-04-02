@@ -1,0 +1,33 @@
+memory-map:
+  bus: wb-32-be
+  name: repeat_idx_separator
+  description: Test repeat index separator behavior
+  children:
+    - repeat:
+        name: rep0
+        count: 2
+        children:
+          - reg:
+              name: r
+              width: 32
+              access: rw
+    - repeat:
+        name: rep1
+        count: 2
+        x-hdl:
+          repeat-idx-separator: ""
+        children:
+          - reg:
+              name: r
+              width: 32
+              access: rw
+    - repeat:
+        name: rep2
+        count: 2
+        x-hdl:
+          repeat-idx-separator: "-"
+        children:
+          - reg:
+              name: r
+              width: 32
+              access: rw
