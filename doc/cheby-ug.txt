@@ -256,6 +256,11 @@ instead of being merged into the parent interface.  This allows hierarchical
 access such as `top_regs_o.sub_regs.field`.  The default is `true`.
 Only supported for VHDL; ignored for Verilog and SystemVerilog.
 
+`repeat-idx-separator`:: For `repeat` nodes, sets the string used between the
+repeat name and the expanded index when generating names.  The default is `_`.
+Set it to an empty string (`""`) to disable the separator.  Any other string
+value can be used as a custom separator.
+
 `reg-prefix`:: If false, discard register prefix and every prefix before
 register.  So only the name of the field is kept. This creates shorter names.
 This attribute is inherited.
@@ -644,6 +649,33 @@ Example of a replication:
         children:
           - reg:
               name: areg1
+              access: rw
+              width: 32
+----
+
+For generated names, the separator between the repeat name and the index can
+be controlled with `x-hdl.repeat-idx-separator` on the repeat node.  By
+default it is `_`; setting `""` removes the separator.
+
+Examples of generated HDL prefixes for `name: chan`, `count: 2`,
+and `name: cfg`:
+
+* default separator (`_`): `chan_0_cfg`, `chan_1_cfg`
+* no separator (`""`): `chan0_cfg`, `chan1_cfg`
+* custom separator (`"-"`): `chan-0_cfg`, `chan-1_cfg`
+
+Example with separator disabled:
+
+[source]
+----
+    - repeat:
+        name: chan
+        count: 2
+        x-hdl:
+          repeat-idx-separator: ""
+        children:
+          - reg:
+              name: cfg
               access: rw
               width: 32
 ----
