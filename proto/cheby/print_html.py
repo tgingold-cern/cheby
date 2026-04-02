@@ -99,7 +99,7 @@ def print_regdescr_reg(_periph, pfx, raw, num, hide_comments=False):
 <tr><td><b>C block offset:</b></td><td class="td_code">0x{caddr:x}</td></tr>
 </table>
 '''.format(pfx=pfx, n=num, cprefix=raw.name,
-           hdlprefix=r.c_name,
+           hdlprefix=raw.hdl_name if raw.hdl_name else r.c_name,
            addr=raw.abs_addr, caddr=r.c_address,
            name=raw.name)
 
@@ -171,7 +171,7 @@ def print_summary_html(_periph, summary):
 <td class="td_code">{cprefix}</td>
 </tr>\n'''.format(typ=r.typ, odd_even=odd_even[0], address=r.address,
                   cprefix=r.name, name=r.name,
-                  hdlprefix=r.node.c_name)
+                  hdlprefix=r.hdl_name if r.hdl_name else r.node.c_name)
         odd_even = [odd_even[1], odd_even[0]]
     res += '</table>\n'
     return res

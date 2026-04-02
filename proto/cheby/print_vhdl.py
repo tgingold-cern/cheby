@@ -74,7 +74,13 @@ def generate_port(fd, p, indent):
 
 def generate_interface_port(fd, itf, dirn, indent):
     for p in itf.ports:
-        if p.dir == dirn:
+        if isinstance(p, hdltree.HDLInterfaceInstance):
+            sub_in, sub_out = has_in_out(p.interface, False)
+            if (dirn == 'OUT' and sub_out) or (dirn == 'IN' and sub_in):
+                nam = get_interface_name(p.interface, p.is_master, dirn == 'OUT')
+                windent(fd, indent + 1)
+                wln(fd, "{:<16} : {};".format(p.name, nam))
+        elif p.dir == dirn:
             windent(fd, indent + 1)
             wln(fd, "{:<16} : {};".format(p.name, generate_vhdl_type(p)))
 
@@ -86,7 +92,11 @@ def has_in_out(itf, reverse):
     has_input = False
     has_output = False
     for p in itf.ports:
-        if p.dir == 'IN':
+        if isinstance(p, hdltree.HDLInterfaceInstance):
+            sub_in, sub_out = has_in_out(p.interface, False)
+            has_input = has_input or sub_in
+            has_output = has_output or sub_out
+        elif p.dir == 'IN':
             has_input = True
         elif p.dir == 'OUT':
             has_output = True
@@ -218,6 +228,9 @@ def generate_name_interface(itf, dirn):
         return "{}_{}".format(itf.name, sfx)
     elif isinstance(itf, hdltree.HDLInterfaceIndex):
         return "{}({})".format(generate_name_interface(itf.prefix, dirn), itf.index)
+    elif isinstance(itf, hdltree.HDLNestedSelect):
+        return "{}.{}".format(
+            generate_name_interface(itf.parent_ports, dirn), itf.name)
     else:
         raise AssertionError(itf)
 

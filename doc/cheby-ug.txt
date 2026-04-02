@@ -250,6 +250,12 @@ value is a boolean.
 will also generate a package to declare the records.  The value of this
 attribute is the name of the port.
 
+`iogroup-flatten`:: When set to `false` on a block or repeat that also has
+an `iogroup` attribute, the signals are grouped into a nested VHDL record
+instead of being merged into the parent interface.  This allows hierarchical
+access such as `top_regs_o.sub_regs.field`.  The default is `true`.
+Only supported for VHDL; ignored for Verilog and SystemVerilog.
+
 `reg-prefix`:: If false, discard register prefix and every prefix before
 register.  So only the name of the field is kept. This creates shorter names.
 This attribute is inherited.
@@ -550,6 +556,43 @@ Example using `name-prefix` to suppress the block name from identifiers:
 
 In this example, the generated HDL signal name for the register will be
 `ctrl` rather than `grouping_blk_ctrl`.
+
+When a child block or repeat declares its own `iogroup` inside a parent
+that also has one, setting `iogroup-flatten` to `false` generates a nested
+VHDL record instead of flat signals.
+
+Example of a nested iogroup:
+
+[source]
+----
+memory-map:
+  bus: wb-32-be
+  name: nested_iogroup1
+  x-hdl:
+    iogroup: regs
+  children:
+    - reg:
+        name: areg
+        width: 32
+        access: rw
+    - block:
+        name: blk
+        x-hdl:
+          iogroup: blk_regs
+          iogroup-flatten: false
+        children:
+        - reg:
+            name: breg1
+            width: 32
+            access: rw
+        - reg:
+            name: breg2
+            width: 32
+            access: ro
+----
+
+The registers of `blk` are then accessed as `regs_o.blk_regs.breg1` and
+`regs_o.blk_regs.breg2`.
 
 === RAMs
 

@@ -5,7 +5,8 @@ from cheby.hdl.genreg import GenReg
 from cheby.hdl.geninterface import GenInterface
 from cheby.hdl.genmemory import GenMemory
 from cheby.hdl.gensubmap import GenSubmap
-from cheby.hdltree import HDLInterface, HDLInterfaceArray, HDLInterfaceIndex
+from cheby.hdltree import HDLInterface, HDLInterfaceArray, HDLInterfaceIndex, HDLNestedSelect
+from cheby.hdl.globals import gconfig
 import cheby.tree as tree
 from cheby.layout import ilog2
 
@@ -47,27 +48,56 @@ class GenBlock(ElGen):
             n.h_gen.create_generators()
 
     def gen_ports(self):
+        is_top_iogroup = False
+
         if self.n.hdl_iogroup is not None:
             if self.root.h_itf:
-                # There is already an interface being defined.
-                print("nested interface is ignored")
-                self.root.hdl_iogroup = None
+                flatten = getattr(self.n, 'hdl_iogroup_flatten', True)
+                if not flatten:
+                    if gconfig.hdl_lang == 'vhdl':
+                        # Nested iogroup: create a sub-interface within the parent record
+                        prev_itf = self.root.h_itf
+                        prev_ports = self.root.h_ports
+
+                        nested_itf = HDLInterface('t_' + self.n.hdl_iogroup)
+                        parent_idx = self.module.global_decls.index(prev_itf)
+                        self.module.global_decls.insert(parent_idx, nested_itf)
+
+                        nested_name = self.n.h_pname or self.n.hdl_iogroup
+                        prev_itf.add_modport(nested_name, nested_itf, True)
+
+                        self.root.h_itf = nested_itf
+                        self.root.h_ports = HDLNestedSelect(prev_ports, nested_name)
+
+                        for n in self.n.children:
+                            n.h_gen.gen_ports()
+
+                        self.root.h_itf = prev_itf
+                        self.root.h_ports = prev_ports
+                        return
+                    else:
+                        import sys
+                        sys.stderr.write(
+                            "warning: iogroup-flatten: false on '{}' is only "
+                            "supported for VHDL, flattening for {}\n".format(
+                                self.n.get_path(), gconfig.hdl_lang))
+                # flatten — children use parent interface as-is
             else:
+                is_top_iogroup = True
                 self.root.h_itf = HDLInterface('t_' + self.n.hdl_iogroup)
-                if not self.root.h_itf_added:
-                    # FIXME: should re-use the existing interface
+                first_iogroup = not self.root.h_itf_added
+                if first_iogroup:
                     self.root.h_itf_added = True
                     self.module.global_decls.append(self.root.h_itf)
-                # Use h_pname for a port but iogroup for top-level.
                 self.root.h_ports = self.module.add_modport(
                     self.n.h_pname or self.n.hdl_iogroup, self.root.h_itf, True)
-                if isinstance(self.n, tree.Root):
+                if first_iogroup and self.n is self.root:
                     self.root.h_ports.comment = "Wires and registers"
 
         for n in self.n.children:
             n.h_gen.gen_ports()
 
-        if self.n.hdl_iogroup is not None:
+        if is_top_iogroup:
             self.root.h_itf = None
             self.root.h_ports = self.module
 
