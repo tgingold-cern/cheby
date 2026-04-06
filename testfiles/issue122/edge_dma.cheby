@@ -1,0 +1,24 @@
+memory-map:
+  bus: wb-32-be
+  name: test
+  x-driver-edge:
+    driver-version: 1.0.0
+    schema-version: 4.1
+    bus-type: PLATFORM
+    endianness: little
+    device-info:
+      vendor-id: 0xFF000000
+      device-id: 0x0
+    dma-resource: True
+  children:
+    - address-space:
+        name: registers
+        children:
+          - block:
+              name: block
+              size: 2048
+              children:
+                - reg:
+                    name: test
+                    width: 32
+                    access: ro
