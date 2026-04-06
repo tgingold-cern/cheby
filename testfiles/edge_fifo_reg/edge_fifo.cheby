@@ -1,0 +1,29 @@
+memory-map:
+  bus: axi4-lite-32
+  name: edge_fifo
+  description: FIFO depth & flag for EDGE
+  x-driver-edge:
+    driver-version: 0.1.0
+    schema-version: 4.1
+    bus-type: PCI
+    endianness: big
+    device-info:
+      vendor-id: 0x10DC
+      device-id: 0x01d8
+  children:
+    - address-space:
+        name: bar0
+        comment: AXI4-Lite, FIFO
+        x-driver-edge:
+          number: 0
+          addr-mode: A32
+          data-width: 32
+        children:
+          - submap:
+              name: ip
+              comment: the ip
+              address: 0x0
+              include: true
+              filename: ip_fifo.cheby
+              x-driver-edge:
+                include: false

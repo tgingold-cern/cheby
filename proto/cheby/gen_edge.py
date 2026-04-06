@@ -302,7 +302,13 @@ class Encore(object):
             el_addr = offset + el.c_address
 
             if isinstance(el, tree.Reg):
-                b.append_reg(el, el_name, el_addr, el.access, el.c_size)
+                flags = ''
+                depth = get_extension(el, 'fifo', False)
+                if depth:
+                    flags = 'FIFO'
+                else:
+                    depth = 1
+                b.append_reg(el, el_name, el_addr, el.access, el.c_size, depth, flags)
 
             elif isinstance(el, tree.Memory):
                 flags = ''

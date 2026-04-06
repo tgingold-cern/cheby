@@ -3,3 +3,15 @@
 build/
 dist/
 proto/cheby.egg-info/
+proto/Version.py
+.pybuild/
+
+*.build
+*.deb
+*.changes
+*.buildinfo
+debian/*
+!debian/control
+!debian/copyright
+!debian/rules
+!debian/*.lintian-overrides
