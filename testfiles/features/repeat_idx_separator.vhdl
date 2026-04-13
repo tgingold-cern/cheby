@@ -31,10 +31,10 @@ entity repeat_idx_separator is
     rep11_r_o            : out   std_logic_vector(31 downto 0);
 
     -- REG r
-    rep2-0_r_o           : out   std_logic_vector(31 downto 0);
+    rep2_0_r_o           : out   std_logic_vector(31 downto 0);
 
     -- REG r
-    rep2-1_r_o           : out   std_logic_vector(31 downto 0)
+    rep2_1_r_o           : out   std_logic_vector(31 downto 0)
   );
 end repeat_idx_separator;
 
@@ -59,12 +59,12 @@ architecture syn of repeat_idx_separator is
   signal rep11_r_reg                    : std_logic_vector(31 downto 0);
   signal rep11_r_wreq                   : std_logic;
   signal rep11_r_wack                   : std_logic;
-  signal rep2-0_r_reg                   : std_logic_vector(31 downto 0);
-  signal rep2-0_r_wreq                  : std_logic;
-  signal rep2-0_r_wack                  : std_logic;
-  signal rep2-1_r_reg                   : std_logic_vector(31 downto 0);
-  signal rep2-1_r_wreq                  : std_logic;
-  signal rep2-1_r_wack                  : std_logic;
+  signal rep2_0_r_reg                   : std_logic_vector(31 downto 0);
+  signal rep2_0_r_wreq                  : std_logic;
+  signal rep2_0_r_wack                  : std_logic;
+  signal rep2_1_r_reg                   : std_logic_vector(31 downto 0);
+  signal rep2_1_r_wreq                  : std_logic;
+  signal rep2_1_r_wack                  : std_logic;
   signal rd_ack_d0                      : std_logic;
   signal rd_dat_d0                      : std_logic_vector(31 downto 0);
   signal wr_req_d0                      : std_logic;
@@ -182,31 +182,31 @@ begin
     end if;
   end process;
 
-  -- Register rep2-0_r
-  rep2-0_r_o <= rep2-0_r_reg;
-  rep2-0_r_wack <= rep2-0_r_wreq;
+  -- Register rep2_0_r
+  rep2_0_r_o <= rep2_0_r_reg;
+  rep2_0_r_wack <= rep2_0_r_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
-        rep2-0_r_reg <= "00000000000000000000000000000000";
+        rep2_0_r_reg <= "00000000000000000000000000000000";
       else
-        if rep2-0_r_wreq = '1' then
-          rep2-0_r_reg <= wr_dat_d0;
+        if rep2_0_r_wreq = '1' then
+          rep2_0_r_reg <= wr_dat_d0;
         end if;
       end if;
     end if;
   end process;
 
-  -- Register rep2-1_r
-  rep2-1_r_o <= rep2-1_r_reg;
-  rep2-1_r_wack <= rep2-1_r_wreq;
+  -- Register rep2_1_r
+  rep2_1_r_o <= rep2_1_r_reg;
+  rep2_1_r_wack <= rep2_1_r_wreq;
   process (clk_i) begin
     if rising_edge(clk_i) then
       if rst_n_i = '0' then
-        rep2-1_r_reg <= "00000000000000000000000000000000";
+        rep2_1_r_reg <= "00000000000000000000000000000000";
       else
-        if rep2-1_r_wreq = '1' then
-          rep2-1_r_reg <= wr_dat_d0;
+        if rep2_1_r_wreq = '1' then
+          rep2_1_r_reg <= wr_dat_d0;
         end if;
       end if;
     end if;
@@ -214,13 +214,13 @@ begin
 
   -- Process for write requests.
   process (wr_adr_d0, wr_req_d0, rep0_0_r_wack, rep0_1_r_wack, rep10_r_wack,
-           rep11_r_wack, rep2-0_r_wack, rep2-1_r_wack) begin
+           rep11_r_wack, rep2_0_r_wack, rep2_1_r_wack) begin
     rep0_0_r_wreq <= '0';
     rep0_1_r_wreq <= '0';
     rep10_r_wreq <= '0';
     rep11_r_wreq <= '0';
-    rep2-0_r_wreq <= '0';
-    rep2-1_r_wreq <= '0';
+    rep2_0_r_wreq <= '0';
+    rep2_1_r_wreq <= '0';
     case wr_adr_d0(4 downto 2) is
     when "000" =>
       -- Reg rep0_0_r
@@ -239,13 +239,13 @@ begin
       rep11_r_wreq <= wr_req_d0;
       wr_ack_int <= rep11_r_wack;
     when "100" =>
-      -- Reg rep2-0_r
-      rep2-0_r_wreq <= wr_req_d0;
-      wr_ack_int <= rep2-0_r_wack;
+      -- Reg rep2_0_r
+      rep2_0_r_wreq <= wr_req_d0;
+      wr_ack_int <= rep2_0_r_wack;
     when "101" =>
-      -- Reg rep2-1_r
-      rep2-1_r_wreq <= wr_req_d0;
-      wr_ack_int <= rep2-1_r_wack;
+      -- Reg rep2_1_r
+      rep2_1_r_wreq <= wr_req_d0;
+      wr_ack_int <= rep2_1_r_wack;
     when others =>
       wr_ack_int <= wr_req_d0;
     end case;
@@ -253,7 +253,7 @@ begin
 
   -- Process for read requests.
   process (wb_adr_i, rd_req_int, rep0_0_r_reg, rep0_1_r_reg, rep10_r_reg,
-           rep11_r_reg, rep2-0_r_reg, rep2-1_r_reg) begin
+           rep11_r_reg, rep2_0_r_reg, rep2_1_r_reg) begin
     -- By default ack read requests
     rd_dat_d0 <= (others => 'X');
     case wb_adr_i(4 downto 2) is
@@ -274,13 +274,13 @@ begin
       rd_ack_d0 <= rd_req_int;
       rd_dat_d0 <= rep11_r_reg;
     when "100" =>
-      -- Reg rep2-0_r
+      -- Reg rep2_0_r
       rd_ack_d0 <= rd_req_int;
-      rd_dat_d0 <= rep2-0_r_reg;
+      rd_dat_d0 <= rep2_0_r_reg;
     when "101" =>
-      -- Reg rep2-1_r
+      -- Reg rep2_1_r
       rd_ack_d0 <= rd_req_int;
-      rd_dat_d0 <= rep2-1_r_reg;
+      rd_dat_d0 <= rep2_1_r_reg;
     when others =>
       rd_ack_d0 <= rd_req_int;
     end case;

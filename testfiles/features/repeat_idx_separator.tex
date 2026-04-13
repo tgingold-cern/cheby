@@ -13,10 +13,10 @@ Test repeat index separator behavior
 0x0c-0x0f & BLOCK & rep11 & rep1\_\allowbreak{}1\\
 0x0c & REG & \hyperref[sec:rep11.r]{rep11.\allowbreak{}r} & rep1\_\allowbreak{}1\_\allowbreak{}r\\
 0x10-0x17 & BLOCK & rep2 & rep2\\
-0x10-0x13 & BLOCK & rep2-0 & rep2\_\allowbreak{}0\\
-0x10 & REG & \hyperref[sec:rep2-0.r]{rep2-0.\allowbreak{}r} & rep2\_\allowbreak{}0\_\allowbreak{}r\\
-0x14-0x17 & BLOCK & rep2-1 & rep2\_\allowbreak{}1\\
-0x14 & REG & \hyperref[sec:rep2-1.r]{rep2-1.\allowbreak{}r} & rep2\_\allowbreak{}1\_\allowbreak{}r\\
+0x10-0x13 & BLOCK & rep2\_\allowbreak{}0 & rep2\_\allowbreak{}0\\
+0x10 & REG & \hyperref[sec:rep2_0.r]{rep2\_\allowbreak{}0.\allowbreak{}r} & rep2\_\allowbreak{}0\_\allowbreak{}r\\
+0x14-0x17 & BLOCK & rep2\_\allowbreak{}1 & rep2\_\allowbreak{}1\\
+0x14 & REG & \hyperref[sec:rep2_1.r]{rep2\_\allowbreak{}1.\allowbreak{}r} & rep2\_\allowbreak{}1\_\allowbreak{}r\\
 \end{memmap}
 
 \section{Register Description}
@@ -124,12 +124,12 @@ Access & read/write\\
 \end{regdesc}
 
 
-\subsubsection{rep2-0.\allowbreak{}r}
-\label{sec:rep2-0.r}
+\subsubsection{rep2\_\allowbreak{}0.\allowbreak{}r}
+\label{sec:rep2_0.r}
 \begin{regsummary}
 HW Prefix & rep2\_\allowbreak{}0\_\allowbreak{}r\\
 HW Address & 0x10\\
-C Prefix & rep2-0.\allowbreak{}r\\
+C Prefix & rep2\_\allowbreak{}0.\allowbreak{}r\\
 C Block Offset & 0x0\\
 Access & read/write\\
 \end{regsummary}
@@ -150,12 +150,12 @@ Access & read/write\\
 \end{regdesc}
 
 
-\subsubsection{rep2-1.\allowbreak{}r}
-\label{sec:rep2-1.r}
+\subsubsection{rep2\_\allowbreak{}1.\allowbreak{}r}
+\label{sec:rep2_1.r}
 \begin{regsummary}
 HW Prefix & rep2\_\allowbreak{}1\_\allowbreak{}r\\
 HW Address & 0x14\\
-C Prefix & rep2-1.\allowbreak{}r\\
+C Prefix & rep2\_\allowbreak{}1.\allowbreak{}r\\
 C Block Offset & 0x0\\
 Access & read/write\\
 \end{regsummary}

@@ -14,10 +14,10 @@ Test repeat index separator behavior
 | 0x0c-0x0f | BLOCK | rep11 | rep1_1 |
 | 0x0c | REG | rep11.r | rep1_1_r |
 | 0x10-0x17 | BLOCK | rep2 | rep2 |
-| 0x10-0x13 | BLOCK | rep2-0 | rep2_0 |
-| 0x10 | REG | rep2-0.r | rep2_0_r |
-| 0x14-0x17 | BLOCK | rep2-1 | rep2_1 |
-| 0x14 | REG | rep2-1.r | rep2_1_r |
+| 0x10-0x13 | BLOCK | rep2_0 | rep2_0 |
+| 0x10 | REG | rep2_0.r | rep2_0_r |
+| 0x14-0x17 | BLOCK | rep2_1 | rep2_1 |
+| 0x14 | REG | rep2_1.r | rep2_1_r |
 
 ## Registers Description
 ### Register: rep0.0.r
@@ -288,11 +288,11 @@ Test repeat index separator behavior
 |------|------|------------|
 | 31:0 | r |  |
 
-### Register: rep2-0.r
+### Register: rep2_0.r
 
 - **HW Prefix**: rep2_0_r
 - **HW Address**: 0x10
-- **C Prefix**: rep2-0.r
+- **C Prefix**: rep2_0.r
 - **C Block Offset**: 0x0
 - **Access**: read/write
 
@@ -355,11 +355,11 @@ Test repeat index separator behavior
 |------|------|------------|
 | 31:0 | r |  |
 
-### Register: rep2-1.r
+### Register: rep2_1.r
 
 - **HW Prefix**: rep2_1_r
 - **HW Address**: 0x14
-- **C Prefix**: rep2-1.r
+- **C Prefix**: rep2_1.r
 - **C Block Offset**: 0x0
 - **Access**: read/write
 

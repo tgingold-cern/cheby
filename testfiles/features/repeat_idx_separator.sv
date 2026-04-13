@@ -28,10 +28,10 @@ module repeat_idx_separator
     output  wire [31:0] rep11_r_o,
 
     // REG r
-    output  wire [31:0] rep2-0_r_o,
+    output  wire [31:0] rep2_0_r_o,
 
     // REG r
-    output  wire [31:0] rep2-1_r_o
+    output  wire [31:0] rep2_1_r_o
   );
   wire rd_req_int;
   wire wr_req_int;
@@ -53,12 +53,12 @@ module repeat_idx_separator
   reg [31:0] rep11_r_reg;
   reg rep11_r_wreq;
   wire rep11_r_wack;
-  reg [31:0] rep2-0_r_reg;
-  reg rep2-0_r_wreq;
-  wire rep2-0_r_wack;
-  reg [31:0] rep2-1_r_reg;
-  reg rep2-1_r_wreq;
-  wire rep2-1_r_wack;
+  reg [31:0] rep2_0_r_reg;
+  reg rep2_0_r_wreq;
+  wire rep2_0_r_wack;
+  reg [31:0] rep2_1_r_reg;
+  reg rep2_1_r_wreq;
+  wire rep2_1_r_wack;
   reg rd_ack_d0;
   reg [31:0] rd_dat_d0;
   reg wr_req_d0;
@@ -163,28 +163,28 @@ module repeat_idx_separator
         rep11_r_reg <= wr_dat_d0;
   end
 
-  // Register rep2-0_r
-  assign rep2-0_r_o = rep2-0_r_reg;
-  assign rep2-0_r_wack = rep2-0_r_wreq;
+  // Register rep2_0_r
+  assign rep2_0_r_o = rep2_0_r_reg;
+  assign rep2_0_r_wack = rep2_0_r_wreq;
   always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
-      rep2-0_r_reg <= 32'b00000000000000000000000000000000;
+      rep2_0_r_reg <= 32'b00000000000000000000000000000000;
     else
-      if (rep2-0_r_wreq == 1'b1)
-        rep2-0_r_reg <= wr_dat_d0;
+      if (rep2_0_r_wreq == 1'b1)
+        rep2_0_r_reg <= wr_dat_d0;
   end
 
-  // Register rep2-1_r
-  assign rep2-1_r_o = rep2-1_r_reg;
-  assign rep2-1_r_wack = rep2-1_r_wreq;
+  // Register rep2_1_r
+  assign rep2_1_r_o = rep2_1_r_reg;
+  assign rep2_1_r_wack = rep2_1_r_wreq;
   always_ff @(posedge(clk_i))
   begin
     if (!rst_n_i)
-      rep2-1_r_reg <= 32'b00000000000000000000000000000000;
+      rep2_1_r_reg <= 32'b00000000000000000000000000000000;
     else
-      if (rep2-1_r_wreq == 1'b1)
-        rep2-1_r_reg <= wr_dat_d0;
+      if (rep2_1_r_wreq == 1'b1)
+        rep2_1_r_reg <= wr_dat_d0;
   end
 
   // Process for write requests.
@@ -194,8 +194,8 @@ module repeat_idx_separator
     rep0_1_r_wreq = 1'b0;
     rep10_r_wreq = 1'b0;
     rep11_r_wreq = 1'b0;
-    rep2-0_r_wreq = 1'b0;
-    rep2-1_r_wreq = 1'b0;
+    rep2_0_r_wreq = 1'b0;
+    rep2_1_r_wreq = 1'b0;
     case (wr_adr_d0[4:2])
     3'b000:
       begin
@@ -223,15 +223,15 @@ module repeat_idx_separator
       end
     3'b100:
       begin
-        // Reg rep2-0_r
-        rep2-0_r_wreq = wr_req_d0;
-        wr_ack_int = rep2-0_r_wack;
+        // Reg rep2_0_r
+        rep2_0_r_wreq = wr_req_d0;
+        wr_ack_int = rep2_0_r_wack;
       end
     3'b101:
       begin
-        // Reg rep2-1_r
-        rep2-1_r_wreq = wr_req_d0;
-        wr_ack_int = rep2-1_r_wack;
+        // Reg rep2_1_r
+        rep2_1_r_wreq = wr_req_d0;
+        wr_ack_int = rep2_1_r_wack;
       end
     default:
       wr_ack_int = wr_req_d0;
@@ -270,15 +270,15 @@ module repeat_idx_separator
       end
     3'b100:
       begin
-        // Reg rep2-0_r
+        // Reg rep2_0_r
         rd_ack_d0 = rd_req_int;
-        rd_dat_d0 = rep2-0_r_reg;
+        rd_dat_d0 = rep2_0_r_reg;
       end
     3'b101:
       begin
-        // Reg rep2-1_r
+        // Reg rep2_1_r
         rd_ack_d0 = rd_req_int;
-        rd_dat_d0 = rep2-1_r_reg;
+        rd_dat_d0 = rep2_1_r_reg;
       end
     default:
       rd_ack_d0 = rd_req_int;

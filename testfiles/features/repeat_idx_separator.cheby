@@ -25,7 +25,7 @@ memory-map:
         name: rep2
         count: 2
         x-hdl:
-          repeat-idx-separator: "-"
+          repeat-idx-separator: "_"
         children:
           - reg:
               name: r
