@@ -1143,8 +1143,10 @@ def test_edge():
               'issue128/acdipole_ip',
               'issue_edge4_intc/acdipole_ip',
               'issue_edge4_intc/acdipole_ip_intc',
-              'edge_fifo_reg/edge_fifo'
-              ]:
+              'edge_fifo_reg/edge_fifo',
+              'issue122/edge_dma',
+              'issue122/edge_irq',
+              'issue122/edge_irq_dma_custom']:
         if args.verbose:
             print('test edge: {}'.format(f))
         chebfile = srcdir + f + '.cheby'

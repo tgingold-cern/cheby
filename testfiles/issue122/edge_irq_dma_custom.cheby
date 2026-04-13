@@ -1,0 +1,38 @@
+memory-map:
+  bus: wb-32-be
+  name: test
+  x-driver-edge:
+    driver-version: 1.0.0
+    schema-version: 4.1
+    bus-type: PLATFORM
+    endianness: little
+    device-info:
+      vendor-id: 0xFF000000
+      device-id: 0x0
+    irq-resource:
+      name: my_irq_rsrc
+      comment: My IRQ resource
+    dma-resource:
+      name: my_dma_rsrc
+      comment: My DMA resource
+  children:
+    - address-space:
+        name: registers
+        children:
+          - block:
+              name: block
+              size: 2048
+              children:
+                - reg:
+                    name: test
+                    width: 32
+                    access: ro
+                - reg:
+                    name: irqsrc
+                    width: 32
+                    access: ro
+                    x-driver-edge:
+                      interrupt-controllers:
+                        - interrupt-controller:
+                            name: intc
+                            type: INTC_SR
