@@ -1,0 +1,178 @@
+\section{Memory Map Summary}
+Test repeat index separator behavior
+
+\begin{memmap}
+0x00-0x07 & BLOCK & rep0 & rep0\\
+0x00-0x03 & BLOCK & rep0.\allowbreak{}0 & rep0\_\allowbreak{}0\\
+0x00 & REG & \hyperref[sec:rep0.0.r]{rep0.\allowbreak{}0.\allowbreak{}r} & rep0\_\allowbreak{}0\_\allowbreak{}r\\
+0x04-0x07 & BLOCK & rep0.\allowbreak{}1 & rep0\_\allowbreak{}1\\
+0x04 & REG & \hyperref[sec:rep0.1.r]{rep0.\allowbreak{}1.\allowbreak{}r} & rep0\_\allowbreak{}1\_\allowbreak{}r\\
+0x08-0x0f & BLOCK & rep1 & rep1\\
+0x08-0x0b & BLOCK & rep10 & rep1\_\allowbreak{}0\\
+0x08 & REG & \hyperref[sec:rep10.r]{rep10.\allowbreak{}r} & rep1\_\allowbreak{}0\_\allowbreak{}r\\
+0x0c-0x0f & BLOCK & rep11 & rep1\_\allowbreak{}1\\
+0x0c & REG & \hyperref[sec:rep11.r]{rep11.\allowbreak{}r} & rep1\_\allowbreak{}1\_\allowbreak{}r\\
+0x10-0x17 & BLOCK & rep2 & rep2\\
+0x10-0x13 & BLOCK & rep2-0 & rep2\_\allowbreak{}0\\
+0x10 & REG & \hyperref[sec:rep2-0.r]{rep2-0.\allowbreak{}r} & rep2\_\allowbreak{}0\_\allowbreak{}r\\
+0x14-0x17 & BLOCK & rep2-1 & rep2\_\allowbreak{}1\\
+0x14 & REG & \hyperref[sec:rep2-1.r]{rep2-1.\allowbreak{}r} & rep2\_\allowbreak{}1\_\allowbreak{}r\\
+\end{memmap}
+
+\section{Register Description}
+\subsubsection{rep0.\allowbreak{}0.\allowbreak{}r}
+\label{sec:rep0.0.r}
+\begin{regsummary}
+HW Prefix & rep0\_\allowbreak{}0\_\allowbreak{}r\\
+HW Address & 0x0\\
+C Prefix & rep0.\allowbreak{}0.\allowbreak{}r\\
+C Block Offset & 0x0\\
+Access & read/write\\
+\end{regsummary}
+
+\begin{regdraw}
+31 & 30 & 29 & 28 & 27 & 26 & 25 & 24 \\
+\SetCell[c=8]{c, bg=lightgray} r[31:24] \\
+23 & 22 & 21 & 20 & 19 & 18 & 17 & 16 \\
+\SetCell[c=8]{c, bg=lightgray} r[23:16] \\
+15 & 14 & 13 & 12 & 11 & 10 & 9 & 8 \\
+\SetCell[c=8]{c, bg=lightgray} r[15:8] \\
+7 & 6 & 5 & 4 & 3 & 2 & 1 & 0 \\
+\SetCell[c=8]{c, bg=lightgray} r[7:0] \\
+\end{regdraw}
+
+\begin{regdesc}
+31:0 & r & {}\\
+\end{regdesc}
+
+
+\subsubsection{rep0.\allowbreak{}1.\allowbreak{}r}
+\label{sec:rep0.1.r}
+\begin{regsummary}
+HW Prefix & rep0\_\allowbreak{}1\_\allowbreak{}r\\
+HW Address & 0x4\\
+C Prefix & rep0.\allowbreak{}1.\allowbreak{}r\\
+C Block Offset & 0x0\\
+Access & read/write\\
+\end{regsummary}
+
+\begin{regdraw}
+31 & 30 & 29 & 28 & 27 & 26 & 25 & 24 \\
+\SetCell[c=8]{c, bg=lightgray} r[31:24] \\
+23 & 22 & 21 & 20 & 19 & 18 & 17 & 16 \\
+\SetCell[c=8]{c, bg=lightgray} r[23:16] \\
+15 & 14 & 13 & 12 & 11 & 10 & 9 & 8 \\
+\SetCell[c=8]{c, bg=lightgray} r[15:8] \\
+7 & 6 & 5 & 4 & 3 & 2 & 1 & 0 \\
+\SetCell[c=8]{c, bg=lightgray} r[7:0] \\
+\end{regdraw}
+
+\begin{regdesc}
+31:0 & r & {}\\
+\end{regdesc}
+
+
+\subsubsection{rep10.\allowbreak{}r}
+\label{sec:rep10.r}
+\begin{regsummary}
+HW Prefix & rep1\_\allowbreak{}0\_\allowbreak{}r\\
+HW Address & 0x8\\
+C Prefix & rep10.\allowbreak{}r\\
+C Block Offset & 0x0\\
+Access & read/write\\
+\end{regsummary}
+
+\begin{regdraw}
+31 & 30 & 29 & 28 & 27 & 26 & 25 & 24 \\
+\SetCell[c=8]{c, bg=lightgray} r[31:24] \\
+23 & 22 & 21 & 20 & 19 & 18 & 17 & 16 \\
+\SetCell[c=8]{c, bg=lightgray} r[23:16] \\
+15 & 14 & 13 & 12 & 11 & 10 & 9 & 8 \\
+\SetCell[c=8]{c, bg=lightgray} r[15:8] \\
+7 & 6 & 5 & 4 & 3 & 2 & 1 & 0 \\
+\SetCell[c=8]{c, bg=lightgray} r[7:0] \\
+\end{regdraw}
+
+\begin{regdesc}
+31:0 & r & {}\\
+\end{regdesc}
+
+
+\subsubsection{rep11.\allowbreak{}r}
+\label{sec:rep11.r}
+\begin{regsummary}
+HW Prefix & rep1\_\allowbreak{}1\_\allowbreak{}r\\
+HW Address & 0xc\\
+C Prefix & rep11.\allowbreak{}r\\
+C Block Offset & 0x0\\
+Access & read/write\\
+\end{regsummary}
+
+\begin{regdraw}
+31 & 30 & 29 & 28 & 27 & 26 & 25 & 24 \\
+\SetCell[c=8]{c, bg=lightgray} r[31:24] \\
+23 & 22 & 21 & 20 & 19 & 18 & 17 & 16 \\
+\SetCell[c=8]{c, bg=lightgray} r[23:16] \\
+15 & 14 & 13 & 12 & 11 & 10 & 9 & 8 \\
+\SetCell[c=8]{c, bg=lightgray} r[15:8] \\
+7 & 6 & 5 & 4 & 3 & 2 & 1 & 0 \\
+\SetCell[c=8]{c, bg=lightgray} r[7:0] \\
+\end{regdraw}
+
+\begin{regdesc}
+31:0 & r & {}\\
+\end{regdesc}
+
+
+\subsubsection{rep2-0.\allowbreak{}r}
+\label{sec:rep2-0.r}
+\begin{regsummary}
+HW Prefix & rep2\_\allowbreak{}0\_\allowbreak{}r\\
+HW Address & 0x10\\
+C Prefix & rep2-0.\allowbreak{}r\\
+C Block Offset & 0x0\\
+Access & read/write\\
+\end{regsummary}
+
+\begin{regdraw}
+31 & 30 & 29 & 28 & 27 & 26 & 25 & 24 \\
+\SetCell[c=8]{c, bg=lightgray} r[31:24] \\
+23 & 22 & 21 & 20 & 19 & 18 & 17 & 16 \\
+\SetCell[c=8]{c, bg=lightgray} r[23:16] \\
+15 & 14 & 13 & 12 & 11 & 10 & 9 & 8 \\
+\SetCell[c=8]{c, bg=lightgray} r[15:8] \\
+7 & 6 & 5 & 4 & 3 & 2 & 1 & 0 \\
+\SetCell[c=8]{c, bg=lightgray} r[7:0] \\
+\end{regdraw}
+
+\begin{regdesc}
+31:0 & r & {}\\
+\end{regdesc}
+
+
+\subsubsection{rep2-1.\allowbreak{}r}
+\label{sec:rep2-1.r}
+\begin{regsummary}
+HW Prefix & rep2\_\allowbreak{}1\_\allowbreak{}r\\
+HW Address & 0x14\\
+C Prefix & rep2-1.\allowbreak{}r\\
+C Block Offset & 0x0\\
+Access & read/write\\
+\end{regsummary}
+
+\begin{regdraw}
+31 & 30 & 29 & 28 & 27 & 26 & 25 & 24 \\
+\SetCell[c=8]{c, bg=lightgray} r[31:24] \\
+23 & 22 & 21 & 20 & 19 & 18 & 17 & 16 \\
+\SetCell[c=8]{c, bg=lightgray} r[23:16] \\
+15 & 14 & 13 & 12 & 11 & 10 & 9 & 8 \\
+\SetCell[c=8]{c, bg=lightgray} r[15:8] \\
+7 & 6 & 5 & 4 & 3 & 2 & 1 & 0 \\
+\SetCell[c=8]{c, bg=lightgray} r[7:0] \\
+\end{regdraw}
+
+\begin{regdesc}
+31:0 & r & {}\\
+\end{regdesc}
+
+
