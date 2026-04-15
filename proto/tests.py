@@ -1093,7 +1093,8 @@ def test_doc():
     # Generate html and md, compare with a baseline.
     global nbr_tests
     for f in ['issue9/test', 'features/semver1', 'issue84/sps200CavityControl_as', 'issue67/repeatInRepeat',
-              'features/nested-iogroup1', 'features/repeat_idx_separator']:
+              'features/nested-iogroup1', 'features/repeat_idx_separator',
+              'features/repeat_iogroup_nosep_hdlprefix']:
         if args.verbose:
             print('test doc: {}'.format(f))
         chebfile = srcdir + f + '.cheby'
