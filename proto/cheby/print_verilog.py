@@ -58,6 +58,8 @@ def generate_port(fd, p, indent):
 
 def generate_interface_port(fd, itf, dirn, indent):
     for p in itf.ports:
+        if isinstance(p, hdltree.HDLInterfaceInstance):
+            continue
         if p.dir == dirn:
             windent(fd, indent + 1)
             wln(fd, "{:<16} : {};".format(p.name, generate_verilog_type(p)))
@@ -66,6 +68,8 @@ def generate_interface_port(fd, itf, dirn, indent):
 def generate_interface_modport(fd, itf, dirn, dirname, indent=0):
     first = True
     for p in itf.ports:
+        if isinstance(p, hdltree.HDLInterfaceInstance):
+            continue
         if p.dir == dirn:
             if first:
                 first = False
@@ -79,6 +83,8 @@ def generate_interface_modport(fd, itf, dirn, dirname, indent=0):
 # Check if the interface has a port with the given direction dirn
 def generate_interface_has_dir(itf, dirn):
     for p in itf.ports:
+        if isinstance(p, hdltree.HDLInterfaceInstance):
+            continue
         if p.dir == dirn:
             return True
     return False
@@ -89,6 +95,8 @@ def generate_interface(fd, itf, indent):
     windent(fd, indent)
     wln(fd, "interface {};".format(itf.name))
     for p in itf.ports:
+        if isinstance(p, hdltree.HDLInterfaceInstance):
+            continue
         windent(fd, indent + 1)
         wln(fd, "logic {}{};".format(generate_verilog_type(p), p.name))
 
@@ -547,9 +555,10 @@ def extract_reg_init(decls):
             while isinstance(inter, hdltree.HDLInterfaceArray):
                 inter = inter.prefix
             for p in inter.ports:
+                if isinstance(p, hdltree.HDLInterfaceInstance):
+                    continue
                 prev = names.get(p.name)
                 if prev is not None:
-                    # This is a duplicate
                     rename_interface_port(p)
                     rename_interface_port(prev)
                 else:
