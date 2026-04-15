@@ -82,10 +82,14 @@ class MemmapSummary(object):
                 iogrp = getattr(n, 'hdl_iogroup', None)
                 flatten = getattr(n, 'hdl_iogroup_flatten', True)
                 indexing = getattr(n, 'hdl_repeat_indexing', False)
-                idx_sep = getattr(n, 'hdl_repeat_idx_separator', None)
-                if idx_sep is None:
+                name_idx_sep = getattr(n, 'hdl_repeat_idx_separator', None)
+                hdl_idx_sep = getattr(n, 'hdl_repeat_idx_separator', None)
+                if name_idx_sep is None:
                     # Keep historical doc naming by default.
-                    idx_sep = '.'
+                    name_idx_sep = '.'
+                if hdl_idx_sep is None:
+                    # HDL/C naming default separator.
+                    hdl_idx_sep = '_'
                 if indexing:
                     if iogrp and not flatten:
                         summary_hdl_name = iogrp
@@ -101,7 +105,7 @@ class MemmapSummary(object):
                         hdl_name=summary_hdl_name))
                     for i, child in enumerate(n.children):
                         self.gen_raws(
-                            child, "{}{}{}.".format(name, idx_sep, i),
+                            child, "{}{}{}.".format(name, name_idx_sep, i),
                             addr_pfx, n_addr + child.c_address,
                             '{}({}).'.format(hdl_repeat_name, i))
                 elif iogrp and not flatten:
@@ -111,16 +115,17 @@ class MemmapSummary(object):
                         hdl_name=iogrp))
                     for i, child in enumerate(n.children):
                         self.gen_raws(
-                            child, "{}{}{}.".format(name, idx_sep, i),
+                            child, "{}{}{}.".format(name, name_idx_sep, i),
                             addr_pfx, n_addr + child.c_address,
-                            '{}{}.'.format(hdl_pfx, iogrp))
+                            '{}{}{}{}_'.format(hdl_pfx, iogrp, hdl_idx_sep, i))
                 else:
                     typ = 'REPEAT ({})'.format(iogrp) if iogrp else 'REPEAT'
                     self.raws.append(SummaryRaw(rng, typ, name, n, n_addr))
                     for i, child in enumerate(n.children):
                         self.gen_raws(
-                            child, "{}{}{}.".format(name, idx_sep, i),
-                            addr_pfx, n_addr + child.c_address, hdl_pfx)
+                            child, "{}{}{}.".format(name, name_idx_sep, i),
+                            addr_pfx, n_addr + child.c_address,
+                            '{}{}{}{}_'.format(hdl_pfx, n.name, hdl_idx_sep, i))
             elif isinstance(n, tree.Block):
                 iogrp = getattr(n, 'hdl_iogroup', None)
                 flatten = getattr(n, 'hdl_iogroup_flatten', True)
