@@ -85,10 +85,8 @@ class MemmapSummary(object):
                 name_idx_sep = getattr(n, 'hdl_repeat_idx_separator', None)
                 hdl_idx_sep = getattr(n, 'hdl_repeat_idx_separator', None)
                 if name_idx_sep is None:
-                    # Keep historical doc naming by default.
                     name_idx_sep = '.'
                 if hdl_idx_sep is None:
-                    # HDL/C naming default separator.
                     hdl_idx_sep = '_'
                 if indexing:
                     if iogrp and not flatten:
@@ -113,19 +111,18 @@ class MemmapSummary(object):
                     self.raws.append(SummaryRaw(
                         rng, typ, name, n, n_addr,
                         hdl_name=iogrp))
-                    for i, child in enumerate(n.children):
-                        self.gen_raws(
-                            child, "{}{}{}.".format(name, name_idx_sep, i),
-                            addr_pfx, n_addr + child.c_address,
-                            '{}{}{}{}_'.format(hdl_pfx, iogrp, hdl_idx_sep, i))
+                    iogrp_pfx = (hdl_pfx or '') + iogrp + hdl_idx_sep
+                    self.gen_raws(
+                        n, name + name_idx_sep, addr_pfx, n_addr, iogrp_pfx)
                 else:
-                    typ = 'REPEAT ({})'.format(iogrp) if iogrp else 'REPEAT'
-                    self.raws.append(SummaryRaw(rng, typ, name, n, n_addr))
-                    for i, child in enumerate(n.children):
-                        self.gen_raws(
-                            child, "{}{}{}.".format(name, name_idx_sep, i),
-                            addr_pfx, n_addr + child.c_address,
-                            '{}{}{}{}_'.format(hdl_pfx, n.name, hdl_idx_sep, i))
+                    typ = 'REPEAT ({})'.format(iogrp) if iogrp else 'BLOCK'
+                    resolved_hdl = hdl if hdl else n.name
+                    self.raws.append(SummaryRaw(
+                        rng, typ, name, n, n_addr,
+                        hdl_name=hdl or None))
+                    self.gen_raws(
+                        n, name + name_idx_sep, addr_pfx, n_addr,
+                        resolved_hdl + hdl_idx_sep)
             elif isinstance(n, tree.Block):
                 iogrp = getattr(n, 'hdl_iogroup', None)
                 flatten = getattr(n, 'hdl_iogroup_flatten', True)
@@ -141,14 +138,20 @@ class MemmapSummary(object):
                         '{}{}.'.format(hdl_pfx, iogrp))
                 else:
                     typ = 'BLOCK ({})'.format(iogrp) if iogrp else 'BLOCK'
-                    self.raws.append(SummaryRaw(rng, typ, name, n, n_addr))
-                    self.gen_raws(n, next_name, addr_pfx, n_addr, hdl_pfx)
+                    self.raws.append(SummaryRaw(
+                        rng, typ, name, n, n_addr,
+                        hdl_name=hdl or None))
+                    next_hdl = hdl_pfx if skip_name else (hdl + '_' if hdl else '')
+                    self.gen_raws(n, next_name, addr_pfx, n_addr, next_hdl)
             elif isinstance(n, tree.Submap):
-                self.raws.append(SummaryRaw(rng, 'SUBMAP', name, n, n_addr))
+                self.raws.append(SummaryRaw(
+                    rng, 'SUBMAP', name, n, n_addr,
+                    hdl_name=hdl or None))
                 if n.filename is not None:
                     skip_name = n.get_extension('x_hdl', 'name-prefix') is False
                     next_name = name_pfx if skip_name else name + '.'
-                    self.gen_raws(n.c_submap, next_name, addr_pfx, n_addr, hdl_pfx)
+                    next_hdl = hdl_pfx if skip_name else (hdl + '_' if hdl else '')
+                    self.gen_raws(n.c_submap, next_name, addr_pfx, n_addr, next_hdl)
             elif isinstance(n, tree.Memory):
                 self.raws.append(SummaryRaw(rng, 'MEMORY', name, n, n_addr))
                 self.gen_raws(
