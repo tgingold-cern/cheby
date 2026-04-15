@@ -132,7 +132,7 @@ class MemmapSummary(object):
                     typ = 'BLOCK ({})'.format(iogrp)
                     self.raws.append(SummaryRaw(
                         rng, typ, name, n, n_addr,
-                        hdl_name=iogrp))
+                        hdl_name=hdl or None))
                     self.gen_raws(
                         n, next_name, addr_pfx, n_addr,
                         '{}{}.'.format(hdl_pfx, iogrp))
