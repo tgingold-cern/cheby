@@ -96,7 +96,7 @@ def print_map_summary(fd, summary):
         t.append(["{}".format(r.address),
                   "{}".format(r.typ),
                   "{}".format(r.name),
-                  "{}".format(r.hdl_name if r.hdl_name else r.node.c_name)])
+                  "{}".format(r.hdl_name or r.node.c_name)])
     wtable(fd, t)
     wln(fd)
 

@@ -19,13 +19,13 @@ Test repeat index separator behavior
 +------------+-------+----------+----------+
 | 0x08-0x0f  | BLOCK | rep1     | rep1     |
 +------------+-------+----------+----------+
-| 0x08-0x0b  | BLOCK | rep10    | rep1_0   |
+| 0x08-0x0b  | BLOCK | rep10    | rep10    |
 +------------+-------+----------+----------+
-| 0x08       | REG   | rep10.r  | rep1_0_r |
+| 0x08       | REG   | rep10.r  | rep10_r  |
 +------------+-------+----------+----------+
-| 0x0c-0x0f  | BLOCK | rep11    | rep1_1   |
+| 0x0c-0x0f  | BLOCK | rep11    | rep11    |
 +------------+-------+----------+----------+
-| 0x0c       | REG   | rep11.r  | rep1_1_r |
+| 0x0c       | REG   | rep11.r  | rep11_r  |
 +------------+-------+----------+----------+
 | 0x10-0x17  | BLOCK | rep2     | rep2     |
 +------------+-------+----------+----------+
@@ -98,7 +98,7 @@ Register: rep0.1.r
 Register: rep10.r
 -----------------
 
-* HW Prefix: rep1_0_r
+* HW Prefix: rep10_r
 * HW Address: 0x8
 * C Prefix: rep10.r
 * C Block Offset: 0x0
@@ -125,7 +125,7 @@ Register: rep10.r
 Register: rep11.r
 -----------------
 
-* HW Prefix: rep1_1_r
+* HW Prefix: rep11_r
 * HW Address: 0xc
 * C Prefix: rep11.r
 * C Block Offset: 0x0

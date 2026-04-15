@@ -98,8 +98,7 @@ def print_map_summary(fd, summary):
     wln(fd, "| HW address | Type | Name | HDL Name |")
     wln(fd, "|------------|------|------|----------|")
     for r in summary.raws:
-        wln(fd, "| {} | {} | {} | {} |".format(r.address, r.typ, r.name,
-                                            r.hdl_name if r.hdl_name else r.node.c_name))
+        wln(fd, "| {} | {} | {} | {} |".format(r.address, r.typ, r.name, r.hdl_name or r.node.c_name))
     wln(fd)
 
 

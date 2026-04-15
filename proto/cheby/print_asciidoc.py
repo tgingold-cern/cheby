@@ -82,7 +82,7 @@ def print_map_summary(fd, summary):
         wln(fd, "|{}".format(r.address))
         wln(fd, "|{}".format(r.typ))
         wln(fd, "|{}".format(r.name))
-        wln(fd, "|{}".format(r.node.c_name))
+        wln(fd, "|{}".format(r.hdl_name or r.node.c_name))
     wln(fd, "|===")
     wln(fd)
 

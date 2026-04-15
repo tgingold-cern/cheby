@@ -261,6 +261,13 @@ repeat name and the expanded index when generating names.  The default is `_`.
 Set it to an empty string (`""`) to disable the separator.  Any other string
 value can be used as a custom separator.
 
+`repeat-indexing`:: When set to `true` on a `repeat` node, the repeat
+children are accessed using array indexing instead of flat expanded names.
+In VHDL this generates an array of records accessed as `arr(0).field`;
+in Verilog and SystemVerilog it generates an interface array accessed as
+`arr[0].field`.  The default is `false`.  Can be combined with `iogroup`
+and `iogroup-flatten` for nested record arrays.
+
 `reg-prefix`:: If false, discard register prefix and every prefix before
 register.  So only the name of the field is kept. This creates shorter names.
 This attribute is inherited.
@@ -678,6 +685,60 @@ Example with separator disabled:
               name: cfg
               access: rw
               width: 32
+----
+
+When `repeat-indexing` is set to `true`, the repeat generates an array that
+can be indexed rather than expanding each instance with a flat name.  In VHDL
+the access looks like `chan(0).ctrl`; in Verilog/SystemVerilog it becomes
+`chan[0].ctrl`.
+
+Example with array indexing:
+
+[source]
+----
+    - repeat:
+        name: chan
+        count: 4
+        x-hdl:
+          iogroup: itf
+          iogroup-flatten: false
+          repeat-indexing: true
+        children:
+          - reg:
+              name: ctrl
+              access: rw
+              width: 32
+          - reg:
+              name: status
+              access: ro
+              width: 32
+----
+
+This produces, for instance in VHDL:
+
+[source,vhdl]
+----
+  type t_itf is record
+    ctrl   : std_logic_vector(31 downto 0);
+    status : std_logic_vector(31 downto 0);
+  end record;
+  type t_itf_array is array(natural range <>) of t_itf;
+  ...
+  chan : t_itf_array(0 to 3);
+----
+
+And in Verilog/SystemVerilog:
+
+[source,verilog]
+----
+  interface t_itf;
+    logic [31:0] ctrl;
+    logic [31:0] status;
+    ...
+  endinterface
+  ...
+  t_itf chan[4];
+  // Access: top_regmap.chan[0].ctrl
 ----
 
 === Submap
