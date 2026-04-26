@@ -1,4 +1,5 @@
 ## Memory Map Summary
+
 repeat with array indexing
 
 | HW address | Type | Name | HDL Name |
@@ -14,6 +15,7 @@ repeat with array indexing
 | 0x1c | REG | chan.3.status | itf(3).status |
 
 ## Registers Description
+
 ### Register: chan.0.ctrl
 
 - **HW Prefix**: itf(0).ctrl

@@ -2,12 +2,13 @@ import cheby.tree as tree
 import cheby.gen_doc as gen_doc
 from cheby.wrutils import w, wln
 
-#  Generate markdown (asciidoc variant)
-#  Ref: https://asciidoctor.org/docs/asciidoc-syntax-quick-reference/#tables
+#  Generate Markdown documentation
 
 
 def format_text(text):
-    return text.replace("\n", " +\n")
+    # Preserve hard line breaks using the standard Markdown convention
+    # (two trailing spaces before the newline).
+    return text.replace("\n", "  \n")
 
 
 def print_reg(fd, r, raw, hide_comments=False, print_reg_drawing=True):
@@ -111,6 +112,7 @@ def print_reg_description(fd, summary, hide_comments=False, print_reg_drawing=Tr
 
 def print_root(fd, root, hide_comments=False, print_reg_drawing=True):
     wln(fd, "## Memory Map Summary")
+    wln(fd)
 
     if root.comment and not hide_comments:
         wln(fd, root.comment)
@@ -129,16 +131,19 @@ def print_root(fd, root, hide_comments=False, print_reg_drawing=True):
         print_map_summary(fd, summary)
 
         wln(fd, "## Registers Description")
+        wln(fd)
         print_reg_description(fd, summary, hide_comments, print_reg_drawing)
 
     else:
         summaries = [(gen_doc.MemmapSummary(space), space) for space in root.children]
         for summary, space in summaries:
             wln(fd, "## For Space {}".format(space.name))
+            wln(fd)
             print_map_summary(fd, summary)
 
         for summary, space in summaries:
-            wln(fd, "## Registers Description for Space {}\n".format(space.name))
+            wln(fd, "## Registers Description for Space {}".format(space.name))
+            wln(fd)
             print_reg_description(fd, summary, hide_comments, print_reg_drawing)
 
 

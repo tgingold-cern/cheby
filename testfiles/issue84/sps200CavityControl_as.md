@@ -1,9 +1,11 @@
 ## Memory Map Summary
+
 SIS-8300-KU
 
 Memory Map for SPS TWC200 Cavity Control
 
 ## For Space bar0
+
 | HW address | Type | Name | HDL Name |
 |------------|------|------|----------|
 | 0x000000-0x00001f | SUBMAP | hwInfo | hwInfo |
@@ -34,6 +36,7 @@ Memory Map for SPS TWC200 Cavity Control
 | 0x100068 | REG | app.modulation.latches | app_modulation_latches |
 
 ## For Space bar4
+
 | HW address | Type | Name | HDL Name |
 |------------|------|------|----------|
 | 0x00000000-0x000fffff | SUBMAP | fgc_ddr | fgc_ddr |
@@ -403,18 +406,18 @@ Memory Map Version
 - **C Block Offset**: 0x18
 - **Access**: read/write
 
-Register used solely by software. No interaction with the firmware foreseen. +
-The idea is to use this register as "flag" in the hardware to remember your actions from the software side. +
- +
-Reading 0xFF often happens when the board is not even reachable (i.e. bus problems on VME) +
- +
-On the other hand if the board is reachable the usual state of flipflops are 0x00. Thus this would indicate that no initialization has been attempted yet. +
- +
-At start of your software (FESA class) you should set the value 0x40 indicating that initialization is in progress.  +
-This is important for you to later one check if you can read this value back before finally setting it to 0x80 (the value previously used with Cheburashka). +
- +
-If your initialization failed but you want to continue anyway you should set the register to 0xC0 to indicate this error  +
- +
+Register used solely by software. No interaction with the firmware foreseen.  
+The idea is to use this register as "flag" in the hardware to remember your actions from the software side.  
+  
+Reading 0xFF often happens when the board is not even reachable (i.e. bus problems on VME)  
+  
+On the other hand if the board is reachable the usual state of flipflops are 0x00. Thus this would indicate that no initialization has been attempted yet.  
+  
+At start of your software (FESA class) you should set the value 0x40 indicating that initialization is in progress.   
+This is important for you to later one check if you can read this value back before finally setting it to 0x80 (the value previously used with Cheburashka).  
+  
+If your initialization failed but you want to continue anyway you should set the register to 0xC0 to indicate this error   
+  
 This register is in particular useful if you have several entities interacting with the hardware. In this case several bits could be assigned to this entities (bits 5..0) to signalize that they have done there part successful and a main entity checks all the expected bits.
 
 Echo register. This version of the standard foresees only 8bits linked to real memory
@@ -787,18 +790,18 @@ Memory Map Version
 - **C Block Offset**: 0x10
 - **Access**: read/write
 
-Register used solely by software. No interaction with the firmware foreseen. +
-The idea is to use this register as "flag" in the hardware to remember your actions from the software side. +
- +
-Reading 0xFF often happens when the board is not even reachable (i.e. bus problems on VME) +
- +
-On the other hand if the board is reachable the usual state of flipflops are 0x00. Thus this would indicate that no initialization has been attempted yet. +
- +
-At start of your software (FESA class) you should set the value 0x40 indicating that initialization is in progress.  +
-This is important for you to later one check if you can read this value back before finally setting it to 0x80 (the value previously used with Cheburashka). +
- +
-If your initialization failed but you want to continue anyway you should set the register to 0xC0 to indicate this error  +
- +
+Register used solely by software. No interaction with the firmware foreseen.  
+The idea is to use this register as "flag" in the hardware to remember your actions from the software side.  
+  
+Reading 0xFF often happens when the board is not even reachable (i.e. bus problems on VME)  
+  
+On the other hand if the board is reachable the usual state of flipflops are 0x00. Thus this would indicate that no initialization has been attempted yet.  
+  
+At start of your software (FESA class) you should set the value 0x40 indicating that initialization is in progress.   
+This is important for you to later one check if you can read this value back before finally setting it to 0x80 (the value previously used with Cheburashka).  
+  
+If your initialization failed but you want to continue anyway you should set the register to 0xC0 to indicate this error   
+  
 This register is in particular useful if you have several entities interacting with the hardware. In this case several bits could be assigned to this entities (bits 5..0) to signalize that they have done there part successful and a main entity checks all the expected bits.
 
 Echo register. This version of the standard foresees only 8bits linked to real memory

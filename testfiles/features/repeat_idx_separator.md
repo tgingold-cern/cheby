@@ -1,4 +1,5 @@
 ## Memory Map Summary
+
 Test repeat index separator behavior
 
 | HW address | Type | Name | HDL Name |
@@ -20,6 +21,7 @@ Test repeat index separator behavior
 | 0x14 | REG | rep2_1.r | rep2_1_r |
 
 ## Registers Description
+
 ### Register: rep0.0.r
 
 - **HW Prefix**: rep0_0_r

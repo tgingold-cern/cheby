@@ -1,4 +1,5 @@
 ## Memory Map Summary
+
 | HW address | Type | Name | HDL Name |
 |------------|------|------|----------|
 | 0x00-0x1f | BLOCK | repA | repA |
@@ -32,6 +33,7 @@
 | 0x1c | REG | repA.3.block1.repB.1.reg1 | repA_3_block1_repB_1_reg1 |
 
 ## Registers Description
+
 ### Register: repA.0.block1.repB.0.reg1
 
 - **HW Prefix**: repA_0_block1_repB_0_reg1

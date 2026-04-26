@@ -1,4 +1,5 @@
 ## Memory Map Summary
+
 a single register
 
 Version: 1.0.0
@@ -8,6 +9,7 @@ Version: 1.0.0
 | 0x0 | REG | r1 | r1 |
 
 ## Registers Description
+
 ### Register: r1
 
 - **HW Prefix**: r1

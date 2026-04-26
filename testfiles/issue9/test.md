@@ -1,4 +1,5 @@
 ## Memory Map Summary
+
 Test AXI4-Lite interface
 
 | HW address | Type | Name | HDL Name |
@@ -11,6 +12,7 @@ Test AXI4-Lite interface
 | 0x18 | REG | block1.block2.register4 | block1_block2_register4 |
 
 ## Registers Description
+
 ### Register: register1
 
 - **HW Prefix**: register1

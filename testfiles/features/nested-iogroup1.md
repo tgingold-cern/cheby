@@ -1,4 +1,5 @@
 ## Memory Map Summary
+
 Test nested iogroups (iogroup-flatten false)
 
 | HW address | Type | Name | HDL Name |
@@ -9,6 +10,7 @@ Test nested iogroups (iogroup-flatten false)
 | 0xc | REG | blk.breg2 | blk_regs.breg2 |
 
 ## Registers Description
+
 ### Register: areg
 
 - **HW Prefix**: areg
