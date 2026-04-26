@@ -31,7 +31,7 @@ Test nested iogroups (iogroup-flatten false)
     <td><b>24</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">areg[31:24]</td>
+    <td colspan="8" align="center">areg[31:24]</td>
   </tr>
   <tr>
     <td><b>23</b></td>
@@ -44,7 +44,7 @@ Test nested iogroups (iogroup-flatten false)
     <td><b>16</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">areg[23:16]</td>
+    <td colspan="8" align="center">areg[23:16]</td>
   </tr>
   <tr>
     <td><b>15</b></td>
@@ -57,7 +57,7 @@ Test nested iogroups (iogroup-flatten false)
     <td><b>8</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">areg[15:8]</td>
+    <td colspan="8" align="center">areg[15:8]</td>
   </tr>
   <tr>
     <td><b>7</b></td>
@@ -70,7 +70,7 @@ Test nested iogroups (iogroup-flatten false)
     <td><b>0</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">areg[7:0]</td>
+    <td colspan="8" align="center">areg[7:0]</td>
   </tr>
 </table>
 
@@ -98,7 +98,7 @@ Test nested iogroups (iogroup-flatten false)
     <td><b>24</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">breg1[31:24]</td>
+    <td colspan="8" align="center">breg1[31:24]</td>
   </tr>
   <tr>
     <td><b>23</b></td>
@@ -111,7 +111,7 @@ Test nested iogroups (iogroup-flatten false)
     <td><b>16</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">breg1[23:16]</td>
+    <td colspan="8" align="center">breg1[23:16]</td>
   </tr>
   <tr>
     <td><b>15</b></td>
@@ -124,7 +124,7 @@ Test nested iogroups (iogroup-flatten false)
     <td><b>8</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">breg1[15:8]</td>
+    <td colspan="8" align="center">breg1[15:8]</td>
   </tr>
   <tr>
     <td><b>7</b></td>
@@ -137,7 +137,7 @@ Test nested iogroups (iogroup-flatten false)
     <td><b>0</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">breg1[7:0]</td>
+    <td colspan="8" align="center">breg1[7:0]</td>
   </tr>
 </table>
 
@@ -165,7 +165,7 @@ Test nested iogroups (iogroup-flatten false)
     <td><b>24</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">breg2[31:24]</td>
+    <td colspan="8" align="center">breg2[31:24]</td>
   </tr>
   <tr>
     <td><b>23</b></td>
@@ -178,7 +178,7 @@ Test nested iogroups (iogroup-flatten false)
     <td><b>16</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">breg2[23:16]</td>
+    <td colspan="8" align="center">breg2[23:16]</td>
   </tr>
   <tr>
     <td><b>15</b></td>
@@ -191,7 +191,7 @@ Test nested iogroups (iogroup-flatten false)
     <td><b>8</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">breg2[15:8]</td>
+    <td colspan="8" align="center">breg2[15:8]</td>
   </tr>
   <tr>
     <td><b>7</b></td>
@@ -204,7 +204,7 @@ Test nested iogroups (iogroup-flatten false)
     <td><b>0</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">breg2[7:0]</td>
+    <td colspan="8" align="center">breg2[7:0]</td>
   </tr>
 </table>
 

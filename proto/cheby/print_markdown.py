@@ -49,7 +49,10 @@ def print_reg(fd, r, raw, hide_comments=False, print_reg_drawing=True):
                 else:
                     attrs = ""
                     if col.colspan > 1:
-                        attrs = ' colspan="{}" style="text-align: center;"'.format(
+                        # Use the deprecated `align` attribute rather than
+                        # `style="text-align: center;"` because GitLab's HTML
+                        # sanitizer strips inline `style` but keeps `align`.
+                        attrs = ' colspan="{}" align="center"'.format(
                             col.colspan
                         )
 

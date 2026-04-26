@@ -32,7 +32,7 @@ Doc HDL prefix for non-indexed iogroup repeats
     <td><b>24</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">spie_cmd_mem_wdata[31:24]</td>
+    <td colspan="8" align="center">spie_cmd_mem_wdata[31:24]</td>
   </tr>
   <tr>
     <td><b>23</b></td>
@@ -45,7 +45,7 @@ Doc HDL prefix for non-indexed iogroup repeats
     <td><b>16</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">spie_cmd_mem_wdata[23:16]</td>
+    <td colspan="8" align="center">spie_cmd_mem_wdata[23:16]</td>
   </tr>
   <tr>
     <td><b>15</b></td>
@@ -58,7 +58,7 @@ Doc HDL prefix for non-indexed iogroup repeats
     <td><b>8</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">spie_cmd_mem_wdata[15:8]</td>
+    <td colspan="8" align="center">spie_cmd_mem_wdata[15:8]</td>
   </tr>
   <tr>
     <td><b>7</b></td>
@@ -71,7 +71,7 @@ Doc HDL prefix for non-indexed iogroup repeats
     <td><b>0</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">spie_cmd_mem_wdata[7:0]</td>
+    <td colspan="8" align="center">spie_cmd_mem_wdata[7:0]</td>
   </tr>
 </table>
 
@@ -99,7 +99,7 @@ Doc HDL prefix for non-indexed iogroup repeats
     <td><b>24</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">spie_cmd_mem_wdata[31:24]</td>
+    <td colspan="8" align="center">spie_cmd_mem_wdata[31:24]</td>
   </tr>
   <tr>
     <td><b>23</b></td>
@@ -112,7 +112,7 @@ Doc HDL prefix for non-indexed iogroup repeats
     <td><b>16</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">spie_cmd_mem_wdata[23:16]</td>
+    <td colspan="8" align="center">spie_cmd_mem_wdata[23:16]</td>
   </tr>
   <tr>
     <td><b>15</b></td>
@@ -125,7 +125,7 @@ Doc HDL prefix for non-indexed iogroup repeats
     <td><b>8</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">spie_cmd_mem_wdata[15:8]</td>
+    <td colspan="8" align="center">spie_cmd_mem_wdata[15:8]</td>
   </tr>
   <tr>
     <td><b>7</b></td>
@@ -138,7 +138,7 @@ Doc HDL prefix for non-indexed iogroup repeats
     <td><b>0</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">spie_cmd_mem_wdata[7:0]</td>
+    <td colspan="8" align="center">spie_cmd_mem_wdata[7:0]</td>
   </tr>
 </table>
 

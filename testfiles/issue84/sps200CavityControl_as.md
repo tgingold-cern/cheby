@@ -71,7 +71,7 @@ Memory Map for SPS TWC200 Cavity Control
     <td><b>24</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">platform[7:0]</td>
+    <td colspan="8" align="center">platform[7:0]</td>
   </tr>
   <tr>
     <td><b>23</b></td>
@@ -84,7 +84,7 @@ Memory Map for SPS TWC200 Cavity Control
     <td><b>16</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">major[7:0]</td>
+    <td colspan="8" align="center">major[7:0]</td>
   </tr>
   <tr>
     <td><b>15</b></td>
@@ -97,7 +97,7 @@ Memory Map for SPS TWC200 Cavity Control
     <td><b>8</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">minor[7:0]</td>
+    <td colspan="8" align="center">minor[7:0]</td>
   </tr>
   <tr>
     <td><b>7</b></td>
@@ -110,7 +110,7 @@ Memory Map for SPS TWC200 Cavity Control
     <td><b>0</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">patch[7:0]</td>
+    <td colspan="8" align="center">patch[7:0]</td>
   </tr>
 </table>
 
@@ -143,7 +143,7 @@ HW serial number
     <td><b>56</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">serialNumber[63:56]</td>
+    <td colspan="8" align="center">serialNumber[63:56]</td>
   </tr>
   <tr>
     <td><b>55</b></td>
@@ -156,7 +156,7 @@ HW serial number
     <td><b>48</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">serialNumber[55:48]</td>
+    <td colspan="8" align="center">serialNumber[55:48]</td>
   </tr>
   <tr>
     <td><b>47</b></td>
@@ -169,7 +169,7 @@ HW serial number
     <td><b>40</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">serialNumber[47:40]</td>
+    <td colspan="8" align="center">serialNumber[47:40]</td>
   </tr>
   <tr>
     <td><b>39</b></td>
@@ -182,7 +182,7 @@ HW serial number
     <td><b>32</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">serialNumber[39:32]</td>
+    <td colspan="8" align="center">serialNumber[39:32]</td>
   </tr>
   <tr>
     <td><b>31</b></td>
@@ -195,7 +195,7 @@ HW serial number
     <td><b>24</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">serialNumber[31:24]</td>
+    <td colspan="8" align="center">serialNumber[31:24]</td>
   </tr>
   <tr>
     <td><b>23</b></td>
@@ -208,7 +208,7 @@ HW serial number
     <td><b>16</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">serialNumber[23:16]</td>
+    <td colspan="8" align="center">serialNumber[23:16]</td>
   </tr>
   <tr>
     <td><b>15</b></td>
@@ -221,7 +221,7 @@ HW serial number
     <td><b>8</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">serialNumber[15:8]</td>
+    <td colspan="8" align="center">serialNumber[15:8]</td>
   </tr>
   <tr>
     <td><b>7</b></td>
@@ -234,7 +234,7 @@ HW serial number
     <td><b>0</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">serialNumber[7:0]</td>
+    <td colspan="8" align="center">serialNumber[7:0]</td>
   </tr>
 </table>
 
@@ -284,7 +284,7 @@ Firmware Version
     <td><b>16</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">major[7:0]</td>
+    <td colspan="8" align="center">major[7:0]</td>
   </tr>
   <tr>
     <td><b>15</b></td>
@@ -297,7 +297,7 @@ Firmware Version
     <td><b>8</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">minor[7:0]</td>
+    <td colspan="8" align="center">minor[7:0]</td>
   </tr>
   <tr>
     <td><b>7</b></td>
@@ -310,7 +310,7 @@ Firmware Version
     <td><b>0</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">patch[7:0]</td>
+    <td colspan="8" align="center">patch[7:0]</td>
   </tr>
 </table>
 
@@ -362,7 +362,7 @@ Memory Map Version
     <td><b>16</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">major[7:0]</td>
+    <td colspan="8" align="center">major[7:0]</td>
   </tr>
   <tr>
     <td><b>15</b></td>
@@ -375,7 +375,7 @@ Memory Map Version
     <td><b>8</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">minor[7:0]</td>
+    <td colspan="8" align="center">minor[7:0]</td>
   </tr>
   <tr>
     <td><b>7</b></td>
@@ -388,7 +388,7 @@ Memory Map Version
     <td><b>0</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">patch[7:0]</td>
+    <td colspan="8" align="center">patch[7:0]</td>
   </tr>
 </table>
 
@@ -434,7 +434,7 @@ Echo register. This version of the standard foresees only 8bits linked to real m
     <td><b>24</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">echo[31:24]</td>
+    <td colspan="8" align="center">echo[31:24]</td>
   </tr>
   <tr>
     <td><b>23</b></td>
@@ -447,7 +447,7 @@ Echo register. This version of the standard foresees only 8bits linked to real m
     <td><b>16</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">echo[23:16]</td>
+    <td colspan="8" align="center">echo[23:16]</td>
   </tr>
   <tr>
     <td><b>15</b></td>
@@ -460,7 +460,7 @@ Echo register. This version of the standard foresees only 8bits linked to real m
     <td><b>8</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">echo[15:8]</td>
+    <td colspan="8" align="center">echo[15:8]</td>
   </tr>
   <tr>
     <td><b>7</b></td>
@@ -473,7 +473,7 @@ Echo register. This version of the standard foresees only 8bits linked to real m
     <td><b>0</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">echo[7:0]</td>
+    <td colspan="8" align="center">echo[7:0]</td>
   </tr>
 </table>
 
@@ -521,7 +521,7 @@ Echo register. This version of the standard foresees only 8bits linked to real m
     <td><b>16</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">major[7:0]</td>
+    <td colspan="8" align="center">major[7:0]</td>
   </tr>
   <tr>
     <td><b>15</b></td>
@@ -534,7 +534,7 @@ Echo register. This version of the standard foresees only 8bits linked to real m
     <td><b>8</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">minor[7:0]</td>
+    <td colspan="8" align="center">minor[7:0]</td>
   </tr>
   <tr>
     <td><b>7</b></td>
@@ -547,7 +547,7 @@ Echo register. This version of the standard foresees only 8bits linked to real m
     <td><b>0</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">patch[7:0]</td>
+    <td colspan="8" align="center">patch[7:0]</td>
   </tr>
 </table>
 
@@ -579,7 +579,7 @@ IP Ident code
     <td><b>24</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">ident[31:24]</td>
+    <td colspan="8" align="center">ident[31:24]</td>
   </tr>
   <tr>
     <td><b>23</b></td>
@@ -592,7 +592,7 @@ IP Ident code
     <td><b>16</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">ident[23:16]</td>
+    <td colspan="8" align="center">ident[23:16]</td>
   </tr>
   <tr>
     <td><b>15</b></td>
@@ -605,7 +605,7 @@ IP Ident code
     <td><b>8</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">ident[15:8]</td>
+    <td colspan="8" align="center">ident[15:8]</td>
   </tr>
   <tr>
     <td><b>7</b></td>
@@ -618,7 +618,7 @@ IP Ident code
     <td><b>0</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">ident[7:0]</td>
+    <td colspan="8" align="center">ident[7:0]</td>
   </tr>
 </table>
 
@@ -668,7 +668,7 @@ Firmware Version
     <td><b>16</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">major[7:0]</td>
+    <td colspan="8" align="center">major[7:0]</td>
   </tr>
   <tr>
     <td><b>15</b></td>
@@ -681,7 +681,7 @@ Firmware Version
     <td><b>8</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">minor[7:0]</td>
+    <td colspan="8" align="center">minor[7:0]</td>
   </tr>
   <tr>
     <td><b>7</b></td>
@@ -694,7 +694,7 @@ Firmware Version
     <td><b>0</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">patch[7:0]</td>
+    <td colspan="8" align="center">patch[7:0]</td>
   </tr>
 </table>
 
@@ -746,7 +746,7 @@ Memory Map Version
     <td><b>16</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">major[7:0]</td>
+    <td colspan="8" align="center">major[7:0]</td>
   </tr>
   <tr>
     <td><b>15</b></td>
@@ -759,7 +759,7 @@ Memory Map Version
     <td><b>8</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">minor[7:0]</td>
+    <td colspan="8" align="center">minor[7:0]</td>
   </tr>
   <tr>
     <td><b>7</b></td>
@@ -772,7 +772,7 @@ Memory Map Version
     <td><b>0</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">patch[7:0]</td>
+    <td colspan="8" align="center">patch[7:0]</td>
   </tr>
 </table>
 
@@ -878,7 +878,7 @@ Echo register. This version of the standard foresees only 8bits linked to real m
     <td><b>0</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">echo[7:0]</td>
+    <td colspan="8" align="center">echo[7:0]</td>
   </tr>
 </table>
 
@@ -947,7 +947,7 @@ Echo register. This version of the standard foresees only 8bits linked to real m
   </tr>
   <tr>
     <td>clearBPLatches</td>
-    <td colspan="3" style="text-align: center;">rate[2:0]</td>
+    <td colspan="3" align="center">rate[2:0]</td>
     <td>wrInputsValidLatch</td>
     <td>wrRresetFSK</td>
     <td>wrResetSlip</td>
@@ -1012,7 +1012,7 @@ Amplitude for the test signal
     <td><b>8</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">amplitude[15:8]</td>
+    <td colspan="8" align="center">amplitude[15:8]</td>
   </tr>
   <tr>
     <td><b>7</b></td>
@@ -1025,7 +1025,7 @@ Amplitude for the test signal
     <td><b>0</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">amplitude[7:0]</td>
+    <td colspan="8" align="center">amplitude[7:0]</td>
   </tr>
 </table>
 
@@ -1055,7 +1055,7 @@ FTW of the test signal (frequency relative to fs)
     <td><b>56</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">ftw[63:56]</td>
+    <td colspan="8" align="center">ftw[63:56]</td>
   </tr>
   <tr>
     <td><b>55</b></td>
@@ -1068,7 +1068,7 @@ FTW of the test signal (frequency relative to fs)
     <td><b>48</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">ftw[55:48]</td>
+    <td colspan="8" align="center">ftw[55:48]</td>
   </tr>
   <tr>
     <td><b>47</b></td>
@@ -1081,7 +1081,7 @@ FTW of the test signal (frequency relative to fs)
     <td><b>40</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">ftw[47:40]</td>
+    <td colspan="8" align="center">ftw[47:40]</td>
   </tr>
   <tr>
     <td><b>39</b></td>
@@ -1094,7 +1094,7 @@ FTW of the test signal (frequency relative to fs)
     <td><b>32</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">ftw[39:32]</td>
+    <td colspan="8" align="center">ftw[39:32]</td>
   </tr>
   <tr>
     <td><b>31</b></td>
@@ -1107,7 +1107,7 @@ FTW of the test signal (frequency relative to fs)
     <td><b>24</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">ftw[31:24]</td>
+    <td colspan="8" align="center">ftw[31:24]</td>
   </tr>
   <tr>
     <td><b>23</b></td>
@@ -1120,7 +1120,7 @@ FTW of the test signal (frequency relative to fs)
     <td><b>16</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">ftw[23:16]</td>
+    <td colspan="8" align="center">ftw[23:16]</td>
   </tr>
   <tr>
     <td><b>15</b></td>
@@ -1133,7 +1133,7 @@ FTW of the test signal (frequency relative to fs)
     <td><b>8</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">ftw[15:8]</td>
+    <td colspan="8" align="center">ftw[15:8]</td>
   </tr>
   <tr>
     <td><b>7</b></td>
@@ -1146,7 +1146,7 @@ FTW of the test signal (frequency relative to fs)
     <td><b>0</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">ftw[7:0]</td>
+    <td colspan="8" align="center">ftw[7:0]</td>
   </tr>
 </table>
 
@@ -1176,7 +1176,7 @@ Constant to be used as OTF input for channel I
     <td><b>8</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">i[15:8]</td>
+    <td colspan="8" align="center">i[15:8]</td>
   </tr>
   <tr>
     <td><b>7</b></td>
@@ -1189,7 +1189,7 @@ Constant to be used as OTF input for channel I
     <td><b>0</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">i[7:0]</td>
+    <td colspan="8" align="center">i[7:0]</td>
   </tr>
 </table>
 
@@ -1219,7 +1219,7 @@ Constant to be used as OTF input for channel Q
     <td><b>8</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">q[15:8]</td>
+    <td colspan="8" align="center">q[15:8]</td>
   </tr>
   <tr>
     <td><b>7</b></td>
@@ -1232,7 +1232,7 @@ Constant to be used as OTF input for channel Q
     <td><b>0</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">q[7:0]</td>
+    <td colspan="8" align="center">q[7:0]</td>
   </tr>
 </table>
 
@@ -1260,7 +1260,7 @@ Constant to be used as OTF input for channel Q
     <td><b>56</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">ftwH1main[63:56]</td>
+    <td colspan="8" align="center">ftwH1main[63:56]</td>
   </tr>
   <tr>
     <td><b>55</b></td>
@@ -1273,7 +1273,7 @@ Constant to be used as OTF input for channel Q
     <td><b>48</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">ftwH1main[55:48]</td>
+    <td colspan="8" align="center">ftwH1main[55:48]</td>
   </tr>
   <tr>
     <td><b>47</b></td>
@@ -1286,7 +1286,7 @@ Constant to be used as OTF input for channel Q
     <td><b>40</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">ftwH1main[47:40]</td>
+    <td colspan="8" align="center">ftwH1main[47:40]</td>
   </tr>
   <tr>
     <td><b>39</b></td>
@@ -1299,7 +1299,7 @@ Constant to be used as OTF input for channel Q
     <td><b>32</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">ftwH1main[39:32]</td>
+    <td colspan="8" align="center">ftwH1main[39:32]</td>
   </tr>
   <tr>
     <td><b>31</b></td>
@@ -1312,7 +1312,7 @@ Constant to be used as OTF input for channel Q
     <td><b>24</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">ftwH1main[31:24]</td>
+    <td colspan="8" align="center">ftwH1main[31:24]</td>
   </tr>
   <tr>
     <td><b>23</b></td>
@@ -1325,7 +1325,7 @@ Constant to be used as OTF input for channel Q
     <td><b>16</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">ftwH1main[23:16]</td>
+    <td colspan="8" align="center">ftwH1main[23:16]</td>
   </tr>
   <tr>
     <td><b>15</b></td>
@@ -1338,7 +1338,7 @@ Constant to be used as OTF input for channel Q
     <td><b>8</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">ftwH1main[15:8]</td>
+    <td colspan="8" align="center">ftwH1main[15:8]</td>
   </tr>
   <tr>
     <td><b>7</b></td>
@@ -1351,7 +1351,7 @@ Constant to be used as OTF input for channel Q
     <td><b>0</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">ftwH1main[7:0]</td>
+    <td colspan="8" align="center">ftwH1main[7:0]</td>
   </tr>
 </table>
 
@@ -1379,7 +1379,7 @@ Constant to be used as OTF input for channel Q
     <td><b>56</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">ftwH1on[63:56]</td>
+    <td colspan="8" align="center">ftwH1on[63:56]</td>
   </tr>
   <tr>
     <td><b>55</b></td>
@@ -1392,7 +1392,7 @@ Constant to be used as OTF input for channel Q
     <td><b>48</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">ftwH1on[55:48]</td>
+    <td colspan="8" align="center">ftwH1on[55:48]</td>
   </tr>
   <tr>
     <td><b>47</b></td>
@@ -1405,7 +1405,7 @@ Constant to be used as OTF input for channel Q
     <td><b>40</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">ftwH1on[47:40]</td>
+    <td colspan="8" align="center">ftwH1on[47:40]</td>
   </tr>
   <tr>
     <td><b>39</b></td>
@@ -1418,7 +1418,7 @@ Constant to be used as OTF input for channel Q
     <td><b>32</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">ftwH1on[39:32]</td>
+    <td colspan="8" align="center">ftwH1on[39:32]</td>
   </tr>
   <tr>
     <td><b>31</b></td>
@@ -1431,7 +1431,7 @@ Constant to be used as OTF input for channel Q
     <td><b>24</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">ftwH1on[31:24]</td>
+    <td colspan="8" align="center">ftwH1on[31:24]</td>
   </tr>
   <tr>
     <td><b>23</b></td>
@@ -1444,7 +1444,7 @@ Constant to be used as OTF input for channel Q
     <td><b>16</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">ftwH1on[23:16]</td>
+    <td colspan="8" align="center">ftwH1on[23:16]</td>
   </tr>
   <tr>
     <td><b>15</b></td>
@@ -1457,7 +1457,7 @@ Constant to be used as OTF input for channel Q
     <td><b>8</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">ftwH1on[15:8]</td>
+    <td colspan="8" align="center">ftwH1on[15:8]</td>
   </tr>
   <tr>
     <td><b>7</b></td>
@@ -1470,7 +1470,7 @@ Constant to be used as OTF input for channel Q
     <td><b>0</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">ftwH1on[7:0]</td>
+    <td colspan="8" align="center">ftwH1on[7:0]</td>
   </tr>
 </table>
 
@@ -1498,7 +1498,7 @@ Constant to be used as OTF input for channel Q
     <td><b>24</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">dftwH1slip0[31:24]</td>
+    <td colspan="8" align="center">dftwH1slip0[31:24]</td>
   </tr>
   <tr>
     <td><b>23</b></td>
@@ -1511,7 +1511,7 @@ Constant to be used as OTF input for channel Q
     <td><b>16</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">dftwH1slip0[23:16]</td>
+    <td colspan="8" align="center">dftwH1slip0[23:16]</td>
   </tr>
   <tr>
     <td><b>15</b></td>
@@ -1524,7 +1524,7 @@ Constant to be used as OTF input for channel Q
     <td><b>8</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">dftwH1slip0[15:8]</td>
+    <td colspan="8" align="center">dftwH1slip0[15:8]</td>
   </tr>
   <tr>
     <td><b>7</b></td>
@@ -1537,7 +1537,7 @@ Constant to be used as OTF input for channel Q
     <td><b>0</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">dftwH1slip0[7:0]</td>
+    <td colspan="8" align="center">dftwH1slip0[7:0]</td>
   </tr>
 </table>
 
@@ -1565,7 +1565,7 @@ Constant to be used as OTF input for channel Q
     <td><b>24</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">dftwH1slip1[31:24]</td>
+    <td colspan="8" align="center">dftwH1slip1[31:24]</td>
   </tr>
   <tr>
     <td><b>23</b></td>
@@ -1578,7 +1578,7 @@ Constant to be used as OTF input for channel Q
     <td><b>16</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">dftwH1slip1[23:16]</td>
+    <td colspan="8" align="center">dftwH1slip1[23:16]</td>
   </tr>
   <tr>
     <td><b>15</b></td>
@@ -1591,7 +1591,7 @@ Constant to be used as OTF input for channel Q
     <td><b>8</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">dftwH1slip1[15:8]</td>
+    <td colspan="8" align="center">dftwH1slip1[15:8]</td>
   </tr>
   <tr>
     <td><b>7</b></td>
@@ -1604,7 +1604,7 @@ Constant to be used as OTF input for channel Q
     <td><b>0</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">dftwH1slip1[7:0]</td>
+    <td colspan="8" align="center">dftwH1slip1[7:0]</td>
   </tr>
 </table>
 
@@ -1692,7 +1692,7 @@ Constant to be used as OTF input for channel Q
     <td><b>0</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">backplane[7:0]</td>
+    <td colspan="8" align="center">backplane[7:0]</td>
   </tr>
 </table>
 
@@ -1722,7 +1722,7 @@ Constant to be used as OTF input for channel Q
     <td><b>56</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">upper[31:24]</td>
+    <td colspan="8" align="center">upper[31:24]</td>
   </tr>
   <tr>
     <td><b>55</b></td>
@@ -1735,7 +1735,7 @@ Constant to be used as OTF input for channel Q
     <td><b>48</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">upper[23:16]</td>
+    <td colspan="8" align="center">upper[23:16]</td>
   </tr>
   <tr>
     <td><b>47</b></td>
@@ -1748,7 +1748,7 @@ Constant to be used as OTF input for channel Q
     <td><b>40</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">upper[15:8]</td>
+    <td colspan="8" align="center">upper[15:8]</td>
   </tr>
   <tr>
     <td><b>39</b></td>
@@ -1761,7 +1761,7 @@ Constant to be used as OTF input for channel Q
     <td><b>32</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">upper[7:0]</td>
+    <td colspan="8" align="center">upper[7:0]</td>
   </tr>
   <tr>
     <td><b>31</b></td>
@@ -1774,7 +1774,7 @@ Constant to be used as OTF input for channel Q
     <td><b>24</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">lower[31:24]</td>
+    <td colspan="8" align="center">lower[31:24]</td>
   </tr>
   <tr>
     <td><b>23</b></td>
@@ -1787,7 +1787,7 @@ Constant to be used as OTF input for channel Q
     <td><b>16</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">lower[23:16]</td>
+    <td colspan="8" align="center">lower[23:16]</td>
   </tr>
   <tr>
     <td><b>15</b></td>
@@ -1800,7 +1800,7 @@ Constant to be used as OTF input for channel Q
     <td><b>8</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">lower[15:8]</td>
+    <td colspan="8" align="center">lower[15:8]</td>
   </tr>
   <tr>
     <td><b>7</b></td>
@@ -1813,7 +1813,7 @@ Constant to be used as OTF input for channel Q
     <td><b>0</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">lower[7:0]</td>
+    <td colspan="8" align="center">lower[7:0]</td>
   </tr>
 </table>
 
@@ -1842,7 +1842,7 @@ Constant to be used as OTF input for channel Q
     <td><b>24</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">upper[15:8]</td>
+    <td colspan="8" align="center">upper[15:8]</td>
   </tr>
   <tr>
     <td><b>23</b></td>
@@ -1855,7 +1855,7 @@ Constant to be used as OTF input for channel Q
     <td><b>16</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">upper[7:0]</td>
+    <td colspan="8" align="center">upper[7:0]</td>
   </tr>
   <tr>
     <td><b>15</b></td>
@@ -1868,7 +1868,7 @@ Constant to be used as OTF input for channel Q
     <td><b>8</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">lower[15:8]</td>
+    <td colspan="8" align="center">lower[15:8]</td>
   </tr>
   <tr>
     <td><b>7</b></td>
@@ -1881,7 +1881,7 @@ Constant to be used as OTF input for channel Q
     <td><b>0</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">lower[7:0]</td>
+    <td colspan="8" align="center">lower[7:0]</td>
   </tr>
 </table>
 
@@ -1910,7 +1910,7 @@ Constant to be used as OTF input for channel Q
     <td><b>24</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">upper[15:8]</td>
+    <td colspan="8" align="center">upper[15:8]</td>
   </tr>
   <tr>
     <td><b>23</b></td>
@@ -1923,7 +1923,7 @@ Constant to be used as OTF input for channel Q
     <td><b>16</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">upper[7:0]</td>
+    <td colspan="8" align="center">upper[7:0]</td>
   </tr>
   <tr>
     <td><b>15</b></td>
@@ -1936,7 +1936,7 @@ Constant to be used as OTF input for channel Q
     <td><b>8</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">lower[15:8]</td>
+    <td colspan="8" align="center">lower[15:8]</td>
   </tr>
   <tr>
     <td><b>7</b></td>
@@ -1949,7 +1949,7 @@ Constant to be used as OTF input for channel Q
     <td><b>0</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">lower[7:0]</td>
+    <td colspan="8" align="center">lower[7:0]</td>
   </tr>
 </table>
 

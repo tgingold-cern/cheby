@@ -54,7 +54,7 @@
     <td><b>0</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">reg1[7:0]</td>
+    <td colspan="8" align="center">reg1[7:0]</td>
   </tr>
 </table>
 
@@ -82,7 +82,7 @@
     <td><b>0</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">reg1[7:0]</td>
+    <td colspan="8" align="center">reg1[7:0]</td>
   </tr>
 </table>
 
@@ -110,7 +110,7 @@
     <td><b>0</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">reg1[7:0]</td>
+    <td colspan="8" align="center">reg1[7:0]</td>
   </tr>
 </table>
 
@@ -138,7 +138,7 @@
     <td><b>0</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">reg1[7:0]</td>
+    <td colspan="8" align="center">reg1[7:0]</td>
   </tr>
 </table>
 
@@ -166,7 +166,7 @@
     <td><b>0</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">reg1[7:0]</td>
+    <td colspan="8" align="center">reg1[7:0]</td>
   </tr>
 </table>
 
@@ -194,7 +194,7 @@
     <td><b>0</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">reg1[7:0]</td>
+    <td colspan="8" align="center">reg1[7:0]</td>
   </tr>
 </table>
 
@@ -222,7 +222,7 @@
     <td><b>0</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">reg1[7:0]</td>
+    <td colspan="8" align="center">reg1[7:0]</td>
   </tr>
 </table>
 
@@ -250,7 +250,7 @@
     <td><b>0</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">reg1[7:0]</td>
+    <td colspan="8" align="center">reg1[7:0]</td>
   </tr>
 </table>
 
