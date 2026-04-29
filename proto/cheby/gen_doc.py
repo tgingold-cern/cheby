@@ -82,12 +82,9 @@ class MemmapSummary(object):
                 iogrp = getattr(n, 'hdl_iogroup', None)
                 flatten = getattr(n, 'hdl_iogroup_flatten', True)
                 indexing = getattr(n, 'hdl_repeat_indexing', False)
-                name_idx_sep = getattr(n, 'hdl_repeat_idx_separator', None)
-                hdl_idx_sep = getattr(n, 'hdl_repeat_idx_separator', None)
-                if name_idx_sep is None:
-                    name_idx_sep = '.'
-                if hdl_idx_sep is None:
-                    hdl_idx_sep = '_'
+                idx_sep = getattr(n, 'hdl_repeat_idx_separator', None)
+                name_idx_sep = '.' if idx_sep is None else idx_sep
+                hdl_idx_sep = '_' if idx_sep is None else idx_sep
                 if indexing:
                     if iogrp and not flatten:
                         summary_hdl_name = iogrp
