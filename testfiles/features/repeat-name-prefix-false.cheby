@@ -1,0 +1,26 @@
+memory-map:
+  bus: wb-32-be
+  name: repeat_name_prefix_false
+  description: repeat with name-prefix false should not produce digit-leading signal names
+  children:
+    - block:
+        name: top_blk
+        x-hdl:
+          name-prefix: false
+          block-prefix: false
+        children:
+          - repeat:
+              name: chan
+              count: 2
+              x-hdl:
+                iogroup: chan
+                iogroup-flatten: false
+                block-prefix: true
+                name-prefix: false
+                repeat-indexing: true
+                repeat-idx-separator: ""
+              children:
+                - reg:
+                    name: ctrl
+                    access: rw
+                    width: 32
