@@ -456,7 +456,8 @@ def test_hdl_ref():
               'features/iogroup1', 'features/iogroup2', 'features/repeat-iogroup1',
               'features/repeat-iogroup2', 'features/repeat-iogroup3',
               'features/repeat-iogroup4', 'features/nested-iogroup1',
-              'features/repeat_idx_separator',
+              'features/repeat_idx_separator', 'features/repeat-indexing1',
+              'features/repeat-name-prefix-false',
               'features/no_port', 'features/memwide',
               'issue52/hwInfo',
               'bug-gen_wt/m1',
@@ -1093,7 +1094,9 @@ def test_doc():
     # Generate html and md, compare with a baseline.
     global nbr_tests
     for f in ['issue9/test', 'features/semver1', 'issue84/sps200CavityControl_as', 'issue67/repeatInRepeat',
-              'features/nested-iogroup1', 'features/repeat_idx_separator']:
+              'features/nested-iogroup1', 'features/repeat_idx_separator',
+              'features/repeat_iogroup_nosep_hdlprefix',
+              'features/repeat-indexing1']:
         if args.verbose:
             print('test doc: {}'.format(f))
         chebfile = srcdir + f + '.cheby'

@@ -76,7 +76,16 @@ def gen_name_children(parent, prefix, itfprefix, ctxt):
             idx_sep = getattr(parent, 'hdl_repeat_idx_separator', None)
             if idx_sep is None:
                 idx_sep = '_'
-            n.c_name = concat(prefix, n.name, idx_sep) + suffix
+            # Auto-generated child blocks of a RepeatBlock have a numeric
+            # name (the index).  If the inherited prefix is empty/None
+            # (e.g. due to name-prefix: false up the chain), the resulting
+            # c_name would start with a digit, which is not a valid VHDL
+            # identifier.  In that case, fall back to prepending the
+            # repeat's own name to keep the generated identifier valid.
+            if not prefix:
+                n.c_name = concat(parent.name, n.name, idx_sep) + suffix
+            else:
+                n.c_name = concat(prefix, n.name, idx_sep) + suffix
         else:
             n.c_name = concat(prefix, n.name) + suffix
         if isinstance(n, tree.Reg):

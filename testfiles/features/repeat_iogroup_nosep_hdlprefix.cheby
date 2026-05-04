@@ -1,0 +1,17 @@
+memory-map:
+  bus: wb-32-be
+  name: repeat_iogroup_nosep_hdlprefix
+  description: Doc HDL prefix for non-indexed iogroup repeats
+  children:
+    - repeat:
+        name: adc
+        count: 2
+        x-hdl:
+          iogroup: adc
+          iogroup-flatten: false
+          repeat-idx-separator: ""
+        children:
+          - reg:
+              name: spie_cmd_mem_wdata
+              width: 32
+              access: rw

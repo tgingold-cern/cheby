@@ -140,7 +140,7 @@ def print_map_summary(fd, summary):
             w(fd, "\\hyperref[sec:{}]{{{}}} & ".format(r.name, escape_printable(r.name)))
         else:
             w(fd, "{} & ".format(escape_printable(r.name)))
-        w(fd, "{}".format(escape_printable(r.hdl_name if r.hdl_name else r.node.c_name)))
+        w(fd, "{}".format(escape_printable(r.hdl_name or r.node.c_name)))
         wln(fd, '\\\\')
     wln(fd, "\\end{memmap}")
     wln(fd)

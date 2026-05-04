@@ -1,0 +1,22 @@
+memory-map:
+  bus: wb-32-be
+  name: repeat_indexing1
+  description: repeat with array indexing
+  children:
+    - repeat:
+        name: chan
+        count: 4
+        align: False
+        x-hdl:
+         iogroup: itf
+         iogroup-flatten: false
+         repeat-indexing: true
+        children:
+          - reg:
+              name: ctrl
+              access: rw
+              width: 32
+          - reg:
+              name: status
+              access: ro
+              width: 32

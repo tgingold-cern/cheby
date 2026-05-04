@@ -1,6 +1,6 @@
 <HTML>
 <HEAD>
-<TITLE>repeat_idx_separator</TITLE>
+<TITLE>repeat_indexing1</TITLE>
 <STYLE TYPE="text/css" MEDIA="all">
 <!--
   BODY { background: white; color: black;
@@ -41,8 +41,8 @@
 </STYLE>
 </HEAD>
 <BODY>
-<h1 class="heading">repeat_idx_separator</h1>
-<p>Test repeat index separator behavior</p>
+<h1 class="heading">repeat_indexing1</h1>
+<p>repeat with array indexing</p>
 <h3>1. Memory map summary</h3>
 <table cellpadding=2 cellspacing=0 border=0>
 <tr>
@@ -53,119 +53,77 @@
 <th>C prefix</th>
 </tr>
 <tr class="tr_odd">
-<td class="td_code">0x00-0x07</td>
-<td>BLOCK</td>
-<td><A href="#rep0">rep0</a></td>
-<td class="td_code">rep0</td>
-<td class="td_code">rep0</td>
+<td class="td_code">0x00-0x1f</td>
+<td>REPEAT [0..3] (itf)</td>
+<td><A href="#chan">chan</a></td>
+<td class="td_code">itf</td>
+<td class="td_code">chan</td>
 </tr>
 <tr class="tr_even">
-<td class="td_code">0x00-0x03</td>
-<td>BLOCK</td>
-<td><A href="#rep0.0">rep0.0</a></td>
-<td class="td_code">rep0_0</td>
-<td class="td_code">rep0.0</td>
-</tr>
-<tr class="tr_odd">
 <td class="td_code">0x00</td>
 <td>REG</td>
-<td><A href="#rep0.0.r">rep0.0.r</a></td>
-<td class="td_code">rep0_0_r</td>
-<td class="td_code">rep0.0.r</td>
-</tr>
-<tr class="tr_even">
-<td class="td_code">0x04-0x07</td>
-<td>BLOCK</td>
-<td><A href="#rep0.1">rep0.1</a></td>
-<td class="td_code">rep0_1</td>
-<td class="td_code">rep0.1</td>
+<td><A href="#chan.0.ctrl">chan.0.ctrl</a></td>
+<td class="td_code">itf(0).ctrl</td>
+<td class="td_code">chan.0.ctrl</td>
 </tr>
 <tr class="tr_odd">
 <td class="td_code">0x04</td>
 <td>REG</td>
-<td><A href="#rep0.1.r">rep0.1.r</a></td>
-<td class="td_code">rep0_1_r</td>
-<td class="td_code">rep0.1.r</td>
-</tr>
-<tr class="tr_even">
-<td class="td_code">0x08-0x0f</td>
-<td>BLOCK</td>
-<td><A href="#rep1">rep1</a></td>
-<td class="td_code">rep1</td>
-<td class="td_code">rep1</td>
-</tr>
-<tr class="tr_odd">
-<td class="td_code">0x08-0x0b</td>
-<td>BLOCK</td>
-<td><A href="#rep10">rep10</a></td>
-<td class="td_code">rep10</td>
-<td class="td_code">rep10</td>
+<td><A href="#chan.0.status">chan.0.status</a></td>
+<td class="td_code">itf(0).status</td>
+<td class="td_code">chan.0.status</td>
 </tr>
 <tr class="tr_even">
 <td class="td_code">0x08</td>
 <td>REG</td>
-<td><A href="#rep10.r">rep10.r</a></td>
-<td class="td_code">rep10_r</td>
-<td class="td_code">rep10.r</td>
+<td><A href="#chan.1.ctrl">chan.1.ctrl</a></td>
+<td class="td_code">itf(1).ctrl</td>
+<td class="td_code">chan.1.ctrl</td>
 </tr>
 <tr class="tr_odd">
-<td class="td_code">0x0c-0x0f</td>
-<td>BLOCK</td>
-<td><A href="#rep11">rep11</a></td>
-<td class="td_code">rep11</td>
-<td class="td_code">rep11</td>
-</tr>
-<tr class="tr_even">
 <td class="td_code">0x0c</td>
 <td>REG</td>
-<td><A href="#rep11.r">rep11.r</a></td>
-<td class="td_code">rep11_r</td>
-<td class="td_code">rep11.r</td>
-</tr>
-<tr class="tr_odd">
-<td class="td_code">0x10-0x17</td>
-<td>BLOCK</td>
-<td><A href="#rep2">rep2</a></td>
-<td class="td_code">rep2</td>
-<td class="td_code">rep2</td>
+<td><A href="#chan.1.status">chan.1.status</a></td>
+<td class="td_code">itf(1).status</td>
+<td class="td_code">chan.1.status</td>
 </tr>
 <tr class="tr_even">
-<td class="td_code">0x10-0x13</td>
-<td>BLOCK</td>
-<td><A href="#rep2_0">rep2_0</a></td>
-<td class="td_code">rep2_0</td>
-<td class="td_code">rep2_0</td>
-</tr>
-<tr class="tr_odd">
 <td class="td_code">0x10</td>
 <td>REG</td>
-<td><A href="#rep2_0.r">rep2_0.r</a></td>
-<td class="td_code">rep2_0_r</td>
-<td class="td_code">rep2_0.r</td>
-</tr>
-<tr class="tr_even">
-<td class="td_code">0x14-0x17</td>
-<td>BLOCK</td>
-<td><A href="#rep2_1">rep2_1</a></td>
-<td class="td_code">rep2_1</td>
-<td class="td_code">rep2_1</td>
+<td><A href="#chan.2.ctrl">chan.2.ctrl</a></td>
+<td class="td_code">itf(2).ctrl</td>
+<td class="td_code">chan.2.ctrl</td>
 </tr>
 <tr class="tr_odd">
 <td class="td_code">0x14</td>
 <td>REG</td>
-<td><A href="#rep2_1.r">rep2_1.r</a></td>
-<td class="td_code">rep2_1_r</td>
-<td class="td_code">rep2_1.r</td>
+<td><A href="#chan.2.status">chan.2.status</a></td>
+<td class="td_code">itf(2).status</td>
+<td class="td_code">chan.2.status</td>
+</tr>
+<tr class="tr_even">
+<td class="td_code">0x18</td>
+<td>REG</td>
+<td><A href="#chan.3.ctrl">chan.3.ctrl</a></td>
+<td class="td_code">itf(3).ctrl</td>
+<td class="td_code">chan.3.ctrl</td>
+</tr>
+<tr class="tr_odd">
+<td class="td_code">0x1c</td>
+<td>REG</td>
+<td><A href="#chan.3.status">chan.3.status</a></td>
+<td class="td_code">itf(3).status</td>
+<td class="td_code">chan.3.status</td>
 </tr>
 </table>
 
 <h3><a name="sect_3_0">2. Register description</a></h3>
-<a name="rep0.0.r"></a>
-<h3>2.1. rep0.0.r</h3>
+<a name="chan.0.ctrl"></a>
+<h3>2.1. chan.0.ctrl</h3>
 <table cellpadding=0 cellspacing=0 border=0>
-<tr><td><b>HW prefix:</b></td><td class="td_code">rep0_0_r</td></tr>
+<tr><td><b>HW prefix:</b></td><td class="td_code">itf(0).ctrl</td></tr>
 <tr><td><b>HW address:</b></td><td class="td_code">0x0</td></tr>
-<tr><td><b>C prefix:</b></td><td class="td_code">rep0.0.r</td></tr>
+<tr><td><b>C prefix:</b></td><td class="td_code">chan.0.ctrl</td></tr>
 <tr><td><b>C block offset:</b></td><td class="td_code">0x0</td></tr>
 </table>
 <table cellpadding=0 cellspacing=0 border=0>
@@ -180,7 +138,7 @@
  <td class="td_bit" colspan="1">24</td>
 </tr>
 <tr>
- <td class="td_field" colspan="8">r[31:24]</td>
+ <td class="td_field" colspan="8">ctrl[31:24]</td>
 </tr>
 <tr>
  <td class="td_bit" colspan="1">23</td>
@@ -193,7 +151,7 @@
  <td class="td_bit" colspan="1">16</td>
 </tr>
 <tr>
- <td class="td_field" colspan="8">r[23:16]</td>
+ <td class="td_field" colspan="8">ctrl[23:16]</td>
 </tr>
 <tr>
  <td class="td_bit" colspan="1">15</td>
@@ -206,7 +164,7 @@
  <td class="td_bit" colspan="1">8</td>
 </tr>
 <tr>
- <td class="td_field" colspan="8">r[15:8]</td>
+ <td class="td_field" colspan="8">ctrl[15:8]</td>
 </tr>
 <tr>
  <td class="td_bit" colspan="1">7</td>
@@ -219,20 +177,20 @@
  <td class="td_bit" colspan="1">0</td>
 </tr>
 <tr>
- <td class="td_field" colspan="8">r[7:0]</td>
+ <td class="td_field" colspan="8">ctrl[7:0]</td>
 </tr>
 </table>
 <dl>
-  <dt><b>r</b> [<i>rw</i>]</dt>
+  <dt><b>ctrl</b> [<i>rw</i>]</dt>
   <dd></dd>
 </dl>
-<a name="rep0.1.r"></a>
-<h3>2.2. rep0.1.r</h3>
+<a name="chan.0.status"></a>
+<h3>2.2. chan.0.status</h3>
 <table cellpadding=0 cellspacing=0 border=0>
-<tr><td><b>HW prefix:</b></td><td class="td_code">rep0_1_r</td></tr>
+<tr><td><b>HW prefix:</b></td><td class="td_code">itf(0).status</td></tr>
 <tr><td><b>HW address:</b></td><td class="td_code">0x4</td></tr>
-<tr><td><b>C prefix:</b></td><td class="td_code">rep0.1.r</td></tr>
-<tr><td><b>C block offset:</b></td><td class="td_code">0x0</td></tr>
+<tr><td><b>C prefix:</b></td><td class="td_code">chan.0.status</td></tr>
+<tr><td><b>C block offset:</b></td><td class="td_code">0x4</td></tr>
 </table>
 <table cellpadding=0 cellspacing=0 border=0>
 <tr>
@@ -246,7 +204,7 @@
  <td class="td_bit" colspan="1">24</td>
 </tr>
 <tr>
- <td class="td_field" colspan="8">r[31:24]</td>
+ <td class="td_field" colspan="8">status[31:24]</td>
 </tr>
 <tr>
  <td class="td_bit" colspan="1">23</td>
@@ -259,7 +217,7 @@
  <td class="td_bit" colspan="1">16</td>
 </tr>
 <tr>
- <td class="td_field" colspan="8">r[23:16]</td>
+ <td class="td_field" colspan="8">status[23:16]</td>
 </tr>
 <tr>
  <td class="td_bit" colspan="1">15</td>
@@ -272,7 +230,7 @@
  <td class="td_bit" colspan="1">8</td>
 </tr>
 <tr>
- <td class="td_field" colspan="8">r[15:8]</td>
+ <td class="td_field" colspan="8">status[15:8]</td>
 </tr>
 <tr>
  <td class="td_bit" colspan="1">7</td>
@@ -285,19 +243,19 @@
  <td class="td_bit" colspan="1">0</td>
 </tr>
 <tr>
- <td class="td_field" colspan="8">r[7:0]</td>
+ <td class="td_field" colspan="8">status[7:0]</td>
 </tr>
 </table>
 <dl>
-  <dt><b>r</b> [<i>rw</i>]</dt>
+  <dt><b>status</b> [<i>ro</i>]</dt>
   <dd></dd>
 </dl>
-<a name="rep10.r"></a>
-<h3>2.3. rep10.r</h3>
+<a name="chan.1.ctrl"></a>
+<h3>2.3. chan.1.ctrl</h3>
 <table cellpadding=0 cellspacing=0 border=0>
-<tr><td><b>HW prefix:</b></td><td class="td_code">rep10_r</td></tr>
+<tr><td><b>HW prefix:</b></td><td class="td_code">itf(1).ctrl</td></tr>
 <tr><td><b>HW address:</b></td><td class="td_code">0x8</td></tr>
-<tr><td><b>C prefix:</b></td><td class="td_code">rep10.r</td></tr>
+<tr><td><b>C prefix:</b></td><td class="td_code">chan.1.ctrl</td></tr>
 <tr><td><b>C block offset:</b></td><td class="td_code">0x0</td></tr>
 </table>
 <table cellpadding=0 cellspacing=0 border=0>
@@ -312,7 +270,7 @@
  <td class="td_bit" colspan="1">24</td>
 </tr>
 <tr>
- <td class="td_field" colspan="8">r[31:24]</td>
+ <td class="td_field" colspan="8">ctrl[31:24]</td>
 </tr>
 <tr>
  <td class="td_bit" colspan="1">23</td>
@@ -325,7 +283,7 @@
  <td class="td_bit" colspan="1">16</td>
 </tr>
 <tr>
- <td class="td_field" colspan="8">r[23:16]</td>
+ <td class="td_field" colspan="8">ctrl[23:16]</td>
 </tr>
 <tr>
  <td class="td_bit" colspan="1">15</td>
@@ -338,7 +296,7 @@
  <td class="td_bit" colspan="1">8</td>
 </tr>
 <tr>
- <td class="td_field" colspan="8">r[15:8]</td>
+ <td class="td_field" colspan="8">ctrl[15:8]</td>
 </tr>
 <tr>
  <td class="td_bit" colspan="1">7</td>
@@ -351,20 +309,20 @@
  <td class="td_bit" colspan="1">0</td>
 </tr>
 <tr>
- <td class="td_field" colspan="8">r[7:0]</td>
+ <td class="td_field" colspan="8">ctrl[7:0]</td>
 </tr>
 </table>
 <dl>
-  <dt><b>r</b> [<i>rw</i>]</dt>
+  <dt><b>ctrl</b> [<i>rw</i>]</dt>
   <dd></dd>
 </dl>
-<a name="rep11.r"></a>
-<h3>2.4. rep11.r</h3>
+<a name="chan.1.status"></a>
+<h3>2.4. chan.1.status</h3>
 <table cellpadding=0 cellspacing=0 border=0>
-<tr><td><b>HW prefix:</b></td><td class="td_code">rep11_r</td></tr>
+<tr><td><b>HW prefix:</b></td><td class="td_code">itf(1).status</td></tr>
 <tr><td><b>HW address:</b></td><td class="td_code">0xc</td></tr>
-<tr><td><b>C prefix:</b></td><td class="td_code">rep11.r</td></tr>
-<tr><td><b>C block offset:</b></td><td class="td_code">0x0</td></tr>
+<tr><td><b>C prefix:</b></td><td class="td_code">chan.1.status</td></tr>
+<tr><td><b>C block offset:</b></td><td class="td_code">0x4</td></tr>
 </table>
 <table cellpadding=0 cellspacing=0 border=0>
 <tr>
@@ -378,7 +336,7 @@
  <td class="td_bit" colspan="1">24</td>
 </tr>
 <tr>
- <td class="td_field" colspan="8">r[31:24]</td>
+ <td class="td_field" colspan="8">status[31:24]</td>
 </tr>
 <tr>
  <td class="td_bit" colspan="1">23</td>
@@ -391,7 +349,7 @@
  <td class="td_bit" colspan="1">16</td>
 </tr>
 <tr>
- <td class="td_field" colspan="8">r[23:16]</td>
+ <td class="td_field" colspan="8">status[23:16]</td>
 </tr>
 <tr>
  <td class="td_bit" colspan="1">15</td>
@@ -404,7 +362,7 @@
  <td class="td_bit" colspan="1">8</td>
 </tr>
 <tr>
- <td class="td_field" colspan="8">r[15:8]</td>
+ <td class="td_field" colspan="8">status[15:8]</td>
 </tr>
 <tr>
  <td class="td_bit" colspan="1">7</td>
@@ -417,19 +375,19 @@
  <td class="td_bit" colspan="1">0</td>
 </tr>
 <tr>
- <td class="td_field" colspan="8">r[7:0]</td>
+ <td class="td_field" colspan="8">status[7:0]</td>
 </tr>
 </table>
 <dl>
-  <dt><b>r</b> [<i>rw</i>]</dt>
+  <dt><b>status</b> [<i>ro</i>]</dt>
   <dd></dd>
 </dl>
-<a name="rep2_0.r"></a>
-<h3>2.5. rep2_0.r</h3>
+<a name="chan.2.ctrl"></a>
+<h3>2.5. chan.2.ctrl</h3>
 <table cellpadding=0 cellspacing=0 border=0>
-<tr><td><b>HW prefix:</b></td><td class="td_code">rep2_0_r</td></tr>
+<tr><td><b>HW prefix:</b></td><td class="td_code">itf(2).ctrl</td></tr>
 <tr><td><b>HW address:</b></td><td class="td_code">0x10</td></tr>
-<tr><td><b>C prefix:</b></td><td class="td_code">rep2_0.r</td></tr>
+<tr><td><b>C prefix:</b></td><td class="td_code">chan.2.ctrl</td></tr>
 <tr><td><b>C block offset:</b></td><td class="td_code">0x0</td></tr>
 </table>
 <table cellpadding=0 cellspacing=0 border=0>
@@ -444,7 +402,7 @@
  <td class="td_bit" colspan="1">24</td>
 </tr>
 <tr>
- <td class="td_field" colspan="8">r[31:24]</td>
+ <td class="td_field" colspan="8">ctrl[31:24]</td>
 </tr>
 <tr>
  <td class="td_bit" colspan="1">23</td>
@@ -457,7 +415,7 @@
  <td class="td_bit" colspan="1">16</td>
 </tr>
 <tr>
- <td class="td_field" colspan="8">r[23:16]</td>
+ <td class="td_field" colspan="8">ctrl[23:16]</td>
 </tr>
 <tr>
  <td class="td_bit" colspan="1">15</td>
@@ -470,7 +428,7 @@
  <td class="td_bit" colspan="1">8</td>
 </tr>
 <tr>
- <td class="td_field" colspan="8">r[15:8]</td>
+ <td class="td_field" colspan="8">ctrl[15:8]</td>
 </tr>
 <tr>
  <td class="td_bit" colspan="1">7</td>
@@ -483,19 +441,85 @@
  <td class="td_bit" colspan="1">0</td>
 </tr>
 <tr>
- <td class="td_field" colspan="8">r[7:0]</td>
+ <td class="td_field" colspan="8">ctrl[7:0]</td>
 </tr>
 </table>
 <dl>
-  <dt><b>r</b> [<i>rw</i>]</dt>
+  <dt><b>ctrl</b> [<i>rw</i>]</dt>
   <dd></dd>
 </dl>
-<a name="rep2_1.r"></a>
-<h3>2.6. rep2_1.r</h3>
+<a name="chan.2.status"></a>
+<h3>2.6. chan.2.status</h3>
 <table cellpadding=0 cellspacing=0 border=0>
-<tr><td><b>HW prefix:</b></td><td class="td_code">rep2_1_r</td></tr>
+<tr><td><b>HW prefix:</b></td><td class="td_code">itf(2).status</td></tr>
 <tr><td><b>HW address:</b></td><td class="td_code">0x14</td></tr>
-<tr><td><b>C prefix:</b></td><td class="td_code">rep2_1.r</td></tr>
+<tr><td><b>C prefix:</b></td><td class="td_code">chan.2.status</td></tr>
+<tr><td><b>C block offset:</b></td><td class="td_code">0x4</td></tr>
+</table>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr>
+ <td class="td_bit" colspan="1">31</td>
+ <td class="td_bit" colspan="1">30</td>
+ <td class="td_bit" colspan="1">29</td>
+ <td class="td_bit" colspan="1">28</td>
+ <td class="td_bit" colspan="1">27</td>
+ <td class="td_bit" colspan="1">26</td>
+ <td class="td_bit" colspan="1">25</td>
+ <td class="td_bit" colspan="1">24</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">status[31:24]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">23</td>
+ <td class="td_bit" colspan="1">22</td>
+ <td class="td_bit" colspan="1">21</td>
+ <td class="td_bit" colspan="1">20</td>
+ <td class="td_bit" colspan="1">19</td>
+ <td class="td_bit" colspan="1">18</td>
+ <td class="td_bit" colspan="1">17</td>
+ <td class="td_bit" colspan="1">16</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">status[23:16]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">15</td>
+ <td class="td_bit" colspan="1">14</td>
+ <td class="td_bit" colspan="1">13</td>
+ <td class="td_bit" colspan="1">12</td>
+ <td class="td_bit" colspan="1">11</td>
+ <td class="td_bit" colspan="1">10</td>
+ <td class="td_bit" colspan="1">9</td>
+ <td class="td_bit" colspan="1">8</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">status[15:8]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">7</td>
+ <td class="td_bit" colspan="1">6</td>
+ <td class="td_bit" colspan="1">5</td>
+ <td class="td_bit" colspan="1">4</td>
+ <td class="td_bit" colspan="1">3</td>
+ <td class="td_bit" colspan="1">2</td>
+ <td class="td_bit" colspan="1">1</td>
+ <td class="td_bit" colspan="1">0</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">status[7:0]</td>
+</tr>
+</table>
+<dl>
+  <dt><b>status</b> [<i>ro</i>]</dt>
+  <dd></dd>
+</dl>
+<a name="chan.3.ctrl"></a>
+<h3>2.7. chan.3.ctrl</h3>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr><td><b>HW prefix:</b></td><td class="td_code">itf(3).ctrl</td></tr>
+<tr><td><b>HW address:</b></td><td class="td_code">0x18</td></tr>
+<tr><td><b>C prefix:</b></td><td class="td_code">chan.3.ctrl</td></tr>
 <tr><td><b>C block offset:</b></td><td class="td_code">0x0</td></tr>
 </table>
 <table cellpadding=0 cellspacing=0 border=0>
@@ -510,7 +534,7 @@
  <td class="td_bit" colspan="1">24</td>
 </tr>
 <tr>
- <td class="td_field" colspan="8">r[31:24]</td>
+ <td class="td_field" colspan="8">ctrl[31:24]</td>
 </tr>
 <tr>
  <td class="td_bit" colspan="1">23</td>
@@ -523,7 +547,7 @@
  <td class="td_bit" colspan="1">16</td>
 </tr>
 <tr>
- <td class="td_field" colspan="8">r[23:16]</td>
+ <td class="td_field" colspan="8">ctrl[23:16]</td>
 </tr>
 <tr>
  <td class="td_bit" colspan="1">15</td>
@@ -536,7 +560,7 @@
  <td class="td_bit" colspan="1">8</td>
 </tr>
 <tr>
- <td class="td_field" colspan="8">r[15:8]</td>
+ <td class="td_field" colspan="8">ctrl[15:8]</td>
 </tr>
 <tr>
  <td class="td_bit" colspan="1">7</td>
@@ -549,11 +573,77 @@
  <td class="td_bit" colspan="1">0</td>
 </tr>
 <tr>
- <td class="td_field" colspan="8">r[7:0]</td>
+ <td class="td_field" colspan="8">ctrl[7:0]</td>
 </tr>
 </table>
 <dl>
-  <dt><b>r</b> [<i>rw</i>]</dt>
+  <dt><b>ctrl</b> [<i>rw</i>]</dt>
+  <dd></dd>
+</dl>
+<a name="chan.3.status"></a>
+<h3>2.8. chan.3.status</h3>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr><td><b>HW prefix:</b></td><td class="td_code">itf(3).status</td></tr>
+<tr><td><b>HW address:</b></td><td class="td_code">0x1c</td></tr>
+<tr><td><b>C prefix:</b></td><td class="td_code">chan.3.status</td></tr>
+<tr><td><b>C block offset:</b></td><td class="td_code">0x4</td></tr>
+</table>
+<table cellpadding=0 cellspacing=0 border=0>
+<tr>
+ <td class="td_bit" colspan="1">31</td>
+ <td class="td_bit" colspan="1">30</td>
+ <td class="td_bit" colspan="1">29</td>
+ <td class="td_bit" colspan="1">28</td>
+ <td class="td_bit" colspan="1">27</td>
+ <td class="td_bit" colspan="1">26</td>
+ <td class="td_bit" colspan="1">25</td>
+ <td class="td_bit" colspan="1">24</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">status[31:24]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">23</td>
+ <td class="td_bit" colspan="1">22</td>
+ <td class="td_bit" colspan="1">21</td>
+ <td class="td_bit" colspan="1">20</td>
+ <td class="td_bit" colspan="1">19</td>
+ <td class="td_bit" colspan="1">18</td>
+ <td class="td_bit" colspan="1">17</td>
+ <td class="td_bit" colspan="1">16</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">status[23:16]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">15</td>
+ <td class="td_bit" colspan="1">14</td>
+ <td class="td_bit" colspan="1">13</td>
+ <td class="td_bit" colspan="1">12</td>
+ <td class="td_bit" colspan="1">11</td>
+ <td class="td_bit" colspan="1">10</td>
+ <td class="td_bit" colspan="1">9</td>
+ <td class="td_bit" colspan="1">8</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">status[15:8]</td>
+</tr>
+<tr>
+ <td class="td_bit" colspan="1">7</td>
+ <td class="td_bit" colspan="1">6</td>
+ <td class="td_bit" colspan="1">5</td>
+ <td class="td_bit" colspan="1">4</td>
+ <td class="td_bit" colspan="1">3</td>
+ <td class="td_bit" colspan="1">2</td>
+ <td class="td_bit" colspan="1">1</td>
+ <td class="td_bit" colspan="1">0</td>
+</tr>
+<tr>
+ <td class="td_field" colspan="8">status[7:0]</td>
+</tr>
+</table>
+<dl>
+  <dt><b>status</b> [<i>ro</i>]</dt>
   <dd></dd>
 </dl>
 

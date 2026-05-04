@@ -1,0 +1,64 @@
+\section{Memory Map Summary}
+Doc HDL prefix for non-indexed iogroup repeats
+
+\begin{memmap}
+0x0-0x7 & REPEAT (adc) & adc & adc\\
+0x0-0x3 & BLOCK & adc0 & adc0\\
+0x0 & REG & \hyperref[sec:adc0.spie_cmd_mem_wdata]{adc0.\allowbreak{}spie\_\allowbreak{}cmd\_\allowbreak{}mem\_\allowbreak{}wdata} & adc0\_\allowbreak{}spie\_\allowbreak{}cmd\_\allowbreak{}mem\_\allowbreak{}wdata\\
+0x4-0x7 & BLOCK & adc1 & adc1\\
+0x4 & REG & \hyperref[sec:adc1.spie_cmd_mem_wdata]{adc1.\allowbreak{}spie\_\allowbreak{}cmd\_\allowbreak{}mem\_\allowbreak{}wdata} & adc1\_\allowbreak{}spie\_\allowbreak{}cmd\_\allowbreak{}mem\_\allowbreak{}wdata\\
+\end{memmap}
+
+\section{Register Description}
+\subsubsection{adc0.\allowbreak{}spie\_\allowbreak{}cmd\_\allowbreak{}mem\_\allowbreak{}wdata}
+\label{sec:adc0.spie_cmd_mem_wdata}
+\begin{regsummary}
+HW Prefix & adc0\_\allowbreak{}spie\_\allowbreak{}cmd\_\allowbreak{}mem\_\allowbreak{}wdata\\
+HW Address & 0x0\\
+C Prefix & adc0.\allowbreak{}spie\_\allowbreak{}cmd\_\allowbreak{}mem\_\allowbreak{}wdata\\
+C Block Offset & 0x0\\
+Access & read/write\\
+\end{regsummary}
+
+\begin{regdraw}
+31 & 30 & 29 & 28 & 27 & 26 & 25 & 24 \\
+\SetCell[c=8]{c, bg=lightgray} spie\_\allowbreak{}cmd\_\allowbreak{}mem\_\allowbreak{}wdata[31:24] \\
+23 & 22 & 21 & 20 & 19 & 18 & 17 & 16 \\
+\SetCell[c=8]{c, bg=lightgray} spie\_\allowbreak{}cmd\_\allowbreak{}mem\_\allowbreak{}wdata[23:16] \\
+15 & 14 & 13 & 12 & 11 & 10 & 9 & 8 \\
+\SetCell[c=8]{c, bg=lightgray} spie\_\allowbreak{}cmd\_\allowbreak{}mem\_\allowbreak{}wdata[15:8] \\
+7 & 6 & 5 & 4 & 3 & 2 & 1 & 0 \\
+\SetCell[c=8]{c, bg=lightgray} spie\_\allowbreak{}cmd\_\allowbreak{}mem\_\allowbreak{}wdata[7:0] \\
+\end{regdraw}
+
+\begin{regdesc}
+31:0 & spie\_\allowbreak{}cmd\_\allowbreak{}mem\_\allowbreak{}wdata & {}\\
+\end{regdesc}
+
+
+\subsubsection{adc1.\allowbreak{}spie\_\allowbreak{}cmd\_\allowbreak{}mem\_\allowbreak{}wdata}
+\label{sec:adc1.spie_cmd_mem_wdata}
+\begin{regsummary}
+HW Prefix & adc1\_\allowbreak{}spie\_\allowbreak{}cmd\_\allowbreak{}mem\_\allowbreak{}wdata\\
+HW Address & 0x4\\
+C Prefix & adc1.\allowbreak{}spie\_\allowbreak{}cmd\_\allowbreak{}mem\_\allowbreak{}wdata\\
+C Block Offset & 0x0\\
+Access & read/write\\
+\end{regsummary}
+
+\begin{regdraw}
+31 & 30 & 29 & 28 & 27 & 26 & 25 & 24 \\
+\SetCell[c=8]{c, bg=lightgray} spie\_\allowbreak{}cmd\_\allowbreak{}mem\_\allowbreak{}wdata[31:24] \\
+23 & 22 & 21 & 20 & 19 & 18 & 17 & 16 \\
+\SetCell[c=8]{c, bg=lightgray} spie\_\allowbreak{}cmd\_\allowbreak{}mem\_\allowbreak{}wdata[23:16] \\
+15 & 14 & 13 & 12 & 11 & 10 & 9 & 8 \\
+\SetCell[c=8]{c, bg=lightgray} spie\_\allowbreak{}cmd\_\allowbreak{}mem\_\allowbreak{}wdata[15:8] \\
+7 & 6 & 5 & 4 & 3 & 2 & 1 & 0 \\
+\SetCell[c=8]{c, bg=lightgray} spie\_\allowbreak{}cmd\_\allowbreak{}mem\_\allowbreak{}wdata[7:0] \\
+\end{regdraw}
+
+\begin{regdesc}
+31:0 & spie\_\allowbreak{}cmd\_\allowbreak{}mem\_\allowbreak{}wdata & {}\\
+\end{regdesc}
+
+
