@@ -786,6 +786,60 @@ Example of an included submap:
         include: True
 ----
 
+By default, when a submap is included, the record types of its `iogroup` are
+duplicated in the parent's VHDL package.  Setting the `x-hdl.reuse-submap-types`
+attribute to `True` makes the parent reuse the package generated for the submap
+when compiled standalone, instead of duplicating its record types.  This avoids
+type duplication and keeps a single source of truth for the submap's interface.
+
+This option requires `include: True` and is only supported for VHDL (it is
+ignored with a warning for Verilog and SystemVerilog).  The included file must
+define a top-level `iogroup`.
+
+Example of an included submap reusing the submap's package types:
+
+[source]
+----
+# leaf.cheby
+memory-map:
+  name: leaf
+  bus: wb-32-be
+  x-hdl:
+    iogroup: io
+  children:
+    - reg:
+        name: ctrl
+        width: 32
+        access: rw
+
+# top.cheby
+memory-map:
+  name: top
+  bus: wb-32-be
+  children:
+    - submap:
+        name: leaf_inst
+        filename: leaf.cheby
+        include: True
+        x-hdl:
+          reuse-submap-types: True
+----
+
+The generated `top.vhd` imports `leaf_pkg` and references its types directly
+rather than re-declaring them in `top_pkg`:
+
+[source,vhdl]
+----
+use work.leaf_pkg.all;
+...
+entity top is
+  port (
+    ...
+    leaf_inst_o : out t_io_master_out;  -- type from leaf_pkg
+    leaf_inst_i : in  t_io_slave_out;
+  );
+----
+
 === Address-space
 
 This concept was introduced for more complex memory maps where there might be
