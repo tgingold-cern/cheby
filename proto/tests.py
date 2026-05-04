@@ -458,6 +458,8 @@ def test_hdl_ref():
               'features/repeat-iogroup4', 'features/nested-iogroup1',
               'features/repeat_idx_separator', 'features/repeat-indexing1',
               'features/repeat-name-prefix-false',
+              'features/reuse-submap-leaf',
+              'features/reuse-submap1', 'features/reuse-submap2',
               'features/no_port', 'features/memwide',
               'issue52/hwInfo',
               'bug-gen_wt/m1',
