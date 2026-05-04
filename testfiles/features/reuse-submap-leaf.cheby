@@ -1,0 +1,32 @@
+memory-map:
+  name: reuse_submap_leaf
+  bus: wb-32-be
+  description: Leaf memory map, included from reuse-submap1 / reuse-submap2.
+  x-hdl:
+    iogroup: io
+  children:
+    - reg:
+        name: ctrl
+        width: 32
+        access: rw
+        children:
+          - field:
+              name: enable
+              range: 0
+          - field:
+              name: mode
+              range: 3-1
+          - field:
+              name: divisor
+              range: 15-8
+    - reg:
+        name: status
+        width: 32
+        access: ro
+        children:
+          - field:
+              name: ready
+              range: 0
+          - field:
+              name: count
+              range: 31-16

@@ -432,6 +432,13 @@ def test_hdl_ref():
     # Generate HDL, compare with a baseline and potentially elaborate.
     global nbr_tests
 
+    # Tests that exercise VHDL-only features (e.g. reuse-submap-types with a
+    # parent iogroup wrapping a repeat-indexed submap array). For these,
+    # SV/Verilog generation, comparison and elaboration are skipped.
+    vhdl_only = {
+        'features/reuse-submap2',
+    }
+
     for f in ['fmc-adc01/fmc_adc_alt_trigin', 'fmc-adc01/fmc_adc_alt_trigout',
               'issue9/test', 'issue10/test',
               'issue8/simpleMap_bug', 'issue8/simpleMap_noBug',
@@ -458,6 +465,8 @@ def test_hdl_ref():
               'features/repeat-iogroup4', 'features/nested-iogroup1',
               'features/repeat_idx_separator', 'features/repeat-indexing1',
               'features/repeat-name-prefix-false',
+              'features/reuse-submap-leaf',
+              'features/reuse-submap1', 'features/reuse-submap2',
               'features/no_port', 'features/memwide',
               'issue52/hwInfo',
               'bug-gen_wt/m1',
@@ -485,27 +494,30 @@ def test_hdl_ref():
         gen_name.gen_name_memmap(t)
         h = gen_hdl.generate_hdl(t)
 
+        is_vhdl_only = f in vhdl_only
+
         # Generate VHDL
         buf_vhdl = write_buffer()
         print_vhdl.print_vhdl(buf_vhdl, h)
         if not compare_buffer_and_file(buf_vhdl, vhdl_file):
             error('vhdl generation error for {}'.format(f))
 
-        # Generate SV
-        buf_sv = write_buffer()
-        with gconfig_scope():
-            gconfig.hdl_lang = 'sv'
-            print_verilog.print_verilog(buf_sv, h)
-        if not compare_buffer_and_file(buf_sv, sv_file):
-            error('SV generation error for {}'.format(f))
+        if not is_vhdl_only:
+            # Generate SV
+            buf_sv = write_buffer()
+            with gconfig_scope():
+                gconfig.hdl_lang = 'sv'
+                print_verilog.print_verilog(buf_sv, h)
+            if not compare_buffer_and_file(buf_sv, sv_file):
+                error('SV generation error for {}'.format(f))
 
-        # Generate Verilog
-        buf_verilog = write_buffer()
-        with gconfig_scope():
-            gconfig.hdl_lang = 'verilog'
-            print_verilog.print_verilog(buf_verilog, h)
-        if not compare_buffer_and_file(buf_verilog, verilog_file):
-            error('Verilog generation error for {}'.format(f))
+            # Generate Verilog
+            buf_verilog = write_buffer()
+            with gconfig_scope():
+                gconfig.hdl_lang = 'verilog'
+                print_verilog.print_verilog(buf_verilog, h)
+            if not compare_buffer_and_file(buf_verilog, verilog_file):
+                error('Verilog generation error for {}'.format(f))
 
         nbr_tests += 1
 
@@ -516,9 +528,10 @@ def test_hdl_ref():
             # Elaborate VHDL using GHDL
             elab_vhdl(vhdl_file)
 
-            # Elaborate SV and Verilog using Verilator
-            elab_sv(sv_file, top_entity)
-            elab_sv(verilog_file, top_entity)
+            if not is_vhdl_only:
+                # Elaborate SV and Verilog using Verilator
+                elab_sv(sv_file, top_entity)
+                elab_sv(verilog_file, top_entity)
 
             nbr_tests += 1
 
