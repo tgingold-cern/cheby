@@ -1,0 +1,23 @@
+memory-map:
+  name: reuse_submap2
+  bus: wb-32-be
+  description: Repeat wrapping an included submap with reuse-submap-types.
+               Generates an array of the imported element type, accessed
+               as leaf(0).ctrl, leaf(1).ctrl, etc.
+  x-hdl:
+    iogroup: top
+  children:
+    - repeat:
+        name: leaf
+        count: 2
+        x-hdl:
+          iogroup-flatten: false
+          repeat-indexing: true
+        children:
+          - submap:
+              name: leaf
+              filename: reuse-submap-leaf.cheby
+              include: true
+              x-hdl:
+                name-prefix: false
+                reuse-submap-types: true
