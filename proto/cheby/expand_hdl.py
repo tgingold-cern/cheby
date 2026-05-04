@@ -323,7 +323,8 @@ def expand_x_hdl_addressspace(n, dct):
 
 
 def expand_x_hdl_submap(n, dct):
-    for k, _ in dct.items():
+    n.hdl_reuse_submap_types = False
+    for k, v in dct.items():
         if k == 'busgroup':
             if n.include:
                 parser.warning(n, "x-hdl:busgroup for included submap '{}' is ignored".format(
@@ -334,6 +335,13 @@ def expand_x_hdl_submap(n, dct):
                         n.get_path()))
         elif k in ('block-prefix', 'reg-prefix', 'name-prefix'):
             pass
+        elif k == 'reuse-submap-types':
+            val = parser.read_bool(n, k, v)
+            if val and not n.include:
+                parser.error(
+                    "'reuse-submap-types' requires 'include: true' on submap '{}'".format(
+                        n.get_path()))
+            n.hdl_reuse_submap_types = val
         else:
             parser.error("unhandled '{}' in x-hdl of {}".format(
                 k, n.get_path()))
