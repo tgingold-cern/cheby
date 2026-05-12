@@ -9,10 +9,12 @@ pybuild_opts := --buildsystem=pybuild -- --dir $(CURDIR)/proto
 %:
 	dh $@ --with python3 $(pybuild_opts)
 
+override OS_VERSION_ID := $(shell grep -oP '^VERSION_ID=\K.*' /etc/os-release | tr -d '"')
+override DEB_VERSION_ID := deb$(OS_VERSION_ID)
 .PHONY: debian/changelog
 debian/changelog:
 	rm -f $@
 	debchange --create --controlmaint \
 	    --package cheby \
-	    --newversion $(shell git describe --tags | sed 's/^v//' | cut -d '-' -f1) \
+	    --newversion $(shell git describe --tags | sed 's/^v//' | cut -d '-' -f1)+$(DEB_VERSION_ID) \
 	    --distribution unstable "Visit the project's Homepage to see its full CHANGELOG"
