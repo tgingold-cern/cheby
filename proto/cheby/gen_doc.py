@@ -96,10 +96,9 @@ class MemmapSummary(object):
                         hdl_repeat_name = hdl or n.name
                         summary_hdl_name = hdl_repeat_name
                         typ = 'REPEAT [0..{}]'.format(len(n.children) - 1)
-                    if not skip_name:
-                        self.raws.append(SummaryRaw(
-                            rng, typ, name, n, n_addr,
-                            hdl_name=summary_hdl_name))
+                    self.raws.append(SummaryRaw(
+                        rng, typ, name, n, n_addr,
+                        hdl_name=summary_hdl_name))
                     for i, child in enumerate(n.children):
                         self.gen_raws(
                             child, "{}{}{}.".format(name, name_idx_sep, i),
@@ -107,20 +106,18 @@ class MemmapSummary(object):
                             '{}({}).'.format(hdl_repeat_name, i))
                 elif iogrp and not flatten:
                     typ = 'REPEAT ({})'.format(iogrp)
-                    if not skip_name:
-                        self.raws.append(SummaryRaw(
-                            rng, typ, name, n, n_addr,
-                            hdl_name=iogrp))
+                    self.raws.append(SummaryRaw(
+                        rng, typ, name, n, n_addr,
+                        hdl_name=iogrp))
                     iogrp_pfx = (hdl_pfx or '') + iogrp + hdl_idx_sep
                     self.gen_raws(
                         n, name + name_idx_sep, addr_pfx, n_addr, iogrp_pfx)
                 else:
-                    typ = 'REPEAT ({})'.format(iogrp) if iogrp else 'BLOCK'
+                    typ = 'REPEAT ({})'.format(iogrp) if iogrp else 'REPEAT'
                     resolved_hdl = hdl if hdl else n.name
-                    if not skip_name:
-                        self.raws.append(SummaryRaw(
-                            rng, typ, name, n, n_addr,
-                            hdl_name=hdl or None))
+                    self.raws.append(SummaryRaw(
+                        rng, typ, name, n, n_addr,
+                        hdl_name=hdl or None))
                     self.gen_raws(
                         n, name + name_idx_sep, addr_pfx, n_addr,
                         resolved_hdl + hdl_idx_sep)
