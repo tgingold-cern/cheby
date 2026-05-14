@@ -102,11 +102,16 @@ class HDLInterfaceInstance(HDLNode, HDLPortsBase):
 
 
 class HDLInterface(HDLNode, HDLPortsBase):
-    """Declare an interface (the type, not an instance)"""
-    def __init__(self, name=None):
+    """Declare an interface (the type, not an instance).
+    When :attr:`external_pkg` is non-None it is the name of an external VHDL
+    package (e.g. ``leaf_pkg``) that defines this interface's record types.
+    The interface is then referenced from generated code but never emitted in
+    the parent module's package."""
+    def __init__(self, name=None, external_pkg=None):
         super(HDLInterface, self).__init__()
         self.name = name
         self.comment = None
+        self.external_pkg = external_pkg
 
 
 class HDLInterfaceArray(HDLNode):
