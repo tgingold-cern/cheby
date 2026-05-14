@@ -164,14 +164,21 @@ def print_summary_html(_periph, summary):
     odd_even = ['odd', 'even']
     for r in summary.raws:
         hdlprefix = r.hdl_name if r.hdl_name else r.node.c_name
+        # Only registers have anchors in the detailed section.
+        if isinstance(r.node, tree.Reg):
+            name_cell = '<A href="#{cprefix}">{name}</a>'.format(
+                cprefix=r.name, name=r.name
+            )
+        else:
+            name_cell = r.name
         res += '''<tr class="tr_{odd_even}">
 <td class="td_code">{address}</td>
 <td>{typ}</td>
-<td><A href="#{cprefix}">{name}</a></td>
+<td>{name_cell}</td>
 <td class="td_code">{hdlprefix}</td>
 <td class="td_code">{cprefix}</td>
 </tr>\n'''.format(typ=r.typ, odd_even=odd_even[0], address=r.address,
-                  cprefix=r.name, name=r.name,
+                  cprefix=r.name, name_cell=name_cell,
                   hdlprefix=hdlprefix)
         odd_even = [odd_even[1], odd_even[0]]
     res += '</table>\n'
