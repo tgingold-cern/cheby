@@ -2,6 +2,6 @@ library ieee;
 use ieee.std_logic_1164.all;
 
 package sreg_map_consts_pkg is
-  constant c_SREG_SIZE : Natural := 4;
-  constant c_SREG_AREG_ADDR : Natural := 16#0#;
+  constant C_SREG_SIZE : Natural := 4;
+  constant C_SREG_AREG_ADDR : Natural := 16#0#;
 end package sreg_map_consts_pkg;

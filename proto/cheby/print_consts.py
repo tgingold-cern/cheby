@@ -243,10 +243,10 @@ class ConstsPrinterVHDLOhwr(ConstsPrinterVHDL):
         self.pkg_name = root.hdl_module_name + '_consts_pkg'
 
     def pr_const(self, name, val):
-        super().pr_const("c_" + name, val)
+        super().pr_const("C_" + name, val)
 
     def pr_const_width(self, name, val, width):
-        super().pr_const_width("c_" + name, val, width)
+        super().pr_const_width("C_" + name, val, width)
 
     def pr_address(self, n):
         # ADDR is a suffix.
