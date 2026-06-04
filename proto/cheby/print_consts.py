@@ -192,6 +192,11 @@ class ConstsPrinterSystemVerilog(ConstsPrinter):
 
 
 class ConstsPrinterVHDL(ConstsPrinter):
+    # Maximum value representable by a VHDL Natural/Integer. The VHDL standard
+    # only guarantees a 32-bit signed integer, so synthesis/elaboration tools
+    # reject literals greater than 2**31-1.
+    INTEGER_MAX = 2 ** 31 - 1
+
     def __init__(self, fd, root):
         super(ConstsPrinterVHDL, self).__init__(fd, root)
         self.pkg_name = root.hdl_module_name + '_Consts'
@@ -204,14 +209,38 @@ class ConstsPrinterVHDL(ConstsPrinter):
 
         self.pr_raw("package {} is\n".format(self.pkg_name))
 
+    @staticmethod
+    def _slv_of_int(val):
+        """Return a (hex literal, width) pair representing :param val: as a
+        std_logic_vector. The width is the smallest multiple of 4 bits that can
+        hold the value, with a minimum of 32 bits."""
+        width = max(val.bit_length(), 32)
+        width = ((width + 3) // 4) * 4
+        return 'x"{:0{w}x}"'.format(val, w=width // 4), width
+
     def pr_const(self, name, val):
         self.pr_raw("  constant {} : Natural := {};\n".format(name, val))
 
     def pr_const_width(self, name, val, width):
         self.pr_raw("  constant {} : std_logic_vector({}-1 downto 0) := {};\n".format(name, width, val))
 
+    def pr_dec_const(self, name, val):
+        # A Natural cannot represent values above INTEGER_MAX, so fall back to a
+        # std_logic_vector to keep the package synthesizable.
+        if isinstance(val, int) and val > self.INTEGER_MAX:
+            hex_val, width = self._slv_of_int(val)
+            self.pr_const_width(name, hex_val, width)
+        else:
+            self.pr_const(name, "{}".format(val))
+
     def pr_hex_const(self, name, val):
-        self.pr_const(name, "16#{:x}#".format(val))
+        # A Natural cannot represent values above INTEGER_MAX, so fall back to a
+        # std_logic_vector to keep the package synthesizable.
+        if val > self.INTEGER_MAX:
+            hex_val, width = self._slv_of_int(val)
+            self.pr_const_width(name, hex_val, width)
+        else:
+            self.pr_const(name, "16#{:x}#".format(val))
 
     def pr_bin_data(self, name, val, width):
         bin_val = "{:b}".format(val).zfill(width)
