@@ -1,0 +1,8 @@
+library ieee;
+use ieee.std_logic_1164.all;
+
+package bigaddr_consts_pkg is
+  constant C_BIGADDR_SIZE : std_logic_vector(32-1 downto 0) := x"80000008";
+  constant C_BIGADDR_REG0_ADDR : std_logic_vector(32-1 downto 0) := x"80000000";
+  constant C_BIGADDR_REG1_ADDR : std_logic_vector(32-1 downto 0) := x"80000004";
+end package bigaddr_consts_pkg;
