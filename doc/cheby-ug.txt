@@ -1131,6 +1131,13 @@ The `STYLE` can be either `h`, `matlab`, `python`, `sv`, `tcl`, `verilog`,
 integers, and the mask is not generated (as it would often overflow the integer
 range).
 
+For the vhdl styles, a `Natural` value cannot exceed 2^31-1, which is the upper
+bound guaranteed for the VHDL integer type. When an address or size constant
+exceeds this value (for example a map based at address `0x80000000` or above),
+it is emitted as a `std_logic_vector` (sized to the next multiple of 4 bits,
+with a minimum of 32 bits) instead of a `Natural`, so that the generated package
+remains synthesizable. Values that fit in a `Natural` are unchanged.
+
 Some styles also support the generation of structured constant files by adding a
 `-struct` suffix to it. Thereby, the constants are grouped in a hierarchical
 structure instead of individual constants. E.g., `matlab-struct`.
