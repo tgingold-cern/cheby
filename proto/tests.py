@@ -1111,7 +1111,7 @@ def test_consts():
               'issue64/simple_reg1', 'issue_g2/reg', 'bug-consts/blkpfx',
               'features/enums1', 'features/enums2', 'bug-const-range/const_range',
               'features/memwide_ua', 'bug-same-label/same_label', 'issue143/map',
-              'mr67/top']:
+              'mr67/top', 'features/consts_int_max']:
         if args.verbose:
             print('test consts: {}'.format(f))
         chebfile = srcdir + f + '.cheby'
