@@ -1,5 +1,5 @@
 NAME=cheby-ug
-CHEBY=../proto/cheby.py
+CHEBY=../proto/cheby-local.py
 
 all: $(NAME).pdf
 
