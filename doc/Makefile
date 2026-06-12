@@ -19,7 +19,7 @@ srcs/counter-reindent.adoc: srcs/counter.adoc
 	sed -e '/^=/s/^=/==/' < $< > $@
 
 $(NAME).xml: $(NAME).txt cheby-extensions.adoc srcs/counter.cheby srcs/counter_entity.vhdl srcs/counter.h srcs/counter-reindent.adoc
-	asciidoctor -v -d book -b docbook $<
+	asciidoctor -v -d book -b docbook -a version=$$(python3 -c "import sys; sys.path.insert(0, '../proto'); from cheby import __version__; print(__version__)") -a revdate="$$(git log -1 --format=%cd --date=short)" $<
 
 $(NAME).pdf: $(NAME).xml
 	a2x -f pdf $<
