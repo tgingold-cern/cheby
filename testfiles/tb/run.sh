@@ -2,8 +2,8 @@
 
 GHDL=${GHDL:-ghdl}
 GHDL_FLAGS=--std=08
-CHEBY=${CHEBY:-../../proto/cheby.py}
-REGEN=${REGEN:false}
+CHEBY=${CHEBY:-../../proto/cheby-local.py}
+REGEN=${REGEN:-false}
 
 set -e
 

@@ -2,11 +2,9 @@
 #
 # SPDX-FileCopyrightText: 2026 CERN
 
-
 [build-system]
 requires = [
          "setuptools>=45",
-         "setuptools-scm[toml]>=6.2"
 ]
 build-backend = "setuptools.build_meta"
 
@@ -52,6 +50,5 @@ wbgen2cheby = "cheby.wbgen2cheby:cheby.wbgen2cheby.main"
 namespaces = true
 where = ["proto"]
 
-[tool.setuptools_scm]
-write_to = "proto/Version.py"
-version_scheme = "no-guess-dev"
+[tool.setuptools.dynamic]
+version = {attr = "cheby.__version__"}

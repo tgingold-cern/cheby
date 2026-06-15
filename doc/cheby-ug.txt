@@ -1,6 +1,6 @@
 = Cheby User Guide
 CERN
-v1.7.dev0, 2025-03-24
+v{version}, {revdate}
 
 == What is Cheby ?
 
@@ -861,8 +861,8 @@ By default the wishbone interface uses one port per wishbone signal.
 It is possible to group all signals in one input and one output port
 by setting the `x-hdl.busgroup` attribute to `True`. The VHDL package,
 originating from https://ohwr.org/project/general-cores[OHWR
-general-cores], can also be found as an appendix here. The library 
-where the VHDL package is compiled can be specified through the command 
+general-cores], can also be found as an appendix here. The library
+where the VHDL package is compiled can be specified through the command
 line tool for x-hdl generation by adding the argument:
 [source]
 ----
