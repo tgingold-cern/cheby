@@ -476,7 +476,7 @@ To create a new release:
 
 * generate the pdf documentation
 
-* tag the git tree using tag vX.Y.0
+* tag the git tree using git tag -a -m "create version X.Y.Z" vX.Y.0
 
 * push the tag (git push origin vX.Y.0)
 
