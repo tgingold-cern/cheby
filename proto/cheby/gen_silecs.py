@@ -2,7 +2,7 @@ from datetime import datetime
 import cheby.tree as tree
 
 
-def gen_header(fd, name, owner, editor):
+def gen_header(fd, name, owner, editor, version):
     fd.write(
         '<?xml version="1.0" encoding="UTF-8"?>\n'
         '<SILECS-Design silecs-version="SILECS-1.m.p" created="{date}" updated="{date}"\n'
@@ -12,8 +12,8 @@ def gen_header(fd, name, owner, editor):
         '\t\t<Owner user-login="{owner}"/>\n'
         '\t\t<Editor user-login="{editor}"/>\n'
         '\t</Information>\n'
-        '\t<SILECS-Class name="{name}" version="1.0.0" domain="OPERATIONAL">\n'.format(
-            name=name, owner=owner, editor=editor, date=datetime(2025,1,1).strftime('%m/%d/%y')))
+        '\t<SILECS-Class name="{name}" version="{version}" domain="OPERATIONAL">\n'.format(
+            name=name, version=version, owner=owner, editor=editor, date=datetime(2025,1,1).strftime('%m/%d/%y')))
 
 
 def gen_block(fd, root, acc, synchro, blockn=''):
@@ -33,7 +33,7 @@ def gen_trailer(fd):
 
 
 def generate_silecs(fd, root):
-    gen_header(fd, root.name, "owner", "ieplcop")
+    gen_header(fd, root.name, "owner", "ieplcop", root.memmap_version)
     block_name = root.name[:7]
     fd.write('\t\t<Block name="{}_ro" area="MEMORY" mode="READ-ONLY">\n'.format(
         block_name))
