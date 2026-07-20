@@ -1,5 +1,7 @@
 memory-map:
   name: fidsErrMiss
+  x-map-info:
+    memmap-version: 1.0.0
   bus: axi4-lite-32
   size: 128
   children:
