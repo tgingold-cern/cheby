@@ -20,7 +20,17 @@ class GenBlock(ElGen):
                 n.h_gen = GenBlock(self.root, self.module, n)
             elif isinstance(n, tree.Submap):
                 if n.include is True:
-                    # Inline
+                    if getattr(n, 'hdl_reuse_submap_types', False) \
+                            and n.c_submap is not None:
+                        if gconfig.hdl_lang != 'vhdl':
+                            import sys
+                            sys.stderr.write(
+                                "warning: reuse-submap-types on '{}' is only "
+                                "supported for VHDL, ignored for {}\n".format(
+                                    n.get_path(), gconfig.hdl_lang))
+                        else:
+                            n.c_submap.h_reuse_pkg = (
+                                n.c_submap.hdl_module_name + '_pkg')
                     n.h_gen = GenBlock(self.root, self.module, n.c_submap)
                 elif n.filename is None:
                     # A pure interface
@@ -51,6 +61,7 @@ class GenBlock(ElGen):
         is_top_iogroup = False
 
         if self.n.hdl_iogroup is not None:
+            external_pkg = getattr(self.n, 'h_reuse_pkg', None)
             if self.root.h_itf:
                 flatten = getattr(self.n, 'hdl_iogroup_flatten', True)
                 if not flatten:
@@ -59,9 +70,14 @@ class GenBlock(ElGen):
                         prev_itf = self.root.h_itf
                         prev_ports = self.root.h_ports
 
-                        nested_itf = HDLInterface('t_' + self.n.hdl_iogroup)
+                        nested_itf = HDLInterface(
+                            't_' + self.n.hdl_iogroup,
+                            external_pkg=external_pkg)
                         parent_idx = self.module.global_decls.index(prev_itf)
-                        self.module.global_decls.insert(parent_idx, nested_itf)
+                        if external_pkg is None:
+                            self.module.global_decls.insert(parent_idx, nested_itf)
+                        else:
+                            self._add_reuse_dep(external_pkg)
 
                         nested_name = self.n.h_pname or self.n.hdl_iogroup
                         prev_itf.add_modport(nested_name, nested_itf, True)
@@ -84,11 +100,15 @@ class GenBlock(ElGen):
                 # flatten — children use parent interface as-is
             else:
                 is_top_iogroup = True
-                self.root.h_itf = HDLInterface('t_' + self.n.hdl_iogroup)
+                self.root.h_itf = HDLInterface(
+                    't_' + self.n.hdl_iogroup, external_pkg=external_pkg)
                 first_iogroup = not self.root.h_itf_added
                 if first_iogroup:
                     self.root.h_itf_added = True
-                    self.module.global_decls.append(self.root.h_itf)
+                    if external_pkg is None:
+                        self.module.global_decls.append(self.root.h_itf)
+                    else:
+                        self._add_reuse_dep(external_pkg)
                 self.root.h_ports = self.module.add_modport(
                     self.n.h_pname or self.n.hdl_iogroup, self.root.h_itf, True)
                 if first_iogroup and self.n is self.root:
@@ -100,6 +120,12 @@ class GenBlock(ElGen):
         if is_top_iogroup:
             self.root.h_itf = None
             self.root.h_ports = self.module
+
+    def _add_reuse_dep(self, pkg_name):
+        """Register a 'use work.<pkg_name>.all' dependency on the parent module."""
+        dep = ('work', pkg_name)
+        if dep not in self.module.deps:
+            self.module.deps.append(dep)
 
     def gen_processes(self, ibus):
         for n in self.n.children:
@@ -120,6 +146,50 @@ class GenRepeatBlock(GenBlock):
 
     def _repeat_type_name(self):
         return 't_' + self._repeat_port_name()
+
+    def _get_reused_submap(self):
+        """If the repeat body is a single included submap with
+        ``reuse-submap-types: true``, return that submap; otherwise None.
+
+        When the repeat has its own ``iogroup`` set, reuse is incompatible:
+        a warning is emitted and reuse falls back to standard behavior."""
+        if gconfig.hdl_lang != 'vhdl':
+            return None
+        if not self.n.children:
+            return None
+        first = self.n.children[0]
+        if not isinstance(first, tree.Block) or len(first.children) != 1:
+            return None
+        sub = first.children[0]
+        if not isinstance(sub, tree.Submap):
+            return None
+        if not getattr(sub, 'hdl_reuse_submap_types', False):
+            return None
+        if not sub.include or sub.c_submap is None:
+            return None
+        if not getattr(sub.c_submap, 'hdl_iogroup', None):
+            return None
+        if self.n.hdl_iogroup is not None:
+            import sys
+            sys.stderr.write(
+                "warning: reuse-submap-types on '{}' ignored because the "
+                "parent repeat '{}' has its own iogroup '{}'\n".format(
+                    sub.get_path(), self.n.get_path(), self.n.hdl_iogroup))
+            return None
+        return sub
+
+    def _repeat_element_type_info(self):
+        """Return (type_name, external_pkg) for the repeat element interface.
+
+        If the repeat body is an included submap with ``reuse-submap-types``,
+        the type name comes from the submap's iogroup and is marked external
+        (referencing the submap's standalone package).  Otherwise, falls back
+        to the auto-generated ``t_<repeat_name>``."""
+        reused = self._get_reused_submap()
+        if reused is not None:
+            return ('t_' + reused.c_submap.hdl_iogroup,
+                    reused.c_submap.hdl_module_name + '_pkg')
+        return (self._repeat_type_name(), None)
 
     def gen_ports(self):
         flatten = getattr(self.n, 'hdl_iogroup_flatten', True)
@@ -151,11 +221,14 @@ class GenRepeatBlock(GenBlock):
         prev_itf = self.root.h_itf
         prev_ports = self.root.h_ports
 
-        itf = HDLInterface(self._repeat_type_name())
+        type_name, ext_pkg = self._repeat_element_type_info()
+        itf = HDLInterface(type_name, external_pkg=ext_pkg)
         itf_arr = HDLInterfaceArray(itf, self.n.count)
 
         parent_idx = self.module.global_decls.index(prev_itf)
         self.module.global_decls.insert(parent_idx, itf_arr)
+        if ext_pkg is not None:
+            self._add_reuse_dep(ext_pkg)
 
         nested_name = self._repeat_port_name()
         prev_itf.add_modport(nested_name, itf_arr, True)
@@ -175,11 +248,14 @@ class GenRepeatBlock(GenBlock):
         prev_itf = self.root.h_itf
         prev_ports = self.root.h_ports
 
-        itf = HDLInterface(self._repeat_type_name())
+        type_name, ext_pkg = self._repeat_element_type_info()
+        itf = HDLInterface(type_name, external_pkg=ext_pkg)
         itf_arr = HDLInterfaceArray(itf, self.n.count)
 
         self.root.h_itf = itf_arr
         self.module.global_decls.append(itf_arr)
+        if ext_pkg is not None:
+            self._add_reuse_dep(ext_pkg)
         ports_arr = self.module.add_modport(self._repeat_port_name(), itf_arr, is_master=True)
         c = self.n.origin
         ports_arr.comment = "\n" + (c.comment or "REPEAT {}".format(c.name))

@@ -1,0 +1,12 @@
+memory-map:
+  name: reuse_submap1
+  bus: wb-32-be
+  description: Direct include with reuse-submap-types - imports leaf_pkg
+               types instead of redeclaring them locally.
+  children:
+    - submap:
+        name: leaf_inst
+        filename: reuse-submap-leaf.cheby
+        include: true
+        x-hdl:
+          reuse-submap-types: true

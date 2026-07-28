@@ -107,6 +107,8 @@ def has_in_out(itf, reverse):
 
 
 def generate_interface(fd, itf, indent):
+    if getattr(itf, 'external_pkg', None) is not None:
+        return
     has_input, has_output = has_in_out(itf, False)
     master, slave = ('manager', 'subordinate') if 'axi' in itf.name else ('master', 'slave')
     generate_decl_comment(fd, itf.comment, indent)
@@ -131,7 +133,11 @@ def generate_interface(fd, itf, indent):
 
 
 def generate_interface_array(fd, itf, indent):
-    generate_decl(fd, itf.prefix, indent)
+    # When the element record is defined in an external package, skip the
+    # element declaration here.  The array type itself is still declared
+    # locally so it can size the parent's port (e.g. (0 to N-1)).
+    if getattr(itf.prefix, 'external_pkg', None) is None:
+        generate_decl(fd, itf.prefix, indent)
     has_input, has_output = has_in_out(itf.prefix, False)
     name = itf.prefix.name
     master, slave = ('manager', 'subordinate') if 'axi' in itf.prefix.name else ('master', 'slave')
