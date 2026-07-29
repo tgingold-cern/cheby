@@ -559,6 +559,8 @@ Example using `name-prefix` to suppress the block name from identifiers:
         name: grouping_blk
         x-hdl:
           name-prefix: false
+        x-c-header:
+          name-prefix: false
         children:
         - reg:
            name: ctrl
@@ -567,7 +569,10 @@ Example using `name-prefix` to suppress the block name from identifiers:
 ----
 
 In this example, the generated HDL signal name for the register will be
-`ctrl` rather than `grouping_blk_ctrl`.
+`ctrl` rather than `grouping_blk_ctrl`.  With `x-c-header:name-prefix: false`,
+the C header also omits the block wrapper struct so `ctrl` appears directly in
+the parent struct.  `x-hdl:name-prefix` does not affect C generation; use
+`x-c-header:name-prefix` for that.
 
 When a child block or repeat declares its own `iogroup` inside a parent
 that also has one, setting `iogroup-flatten` to `false` generates a nested
@@ -1073,6 +1078,11 @@ If the option `prefix-struct` in extension `x-c-header` at the root is
 set, the structure tag will be prefixed by the name of the root.
 It avoids compiler errors if the name of the block is used in different
 designs.  It is strongly recommended to set this attribute.
+
+On a `block`, `x-c-header:name-prefix: false` omits that block's wrapper
+`struct` and places its children directly in the parent structure.  This is
+independent from `x-hdl:name-prefix`, which only affects HDL and documentation
+names.
 
 The `--gen-c-bit-struct` option adds C `struct`s also for bit fields within
 registers. Note that bit-field structures depend on implementation-defined (i.e.
