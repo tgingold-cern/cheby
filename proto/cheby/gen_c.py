@@ -215,15 +215,10 @@ def cprint_reg(cp, n):
 @CPrinter.register(tree.Block)
 def cprint_block(cp, n):
     cp.reg_struct_txt("/* [0x{:x}]: BLOCK{} */".format(n.c_address, comment(n)))
-    # Keep C struct hierarchy aligned with x-hdl name-prefix semantics:
-    # when name-prefix is false, do not emit an extra wrapper block struct
-    emit_wrapper = (
-        n.hdl_blk_prefix and n.get_extension("x_hdl", "name-prefix") is not False
-    )
-    if emit_wrapper:
+    if n.hdl_blk_prefix:
         cp.reg_struct_start(n)
     cprint_children(cp, n, n.c_size, n.c_address)
-    if emit_wrapper:
+    if n.hdl_blk_prefix:
         cp.reg_struct_end(n.name)
 
 
