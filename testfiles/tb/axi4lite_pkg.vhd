@@ -41,7 +41,7 @@ package axi4lite_pkg is
   subtype t_axi4lite_data is
     std_logic_vector(c_axi4lite_data_width-1 downto 0);
   subtype t_axi4lite_wstrobe is
-    std_logic_vector((c_axi4lite_address_width/8)-1 downto 0);
+    std_logic_vector((c_axi4lite_data_width/8)-1 downto 0);
   subtype t_axi4lite_prot is
     std_logic_vector(2 downto 0);
   subtype t_axi4lite_resp is
