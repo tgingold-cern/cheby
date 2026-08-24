@@ -1,0 +1,19 @@
+memory-map:
+  bus: axi4-lite-32
+  name: buserr_mem_int
+  description: Internal (dpssram) memory together with bus-error enabled.  Regression for the memory-decode latch (issue #87) - the memory branch of the read/write decode must drive rd_err/wr_err so no latch is inferred.
+  x-hdl:
+    bus-error: True
+  children:
+    - reg:
+        name: scratch
+        width: 32
+        access: rw
+    - memory:
+        name: lut
+        memsize: 128
+        children:
+          - reg:
+              name: value
+              width: 32
+              access: rw
