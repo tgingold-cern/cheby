@@ -143,6 +143,68 @@ begin
     report "Testing erroneous read to write-only register" severity note;
     axi4lite_read(clk, rd_out, rd_in, x"0000_0010", v, C_AXI4_RESP_SLVERR);
 
+    --  Regression for issue #86: with bus-error enabled, RVALID must stay
+    --  asserted (with stable RDATA/RRESP) until RREADY is sampled high, and
+    --  must not be a one-cycle pulse.  The always-ready BFM above cannot catch
+    --  this, so drive RREADY low by hand for several cycles.
+    report "Testing read with delayed RREADY (issue #86)" severity note;
+    rd_out.araddr  <= x"0000_0000";
+    rd_out.arvalid <= '1';
+    rd_out.rready  <= '0';
+    wait until rising_edge(clk);
+    loop
+      if rd_in.arready = '1' then
+        rd_out.arvalid <= '0';
+      end if;
+      exit when rd_in.rvalid = '1';
+      wait until rising_edge(clk);
+    end loop;
+    for i in 0 to 4 loop
+      assert rd_in.rvalid = '1'
+        report "RVALID dropped before RREADY (issue #86)" severity error;
+      assert rd_in.rdata = x"1234_5678"
+        report "RDATA not stable while RVALID held (issue #86)" severity error;
+      assert rd_in.rresp = C_AXI4_RESP_OK
+        report "RRESP not stable while RVALID held (issue #86)" severity error;
+      wait until rising_edge(clk);
+    end loop;
+    rd_out.rready <= '1';
+    wait until rising_edge(clk);
+    rd_out.rready <= '0';
+
+    --  Regression for issue #86: BVALID must stay asserted (with stable BRESP)
+    --  until BREADY is sampled high.
+    report "Testing write with delayed BREADY (issue #86)" severity note;
+    wr_out.awaddr  <= x"0000_0008";
+    wr_out.wdata   <= x"cafe_babe";
+    wr_out.awvalid <= '1';
+    wr_out.wvalid  <= '1';
+    wr_out.bready  <= '0';
+    wait until rising_edge(clk);
+    loop
+      if wr_in.awready = '1' then
+        wr_out.awvalid <= '0';
+      end if;
+      if wr_in.wready = '1' then
+        wr_out.wvalid <= '0';
+      end if;
+      exit when wr_in.bvalid = '1';
+      wait until rising_edge(clk);
+    end loop;
+    for i in 0 to 4 loop
+      assert wr_in.bvalid = '1'
+        report "BVALID dropped before BREADY (issue #86)" severity error;
+      assert wr_in.bresp = C_AXI4_RESP_OK
+        report "BRESP not stable while BVALID held (issue #86)" severity error;
+      wait until rising_edge(clk);
+    end loop;
+    wr_out.bready <= '1';
+    wait until rising_edge(clk);
+    wr_out.bready <= '0';
+    assert reg_rw2 = x"cafe_babe"
+      report "write with delayed BREADY did not update the register (issue #86)"
+      severity error;
+
     wait until rising_edge(clk);
     wait until rising_edge(clk);
     report "End of test" severity note;

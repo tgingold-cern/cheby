@@ -121,20 +121,29 @@ class AXI4LiteBus(BusGen):
         axi_werr = self.module.new_HDLSignal('axi_werr', 2)
         self.module.stmts.append(HDLAssign(self.root.h_bus['awready'], HDLNot(axi_awset)))
         self.module.stmts.append(HDLAssign(self.root.h_bus['wready'], HDLNot(axi_wset)))
-        self.module.stmts.append(HDLAssign(self.root.h_bus['bvalid'], axi_wdone))
+        if opts.bus_error:
+            # In bus-error mode BVALID is forced high while in reset (via the
+            # reset signal) so that a write issued during reset is completed with
+            # SLVERR instead of stalling.  Out of reset it is driven solely by
+            # axi_wdone, which is held until BREADY (AXI4-Lite A3.2.1).
+            self.module.stmts.append(HDLAssign(self.root.h_bus['bvalid'],
+                HDLOr(axi_wdone, HDLNot(self.root.h_bus['brst']))))
+        else:
+            self.module.stmts.append(HDLAssign(self.root.h_bus['bvalid'], axi_wdone))
 
         proc = HDLSync(self.root.h_bus['clk'], self.root.h_bus['brst'], rst_sync=gconfig.rst_sync)
         proc.rst_stmts.append(HDLAssign(ibus.wr_req, bit_0))
         proc.rst_stmts.append(HDLAssign(axi_awset, bit_0))
         proc.rst_stmts.append(HDLAssign(axi_wset, bit_0))
         if opts.bus_error:
-            # During reset, all handshaking signals are set in a way to accept
-            # all handshakes while returning an error on the BRESP signal.
-            # This allows the bus to remain accessible despite being in reset
-            # and without stalling the bus.
+            # During reset, BVALID is forced high by the reset signal (see the
+            # bvalid assignment) and BRESP returns SLVERR, so accesses issued
+            # during reset are completed with an error instead of stalling the
+            # bus.  axi_wdone itself stays 0, so out of reset BVALID reflects a
+            # real response and is held until BREADY.
             proc.rst_stmts.append(HDLComment(
-                "During reset, accept all handshakes and return error"))
-            proc.rst_stmts.append(HDLAssign(axi_wdone, bit_1))
+                "During reset, return error (BVALID is forced by the reset signal)"))
+            proc.rst_stmts.append(HDLAssign(axi_wdone, bit_0))
             proc.rst_stmts.append(HDLAssign(axi_werr, RESP_SLVERR))
         else:
             # Without bus error, use behaviour of original implementation
@@ -143,11 +152,6 @@ class AXI4LiteBus(BusGen):
             self.module.stmts.append(HDLAssign(axi_werr, RESP_OKAY))
 
         proc.sync_stmts.append(HDLAssign(ibus.wr_req, bit_0))
-        if opts.bus_error:
-            # Stop accepting handshake as soon as reset is over
-            proc.sync_stmts.append(HDLAssign(axi_wdone, bit_0))
-            # Reset BRESP signal
-            proc.sync_stmts.append(HDLAssign(axi_werr, RESP_OKAY))
 
         # Load AWADDR (and acknowledge the AW request)
         proc_if = HDLIfElse(HDLAnd(HDLEq(self.root.h_bus['awvalid'], bit_1),
@@ -189,8 +193,9 @@ class AXI4LiteBus(BusGen):
         proc_if = HDLIfElse(HDLEq(HDLParen(HDLAnd(axi_wdone, self.root.h_bus['bready'])), bit_1))
         proc_if.then_stmts.append(HDLAssign(axi_wset, bit_0))
         proc_if.then_stmts.append(HDLAssign(axi_awset, bit_0))
-        if not opts.bus_error:
-            proc_if.then_stmts.append(HDLAssign(axi_wdone, bit_0))
+        # Clear WDONE on the handshake so BVALID is held until BREADY is sampled
+        # high, in bus-error mode as well as without it (AXI4-Lite A3.2.1).
+        proc_if.then_stmts.append(HDLAssign(axi_wdone, bit_0))
         proc_if.else_stmts = None
         proc.sync_stmts.append(proc_if)
 
@@ -238,19 +243,28 @@ class AXI4LiteBus(BusGen):
         axi_rdone = self.module.new_HDLSignal('axi_rdone')
         axi_rerr = self.module.new_HDLSignal('axi_rerr', 2)
         self.module.stmts.append(HDLAssign(self.root.h_bus['arready'], HDLNot(axi_arset)))
-        self.module.stmts.append(HDLAssign(self.root.h_bus['rvalid'], axi_rdone))
+        if opts.bus_error:
+            # In bus-error mode RVALID is forced high while in reset (via the
+            # reset signal) so that a read issued during reset is completed with
+            # SLVERR instead of stalling.  Out of reset it is driven solely by
+            # axi_rdone, which is held until RREADY (AXI4-Lite A3.2.1).
+            self.module.stmts.append(HDLAssign(self.root.h_bus['rvalid'],
+                HDLOr(axi_rdone, HDLNot(self.root.h_bus['brst']))))
+        else:
+            self.module.stmts.append(HDLAssign(self.root.h_bus['rvalid'], axi_rdone))
 
         proc = HDLSync(self.root.h_bus['clk'], self.root.h_bus['brst'], rst_sync=gconfig.rst_sync)
         proc.rst_stmts.append(HDLAssign(ibus.rd_req, bit_0))
         proc.rst_stmts.append(HDLAssign(axi_arset, bit_0))
         if opts.bus_error:
-            # During reset, all handshaking signals are set in a way to accept
-            # all handshakes while returning an error on the BRESP signal.
-            # This allows the bus to remain accessible despite being in reset
-            # and without stalling the bus.
+            # During reset, RVALID is forced high by the reset signal (see the
+            # rvalid assignment) and RRESP returns SLVERR, so accesses issued
+            # during reset are completed with an error instead of stalling the
+            # bus.  axi_rdone itself stays 0, so out of reset RVALID reflects a
+            # real response and is held until RREADY.
             proc.rst_stmts.append(HDLComment(
-                "During reset, accept all handshakes and return error"))
-            proc.rst_stmts.append(HDLAssign(axi_rdone, bit_1))
+                "During reset, return error (RVALID is forced by the reset signal)"))
+            proc.rst_stmts.append(HDLAssign(axi_rdone, bit_0))
             proc.rst_stmts.append(HDLAssign(axi_rerr, RESP_SLVERR))
         else:
             # Without bus error, use behaviour of original implementation
@@ -261,11 +275,6 @@ class AXI4LiteBus(BusGen):
             HDLAssign(self.root.h_bus['rdata'], HDLReplicate(bit_0, self.root.c_word_bits)))
 
         proc.sync_stmts.append(HDLAssign(ibus.rd_req, bit_0))
-        if opts.bus_error:
-            # Stop accepting handshake as soon as reset is over
-            proc.sync_stmts.append(HDLAssign(axi_rdone, bit_0))
-            # Reset RRESP signal
-            proc.sync_stmts.append(HDLAssign(axi_rerr, RESP_OKAY))
 
         # Load ARADDR (and acknowledge the AR request)
         proc_if = HDLIfElse(HDLAnd(HDLEq(self.root.h_bus['arvalid'], bit_1),
@@ -281,8 +290,9 @@ class AXI4LiteBus(BusGen):
         # Clear 'set' bit at the end of the transaction
         proc_if = HDLIfElse(HDLEq(HDLParen(HDLAnd(axi_rdone, self.root.h_bus['rready'])), bit_1))
         proc_if.then_stmts.append(HDLAssign(axi_arset, bit_0))
-        if not opts.bus_error:
-            proc_if.then_stmts.append(HDLAssign(axi_rdone, bit_0))
+        # Clear RDONE on the handshake so RVALID is held until RREADY is sampled
+        # high, in bus-error mode as well as without it (AXI4-Lite A3.2.1).
+        proc_if.then_stmts.append(HDLAssign(axi_rdone, bit_0))
         proc_if.else_stmts = None
         proc.sync_stmts.append(proc_if)
 

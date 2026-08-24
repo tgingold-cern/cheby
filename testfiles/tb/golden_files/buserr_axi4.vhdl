@@ -84,20 +84,18 @@ begin
   -- AW, W and B channels
   awready <= not axi_awset;
   wready <= not axi_wset;
-  bvalid <= axi_wdone;
+  bvalid <= axi_wdone or not areset_n;
   process (aclk) begin
     if rising_edge(aclk) then
       if areset_n = '0' then
         wr_req <= '0';
         axi_awset <= '0';
         axi_wset <= '0';
-        -- During reset, accept all handshakes and return error
-        axi_wdone <= '1';
+        -- During reset, return error (BVALID is forced by the reset signal)
+        axi_wdone <= '0';
         axi_werr <= "10";
       else
         wr_req <= '0';
-        axi_wdone <= '0';
-        axi_werr <= "00";
         if awvalid = '1' and axi_awset = '0' then
           wr_addr <= awaddr;
           axi_awset <= '1';
@@ -111,6 +109,7 @@ begin
         if (axi_wdone and bready) = '1' then
           axi_wset <= '0';
           axi_awset <= '0';
+          axi_wdone <= '0';
         end if;
         if wr_ack = '1' then
           axi_wdone <= '1';
@@ -127,20 +126,18 @@ begin
 
   -- AR and R channels
   arready <= not axi_arset;
-  rvalid <= axi_rdone;
+  rvalid <= axi_rdone or not areset_n;
   process (aclk) begin
     if rising_edge(aclk) then
       if areset_n = '0' then
         rd_req <= '0';
         axi_arset <= '0';
-        -- During reset, accept all handshakes and return error
-        axi_rdone <= '1';
+        -- During reset, return error (RVALID is forced by the reset signal)
+        axi_rdone <= '0';
         axi_rerr <= "10";
         rdata <= (others => '0');
       else
         rd_req <= '0';
-        axi_rdone <= '0';
-        axi_rerr <= "00";
         if arvalid = '1' and axi_arset = '0' then
           rd_addr <= araddr;
           axi_arset <= '1';
@@ -148,6 +145,7 @@ begin
         end if;
         if (axi_rdone and rready) = '1' then
           axi_arset <= '0';
+          axi_rdone <= '0';
         end if;
         if rd_ack = '1' then
           axi_rdone <= '1';
