@@ -96,6 +96,10 @@ class SRAMBus(BusGen):
         else:
             # Avoid deadlock (or latches)
             stmts.append(HDLAssign(ibus.wr_ack, ibus.wr_req))
+        # An SRAM access is always in range, so it never reports an address
+        # error.  Drive wr_err explicitly, otherwise the write decode leaves it
+        # unassigned in this branch and infers a latch (with bus-error enabled).
+        stmts.append(HDLAssign(ibus.wr_err, bit_0))
 
     def read_bus_slave(self, stmts, n, proc, ibus, rd_data):
         if n.c_bus_access in ('ro', 'rw'):
@@ -107,3 +111,7 @@ class SRAMBus(BusGen):
         else:
             # Avoid deadlock (or latches)
             stmts.append(HDLAssign(ibus.rd_ack, ibus.rd_req))
+        # An SRAM access is always in range, so it never reports an address
+        # error.  Drive rd_err explicitly, otherwise the read decode leaves it
+        # unassigned in this branch and infers a latch (with bus-error enabled).
+        stmts.append(HDLAssign(ibus.rd_err, bit_0))

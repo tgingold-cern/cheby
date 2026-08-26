@@ -278,6 +278,10 @@ class GenMemory(ElGen):
         n = self.n
         reg = n.children[0]
         self.foreach_word(s, reg, ibus, gen_read_word)
+        # A memory access is always in range, so it never reports an address
+        # error.  Drive rd_err explicitly so the read decode has no branch that
+        # leaves it unassigned (which would infer a latch).
+        s.append(HDLAssign(ibus.rd_err, bit_0))
 
     def gen_write(self, s, off, ibus, wrproc):
         def gen_write_word(stmt, reg, i):
@@ -292,3 +296,7 @@ class GenMemory(ElGen):
             self.foreach_word(s, reg, ibus, gen_write_word)
         # Always ack the request, even if ignored.
         s.append(HDLAssign(ibus.wr_ack, ibus.wr_req))
+        # A memory access is always in range, so it never reports an address
+        # error.  Drive wr_err explicitly so the write decode has no branch that
+        # leaves it unassigned (which would infer a latch).
+        s.append(HDLAssign(ibus.wr_err, bit_0))

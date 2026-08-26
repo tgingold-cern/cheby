@@ -460,6 +460,7 @@ def test_hdl_ref():
               'features/blkprefix4', 'features/blkprefix5',
               'features/regprefix1', 'features/regprefix2', 'features/regprefix3',
               'features/mem64ro', 'features/mem64rodual',
+              'features/buserr_mem_int', 'features/buserr_mem_sram',
               'features/iogroup1', 'features/iogroup2', 'features/repeat-iogroup1',
               'features/repeat-iogroup2', 'features/repeat-iogroup3',
               'features/repeat-iogroup4', 'features/nested-iogroup1',
