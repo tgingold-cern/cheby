@@ -1,0 +1,11 @@
+memory-map:
+  bus: wb-32-be
+  name: reg_signed
+  description: a single 32-bit register declared as signed
+  children:
+    - reg:
+        name: std_i_am_signed
+        description: 32-bit register, signed type
+        width: 32
+        access: rw
+        type: signed
