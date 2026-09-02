@@ -95,6 +95,7 @@ def pprint_extensions(pp, n):
     for name in ['x-gena',
                  'x-wbgen',
                  'x-hdl',
+                 'x-c-header',
                  'x-fesa',
                  'x-driver-edge',
                  'x-enums',

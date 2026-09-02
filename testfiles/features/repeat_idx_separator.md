@@ -1,25 +1,27 @@
 ## Memory Map Summary
+
 Test repeat index separator behavior
 
 | HW address | Type | Name | HDL Name |
 |------------|------|------|----------|
-| 0x00-0x07 | BLOCK | rep0 | rep0 |
+| 0x00-0x07 | REPEAT | rep0 | rep0 |
 | 0x00-0x03 | BLOCK | rep0.0 | rep0_0 |
 | 0x00 | REG | rep0.0.r | rep0_0_r |
 | 0x04-0x07 | BLOCK | rep0.1 | rep0_1 |
 | 0x04 | REG | rep0.1.r | rep0_1_r |
-| 0x08-0x0f | BLOCK | rep1 | rep1 |
+| 0x08-0x0f | REPEAT | rep1 | rep1 |
 | 0x08-0x0b | BLOCK | rep10 | rep10 |
 | 0x08 | REG | rep10.r | rep10_r |
 | 0x0c-0x0f | BLOCK | rep11 | rep11 |
 | 0x0c | REG | rep11.r | rep11_r |
-| 0x10-0x17 | BLOCK | rep2 | rep2 |
+| 0x10-0x17 | REPEAT | rep2 | rep2 |
 | 0x10-0x13 | BLOCK | rep2_0 | rep2_0 |
 | 0x10 | REG | rep2_0.r | rep2_0_r |
 | 0x14-0x17 | BLOCK | rep2_1 | rep2_1 |
 | 0x14 | REG | rep2_1.r | rep2_1_r |
 
 ## Registers Description
+
 ### Register: rep0.0.r
 
 - **HW Prefix**: rep0_0_r
@@ -40,7 +42,7 @@ Test repeat index separator behavior
     <td><b>24</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">r[31:24]</td>
+    <td colspan="8" align="center">r[31:24]</td>
   </tr>
   <tr>
     <td><b>23</b></td>
@@ -53,7 +55,7 @@ Test repeat index separator behavior
     <td><b>16</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">r[23:16]</td>
+    <td colspan="8" align="center">r[23:16]</td>
   </tr>
   <tr>
     <td><b>15</b></td>
@@ -66,7 +68,7 @@ Test repeat index separator behavior
     <td><b>8</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">r[15:8]</td>
+    <td colspan="8" align="center">r[15:8]</td>
   </tr>
   <tr>
     <td><b>7</b></td>
@@ -79,7 +81,7 @@ Test repeat index separator behavior
     <td><b>0</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">r[7:0]</td>
+    <td colspan="8" align="center">r[7:0]</td>
   </tr>
 </table>
 
@@ -107,7 +109,7 @@ Test repeat index separator behavior
     <td><b>24</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">r[31:24]</td>
+    <td colspan="8" align="center">r[31:24]</td>
   </tr>
   <tr>
     <td><b>23</b></td>
@@ -120,7 +122,7 @@ Test repeat index separator behavior
     <td><b>16</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">r[23:16]</td>
+    <td colspan="8" align="center">r[23:16]</td>
   </tr>
   <tr>
     <td><b>15</b></td>
@@ -133,7 +135,7 @@ Test repeat index separator behavior
     <td><b>8</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">r[15:8]</td>
+    <td colspan="8" align="center">r[15:8]</td>
   </tr>
   <tr>
     <td><b>7</b></td>
@@ -146,7 +148,7 @@ Test repeat index separator behavior
     <td><b>0</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">r[7:0]</td>
+    <td colspan="8" align="center">r[7:0]</td>
   </tr>
 </table>
 
@@ -174,7 +176,7 @@ Test repeat index separator behavior
     <td><b>24</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">r[31:24]</td>
+    <td colspan="8" align="center">r[31:24]</td>
   </tr>
   <tr>
     <td><b>23</b></td>
@@ -187,7 +189,7 @@ Test repeat index separator behavior
     <td><b>16</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">r[23:16]</td>
+    <td colspan="8" align="center">r[23:16]</td>
   </tr>
   <tr>
     <td><b>15</b></td>
@@ -200,7 +202,7 @@ Test repeat index separator behavior
     <td><b>8</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">r[15:8]</td>
+    <td colspan="8" align="center">r[15:8]</td>
   </tr>
   <tr>
     <td><b>7</b></td>
@@ -213,7 +215,7 @@ Test repeat index separator behavior
     <td><b>0</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">r[7:0]</td>
+    <td colspan="8" align="center">r[7:0]</td>
   </tr>
 </table>
 
@@ -241,7 +243,7 @@ Test repeat index separator behavior
     <td><b>24</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">r[31:24]</td>
+    <td colspan="8" align="center">r[31:24]</td>
   </tr>
   <tr>
     <td><b>23</b></td>
@@ -254,7 +256,7 @@ Test repeat index separator behavior
     <td><b>16</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">r[23:16]</td>
+    <td colspan="8" align="center">r[23:16]</td>
   </tr>
   <tr>
     <td><b>15</b></td>
@@ -267,7 +269,7 @@ Test repeat index separator behavior
     <td><b>8</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">r[15:8]</td>
+    <td colspan="8" align="center">r[15:8]</td>
   </tr>
   <tr>
     <td><b>7</b></td>
@@ -280,7 +282,7 @@ Test repeat index separator behavior
     <td><b>0</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">r[7:0]</td>
+    <td colspan="8" align="center">r[7:0]</td>
   </tr>
 </table>
 
@@ -308,7 +310,7 @@ Test repeat index separator behavior
     <td><b>24</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">r[31:24]</td>
+    <td colspan="8" align="center">r[31:24]</td>
   </tr>
   <tr>
     <td><b>23</b></td>
@@ -321,7 +323,7 @@ Test repeat index separator behavior
     <td><b>16</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">r[23:16]</td>
+    <td colspan="8" align="center">r[23:16]</td>
   </tr>
   <tr>
     <td><b>15</b></td>
@@ -334,7 +336,7 @@ Test repeat index separator behavior
     <td><b>8</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">r[15:8]</td>
+    <td colspan="8" align="center">r[15:8]</td>
   </tr>
   <tr>
     <td><b>7</b></td>
@@ -347,7 +349,7 @@ Test repeat index separator behavior
     <td><b>0</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">r[7:0]</td>
+    <td colspan="8" align="center">r[7:0]</td>
   </tr>
 </table>
 
@@ -375,7 +377,7 @@ Test repeat index separator behavior
     <td><b>24</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">r[31:24]</td>
+    <td colspan="8" align="center">r[31:24]</td>
   </tr>
   <tr>
     <td><b>23</b></td>
@@ -388,7 +390,7 @@ Test repeat index separator behavior
     <td><b>16</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">r[23:16]</td>
+    <td colspan="8" align="center">r[23:16]</td>
   </tr>
   <tr>
     <td><b>15</b></td>
@@ -401,7 +403,7 @@ Test repeat index separator behavior
     <td><b>8</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">r[15:8]</td>
+    <td colspan="8" align="center">r[15:8]</td>
   </tr>
   <tr>
     <td><b>7</b></td>
@@ -414,7 +416,7 @@ Test repeat index separator behavior
     <td><b>0</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">r[7:0]</td>
+    <td colspan="8" align="center">r[7:0]</td>
   </tr>
 </table>
 

@@ -1,4 +1,5 @@
 ## Memory Map Summary
+
 Test AXI4-Lite interface
 
 | HW address | Type | Name | HDL Name |
@@ -11,6 +12,7 @@ Test AXI4-Lite interface
 | 0x18 | REG | block1.block2.register4 | block1_block2_register4 |
 
 ## Registers Description
+
 ### Register: register1
 
 - **HW Prefix**: register1
@@ -33,7 +35,7 @@ Test register 1
     <td><b>24</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">register1[31:24]</td>
+    <td colspan="8" align="center">register1[31:24]</td>
   </tr>
   <tr>
     <td><b>23</b></td>
@@ -46,7 +48,7 @@ Test register 1
     <td><b>16</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">register1[23:16]</td>
+    <td colspan="8" align="center">register1[23:16]</td>
   </tr>
   <tr>
     <td><b>15</b></td>
@@ -59,7 +61,7 @@ Test register 1
     <td><b>8</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">register1[15:8]</td>
+    <td colspan="8" align="center">register1[15:8]</td>
   </tr>
   <tr>
     <td><b>7</b></td>
@@ -72,7 +74,7 @@ Test register 1
     <td><b>0</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">register1[7:0]</td>
+    <td colspan="8" align="center">register1[7:0]</td>
   </tr>
 </table>
 
@@ -166,7 +168,7 @@ Test register 2
     <td>-</td>
     <td>-</td>
     <td>-</td>
-    <td colspan="3" style="text-align: center;">field2[2:0]</td>
+    <td colspan="3" align="center">field2[2:0]</td>
     <td>field1</td>
   </tr>
 </table>
@@ -198,7 +200,7 @@ Test register 3
     <td><b>24</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">register3[31:24]</td>
+    <td colspan="8" align="center">register3[31:24]</td>
   </tr>
   <tr>
     <td><b>23</b></td>
@@ -211,7 +213,7 @@ Test register 3
     <td><b>16</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">register3[23:16]</td>
+    <td colspan="8" align="center">register3[23:16]</td>
   </tr>
   <tr>
     <td><b>15</b></td>
@@ -224,7 +226,7 @@ Test register 3
     <td><b>8</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">register3[15:8]</td>
+    <td colspan="8" align="center">register3[15:8]</td>
   </tr>
   <tr>
     <td><b>7</b></td>
@@ -237,7 +239,7 @@ Test register 3
     <td><b>0</b></td>
   </tr>
   <tr>
-    <td colspan="8" style="text-align: center;">register3[7:0]</td>
+    <td colspan="8" align="center">register3[7:0]</td>
   </tr>
 </table>
 
@@ -331,7 +333,7 @@ Test register 4
     <td>-</td>
     <td>-</td>
     <td>-</td>
-    <td colspan="3" style="text-align: center;">field4[2:0]</td>
+    <td colspan="3" align="center">field4[2:0]</td>
     <td>field3</td>
   </tr>
 </table>

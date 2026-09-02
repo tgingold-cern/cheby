@@ -79,6 +79,7 @@ class MemmapSummary(object):
                     rng, 'REG', name, n, n_addr,
                     hdl_name=hdl or None))
             elif isinstance(n, tree.RepeatBlock):
+                skip_name = n.get_extension('x_hdl', 'name-prefix') is False
                 iogrp = getattr(n, 'hdl_iogroup', None)
                 flatten = getattr(n, 'hdl_iogroup_flatten', True)
                 indexing = getattr(n, 'hdl_repeat_indexing', False)
@@ -112,7 +113,7 @@ class MemmapSummary(object):
                     self.gen_raws(
                         n, name + name_idx_sep, addr_pfx, n_addr, iogrp_pfx)
                 else:
-                    typ = 'REPEAT ({})'.format(iogrp) if iogrp else 'BLOCK'
+                    typ = 'REPEAT ({})'.format(iogrp) if iogrp else 'REPEAT'
                     resolved_hdl = hdl if hdl else n.name
                     self.raws.append(SummaryRaw(
                         rng, typ, name, n, n_addr,
@@ -127,25 +128,32 @@ class MemmapSummary(object):
                 next_name = name_pfx if skip_name else name + '.'
                 if iogrp and not flatten:
                     typ = 'BLOCK ({})'.format(iogrp)
-                    self.raws.append(SummaryRaw(
-                        rng, typ, name, n, n_addr,
-                        hdl_name=hdl or None))
+                    if not skip_name:
+                        self.raws.append(SummaryRaw(
+                            rng, typ, name, n, n_addr,
+                            hdl_name=hdl or None))
                     self.gen_raws(
                         n, next_name, addr_pfx, n_addr,
                         '{}{}.'.format(hdl_pfx, iogrp))
                 else:
                     typ = 'BLOCK ({})'.format(iogrp) if iogrp else 'BLOCK'
-                    self.raws.append(SummaryRaw(
-                        rng, typ, name, n, n_addr,
-                        hdl_name=hdl or None))
+                    if not skip_name:
+                        self.raws.append(SummaryRaw(
+                            rng, typ, name, n, n_addr,
+                            hdl_name=hdl or None))
                     next_hdl = hdl_pfx if skip_name else (hdl + '_' if hdl else '')
                     self.gen_raws(n, next_name, addr_pfx, n_addr, next_hdl)
             elif isinstance(n, tree.Submap):
-                self.raws.append(SummaryRaw(
-                    rng, 'SUBMAP', name, n, n_addr,
-                    hdl_name=hdl or None))
-                if n.filename is not None:
+                if n.filename is None:
+                    self.raws.append(SummaryRaw(
+                        rng, 'SUBMAP', name, n, n_addr,
+                        hdl_name=hdl or None))
+                else:
                     skip_name = n.get_extension('x_hdl', 'name-prefix') is False
+                    if not skip_name:
+                        self.raws.append(SummaryRaw(
+                            rng, 'SUBMAP', name, n, n_addr,
+                            hdl_name=hdl or None))
                     next_name = name_pfx if skip_name else name + '.'
                     next_hdl = hdl_pfx if skip_name else (hdl + '_' if hdl else '')
                     self.gen_raws(n.c_submap, next_name, addr_pfx, n_addr, next_hdl)
