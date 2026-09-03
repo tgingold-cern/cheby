@@ -3,6 +3,8 @@ import cheby.layout as layout
 from cheby.hdl.elgen import ElGen
 from cheby.hdl.globals import gconfig
 from cheby.hdltree import (
+    HDLPort,
+    HDLSignal,
     HDLAssign,
     HDLSync,
     HDLComb,
@@ -20,6 +22,16 @@ from cheby.hdltree import (
     Slice_or_Index,
     HDLConst,
 )
+
+
+def mark_signed(obj, is_signed):
+    """Flag a freshly created port/signal :param obj: as signed.  The flag is
+    only consulted by the SystemVerilog backend (see print_verilog.py); the
+    VHDL and plain-Verilog backends ignore it, so their output is unchanged.
+    Objects that are not plain HDL objects (e.g. interface selects) are left
+    untouched."""
+    if is_signed and isinstance(obj, (HDLPort, HDLSignal)):
+        obj.c_signed = True
 
 
 class GenFieldBase(object):
@@ -375,6 +387,15 @@ class GenReg(ElGen):
         else:
             return HDLIndex(lhs, off // self.root.c_word_bits)
 
+    def field_is_signed(self, f):
+        """Return True when field :param f: (or, for a register without fields,
+        the register itself) is declared with 'type: signed'."""
+        if isinstance(f, tree.FieldReg):
+            c_type = self.n.c_type
+        else:
+            c_type = getattr(f, "c_type", None)
+        return c_type == "signed"
+
     def get_port_name(self, n, name_sfx, dir_sfx, both):
         """Return the name of the port for node :param n: (a reg or a field)
         :param suffix: is append if the name is not specified with x-hdl:port_name
@@ -440,6 +461,7 @@ class GenReg(ElGen):
             if f.h_gen.need_reg():
                 w = None if f.c_rwidth == 1 else f.c_rwidth
                 f.h_reg = self.module.new_HDLSignal(f.h_fname + '_reg', w, preset=f.c_preset)
+                mark_signed(f.h_reg, self.field_is_signed(f))
                 n.h_has_regs = True
             else:
                 f.h_reg = None
@@ -512,6 +534,7 @@ class GenReg(ElGen):
                         name = self.get_port_name(n, '', 'i', need_oport)
                         iport = self.add_module_port(name, n.width, dir='IN')
                         iport.comment = comment
+                        mark_signed(iport, self.field_is_signed(f))
                         comment = None
                     f.h_iport = Slice_or_Index(iport, f.lo, w)
                 else:
@@ -519,6 +542,7 @@ class GenReg(ElGen):
                     name = self.get_port_name(f, '', 'i', need_oport)
                     f.h_iport = self.add_module_port(name, w, dir='IN')
                     f.h_iport.comment = comment
+                    mark_signed(f.h_iport, self.field_is_signed(f))
                     comment = None
             else:
                 f.h_iport = None
@@ -533,6 +557,7 @@ class GenReg(ElGen):
                         oport_name = self.get_port_name(n, "", "o", need_iport)
                         oport = self.add_module_port(oport_name, n.width, dir="OUT")
                         oport.comment = comment
+                        mark_signed(oport, self.field_is_signed(f))
                         comment = None
 
                         # Write mask port
@@ -563,6 +588,7 @@ class GenReg(ElGen):
                     oport_name = self.get_port_name(f, "", "o", need_iport)
                     f.h_oport = self.add_module_port(oport_name, w, dir="OUT")
                     f.h_oport.comment = comment
+                    mark_signed(f.h_oport, self.field_is_signed(f))
                     comment = None
 
                     # Write mask port (only used by wo/rw wire fields with active wmask)

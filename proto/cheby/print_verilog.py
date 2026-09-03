@@ -12,20 +12,32 @@ def generate_header(_fd, _module):
     pass
 
 
+def is_sv_signed(p):
+    # The 'signed' attribute is only honoured for SystemVerilog output; plain
+    # Verilog declarations are left untouched.
+    return gconfig.hdl_lang == "sv" and getattr(p, "c_signed", False)
+
+
 def generate_verilog_kind(p):
+    # A signed object is declared with the 4-state 'logic' type in
+    # SystemVerilog (so it can carry the 'signed' qualifier on both wire- and
+    # reg-like declarations).
+    if is_sv_signed(p):
+        return "logic"
     return "reg" if p.p_vlg_reg else "wire"
 
 
 def generate_verilog_type(p):
+    sign = "signed " if is_sv_signed(p) else ""
     if p.size is not None:
         if isinstance(p.size, int):
             hi = str(p.lo_idx + p.size - 1)
         else:
             assert p.lo_idx == 0
             hi = generate_expr(p.size)
-        return "[{}:{}] ".format(hi, p.lo_idx)
+        return "{}[{}:{}] ".format(sign, hi, p.lo_idx)
     else:
-        return ""
+        return sign
 
 
 def generate_decl_comment(fd, comment, indent):

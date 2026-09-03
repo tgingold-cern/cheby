@@ -2,6 +2,7 @@
 """Simple test program"""
 import sys
 import os
+import re
 import subprocess
 import argparse
 import cheby.parser as parser
@@ -723,6 +724,47 @@ def test_sv_ref():
 
         nbr_tests += 1
 
+def test_sv_signed_reg():
+    # A 32-bit register declared as 'signed' in the Cheby file must be
+    # generated as 'logic signed [31:0]' in the SystemVerilog module.
+    global nbr_tests
+
+    f = 'features/reg_signed'
+    if args.verbose:
+        print('test sv signed reg: {}'.format(f))
+
+    cheby_file = srcdir + f + '.cheby'
+    sv_file = srcdir + f + '.sv'
+    t = parse_ok(cheby_file)
+    layout_ok(t)
+    expand_hdl.expand_hdl(t)
+    gen_name.gen_name_memmap(t)
+    h = gen_hdl.generate_hdl(t)
+
+    # Generate SystemVerilog
+    buf = write_buffer()
+    with gconfig_scope():
+        gconfig.hdl_lang = 'sv'
+        print_verilog.print_verilog(buf, h)
+
+    # Compare with the golden file.
+    if not compare_buffer_and_file(buf, sv_file):
+        error('SV generation error for {}'.format(f))
+
+    # The module declaration of 'std_i_am_signed' must be 'logic signed [31:0]'
+    # (an optional name suffix such as '_o' is accepted).
+    pat = re.compile(r'logic\s+signed\s+\[31:0\]\s+std_i_am_signed\w*')
+    if not pat.search(buf.buffer):
+        werr('generated SystemVerilog for {}:\n{}'.format(f, buf.buffer))
+        error("expected 'logic signed [31:0] std_i_am_signed' in SV for {}".format(f))
+
+    nbr_tests += 1
+
+    if args.elaborate:
+        elab_sv(sv_file, t.hdl_module_name)
+        nbr_tests += 1
+
+
 def test_issue84():
     global nbr_tests
     for f in ['issue84/sps200CavityControl_as']:
@@ -1230,6 +1272,7 @@ def main():
         test_hdl_ref_preset_preload()
         test_verilog_ref()
         test_sv_ref()
+        test_sv_signed_reg()
         test_issue84()
         test_gena()
         test_gena_regctrl_err()
