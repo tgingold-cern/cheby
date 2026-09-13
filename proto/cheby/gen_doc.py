@@ -113,10 +113,7 @@ class MemmapSummary(object):
                     self.gen_raws(
                         n, name + name_idx_sep, addr_pfx, n_addr, iogrp_pfx)
                 else:
-                    # A plain repeat (no array indexing and not an iogroup
-                    # port) is expanded into sub-blocks, so it is shown as a
-                    # BLOCK in the summary, consistent with the Block handling
-                    typ = 'BLOCK ({})'.format(iogrp) if iogrp else 'BLOCK'
+                    typ = 'REPEAT ({})'.format(iogrp) if iogrp else 'REPEAT'
                     resolved_hdl = hdl if hdl else n.name
                     self.raws.append(SummaryRaw(
                         rng, typ, name, n, n_addr,
