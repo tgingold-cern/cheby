@@ -2,8 +2,6 @@ memory-map:
   bus: axi4-lite-32
   name: bigaddr
   description: Constants whose address/size exceed the 32-bit VHDL Natural range
-  x-hdl:
-    block-prefix: false
   children:
     - block:
         name: blk
