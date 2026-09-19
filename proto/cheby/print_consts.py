@@ -192,14 +192,32 @@ class ConstsPrinterSystemVerilog(ConstsPrinter):
 
 
 class ConstsPrinterVHDL(ConstsPrinter):
-    # Maximum value representable by a VHDL Natural/Integer. The VHDL standard
-    # only guarantees a 32-bit signed integer, so synthesis/elaboration tools
-    # reject literals greater than 2**31-1
-    INTEGER_MAX = 2 ** 31 - 1
+    # Width of the VHDL integer type. The standard only guarantees a 32-bit
+    # signed integer for the predefined type, and that is what most tools
+    # implement; vhdl-2019 widens it to 64 bits.
+    INTEGER_WIDTH = 32
 
-    def __init__(self, fd, root):
+    def __init__(self, fd, root, integer_width=INTEGER_WIDTH):
         super(ConstsPrinterVHDL, self).__init__(fd, root)
         self.pkg_name = root.hdl_module_name + '_Consts'
+        # Largest value a Natural can hold for the targetted tool.
+        self.integer_max = 2 ** (integer_width - 1) - 1
+        # Width of the constants that cannot be a Natural. It is the same for
+        # all of them, so that they can be compared and concatenated.
+        size = self.map_size(root)
+        self.slv_width = self.round_width(max(32, size.bit_length()))
+
+    @staticmethod
+    def map_size(root):
+        "Return the size of the largest address space of :param root:"
+        if root.c_address_spaces_map:
+            return max([space.c_size for space in root.children])
+        return root.c_size
+
+    @staticmethod
+    def round_width(width):
+        "Round :param width: up to a multiple of 32 bits"
+        return ((width + 31) // 32) * 32
 
     def pr_header(self):
         # Enums and constants use std_logic_vector.
@@ -209,36 +227,29 @@ class ConstsPrinterVHDL(ConstsPrinter):
 
         self.pr_raw("package {} is\n".format(self.pkg_name))
 
-    @staticmethod
-    def _slv_of_int(val):
-        """Return a (hex literal, width) pair representing :param val: as a
-        std_logic_vector. The width is the smallest multiple of 4 bits that can
-        hold the value, with a minimum of 32 bits"""
-        width = max(val.bit_length(), 32)
-        width = ((width + 3) // 4) * 4
-        return 'x"{:0{w}x}"'.format(val, w=width // 4), width
-
     def pr_const(self, name, val):
         self.pr_raw("  constant {} : Natural := {};\n".format(name, val))
 
     def pr_const_width(self, name, val, width):
         self.pr_raw("  constant {} : std_logic_vector({}-1 downto 0) := {};\n".format(name, width, val))
 
+    def pr_slv_const(self, name, val):
+        """Print a value that is too large for a Natural as a
+        std_logic_vector. The name gets an _SLV suffix, so that a name always
+        denotes the same type"""
+        width = self.round_width(max(self.slv_width, val.bit_length()))
+        self.pr_const_width(name + "_SLV",
+                            'x"{:0{w}x}"'.format(val, w=width // 4), width)
+
     def pr_dec_const(self, name, val):
-        # A Natural cannot represent values above INTEGER_MAX, so fall back to a
-        # std_logic_vector to keep the package synthesizable
-        if isinstance(val, int) and val > self.INTEGER_MAX:
-            hex_val, width = self._slv_of_int(val)
-            self.pr_const_width(name, hex_val, width)
+        if isinstance(val, int) and val > self.integer_max:
+            self.pr_slv_const(name, val)
         else:
             self.pr_const(name, "{}".format(val))
 
     def pr_hex_const(self, name, val):
-        # A Natural cannot represent values above INTEGER_MAX, so fall back to a
-        # std_logic_vector to keep the package synthesizable
-        if val > self.INTEGER_MAX:
-            hex_val, width = self._slv_of_int(val)
-            self.pr_const_width(name, hex_val, width)
+        if val > self.integer_max:
+            self.pr_slv_const(name, val)
         else:
             self.pr_const(name, "16#{:x}#".format(val))
 
@@ -267,8 +278,8 @@ class ConstsPrinterVHDL(ConstsPrinter):
 
 
 class ConstsPrinterVHDLOhwr(ConstsPrinterVHDL):
-    def __init__(self, fd, root):
-        super(ConstsPrinterVHDLOhwr, self).__init__(fd, root)
+    def __init__(self, fd, root, integer_width=ConstsPrinterVHDL.INTEGER_WIDTH):
+        super(ConstsPrinterVHDLOhwr, self).__init__(fd, root, integer_width)
         self.pkg_name = root.hdl_module_name + '_consts_pkg'
 
     def pr_const(self, name, val):
@@ -499,7 +510,7 @@ def pstruct_repeatblock(pr, n):
     pconsts_composite_children(pr, n)
 
 
-def pconsts_cheby(fd, root, style):
+def pconsts_cheby(fd, root, style, integer_width=ConstsPrinterVHDL.INTEGER_WIDTH):
     form = "consts"
     if style.endswith("-struct"):
         form = "struct"
@@ -521,7 +532,14 @@ def pconsts_cheby(fd, root, style):
         'struct': StructVisitor
     }
 
-    pr = cls_form[form](cls_style[style](fd, root))
+    cls = cls_style[style]
+    if issubclass(cls, ConstsPrinterVHDL):
+        # Only the vhdl styles have an integer type with a limited range.
+        printer = cls(fd, root, integer_width)
+    else:
+        printer = cls(fd, root)
+
+    pr = cls_form[form](printer)
 
     pr.pr_header()
     pr.visit(root)
