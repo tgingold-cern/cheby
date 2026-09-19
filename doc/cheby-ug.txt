@@ -1132,11 +1132,23 @@ integers, and the mask is not generated (as it would often overflow the integer
 range).
 
 For the vhdl styles, a `Natural` value cannot exceed 2^31-1, which is the upper
-bound guaranteed for the VHDL integer type. When an address or size constant
-exceeds this value (for example a map based at address `0x80000000` or above),
-it is emitted as a `std_logic_vector` (sized to the next multiple of 4 bits,
-with a minimum of 32 bits) instead of a `Natural`, so that the generated package
-remains synthesizable. Values that fit in a `Natural` are unchanged.
+bound guaranteed for the VHDL integer type. A constant that is too large for a
+`Natural` (for example the address of a register in a map based at address
+`0x80000000`) is generated as a `std_logic_vector` instead, and an `_SLV`
+suffix is added to its name, so that a name always denotes the same type. Such
+constants all have the same width, so that they can be compared and
+concatenated. Constants that fit in a `Natural` are unchanged.
+
+The limit above is the 32-bit one, which is what most tools implement. For a
+tool that implements the vhdl-2019 64-bit integer, use:
+
+[source]
+----
+  $ cheby --consts-style=vhdl --consts-integer-width=64 --gen-consts -i INPUT.cheby
+----
+
+A 64-bit `Natural` can hold any address of a memory map, so no `_SLV` constant
+is generated in that case.
 
 Some styles also support the generation of structured constant files by adding a
 `-struct` suffix to it. Thereby, the constants are grouped in a hierarchical
