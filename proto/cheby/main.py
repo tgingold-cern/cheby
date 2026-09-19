@@ -88,6 +88,9 @@ def decode_args():
         default='verilog',
         help='select style for --gen-consts',
     )
+    aparser.add_argument('--consts-integer-width', type=int, choices=[32, 64],
+                         default=32,
+                         help='width of the vhdl integer type for --gen-consts')
     aparser.add_argument('--gen-consts', nargs='?', const='-',
                          help='generate constants as hdl file')
     aparser.add_argument('--gen-edge', nargs='?', const='-',
@@ -335,7 +338,8 @@ def handle_file(args, filename):
     if args.gen_consts is not None:
         with open_filename(args.gen_consts) as f:
             gen_header.gen_comment_header_maybe(f, args.header, args.consts_style)
-            print_consts.pconsts_cheby(f, t, args.consts_style)
+            print_consts.pconsts_cheby(f, t, args.consts_style,
+                                       args.consts_integer_width)
 
     if args.gen_wbgen_hdl is not None:
         h = gen_wbgen_hdl.expand_hdl(t)
