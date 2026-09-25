@@ -73,8 +73,8 @@ def gen_children(f, t, indent):
     global unique_id
     for c in t.children:
         if isinstance(c, tree.Submap):
-            if c.filename is None:
-                dt = get_devicetree(c)
+            dt = get_devicetree(c)
+            if c.filename is None or dt is not None:
                 if dt is not None:
                     interr = getattr(c, 'c_interrupts', None)
                     label = find_label(dt)
@@ -228,6 +228,8 @@ def build_interrupts(n, base, path, all_interr):
         for eint in exported_interr:
             eint.path_name = n.name + '/' + eint.name
         all_interr.append(exported_obj)
+        if getattr(n, 'c_interrupts', None) is None:
+            n.c_interrupts = exported_obj
     elif isinstance(n, tree.CompositeNode):
         for c in n.children:
             build_interrupts(c, base, path + [c.name], all_interr)
