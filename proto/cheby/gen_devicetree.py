@@ -20,32 +20,38 @@ def get_interrupts(n):
     return n.get_ext_node('x_interrupts')
 
 
-def gen_common(f, dt, indent):
-    for e in dt:
-        for typ, v in e.items():
-            if typ in ['label', 'include']:
-                continue
-            name = v['name']
-            value = v.get('value', None)
-            if typ == 'string':
-                f.write('{}{} = "{}";\n'.format(indent * ' ', name, value))
-            elif typ == 'phandle':
-                f.write('{}{} = <&{}>;\n'.format(indent * ' ', name, value))
-            elif typ == 'u32':
-                f.write('{}{} = {};\n'.format(indent * ' ', name, value))
-            elif typ == 'boolean':
-                f.write('{}{};\n'.format(indent * ' ', name))
-            else:
-                error('unhandled type {}'.format(typ))
+def gen_common(f, dt, indent, path):
+    for key, el in dt.items():
+        if key in ['label', 'include']:
+            continue
+        if key != 'children':
+            error("unknown x-devicetree attribute '{}' in {}".format(key, path))
+        if not isinstance(el, list):
+            error("{}/x-devicetree/children must be a list".format(path))
+        for e in el:
+            if not isinstance(e, dict):
+                error("{}/x-devicetree/children item must be a dict".format(path))
+            for typ, v in e.items():
+                if not isinstance(v, dict):
+                    error("{}/x-devicetree/children: property '{}' must be a dict"
+                          .format(path, typ))
+                name = v['name']
+                value = v.get('value', None)
+                if typ == 'string':
+                    f.write('{}{} = "{}";\n'.format(indent * ' ', name, value))
+                elif typ == 'phandle':
+                    f.write('{}{} = <&{}>;\n'.format(indent * ' ', name, value))
+                elif typ == 'u32':
+                    f.write('{}{} = <{}>;\n'.format(indent * ' ', name, value))
+                elif typ == 'boolean':
+                    f.write('{}{};\n'.format(indent * ' ', name))
+                else:
+                    error('unhandled type "{}" in {}/x-devicetree'.format(
+                        typ, path))
 
 
 def find_label(dt):
-    for e in dt:
-        l = e.get('label', None)
-        if l is not None:
-            return l
-    return None
-
+    return dt.get('label', None)
 
 unique_id = 0
 
@@ -56,7 +62,7 @@ def create_label(n):
 
     label = format('{}_{}'.format(n.name, unique_id))
     unique_id += 1
-    n.x_devicetree.append({'label': label})
+    n.x_devicetree.update({'label': label})
     return label
 
 
@@ -91,25 +97,24 @@ def gen_children(f, t, indent):
                     f.write('{}@{:x} {{\n'.format(c.name, c.c_address))
 
                     nindent = indent + 1
-                    gen_common(f, dt, nindent)
+                    gen_common(f, dt, nindent, c.get_path())
                     f.write('{}reg = <0x{:x} 0x{:x}'.format(
                         nindent * ' ', c.c_address, c.c_size - 1))
                     # Extra regs from include.
-                    for e in dt:
-                        for typ, v in e.items():
-                            if typ == 'include':
-                                dev = [ch for ch in t.children if ch.name == v]
-                                if dev is None:
-                                    error('cannot found include {} in devicetree of {}'.format(
-                                        v, c.get_path()))
-                                else:
-                                    dev = dev[0]
-                                    f.write('\n{}       0x{:x} 0x{:x}'.format(
-                                        nindent * ' ', dev.c_address, dev.c_size - 1))
+                    for typ, v in dt.items():
+                        if typ == 'include':
+                            dev = [ch for ch in t.children if ch.name == v]
+                            if not dev:
+                                error('cannot find include {} in devicetree of {}'.format(
+                                    v, c.get_path()))
+                            else:
+                                dev = dev[0]
+                                f.write('\n{}       0x{:x} 0x{:x}'.format(
+                                    nindent * ' ', dev.c_address, dev.c_size - 1))
                     f.write('>;\n')
 
                     if is_interr_ctrl:
-                        f.write('{}interrupt_controller;\n'.format(
+                        f.write('{}interrupt-controller;\n'.format(
                             nindent * ' '))
 
                     if interr is not None:
@@ -184,42 +189,52 @@ def build_interrupts(n, base, path, all_interr):
     # Handle N
     # At some point, we need a scheme: check for ill-formed YAML, check for type, check for
     # missing nodes...
-    interr_list = get_interrupts(n)
-    if interr_list is not None:
+    interr_dict = get_interrupts(n)
+    if interr_dict is not None:
         interr_obj = interrupts()
         all_interr.append(interr_obj)
         n.c_interrupts = interr_obj
-        for e in interr_list:
-            for k, v in e.items():
-                if k == 'in':
-                    obj = interrupt_in()
-                    obj.parent = n
-                    # Default index ?
-                    # obj.index = len(interr_obj.inputs)
-                    interr_obj.inputs.append(obj)
-                    for k1, v1 in v.items():
-                        if k1 == 'index':
-                            obj.index = v1
-                        elif k1 == 'name':
-                            obj.name = v1
-                        elif k1 == 'source':
-                            obj.src_path = v1
-                        else:
-                            error('unknown attribute {} in {}/x-interrupts/in'.format(
-                                k1, n.get_path()))
-                elif k == 'out':
-                    obj = interrupt_out()
-                    interr_obj.outputs.append(obj)
-                    for k1, v1 in v.items():
-                        if k1 == 'name':
-                            obj.name = v1
-                        else:
-                            error('unknown attribute {} in {}/x-interrupts/out'.format(
-                                k1, n.get_path()))
-                    obj.path_name = '/'.join(path + [obj.name])
-                else:
-                    error('unknown x-interrupts item "{}" in {}'.format
-                          (k, n.get_path()))
+        for key, el in interr_dict.items():
+            if key != 'children':
+                error("unknown x-interrupts attribute '{}' in {}".format(key, n.get_path()))
+            if not isinstance(el, list):
+                error("{}/x-interrupts/children must be a list".format(n.get_path()))
+            for e in el:
+                if not isinstance(e, dict):
+                    error("{}/x-interrupts/children item must be a dict".format(n.get_path()))
+                for typ, v in e.items():
+                    if not isinstance(v, dict):
+                        error("{}/x-interrupts/children: property '{}' must be a dict"
+                              .format(n.get_path(), typ))
+                    if typ == 'in':
+                        obj = interrupt_in()
+                        obj.parent = n
+                        # Default index ?
+                        # obj.index = len(interr_obj.inputs)
+                        interr_obj.inputs.append(obj)
+                        for k1, v1 in v.items():
+                            if k1 == 'index':
+                                obj.index = v1
+                            elif k1 == 'name':
+                                obj.name = v1
+                            elif k1 == 'source':
+                                obj.src_path = v1
+                            else:
+                                error('unknown attribute {} in {}/x-interrupts/in'.format(
+                                    k1, n.get_path()))
+                    elif typ == 'out':
+                        obj = interrupt_out()
+                        interr_obj.outputs.append(obj)
+                        for k1, v1 in v.items():
+                            if k1 == 'name':
+                                obj.name = v1
+                            else:
+                                error('unknown attribute {} in {}/x-interrupts/out'.format(
+                                    k1, n.get_path()))
+                        obj.path_name = '/'.join(path + [obj.name])
+                    else:
+                        error('unknown x-interrupts type "{}" in {}'.format
+                              (typ, n.get_path()))
     # Handle children
     if isinstance(n, tree.Submap) and n.filename is not None:
         exported_interr = build_interrupts_base(n.c_submap)
@@ -241,7 +256,7 @@ def generate_devicetree(f, t):
         error("no x-devicetree for {}".format(t.get_path()))
     build_interrupts_base(t)
     f.write("{} {{\n".format(t.name))
-    gen_common(f, dt, 1)
+    gen_common(f, dt, 1, t.get_path())
     f.write(" #address-cells = <1>;\n")
     f.write(" #size-cells = <1>;\n")
     f.write("\n")
