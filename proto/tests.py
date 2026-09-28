@@ -30,6 +30,7 @@ import cheby.print_rest as print_rest
 import cheby.gen_custom as gen_custom
 import cheby.gen_edge as gen_edge
 import cheby.gen_silecs as gen_silecs
+import cheby.gen_devicetree as gen_devicetree
 from cheby.hdl.globals import gconfig, gconfig_scope
 
 srcdir = os.path.join(os.path.dirname(os.path.realpath(__file__)),
@@ -1245,6 +1246,23 @@ def test_silecs():
             error('SILECS generation error for {}'.format(f))
         nbr_tests += 1
 
+def test_devicetree():
+    global nbr_tests
+    for f in ['devicetree/soc']:
+        if args.verbose:
+            print('test devicetree: {}'.format(f))
+        chebfile = srcdir + f + '.cheby'
+        dtsfile = srcdir + f + '.dtsi'
+        t = parse_ok(chebfile)
+        layout_ok(t)
+
+        # Generate devicetree and compare to golden file
+        buf = write_buffer()
+        gen_devicetree.generate_devicetree(buf, t)
+        if not compare_buffer_and_file(buf, dtsfile):
+            error('devicetree generation error for {}'.format(f))
+        nbr_tests += 1
+
 def main():
     global args
 
@@ -1287,6 +1305,7 @@ def main():
         test_custom()
         test_edge()
         test_silecs()
+        test_devicetree()
         print("Done ({} tests)!".format(nbr_tests))
     except TestError as e:
         werr(e.msg)
