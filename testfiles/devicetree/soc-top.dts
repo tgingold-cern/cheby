@@ -1,0 +1,11 @@
+/dts-v1/;
+
+/ {
+/include/ "soc.dtsi"
+
+	osc0: oscillator {
+		compatible = "fixed-clock";
+		#clock-cells = <0>;
+		clock-frequency = <25000000>;
+	};
+};
