@@ -1163,6 +1163,21 @@ Cheby description.  Not all features of Cheby are supported: only registers.
   $ cheby --gen-silecs -i INPUT.cheby
 ----
 
+=== Generating devicetree
+
+A device tree describing the memory map can be generated with
+`--gen-devicetree`:
+
+[source]
+----
+  $ cheby --gen-devicetree=OUTPUT.dtsi -i INPUT.cheby
+----
+
+Each submap carrying an `x-devicetree` extension is emitted as a node.
+The `x-interrupts` extension describes the interrupt wiring between
+these nodes.  See <<x-devicetree, x-devicetree>> and
+<<x-interrupts, x-interrupts>> in the extensions chapter.
+
 === Custom pass
 
 If you need a very specific feature, you can implement your own pass, and invoke it
