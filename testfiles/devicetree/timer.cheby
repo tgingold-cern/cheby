@@ -1,0 +1,19 @@
+memory-map:
+  bus: wb-32-be
+  name: timer
+  description: timer example
+  x-interrupts:
+    children:
+      - out:
+          name: irq
+  children:
+  - reg:
+      name: ctrl
+      type: unsigned
+      width: 32
+      access: rw
+  - reg:
+      name: cnt
+      type: unsigned
+      width: 32
+      access: ro

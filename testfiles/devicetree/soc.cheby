@@ -1,0 +1,103 @@
+memory-map:
+  bus: wb-32-be
+  name: soc
+  description: devicetree example
+  x-devicetree: {}
+  children:
+  - submap:
+      name: timer
+      filename: timer.cheby
+      include: true
+      x-devicetree:
+        label: timer_dt
+        children:
+          - string:
+              name: compatible
+              value: "myvendor,timer"
+          - phandle:
+              name: clocks
+              value: osc0
+          - u32:
+              name: clock-frequency
+              value: 50000000
+          - u32:
+              name: delay
+              value: 20
+  - submap:
+      name: intc
+      size: 0x100
+      interface: wb-32-be
+      description: Interrupt controller
+      x-devicetree:
+        label: intc0
+        children:
+          - string:
+              name: compatible
+              value: "myvendor,intc"
+          - u32:
+              name: "#interrupt-cells"
+              value: 1
+      x-interrupts:
+        children:
+          - in:
+              name: irq0
+              index: 0
+              source: timer/irq
+          - in:
+              name: irq1
+              index: 1
+              source: uart/irq
+      children:
+      - reg:
+          name: status
+          type: unsigned
+          width: 32
+          access: ro
+  - submap:
+      name: uart
+      size: 0x1000
+      interface: wb-32-be
+      description: UART peripheral (external logic)
+      x-devicetree:
+        children:
+          - string:
+              name: compatible
+              value: "myvendor,uart"
+          - boolean:
+              name: big-endian
+          - u32:
+              name: clock-frequency
+              value: 1843200
+      x-interrupts:
+        children:
+          - out:
+              name: irq
+  - submap:
+      name: bridge
+      size: 0x1000
+      interface: wb-32-be
+      description: Bus bridge covering an extra window
+      x-devicetree:
+        label: bus
+        include: slave
+        children:
+          - string:
+              name: compatible
+              value: "simple-bus"
+      children:
+      - reg:
+          name: ctrl
+          type: unsigned
+          width: 32
+          access: rw
+  - submap:
+      name: slave
+      size: 0x100
+      interface: wb-32-be
+      description: Extra window, not described by itself
+      children:
+      - reg:
+          name: status
+          type: unsigned
+          width: 32
+          access: ro

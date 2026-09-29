@@ -1,0 +1,37 @@
+soc {
+ #address-cells = <1>;
+ #size-cells = <1>;
+
+ timer_dt: timer@0 {
+  compatible = "myvendor,timer";
+  clocks = <&osc0>;
+  clock-frequency = <50000000>;
+  delay = <20>;
+  reg = <0x0 0x7>;
+  interrupts-extended = <&intc0 0>;
+ };
+
+ intc0: intc@100 {
+  compatible = "myvendor,intc";
+  #interrupt-cells = <1>;
+  reg = <0x100 0xff>;
+  interrupt-controller;
+ };
+
+ uart@1000 {
+  compatible = "myvendor,uart";
+  big-endian;
+  clock-frequency = <1843200>;
+  reg = <0x1000 0xfff>;
+  interrupts-extended = <&intc0 1>;
+ };
+
+ bus: bridge@2000 {
+  compatible = "simple-bus";
+  reg = <0x2000 0xfff
+         0x3000 0xff>;
+ };
+
+ /* slave@3000 is not described. */
+
+};

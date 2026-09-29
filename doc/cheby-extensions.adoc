@@ -210,18 +210,61 @@ higher).
 
 ==== interrupt-controllers
 
-With the following attributes, for each interrupt-controller: * name *
-description * type: INTC_SR, INTC_CR * chained * args: enable-mask,
-ack-mask * reg-role * type: IRQ_V, IRQ_L, ASSERT * args: min-val,
-max-val
+With the following attributes, for each interrupt-controller:
+
+* name
+* description
+* type: INTC_SR, INTC_CR
+* chained
+* args: enable-mask,ack-mask
+* reg-role
+* type: IRQ_V, IRQ_L, ASSERT
+* args: min-val, max-val
 
 === x-conversions
 
 === x-wbgen
 
+[[x-devicetree]]
 === x-devicetree
 
+The `x-devicetree` extension describes how a memory map generates a
+device tree (via `--gen-devicetree`). It can be attached to a
+`memory-map` (the root) and to `submap` nodes.
+
+Its value is a mapping with:
+
+`label`:: node label, e.g. `intc0`
+`include`:: sibling `submap` name whose range is added to this
+  node's `reg`.
+`children`:: list of properties to emit.  Each item is a mapping with
+  a single key:
+
+* string: `+{name, value}+` -> `name = "value";`
+* phandle: `+{name, value}+` -> `+name = <&value>;+`
+* u32: `+{name, value}+` -> `+name = <value>;+`
+* boolean: `+{name}+` -> `name;`
+
+On a `memory-map` it describes the root node: any common properties,
+the `+#address-cells+` and `+#size-cells+` properties, then the children
+from the submaps using `+[label: ]name@address+`.
+
+A runnable example can be found in `testfiles/devicetree/soc.cheby`.
+
+[[x-interrupts]]
 === x-interrupts
+
+The `x-interrupts` extension is tightly linked to `x-devicetree`
+extension and describes the interrupt wiring between `submap`
+nodes. Its value is a mapping with a `children` list of items, each a
+mapping with a single key:
+
+`out`:: an interrupt output pin, with a mandatory `name`.
+`in`:: an interrupt input pin, making the node an interrupt
+  controller, with `name`, `index`, and `source`.
+
+A node with `in` items gets an `interrupt-controller` property and
+needs a label (explicit `label` or auto-created).
 
 === x-enums
 
