@@ -202,10 +202,9 @@ class ConstsPrinterVHDL(ConstsPrinter):
         self.pkg_name = root.hdl_module_name + '_Consts'
         # Largest value a Natural can hold for the targetted tool.
         self.integer_max = 2 ** (integer_width - 1) - 1
-        # Width of the constants that cannot be a Natural. It is the same for
-        # all of them, so that they can be compared and concatenated.
-        size = self.map_size(root)
-        self.slv_width = self.round_width(max(32, size.bit_length()))
+        # Constants that cannot be a Natural have the width of the address, so
+        # that they can be assigned to an address signal.
+        self.slv_width = layout.ilog2(self.map_size(root))
 
     @staticmethod
     def map_size(root):
@@ -213,11 +212,6 @@ class ConstsPrinterVHDL(ConstsPrinter):
         if root.c_address_spaces_map:
             return max([space.c_size for space in root.children])
         return root.c_size
-
-    @staticmethod
-    def round_width(width):
-        "Round :param width: up to a multiple of 32 bits"
-        return ((width + 31) // 32) * 32
 
     def pr_header(self):
         # Enums and constants use std_logic_vector.
@@ -237,9 +231,8 @@ class ConstsPrinterVHDL(ConstsPrinter):
         """Print a value that is too large for a Natural as a
         std_logic_vector. The name gets an _SLV suffix, so that a name always
         denotes the same type"""
-        width = self.round_width(max(self.slv_width, val.bit_length()))
-        self.pr_const_width(name + "_SLV",
-                            'x"{:0{w}x}"'.format(val, w=width // 4), width)
+        width = max(self.slv_width, val.bit_length())
+        self.pr_hex_data(name + "_SLV", val, width)
 
     def pr_dec_const(self, name, val):
         if isinstance(val, int) and val > self.integer_max:
