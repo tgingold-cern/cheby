@@ -1111,7 +1111,7 @@ def test_consts():
               'issue64/simple_reg1', 'issue_g2/reg', 'bug-consts/blkpfx',
               'features/enums1', 'features/enums2', 'bug-const-range/const_range',
               'features/memwide_ua', 'bug-same-label/same_label', 'issue143/map',
-              'mr67/top']:
+              'mr67/top', 'features/consts_int_max']:
         if args.verbose:
             print('test consts: {}'.format(f))
         chebfile = srcdir + f + '.cheby'
@@ -1146,6 +1146,19 @@ def test_consts():
                     check_c_syntax(file)
 
         nbr_tests += 1
+
+    # A tool with a 64-bit integer (vhdl-2019) can use a Natural for any
+    # address of the map.
+    f = 'features/consts_int_max'
+    t = parse_ok(srcdir + f + '.cheby')
+    layout_ok(t)
+    expand_hdl.expand_hdl(t)
+    gen_name.gen_name_memmap(t)
+    buf = write_buffer()
+    print_consts.pconsts_cheby(buf, t, 'vhdl', 64)
+    if not compare_buffer_and_file(buf, srcdir + f + '-consts-int64.vhdl'):
+        error('consts vhdl generation error for {} with a 64-bit integer'.format(f))
+    nbr_tests += 1
 
 def test_doc():
     # Generate html and md, compare with a baseline.
