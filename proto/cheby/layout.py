@@ -173,7 +173,7 @@ def layout_field(root, f, parent, pos):
     else:
         if f.type not in ('signed', 'unsigned'):
             raise LayoutException(
-                f, "type of field {} must be either 'signed', 'unsigned' or 'enum'".format(
+                f, "type of field {} must be either 'signed' or 'unsigned'".format(
                     f.get_path()))
         f.c_type = f.type
 
