@@ -4,6 +4,14 @@ import sys
 import cheby
 
 
+def get_file_header(root, license_kind):
+    # Create single string from header and license
+    root = root.get_root()
+    header = (root.header or "").strip()
+    license = (root.license.get(license_kind, "") or "").strip()
+    return ("\n".join((header, license))).strip()
+
+
 def get_comment_token(language):
     # Find comment token for the given language
     comment_token_dict = {
@@ -21,7 +29,34 @@ def get_comment_token(language):
     return comment_token_dict[language]
 
 
-def gen_comment_header(f, header, language):
+def gen_file_header(f, header, language, root, license_kind, version=None):
+    # Generate file header including license text block and cheby data
+    text = get_file_header(root, license_kind)
+
+    if text == "" and header == 'none':
+        return
+    comment = get_comment_token(language)
+    f.write(comment[0] * 79 + "\n")
+
+    if text != "":
+        for line in text.splitlines():
+            if line:
+                f.write("{} {}\n".format(comment, line))
+            else:
+                f.write("{}\n".format(comment))
+
+    if header != 'none':
+        if text != "":
+            f.write(comment + "\n")
+        gen_cheby_header(f, header, language)
+        if version is not None:
+            f.write("{c}\n{c} Version: {ver}\n".format(
+                c=comment, ver=version))
+
+    f.write(comment[0] * 79 + "\n\n\n")
+
+
+def gen_cheby_header(f, header, language):
     # Generate a comment header for the given programming language
     #
     # The following types are supported
@@ -57,22 +92,3 @@ def gen_comment_header(f, header, language):
                 c, date=time.strftime("%a %b %d %X %Y"), user=user
             )
         )
-
-    f.write("\n")
-
-
-def gen_comment_header_maybe(f, header, language):
-    # Generate a comment header depending on the 'header' variable
-    if header != 'none':
-        gen_comment_header(f, header, language)
-
-
-def gen_comment_header_maybe_version(f, header, language, version):
-    # Generate a comment header with version identifier
-    if header != 'none':
-        gen_comment_header(f, header, language)
-        if version is not None:
-            c = get_comment_token(language)
-            f.write("{c}\n{c} Version: {ver}\n".format(c=c, ver=version))
-        f.write("\n")
-

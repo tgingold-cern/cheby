@@ -427,9 +427,21 @@ def parse_yaml(filename):
     if 'memory-map' not in el:
         error("open error: {}: missing 'memory-map' root node".format(
             filename))
-    el = el['memory-map']
 
     res = tree.Root()
+    if 'header' in el:
+        for k, v in el['header'].items():
+            if k == 'text':
+                res.header = read_text(res, k, v, allow_empty=True)
+            elif k == 'license-code':
+                res.license['code'] = read_text(res, k, v, allow_empty=True)
+            elif k == 'license-hdl':
+                res.license['hdl'] = read_text(res, k, v, allow_empty=True)
+            else:
+                error("unhandled '{}' in header".format(k))
+
+    el = el['memory-map']
+
     parse_name(res, el)
     res.c_filename = filename
     for k, v in el.items():

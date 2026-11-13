@@ -226,16 +226,18 @@ def handle_file(args, filename):
     if args.gen_gena_memmap is not None:
         with open_filename(args.gen_gena_memmap) as f:
             h = gen_gena_memmap.gen_gena_memmap(t)
-            gen_header.gen_comment_header_maybe(f, args.header, args.hdl)
+            gen_header.gen_file_header(f, args.header, 'vhdl', t, 'hdl')
             print_vhdl.print_vhdl(f, h)
     if args.gen_custom is not None:
         with open_filename(args.gen_custom) as f:
             gen_custom.generate_custom(f, t, args.custom)
     if args.gen_devicetree is not None:
         with open_filename(args.gen_devicetree) as f:
+            gen_header.gen_file_header(f, 'none', 'h', t, 'code')
             gen_devicetree.generate_devicetree(f, t)
     if args.gen_install_script is not None:
         with open_filename(args.gen_install_script) as f:
+            gen_header.gen_file_header(f, 'none', 'python', t, 'code')
             gen_device_script.generate_device_script(f, t)
     if args.gen_edge is not None:
         with open_filename(args.gen_edge) as f:
@@ -253,9 +255,11 @@ def handle_file(args, filename):
             sprint.sprint_cheby(f, t, False, True)
     if args.gen_c is not None:
         with open_filename(args.gen_c) as f:
+            gen_header.gen_file_header(f, 'none', 'h', t, 'code')
             gen_c.gen_c_cheby(f, t, args.c_style, args.gen_c_bit_struct)
     if args.gen_c_check_layout is not None:
         with open_filename(args.gen_c_check_layout) as f:
+            gen_header.gen_file_header(f, 'none', 'h', t, 'code')
             gen_laychk.gen_chklayout_cheby(f, t)
 
     # Decode x-hdl, unroll
@@ -278,30 +282,30 @@ def handle_file(args, filename):
             gen_gena_memmap.gen_gena_memmap(t)
         with open_filename(args.gen_gena_regctrl) as f:
             h = gen_gena_regctrl.gen_gena_regctrl(t, args.gena_common_visual)
-            gen_header.gen_comment_header_maybe(f, args.header, args.hdl)
+            gen_header.gen_file_header(f, args.header, 'vhdl', t, 'hdl')
             print_vhdl.print_vhdl(f, h)
     if args.gen_gena_dsp_map is not None:
         with open_filename(args.gen_gena_dsp_map) as f:
-            gen_header.gen_comment_header_maybe(f, args.header, 'h')
+            gen_header.gen_file_header(f, args.header, 'h', t, 'code')
             gen_gena_dsp.gen_gena_dsp_map(f, t)
     if args.gen_gena_dsp_h is not None:
         with open_filename(args.gen_gena_dsp_h) as f:
-            gen_header.gen_comment_header_maybe(f, args.header, 'h')
+            gen_header.gen_file_header(f, args.header, 'h', t, 'code')
             gen_gena_dsp.gen_gena_dsp_h(f, t)
     if args.gen_gena_dsp_c is not None:
         with open_filename(args.gen_gena_dsp_c) as f:
-            gen_header.gen_comment_header_maybe(f, args.header, 'h')
+            gen_header.gen_file_header(f, args.header, 'h', t, 'code')
             gen_gena_dsp.gen_gena_dsp_c(f, t)
     if args.gen_gena_dsp:
         os.makedirs("DSP/include", exist_ok=True)
         with open_filename("DSP/include/MemMapDSP_{}.h".format(t.name)) as f:
-            gen_header.gen_comment_header_maybe(f, args.header, 'h')
+            gen_header.gen_file_header(f, args.header, 'h', t, 'code')
             gen_gena_dsp.gen_gena_dsp_map(f, t)
         with open_filename("DSP/include/vmeacc_{}.h".format(t.name)) as f:
-            gen_header.gen_comment_header_maybe(f, args.header, 'h')
-            gen_gena_dsp.gen_gena_dsp_h(f, t, 'h')
+            gen_header.gen_file_header(f, args.header, 'h', t, 'code')
+            gen_gena_dsp.gen_gena_dsp_h(f, t)
         with open_filename("DSP/vmeacc_{}.c".format(t.name)) as f:
-            gen_header.gen_comment_header_maybe(f, args.header, 'h')
+            gen_header.gen_file_header(f, args.header, 'h', t, 'code')
             gen_gena_dsp.gen_gena_dsp_c(f, t)
     if args.gen_doc is not None:
         with open_filename(args.gen_doc) as f:
@@ -337,9 +341,11 @@ def handle_file(args, filename):
 
     if args.gen_consts is not None:
         with open_filename(args.gen_consts) as f:
-            gen_header.gen_comment_header_maybe(f, args.header, args.consts_style)
-            print_consts.pconsts_cheby(f, t, args.consts_style,
-                                       args.consts_integer_width)
+            license_kind = 'hdl'
+            if args.consts_style not in ('sv', 'verilog', 'vhdl', 'vhdl-ohwr', 'vhdl-orig'):
+                license_kind = 'code'
+            gen_header.gen_file_header(f, args.header, args.consts_style, t, license_kind)
+            print_consts.pconsts_cheby(f, t, args.consts_style, args.consts_integer_width)
 
     if args.gen_wbgen_hdl is not None:
         h = gen_wbgen_hdl.expand_hdl(t)
@@ -389,7 +395,7 @@ def handle_file(args, filename):
                 raise AssertionError('unhandled language {}'.format(args.hdl))
         else:
             with open_filename(args.gen_hdl) as f:
-                gen_header.gen_comment_header_maybe_version(f, args.header, args.hdl, t.version)
+                gen_header.gen_file_header(f, args.header, args.hdl, t, 'hdl', t.version)
                 print_hdl(f, args.hdl, h)
 
 

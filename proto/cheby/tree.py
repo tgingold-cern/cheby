@@ -117,6 +117,8 @@ class Root(CompositeNode):
         self.memmap_version = None # x-map-info:memmap-version
         self.x_enums = []
         self.schema_version = {}
+        self.header = ""           # File header
+        self.license = {}          # File license
         # Computed variables
         self.c_word_size = None       # Word size in bytes
         self.c_addr_word_bits = None  # log2(c_word_size)

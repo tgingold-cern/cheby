@@ -55,6 +55,25 @@ class PrettyPrinter(tree.Visitor):
             s = "'" + s + "'"
         self.pp_raw("{}: {}\n".format(name, s))
 
+    def pp_block_str(self, name, s):
+        if s is None:
+            return
+        if '\n' not in s:
+            self.pp_str(name, s)
+            return
+
+        if s.endswith('\n\n'):
+            chomp = '|+'
+        elif s.endswith('\n'):
+            chomp = '|'
+        else:
+            chomp = '|-'
+        self.pp_indent()
+        self.pp_raw("{}: {}\n".format(name, chomp))
+        line_indent = self.indent[-1] + '  '
+        for line in s.splitlines():
+            self.pp_raw(line_indent + line + '\n')
+
 
 def pprint_extension(pp, name, n):
     if isinstance(n, dict):
@@ -258,6 +277,15 @@ def pprint_address_space(pp, n):
 
 @PrettyPrinter.register(tree.Root)
 def pprint_root(pp, n):
+    if n.header or n.license:
+        pp.pp_obj('header')
+        if n.header:
+            pp.pp_block_str('text', n.header)
+        for license_kind in ('code', 'hdl'):
+            value = n.license.get(license_kind)
+            if value:
+                pp.pp_block_str('license-' + license_kind, value)
+        pp.pp_endobj()
     pp.pp_obj('memory-map')
     pprint_composite_head(pp, n)
     pp.pp_str('bus', n.bus)
