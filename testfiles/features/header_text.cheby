@@ -1,0 +1,15 @@
+header:
+  text: |-
+    Header text line one.
+
+    Header text line three.
+
+memory-map:
+  bus: wb-32-be
+  name: header_text
+  children:
+    - reg:
+        name: value
+        address: 0x0
+        width: 32
+        access: rw

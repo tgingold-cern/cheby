@@ -31,6 +31,7 @@ import cheby.gen_custom as gen_custom
 import cheby.gen_edge as gen_edge
 import cheby.gen_silecs as gen_silecs
 import cheby.gen_devicetree as gen_devicetree
+import cheby.gen_header as gen_header
 from cheby.hdl.globals import gconfig, gconfig_scope
 
 srcdir = os.path.join(os.path.dirname(os.path.realpath(__file__)),
@@ -228,7 +229,9 @@ def test_print():
     fd = write_null()
     for f in ['demo', 'features/reg_value1', 'features/reg_value2',
               'features/reg_value3', 'demo_all', 'features/semver1',
-              'issue55/modulation', 'issue124/project']:
+              'features/header_text', 'features/header_licenses',
+              'features/header_both', 'issue55/modulation',
+              'issue124/project']:
         f += '.cheby'
         t = parse_ok(srcdir + f)
         layout_ok(t)
@@ -1160,6 +1163,89 @@ def test_consts():
         error('consts vhdl generation error for {} with a 64-bit integer'.format(f))
     nbr_tests += 1
 
+
+def test_file_headers():
+    # Generate user defined headers and licenses.
+    global nbr_tests
+    formats = [
+        ('h', 'code', 'h'),
+        ('matlab', 'code', 'm'),
+        ('matlab-struct', 'code', 'm'),
+        ('python', 'code', 'py'),
+        ('tcl', 'code', 'tcl'),
+        ('sv', 'hdl', 'sv'),
+        ('verilog', 'hdl', 'sv'),
+        ('vhdl', 'hdl', 'vhdl'),
+        ('vhdl-ohwr', 'hdl', 'vhdl'),
+        ('vhdl-orig', 'hdl', 'vhdl'),
+    ]
+
+    for f in ['features/header_text', 'features/header_licenses', 'features/header_both']:
+        if args.verbose:
+            print('test file headers: {}'.format(f))
+        t = parse_ok(srcdir + f + '.cheby')
+        for language, license_kind, extension in formats:
+            buf = write_buffer()
+            gen_header.gen_file_header(buf, 'none', language, t, license_kind)
+            reference = '{}{}-header.{}'.format(srcdir, f, extension)
+            if not compare_buffer_and_file(buf, reference):
+                error('{} header generation error for {}'.format(language, f))
+        nbr_tests += 1
+
+    buf = write_buffer()
+    gen_header.gen_file_header(buf, 'args', 'vhdl', t, 'hdl')
+    lines = [line for line in buf.get().splitlines() if line]
+    border = '-' * 79
+    if (lines[0] != border or lines[-1] != border or
+            not any(line.startswith('-- Do not edit.') for line in lines)):
+        error('generated Cheby header framing error')
+
+
+def test_file_header_integration():
+    global nbr_tests
+    f = 'features/header_both'
+    t = parse_ok(srcdir + f + '.cheby')
+    layout_ok(t)
+    gen_name.gen_name_memmap(t)
+
+    buf = write_buffer()
+    gen_header.gen_file_header(buf, 'none', 'h', t, 'code')
+    gen_c.gen_c_cheby(buf, t, 'neutral')
+    if not compare_buffer_and_file(buf, srcdir + f + '-full.h'):
+        error('full C header generation error for {}'.format(f))
+
+    expand_hdl.expand_hdl(t)
+    gen_name.gen_name_memmap(t)
+    h = gen_hdl.generate_hdl(t)
+
+    buf = write_buffer()
+    gen_header.gen_file_header(buf, 'none', 'vhdl', t, 'hdl')
+    print_vhdl.print_vhdl(buf, h)
+    if not compare_buffer_and_file(buf, srcdir + f + '-full.vhdl'):
+        error('full VHDL header generation error for {}'.format(f))
+
+    buf = write_buffer()
+    gen_header.gen_file_header(buf, 'none', 'sv', t, 'hdl')
+    with gconfig_scope():
+        gconfig.hdl_lang = 'sv'
+        print_verilog.print_verilog(buf, h)
+    if not compare_buffer_and_file(buf, srcdir + f + '-full.sv'):
+        error('full SV header generation error for {}'.format(f))
+
+    for style, license_kind, extension in [
+            ('python', 'code', 'py'),
+            ('vhdl', 'hdl', 'vhdl')]:
+        buf = write_buffer()
+        gen_header.gen_file_header(buf, 'none', style, t, license_kind)
+        print_consts.pconsts_cheby(buf, t, style)
+        reference = srcdir + f + '-full-consts.' + extension
+        if not compare_buffer_and_file(buf, reference):
+            error('full {} constants header generation error for {}'.format(
+                style, f))
+
+    nbr_tests += 1
+
+
 def test_doc():
     # Generate html and md, compare with a baseline.
     global nbr_tests
@@ -1314,6 +1400,8 @@ def main():
         test_gena_dsp_regressions()
         test_wbgen2cheby()
         test_consts()
+        test_file_headers()
+        test_file_header_integration()
         test_doc()
         test_custom()
         test_edge()

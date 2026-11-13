@@ -1,0 +1,17 @@
+header:
+  license-code: |-
+    Code license line one.
+    Code license line two.
+  license-hdl: |-
+    HDL license line one.
+    HDL license line two.
+
+memory-map:
+  bus: wb-32-be
+  name: header_licenses
+  children:
+    - reg:
+        name: value
+        address: 0x0
+        width: 32
+        access: rw

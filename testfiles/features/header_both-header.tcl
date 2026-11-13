@@ -1,0 +1,8 @@
+###############################################################################
+# Combined header line one.
+# Combined header line two.
+# Combined code license line one.
+# Combined code license line two.
+###############################################################################
+
+

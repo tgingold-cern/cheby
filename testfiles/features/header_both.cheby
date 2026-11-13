@@ -1,0 +1,20 @@
+header:
+  text: |-
+    Combined header line one.
+    Combined header line two.
+  license-code: |-
+    Combined code license line one.
+    Combined code license line two.
+  license-hdl: |-
+    Combined HDL license line one.
+    Combined HDL license line two.
+
+memory-map:
+  bus: wb-32-be
+  name: header_both
+  children:
+    - reg:
+        name: value
+        address: 0x0
+        width: 32
+        access: rw
