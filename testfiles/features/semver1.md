@@ -1,16 +1,18 @@
-## Memory Map Summary
+# semver1
 
 a single register
 
 Version: 1.0.0
 
+## 1. Memory map summary
+
 | HW address | Type | Name | HDL Name |
 |------------|------|------|----------|
 | 0x0 | REG | r1 | r1 |
 
-## Registers Description
+## 2. Register description
 
-### Register: r1
+### 2.1. r1
 
 - **HW Prefix**: r1
 - **HW Address**: 0x0

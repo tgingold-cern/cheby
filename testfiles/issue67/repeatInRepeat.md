@@ -1,4 +1,6 @@
-## Memory Map Summary
+# repeatInRepeat
+
+## 1. Memory map summary
 
 | HW address | Type | Name | HDL Name |
 |------------|------|------|----------|
@@ -32,9 +34,9 @@
 | 0x1c-0x1f | BLOCK | repA.3.block1.repB.1 | repA_3_block1_repB_1 |
 | 0x1c | REG | repA.3.block1.repB.1.reg1 | repA_3_block1_repB_1_reg1 |
 
-## Registers Description
+## 2. Register description
 
-### Register: repA.0.block1.repB.0.reg1
+### 2.1. repA.0.block1.repB.0.reg1
 
 - **HW Prefix**: repA_0_block1_repB_0_reg1
 - **HW Address**: 0x0
@@ -62,7 +64,7 @@
 |------|------|------------|
 | 7:0 | reg1 |  |
 
-### Register: repA.0.block1.repB.1.reg1
+### 2.2. repA.0.block1.repB.1.reg1
 
 - **HW Prefix**: repA_0_block1_repB_1_reg1
 - **HW Address**: 0x4
@@ -90,7 +92,7 @@
 |------|------|------------|
 | 7:0 | reg1 |  |
 
-### Register: repA.1.block1.repB.0.reg1
+### 2.3. repA.1.block1.repB.0.reg1
 
 - **HW Prefix**: repA_1_block1_repB_0_reg1
 - **HW Address**: 0x8
@@ -118,7 +120,7 @@
 |------|------|------------|
 | 7:0 | reg1 |  |
 
-### Register: repA.1.block1.repB.1.reg1
+### 2.4. repA.1.block1.repB.1.reg1
 
 - **HW Prefix**: repA_1_block1_repB_1_reg1
 - **HW Address**: 0xc
@@ -146,7 +148,7 @@
 |------|------|------------|
 | 7:0 | reg1 |  |
 
-### Register: repA.2.block1.repB.0.reg1
+### 2.5. repA.2.block1.repB.0.reg1
 
 - **HW Prefix**: repA_2_block1_repB_0_reg1
 - **HW Address**: 0x10
@@ -174,7 +176,7 @@
 |------|------|------------|
 | 7:0 | reg1 |  |
 
-### Register: repA.2.block1.repB.1.reg1
+### 2.6. repA.2.block1.repB.1.reg1
 
 - **HW Prefix**: repA_2_block1_repB_1_reg1
 - **HW Address**: 0x14
@@ -202,7 +204,7 @@
 |------|------|------------|
 | 7:0 | reg1 |  |
 
-### Register: repA.3.block1.repB.0.reg1
+### 2.7. repA.3.block1.repB.0.reg1
 
 - **HW Prefix**: repA_3_block1_repB_0_reg1
 - **HW Address**: 0x18
@@ -230,7 +232,7 @@
 |------|------|------------|
 | 7:0 | reg1 |  |
 
-### Register: repA.3.block1.repB.1.reg1
+### 2.8. repA.3.block1.repB.1.reg1
 
 - **HW Prefix**: repA_3_block1_repB_1_reg1
 - **HW Address**: 0x1c

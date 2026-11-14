@@ -1,6 +1,8 @@
-## Memory Map Summary
+# repeat_iogroup_nosep_hdlprefix
 
 Doc HDL prefix for non-indexed iogroup repeats
+
+## 1. Memory map summary
 
 | HW address | Type | Name | HDL Name |
 |------------|------|------|----------|
@@ -10,9 +12,9 @@ Doc HDL prefix for non-indexed iogroup repeats
 | 0x4-0x7 | BLOCK | adc1 | adc1 |
 | 0x4 | REG | adc1.spie_cmd_mem_wdata | adc1_spie_cmd_mem_wdata |
 
-## Registers Description
+## 2. Register description
 
-### Register: adc0.spie_cmd_mem_wdata
+### 2.1. adc0.spie_cmd_mem_wdata
 
 - **HW Prefix**: adc0_spie_cmd_mem_wdata
 - **HW Address**: 0x0
@@ -79,7 +81,7 @@ Doc HDL prefix for non-indexed iogroup repeats
 |------|------|------------|
 | 31:0 | spie_cmd_mem_wdata |  |
 
-### Register: adc1.spie_cmd_mem_wdata
+### 2.2. adc1.spie_cmd_mem_wdata
 
 - **HW Prefix**: adc1_spie_cmd_mem_wdata
 - **HW Address**: 0x4
