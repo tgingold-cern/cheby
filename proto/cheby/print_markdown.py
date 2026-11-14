@@ -3,9 +3,16 @@ import re
 import cheby.tree as tree
 import cheby.gen_doc as gen_doc
 from cheby.gen_wbgen_hdl import get_hdl_entity
-from cheby.wrutils import w, wln
+from cheby.wrutils import wln
 
 #  Generate Markdown documentation
+
+
+ACCESSES = {
+    "rw": "read/write",
+    "wo": "write-only",
+    "ro": "read-only",
+}
 
 
 def format_text(text):
@@ -113,21 +120,25 @@ def precompute_register_slugs(root):
 
 
 def print_reg(fd, r, raw, num, pfx, hide_comments=False, print_reg_drawing=True):
-    ACCESSES = {
-        "rw": "read/write",
-        "wo": "write-only",
-        "ro": "read-only",
-    }
-
     # Description of Register
     wln(fd, "### {}".format(reg_heading_text(pfx, num, raw.name)))
     wln(fd)
 
-    wln(fd, "- **HW Prefix**: {}".format(raw.hdl_name if raw.hdl_name else r.c_name))
-    wln(fd, "- **HW Address**: 0x{:x}".format(raw.abs_addr))
-    wln(fd, "- **C Prefix**: {}".format(raw.name))
-    wln(fd, "- **C Block Offset**: 0x{:x}".format(r.c_address))
-    wln(fd, "- **Access**: {}".format(ACCESSES[r.access]))
+    hdlprefix = raw.hdl_name if raw.hdl_name else r.c_name
+    # Same properties and order as the HTML output.  An HTML table avoids an
+    # empty Markdown header row while staying GitLab/GitHub-safe.
+    wln(fd, "<table>")
+    wln(fd, "<tr><td><b>HW address:</b></td><td><code>0x{:x}</code></td></tr>".format(
+        raw.abs_addr))
+    wln(fd, "<tr><td><b>Block offset:</b></td><td><code>0x{:x}</code></td></tr>".format(
+        r.c_address))
+    wln(fd, "<tr><td><b>HDL prefix:</b></td><td><code>{}</code></td></tr>".format(
+        hdlprefix))
+    wln(fd, "<tr><td><b>C prefix:</b></td><td><code>{}</code></td></tr>".format(
+        raw.name))
+    wln(fd, "<tr><td><b>Access:</b></td><td><code>{}</code></td></tr>".format(
+        ACCESSES.get(r.access, r.access)))
+    wln(fd, "</table>")
     wln(fd)
 
     if r.comment and not hide_comments:
@@ -164,9 +175,9 @@ def print_reg(fd, r, raw, num, pfx, hide_comments=False, print_reg_drawing=True)
         wln(fd, "</table>")
         wln(fd)
 
-    # Table of Bit Fileds
+    # Table of Bit Fields
     wln(fd, "| Bits | Name | Description |")
-    wln(fd, "|------|------|------------|")
+    wln(fd, "| --- | --- | --- |")
 
     for f in r.children:
         if r.has_fields():
@@ -176,12 +187,9 @@ def print_reg(fd, r, raw, num, pfx, hide_comments=False, print_reg_drawing=True)
 
         # Bit range
         if f.hi is not None:
-            w(fd, '| {}:{} | '.format(f.hi, f.lo))
+            bits = "{}:{}".format(f.hi, f.lo)
         else:
-            w(fd, '| {} | '.format(f.lo))
-
-        # Name
-        w(fd, '{} | '.format(format_text(desc_src.name)))
+            bits = "{}".format(f.lo)
 
         # Description + comment
         desc = ""
@@ -192,9 +200,8 @@ def print_reg(fd, r, raw, num, pfx, hide_comments=False, print_reg_drawing=True)
                 desc += "\n\n"
             desc += desc_src.description
 
-        desc = desc.replace('\n', '<br>')
-
-        wln(fd, '{} |'.format(desc))
+        wln(fd, "| {} | {} | {} |".format(
+            bits, md_escape_cell(desc_src.name), md_escape_cell(desc)))
 
     wln(fd)
 

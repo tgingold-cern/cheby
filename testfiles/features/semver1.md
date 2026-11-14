@@ -14,11 +14,13 @@ Version: 1.0.0
 
 ### 2.1. r1
 
-- **HW Prefix**: r1
-- **HW Address**: 0x0
-- **C Prefix**: r1
-- **C Block Offset**: 0x0
-- **Access**: read/write
+<table>
+<tr><td><b>HW address:</b></td><td><code>0x0</code></td></tr>
+<tr><td><b>Block offset:</b></td><td><code>0x0</code></td></tr>
+<tr><td><b>HDL prefix:</b></td><td><code>r1</code></td></tr>
+<tr><td><b>C prefix:</b></td><td><code>r1</code></td></tr>
+<tr><td><b>Access:</b></td><td><code>read/write</code></td></tr>
+</table>
 
 <table>
   <tr>
@@ -76,6 +78,6 @@ Version: 1.0.0
 </table>
 
 | Bits | Name | Description |
-|------|------|------------|
+| --- | --- | --- |
 | 31:0 | r1 |  |
 

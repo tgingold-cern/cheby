@@ -15,11 +15,13 @@ Test nested iogroups (iogroup-flatten false)
 
 ### 2.1. areg
 
-- **HW Prefix**: areg
-- **HW Address**: 0x0
-- **C Prefix**: areg
-- **C Block Offset**: 0x0
-- **Access**: read/write
+<table>
+<tr><td><b>HW address:</b></td><td><code>0x0</code></td></tr>
+<tr><td><b>Block offset:</b></td><td><code>0x0</code></td></tr>
+<tr><td><b>HDL prefix:</b></td><td><code>areg</code></td></tr>
+<tr><td><b>C prefix:</b></td><td><code>areg</code></td></tr>
+<tr><td><b>Access:</b></td><td><code>read/write</code></td></tr>
+</table>
 
 <table>
   <tr>
@@ -77,16 +79,18 @@ Test nested iogroups (iogroup-flatten false)
 </table>
 
 | Bits | Name | Description |
-|------|------|------------|
+| --- | --- | --- |
 | 31:0 | areg |  |
 
 ### 2.2. blk.breg1
 
-- **HW Prefix**: blk_regs.breg1
-- **HW Address**: 0x8
-- **C Prefix**: blk.breg1
-- **C Block Offset**: 0x0
-- **Access**: read/write
+<table>
+<tr><td><b>HW address:</b></td><td><code>0x8</code></td></tr>
+<tr><td><b>Block offset:</b></td><td><code>0x0</code></td></tr>
+<tr><td><b>HDL prefix:</b></td><td><code>blk_regs.breg1</code></td></tr>
+<tr><td><b>C prefix:</b></td><td><code>blk.breg1</code></td></tr>
+<tr><td><b>Access:</b></td><td><code>read/write</code></td></tr>
+</table>
 
 <table>
   <tr>
@@ -144,16 +148,18 @@ Test nested iogroups (iogroup-flatten false)
 </table>
 
 | Bits | Name | Description |
-|------|------|------------|
+| --- | --- | --- |
 | 31:0 | breg1 |  |
 
 ### 2.3. blk.breg2
 
-- **HW Prefix**: blk_regs.breg2
-- **HW Address**: 0xc
-- **C Prefix**: blk.breg2
-- **C Block Offset**: 0x4
-- **Access**: read-only
+<table>
+<tr><td><b>HW address:</b></td><td><code>0xc</code></td></tr>
+<tr><td><b>Block offset:</b></td><td><code>0x4</code></td></tr>
+<tr><td><b>HDL prefix:</b></td><td><code>blk_regs.breg2</code></td></tr>
+<tr><td><b>C prefix:</b></td><td><code>blk.breg2</code></td></tr>
+<tr><td><b>Access:</b></td><td><code>read-only</code></td></tr>
+</table>
 
 <table>
   <tr>
@@ -211,6 +217,6 @@ Test nested iogroups (iogroup-flatten false)
 </table>
 
 | Bits | Name | Description |
-|------|------|------------|
+| --- | --- | --- |
 | 31:0 | breg2 |  |
 

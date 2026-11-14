@@ -26,11 +26,13 @@ Test repeat index separator behavior
 
 ### 2.1. rep0.0.r
 
-- **HW Prefix**: rep0_0_r
-- **HW Address**: 0x0
-- **C Prefix**: rep0.0.r
-- **C Block Offset**: 0x0
-- **Access**: read/write
+<table>
+<tr><td><b>HW address:</b></td><td><code>0x0</code></td></tr>
+<tr><td><b>Block offset:</b></td><td><code>0x0</code></td></tr>
+<tr><td><b>HDL prefix:</b></td><td><code>rep0_0_r</code></td></tr>
+<tr><td><b>C prefix:</b></td><td><code>rep0.0.r</code></td></tr>
+<tr><td><b>Access:</b></td><td><code>read/write</code></td></tr>
+</table>
 
 <table>
   <tr>
@@ -88,16 +90,18 @@ Test repeat index separator behavior
 </table>
 
 | Bits | Name | Description |
-|------|------|------------|
+| --- | --- | --- |
 | 31:0 | r |  |
 
 ### 2.2. rep0.1.r
 
-- **HW Prefix**: rep0_1_r
-- **HW Address**: 0x4
-- **C Prefix**: rep0.1.r
-- **C Block Offset**: 0x0
-- **Access**: read/write
+<table>
+<tr><td><b>HW address:</b></td><td><code>0x4</code></td></tr>
+<tr><td><b>Block offset:</b></td><td><code>0x0</code></td></tr>
+<tr><td><b>HDL prefix:</b></td><td><code>rep0_1_r</code></td></tr>
+<tr><td><b>C prefix:</b></td><td><code>rep0.1.r</code></td></tr>
+<tr><td><b>Access:</b></td><td><code>read/write</code></td></tr>
+</table>
 
 <table>
   <tr>
@@ -155,16 +159,18 @@ Test repeat index separator behavior
 </table>
 
 | Bits | Name | Description |
-|------|------|------------|
+| --- | --- | --- |
 | 31:0 | r |  |
 
 ### 2.3. rep10.r
 
-- **HW Prefix**: rep10_r
-- **HW Address**: 0x8
-- **C Prefix**: rep10.r
-- **C Block Offset**: 0x0
-- **Access**: read/write
+<table>
+<tr><td><b>HW address:</b></td><td><code>0x8</code></td></tr>
+<tr><td><b>Block offset:</b></td><td><code>0x0</code></td></tr>
+<tr><td><b>HDL prefix:</b></td><td><code>rep10_r</code></td></tr>
+<tr><td><b>C prefix:</b></td><td><code>rep10.r</code></td></tr>
+<tr><td><b>Access:</b></td><td><code>read/write</code></td></tr>
+</table>
 
 <table>
   <tr>
@@ -222,16 +228,18 @@ Test repeat index separator behavior
 </table>
 
 | Bits | Name | Description |
-|------|------|------------|
+| --- | --- | --- |
 | 31:0 | r |  |
 
 ### 2.4. rep11.r
 
-- **HW Prefix**: rep11_r
-- **HW Address**: 0xc
-- **C Prefix**: rep11.r
-- **C Block Offset**: 0x0
-- **Access**: read/write
+<table>
+<tr><td><b>HW address:</b></td><td><code>0xc</code></td></tr>
+<tr><td><b>Block offset:</b></td><td><code>0x0</code></td></tr>
+<tr><td><b>HDL prefix:</b></td><td><code>rep11_r</code></td></tr>
+<tr><td><b>C prefix:</b></td><td><code>rep11.r</code></td></tr>
+<tr><td><b>Access:</b></td><td><code>read/write</code></td></tr>
+</table>
 
 <table>
   <tr>
@@ -289,16 +297,18 @@ Test repeat index separator behavior
 </table>
 
 | Bits | Name | Description |
-|------|------|------------|
+| --- | --- | --- |
 | 31:0 | r |  |
 
 ### 2.5. rep2_0.r
 
-- **HW Prefix**: rep2_0_r
-- **HW Address**: 0x10
-- **C Prefix**: rep2_0.r
-- **C Block Offset**: 0x0
-- **Access**: read/write
+<table>
+<tr><td><b>HW address:</b></td><td><code>0x10</code></td></tr>
+<tr><td><b>Block offset:</b></td><td><code>0x0</code></td></tr>
+<tr><td><b>HDL prefix:</b></td><td><code>rep2_0_r</code></td></tr>
+<tr><td><b>C prefix:</b></td><td><code>rep2_0.r</code></td></tr>
+<tr><td><b>Access:</b></td><td><code>read/write</code></td></tr>
+</table>
 
 <table>
   <tr>
@@ -356,16 +366,18 @@ Test repeat index separator behavior
 </table>
 
 | Bits | Name | Description |
-|------|------|------------|
+| --- | --- | --- |
 | 31:0 | r |  |
 
 ### 2.6. rep2_1.r
 
-- **HW Prefix**: rep2_1_r
-- **HW Address**: 0x14
-- **C Prefix**: rep2_1.r
-- **C Block Offset**: 0x0
-- **Access**: read/write
+<table>
+<tr><td><b>HW address:</b></td><td><code>0x14</code></td></tr>
+<tr><td><b>Block offset:</b></td><td><code>0x0</code></td></tr>
+<tr><td><b>HDL prefix:</b></td><td><code>rep2_1_r</code></td></tr>
+<tr><td><b>C prefix:</b></td><td><code>rep2_1.r</code></td></tr>
+<tr><td><b>Access:</b></td><td><code>read/write</code></td></tr>
+</table>
 
 <table>
   <tr>
@@ -423,6 +435,6 @@ Test repeat index separator behavior
 </table>
 
 | Bits | Name | Description |
-|------|------|------------|
+| --- | --- | --- |
 | 31:0 | r |  |
 
