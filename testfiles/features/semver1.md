@@ -6,9 +6,9 @@ Version: 1.0.0
 
 ## 1. Memory map summary
 
-| HW address | Type | Name | HDL Name |
-|------------|------|------|----------|
-| 0x0 | REG | r1 | r1 |
+| HW address | Type | Name | Description |
+| --- | --- | --- | --- |
+| `0x0` | REG | r1 |  |
 
 ## 2. Register description
 

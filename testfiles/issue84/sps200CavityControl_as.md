@@ -6,48 +6,48 @@ Memory Map for SPS TWC200 Cavity Control
 
 ## 1.1. Memory map summary for address space bar0
 
-| HW address | Type | Name | HDL Name |
-|------------|------|------|----------|
-| 0x000000-0x00001f | SUBMAP | hwInfo | hwInfo |
-| 0x000000 | REG | hwInfo.stdVersion | hwInfo_stdVersion |
-| 0x000008 | REG | hwInfo.serialNumber | hwInfo_serialNumber |
-| 0x000010 | REG | hwInfo.firmwareVersion | hwInfo_firmwareVersion |
-| 0x000014 | REG | hwInfo.memMapVersion | hwInfo_memMapVersion |
-| 0x000018 | REG | hwInfo.echo | hwInfo_echo |
-| 0x100000-0x17ffff | SUBMAP | app | app |
-| 0x100000-0x1003ff | SUBMAP | app.modulation | app_modulation |
-| 0x100000-0x10001f | SUBMAP | app.modulation.ipInfo | app_modulation_ipInfo |
-| 0x100000 | REG | app.modulation.ipInfo.stdVersion | app_modulation_ipInfo_stdVersion |
-| 0x100004 | REG | app.modulation.ipInfo.ident | app_modulation_ipInfo_ident |
-| 0x100008 | REG | app.modulation.ipInfo.firmwareVersion | app_modulation_ipInfo_firmwareVersion |
-| 0x10000c | REG | app.modulation.ipInfo.memMapVersion | app_modulation_ipInfo_memMapVersion |
-| 0x100010 | REG | app.modulation.ipInfo.echo | app_modulation_ipInfo_echo |
-| 0x100020 | REG | app.modulation.control | app_modulation_control |
-| 0x100030-0x10003f | BLOCK | app.modulation.testSignal | app_modulation_testSignal |
-| 0x100030 | REG | app.modulation.testSignal.amplitude | app_modulation_testSignal_amplitude |
-| 0x100038 | REG | app.modulation.testSignal.ftw | app_modulation_testSignal_ftw |
-| 0x100040-0x10004f | BLOCK | app.modulation.staticSignal | app_modulation_staticSignal |
-| 0x100040 | REG | app.modulation.staticSignal.i | app_modulation_staticSignal_i |
-| 0x100044 | REG | app.modulation.staticSignal.q | app_modulation_staticSignal_q |
-| 0x100050 | REG | app.modulation.ftwH1main | app_modulation_ftwH1main |
-| 0x100058 | REG | app.modulation.ftwH1on | app_modulation_ftwH1on |
-| 0x100060 | REG | app.modulation.dftwH1slip0 | app_modulation_dftwH1slip0 |
-| 0x100064 | REG | app.modulation.dftwH1slip1 | app_modulation_dftwH1slip1 |
-| 0x100068 | REG | app.modulation.latches | app_modulation_latches |
+| HW address | Type | Name | Description |
+| --- | --- | --- | --- |
+| `0x000000-0x00001f` | SUBMAP | hwInfo |  |
+| `0x000000` | REG | hwInfo.stdVersion |  |
+| `0x000008` | REG | hwInfo.serialNumber | HW serial number |
+| `0x000010` | REG | hwInfo.firmwareVersion | Firmware Version |
+| `0x000014` | REG | hwInfo.memMapVersion | Memory Map Version |
+| `0x000018` | REG | hwInfo.echo | Echo register. This version of the standard foresees only 8bits linked to real memory |
+| `0x100000-0x17ffff` | SUBMAP | app |  |
+| `0x100000-0x1003ff` | SUBMAP | app.modulation |  |
+| `0x100000-0x10001f` | SUBMAP | app.modulation.ipInfo |  |
+| `0x100000` | REG | app.modulation.ipInfo.stdVersion |  |
+| `0x100004` | REG | app.modulation.ipInfo.ident | IP Ident code |
+| `0x100008` | REG | app.modulation.ipInfo.firmwareVersion | Firmware Version |
+| `0x10000c` | REG | app.modulation.ipInfo.memMapVersion | Memory Map Version |
+| `0x100010` | REG | app.modulation.ipInfo.echo | Echo register. This version of the standard foresees only 8bits linked to real memory |
+| `0x100020` | REG | app.modulation.control |  |
+| `0x100030-0x10003f` | BLOCK | app.modulation.testSignal |  |
+| `0x100030` | REG | app.modulation.testSignal.amplitude | Amplitude for the test signal |
+| `0x100038` | REG | app.modulation.testSignal.ftw | FTW of the test signal (frequency relative to fs) |
+| `0x100040-0x10004f` | BLOCK | app.modulation.staticSignal |  |
+| `0x100040` | REG | app.modulation.staticSignal.i | Constant to be used as OTF input for channel I |
+| `0x100044` | REG | app.modulation.staticSignal.q | Constant to be used as OTF input for channel Q |
+| `0x100050` | REG | app.modulation.ftwH1main |  |
+| `0x100058` | REG | app.modulation.ftwH1on |  |
+| `0x100060` | REG | app.modulation.dftwH1slip0 |  |
+| `0x100064` | REG | app.modulation.dftwH1slip1 |  |
+| `0x100068` | REG | app.modulation.latches |  |
 
 ## 1.2. Memory map summary for address space bar4
 
-| HW address | Type | Name | HDL Name |
-|------------|------|------|----------|
-| 0x00000000-0x000fffff | SUBMAP | fgc_ddr | fgc_ddr |
-| 0x00000000-0x000fffff | MEMORY | fgc_ddr.data64 | fgc_ddr_data64 |
-|  +0x00000000 | REG | fgc_ddr.data64.data64 | fgc_ddr_data64_data64 |
-| 0x20000000-0x3fffffff | SUBMAP | acq_ddr | acq_ddr |
-| 0x20000000-0x3fffffff | MEMORY | acq_ddr.data32 | acq_ddr_data32 |
-|  +0x20000000 | REG | acq_ddr.data32.data32 | acq_ddr_data32_data32 |
-| 0x80000000-0x8001ffff | SUBMAP | acq_ram | acq_ram |
-| 0x80000000-0x8001ffff | MEMORY | acq_ram.data32 | acq_ram_data32 |
-|  +0x80000000 | REG | acq_ram.data32.data32 | acq_ram_data32_data32 |
+| HW address | Type | Name | Description |
+| --- | --- | --- | --- |
+| `0x00000000-0x000fffff` | SUBMAP | fgc_ddr |  |
+| `0x00000000-0x000fffff` | MEMORY | fgc_ddr.data64 | Memory to store function data, access 64bit width |
+| ` +0x00000000` | REG | fgc_ddr.data64.data64 |  |
+| `0x20000000-0x3fffffff` | SUBMAP | acq_ddr |  |
+| `0x20000000-0x3fffffff` | MEMORY | acq_ddr.data32 | Memory to store acquisition  data, access 64bit width |
+| ` +0x20000000` | REG | acq_ddr.data32.data32 |  |
+| `0x80000000-0x8001ffff` | SUBMAP | acq_ram |  |
+| `0x80000000-0x8001ffff` | MEMORY | acq_ram.data32 | Memory to store function data, access 32bit width |
+| ` +0x80000000` | REG | acq_ram.data32.data32 |  |
 
 ## 2.1 Register description for address space bar0
 

@@ -12,6 +12,21 @@ def format_text(text):
     return text.replace("\n", "  \n")
 
 
+def md_escape_cell(text):
+    """Escape characters that break Markdown table cells."""
+    if text is None:
+        return ""
+    return str(text).replace("|", "\\|").replace("\n", "<br>")
+
+
+def md_code(text):
+    """Wrap *text* in backticks, escaping any backticks inside."""
+    if text is None:
+        return ""
+    s = str(text).replace("`", "'")
+    return "`{}`".format(s)
+
+
 def reg_heading_text(pfx, num, name):
     return "{}.{}. {}".format(pfx, num, name)
 
@@ -103,11 +118,20 @@ def print_reg(fd, r, raw, num, pfx, hide_comments=False, print_reg_drawing=True)
     wln(fd)
 
 
-def print_map_summary(fd, summary):
-    wln(fd, "| HW address | Type | Name | HDL Name |")
-    wln(fd, "|------------|------|------|----------|")
+def print_map_summary(fd, summary, hide_comments=False):
+    wln(fd, "| HW address | Type | Name | Description |")
+    wln(fd, "| --- | --- | --- | --- |")
     for r in summary.raws:
-        wln(fd, "| {} | {} | {} | {} |".format(r.address, r.typ, r.name, r.hdl_name or r.node.c_name))
+        desc = md_escape_cell(gen_doc.brief_description(r.node, hide_comments))
+        wln(
+            fd,
+            "| {} | {} | {} | {} |".format(
+                md_code(r.address),
+                md_escape_cell(r.typ),
+                md_escape_cell(r.name),
+                desc,
+            ),
+        )
     wln(fd)
 
 
@@ -141,7 +165,7 @@ def print_root(fd, root, hide_comments=False, print_reg_drawing=True):
 
         wln(fd, "## 1. Memory map summary")
         wln(fd)
-        print_map_summary(fd, summary)
+        print_map_summary(fd, summary, hide_comments)
 
         wln(fd, "## 2. Register description")
         wln(fd)
@@ -152,7 +176,7 @@ def print_root(fd, root, hide_comments=False, print_reg_drawing=True):
             wln(fd, "## 1.{}. Memory map summary for address space {}".format(
                 i, space.name))
             wln(fd)
-            print_map_summary(fd, summary)
+            print_map_summary(fd, summary, hide_comments)
 
         for i, (summary, space) in enumerate(summaries, 1):
             wln(fd, "## 2.{} Register description for address space {}".format(

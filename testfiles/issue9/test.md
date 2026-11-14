@@ -4,14 +4,14 @@ Test AXI4-Lite interface
 
 ## 1. Memory map summary
 
-| HW address | Type | Name | HDL Name |
-|------------|------|------|----------|
-| 0x00 | REG | register1 | register1 |
-| 0x10-0x1f | BLOCK | block1 | block1 |
-| 0x10 | REG | block1.register2 | block1_register2 |
-| 0x14 | REG | block1.register3 | block1_register3 |
-| 0x18-0x1b | BLOCK | block1.block2 | block1_block2 |
-| 0x18 | REG | block1.block2.register4 | block1_block2_register4 |
+| HW address | Type | Name | Description |
+| --- | --- | --- | --- |
+| `0x00` | REG | register1 | Test register 1 |
+| `0x10-0x1f` | BLOCK | block1 | Test block 1 |
+| `0x10` | REG | block1.register2 | Test register 2 |
+| `0x14` | REG | block1.register3 | Test register 3 |
+| `0x18-0x1b` | BLOCK | block1.block2 | Test block 2 |
+| `0x18` | REG | block1.block2.register4 | Test register 4 |
 
 ## 2. Register description
 

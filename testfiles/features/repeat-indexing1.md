@@ -4,17 +4,17 @@ repeat with array indexing
 
 ## 1. Memory map summary
 
-| HW address | Type | Name | HDL Name |
-|------------|------|------|----------|
-| 0x00-0x1f | REPEAT [0..3] (itf) | chan | itf |
-| 0x00 | REG | chan.0.ctrl | itf(0).ctrl |
-| 0x04 | REG | chan.0.status | itf(0).status |
-| 0x08 | REG | chan.1.ctrl | itf(1).ctrl |
-| 0x0c | REG | chan.1.status | itf(1).status |
-| 0x10 | REG | chan.2.ctrl | itf(2).ctrl |
-| 0x14 | REG | chan.2.status | itf(2).status |
-| 0x18 | REG | chan.3.ctrl | itf(3).ctrl |
-| 0x1c | REG | chan.3.status | itf(3).status |
+| HW address | Type | Name | Description |
+| --- | --- | --- | --- |
+| `0x00-0x1f` | REPEAT [0..3] (itf) | chan |  |
+| `0x00` | REG | chan.0.ctrl |  |
+| `0x04` | REG | chan.0.status |  |
+| `0x08` | REG | chan.1.ctrl |  |
+| `0x0c` | REG | chan.1.status |  |
+| `0x10` | REG | chan.2.ctrl |  |
+| `0x14` | REG | chan.2.status |  |
+| `0x18` | REG | chan.3.ctrl |  |
+| `0x1c` | REG | chan.3.status |  |
 
 ## 2. Register description
 
