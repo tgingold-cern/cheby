@@ -6,12 +6,12 @@ Test AXI4-Lite interface
 
 | HW address | Type | Name | Description |
 | --- | --- | --- | --- |
-| `0x00` | REG | register1 | Test register 1 |
+| `0x00` | REG | [register1](#21-register1) | Test register 1 |
 | `0x10-0x1f` | BLOCK | block1 | Test block 1 |
-| `0x10` | REG | block1.register2 | Test register 2 |
-| `0x14` | REG | block1.register3 | Test register 3 |
+| `0x10` | REG | [block1.register2](#22-block1register2) | Test register 2 |
+| `0x14` | REG | [block1.register3](#23-block1register3) | Test register 3 |
 | `0x18-0x1b` | BLOCK | block1.block2 | Test block 2 |
-| `0x18` | REG | block1.block2.register4 | Test register 4 |
+| `0x18` | REG | [block1.block2.register4](#24-block1block2register4) | Test register 4 |
 
 ## 2. Register description
 

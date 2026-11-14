@@ -9,30 +9,30 @@
 | `0x00-0x07` | BLOCK | repA.0.block1 |  |
 | `0x00-0x07` | REPEAT | repA.0.block1.repB |  |
 | `0x00-0x03` | BLOCK | repA.0.block1.repB.0 |  |
-| `0x00` | REG | repA.0.block1.repB.0.reg1 |  |
+| `0x00` | REG | [repA.0.block1.repB.0.reg1](#21-repa0block1repb0reg1) |  |
 | `0x04-0x07` | BLOCK | repA.0.block1.repB.1 |  |
-| `0x04` | REG | repA.0.block1.repB.1.reg1 |  |
+| `0x04` | REG | [repA.0.block1.repB.1.reg1](#22-repa0block1repb1reg1) |  |
 | `0x08-0x0f` | BLOCK | repA.1 |  |
 | `0x08-0x0f` | BLOCK | repA.1.block1 |  |
 | `0x08-0x0f` | REPEAT | repA.1.block1.repB |  |
 | `0x08-0x0b` | BLOCK | repA.1.block1.repB.0 |  |
-| `0x08` | REG | repA.1.block1.repB.0.reg1 |  |
+| `0x08` | REG | [repA.1.block1.repB.0.reg1](#23-repa1block1repb0reg1) |  |
 | `0x0c-0x0f` | BLOCK | repA.1.block1.repB.1 |  |
-| `0x0c` | REG | repA.1.block1.repB.1.reg1 |  |
+| `0x0c` | REG | [repA.1.block1.repB.1.reg1](#24-repa1block1repb1reg1) |  |
 | `0x10-0x17` | BLOCK | repA.2 |  |
 | `0x10-0x17` | BLOCK | repA.2.block1 |  |
 | `0x10-0x17` | REPEAT | repA.2.block1.repB |  |
 | `0x10-0x13` | BLOCK | repA.2.block1.repB.0 |  |
-| `0x10` | REG | repA.2.block1.repB.0.reg1 |  |
+| `0x10` | REG | [repA.2.block1.repB.0.reg1](#25-repa2block1repb0reg1) |  |
 | `0x14-0x17` | BLOCK | repA.2.block1.repB.1 |  |
-| `0x14` | REG | repA.2.block1.repB.1.reg1 |  |
+| `0x14` | REG | [repA.2.block1.repB.1.reg1](#26-repa2block1repb1reg1) |  |
 | `0x18-0x1f` | BLOCK | repA.3 |  |
 | `0x18-0x1f` | BLOCK | repA.3.block1 |  |
 | `0x18-0x1f` | REPEAT | repA.3.block1.repB |  |
 | `0x18-0x1b` | BLOCK | repA.3.block1.repB.0 |  |
-| `0x18` | REG | repA.3.block1.repB.0.reg1 |  |
+| `0x18` | REG | [repA.3.block1.repB.0.reg1](#27-repa3block1repb0reg1) |  |
 | `0x1c-0x1f` | BLOCK | repA.3.block1.repB.1 |  |
-| `0x1c` | REG | repA.3.block1.repB.1.reg1 |  |
+| `0x1c` | REG | [repA.3.block1.repB.1.reg1](#28-repa3block1repb1reg1) |  |
 
 ## 2. Register description
 

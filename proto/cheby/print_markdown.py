@@ -1,3 +1,5 @@
+import re
+
 import cheby.tree as tree
 import cheby.gen_doc as gen_doc
 from cheby.gen_wbgen_hdl import get_hdl_entity
@@ -27,8 +29,87 @@ def md_code(text):
     return "`{}`".format(s)
 
 
+def gitlab_slugify(text):
+    """Slugify heading text the way GitLab Flavored Markdown does (GitHub
+    gives the same result for Cheby headings).
+
+    Rules (see GitLab docs, Heading anchors):
+      1. lowercase
+      2. remove characters except letters, numbers, hyphens, underscores
+         (spaces kept until step 3; punctuation such as '.' is dropped)
+      3. spaces become hyphens
+    """
+    s = text.lower()
+    # Keep unicode letters/digits/underscore (\w), hyphens and spaces.
+    s = re.sub(r"[^\w\- ]+", "", s, flags=re.UNICODE)
+    return s.replace(" ", "-")
+
+
+class GitlabAnchorSet(object):
+    """Allocate unique heading anchors matching GitLab's duplicate rules."""
+
+    def __init__(self):
+        self._seen = {}
+
+    def allocate(self, heading_text):
+        base = gitlab_slugify(heading_text)
+        count = self._seen.get(base, 0)
+        self._seen[base] = count + 1
+        if count:
+            return "{}-{}".format(base, count)
+        return base
+
+
 def reg_heading_text(pfx, num, name):
     return "{}.{}. {}".format(pfx, num, name)
+
+
+def precompute_register_slugs(root):
+    """Map each register SummaryRaw (by id) to its heading anchor.
+
+    Headings are allocated in the same order they are written to the file so
+    duplicate-suffix numbering matches GitLab.
+    """
+    anchors = GitlabAnchorSet()
+    slugs = {}
+
+    anchors.allocate(get_hdl_entity(root))
+
+    if root.c_address_spaces_map is None:
+        summary = gen_doc.MemmapSummary(root)
+        anchors.allocate("1. Memory map summary")
+        anchors.allocate("2. Register description")
+        num = 1
+        for ra in summary.raws:
+            if isinstance(ra.node, tree.Reg):
+                slugs[id(ra)] = anchors.allocate(
+                    reg_heading_text("2", num, ra.name)
+                )
+                num += 1
+        return [(summary, None, slugs)]
+
+    summaries = [(gen_doc.MemmapSummary(space), space) for space in root.children]
+    for i, (_summary, space) in enumerate(summaries, 1):
+        anchors.allocate(
+            "1.{}. Memory map summary for address space {}".format(i, space.name)
+        )
+
+    result = []
+    for i, (summary, space) in enumerate(summaries, 1):
+        space_slugs = {}
+        anchors.allocate(
+            "2.{} Register description for address space {}".format(i, space.name)
+        )
+        num = 1
+        pfx = "2.{}".format(i)
+        for ra in summary.raws:
+            if isinstance(ra.node, tree.Reg):
+                space_slugs[id(ra)] = anchors.allocate(
+                    reg_heading_text(pfx, num, ra.name)
+                )
+                num += 1
+        result.append((summary, space, space_slugs))
+    return result
 
 
 def print_reg(fd, r, raw, num, pfx, hide_comments=False, print_reg_drawing=True):
@@ -118,17 +199,25 @@ def print_reg(fd, r, raw, num, pfx, hide_comments=False, print_reg_drawing=True)
     wln(fd)
 
 
-def print_map_summary(fd, summary, hide_comments=False):
+def print_map_summary(fd, summary, hide_comments=False, reg_slugs=None):
+    if reg_slugs is None:
+        reg_slugs = {}
     wln(fd, "| HW address | Type | Name | Description |")
     wln(fd, "| --- | --- | --- | --- |")
     for r in summary.raws:
+        # Only registers have a section in the register description.
+        slug = reg_slugs.get(id(r)) if isinstance(r.node, tree.Reg) else None
+        if slug:
+            name_cell = "[{}](#{})".format(md_escape_cell(r.name), slug)
+        else:
+            name_cell = md_escape_cell(r.name)
         desc = md_escape_cell(gen_doc.brief_description(r.node, hide_comments))
         wln(
             fd,
             "| {} | {} | {} | {} |".format(
                 md_code(r.address),
                 md_escape_cell(r.typ),
-                md_escape_cell(r.name),
+                name_cell,
                 desc,
             ),
         )
@@ -145,6 +234,8 @@ def print_reg_description(fd, summary, pfx, hide_comments=False, print_reg_drawi
 
 
 def print_root(fd, root, hide_comments=False, print_reg_drawing=True):
+    spaces = precompute_register_slugs(root)
+
     wln(fd, "# {}".format(get_hdl_entity(root)))
     wln(fd)
 
@@ -161,24 +252,23 @@ def print_root(fd, root, hide_comments=False, print_reg_drawing=True):
         wln(fd)
 
     if root.c_address_spaces_map is None:
-        summary = gen_doc.MemmapSummary(root)
+        summary, _space, reg_slugs = spaces[0]
 
         wln(fd, "## 1. Memory map summary")
         wln(fd)
-        print_map_summary(fd, summary, hide_comments)
+        print_map_summary(fd, summary, hide_comments, reg_slugs)
 
         wln(fd, "## 2. Register description")
         wln(fd)
         print_reg_description(fd, summary, "2", hide_comments, print_reg_drawing)
     else:
-        summaries = [(gen_doc.MemmapSummary(space), space) for space in root.children]
-        for i, (summary, space) in enumerate(summaries, 1):
+        for i, (summary, space, reg_slugs) in enumerate(spaces, 1):
             wln(fd, "## 1.{}. Memory map summary for address space {}".format(
                 i, space.name))
             wln(fd)
-            print_map_summary(fd, summary, hide_comments)
+            print_map_summary(fd, summary, hide_comments, reg_slugs)
 
-        for i, (summary, space) in enumerate(summaries, 1):
+        for i, (summary, space, _reg_slugs) in enumerate(spaces, 1):
             wln(fd, "## 2.{} Register description for address space {}".format(
                 i, space.name))
             wln(fd)

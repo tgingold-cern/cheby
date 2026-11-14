@@ -7,14 +7,14 @@ repeat with array indexing
 | HW address | Type | Name | Description |
 | --- | --- | --- | --- |
 | `0x00-0x1f` | REPEAT [0..3] (itf) | chan |  |
-| `0x00` | REG | chan.0.ctrl |  |
-| `0x04` | REG | chan.0.status |  |
-| `0x08` | REG | chan.1.ctrl |  |
-| `0x0c` | REG | chan.1.status |  |
-| `0x10` | REG | chan.2.ctrl |  |
-| `0x14` | REG | chan.2.status |  |
-| `0x18` | REG | chan.3.ctrl |  |
-| `0x1c` | REG | chan.3.status |  |
+| `0x00` | REG | [chan.0.ctrl](#21-chan0ctrl) |  |
+| `0x04` | REG | [chan.0.status](#22-chan0status) |  |
+| `0x08` | REG | [chan.1.ctrl](#23-chan1ctrl) |  |
+| `0x0c` | REG | [chan.1.status](#24-chan1status) |  |
+| `0x10` | REG | [chan.2.ctrl](#25-chan2ctrl) |  |
+| `0x14` | REG | [chan.2.status](#26-chan2status) |  |
+| `0x18` | REG | [chan.3.ctrl](#27-chan3ctrl) |  |
+| `0x1c` | REG | [chan.3.status](#28-chan3status) |  |
 
 ## 2. Register description
 

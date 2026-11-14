@@ -6,10 +6,10 @@ Test nested iogroups (iogroup-flatten false)
 
 | HW address | Type | Name | Description |
 | --- | --- | --- | --- |
-| `0x0` | REG | areg |  |
+| `0x0` | REG | [areg](#21-areg) |  |
 | `0x8-0xf` | BLOCK (blk_regs) | blk |  |
-| `0x8` | REG | blk.breg1 |  |
-| `0xc` | REG | blk.breg2 |  |
+| `0x8` | REG | [blk.breg1](#22-blkbreg1) |  |
+| `0xc` | REG | [blk.breg2](#23-blkbreg2) |  |
 
 ## 2. Register description
 

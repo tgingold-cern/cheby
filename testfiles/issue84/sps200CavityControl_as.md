@@ -9,31 +9,31 @@ Memory Map for SPS TWC200 Cavity Control
 | HW address | Type | Name | Description |
 | --- | --- | --- | --- |
 | `0x000000-0x00001f` | SUBMAP | hwInfo |  |
-| `0x000000` | REG | hwInfo.stdVersion |  |
-| `0x000008` | REG | hwInfo.serialNumber | HW serial number |
-| `0x000010` | REG | hwInfo.firmwareVersion | Firmware Version |
-| `0x000014` | REG | hwInfo.memMapVersion | Memory Map Version |
-| `0x000018` | REG | hwInfo.echo | Echo register. This version of the standard foresees only 8bits linked to real memory |
+| `0x000000` | REG | [hwInfo.stdVersion](#211-hwinfostdversion) |  |
+| `0x000008` | REG | [hwInfo.serialNumber](#212-hwinfoserialnumber) | HW serial number |
+| `0x000010` | REG | [hwInfo.firmwareVersion](#213-hwinfofirmwareversion) | Firmware Version |
+| `0x000014` | REG | [hwInfo.memMapVersion](#214-hwinfomemmapversion) | Memory Map Version |
+| `0x000018` | REG | [hwInfo.echo](#215-hwinfoecho) | Echo register. This version of the standard foresees only 8bits linked to real memory |
 | `0x100000-0x17ffff` | SUBMAP | app |  |
 | `0x100000-0x1003ff` | SUBMAP | app.modulation |  |
 | `0x100000-0x10001f` | SUBMAP | app.modulation.ipInfo |  |
-| `0x100000` | REG | app.modulation.ipInfo.stdVersion |  |
-| `0x100004` | REG | app.modulation.ipInfo.ident | IP Ident code |
-| `0x100008` | REG | app.modulation.ipInfo.firmwareVersion | Firmware Version |
-| `0x10000c` | REG | app.modulation.ipInfo.memMapVersion | Memory Map Version |
-| `0x100010` | REG | app.modulation.ipInfo.echo | Echo register. This version of the standard foresees only 8bits linked to real memory |
-| `0x100020` | REG | app.modulation.control |  |
+| `0x100000` | REG | [app.modulation.ipInfo.stdVersion](#216-appmodulationipinfostdversion) |  |
+| `0x100004` | REG | [app.modulation.ipInfo.ident](#217-appmodulationipinfoident) | IP Ident code |
+| `0x100008` | REG | [app.modulation.ipInfo.firmwareVersion](#218-appmodulationipinfofirmwareversion) | Firmware Version |
+| `0x10000c` | REG | [app.modulation.ipInfo.memMapVersion](#219-appmodulationipinfomemmapversion) | Memory Map Version |
+| `0x100010` | REG | [app.modulation.ipInfo.echo](#2110-appmodulationipinfoecho) | Echo register. This version of the standard foresees only 8bits linked to real memory |
+| `0x100020` | REG | [app.modulation.control](#2111-appmodulationcontrol) |  |
 | `0x100030-0x10003f` | BLOCK | app.modulation.testSignal |  |
-| `0x100030` | REG | app.modulation.testSignal.amplitude | Amplitude for the test signal |
-| `0x100038` | REG | app.modulation.testSignal.ftw | FTW of the test signal (frequency relative to fs) |
+| `0x100030` | REG | [app.modulation.testSignal.amplitude](#2112-appmodulationtestsignalamplitude) | Amplitude for the test signal |
+| `0x100038` | REG | [app.modulation.testSignal.ftw](#2113-appmodulationtestsignalftw) | FTW of the test signal (frequency relative to fs) |
 | `0x100040-0x10004f` | BLOCK | app.modulation.staticSignal |  |
-| `0x100040` | REG | app.modulation.staticSignal.i | Constant to be used as OTF input for channel I |
-| `0x100044` | REG | app.modulation.staticSignal.q | Constant to be used as OTF input for channel Q |
-| `0x100050` | REG | app.modulation.ftwH1main |  |
-| `0x100058` | REG | app.modulation.ftwH1on |  |
-| `0x100060` | REG | app.modulation.dftwH1slip0 |  |
-| `0x100064` | REG | app.modulation.dftwH1slip1 |  |
-| `0x100068` | REG | app.modulation.latches |  |
+| `0x100040` | REG | [app.modulation.staticSignal.i](#2114-appmodulationstaticsignali) | Constant to be used as OTF input for channel I |
+| `0x100044` | REG | [app.modulation.staticSignal.q](#2115-appmodulationstaticsignalq) | Constant to be used as OTF input for channel Q |
+| `0x100050` | REG | [app.modulation.ftwH1main](#2116-appmodulationftwh1main) |  |
+| `0x100058` | REG | [app.modulation.ftwH1on](#2117-appmodulationftwh1on) |  |
+| `0x100060` | REG | [app.modulation.dftwH1slip0](#2118-appmodulationdftwh1slip0) |  |
+| `0x100064` | REG | [app.modulation.dftwH1slip1](#2119-appmodulationdftwh1slip1) |  |
+| `0x100068` | REG | [app.modulation.latches](#2120-appmodulationlatches) |  |
 
 ## 1.2. Memory map summary for address space bar4
 
@@ -41,13 +41,13 @@ Memory Map for SPS TWC200 Cavity Control
 | --- | --- | --- | --- |
 | `0x00000000-0x000fffff` | SUBMAP | fgc_ddr |  |
 | `0x00000000-0x000fffff` | MEMORY | fgc_ddr.data64 | Memory to store function data, access 64bit width |
-| ` +0x00000000` | REG | fgc_ddr.data64.data64 |  |
+| ` +0x00000000` | REG | [fgc_ddr.data64.data64](#221-fgc_ddrdata64data64) |  |
 | `0x20000000-0x3fffffff` | SUBMAP | acq_ddr |  |
 | `0x20000000-0x3fffffff` | MEMORY | acq_ddr.data32 | Memory to store acquisition  data, access 64bit width |
-| ` +0x20000000` | REG | acq_ddr.data32.data32 |  |
+| ` +0x20000000` | REG | [acq_ddr.data32.data32](#222-acq_ddrdata32data32) |  |
 | `0x80000000-0x8001ffff` | SUBMAP | acq_ram |  |
 | `0x80000000-0x8001ffff` | MEMORY | acq_ram.data32 | Memory to store function data, access 32bit width |
-| ` +0x80000000` | REG | acq_ram.data32.data32 |  |
+| ` +0x80000000` | REG | [acq_ram.data32.data32](#223-acq_ramdata32data32) |  |
 
 ## 2.1 Register description for address space bar0
 

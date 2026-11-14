@@ -8,7 +8,7 @@ Version: 1.0.0
 
 | HW address | Type | Name | Description |
 | --- | --- | --- | --- |
-| `0x0` | REG | r1 |  |
+| `0x0` | REG | [r1](#21-r1) |  |
 
 ## 2. Register description
 
