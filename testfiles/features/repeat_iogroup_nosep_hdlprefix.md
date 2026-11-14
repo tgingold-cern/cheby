@@ -8,9 +8,9 @@ Doc HDL prefix for non-indexed iogroup repeats
 | --- | --- | --- | --- |
 | `0x0-0x7` | REPEAT (adc) | adc |  |
 | `0x0-0x3` | BLOCK | adc0 |  |
-| `0x0` | REG | adc0.spie_cmd_mem_wdata |  |
+| `0x0` | REG | [adc0.spie_cmd_mem_wdata](#21-adc0spie_cmd_mem_wdata) |  |
 | `0x4-0x7` | BLOCK | adc1 |  |
-| `0x4` | REG | adc1.spie_cmd_mem_wdata |  |
+| `0x4` | REG | [adc1.spie_cmd_mem_wdata](#22-adc1spie_cmd_mem_wdata) |  |
 
 ## 2. Register description
 

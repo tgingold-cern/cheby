@@ -8,19 +8,19 @@ Test repeat index separator behavior
 | --- | --- | --- | --- |
 | `0x00-0x07` | REPEAT | rep0 |  |
 | `0x00-0x03` | BLOCK | rep0.0 |  |
-| `0x00` | REG | rep0.0.r |  |
+| `0x00` | REG | [rep0.0.r](#21-rep00r) |  |
 | `0x04-0x07` | BLOCK | rep0.1 |  |
-| `0x04` | REG | rep0.1.r |  |
+| `0x04` | REG | [rep0.1.r](#22-rep01r) |  |
 | `0x08-0x0f` | REPEAT | rep1 |  |
 | `0x08-0x0b` | BLOCK | rep10 |  |
-| `0x08` | REG | rep10.r |  |
+| `0x08` | REG | [rep10.r](#23-rep10r) |  |
 | `0x0c-0x0f` | BLOCK | rep11 |  |
-| `0x0c` | REG | rep11.r |  |
+| `0x0c` | REG | [rep11.r](#24-rep11r) |  |
 | `0x10-0x17` | REPEAT | rep2 |  |
 | `0x10-0x13` | BLOCK | rep2_0 |  |
-| `0x10` | REG | rep2_0.r |  |
+| `0x10` | REG | [rep2_0.r](#25-rep2_0r) |  |
 | `0x14-0x17` | BLOCK | rep2_1 |  |
-| `0x14` | REG | rep2_1.r |  |
+| `0x14` | REG | [rep2_1.r](#26-rep2_1r) |  |
 
 ## 2. Register description
 
