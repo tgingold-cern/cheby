@@ -88,20 +88,29 @@ def print_symbol_table(left, right):
     return res
 
 
+ACCESSES = {
+    "rw": "read/write",
+    "wo": "write-only",
+    "ro": "read-only",
+}
+
+
 def print_regdescr_reg(_periph, pfx, raw, num, hide_comments=False):
     r = raw.node
     res = '''<a name="{name}"></a>
 <h3>{pfx}.{n}. {name}</h3>
 <table cellpadding=0 cellspacing=0 border=0>
-<tr><td><b>HW prefix:</b></td><td class="td_code">{hdlprefix}</td></tr>
 <tr><td><b>HW address:</b></td><td class="td_code">0x{addr:x}</td></tr>
+<tr><td><b>Block offset:</b></td><td class="td_code">0x{caddr:x}</td></tr>
+<tr><td><b>HDL prefix:</b></td><td class="td_code">{hdlprefix}</td></tr>
 <tr><td><b>C prefix:</b></td><td class="td_code">{cprefix}</td></tr>
-<tr><td><b>C block offset:</b></td><td class="td_code">0x{caddr:x}</td></tr>
+<tr><td><b>Access:</b></td><td class="td_code">{access}</td></tr>
 </table>
 '''.format(pfx=pfx, n=num, cprefix=raw.name,
            hdlprefix=raw.hdl_name or r.c_name,
            addr=raw.abs_addr, caddr=r.c_address,
-           name=raw.name)
+           name=raw.name,
+           access=ACCESSES.get(r.access, r.access))
 
     if r.comment and not hide_comments:
         res += "<p>{}</p>\n".format(format_text(r.comment))
@@ -123,10 +132,7 @@ def print_regdescr_reg(_periph, pfx, raw, num, hide_comments=False):
     res += '<dl>\n'
     for f in r.children:
         name = f.name or r.name
-        access = r.access
-        res += '  <dt><b>{name}</b> [<i>{access}</i>]</dt>\n'.format(
-            name=name, access=access
-        )
+        res += '  <dt><b>{name}</b></dt>\n'.format(name=name)
 
         if f.comment and not hide_comments:
             res += "  <dd>{}</dd>\n".format(format_text(f.comment))
