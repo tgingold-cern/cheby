@@ -4,13 +4,13 @@ Doc HDL prefix for non-indexed iogroup repeats
 
 ## 1. Memory map summary
 
-| HW address | Type | Name | HDL Name |
-|------------|------|------|----------|
-| 0x0-0x7 | REPEAT (adc) | adc | adc |
-| 0x0-0x3 | BLOCK | adc0 | adc0 |
-| 0x0 | REG | adc0.spie_cmd_mem_wdata | adc0_spie_cmd_mem_wdata |
-| 0x4-0x7 | BLOCK | adc1 | adc1 |
-| 0x4 | REG | adc1.spie_cmd_mem_wdata | adc1_spie_cmd_mem_wdata |
+| HW address | Type | Name | Description |
+| --- | --- | --- | --- |
+| `0x0-0x7` | REPEAT (adc) | adc |  |
+| `0x0-0x3` | BLOCK | adc0 |  |
+| `0x0` | REG | adc0.spie_cmd_mem_wdata |  |
+| `0x4-0x7` | BLOCK | adc1 |  |
+| `0x4` | REG | adc1.spie_cmd_mem_wdata |  |
 
 ## 2. Register description
 
