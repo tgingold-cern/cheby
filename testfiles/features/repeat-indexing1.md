@@ -1,28 +1,32 @@
-## Memory Map Summary
+# repeat_indexing1
 
 repeat with array indexing
 
-| HW address | Type | Name | HDL Name |
-|------------|------|------|----------|
-| 0x00-0x1f | REPEAT [0..3] (itf) | chan | itf |
-| 0x00 | REG | chan.0.ctrl | itf(0).ctrl |
-| 0x04 | REG | chan.0.status | itf(0).status |
-| 0x08 | REG | chan.1.ctrl | itf(1).ctrl |
-| 0x0c | REG | chan.1.status | itf(1).status |
-| 0x10 | REG | chan.2.ctrl | itf(2).ctrl |
-| 0x14 | REG | chan.2.status | itf(2).status |
-| 0x18 | REG | chan.3.ctrl | itf(3).ctrl |
-| 0x1c | REG | chan.3.status | itf(3).status |
+## 1. Memory map summary
 
-## Registers Description
+| HW address | Type | Name | Description |
+| --- | --- | --- | --- |
+| `0x00-0x1f` | REPEAT [0..3] (itf) | chan |  |
+| `0x00` | REG | [chan.0.ctrl](#21-chan0ctrl) |  |
+| `0x04` | REG | [chan.0.status](#22-chan0status) |  |
+| `0x08` | REG | [chan.1.ctrl](#23-chan1ctrl) |  |
+| `0x0c` | REG | [chan.1.status](#24-chan1status) |  |
+| `0x10` | REG | [chan.2.ctrl](#25-chan2ctrl) |  |
+| `0x14` | REG | [chan.2.status](#26-chan2status) |  |
+| `0x18` | REG | [chan.3.ctrl](#27-chan3ctrl) |  |
+| `0x1c` | REG | [chan.3.status](#28-chan3status) |  |
 
-### Register: chan.0.ctrl
+## 2. Register description
 
-- **HW Prefix**: itf(0).ctrl
-- **HW Address**: 0x0
-- **C Prefix**: chan.0.ctrl
-- **C Block Offset**: 0x0
-- **Access**: read/write
+### 2.1. chan.0.ctrl
+
+<table>
+<tr><td><b>HW address:</b></td><td><code>0x0</code></td></tr>
+<tr><td><b>Block offset:</b></td><td><code>0x0</code></td></tr>
+<tr><td><b>HDL prefix:</b></td><td><code>itf(0).ctrl</code></td></tr>
+<tr><td><b>C prefix:</b></td><td><code>chan.0.ctrl</code></td></tr>
+<tr><td><b>Access:</b></td><td><code>read/write</code></td></tr>
+</table>
 
 <table>
   <tr>
@@ -80,16 +84,18 @@ repeat with array indexing
 </table>
 
 | Bits | Name | Description |
-|------|------|------------|
+| --- | --- | --- |
 | 31:0 | ctrl |  |
 
-### Register: chan.0.status
+### 2.2. chan.0.status
 
-- **HW Prefix**: itf(0).status
-- **HW Address**: 0x4
-- **C Prefix**: chan.0.status
-- **C Block Offset**: 0x4
-- **Access**: read-only
+<table>
+<tr><td><b>HW address:</b></td><td><code>0x4</code></td></tr>
+<tr><td><b>Block offset:</b></td><td><code>0x4</code></td></tr>
+<tr><td><b>HDL prefix:</b></td><td><code>itf(0).status</code></td></tr>
+<tr><td><b>C prefix:</b></td><td><code>chan.0.status</code></td></tr>
+<tr><td><b>Access:</b></td><td><code>read-only</code></td></tr>
+</table>
 
 <table>
   <tr>
@@ -147,16 +153,18 @@ repeat with array indexing
 </table>
 
 | Bits | Name | Description |
-|------|------|------------|
+| --- | --- | --- |
 | 31:0 | status |  |
 
-### Register: chan.1.ctrl
+### 2.3. chan.1.ctrl
 
-- **HW Prefix**: itf(1).ctrl
-- **HW Address**: 0x8
-- **C Prefix**: chan.1.ctrl
-- **C Block Offset**: 0x0
-- **Access**: read/write
+<table>
+<tr><td><b>HW address:</b></td><td><code>0x8</code></td></tr>
+<tr><td><b>Block offset:</b></td><td><code>0x0</code></td></tr>
+<tr><td><b>HDL prefix:</b></td><td><code>itf(1).ctrl</code></td></tr>
+<tr><td><b>C prefix:</b></td><td><code>chan.1.ctrl</code></td></tr>
+<tr><td><b>Access:</b></td><td><code>read/write</code></td></tr>
+</table>
 
 <table>
   <tr>
@@ -214,16 +222,18 @@ repeat with array indexing
 </table>
 
 | Bits | Name | Description |
-|------|------|------------|
+| --- | --- | --- |
 | 31:0 | ctrl |  |
 
-### Register: chan.1.status
+### 2.4. chan.1.status
 
-- **HW Prefix**: itf(1).status
-- **HW Address**: 0xc
-- **C Prefix**: chan.1.status
-- **C Block Offset**: 0x4
-- **Access**: read-only
+<table>
+<tr><td><b>HW address:</b></td><td><code>0xc</code></td></tr>
+<tr><td><b>Block offset:</b></td><td><code>0x4</code></td></tr>
+<tr><td><b>HDL prefix:</b></td><td><code>itf(1).status</code></td></tr>
+<tr><td><b>C prefix:</b></td><td><code>chan.1.status</code></td></tr>
+<tr><td><b>Access:</b></td><td><code>read-only</code></td></tr>
+</table>
 
 <table>
   <tr>
@@ -281,16 +291,18 @@ repeat with array indexing
 </table>
 
 | Bits | Name | Description |
-|------|------|------------|
+| --- | --- | --- |
 | 31:0 | status |  |
 
-### Register: chan.2.ctrl
+### 2.5. chan.2.ctrl
 
-- **HW Prefix**: itf(2).ctrl
-- **HW Address**: 0x10
-- **C Prefix**: chan.2.ctrl
-- **C Block Offset**: 0x0
-- **Access**: read/write
+<table>
+<tr><td><b>HW address:</b></td><td><code>0x10</code></td></tr>
+<tr><td><b>Block offset:</b></td><td><code>0x0</code></td></tr>
+<tr><td><b>HDL prefix:</b></td><td><code>itf(2).ctrl</code></td></tr>
+<tr><td><b>C prefix:</b></td><td><code>chan.2.ctrl</code></td></tr>
+<tr><td><b>Access:</b></td><td><code>read/write</code></td></tr>
+</table>
 
 <table>
   <tr>
@@ -348,16 +360,18 @@ repeat with array indexing
 </table>
 
 | Bits | Name | Description |
-|------|------|------------|
+| --- | --- | --- |
 | 31:0 | ctrl |  |
 
-### Register: chan.2.status
+### 2.6. chan.2.status
 
-- **HW Prefix**: itf(2).status
-- **HW Address**: 0x14
-- **C Prefix**: chan.2.status
-- **C Block Offset**: 0x4
-- **Access**: read-only
+<table>
+<tr><td><b>HW address:</b></td><td><code>0x14</code></td></tr>
+<tr><td><b>Block offset:</b></td><td><code>0x4</code></td></tr>
+<tr><td><b>HDL prefix:</b></td><td><code>itf(2).status</code></td></tr>
+<tr><td><b>C prefix:</b></td><td><code>chan.2.status</code></td></tr>
+<tr><td><b>Access:</b></td><td><code>read-only</code></td></tr>
+</table>
 
 <table>
   <tr>
@@ -415,16 +429,18 @@ repeat with array indexing
 </table>
 
 | Bits | Name | Description |
-|------|------|------------|
+| --- | --- | --- |
 | 31:0 | status |  |
 
-### Register: chan.3.ctrl
+### 2.7. chan.3.ctrl
 
-- **HW Prefix**: itf(3).ctrl
-- **HW Address**: 0x18
-- **C Prefix**: chan.3.ctrl
-- **C Block Offset**: 0x0
-- **Access**: read/write
+<table>
+<tr><td><b>HW address:</b></td><td><code>0x18</code></td></tr>
+<tr><td><b>Block offset:</b></td><td><code>0x0</code></td></tr>
+<tr><td><b>HDL prefix:</b></td><td><code>itf(3).ctrl</code></td></tr>
+<tr><td><b>C prefix:</b></td><td><code>chan.3.ctrl</code></td></tr>
+<tr><td><b>Access:</b></td><td><code>read/write</code></td></tr>
+</table>
 
 <table>
   <tr>
@@ -482,16 +498,18 @@ repeat with array indexing
 </table>
 
 | Bits | Name | Description |
-|------|------|------------|
+| --- | --- | --- |
 | 31:0 | ctrl |  |
 
-### Register: chan.3.status
+### 2.8. chan.3.status
 
-- **HW Prefix**: itf(3).status
-- **HW Address**: 0x1c
-- **C Prefix**: chan.3.status
-- **C Block Offset**: 0x4
-- **Access**: read-only
+<table>
+<tr><td><b>HW address:</b></td><td><code>0x1c</code></td></tr>
+<tr><td><b>Block offset:</b></td><td><code>0x4</code></td></tr>
+<tr><td><b>HDL prefix:</b></td><td><code>itf(3).status</code></td></tr>
+<tr><td><b>C prefix:</b></td><td><code>chan.3.status</code></td></tr>
+<tr><td><b>Access:</b></td><td><code>read-only</code></td></tr>
+</table>
 
 <table>
   <tr>
@@ -549,6 +567,6 @@ repeat with array indexing
 </table>
 
 | Bits | Name | Description |
-|------|------|------------|
+| --- | --- | --- |
 | 31:0 | status |  |
 

@@ -49,113 +49,97 @@
 <th>HW address</th>
 <th>Type</th>
 <th>Name</th>
-<th>HDL prefix</th>
-<th>C prefix</th>
+<th>Description</th>
 </tr>
 <tr class="tr_odd">
 <td class="td_code">0x00-0x07</td>
 <td>REPEAT</td>
 <td>rep0</td>
-<td class="td_code">rep0</td>
-<td class="td_code">rep0</td>
+<td class="td_desc"></td>
 </tr>
 <tr class="tr_even">
 <td class="td_code">0x00-0x03</td>
 <td>BLOCK</td>
 <td>rep0.0</td>
-<td class="td_code">rep0_0</td>
-<td class="td_code">rep0.0</td>
+<td class="td_desc"></td>
 </tr>
 <tr class="tr_odd">
 <td class="td_code">0x00</td>
 <td>REG</td>
 <td><A href="#rep0.0.r">rep0.0.r</a></td>
-<td class="td_code">rep0_0_r</td>
-<td class="td_code">rep0.0.r</td>
+<td class="td_desc"></td>
 </tr>
 <tr class="tr_even">
 <td class="td_code">0x04-0x07</td>
 <td>BLOCK</td>
 <td>rep0.1</td>
-<td class="td_code">rep0_1</td>
-<td class="td_code">rep0.1</td>
+<td class="td_desc"></td>
 </tr>
 <tr class="tr_odd">
 <td class="td_code">0x04</td>
 <td>REG</td>
 <td><A href="#rep0.1.r">rep0.1.r</a></td>
-<td class="td_code">rep0_1_r</td>
-<td class="td_code">rep0.1.r</td>
+<td class="td_desc"></td>
 </tr>
 <tr class="tr_even">
 <td class="td_code">0x08-0x0f</td>
 <td>REPEAT</td>
 <td>rep1</td>
-<td class="td_code">rep1</td>
-<td class="td_code">rep1</td>
+<td class="td_desc"></td>
 </tr>
 <tr class="tr_odd">
 <td class="td_code">0x08-0x0b</td>
 <td>BLOCK</td>
 <td>rep10</td>
-<td class="td_code">rep10</td>
-<td class="td_code">rep10</td>
+<td class="td_desc"></td>
 </tr>
 <tr class="tr_even">
 <td class="td_code">0x08</td>
 <td>REG</td>
 <td><A href="#rep10.r">rep10.r</a></td>
-<td class="td_code">rep10_r</td>
-<td class="td_code">rep10.r</td>
+<td class="td_desc"></td>
 </tr>
 <tr class="tr_odd">
 <td class="td_code">0x0c-0x0f</td>
 <td>BLOCK</td>
 <td>rep11</td>
-<td class="td_code">rep11</td>
-<td class="td_code">rep11</td>
+<td class="td_desc"></td>
 </tr>
 <tr class="tr_even">
 <td class="td_code">0x0c</td>
 <td>REG</td>
 <td><A href="#rep11.r">rep11.r</a></td>
-<td class="td_code">rep11_r</td>
-<td class="td_code">rep11.r</td>
+<td class="td_desc"></td>
 </tr>
 <tr class="tr_odd">
 <td class="td_code">0x10-0x17</td>
 <td>REPEAT</td>
 <td>rep2</td>
-<td class="td_code">rep2</td>
-<td class="td_code">rep2</td>
+<td class="td_desc"></td>
 </tr>
 <tr class="tr_even">
 <td class="td_code">0x10-0x13</td>
 <td>BLOCK</td>
 <td>rep2_0</td>
-<td class="td_code">rep2_0</td>
-<td class="td_code">rep2_0</td>
+<td class="td_desc"></td>
 </tr>
 <tr class="tr_odd">
 <td class="td_code">0x10</td>
 <td>REG</td>
 <td><A href="#rep2_0.r">rep2_0.r</a></td>
-<td class="td_code">rep2_0_r</td>
-<td class="td_code">rep2_0.r</td>
+<td class="td_desc"></td>
 </tr>
 <tr class="tr_even">
 <td class="td_code">0x14-0x17</td>
 <td>BLOCK</td>
 <td>rep2_1</td>
-<td class="td_code">rep2_1</td>
-<td class="td_code">rep2_1</td>
+<td class="td_desc"></td>
 </tr>
 <tr class="tr_odd">
 <td class="td_code">0x14</td>
 <td>REG</td>
 <td><A href="#rep2_1.r">rep2_1.r</a></td>
-<td class="td_code">rep2_1_r</td>
-<td class="td_code">rep2_1.r</td>
+<td class="td_desc"></td>
 </tr>
 </table>
 
@@ -163,10 +147,11 @@
 <a name="rep0.0.r"></a>
 <h3>2.1. rep0.0.r</h3>
 <table cellpadding=0 cellspacing=0 border=0>
-<tr><td><b>HW prefix:</b></td><td class="td_code">rep0_0_r</td></tr>
 <tr><td><b>HW address:</b></td><td class="td_code">0x0</td></tr>
+<tr><td><b>Block offset:</b></td><td class="td_code">0x0</td></tr>
+<tr><td><b>HDL prefix:</b></td><td class="td_code">rep0_0_r</td></tr>
 <tr><td><b>C prefix:</b></td><td class="td_code">rep0.0.r</td></tr>
-<tr><td><b>C block offset:</b></td><td class="td_code">0x0</td></tr>
+<tr><td><b>Access:</b></td><td class="td_code">read/write</td></tr>
 </table>
 <table cellpadding=0 cellspacing=0 border=0>
 <tr>
@@ -223,16 +208,17 @@
 </tr>
 </table>
 <dl>
-  <dt><b>r</b> [<i>rw</i>]</dt>
+  <dt><b>r</b></dt>
   <dd></dd>
 </dl>
 <a name="rep0.1.r"></a>
 <h3>2.2. rep0.1.r</h3>
 <table cellpadding=0 cellspacing=0 border=0>
-<tr><td><b>HW prefix:</b></td><td class="td_code">rep0_1_r</td></tr>
 <tr><td><b>HW address:</b></td><td class="td_code">0x4</td></tr>
+<tr><td><b>Block offset:</b></td><td class="td_code">0x0</td></tr>
+<tr><td><b>HDL prefix:</b></td><td class="td_code">rep0_1_r</td></tr>
 <tr><td><b>C prefix:</b></td><td class="td_code">rep0.1.r</td></tr>
-<tr><td><b>C block offset:</b></td><td class="td_code">0x0</td></tr>
+<tr><td><b>Access:</b></td><td class="td_code">read/write</td></tr>
 </table>
 <table cellpadding=0 cellspacing=0 border=0>
 <tr>
@@ -289,16 +275,17 @@
 </tr>
 </table>
 <dl>
-  <dt><b>r</b> [<i>rw</i>]</dt>
+  <dt><b>r</b></dt>
   <dd></dd>
 </dl>
 <a name="rep10.r"></a>
 <h3>2.3. rep10.r</h3>
 <table cellpadding=0 cellspacing=0 border=0>
-<tr><td><b>HW prefix:</b></td><td class="td_code">rep10_r</td></tr>
 <tr><td><b>HW address:</b></td><td class="td_code">0x8</td></tr>
+<tr><td><b>Block offset:</b></td><td class="td_code">0x0</td></tr>
+<tr><td><b>HDL prefix:</b></td><td class="td_code">rep10_r</td></tr>
 <tr><td><b>C prefix:</b></td><td class="td_code">rep10.r</td></tr>
-<tr><td><b>C block offset:</b></td><td class="td_code">0x0</td></tr>
+<tr><td><b>Access:</b></td><td class="td_code">read/write</td></tr>
 </table>
 <table cellpadding=0 cellspacing=0 border=0>
 <tr>
@@ -355,16 +342,17 @@
 </tr>
 </table>
 <dl>
-  <dt><b>r</b> [<i>rw</i>]</dt>
+  <dt><b>r</b></dt>
   <dd></dd>
 </dl>
 <a name="rep11.r"></a>
 <h3>2.4. rep11.r</h3>
 <table cellpadding=0 cellspacing=0 border=0>
-<tr><td><b>HW prefix:</b></td><td class="td_code">rep11_r</td></tr>
 <tr><td><b>HW address:</b></td><td class="td_code">0xc</td></tr>
+<tr><td><b>Block offset:</b></td><td class="td_code">0x0</td></tr>
+<tr><td><b>HDL prefix:</b></td><td class="td_code">rep11_r</td></tr>
 <tr><td><b>C prefix:</b></td><td class="td_code">rep11.r</td></tr>
-<tr><td><b>C block offset:</b></td><td class="td_code">0x0</td></tr>
+<tr><td><b>Access:</b></td><td class="td_code">read/write</td></tr>
 </table>
 <table cellpadding=0 cellspacing=0 border=0>
 <tr>
@@ -421,16 +409,17 @@
 </tr>
 </table>
 <dl>
-  <dt><b>r</b> [<i>rw</i>]</dt>
+  <dt><b>r</b></dt>
   <dd></dd>
 </dl>
 <a name="rep2_0.r"></a>
 <h3>2.5. rep2_0.r</h3>
 <table cellpadding=0 cellspacing=0 border=0>
-<tr><td><b>HW prefix:</b></td><td class="td_code">rep2_0_r</td></tr>
 <tr><td><b>HW address:</b></td><td class="td_code">0x10</td></tr>
+<tr><td><b>Block offset:</b></td><td class="td_code">0x0</td></tr>
+<tr><td><b>HDL prefix:</b></td><td class="td_code">rep2_0_r</td></tr>
 <tr><td><b>C prefix:</b></td><td class="td_code">rep2_0.r</td></tr>
-<tr><td><b>C block offset:</b></td><td class="td_code">0x0</td></tr>
+<tr><td><b>Access:</b></td><td class="td_code">read/write</td></tr>
 </table>
 <table cellpadding=0 cellspacing=0 border=0>
 <tr>
@@ -487,16 +476,17 @@
 </tr>
 </table>
 <dl>
-  <dt><b>r</b> [<i>rw</i>]</dt>
+  <dt><b>r</b></dt>
   <dd></dd>
 </dl>
 <a name="rep2_1.r"></a>
 <h3>2.6. rep2_1.r</h3>
 <table cellpadding=0 cellspacing=0 border=0>
-<tr><td><b>HW prefix:</b></td><td class="td_code">rep2_1_r</td></tr>
 <tr><td><b>HW address:</b></td><td class="td_code">0x14</td></tr>
+<tr><td><b>Block offset:</b></td><td class="td_code">0x0</td></tr>
+<tr><td><b>HDL prefix:</b></td><td class="td_code">rep2_1_r</td></tr>
 <tr><td><b>C prefix:</b></td><td class="td_code">rep2_1.r</td></tr>
-<tr><td><b>C block offset:</b></td><td class="td_code">0x0</td></tr>
+<tr><td><b>Access:</b></td><td class="td_code">read/write</td></tr>
 </table>
 <table cellpadding=0 cellspacing=0 border=0>
 <tr>
@@ -553,7 +543,7 @@
 </tr>
 </table>
 <dl>
-  <dt><b>r</b> [<i>rw</i>]</dt>
+  <dt><b>r</b></dt>
   <dd></dd>
 </dl>
 
