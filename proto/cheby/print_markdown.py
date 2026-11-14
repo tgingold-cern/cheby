@@ -1,5 +1,6 @@
 import cheby.tree as tree
 import cheby.gen_doc as gen_doc
+from cheby.gen_wbgen_hdl import get_hdl_entity
 from cheby.wrutils import w, wln
 
 #  Generate Markdown documentation
@@ -11,7 +12,11 @@ def format_text(text):
     return text.replace("\n", "  \n")
 
 
-def print_reg(fd, r, raw, hide_comments=False, print_reg_drawing=True):
+def reg_heading_text(pfx, num, name):
+    return "{}.{}. {}".format(pfx, num, name)
+
+
+def print_reg(fd, r, raw, num, pfx, hide_comments=False, print_reg_drawing=True):
     ACCESSES = {
         "rw": "read/write",
         "wo": "write-only",
@@ -19,7 +24,7 @@ def print_reg(fd, r, raw, hide_comments=False, print_reg_drawing=True):
     }
 
     # Description of Register
-    wln(fd, "### Register: {}".format(raw.name))
+    wln(fd, "### {}".format(reg_heading_text(pfx, num, raw.name)))
     wln(fd)
 
     wln(fd, "- **HW Prefix**: {}".format(raw.hdl_name if raw.hdl_name else r.c_name))
@@ -106,23 +111,25 @@ def print_map_summary(fd, summary):
     wln(fd)
 
 
-def print_reg_description(fd, summary, hide_comments=False, print_reg_drawing=True):
+def print_reg_description(fd, summary, pfx, hide_comments=False, print_reg_drawing=True):
+    num = 1
     for ra in summary.raws:
         r = ra.node
         if isinstance(r, tree.Reg):
-            print_reg(fd, r, ra, hide_comments, print_reg_drawing)
+            print_reg(fd, r, ra, num, pfx, hide_comments, print_reg_drawing)
+            num += 1
 
 
 def print_root(fd, root, hide_comments=False, print_reg_drawing=True):
-    wln(fd, "## Memory Map Summary")
+    wln(fd, "# {}".format(get_hdl_entity(root)))
     wln(fd)
 
     if root.comment and not hide_comments:
-        wln(fd, root.comment)
+        wln(fd, format_text(root.comment))
         wln(fd)
 
     if root.description:
-        wln(fd, root.description)
+        wln(fd, format_text(root.description))
         wln(fd)
 
     if root.version is not None:
@@ -131,23 +138,29 @@ def print_root(fd, root, hide_comments=False, print_reg_drawing=True):
 
     if root.c_address_spaces_map is None:
         summary = gen_doc.MemmapSummary(root)
+
+        wln(fd, "## 1. Memory map summary")
+        wln(fd)
         print_map_summary(fd, summary)
 
-        wln(fd, "## Registers Description")
+        wln(fd, "## 2. Register description")
         wln(fd)
-        print_reg_description(fd, summary, hide_comments, print_reg_drawing)
-
+        print_reg_description(fd, summary, "2", hide_comments, print_reg_drawing)
     else:
         summaries = [(gen_doc.MemmapSummary(space), space) for space in root.children]
-        for summary, space in summaries:
-            wln(fd, "## For Space {}".format(space.name))
+        for i, (summary, space) in enumerate(summaries, 1):
+            wln(fd, "## 1.{}. Memory map summary for address space {}".format(
+                i, space.name))
             wln(fd)
             print_map_summary(fd, summary)
 
-        for summary, space in summaries:
-            wln(fd, "## Registers Description for Space {}".format(space.name))
+        for i, (summary, space) in enumerate(summaries, 1):
+            wln(fd, "## 2.{} Register description for address space {}".format(
+                i, space.name))
             wln(fd)
-            print_reg_description(fd, summary, hide_comments, print_reg_drawing)
+            print_reg_description(
+                fd, summary, "2.{}".format(i), hide_comments, print_reg_drawing
+            )
 
 
 def print_markdown(fd, n, hide_comments=False, print_reg_drawing=True):

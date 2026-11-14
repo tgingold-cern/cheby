@@ -1,6 +1,8 @@
-## Memory Map Summary
+# nested_iogroup1
 
 Test nested iogroups (iogroup-flatten false)
+
+## 1. Memory map summary
 
 | HW address | Type | Name | HDL Name |
 |------------|------|------|----------|
@@ -9,9 +11,9 @@ Test nested iogroups (iogroup-flatten false)
 | 0x8 | REG | blk.breg1 | blk_regs.breg1 |
 | 0xc | REG | blk.breg2 | blk_regs.breg2 |
 
-## Registers Description
+## 2. Register description
 
-### Register: areg
+### 2.1. areg
 
 - **HW Prefix**: areg
 - **HW Address**: 0x0
@@ -78,7 +80,7 @@ Test nested iogroups (iogroup-flatten false)
 |------|------|------------|
 | 31:0 | areg |  |
 
-### Register: blk.breg1
+### 2.2. blk.breg1
 
 - **HW Prefix**: blk_regs.breg1
 - **HW Address**: 0x8
@@ -145,7 +147,7 @@ Test nested iogroups (iogroup-flatten false)
 |------|------|------------|
 | 31:0 | breg1 |  |
 
-### Register: blk.breg2
+### 2.3. blk.breg2
 
 - **HW Prefix**: blk_regs.breg2
 - **HW Address**: 0xc

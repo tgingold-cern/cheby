@@ -1,6 +1,8 @@
-## Memory Map Summary
+# repeat_idx_separator
 
 Test repeat index separator behavior
+
+## 1. Memory map summary
 
 | HW address | Type | Name | HDL Name |
 |------------|------|------|----------|
@@ -20,9 +22,9 @@ Test repeat index separator behavior
 | 0x14-0x17 | BLOCK | rep2_1 | rep2_1 |
 | 0x14 | REG | rep2_1.r | rep2_1_r |
 
-## Registers Description
+## 2. Register description
 
-### Register: rep0.0.r
+### 2.1. rep0.0.r
 
 - **HW Prefix**: rep0_0_r
 - **HW Address**: 0x0
@@ -89,7 +91,7 @@ Test repeat index separator behavior
 |------|------|------------|
 | 31:0 | r |  |
 
-### Register: rep0.1.r
+### 2.2. rep0.1.r
 
 - **HW Prefix**: rep0_1_r
 - **HW Address**: 0x4
@@ -156,7 +158,7 @@ Test repeat index separator behavior
 |------|------|------------|
 | 31:0 | r |  |
 
-### Register: rep10.r
+### 2.3. rep10.r
 
 - **HW Prefix**: rep10_r
 - **HW Address**: 0x8
@@ -223,7 +225,7 @@ Test repeat index separator behavior
 |------|------|------------|
 | 31:0 | r |  |
 
-### Register: rep11.r
+### 2.4. rep11.r
 
 - **HW Prefix**: rep11_r
 - **HW Address**: 0xc
@@ -290,7 +292,7 @@ Test repeat index separator behavior
 |------|------|------------|
 | 31:0 | r |  |
 
-### Register: rep2_0.r
+### 2.5. rep2_0.r
 
 - **HW Prefix**: rep2_0_r
 - **HW Address**: 0x10
@@ -357,7 +359,7 @@ Test repeat index separator behavior
 |------|------|------------|
 | 31:0 | r |  |
 
-### Register: rep2_1.r
+### 2.6. rep2_1.r
 
 - **HW Prefix**: rep2_1_r
 - **HW Address**: 0x14

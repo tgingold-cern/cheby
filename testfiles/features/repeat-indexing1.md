@@ -1,6 +1,8 @@
-## Memory Map Summary
+# repeat_indexing1
 
 repeat with array indexing
+
+## 1. Memory map summary
 
 | HW address | Type | Name | HDL Name |
 |------------|------|------|----------|
@@ -14,9 +16,9 @@ repeat with array indexing
 | 0x18 | REG | chan.3.ctrl | itf(3).ctrl |
 | 0x1c | REG | chan.3.status | itf(3).status |
 
-## Registers Description
+## 2. Register description
 
-### Register: chan.0.ctrl
+### 2.1. chan.0.ctrl
 
 - **HW Prefix**: itf(0).ctrl
 - **HW Address**: 0x0
@@ -83,7 +85,7 @@ repeat with array indexing
 |------|------|------------|
 | 31:0 | ctrl |  |
 
-### Register: chan.0.status
+### 2.2. chan.0.status
 
 - **HW Prefix**: itf(0).status
 - **HW Address**: 0x4
@@ -150,7 +152,7 @@ repeat with array indexing
 |------|------|------------|
 | 31:0 | status |  |
 
-### Register: chan.1.ctrl
+### 2.3. chan.1.ctrl
 
 - **HW Prefix**: itf(1).ctrl
 - **HW Address**: 0x8
@@ -217,7 +219,7 @@ repeat with array indexing
 |------|------|------------|
 | 31:0 | ctrl |  |
 
-### Register: chan.1.status
+### 2.4. chan.1.status
 
 - **HW Prefix**: itf(1).status
 - **HW Address**: 0xc
@@ -284,7 +286,7 @@ repeat with array indexing
 |------|------|------------|
 | 31:0 | status |  |
 
-### Register: chan.2.ctrl
+### 2.5. chan.2.ctrl
 
 - **HW Prefix**: itf(2).ctrl
 - **HW Address**: 0x10
@@ -351,7 +353,7 @@ repeat with array indexing
 |------|------|------------|
 | 31:0 | ctrl |  |
 
-### Register: chan.2.status
+### 2.6. chan.2.status
 
 - **HW Prefix**: itf(2).status
 - **HW Address**: 0x14
@@ -418,7 +420,7 @@ repeat with array indexing
 |------|------|------------|
 | 31:0 | status |  |
 
-### Register: chan.3.ctrl
+### 2.7. chan.3.ctrl
 
 - **HW Prefix**: itf(3).ctrl
 - **HW Address**: 0x18
@@ -485,7 +487,7 @@ repeat with array indexing
 |------|------|------------|
 | 31:0 | ctrl |  |
 
-### Register: chan.3.status
+### 2.8. chan.3.status
 
 - **HW Prefix**: itf(3).status
 - **HW Address**: 0x1c
