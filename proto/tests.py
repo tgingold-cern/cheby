@@ -439,6 +439,7 @@ def test_hdl_ref():
     # SV/Verilog generation, comparison and elaboration are skipped.
     vhdl_only = {
         'features/reuse-submap2',
+        'features/repeat-type-prefix1',
     }
 
     for f in ['fmc-adc01/fmc_adc_alt_trigin', 'fmc-adc01/fmc_adc_alt_trigout',
@@ -467,7 +468,7 @@ def test_hdl_ref():
               'features/repeat-iogroup2', 'features/repeat-iogroup3',
               'features/repeat-iogroup4', 'features/nested-iogroup1',
               'features/repeat_idx_separator', 'features/repeat-indexing1',
-              'features/repeat-name-prefix-false',
+              'features/repeat-name-prefix-false', 'features/repeat-type-prefix1',
               'features/reuse-submap-leaf',
               'features/reuse-submap1', 'features/reuse-submap2',
               'features/no_port', 'features/memwide',
@@ -495,7 +496,13 @@ def test_hdl_ref():
         layout_ok(t)
         expand_hdl.expand_hdl(t)
         gen_name.gen_name_memmap(t)
-        h = gen_hdl.generate_hdl(t)
+        # Nested records are built only for VHDL. The suite leaves the
+        # language unset, which flattens them, so a test that needs the
+        # nested form sets it here
+        with gconfig_scope():
+            if f == 'features/repeat-type-prefix1':
+                gconfig.hdl_lang = 'vhdl'
+            h = gen_hdl.generate_hdl(t)
 
         is_vhdl_only = f in vhdl_only
 
