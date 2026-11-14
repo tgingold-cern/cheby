@@ -150,20 +150,25 @@ def print_regdescr(periph, pfx, raws, hide_comments=False):
     return res
 
 
-def print_summary_html(_periph, summary):
+def html_escape(text):
+    return (text.replace("&", "&amp;")
+            .replace("<", "&lt;")
+            .replace(">", "&gt;")
+            .replace('"', "&quot;"))
+
+
+def print_summary_html(_periph, summary, hide_comments=False):
     "HTML formatter for memmap_summary"
     res = '''<table cellpadding=2 cellspacing=0 border=0>
 <tr>
 <th>HW address</th>
 <th>Type</th>
 <th>Name</th>
-<th>HDL prefix</th>
-<th>C prefix</th>
+<th>Description</th>
 </tr>
 '''
     odd_even = ['odd', 'even']
     for r in summary.raws:
-        hdlprefix = r.hdl_name if r.hdl_name else r.node.c_name
         # Only registers have anchors in the detailed section.
         if isinstance(r.node, tree.Reg):
             name_cell = '<A href="#{cprefix}">{name}</a>'.format(
@@ -171,15 +176,14 @@ def print_summary_html(_periph, summary):
             )
         else:
             name_cell = r.name
+        desc = html_escape(gen_doc.brief_description(r.node, hide_comments))
         res += '''<tr class="tr_{odd_even}">
 <td class="td_code">{address}</td>
 <td>{typ}</td>
 <td>{name_cell}</td>
-<td class="td_code">{hdlprefix}</td>
-<td class="td_code">{cprefix}</td>
+<td class="td_desc">{desc}</td>
 </tr>\n'''.format(typ=r.typ, odd_even=odd_even[0], address=r.address,
-                  cprefix=r.name, name_cell=name_cell,
-                  hdlprefix=hdlprefix)
+                  name_cell=name_cell, desc=desc)
         odd_even = [odd_even[1], odd_even[0]]
     res += '</table>\n'
     return res
@@ -259,7 +263,7 @@ def phtml_root(fd, root, hide_comments=False, include_js_dep=False):
 
     if root.c_address_spaces_map is None:
         summary = gen_doc.MemmapSummary(root)
-        memmap_summary = print_summary_html(root, summary)
+        memmap_summary = print_summary_html(root, summary, hide_comments)
         # Sect1: Memory map summary
         wln(fd, '<h3>1. Memory map summary</h3>')
         w(fd, memmap_summary)
@@ -270,7 +274,7 @@ def phtml_root(fd, root, hide_comments=False, include_js_dep=False):
     else:
         summaries = [(space, gen_doc.MemmapSummary(space)) for space in root.children]
         for i, (space, summary) in enumerate(summaries, 1):
-            memmap_summary = print_summary_html(space, summary)
+            memmap_summary = print_summary_html(space, summary, hide_comments)
             wln(fd, '<h3>1.{}. Memory map summary for address space {}</h3>\n'.format(
                 i, space.name))
             w(fd, memmap_summary)

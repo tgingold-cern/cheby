@@ -51,190 +51,163 @@
 <th>HW address</th>
 <th>Type</th>
 <th>Name</th>
-<th>HDL prefix</th>
-<th>C prefix</th>
+<th>Description</th>
 </tr>
 <tr class="tr_odd">
 <td class="td_code">0x000000-0x00001f</td>
 <td>SUBMAP</td>
 <td>hwInfo</td>
-<td class="td_code">hwInfo</td>
-<td class="td_code">hwInfo</td>
+<td class="td_desc"></td>
 </tr>
 <tr class="tr_even">
 <td class="td_code">0x000000</td>
 <td>REG</td>
 <td><A href="#hwInfo.stdVersion">hwInfo.stdVersion</a></td>
-<td class="td_code">hwInfo_stdVersion</td>
-<td class="td_code">hwInfo.stdVersion</td>
+<td class="td_desc"></td>
 </tr>
 <tr class="tr_odd">
 <td class="td_code">0x000008</td>
 <td>REG</td>
 <td><A href="#hwInfo.serialNumber">hwInfo.serialNumber</a></td>
-<td class="td_code">hwInfo_serialNumber</td>
-<td class="td_code">hwInfo.serialNumber</td>
+<td class="td_desc">HW serial number</td>
 </tr>
 <tr class="tr_even">
 <td class="td_code">0x000010</td>
 <td>REG</td>
 <td><A href="#hwInfo.firmwareVersion">hwInfo.firmwareVersion</a></td>
-<td class="td_code">hwInfo_firmwareVersion</td>
-<td class="td_code">hwInfo.firmwareVersion</td>
+<td class="td_desc">Firmware Version</td>
 </tr>
 <tr class="tr_odd">
 <td class="td_code">0x000014</td>
 <td>REG</td>
 <td><A href="#hwInfo.memMapVersion">hwInfo.memMapVersion</a></td>
-<td class="td_code">hwInfo_memMapVersion</td>
-<td class="td_code">hwInfo.memMapVersion</td>
+<td class="td_desc">Memory Map Version</td>
 </tr>
 <tr class="tr_even">
 <td class="td_code">0x000018</td>
 <td>REG</td>
 <td><A href="#hwInfo.echo">hwInfo.echo</a></td>
-<td class="td_code">hwInfo_echo</td>
-<td class="td_code">hwInfo.echo</td>
+<td class="td_desc">Echo register. This version of the standard foresees only 8bits linked to real memory</td>
 </tr>
 <tr class="tr_odd">
 <td class="td_code">0x100000-0x17ffff</td>
 <td>SUBMAP</td>
 <td>app</td>
-<td class="td_code">app</td>
-<td class="td_code">app</td>
+<td class="td_desc"></td>
 </tr>
 <tr class="tr_even">
 <td class="td_code">0x100000-0x1003ff</td>
 <td>SUBMAP</td>
 <td>app.modulation</td>
-<td class="td_code">app_modulation</td>
-<td class="td_code">app.modulation</td>
+<td class="td_desc"></td>
 </tr>
 <tr class="tr_odd">
 <td class="td_code">0x100000-0x10001f</td>
 <td>SUBMAP</td>
 <td>app.modulation.ipInfo</td>
-<td class="td_code">app_modulation_ipInfo</td>
-<td class="td_code">app.modulation.ipInfo</td>
+<td class="td_desc"></td>
 </tr>
 <tr class="tr_even">
 <td class="td_code">0x100000</td>
 <td>REG</td>
 <td><A href="#app.modulation.ipInfo.stdVersion">app.modulation.ipInfo.stdVersion</a></td>
-<td class="td_code">app_modulation_ipInfo_stdVersion</td>
-<td class="td_code">app.modulation.ipInfo.stdVersion</td>
+<td class="td_desc"></td>
 </tr>
 <tr class="tr_odd">
 <td class="td_code">0x100004</td>
 <td>REG</td>
 <td><A href="#app.modulation.ipInfo.ident">app.modulation.ipInfo.ident</a></td>
-<td class="td_code">app_modulation_ipInfo_ident</td>
-<td class="td_code">app.modulation.ipInfo.ident</td>
+<td class="td_desc">IP Ident code</td>
 </tr>
 <tr class="tr_even">
 <td class="td_code">0x100008</td>
 <td>REG</td>
 <td><A href="#app.modulation.ipInfo.firmwareVersion">app.modulation.ipInfo.firmwareVersion</a></td>
-<td class="td_code">app_modulation_ipInfo_firmwareVersion</td>
-<td class="td_code">app.modulation.ipInfo.firmwareVersion</td>
+<td class="td_desc">Firmware Version</td>
 </tr>
 <tr class="tr_odd">
 <td class="td_code">0x10000c</td>
 <td>REG</td>
 <td><A href="#app.modulation.ipInfo.memMapVersion">app.modulation.ipInfo.memMapVersion</a></td>
-<td class="td_code">app_modulation_ipInfo_memMapVersion</td>
-<td class="td_code">app.modulation.ipInfo.memMapVersion</td>
+<td class="td_desc">Memory Map Version</td>
 </tr>
 <tr class="tr_even">
 <td class="td_code">0x100010</td>
 <td>REG</td>
 <td><A href="#app.modulation.ipInfo.echo">app.modulation.ipInfo.echo</a></td>
-<td class="td_code">app_modulation_ipInfo_echo</td>
-<td class="td_code">app.modulation.ipInfo.echo</td>
+<td class="td_desc">Echo register. This version of the standard foresees only 8bits linked to real memory</td>
 </tr>
 <tr class="tr_odd">
 <td class="td_code">0x100020</td>
 <td>REG</td>
 <td><A href="#app.modulation.control">app.modulation.control</a></td>
-<td class="td_code">app_modulation_control</td>
-<td class="td_code">app.modulation.control</td>
+<td class="td_desc"></td>
 </tr>
 <tr class="tr_even">
 <td class="td_code">0x100030-0x10003f</td>
 <td>BLOCK</td>
 <td>app.modulation.testSignal</td>
-<td class="td_code">app_modulation_testSignal</td>
-<td class="td_code">app.modulation.testSignal</td>
+<td class="td_desc"></td>
 </tr>
 <tr class="tr_odd">
 <td class="td_code">0x100030</td>
 <td>REG</td>
 <td><A href="#app.modulation.testSignal.amplitude">app.modulation.testSignal.amplitude</a></td>
-<td class="td_code">app_modulation_testSignal_amplitude</td>
-<td class="td_code">app.modulation.testSignal.amplitude</td>
+<td class="td_desc">Amplitude for the test signal</td>
 </tr>
 <tr class="tr_even">
 <td class="td_code">0x100038</td>
 <td>REG</td>
 <td><A href="#app.modulation.testSignal.ftw">app.modulation.testSignal.ftw</a></td>
-<td class="td_code">app_modulation_testSignal_ftw</td>
-<td class="td_code">app.modulation.testSignal.ftw</td>
+<td class="td_desc">FTW of the test signal (frequency relative to fs)</td>
 </tr>
 <tr class="tr_odd">
 <td class="td_code">0x100040-0x10004f</td>
 <td>BLOCK</td>
 <td>app.modulation.staticSignal</td>
-<td class="td_code">app_modulation_staticSignal</td>
-<td class="td_code">app.modulation.staticSignal</td>
+<td class="td_desc"></td>
 </tr>
 <tr class="tr_even">
 <td class="td_code">0x100040</td>
 <td>REG</td>
 <td><A href="#app.modulation.staticSignal.i">app.modulation.staticSignal.i</a></td>
-<td class="td_code">app_modulation_staticSignal_i</td>
-<td class="td_code">app.modulation.staticSignal.i</td>
+<td class="td_desc">Constant to be used as OTF input for channel I</td>
 </tr>
 <tr class="tr_odd">
 <td class="td_code">0x100044</td>
 <td>REG</td>
 <td><A href="#app.modulation.staticSignal.q">app.modulation.staticSignal.q</a></td>
-<td class="td_code">app_modulation_staticSignal_q</td>
-<td class="td_code">app.modulation.staticSignal.q</td>
+<td class="td_desc">Constant to be used as OTF input for channel Q</td>
 </tr>
 <tr class="tr_even">
 <td class="td_code">0x100050</td>
 <td>REG</td>
 <td><A href="#app.modulation.ftwH1main">app.modulation.ftwH1main</a></td>
-<td class="td_code">app_modulation_ftwH1main</td>
-<td class="td_code">app.modulation.ftwH1main</td>
+<td class="td_desc"></td>
 </tr>
 <tr class="tr_odd">
 <td class="td_code">0x100058</td>
 <td>REG</td>
 <td><A href="#app.modulation.ftwH1on">app.modulation.ftwH1on</a></td>
-<td class="td_code">app_modulation_ftwH1on</td>
-<td class="td_code">app.modulation.ftwH1on</td>
+<td class="td_desc"></td>
 </tr>
 <tr class="tr_even">
 <td class="td_code">0x100060</td>
 <td>REG</td>
 <td><A href="#app.modulation.dftwH1slip0">app.modulation.dftwH1slip0</a></td>
-<td class="td_code">app_modulation_dftwH1slip0</td>
-<td class="td_code">app.modulation.dftwH1slip0</td>
+<td class="td_desc"></td>
 </tr>
 <tr class="tr_odd">
 <td class="td_code">0x100064</td>
 <td>REG</td>
 <td><A href="#app.modulation.dftwH1slip1">app.modulation.dftwH1slip1</a></td>
-<td class="td_code">app_modulation_dftwH1slip1</td>
-<td class="td_code">app.modulation.dftwH1slip1</td>
+<td class="td_desc"></td>
 </tr>
 <tr class="tr_even">
 <td class="td_code">0x100068</td>
 <td>REG</td>
 <td><A href="#app.modulation.latches">app.modulation.latches</a></td>
-<td class="td_code">app_modulation_latches</td>
-<td class="td_code">app.modulation.latches</td>
+<td class="td_desc"></td>
 </tr>
 </table>
 <h3>1.2. Memory map summary for address space bar4</h3>
@@ -244,71 +217,61 @@
 <th>HW address</th>
 <th>Type</th>
 <th>Name</th>
-<th>HDL prefix</th>
-<th>C prefix</th>
+<th>Description</th>
 </tr>
 <tr class="tr_odd">
 <td class="td_code">0x00000000-0x000fffff</td>
 <td>SUBMAP</td>
 <td>fgc_ddr</td>
-<td class="td_code">fgc_ddr</td>
-<td class="td_code">fgc_ddr</td>
+<td class="td_desc"></td>
 </tr>
 <tr class="tr_even">
 <td class="td_code">0x00000000-0x000fffff</td>
 <td>MEMORY</td>
 <td>fgc_ddr.data64</td>
-<td class="td_code">fgc_ddr_data64</td>
-<td class="td_code">fgc_ddr.data64</td>
+<td class="td_desc">Memory to store function data, access 64bit width</td>
 </tr>
 <tr class="tr_odd">
 <td class="td_code"> +0x00000000</td>
 <td>REG</td>
 <td><A href="#fgc_ddr.data64.data64">fgc_ddr.data64.data64</a></td>
-<td class="td_code">fgc_ddr_data64_data64</td>
-<td class="td_code">fgc_ddr.data64.data64</td>
+<td class="td_desc"></td>
 </tr>
 <tr class="tr_even">
 <td class="td_code">0x20000000-0x3fffffff</td>
 <td>SUBMAP</td>
 <td>acq_ddr</td>
-<td class="td_code">acq_ddr</td>
-<td class="td_code">acq_ddr</td>
+<td class="td_desc"></td>
 </tr>
 <tr class="tr_odd">
 <td class="td_code">0x20000000-0x3fffffff</td>
 <td>MEMORY</td>
 <td>acq_ddr.data32</td>
-<td class="td_code">acq_ddr_data32</td>
-<td class="td_code">acq_ddr.data32</td>
+<td class="td_desc">Memory to store acquisition  data, access 64bit width</td>
 </tr>
 <tr class="tr_even">
 <td class="td_code"> +0x20000000</td>
 <td>REG</td>
 <td><A href="#acq_ddr.data32.data32">acq_ddr.data32.data32</a></td>
-<td class="td_code">acq_ddr_data32_data32</td>
-<td class="td_code">acq_ddr.data32.data32</td>
+<td class="td_desc"></td>
 </tr>
 <tr class="tr_odd">
 <td class="td_code">0x80000000-0x8001ffff</td>
 <td>SUBMAP</td>
 <td>acq_ram</td>
-<td class="td_code">acq_ram</td>
-<td class="td_code">acq_ram</td>
+<td class="td_desc"></td>
 </tr>
 <tr class="tr_even">
 <td class="td_code">0x80000000-0x8001ffff</td>
 <td>MEMORY</td>
 <td>acq_ram.data32</td>
-<td class="td_code">acq_ram_data32</td>
-<td class="td_code">acq_ram.data32</td>
+<td class="td_desc">Memory to store function data, access 32bit width</td>
 </tr>
 <tr class="tr_odd">
 <td class="td_code"> +0x80000000</td>
 <td>REG</td>
 <td><A href="#acq_ram.data32.data32">acq_ram.data32.data32</a></td>
-<td class="td_code">acq_ram_data32_data32</td>
-<td class="td_code">acq_ram.data32.data32</td>
+<td class="td_desc"></td>
 </tr>
 </table>
 <h3>2.1 Register description for address space bar0</h3>
