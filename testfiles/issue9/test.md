@@ -17,11 +17,13 @@ Test AXI4-Lite interface
 
 ### 2.1. register1
 
-- **HW Prefix**: register1
-- **HW Address**: 0x0
-- **C Prefix**: register1
-- **C Block Offset**: 0x0
-- **Access**: write-only
+<table>
+<tr><td><b>HW address:</b></td><td><code>0x0</code></td></tr>
+<tr><td><b>Block offset:</b></td><td><code>0x0</code></td></tr>
+<tr><td><b>HDL prefix:</b></td><td><code>register1</code></td></tr>
+<tr><td><b>C prefix:</b></td><td><code>register1</code></td></tr>
+<tr><td><b>Access:</b></td><td><code>write-only</code></td></tr>
+</table>
 
 Test register 1
 
@@ -81,16 +83,18 @@ Test register 1
 </table>
 
 | Bits | Name | Description |
-|------|------|------------|
+| --- | --- | --- |
 | 31:0 | register1 | Test register 1 |
 
 ### 2.2. block1.register2
 
-- **HW Prefix**: block1_register2
-- **HW Address**: 0x10
-- **C Prefix**: block1.register2
-- **C Block Offset**: 0x0
-- **Access**: read-only
+<table>
+<tr><td><b>HW address:</b></td><td><code>0x10</code></td></tr>
+<tr><td><b>Block offset:</b></td><td><code>0x0</code></td></tr>
+<tr><td><b>HDL prefix:</b></td><td><code>block1_register2</code></td></tr>
+<tr><td><b>C prefix:</b></td><td><code>block1.register2</code></td></tr>
+<tr><td><b>Access:</b></td><td><code>read-only</code></td></tr>
+</table>
 
 Test register 2
 
@@ -176,17 +180,19 @@ Test register 2
 </table>
 
 | Bits | Name | Description |
-|------|------|------------|
+| --- | --- | --- |
 | 0 | field1 | Test field 1 |
 | 3:1 | field2 | Test field 2 |
 
 ### 2.3. block1.register3
 
-- **HW Prefix**: block1_register3
-- **HW Address**: 0x14
-- **C Prefix**: block1.register3
-- **C Block Offset**: 0x4
-- **Access**: read/write
+<table>
+<tr><td><b>HW address:</b></td><td><code>0x14</code></td></tr>
+<tr><td><b>Block offset:</b></td><td><code>0x4</code></td></tr>
+<tr><td><b>HDL prefix:</b></td><td><code>block1_register3</code></td></tr>
+<tr><td><b>C prefix:</b></td><td><code>block1.register3</code></td></tr>
+<tr><td><b>Access:</b></td><td><code>read/write</code></td></tr>
+</table>
 
 Test register 3
 
@@ -246,16 +252,18 @@ Test register 3
 </table>
 
 | Bits | Name | Description |
-|------|------|------------|
+| --- | --- | --- |
 | 31:0 | register3 | Test register 3 |
 
 ### 2.4. block1.block2.register4
 
-- **HW Prefix**: block1_block2_register4
-- **HW Address**: 0x18
-- **C Prefix**: block1.block2.register4
-- **C Block Offset**: 0x0
-- **Access**: read-only
+<table>
+<tr><td><b>HW address:</b></td><td><code>0x18</code></td></tr>
+<tr><td><b>Block offset:</b></td><td><code>0x0</code></td></tr>
+<tr><td><b>HDL prefix:</b></td><td><code>block1_block2_register4</code></td></tr>
+<tr><td><b>C prefix:</b></td><td><code>block1.block2.register4</code></td></tr>
+<tr><td><b>Access:</b></td><td><code>read-only</code></td></tr>
+</table>
 
 Test register 4
 
@@ -341,7 +349,7 @@ Test register 4
 </table>
 
 | Bits | Name | Description |
-|------|------|------------|
+| --- | --- | --- |
 | 0 | field3 | Test field 3 |
 | 3:1 | field4 | Test field 4 |
 

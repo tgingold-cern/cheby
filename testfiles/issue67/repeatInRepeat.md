@@ -38,11 +38,13 @@
 
 ### 2.1. repA.0.block1.repB.0.reg1
 
-- **HW Prefix**: repA_0_block1_repB_0_reg1
-- **HW Address**: 0x0
-- **C Prefix**: repA.0.block1.repB.0.reg1
-- **C Block Offset**: 0x0
-- **Access**: read/write
+<table>
+<tr><td><b>HW address:</b></td><td><code>0x0</code></td></tr>
+<tr><td><b>Block offset:</b></td><td><code>0x0</code></td></tr>
+<tr><td><b>HDL prefix:</b></td><td><code>repA_0_block1_repB_0_reg1</code></td></tr>
+<tr><td><b>C prefix:</b></td><td><code>repA.0.block1.repB.0.reg1</code></td></tr>
+<tr><td><b>Access:</b></td><td><code>read/write</code></td></tr>
+</table>
 
 <table>
   <tr>
@@ -61,16 +63,18 @@
 </table>
 
 | Bits | Name | Description |
-|------|------|------------|
+| --- | --- | --- |
 | 7:0 | reg1 |  |
 
 ### 2.2. repA.0.block1.repB.1.reg1
 
-- **HW Prefix**: repA_0_block1_repB_1_reg1
-- **HW Address**: 0x4
-- **C Prefix**: repA.0.block1.repB.1.reg1
-- **C Block Offset**: 0x0
-- **Access**: read/write
+<table>
+<tr><td><b>HW address:</b></td><td><code>0x4</code></td></tr>
+<tr><td><b>Block offset:</b></td><td><code>0x0</code></td></tr>
+<tr><td><b>HDL prefix:</b></td><td><code>repA_0_block1_repB_1_reg1</code></td></tr>
+<tr><td><b>C prefix:</b></td><td><code>repA.0.block1.repB.1.reg1</code></td></tr>
+<tr><td><b>Access:</b></td><td><code>read/write</code></td></tr>
+</table>
 
 <table>
   <tr>
@@ -89,16 +93,18 @@
 </table>
 
 | Bits | Name | Description |
-|------|------|------------|
+| --- | --- | --- |
 | 7:0 | reg1 |  |
 
 ### 2.3. repA.1.block1.repB.0.reg1
 
-- **HW Prefix**: repA_1_block1_repB_0_reg1
-- **HW Address**: 0x8
-- **C Prefix**: repA.1.block1.repB.0.reg1
-- **C Block Offset**: 0x0
-- **Access**: read/write
+<table>
+<tr><td><b>HW address:</b></td><td><code>0x8</code></td></tr>
+<tr><td><b>Block offset:</b></td><td><code>0x0</code></td></tr>
+<tr><td><b>HDL prefix:</b></td><td><code>repA_1_block1_repB_0_reg1</code></td></tr>
+<tr><td><b>C prefix:</b></td><td><code>repA.1.block1.repB.0.reg1</code></td></tr>
+<tr><td><b>Access:</b></td><td><code>read/write</code></td></tr>
+</table>
 
 <table>
   <tr>
@@ -117,16 +123,18 @@
 </table>
 
 | Bits | Name | Description |
-|------|------|------------|
+| --- | --- | --- |
 | 7:0 | reg1 |  |
 
 ### 2.4. repA.1.block1.repB.1.reg1
 
-- **HW Prefix**: repA_1_block1_repB_1_reg1
-- **HW Address**: 0xc
-- **C Prefix**: repA.1.block1.repB.1.reg1
-- **C Block Offset**: 0x0
-- **Access**: read/write
+<table>
+<tr><td><b>HW address:</b></td><td><code>0xc</code></td></tr>
+<tr><td><b>Block offset:</b></td><td><code>0x0</code></td></tr>
+<tr><td><b>HDL prefix:</b></td><td><code>repA_1_block1_repB_1_reg1</code></td></tr>
+<tr><td><b>C prefix:</b></td><td><code>repA.1.block1.repB.1.reg1</code></td></tr>
+<tr><td><b>Access:</b></td><td><code>read/write</code></td></tr>
+</table>
 
 <table>
   <tr>
@@ -145,16 +153,18 @@
 </table>
 
 | Bits | Name | Description |
-|------|------|------------|
+| --- | --- | --- |
 | 7:0 | reg1 |  |
 
 ### 2.5. repA.2.block1.repB.0.reg1
 
-- **HW Prefix**: repA_2_block1_repB_0_reg1
-- **HW Address**: 0x10
-- **C Prefix**: repA.2.block1.repB.0.reg1
-- **C Block Offset**: 0x0
-- **Access**: read/write
+<table>
+<tr><td><b>HW address:</b></td><td><code>0x10</code></td></tr>
+<tr><td><b>Block offset:</b></td><td><code>0x0</code></td></tr>
+<tr><td><b>HDL prefix:</b></td><td><code>repA_2_block1_repB_0_reg1</code></td></tr>
+<tr><td><b>C prefix:</b></td><td><code>repA.2.block1.repB.0.reg1</code></td></tr>
+<tr><td><b>Access:</b></td><td><code>read/write</code></td></tr>
+</table>
 
 <table>
   <tr>
@@ -173,16 +183,18 @@
 </table>
 
 | Bits | Name | Description |
-|------|------|------------|
+| --- | --- | --- |
 | 7:0 | reg1 |  |
 
 ### 2.6. repA.2.block1.repB.1.reg1
 
-- **HW Prefix**: repA_2_block1_repB_1_reg1
-- **HW Address**: 0x14
-- **C Prefix**: repA.2.block1.repB.1.reg1
-- **C Block Offset**: 0x0
-- **Access**: read/write
+<table>
+<tr><td><b>HW address:</b></td><td><code>0x14</code></td></tr>
+<tr><td><b>Block offset:</b></td><td><code>0x0</code></td></tr>
+<tr><td><b>HDL prefix:</b></td><td><code>repA_2_block1_repB_1_reg1</code></td></tr>
+<tr><td><b>C prefix:</b></td><td><code>repA.2.block1.repB.1.reg1</code></td></tr>
+<tr><td><b>Access:</b></td><td><code>read/write</code></td></tr>
+</table>
 
 <table>
   <tr>
@@ -201,16 +213,18 @@
 </table>
 
 | Bits | Name | Description |
-|------|------|------------|
+| --- | --- | --- |
 | 7:0 | reg1 |  |
 
 ### 2.7. repA.3.block1.repB.0.reg1
 
-- **HW Prefix**: repA_3_block1_repB_0_reg1
-- **HW Address**: 0x18
-- **C Prefix**: repA.3.block1.repB.0.reg1
-- **C Block Offset**: 0x0
-- **Access**: read/write
+<table>
+<tr><td><b>HW address:</b></td><td><code>0x18</code></td></tr>
+<tr><td><b>Block offset:</b></td><td><code>0x0</code></td></tr>
+<tr><td><b>HDL prefix:</b></td><td><code>repA_3_block1_repB_0_reg1</code></td></tr>
+<tr><td><b>C prefix:</b></td><td><code>repA.3.block1.repB.0.reg1</code></td></tr>
+<tr><td><b>Access:</b></td><td><code>read/write</code></td></tr>
+</table>
 
 <table>
   <tr>
@@ -229,16 +243,18 @@
 </table>
 
 | Bits | Name | Description |
-|------|------|------------|
+| --- | --- | --- |
 | 7:0 | reg1 |  |
 
 ### 2.8. repA.3.block1.repB.1.reg1
 
-- **HW Prefix**: repA_3_block1_repB_1_reg1
-- **HW Address**: 0x1c
-- **C Prefix**: repA.3.block1.repB.1.reg1
-- **C Block Offset**: 0x0
-- **Access**: read/write
+<table>
+<tr><td><b>HW address:</b></td><td><code>0x1c</code></td></tr>
+<tr><td><b>Block offset:</b></td><td><code>0x0</code></td></tr>
+<tr><td><b>HDL prefix:</b></td><td><code>repA_3_block1_repB_1_reg1</code></td></tr>
+<tr><td><b>C prefix:</b></td><td><code>repA.3.block1.repB.1.reg1</code></td></tr>
+<tr><td><b>Access:</b></td><td><code>read/write</code></td></tr>
+</table>
 
 <table>
   <tr>
@@ -257,6 +273,6 @@
 </table>
 
 | Bits | Name | Description |
-|------|------|------------|
+| --- | --- | --- |
 | 7:0 | reg1 |  |
 
