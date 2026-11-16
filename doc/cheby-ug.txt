@@ -268,6 +268,14 @@ in Verilog and SystemVerilog it generates an interface array accessed as
 `arr[0].field`.  The default is `false`.  Can be combined with `iogroup`
 and `iogroup-flatten` for nested record arrays.
 
+`repeat-type-prefix`:: When set to `true` on a `repeat` node with
+`repeat-indexing`, the element type is prefixed with the enclosing block
+(e.g. `t_filter_adc` instead of `t_adc`).  Use it when two repeats with the
+same name are in different blocks, which would otherwise both generate the
+same type.  Only the type name changes, signal access is unchanged.  It has
+no effect when the repeat is not inside a record, or when the element type is
+reused from a submap.  The default is `false`.
+
 `reg-prefix`:: If false, discard register prefix and every prefix before
 register.  So only the name of the field is kept. This creates shorter names.
 This attribute is inherited.
@@ -745,6 +753,47 @@ And in Verilog/SystemVerilog:
   t_itf chan[4];
   // Access: top_regmap.chan[0].ctrl
 ----
+
+The element type of an indexed repeat is named `t_<repeat>`.  Two repeats
+with the same name in different blocks therefore generate the same type, and
+the VHDL package fails to compile.  Set `repeat-type-prefix` to `true` to
+prefix the type with the enclosing block.
+
+For example, two blocks, each with a repeat of 4 ADCs:
+
+[source]
+----
+    - block:
+        name: ctrl
+        x-hdl: {iogroup: ctrl, iogroup-flatten: false}
+        children:
+          - repeat:
+              name: adc
+              count: 4
+              x-hdl: {repeat-indexing: true}
+              children:
+                - reg: {name: cfg, access: rw, width: 32}
+    - block:
+        name: filter
+        x-hdl: {iogroup: filter, iogroup-flatten: false}
+        children:
+          - repeat:
+              name: adc
+              count: 4
+              x-hdl: {repeat-indexing: true, repeat-type-prefix: true}
+              children:
+                - reg: {name: depth, access: rw, width: 32}
+----
+
+[options="header"]
+|===
+|                                 | `ctrl.adc` type | `filter.adc` type
+| Without `repeat-type-prefix`    | `t_adc`         | `t_adc` (already declared)
+| With `repeat-type-prefix: true` | `t_adc`         | `t_filter_adc`
+|===
+
+Only the type name changes.  The signals are still accessed as
+`ctrl.adc(0).cfg` and `filter.adc(0).depth`.
 
 === Submap
 

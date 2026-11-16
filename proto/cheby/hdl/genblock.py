@@ -178,17 +178,37 @@ class GenRepeatBlock(GenBlock):
             return None
         return sub
 
-    def _repeat_element_type_info(self):
+    def _repeat_element_type_info(self, parent_itf=None):
         """Return (type_name, external_pkg) for the repeat element interface.
 
         If the repeat body is an included submap with ``reuse-submap-types``,
         the type name comes from the submap's iogroup and is marked external
         (referencing the submap's standalone package).  Otherwise, falls back
-        to the auto-generated ``t_<repeat_name>``."""
+        to the auto-generated ``t_<repeat_name>``, or to
+        ``<parent_type>_<repeat_name>`` when ``repeat-type-prefix`` is set and
+        :param parent_itf: is the enclosing record."""
+        prefix = getattr(self.n, 'hdl_repeat_type_prefix', False)
         reused = self._get_reused_submap()
         if reused is not None:
+            if prefix:
+                import sys
+                sys.stderr.write(
+                    "warning: repeat-type-prefix on '{}' ignored because the "
+                    "element type is reused from '{}'\n".format(
+                        self.n.get_path(), reused.c_submap.hdl_module_name + '_pkg'))
             return ('t_' + reused.c_submap.hdl_iogroup,
                     reused.c_submap.hdl_module_name + '_pkg')
+        if prefix:
+            if parent_itf is None:
+                import sys
+                sys.stderr.write(
+                    "warning: repeat-type-prefix on '{}' has no effect: the "
+                    "repeat is not an indexed array inside a record\n".format(
+                        self.n.get_path()))
+            else:
+                if isinstance(parent_itf, HDLInterfaceArray):
+                    parent_itf = parent_itf.prefix
+                return (parent_itf.name + '_' + self._repeat_port_name(), None)
         return (self._repeat_type_name(), None)
 
     def gen_ports(self):
@@ -221,7 +241,7 @@ class GenRepeatBlock(GenBlock):
         prev_itf = self.root.h_itf
         prev_ports = self.root.h_ports
 
-        type_name, ext_pkg = self._repeat_element_type_info()
+        type_name, ext_pkg = self._repeat_element_type_info(prev_itf)
         itf = HDLInterface(type_name, external_pkg=ext_pkg)
         itf_arr = HDLInterfaceArray(itf, self.n.count)
 

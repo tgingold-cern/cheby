@@ -214,6 +214,7 @@ def expand_x_hdl_block(n, dct):
     n.hdl_iogroup_flatten = True
     n.hdl_repeat_indexing = False
     n.hdl_repeat_idx_separator = None
+    n.hdl_repeat_type_prefix = False
     for k, v in dct.items():
         if k in ('reg-prefix', 'block-prefix', 'name-prefix'):
             pass
@@ -229,6 +230,12 @@ def expand_x_hdl_block(n, dct):
             n.hdl_repeat_idx_separator = parser.read_text(n, k, v, allow_empty=True)
         elif k == 'repeat-indexing':
             n.hdl_repeat_indexing = parser.read_bool(n, k, v)
+        elif k == 'repeat-type-prefix':
+            if not isinstance(n, tree.Repeat):
+                parser.error(
+                    "'repeat-type-prefix' is only valid on repeat nodes in {}".format(
+                        n.get_path()))
+            n.hdl_repeat_type_prefix = parser.read_bool(n, k, v)
         else:
             parser.error("unhandled '{}' in x-hdl of {}".format(
                 k, n.get_path()))
@@ -445,6 +452,7 @@ def unroll_repeat(n):
     res.hdl_repeat_indexing = getattr(n, 'hdl_repeat_indexing', False)
     res.count = n.count
     res.hdl_repeat_idx_separator = getattr(n, 'hdl_repeat_idx_separator', None)
+    res.hdl_repeat_type_prefix = getattr(n, 'hdl_repeat_type_prefix', False)
     if hasattr(n, 'x_hdl'):
         res.x_hdl = n.x_hdl
     for i in range(n.count):

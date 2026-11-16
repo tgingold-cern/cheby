@@ -1,0 +1,42 @@
+memory-map:
+  bus: wb-32-be
+  name: repeat_type_prefix1
+  description: two indexed repeats named chan; repeat-type-prefix avoids the t_chan collision
+  children:
+    - repeat:
+        name: chan
+        count: 2
+        x-hdl:
+          iogroup: chan
+          iogroup-flatten: false
+          repeat-indexing: true
+        children:
+          - reg:
+              name: cfg
+              access: rw
+              width: 32
+    - block:
+        name: blk
+        x-hdl:
+          iogroup: blk
+          iogroup-flatten: false
+        children:
+          - reg:
+              name: ctrl
+              access: rw
+              width: 32
+          - repeat:
+              name: chan
+              count: 2
+              x-hdl:
+                repeat-indexing: true
+                repeat-type-prefix: true
+              children:
+                - reg:
+                    name: depth
+                    access: rw
+                    width: 32
+                - reg:
+                    name: val
+                    access: ro
+                    width: 32
