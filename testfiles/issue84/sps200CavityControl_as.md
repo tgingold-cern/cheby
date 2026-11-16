@@ -13,7 +13,7 @@ Memory Map for SPS TWC200 Cavity Control
 | `0x000008` | REG | [hwInfo.serialNumber](#212-hwinfoserialnumber) | HW serial number |
 | `0x000010` | REG | [hwInfo.firmwareVersion](#213-hwinfofirmwareversion) | Firmware Version |
 | `0x000014` | REG | [hwInfo.memMapVersion](#214-hwinfomemmapversion) | Memory Map Version |
-| `0x000018` | REG | [hwInfo.echo](#215-hwinfoecho) | Echo register. This version of the standard foresees only 8bits linked to real memory |
+| `0x000018` | REG | [hwInfo.echo](#215-hwinfoecho) | Register used solely by software. No interaction with the firmware foreseen. |
 | `0x100000-0x17ffff` | SUBMAP | app |  |
 | `0x100000-0x1003ff` | SUBMAP | app.modulation |  |
 | `0x100000-0x10001f` | SUBMAP | app.modulation.ipInfo |  |
@@ -21,7 +21,7 @@ Memory Map for SPS TWC200 Cavity Control
 | `0x100004` | REG | [app.modulation.ipInfo.ident](#217-appmodulationipinfoident) | IP Ident code |
 | `0x100008` | REG | [app.modulation.ipInfo.firmwareVersion](#218-appmodulationipinfofirmwareversion) | Firmware Version |
 | `0x10000c` | REG | [app.modulation.ipInfo.memMapVersion](#219-appmodulationipinfomemmapversion) | Memory Map Version |
-| `0x100010` | REG | [app.modulation.ipInfo.echo](#2110-appmodulationipinfoecho) | Echo register. This version of the standard foresees only 8bits linked to real memory |
+| `0x100010` | REG | [app.modulation.ipInfo.echo](#2110-appmodulationipinfoecho) | Register used solely by software. No interaction with the firmware foreseen. |
 | `0x100020` | REG | [app.modulation.control](#2111-appmodulationcontrol) |  |
 | `0x100030-0x10003f` | BLOCK | app.modulation.testSignal |  |
 | `0x100030` | REG | [app.modulation.testSignal.amplitude](#2112-appmodulationtestsignalamplitude) | Amplitude for the test signal |
