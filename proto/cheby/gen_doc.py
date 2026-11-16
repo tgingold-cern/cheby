@@ -3,12 +3,14 @@ import cheby.layout as layout
 
 
 def brief_description(node, hide_comments=False, max_len=120):
-    """First-line description suitable for memory-map overview tables."""
-    text = ""
-    if getattr(node, "description", None):
-        text = node.description
-    elif getattr(node, "comment", None) and not hide_comments:
-        text = node.comment
+    """Short text for memory-map overview tables.
+
+    Use the comment (the short text) when there is one, otherwise fall
+    back to the first line of the description, truncated to max_len."""
+    comment = getattr(node, "comment", None)
+    if comment and not hide_comments:
+        return " ".join(comment.split())
+    text = getattr(node, "description", None)
     if not text:
         return ""
     text = text.split("\n", 1)[0].strip()
