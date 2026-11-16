@@ -1,24 +1,28 @@
-## Memory Map Summary
+# repeat_iogroup_nosep_hdlprefix
 
 Doc HDL prefix for non-indexed iogroup repeats
 
-| HW address | Type | Name | HDL Name |
-|------------|------|------|----------|
-| 0x0-0x7 | REPEAT (adc) | adc | adc |
-| 0x0-0x3 | BLOCK | adc0 | adc0 |
-| 0x0 | REG | adc0.spie_cmd_mem_wdata | adc0_spie_cmd_mem_wdata |
-| 0x4-0x7 | BLOCK | adc1 | adc1 |
-| 0x4 | REG | adc1.spie_cmd_mem_wdata | adc1_spie_cmd_mem_wdata |
+## 1. Memory map summary
 
-## Registers Description
+| HW address | Type | Name | Description |
+| --- | --- | --- | --- |
+| `0x0-0x7` | REPEAT (adc) | adc |  |
+| `0x0-0x3` | BLOCK | adc0 |  |
+| `0x0` | REG | [adc0.spie_cmd_mem_wdata](#21-adc0spie_cmd_mem_wdata) |  |
+| `0x4-0x7` | BLOCK | adc1 |  |
+| `0x4` | REG | [adc1.spie_cmd_mem_wdata](#22-adc1spie_cmd_mem_wdata) |  |
 
-### Register: adc0.spie_cmd_mem_wdata
+## 2. Register description
 
-- **HW Prefix**: adc0_spie_cmd_mem_wdata
-- **HW Address**: 0x0
-- **C Prefix**: adc0.spie_cmd_mem_wdata
-- **C Block Offset**: 0x0
-- **Access**: read/write
+### 2.1. adc0.spie_cmd_mem_wdata
+
+<table>
+<tr><td><b>HW address:</b></td><td><code>0x0</code></td></tr>
+<tr><td><b>Block offset:</b></td><td><code>0x0</code></td></tr>
+<tr><td><b>HDL prefix:</b></td><td><code>adc0_spie_cmd_mem_wdata</code></td></tr>
+<tr><td><b>C prefix:</b></td><td><code>adc0.spie_cmd_mem_wdata</code></td></tr>
+<tr><td><b>Access:</b></td><td><code>read/write</code></td></tr>
+</table>
 
 <table>
   <tr>
@@ -76,16 +80,18 @@ Doc HDL prefix for non-indexed iogroup repeats
 </table>
 
 | Bits | Name | Description |
-|------|------|------------|
+| --- | --- | --- |
 | 31:0 | spie_cmd_mem_wdata |  |
 
-### Register: adc1.spie_cmd_mem_wdata
+### 2.2. adc1.spie_cmd_mem_wdata
 
-- **HW Prefix**: adc1_spie_cmd_mem_wdata
-- **HW Address**: 0x4
-- **C Prefix**: adc1.spie_cmd_mem_wdata
-- **C Block Offset**: 0x0
-- **Access**: read/write
+<table>
+<tr><td><b>HW address:</b></td><td><code>0x4</code></td></tr>
+<tr><td><b>Block offset:</b></td><td><code>0x0</code></td></tr>
+<tr><td><b>HDL prefix:</b></td><td><code>adc1_spie_cmd_mem_wdata</code></td></tr>
+<tr><td><b>C prefix:</b></td><td><code>adc1.spie_cmd_mem_wdata</code></td></tr>
+<tr><td><b>Access:</b></td><td><code>read/write</code></td></tr>
+</table>
 
 <table>
   <tr>
@@ -143,6 +149,6 @@ Doc HDL prefix for non-indexed iogroup repeats
 </table>
 
 | Bits | Name | Description |
-|------|------|------------|
+| --- | --- | --- |
 | 31:0 | spie_cmd_mem_wdata |  |
 

@@ -1,34 +1,38 @@
-## Memory Map Summary
+# repeat_idx_separator
 
 Test repeat index separator behavior
 
-| HW address | Type | Name | HDL Name |
-|------------|------|------|----------|
-| 0x00-0x07 | REPEAT | rep0 | rep0 |
-| 0x00-0x03 | BLOCK | rep0.0 | rep0_0 |
-| 0x00 | REG | rep0.0.r | rep0_0_r |
-| 0x04-0x07 | BLOCK | rep0.1 | rep0_1 |
-| 0x04 | REG | rep0.1.r | rep0_1_r |
-| 0x08-0x0f | REPEAT | rep1 | rep1 |
-| 0x08-0x0b | BLOCK | rep10 | rep10 |
-| 0x08 | REG | rep10.r | rep10_r |
-| 0x0c-0x0f | BLOCK | rep11 | rep11 |
-| 0x0c | REG | rep11.r | rep11_r |
-| 0x10-0x17 | REPEAT | rep2 | rep2 |
-| 0x10-0x13 | BLOCK | rep2_0 | rep2_0 |
-| 0x10 | REG | rep2_0.r | rep2_0_r |
-| 0x14-0x17 | BLOCK | rep2_1 | rep2_1 |
-| 0x14 | REG | rep2_1.r | rep2_1_r |
+## 1. Memory map summary
 
-## Registers Description
+| HW address | Type | Name | Description |
+| --- | --- | --- | --- |
+| `0x00-0x07` | REPEAT | rep0 |  |
+| `0x00-0x03` | BLOCK | rep0.0 |  |
+| `0x00` | REG | [rep0.0.r](#21-rep00r) |  |
+| `0x04-0x07` | BLOCK | rep0.1 |  |
+| `0x04` | REG | [rep0.1.r](#22-rep01r) |  |
+| `0x08-0x0f` | REPEAT | rep1 |  |
+| `0x08-0x0b` | BLOCK | rep10 |  |
+| `0x08` | REG | [rep10.r](#23-rep10r) |  |
+| `0x0c-0x0f` | BLOCK | rep11 |  |
+| `0x0c` | REG | [rep11.r](#24-rep11r) |  |
+| `0x10-0x17` | REPEAT | rep2 |  |
+| `0x10-0x13` | BLOCK | rep2_0 |  |
+| `0x10` | REG | [rep2_0.r](#25-rep2_0r) |  |
+| `0x14-0x17` | BLOCK | rep2_1 |  |
+| `0x14` | REG | [rep2_1.r](#26-rep2_1r) |  |
 
-### Register: rep0.0.r
+## 2. Register description
 
-- **HW Prefix**: rep0_0_r
-- **HW Address**: 0x0
-- **C Prefix**: rep0.0.r
-- **C Block Offset**: 0x0
-- **Access**: read/write
+### 2.1. rep0.0.r
+
+<table>
+<tr><td><b>HW address:</b></td><td><code>0x0</code></td></tr>
+<tr><td><b>Block offset:</b></td><td><code>0x0</code></td></tr>
+<tr><td><b>HDL prefix:</b></td><td><code>rep0_0_r</code></td></tr>
+<tr><td><b>C prefix:</b></td><td><code>rep0.0.r</code></td></tr>
+<tr><td><b>Access:</b></td><td><code>read/write</code></td></tr>
+</table>
 
 <table>
   <tr>
@@ -86,16 +90,18 @@ Test repeat index separator behavior
 </table>
 
 | Bits | Name | Description |
-|------|------|------------|
+| --- | --- | --- |
 | 31:0 | r |  |
 
-### Register: rep0.1.r
+### 2.2. rep0.1.r
 
-- **HW Prefix**: rep0_1_r
-- **HW Address**: 0x4
-- **C Prefix**: rep0.1.r
-- **C Block Offset**: 0x0
-- **Access**: read/write
+<table>
+<tr><td><b>HW address:</b></td><td><code>0x4</code></td></tr>
+<tr><td><b>Block offset:</b></td><td><code>0x0</code></td></tr>
+<tr><td><b>HDL prefix:</b></td><td><code>rep0_1_r</code></td></tr>
+<tr><td><b>C prefix:</b></td><td><code>rep0.1.r</code></td></tr>
+<tr><td><b>Access:</b></td><td><code>read/write</code></td></tr>
+</table>
 
 <table>
   <tr>
@@ -153,16 +159,18 @@ Test repeat index separator behavior
 </table>
 
 | Bits | Name | Description |
-|------|------|------------|
+| --- | --- | --- |
 | 31:0 | r |  |
 
-### Register: rep10.r
+### 2.3. rep10.r
 
-- **HW Prefix**: rep10_r
-- **HW Address**: 0x8
-- **C Prefix**: rep10.r
-- **C Block Offset**: 0x0
-- **Access**: read/write
+<table>
+<tr><td><b>HW address:</b></td><td><code>0x8</code></td></tr>
+<tr><td><b>Block offset:</b></td><td><code>0x0</code></td></tr>
+<tr><td><b>HDL prefix:</b></td><td><code>rep10_r</code></td></tr>
+<tr><td><b>C prefix:</b></td><td><code>rep10.r</code></td></tr>
+<tr><td><b>Access:</b></td><td><code>read/write</code></td></tr>
+</table>
 
 <table>
   <tr>
@@ -220,16 +228,18 @@ Test repeat index separator behavior
 </table>
 
 | Bits | Name | Description |
-|------|------|------------|
+| --- | --- | --- |
 | 31:0 | r |  |
 
-### Register: rep11.r
+### 2.4. rep11.r
 
-- **HW Prefix**: rep11_r
-- **HW Address**: 0xc
-- **C Prefix**: rep11.r
-- **C Block Offset**: 0x0
-- **Access**: read/write
+<table>
+<tr><td><b>HW address:</b></td><td><code>0xc</code></td></tr>
+<tr><td><b>Block offset:</b></td><td><code>0x0</code></td></tr>
+<tr><td><b>HDL prefix:</b></td><td><code>rep11_r</code></td></tr>
+<tr><td><b>C prefix:</b></td><td><code>rep11.r</code></td></tr>
+<tr><td><b>Access:</b></td><td><code>read/write</code></td></tr>
+</table>
 
 <table>
   <tr>
@@ -287,16 +297,18 @@ Test repeat index separator behavior
 </table>
 
 | Bits | Name | Description |
-|------|------|------------|
+| --- | --- | --- |
 | 31:0 | r |  |
 
-### Register: rep2_0.r
+### 2.5. rep2_0.r
 
-- **HW Prefix**: rep2_0_r
-- **HW Address**: 0x10
-- **C Prefix**: rep2_0.r
-- **C Block Offset**: 0x0
-- **Access**: read/write
+<table>
+<tr><td><b>HW address:</b></td><td><code>0x10</code></td></tr>
+<tr><td><b>Block offset:</b></td><td><code>0x0</code></td></tr>
+<tr><td><b>HDL prefix:</b></td><td><code>rep2_0_r</code></td></tr>
+<tr><td><b>C prefix:</b></td><td><code>rep2_0.r</code></td></tr>
+<tr><td><b>Access:</b></td><td><code>read/write</code></td></tr>
+</table>
 
 <table>
   <tr>
@@ -354,16 +366,18 @@ Test repeat index separator behavior
 </table>
 
 | Bits | Name | Description |
-|------|------|------------|
+| --- | --- | --- |
 | 31:0 | r |  |
 
-### Register: rep2_1.r
+### 2.6. rep2_1.r
 
-- **HW Prefix**: rep2_1_r
-- **HW Address**: 0x14
-- **C Prefix**: rep2_1.r
-- **C Block Offset**: 0x0
-- **Access**: read/write
+<table>
+<tr><td><b>HW address:</b></td><td><code>0x14</code></td></tr>
+<tr><td><b>Block offset:</b></td><td><code>0x0</code></td></tr>
+<tr><td><b>HDL prefix:</b></td><td><code>rep2_1_r</code></td></tr>
+<tr><td><b>C prefix:</b></td><td><code>rep2_1.r</code></td></tr>
+<tr><td><b>Access:</b></td><td><code>read/write</code></td></tr>
+</table>
 
 <table>
   <tr>
@@ -421,6 +435,6 @@ Test repeat index separator behavior
 </table>
 
 | Bits | Name | Description |
-|------|------|------------|
+| --- | --- | --- |
 | 31:0 | r |  |
 

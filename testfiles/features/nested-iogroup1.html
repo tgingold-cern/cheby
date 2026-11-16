@@ -49,36 +49,31 @@
 <th>HW address</th>
 <th>Type</th>
 <th>Name</th>
-<th>HDL prefix</th>
-<th>C prefix</th>
+<th>Description</th>
 </tr>
 <tr class="tr_odd">
 <td class="td_code">0x0</td>
 <td>REG</td>
 <td><A href="#areg">areg</a></td>
-<td class="td_code">areg</td>
-<td class="td_code">areg</td>
+<td class="td_desc"></td>
 </tr>
 <tr class="tr_even">
 <td class="td_code">0x8-0xf</td>
 <td>BLOCK (blk_regs)</td>
 <td>blk</td>
-<td class="td_code">blk</td>
-<td class="td_code">blk</td>
+<td class="td_desc"></td>
 </tr>
 <tr class="tr_odd">
 <td class="td_code">0x8</td>
 <td>REG</td>
 <td><A href="#blk.breg1">blk.breg1</a></td>
-<td class="td_code">blk_regs.breg1</td>
-<td class="td_code">blk.breg1</td>
+<td class="td_desc"></td>
 </tr>
 <tr class="tr_even">
 <td class="td_code">0xc</td>
 <td>REG</td>
 <td><A href="#blk.breg2">blk.breg2</a></td>
-<td class="td_code">blk_regs.breg2</td>
-<td class="td_code">blk.breg2</td>
+<td class="td_desc"></td>
 </tr>
 </table>
 
@@ -86,10 +81,11 @@
 <a name="areg"></a>
 <h3>2.1. areg</h3>
 <table cellpadding=0 cellspacing=0 border=0>
-<tr><td><b>HW prefix:</b></td><td class="td_code">areg</td></tr>
 <tr><td><b>HW address:</b></td><td class="td_code">0x0</td></tr>
+<tr><td><b>Block offset:</b></td><td class="td_code">0x0</td></tr>
+<tr><td><b>HDL prefix:</b></td><td class="td_code">areg</td></tr>
 <tr><td><b>C prefix:</b></td><td class="td_code">areg</td></tr>
-<tr><td><b>C block offset:</b></td><td class="td_code">0x0</td></tr>
+<tr><td><b>Access:</b></td><td class="td_code">read/write</td></tr>
 </table>
 <table cellpadding=0 cellspacing=0 border=0>
 <tr>
@@ -146,16 +142,17 @@
 </tr>
 </table>
 <dl>
-  <dt><b>areg</b> [<i>rw</i>]</dt>
+  <dt><b>areg</b></dt>
   <dd></dd>
 </dl>
 <a name="blk.breg1"></a>
 <h3>2.2. blk.breg1</h3>
 <table cellpadding=0 cellspacing=0 border=0>
-<tr><td><b>HW prefix:</b></td><td class="td_code">blk_regs.breg1</td></tr>
 <tr><td><b>HW address:</b></td><td class="td_code">0x8</td></tr>
+<tr><td><b>Block offset:</b></td><td class="td_code">0x0</td></tr>
+<tr><td><b>HDL prefix:</b></td><td class="td_code">blk_regs.breg1</td></tr>
 <tr><td><b>C prefix:</b></td><td class="td_code">blk.breg1</td></tr>
-<tr><td><b>C block offset:</b></td><td class="td_code">0x0</td></tr>
+<tr><td><b>Access:</b></td><td class="td_code">read/write</td></tr>
 </table>
 <table cellpadding=0 cellspacing=0 border=0>
 <tr>
@@ -212,16 +209,17 @@
 </tr>
 </table>
 <dl>
-  <dt><b>breg1</b> [<i>rw</i>]</dt>
+  <dt><b>breg1</b></dt>
   <dd></dd>
 </dl>
 <a name="blk.breg2"></a>
 <h3>2.3. blk.breg2</h3>
 <table cellpadding=0 cellspacing=0 border=0>
-<tr><td><b>HW prefix:</b></td><td class="td_code">blk_regs.breg2</td></tr>
 <tr><td><b>HW address:</b></td><td class="td_code">0xc</td></tr>
+<tr><td><b>Block offset:</b></td><td class="td_code">0x4</td></tr>
+<tr><td><b>HDL prefix:</b></td><td class="td_code">blk_regs.breg2</td></tr>
 <tr><td><b>C prefix:</b></td><td class="td_code">blk.breg2</td></tr>
-<tr><td><b>C block offset:</b></td><td class="td_code">0x4</td></tr>
+<tr><td><b>Access:</b></td><td class="td_code">read-only</td></tr>
 </table>
 <table cellpadding=0 cellspacing=0 border=0>
 <tr>
@@ -278,7 +276,7 @@
 </tr>
 </table>
 <dl>
-  <dt><b>breg2</b> [<i>ro</i>]</dt>
+  <dt><b>breg2</b></dt>
   <dd></dd>
 </dl>
 

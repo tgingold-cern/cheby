@@ -2,6 +2,22 @@ import cheby.tree as tree
 import cheby.layout as layout
 
 
+def brief_description(node, hide_comments=False, max_len=120):
+    """Short text for memory-map overview tables.
+
+    Use the comment (the short text) when there is one, otherwise the
+    description.  Only the first line is kept, truncated to max_len."""
+    text = getattr(node, "comment", None)
+    if not text or hide_comments:
+        text = getattr(node, "description", None)
+    if not text:
+        return ""
+    text = text.split("\n", 1)[0].strip()
+    if len(text) > max_len:
+        text = text[: max_len - 1].rstrip() + "..."
+    return text
+
+
 class TableCell(object):
     def __init__(self, content, colspan=1, style=None):
         self.content = content

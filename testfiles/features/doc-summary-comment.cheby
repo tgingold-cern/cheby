@@ -1,0 +1,23 @@
+memory-map:
+  bus: wb-32-be
+  name: doc_summary_comment
+  description: the summary uses the comment when present, else the description
+  children:
+    - reg:
+        name: comment_only
+        comment: short comment only
+        width: 32
+        access: rw
+    - reg:
+        name: description_only
+        description: |-
+          First line of a long description.
+          This second line is not shown in the summary.
+        width: 32
+        access: rw
+    - reg:
+        name: both
+        comment: short comment wins
+        description: long description, only shown in the register section
+        width: 32
+        access: ro
